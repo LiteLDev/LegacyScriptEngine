@@ -26,7 +26,7 @@
 #include <llapi/mc/ActorMobilityUtils.hpp>
 #include <llapi/mc/IConstBlockSource.hpp>
 #include <llapi/mc/EntityContext.hpp>
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 
 using magic_enum::enum_integer;

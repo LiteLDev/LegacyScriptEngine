@@ -1,7 +1,7 @@
 #pragma once
 #if defined(LLSE_BACKEND_PYTHON)
 #include <map>
-#include <ScriptX/ScriptX.h>
+#include <scriptx/ScriptX.h>
 #include "Configs.h"
 #include <string>
 #include <filesystem>

@@ -24,7 +24,7 @@
 #include <llapi/mc/Dimension.hpp>
 #include "api/BaseAPI.h"
 #include "api/EntityAPI.h"
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 #include <llapi/mc/JsonHelpers.hpp>
 
 

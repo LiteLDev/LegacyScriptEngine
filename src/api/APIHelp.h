@@ -5,7 +5,7 @@
 #include <exception>
 #include <sstream>
 
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 #include <llapi/mc/Level.hpp>
 

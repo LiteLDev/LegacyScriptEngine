@@ -9,7 +9,7 @@ add_requires("nbt_cpp v1.0.1")
 add_requires("lightwebsocketclient v1.0.0")
 add_requires("threadpool v1.0.0")
 add_requires("se-backend v1.0.0")
--- add_requires("scriptx v1.0.0")
+add_requires("scriptx v1.0.0")
 
 -- xmake-repo
 add_requires("nlohmann_json v3.11.2")
@@ -24,7 +24,7 @@ target("ScriptEngine")
     add_files("src/**.cpp")
     set_languages("c++20")
     -- liteldev-repo
-    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend")
+    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx")
     -- xmake-repo
     add_packages("nlohmann_json", "openssl", "gsl", "simpleini", "toml++", "magic_enum")
     add_includedirs("src")

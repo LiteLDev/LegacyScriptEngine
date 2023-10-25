@@ -3,7 +3,7 @@
 #pragma warning(disable : 4251)
 #include <map>
 #include <node.h>
-#include <ScriptX/ScriptX.h>
+#include <scriptx/ScriptX.h>
 #include "main/Configs.h"
 #include <string>
 

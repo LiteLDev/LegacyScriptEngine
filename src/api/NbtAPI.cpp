@@ -15,7 +15,7 @@
 #include <llapi/mc/StringTag.hpp>
 #include <llapi/mc/ListTag.hpp>
 #include <llapi/mc/CompoundTag.hpp>
-#include <magic_enum/magic_enum.hpp>
+#include <magic_enum.hpp>
 
 using magic_enum::enum_cast;
 

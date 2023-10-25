@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scriptx/ScriptX.h>
+#include <scriptx/include/ScriptX/ScriptX.h>
 
 using script::Arguments;
 using script::Array;

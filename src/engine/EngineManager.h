@@ -1,5 +1,5 @@
 #pragma once
-#include <scriptx/ScriptX.h>
+#include <
 #include "main/PluginManager.h"
 #include <string>
 #include <map>

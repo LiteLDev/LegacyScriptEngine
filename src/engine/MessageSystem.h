@@ -1,5 +1,5 @@
 #pragma once
-#include <scriptx/ScriptX.h>
+#include <scriptx/include/ScriptX/ScriptX.h>
 #include <windows.h>
 #include "api/APIHelp.h"
 #include "engine/OperationCount.h"

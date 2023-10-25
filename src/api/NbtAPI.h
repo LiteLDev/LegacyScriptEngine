@@ -11,7 +11,7 @@
 #include <llapi/mc/StringTag.hpp>
 #include <llapi/mc/ByteArrayTag.hpp>
 #include <llapi/mc/ListTag.hpp>
-#include <llapi/mc/CompoundTag.hpp>
+#include <mc/nbt/CompoundTag.h>
 
 extern struct Tag;
 

@@ -1,13 +1,13 @@
 #include "api/APIHelp.h"
-#include <liteloader/Config.h>
+// #include <liteloader/Config.h> //todo
 #include "api/LlAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/EngineOwnData.h"
-#include <llapi/utils/NetworkHelper.h>
-#include <llapi/utils/WinHelper.h>
-#include <liteloader/PluginManager.h>
+#include <ll/api/utils/NetworkHelper.h>
+#include <ll/api/utils/WinHelper.h>
+// #include <liteloader/PluginManager.h> //todo
 #include "utils/Utils.h"
-#include <liteloader/Version.h>
+// #include <liteloader/Version.h> //todo
 #include <string>
 #include <filesystem>
 #include <map>

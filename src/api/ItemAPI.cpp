@@ -5,9 +5,9 @@
 #include "api/EntityAPI.h"
 #include "api/NbtAPI.h"
 #include "api/NativeAPI.h"
-#include <llapi/mc/CompoundTag.hpp>
-#include <llapi/mc/ItemStack.hpp>
-#include <llapi/mc/Item.hpp>
+#include <mc/nbt/CompoundTag.h>
+#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/item/Item.h>
 #include <vector>
 #include <string>
 

@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include <llapi/mc/BlockSource.hpp>
+#include <mc/world/level/BlockSource.h>
 #include <llapi/mc/Facing.hpp>
 #include <llapi/ServerAPI.h>
-#include <llapi/mc/ActorDamageSource.hpp>
+#include <mc/world/actor/ActorDamageSource.h>
 
 #include "main/Global.hpp"
 #include "api/APIHelp.h"

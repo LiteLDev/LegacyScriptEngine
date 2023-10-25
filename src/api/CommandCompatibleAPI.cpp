@@ -6,8 +6,8 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "engine/EngineOwnData.h"
-#include <llapi/utils/STLHelper.h>
-#include <llapi/RegCommandAPI.h>
+#include "legacyapi/utils/STLHelper.h"
+#include <ll/api/command/RegisterCommandHelper.h>
 #include "main/Global.hpp"
 #include <filesystem>
 #include "main/Configs.h"

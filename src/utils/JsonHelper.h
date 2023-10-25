@@ -3,13 +3,14 @@
 #include <fifo_map/fifo_map.hpp>
 #include <string>
 #include <filesystem>
-#include <llapi/utils/FileHelper.h>
-#include <llapi/LoggerAPI.h>
+#include <ll/api/utils/FileHelper.h>
+#include <ll/api/Logger.h>
+#include <ll/api/i18n/I18nAPI.h>
 
 using namespace nlohmann;
 using namespace std;
 
-extern Logger logger;
+extern ll::Logger logger;
 
 template<class Key, class T, class dummy_compare, class Allocator>
 using workaround_fifo_map = fifo_map<Key, T, fifo_map_compare<Key>, Allocator>;
@@ -18,7 +19,7 @@ using fifo_json = basic_json<workaround_fifo_map>;
 inline fifo_json CreateJson(const std::string& path, const std::string& defContent, bool allowComment = true)
 {
     fifo_json jsonConf;
-    if (!filesystem::exists(str2wstr(path)))
+    if (!filesystem::exists(ll::StringUtils::str2wstr(path)))
     {
         if (path.find('/') != std::string::npos) { // e.g. plugins/LiteLoader/LiteLoader.json
             std::size_t pos = path.find_last_of('/');
@@ -47,7 +48,7 @@ inline fifo_json CreateJson(const std::string& path, const std::string& defConte
             catch (exception& e)
             {
                 logger.error("Fail to parse default json content!");
-                logger.error(TextEncoding::toUTF8(e.what()));
+                logger.error(ll::i18n::TextEncoding::toUTF8(e.what()));
                 jsonConf = fifo_json::object();
             }
         }
@@ -78,7 +79,7 @@ inline fifo_json CreateJson(const std::string& path, const std::string& defConte
             catch (exception& e)
             {
                 logger.error("Fail to parse json content in file!");
-                logger.error(TextEncoding::toUTF8(e.what()));
+                logger.error(ll::i18n::TextEncoding::toUTF8(e.what()));
                 jsonConf = fifo_json::object();
             }
         }

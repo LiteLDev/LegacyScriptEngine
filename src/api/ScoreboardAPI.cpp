@@ -1,7 +1,7 @@
 #include "api/APIHelp.h"
 #include <llapi/mc/Scoreboard.hpp>
-#include <llapi/mc/Objective.hpp>
-#include <llapi/mc/Player.hpp>
+#include <mc/world/scores/Objective.h>
+#include <mc/world/actor/player/Player.h>
 #include "api/ScoreboardAPI.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"

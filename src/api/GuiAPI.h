@@ -1,7 +1,8 @@
 #pragma once
 #include "api/APIHelp.h"
 
-#include <llapi/FormUI.h>
+#include <ll/api/form/SimpleForm.h>
+#include <ll/api/form/CustomForm.h>
 
 //////////////////// Classes ////////////////////
 

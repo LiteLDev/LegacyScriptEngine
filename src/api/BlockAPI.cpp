@@ -7,12 +7,12 @@
 #include "api/BlockEntityAPI.h"
 #include "api/NbtAPI.h"
 #include "api/NativeAPI.h"
-#include <llapi/mc/HashedString.hpp>
-#include <llapi/mc/Level.hpp>
-#include <llapi/mc/Block.hpp>
-#include <llapi/mc/CompoundTag.hpp>
-#include <llapi/mc/BlockSource.hpp>
-#include <llapi/mc/BlockInstance.hpp>
+#include <mc/deps/core/string/HashedString.h>
+#include <mc/world/level/Level.h>
+#include <mc/world/level/block/Block.h>
+#include <mc/nbt/CompoundTag.h>
+#include <mc/world/level/BlockSource.h>
+#include <mc/BlockInstance.hpp>
 #include <llapi/mc/BlockActor.hpp>
 #include <exception>
 

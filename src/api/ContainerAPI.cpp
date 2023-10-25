@@ -2,8 +2,8 @@
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
 #include "api/NativeAPI.h"
-#include <llapi/mc/ItemStack.hpp>
-#include <llapi/mc/Container.hpp>
+#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/Container.h
 using namespace std;
 
 //////////////////// Class Definition ////////////////////

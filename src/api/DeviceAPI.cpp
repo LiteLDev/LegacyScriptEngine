@@ -1,8 +1,8 @@
 #include "api/APIHelp.h"
 #include "api/DeviceAPI.h"
 #include <string>
-#include <llapi/mc/Player.hpp>
-#include <llapi/mc/Level.hpp>
+#include <mc/world/actor/player/Player.h>
+#include <mc/world/level/Level.h>
 #include <llapi/mc/NetworkIdentifier.hpp>
 using namespace std;
 

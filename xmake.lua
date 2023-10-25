@@ -14,21 +14,25 @@ add_requires("levilamina v1.0.0")
 add_requires("fifo_map v1.0.0")
 
 -- xmake-repo
+add_requires("asio 1.28.0")
 add_requires("nlohmann_json v3.11.2")
 add_requires("openssl 1.1.1-t")
 add_requires("gsl v3.1.0")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
 add_requires("magic_enum v0.8.2")
+add_requires("entt v3.11.1")
+add_requires("leveldb 1.23")
+add_requires("rapidjson v1.1.0")
 
 target("ScriptEngine")
     set_kind("shared")
     add_files("src/**.cpp")
     set_languages("c++20")
     -- liteldev-repo
-    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx", "levilamina")
+    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx", "levilamina", "fifo_map")
     -- xmake-repo
-    add_packages("nlohmann_json", "openssl", "gsl", "simpleini", "toml++", "magic_enum")
+    add_packages("nlohmann_json", "openssl", "gsl", "simpleini", "toml++", "magic_enum", "asio", "entt", "leveldb", "rapidjson")
     add_includedirs("src")
     add_runenvs("LLSE_BACKEND", "LUA")
     add_runenvs("SCRIPTX_BACKEND", "Lua")

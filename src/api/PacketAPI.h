@@ -1,6 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
-#include <llapi/mc/BlockInstance.hpp>
+#include <mc/BlockInstance.hpp>
 #include "main/Global.hpp"
 #include <string>
 #include <llapi/mc/BinaryStream.hpp>

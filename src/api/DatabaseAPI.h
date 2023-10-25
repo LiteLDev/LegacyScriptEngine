@@ -1,7 +1,7 @@
 #pragma once
 #include "api/APIHelp.h"
-#include <llapi/KVDBAPI.h>
-#include <llapi/db/Session.h>
+#include "legacyapi/KVDBAPI.h"
+#include "legacyapi/db/Session.h"
 
 //////////////////// Classes ////////////////////
 

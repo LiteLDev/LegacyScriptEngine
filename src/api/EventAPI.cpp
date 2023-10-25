@@ -24,21 +24,21 @@
 #include "api/ItemAPI.h"
 #include "api/EntityAPI.h"
 #include "api/PlayerAPI.h"
-#include <liteloader/Loader.h>
+// #include <liteloader/Loader.h> //todo
 #include "main/Configs.h"
-#include <llapi/EventAPI.h>
-#include <llapi/ScheduleAPI.h>
-#include <llapi/mc/Player.hpp>
-#include <llapi/mc/BlockSource.hpp>
-#include <llapi/mc/Actor.hpp>
-#include <llapi/mc/ActorDamageSource.hpp>
-#include <llapi/mc/MobEffectInstance.hpp>
-#include <llapi/mc/HashedString.hpp>
-#include <llapi/mc/Objective.hpp>
-#include <llapi/mc/BlockInstance.hpp>
-#include <llapi/mc/Block.hpp>
-#include <llapi/mc/VanillaBlocks.hpp>
-#include <llapi/mc/ItemStack.hpp>
+// #include <llapi/EventAPI.h> //todo
+#include <ll/api/schedule/Scheduler.h>
+#include <mc/world/actor/player/Player.h>
+#include <mc/world/level/BlockSource.h>
+#include <mc/world/actor/Actor.h>
+#include <mc/world/actor/ActorDamageSource.h>
+#include <mc/MobEffectInstance.hpp>
+#include <mc/deps/core/string/HashedString.h>
+#include <mc/world/scores/Objective.h>
+#include <mc/BlockInstance.hpp>
+#include <mc/world/level/block/Block.h>
+#include <mc/VanillaBlocks.hpp>
+#include <mc/world/item/registry/ItemStack.h>
 using namespace std;
 
 //////////////////// Listeners ////////////////////

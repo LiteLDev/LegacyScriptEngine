@@ -10,14 +10,14 @@
 #include "api/McAPI.h"
 #include "api/ContainerAPI.h"
 #include "api/NbtAPI.h"
-#include <llapi/mc/Actor.hpp>
-#include <llapi/mc/Level.hpp>
-#include <llapi/mc/ItemActor.hpp>
-#include <llapi/mc/SimpleContainer.hpp>
-#include <llapi/mc/CompoundTag.hpp>
-#include <llapi/mc/Mob.hpp>
-#include <llapi/mc/Dimension.hpp>
-#include <llapi/mc/Command.hpp>
+#include <mc/world/actor/Actor.h>
+#include <mc/world/level/Level.h>
+#include <mc/world/actor/item/ItemActor.h>
+#include <mc/world/SimpleContainer.h>
+#include <mc/nbt/CompoundTag.h>
+#include <mc/world/actor/Mob.h>
+#include <mc/world/level/dimension/Dimension.h>
+#include <mc/world/level/Command.h>
 #include <magic_enum.hpp>
 
 //////////////////// Class Definition ////////////////////

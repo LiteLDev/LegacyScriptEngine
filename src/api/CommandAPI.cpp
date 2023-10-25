@@ -10,22 +10,22 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "engine/EngineOwnData.h"
-#include <llapi/utils/STLHelper.h>
-#include <llapi/mc/CommandBlockName.hpp>
-#include <llapi/mc/BlockStateCommandParam.hpp>
-#include <llapi/mc/CommandBlockNameResult.hpp>
-#include <llapi/RegCommandAPI.h>
+#include <ll/api/utils/STLHelper.h>
+#include <mc/server/commands/CommandBlockName.h>
+#include <mc/server/commands/BlockStateCommandParam.h>
+#include <mc/server/commands/CommandBlockNameResult.h>
+#include <ll/api/command/RegisterCommandHelper.h>
 #include <filesystem>
 #include "main/Configs.h"
 #include <vector>
 #include <string>
-#include <llapi/mc/ItemInstance.hpp>
-#include <llapi/mc/ItemStack.hpp>
-#include <llapi/mc/Dimension.hpp>
+#include <mc/world/item/ItemInstance.h>
+#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/level/dimension/Dimension.h>
 #include "api/BaseAPI.h"
 #include "api/EntityAPI.h"
 #include <magic_enum.hpp>
-#include <llapi/mc/JsonHelpers.hpp>
+#include <mc/deps/json/JsonHelpers.h>
 
 
 //////////////////// Class Definition ////////////////////

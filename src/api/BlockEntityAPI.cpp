@@ -6,7 +6,7 @@
 #include "api/NativeAPI.h"
 #include "main/Global.hpp"
 #include <llapi/mc/BlockActor.hpp>
-#include <llapi/mc/CompoundTag.hpp>
+#include <mc/nbt/CompoundTag.h>
 
 //////////////////// Class Definition ////////////////////
 

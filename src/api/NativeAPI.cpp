@@ -1,6 +1,6 @@
 #include "api/NativeAPI.h"
 
-#include <llapi/HookAPI.h>
+#include <ll/api/memory/Hook.h>
 #include <magic_enum.hpp>
 #include <Tools/Demangler/include/MicrosoftDemangle.h>
 

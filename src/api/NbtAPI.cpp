@@ -14,7 +14,7 @@
 #include <llapi/mc/ByteArrayTag.hpp>
 #include <llapi/mc/StringTag.hpp>
 #include <llapi/mc/ListTag.hpp>
-#include <llapi/mc/CompoundTag.hpp>
+#include <mc/nbt/CompoundTag.h>
 #include <magic_enum.hpp>
 
 using magic_enum::enum_cast;

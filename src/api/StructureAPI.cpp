@@ -3,8 +3,8 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include <llapi/mc/ListTag.hpp>
-#include <llapi/mc/CompoundTag.hpp>
-#include <llapi/mc/Block.hpp>
+#include <mc/nbt/CompoundTag.h>
+#include <mc/world/level/block/Block.h>
 #include <llapi/mc/StructureTemplate.hpp>
 
 Local<Value> McClass::getStructure(const Arguments& args) {

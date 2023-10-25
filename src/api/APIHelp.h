@@ -7,7 +7,7 @@
 
 #include <magic_enum.hpp>
 
-#include <llapi/mc/Level.hpp>
+#include <mc/world/level/Level.h>
 
 #include "utils/UsingScriptX.inc"
 #include "utils/JsonHelper.h"

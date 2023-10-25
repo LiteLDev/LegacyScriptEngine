@@ -10,6 +10,8 @@ add_requires("lightwebsocketclient v1.0.0")
 add_requires("threadpool v1.0.0")
 add_requires("se-backend v1.0.0")
 add_requires("scriptx v1.0.0")
+add_requires("levilamina v1.0.0")
+add_requires("fifo_map v1.0.0")
 
 -- xmake-repo
 add_requires("nlohmann_json v3.11.2")
@@ -24,10 +26,15 @@ target("ScriptEngine")
     add_files("src/**.cpp")
     set_languages("c++20")
     -- liteldev-repo
-    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx")
+    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx", "levilamina")
     -- xmake-repo
     add_packages("nlohmann_json", "openssl", "gsl", "simpleini", "toml++", "magic_enum")
     add_includedirs("src")
+    add_runenvs("LLSE_BACKEND", "LUA")
+    add_runenvs("SCRIPTX_BACKEND", "Lua")
+    add_runenvs("LLSE_BACKEND_LIBRARY", "Lua")
+    add_defines("DCPPHTTPLIB_OPENSSL_SUPPORT", "DNDEBUG", "D_CONSOLE", "D_AMD64_", "DNOMINMAX", "DSCRIPTX_BACKEND_TRAIT_PREFIX=../backend/${env SCRIPTX_BACKEND}/trait/Trait", "D_WINDLL", "D_UNICODE", "DUNICODE", "D", "LLSE_BACKEND_${env LLSE_BACKEND}")
+    add_shflags("/DELAYLOAD:bedrock_server.dll")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --

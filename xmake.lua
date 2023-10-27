@@ -1,19 +1,8 @@
 add_rules("mode.debug", "mode.release")
 
-add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
+add_repositories("liteldev-xmake-repo https://github.com/LiteLDev/xmake-repo.git")
 
--- liteldev-repo
-add_requires("dyncall 1.4")
-add_requires("symbolprovider v1.1.0")
-add_requires("nbt_cpp v1.0.1")
-add_requires("lightwebsocketclient v1.0.0")
-add_requires("threadpool v1.0.0")
-add_requires("se-backend v1.0.0")
-add_requires("scriptx v1.0.0")
-add_requires("levilamina v1.0.0")
-add_requires("fifo_map v1.0.0")
-
--- xmake-repo
+-- Packages from xmake-repo
 add_requires("asio 1.28.0")
 add_requires("nlohmann_json v3.11.2")
 add_requires("openssl 1.1.1-t")
@@ -25,86 +14,63 @@ add_requires("entt v3.11.1")
 add_requires("leveldb 1.23")
 add_requires("rapidjson v1.1.0")
 
-target("ScriptEngine")
-    set_kind("shared")
-    add_files("src/**.cpp")
-    set_languages("c++20")
-    -- liteldev-repo
-    add_packages("dyncall", "symbolprovider", "nbt_cpp", "lightwebsocketclient", "threadpool", "se-backend", "scriptx", "levilamina", "fifo_map")
-    -- xmake-repo
-    add_packages("nlohmann_json", "openssl", "gsl", "simpleini", "toml++", "magic_enum", "asio", "entt", "leveldb", "rapidjson")
-    add_includedirs("src")
-    add_runenvs("LLSE_BACKEND", "LUA")
-    add_runenvs("SCRIPTX_BACKEND", "Lua")
-    add_runenvs("LLSE_BACKEND_LIBRARY", "Lua")
-    add_defines("DCPPHTTPLIB_OPENSSL_SUPPORT", "DNDEBUG", "D_CONSOLE", "D_AMD64_", "DNOMINMAX", "DSCRIPTX_BACKEND_TRAIT_PREFIX=../backend/${env SCRIPTX_BACKEND}/trait/Trait", "D_WINDLL", "D_UNICODE", "DUNICODE", "D", "LLSE_BACKEND_${env LLSE_BACKEND}")
-    add_shflags("/DELAYLOAD:bedrock_server.dll")
---
--- If you want to known more usage about xmake, please see https://xmake.io
---
--- ## FAQ
---
--- You can enter the project directory firstly before building project.
---
---   $ cd projectdir
---
--- 1. How to build project?
---
---   $ xmake
---
--- 2. How to configure project?
---
---   $ xmake f -p [macosx|linux|iphoneos ..] -a [x86_64|i386|arm64 ..] -m [debug|release]
---
--- 3. Where is the build output directory?
---
---   The default output directory is `./build` and you can configure the output directory.
---
---   $ xmake f -o outputdir
---   $ xmake
---
--- 4. How to run and debug target after building project?
---
---   $ xmake run [targetname]
---   $ xmake run -d [targetname]
---
--- 5. How to install target to the system directory or other output directory?
---
---   $ xmake install
---   $ xmake install -o installdir
---
--- 6. Add some frequently-used compilation flags in xmake.lua
---
--- @code
---    -- add debug and release modes
---    add_rules("mode.debug", "mode.release")
---
---    -- add macro definition
---    add_defines("NDEBUG", "_GNU_SOURCE=1")
---
---    -- set warning all as error
---    set_warnings("all", "error")
---
---    -- set language: c99, c++11
---    set_languages("c99", "c++11")
---
---    -- set optimization: none, faster, fastest, smallest
---    set_optimize("fastest")
---
---    -- add include search directories
---    add_includedirs("/usr/include", "/usr/local/include")
---
---    -- add link libraries and search directories
---    add_links("tbox")
---    add_linkdirs("/usr/local/lib", "/usr/lib")
---
---    -- add system link libraries
---    add_syslinks("z", "pthread")
---
---    -- add compilation and link flags
---    add_cxflags("-stdnolib", "-fno-strict-aliasing")
---    add_ldflags("-L/usr/local/lib", "-lpthread", {force = true})
---
--- @endcode
---
+-- Packages from liteldev-xmake-repo
+add_requires("dyncall 1.4")
+add_requires("symbolprovider v1.1.0")
+add_requires("nbt_cpp v1.0.1")
+add_requires("lightwebsocketclient v1.0.0")
+add_requires("threadpool v1.0.0")
+add_requires("se-backend v1.0.0")
+add_requires("scriptx v1.0.0")
+add_requires("levilamina v1.0.0")
+add_requires("fifo_map v1.0.0")
 
+target("LeviScript")
+    set_kind("shared")
+    set_languages("cxx20")
+    add_files("src/**.cpp")
+    add_includedirs("include")
+    add_defines(
+        "D",
+        "D_AMD64_",
+        "D_CONSOLE",
+        "D_WINDLL",
+        "D_UNICODE",
+        "DCPPHTTPLIB_OPENSSL_SUPPORT",
+        "DNDEBUG",
+        "DNOMINMAX",
+        "DSCRIPTX_BACKEND_TRAIT_PREFIX=../backend/${env SCRIPTX_BACKEND}/trait/Trait",
+        "DUNICODE",
+        "LLSE_BACKEND_${env LLSE_BACKEND}"
+    )
+    add_runenvs("LLSE_BACKEND", "LUA")
+    add_runenvs("LLSE_BACKEND_LIBRARY", "Lua")
+    add_runenvs("SCRIPTX_BACKEND", "Lua")
+    add_shflags("/DELAYLOAD:bedrock_server.dll")
+
+    -- Packages from xmake-repo
+    add_packages(
+        "nlohmann_json",
+        "openssl",
+        "gsl",
+        "simpleini",
+        "toml++",
+        "magic_enum",
+        "asio",
+        "entt",
+        "leveldb",
+        "rapidjson"
+    )
+
+    -- Packages from liteldev-xmake-repo
+    add_packages(
+        "dyncall",
+        "symbolprovider",
+        "nbt_cpp",
+        "lightwebsocketclient",
+        "threadpool",
+        "se-backend",
+        "scriptx",
+        "levilamina",
+        "fifo_map"
+    )

@@ -9,7 +9,7 @@ add_requires("openssl 1.1.1-t")
 add_requires("gsl v3.1.0")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
-add_requires("magic_enum v0.8.2")
+add_requires("magic_enum v0.8.1")
 add_requires("entt v3.11.1")
 add_requires("leveldb 1.23")
 add_requires("rapidjson v1.1.0")
@@ -22,6 +22,7 @@ add_requires("threadpool v1.0.0")
 add_requires("scriptx v0.1.0")
 add_requires("levilamina v1.0.0")
 add_requires("fifo_map v1.0.0")
+add_requires("demangler v2.0.0")
 
 target("LeviScript")
     set_kind("shared")
@@ -67,8 +68,8 @@ target("LeviScript")
         "nbt_cpp",
         "lightwebsocketclient",
         "threadpool",
-        "se-backend",
         "scriptx",
         "levilamina",
-        "fifo_map"
+        "fifo_map",
+        "demangler"
     )

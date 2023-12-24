@@ -17,11 +17,9 @@ add_requires("rapidjson v1.1.0")
 -- Packages from liteldev-xmake-repo
 add_requires("dyncall 1.4")
 add_requires("symbolprovider v1.1.0")
-add_requires("nbt_cpp v1.0.1")
 add_requires("lightwebsocketclient v1.0.0")
 add_requires("threadpool v1.0.0")
-add_requires("se-backend v1.0.0")
-add_requires("scriptx v1.0.0")
+add_requires("scriptx v0.1.0")
 add_requires("levilamina v1.0.0")
 add_requires("fifo_map v1.0.0")
 
@@ -29,7 +27,7 @@ target("LeviScript")
     set_kind("shared")
     set_languages("cxx20")
     add_files("src/**.cpp")
-    add_includedirs("include")
+    add_includedirs("src")
     add_defines(
         "D",
         "D_AMD64_",

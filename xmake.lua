@@ -41,6 +41,10 @@ package("levilamina")
         import("package.tools.xmake").install(package)
     end)
 
+local LLSE_BACKEND = "LUA"
+local LLSE_BACKEND_LIBRARY = "Lua"
+local SCRIPTX_BACKEND = "Lua"
+
 target("LeviScript")
     set_kind("shared")
     set_languages("cxx20")
@@ -55,13 +59,10 @@ target("LeviScript")
         "CPPHTTPLIB_OPENSSL_SUPPORT",
         "NDEBUG",
         "NOMINMAX",
-        "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/${env SCRIPTX_BACKEND}/trait/Trait",
+        "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. SCRIPTX_BACKEND .. "/trait/Trait",
         "UNICODE",
-        "LLSE_BACKEND_${env LLSE_BACKEND}"
+        "LLSE_BACKEND_" .. LLSE_BACKEND
     )
-    add_runenvs("LLSE_BACKEND", "LUA")
-    add_runenvs("LLSE_BACKEND_LIBRARY", "Lua")
-    add_runenvs("SCRIPTX_BACKEND", "Lua")
     add_shflags("/DELAYLOAD:bedrock_server.dll")
 
     -- Packages from xmake-repo

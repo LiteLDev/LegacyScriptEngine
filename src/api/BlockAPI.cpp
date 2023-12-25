@@ -120,7 +120,7 @@ Block *BlockClass::extract(Local<Value> v) {
 void BlockClass::preloadData(BlockPos bp, int dim) {
   name = block->getName().getString(); // TODO
   type = block->getName().getString();
-  id = block->getId();
+  id = block->getBlockItemId();
   pos = {bp.x, bp.y, bp.z, dim};
 }
 
@@ -159,7 +159,7 @@ Local<Value> BlockClass::getPos() {
 Local<Value> BlockClass::getTileData() {
   try {
     // preloaded
-    return Number::newNumber(block->getTileData());
+    return Number::newNumber(block->getVariant());
   }
   CATCH("Fail in getTileData!");
 }
@@ -290,19 +290,22 @@ Local<Value> BlockClass::destroyBlock(const Arguments &args) {
   try {
     // same as `Level::getBlockInstance(pos.getBlockPos(),
     // pos.dim).breakNaturally()` when drop
-    return Boolean::newBoolean(Global<Level>->destroyBlock(
-        *Level::getBlockSource(pos.dim), pos.getBlockPos(),
-        args[0].asBoolean().value()));
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+    BlockSource &bl = dimPtr->getBlockSourceFromMainChunkSource();
+    return Boolean::newBoolean(ll::Global<Level>->destroyBlock(
+        bl, pos.getBlockPos(), args[0].asBoolean().value()));
   }
   CATCH("Fail in destroyBlock!");
 }
 
 Local<Value> BlockClass::getNbt(const Arguments &args) {
   try {
-    return NbtCompoundClass::pack(std::move(block->getNbt()));
+    return NbtCompoundClass::pack(std::move(block->getSerializationId()));
   }
   CATCH("Fail in getNbt!");
 }
+
+#include "mc/world/level/block/utils/BlockSerializationUtils.h"
 
 Local<Value> BlockClass::setNbt(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
@@ -313,7 +316,13 @@ Local<Value> BlockClass::setNbt(const Arguments &args) {
       return Local<Value>(); // Null
 
     // update Pre Data
-    Level::setBlock(pos.getBlockPos(), pos.dim, (CompoundTag *)nbt);
+    auto result = BlockSerializationUtils::tryGetBlockFromNBT(nbt);
+    Block *bl = result.second;
+    if (bl) {
+      auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+      BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
+      bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr);
+    }
     preloadData(pos.getBlockPos(), pos.getDimensionId());
     return Boolean::newBoolean(true);
   }

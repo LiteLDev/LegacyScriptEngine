@@ -3,7 +3,7 @@
 #include "legacyapi/db/Pointer.h"
 #include "legacyapi/db/RowSet.h"
 #include "legacyapi/db/Stmt.h"
-
+#include <stdexcept>
 
 class Logger;
 
@@ -38,7 +38,7 @@ public:
    *
    * @param enable  Enable or not
    */
-  LIAPI void setDebugOutput(bool enable);
+  void setDebugOutput(bool enable);
   /**
    * @brief Change current user and database.
    *
@@ -157,14 +157,14 @@ public:
    * @param  type  Database type
    * @return SharedPointer<Session>  The session
    */
-  LIAPI static SharedPointer<Session> create(DBType type);
+  static SharedPointer<Session> create(DBType type);
   /**
    * @brief Create and open a new session.
    *
    * @param  params  Connection parameters
    * @return SharedPointer<Session>  The session
    */
-  LIAPI static SharedPointer<Session> create(const ConnParams &params);
+  static SharedPointer<Session> create(const ConnParams &params);
   /**
    * @brief Create and open a new session.
    *
@@ -172,8 +172,7 @@ public:
    * @param  params  Connection parameters
    * @return SharedPointer<Session>  The session
    */
-  LIAPI static SharedPointer<Session> create(DBType type,
-                                             const ConnParams &params);
+  static SharedPointer<Session> create(DBType type, const ConnParams &params);
   /**
    * @brief Create and open a new session.
    *
@@ -185,10 +184,10 @@ public:
    * @param  database  Database name
    * @return SharedPointer<Session>  The session
    */
-  LIAPI static SharedPointer<Session>
-  create(DBType type, const std::string &host, uint16_t port,
-         const std::string &user, const std::string &password,
-         const std::string &database);
+  static SharedPointer<Session> create(DBType type, const std::string &host,
+                                       uint16_t port, const std::string &user,
+                                       const std::string &password,
+                                       const std::string &database);
   /**
    * @brief Create and open a new session.
    *
@@ -196,8 +195,7 @@ public:
    * @param  path  Path to the database file
    * @return SharedPointer<Session>  The session
    */
-  LIAPI static SharedPointer<Session> create(DBType type,
-                                             const std::string &path);
+  static SharedPointer<Session> create(DBType type, const std::string &path);
 
 private:
   /**

@@ -2,7 +2,6 @@
 #include "legacyapi/db/Pointer.h"
 #include "legacyapi/db/RowSet.h"
 
-
 #define IF_ENDBG if (debugOutput)
 
 class Logger;
@@ -60,7 +59,7 @@ public:
    *
    * @param enable  Enable or not
    */
-  LIAPI void setDebugOutput(bool enable);
+  void setDebugOutput(bool enable);
 
   /**
    * @brief Bind a value to a statement parameter.

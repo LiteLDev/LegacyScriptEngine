@@ -41,7 +41,8 @@ public:
   /* get dynamic call signature char for Type*/
   static char getTypeSignature(NativeFunction::Types type);
   /* get NativeFunction::Type from LLVM Ast Node*/
-  static NativeFunction::Types getNativeType(llvm::ms_demangle::Node *type);
+  static NativeFunction::Types
+  getNativeType(demangler::ms_demangle::Node *type);
   /* get dynamic call signature string for this function*/
   std::string buildDynCallbackSig();
 
@@ -128,7 +129,7 @@ public:
 
   static Local<Object> newNativePointer(void *);
 
-  void *wrap() { return dAccess<void *>(this, 0); }
+  void *wrap() { return ll::memory::dAccess<void *>(this, 0); }
 
   void *unwrap() { return (void *)&(*((int *)mPtr)); }
 

@@ -206,7 +206,7 @@ Local<Value> ConfJsonClass::reload(const Arguments &args) {
     return Boolean::newBoolean(reload());
   } catch (const fifo_json::exception &e) {
     logger.error("Fail to parse json content in file!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -546,12 +546,12 @@ Local<Value> MoneyClass::set(const Arguments &args) {
         EconomySystem::setMoney(args[0].toStr(), args[1].asNumber().toInt64()));
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneySet!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneySet!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -566,12 +566,12 @@ Local<Value> MoneyClass::get(const Arguments &args) {
     return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneyGet!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Number::newNumber(0);
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneyGet!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Number::newNumber(0);
   }
@@ -588,12 +588,12 @@ Local<Value> MoneyClass::add(const Arguments &args) {
         EconomySystem::addMoney(args[0].toStr(), args[1].asNumber().toInt64()));
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneyAdd!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneyAdd!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -610,12 +610,12 @@ Local<Value> MoneyClass::reduce(const Arguments &args) {
         args[0].toStr(), args[1].asNumber().toInt64()));
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneyReduce!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneyReduce!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -636,12 +636,12 @@ Local<Value> MoneyClass::trans(const Arguments &args) {
         args[0].toStr(), args[1].toStr(), args[2].asNumber().toInt64(), note));
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneyTrans!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneyTrans!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -697,12 +697,12 @@ Local<Value> MoneyClass::getHistory(const Arguments &args) {
     return objectificationMoneyHistory(res);
   } catch (const std::invalid_argument &e) {
     logger.error("Bad argument in MoneyGetHintory!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Local<Value>();
   } catch (const std::out_of_range &e) {
     logger.error("Bad argument in MoneyGetHintory!");
-    logger.error(TextEncoding::toUTF8(e.what()));
+    logger.error(ll::utils::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Local<Value>();
   }

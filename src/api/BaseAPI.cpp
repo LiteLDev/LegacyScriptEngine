@@ -9,6 +9,8 @@
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "main/Global.hpp"
+#include "mc/common/Common.h"
+#include "mc/common/SharedConstants.h"
 
 ///////////////////// Enum //////////////////////
 ClassDefine<void> DamageCauseEnumBuilder =
@@ -256,14 +258,14 @@ Local<Value> McClass::newFloatPos(const Arguments &args) {
 
 Local<Value> McClass::getBDSVersion(const Arguments &args) {
   try {
-    return String::newString(ll::getBdsVersion());
+    return String::newString(Common::getGameVersionString());
   }
   CATCH("Fail in GetBDSVersion!")
 }
 
 Local<Value> McClass::getServerProtocolVersion(const Arguments &args) {
   try {
-    return Number::newNumber(ll::getServerProtocolVersion());
+    return Number::newNumber(SharedConstants::NetworkProtocolVersion);
   }
   CATCH("Fail in GetServerProtocolVersion!")
 }

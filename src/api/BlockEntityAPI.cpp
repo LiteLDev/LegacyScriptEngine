@@ -10,7 +10,9 @@
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/nbt/CompoundTag.h"
+#include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Class Definition ////////////////////
 
@@ -103,7 +105,9 @@ Local<Value> BlockEntityClass::setNbt(const Arguments &args) {
 Local<Value> BlockEntityClass::getBlock(const Arguments &args) {
   try {
     BlockPos bp = blockEntity->getPosition();
-    return BlockClass::newBlock(Level::getBlock(bp, dim), &bp, dim);
+    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*bp);
+    return BlockClass::newBlock(bl, bp, dim);
   }
   CATCH("Fail in getBlock!")
 }

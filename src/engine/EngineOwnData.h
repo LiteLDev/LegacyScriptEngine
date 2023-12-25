@@ -6,11 +6,11 @@
 #include <string>
 #include <unordered_map>
 
-
 #include <dyncall/dyncall.h>
 
 #include "ll/api/Logger.h"
 
+#include "ll/api/i18n/I18nAPI.h"
 #include "main/Configs.h"
 #include "utils/UsingScriptX.inc"
 
@@ -71,10 +71,10 @@ struct EngineOwnData {
   */
 
   // I18nAPI
-  I18nBase *i18n = nullptr;
+  ll::i18n::I18N *i18n = nullptr;
 
   // LoggerAPI
-  ::Logger logger = ::Logger("");
+  ll::Logger logger = ll::Logger("");
   int maxLogLevel = 4;
 
   // 玩家绑定数据

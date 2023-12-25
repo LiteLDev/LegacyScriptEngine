@@ -1,7 +1,12 @@
 #pragma once
 #include "legacyapi/db/Types.h"
-#include "ll/api/service/GlobalService.h"
-
+#include <list>
+#include <map>
+#include <set>
+#include <string>
+#include <typeinfo>
+#include <unordered_map>
+#include <unordered_set>
 
 #pragma region AnyConversion
 
@@ -72,191 +77,191 @@ public:
    * @brief Construct a new Any object with null value.
    *
    */
-  LIAPI Any();
+  Any();
   /**
    * @brief Construct a new Any object with boolean value.
    *
    * @param v The boolean value
    */
-  LIAPI Any(bool v);
+  Any(bool v);
   /**
    * @brief Construct a new Any object with int64 value.
    *
    * @param v The integer value
    */
-  LIAPI Any(int64_t v);
+  Any(int64_t v);
   /**
    * @brief Construct a new Any object with uint64 value.
    *
    * @param v The unsigned integer value
    */
-  LIAPI Any(uint64_t v);
+  Any(uint64_t v);
   /**
    * @brief Construct a new Any object with double value.
    *
    * @param v The floating value
    */
-  LIAPI Any(double v);
+  Any(double v);
   /**
    * @brief Construct a new Any object with string value.
    *
    * @param v The string value
    */
-  LIAPI Any(const std::string &v);
+  Any(const std::string &v);
   /**
    * @brief Construct a new Any object with const char* value.
    *
    * @param v The const char* value
    */
-  LIAPI Any(const char *v);
+  Any(const char *v);
   /**
    * @brief Construct a new Any object with char* value.
    *
    * @param v   The char* value
    * @param len The length of the char* value
    */
-  LIAPI Any(char *v, size_t len);
+  Any(char *v, size_t len);
   /**
    * @brief Construct a new Any object with date value.
    *
    * @param v The Date object
    */
-  LIAPI Any(const Date &v);
+  Any(const Date &v);
   /**
    * @brief Construct a new Any object with time value.
    *
    * @param v The Time object
    */
-  LIAPI Any(const Time &v);
+  Any(const Time &v);
   /**
    * @brief Construct a new Any object with date time value.
    *
    * @param v The DateTime object
    */
-  LIAPI Any(const DateTime &v);
+  Any(const DateTime &v);
   /**
    * @brief Construct a new Any object with int8(char) value.
    *
    * @param v The char value
    */
-  LIAPI Any(char v);
+  Any(char v);
   /**
    * @brief Construct a new Any object with uint8(unsigned char) value.
    *
    * @param v The unsigned char value
    */
-  LIAPI Any(unsigned char v);
+  Any(unsigned char v);
   /**
    * @brief Construct a new Any object with int16(short) value.
    *
    * @param v The short value
    */
-  LIAPI Any(short v);
+  Any(short v);
   /**
    * @brief Construct a new Any object with uint16(unsigned short) value.
    *
    * @param v The unsigned short value
    */
-  LIAPI Any(unsigned short v);
+  Any(unsigned short v);
   /**
    * @brief Construct a new Any object with int32(int) value.
    *
    * @param v The int value
    */
-  LIAPI Any(int v);
+  Any(int v);
   /**
    * @brief Construct a new Any object with uint32(unsigned int) value.
    *
    * @param v The unsigned int value
    */
-  LIAPI Any(unsigned int v);
+  Any(unsigned int v);
   /**
    * @brief Construct a new Any object with long value.
    *
    * @param v The long value
    */
-  LIAPI Any(long v);
+  Any(long v);
   /**
    * @brief Construct a new Any object with unsigned long value.
    *
    * @param v The unsigned long value
    */
-  LIAPI Any(unsigned long v);
+  Any(unsigned long v);
   /**
    * @brief Construct a new Any object with float value.
    *
    * @param v The float value
    */
-  LIAPI Any(float v);
+  Any(float v);
   /**
    * @brief Construct a new Any object with byte array value.
    *
    * @param v The byte array value
    */
-  LIAPI Any(const ByteArray &v);
+  Any(const ByteArray &v);
   /// Copy constructor
-  LIAPI Any(const Any &v);
+  Any(const Any &v);
   /// Copy assignment operator
-  LIAPI Any &operator=(const Any &v);
+  Any &operator=(const Any &v);
 
   /// Destructor
-  LIAPI ~Any();
+  ~Any();
 
   /**
    * @brief Get if the value is null.
    *
    */
-  LIAPI bool is_null() const;
+  bool is_null() const;
   /**
    * @brief Get if the value is boolean.
    *
    */
-  LIAPI bool is_boolean() const;
+  bool is_boolean() const;
   /**
    * @brief Get if the value is (unsigned) integer.
    *
    */
-  LIAPI bool is_integer() const;
+  bool is_integer() const;
   /**
    * @brief Get if the value is unsigned integer.
    *
    */
-  LIAPI bool is_uinteger() const;
+  bool is_uinteger() const;
   /**
    * @brief Get if the value is floating.
    *
    */
-  LIAPI bool is_floating() const;
+  bool is_floating() const;
   /**
    * @brief Get if the value is string.
    *
    */
-  LIAPI bool is_string() const;
+  bool is_string() const;
   /**
    * @brief Get if the value is date.
    *
    */
-  LIAPI bool is_date() const;
+  bool is_date() const;
   /**
    * @brief Get if the value is time.
    *
    */
-  LIAPI bool is_time() const;
+  bool is_time() const;
   /**
    * @brief Get if the value is date time.
    *
    */
-  LIAPI bool is_datetime() const;
+  bool is_datetime() const;
   /**
    * @brief Get if the value is blob.
    *
    */
-  LIAPI bool is_blob() const;
+  bool is_blob() const;
   /**
    * @brief Get if the value is floating or (unsigned) integer.
    *
    */
-  LIAPI bool is_number() const;
+  bool is_number() const;
 
   /**
    * @brief Get the number value as T
@@ -600,7 +605,7 @@ public:
    * @param  type         The Any::Type value
    * @return std::string  The string value
    */
-  LIAPI static std::string type2str(Any::Type type);
+  static std::string type2str(Any::Type type);
 
   /**
    * @brief Convert string to Any.
@@ -608,7 +613,7 @@ public:
    * @param  str  The string
    * @return Any  The converted value
    */
-  LIAPI static Any str2any(const std::string &str);
+  static Any str2any(const std::string &str);
 };
 
 } // namespace DB

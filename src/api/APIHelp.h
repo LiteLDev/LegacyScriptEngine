@@ -10,6 +10,7 @@
 #include <mc/world/level/Level.h>
 
 #include "engine/EngineOwnData.h"
+#include "ll/api/utils/StringUtils.h"
 #include "main/Global.hpp"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
@@ -83,13 +84,13 @@ std::string ValueKindToString(const ValueKind &kind);
   }                                                                            \
   catch (const std::exception &e) {                                            \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return Local<Value>();                                                     \
   }                                                                            \
   catch (const seh_exception &e) {                                             \
     logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return Local<Value>();                                                     \
   }                                                                            \
@@ -130,13 +131,13 @@ std::string ValueKindToString(const ValueKind &kind);
   }                                                                            \
   catch (const std::exception &e) {                                            \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return nullptr;                                                            \
   }                                                                            \
   catch (const seh_exception &e) {                                             \
     logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return nullptr;                                                            \
   }                                                                            \
@@ -156,13 +157,13 @@ std::string ValueKindToString(const ValueKind &kind);
   }                                                                            \
   catch (const std::exception &e) {                                            \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return;                                                                    \
   }                                                                            \
   catch (const seh_exception &e) {                                             \
     logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return;                                                                    \
   }                                                                            \
@@ -181,12 +182,12 @@ std::string ValueKindToString(const ValueKind &kind);
   }                                                                            \
   catch (const std::exception &e) {                                            \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
   }                                                                            \
   catch (const seh_exception &e) {                                             \
     logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(TextEncoding::toUTF8(e.what()));                              \
+    logger.error(ll::utils::StringUtils::tou8str(e.what()));                   \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
   }                                                                            \
   catch (...) {                                                                \

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ll/api/i18n/I18nAPI.h"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -12,18 +13,16 @@
 #include <string>
 #include <vector>
 
-
 #include "ll/api/Logger.h"
 #include "ll/api/service/GlobalService.h"
 #include "mc/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
 
-
 using std::string;
 using std::vector;
 
 // 全局工具
-extern Logger logger;
+extern ll::Logger logger;
 extern fifo_json globalConfig;
 
 typedef unsigned long long QWORD;
@@ -60,6 +59,8 @@ public:
     return {px, py, pz, dim};
   }
 };
+
+using ll::i18n::tr;
 
 inline std::string DimId2Name(int dimid) {
   std::string name;

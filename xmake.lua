@@ -1,6 +1,7 @@
 add_rules("mode.release")
 
 add_repositories("liteldev-xmake-repo https://github.com/LiteLDev/xmake-repo.git")
+add_repositories("local-repo repo")
 
 -- Packages from xmake-repo
 add_requires("asio 1.28.0")
@@ -12,10 +13,12 @@ add_requires("toml++ v3.4.0")
 add_requires("dyncall 1.4")
 add_requires("lightwebsocketclient v1.0.0")
 add_requires("threadpool v1.0.0")
-add_requires("scriptx v0.1.0")
 add_requires("levilamina develop")
 add_requires("fifo_map v1.0.0")
 add_requires("demangler v2.0.0")
+
+-- Packages from local
+add_requires("scriptx-legacy")
 
 package("levilamina")
     add_urls("https://github.com/LiteLDev/LeviLamina.git")
@@ -61,7 +64,8 @@ target("LeviScript")
         "NOMINMAX",
         "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. SCRIPTX_BACKEND .. "/trait/Trait",
         "UNICODE",
-        "LLSE_BACKEND_" .. LLSE_BACKEND
+        "LLSE_BACKEND_" .. LLSE_BACKEND,
+        "_HAS_CXX23=1"
     )
     add_shflags("/DELAYLOAD:bedrock_server.dll")
 
@@ -87,8 +91,10 @@ target("LeviScript")
         "nbt_cpp",
         "lightwebsocketclient",
         "threadpool",
-        "scriptx",
         "levilamina",
         "fifo_map",
         "demangler"
     )
+
+    -- Packages from local
+    add_packages("scriptx-legacy")

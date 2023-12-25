@@ -1,56 +1,55 @@
 #include "api/APIHelp.h"
 #include "engine/EngineManager.h"
-#include <vector>
+#include "legacyapi/utils/SRWLock.h"
 #include <list>
-#include <string>
 #include <map>
 #include <mutex>
-#include <llapi/utils/SRWLock.h>
+#include <string>
+#include <vector>
+
 
 //////////////////// Structs ////////////////////
 
-//导出函数表
+// 导出函数表
 struct ExportedFuncData {
-    std::string fromEngineType;
-    ScriptEngine* engine;
-    script::Global<Function> func;
-    std::function<std::string(std::vector<std::string>)> callback;
+  std::string fromEngineType;
+  ScriptEngine *engine;
+  script::Global<Function> func;
+  std::function<std::string(std::vector<std::string>)> callback;
 };
 
-//消息系统处理函数信息
+// 消息系统处理函数信息
 struct MessageHandlers {
-    script::utils::Message::MessageProc* handler;
-    script::utils::Message::MessageProc* cleaner;
+  script::utils::Message::MessageProc *handler;
+  script::utils::Message::MessageProc *cleaner;
 };
 
-//全局共享数据
+// 全局共享数据
 struct GlobalDataType {
-    //引擎管理器表
-    SRWLock engineListLock;
-    std::list<ScriptEngine*> globalEngineList;
+  // 引擎管理器表
+  SRWLock engineListLock;
+  std::list<ScriptEngine *> globalEngineList;
 
-    //注册过的命令
-    std::unordered_map<std::string, std::string> playerRegisteredCmd;
-    std::unordered_map<std::string, std::string> consoleRegisteredCmd;
+  // 注册过的命令
+  std::unordered_map<std::string, std::string> playerRegisteredCmd;
+  std::unordered_map<std::string, std::string> consoleRegisteredCmd;
 
-    //导出函数表
-    std::unordered_map<std::string, ExportedFuncData> exportedFuncs;
+  // 导出函数表
+  std::unordered_map<std::string, ExportedFuncData> exportedFuncs;
 
-    //模块消息系统
-    int messageSystemNextId = 0;
-    std::map<std::string, MessageHandlers> messageSystemHandlers;
-    std::map<std::string, HANDLE> messageThreads;
+  // 模块消息系统
+  int messageSystemNextId = 0;
+  std::map<std::string, MessageHandlers> messageSystemHandlers;
+  std::map<std::string, HANDLE> messageThreads;
 
-    // OperationCount
-    std::map<std::string, int> operationCountData;
+  // OperationCount
+  std::map<std::string, int> operationCountData;
 };
-
 
 //////////////////// Externs ////////////////////
 
-//全局共享数据
-extern GlobalDataType* globalShareData;
-
+// 全局共享数据
+extern GlobalDataType *globalShareData;
 
 //////////////////// APIs ////////////////////
 

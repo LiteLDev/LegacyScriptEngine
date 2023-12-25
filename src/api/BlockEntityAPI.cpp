@@ -15,7 +15,6 @@
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<BlockEntityClass> BlockEntityClassBuilder =
@@ -108,8 +107,8 @@ Local<Value> BlockEntityClass::getBlock(const Arguments &args) {
   try {
     BlockPos bp = blockEntity->getPosition();
     auto dimPtr = ll::Global<Level>->getDimension(dim).get();
-    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*bp);
-    return BlockClass::newBlock(bl, bp, dim);
+    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(bp);
+    return BlockClass::newBlock(&bl, &bp, dim);
   }
   CATCH("Fail in getBlock!")
 }

@@ -21,7 +21,7 @@
 
 //////////////////// Class Definition ////////////////////
 ClassDefine<void> OriginTypeStaticBuilder =
-    EnumDefineBuilder<OriginType>::build("OriginType");
+    EnumDefineBuilder<CommandOriginType>::build("CommandOriginType");
 
 ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
     defineClass<CommandOriginClass>("LLSE_CommandOrigin")
@@ -102,7 +102,7 @@ Local<Value> CommandOriginClass::getEntity() {
 
 Local<Value> CommandOriginClass::getPlayer() {
   try {
-    auto player = get()->getPlayer();
+    auto player = get()->getEntity();
     if (!player)
       return Local<Value>();
     return PlayerClass::newPlayer((Player *)player);

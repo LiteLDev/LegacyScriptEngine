@@ -178,7 +178,7 @@ Local<Value> ContainerClass::setItem(const Arguments &args) {
 
 Local<Value> ContainerClass::getAllItems(const Arguments &args) {
   try {
-    auto list = container->getAllSlots();
+    auto list = container->getSlots();
 
     Local<Array> res = Array::newArray();
     for (auto &item : list) {

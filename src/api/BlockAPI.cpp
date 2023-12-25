@@ -8,7 +8,6 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/GlobalService.h"
-#include "mc/BlockInstance.hpp"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/level/BlockSource.h"
@@ -106,11 +105,6 @@ Local<Object> BlockClass::newBlock(IntVec4 pos) {
   auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
   Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(bp);
   return BlockClass::newBlock(&bl, &bp, pos.dim);
-}
-
-Local<Object> BlockClass::newBlock(BlockInstance block) {
-  BlockPos bp = block.getPosition();
-  return BlockClass::newBlock(block.getBlock(), &bp, block.getDimensionId());
 }
 
 Block *BlockClass::extract(Local<Value> v) {
@@ -342,7 +336,8 @@ Local<Value> BlockClass::getBlockState(const Arguments &args) {
 
 Local<Value> BlockClass::hasContainer(const Arguments &args) {
   try {
-    auto bl = Level::getBlockInstance({pos.x, pos.y, pos.z}, pos.dim);
+    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*pos);
     return Boolean::newBoolean(bl.hasContainer());
   }
   CATCH("Fail in hasContainer!");
@@ -350,8 +345,10 @@ Local<Value> BlockClass::hasContainer(const Arguments &args) {
 
 Local<Value> BlockClass::getContainer(const Arguments &args) {
   try {
-    Container *container =
-        Level::getBlockInstance({pos.x, pos.y, pos.z}, pos.dim).getContainer();
+    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    Container *container = dimPtr->getBlockSourceFromMainChunkSource()
+                               .getBlock(*pos)
+                               .getContainer();
     return container ? ContainerClass::newContainer(container) : Local<Value>();
   }
   CATCH("Fail in getContainer!");
@@ -366,7 +363,8 @@ Local<Value> BlockClass::hasBlockEntity(const Arguments &args) {
 
 Local<Value> BlockClass::getBlockEntity(const Arguments &args) {
   try {
-    BlockInstance bl = Level::getBlockInstance(pos.getBlockPos(), pos.dim);
+    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*pos);
     BlockActor *be = bl.getBlockEntity();
     return be ? BlockEntityClass::newBlockEntity(be, pos.dim) : Local<Value>();
   }

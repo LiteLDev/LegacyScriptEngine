@@ -3,17 +3,17 @@
 #include <exception>
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include <magic_enum.hpp>
 
 #include <mc/world/level/Level.h>
 
 #include "engine/EngineOwnData.h"
-#include "ll/api/utils/StringUtils.h"
+#include "legacyapi/utils/SehTranslator.h"
 #include "main/Global.hpp"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
+
 
 // 输出异常信息
 inline void PrintException(const script::Exception &e) {

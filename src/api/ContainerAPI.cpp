@@ -2,6 +2,8 @@
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
 #include "api/NativeAPI.h"
+#include "ll/api/utils/StringUtils.h"
+#include "mc/nbt/CompoundTag.h"
 #include "mc/world/item/registry/ItemStack.h"
 
 using namespace std;
@@ -55,7 +57,7 @@ Container *ContainerClass::extract(Local<Value> v) {
 // 成员函数
 Local<Value> ContainerClass::getSize() {
   try {
-    return Number::newNumber(container->getSize());
+    return Number::newNumber(container->getContainerSize());
   }
   CATCH("Fail in getSize!")
 }
@@ -85,9 +87,14 @@ Local<Value> ContainerClass::addItem(const Arguments &args) {
     }
     if (args.size() >= 2) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-      return Boolean::newBoolean(container->addItem_s(item, args[1].toInt()));
+      for (unsigned short i = 0; i < args[1].toInt(); ++i) {
+        if (container->addItem(*item)) {
+          return Boolean::newBoolean(false);
+        }
+      }
+      return Boolean::newBoolean(true);
     }
-    return Boolean::newBoolean(container->addItem_s(item));
+    return Boolean::newBoolean(container->addItem(*item));
   }
   CATCH("Fail in addItem!");
 }
@@ -101,7 +108,7 @@ Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments &args) {
       LOG_WRONG_ARG_TYPE();
       return Local<Value>();
     }
-    return Boolean::newBoolean(container->addItemToFirstEmptySlot_s(item));
+    return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
   }
   CATCH("Fail in addItemToFirstEmptySlot!");
 }
@@ -126,7 +133,7 @@ Local<Value> ContainerClass::removeItem(const Arguments &args) {
   CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
   try {
-    container->removeItem_s(args[0].toInt(), args[1].toInt());
+    container->removeItem(args[0].toInt(), args[1].toInt());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in removeItem!");
@@ -162,7 +169,9 @@ Local<Value> ContainerClass::setItem(const Arguments &args) {
     if (!itemOld)
       return Boolean::newBoolean(false);
 
-    return Boolean::newBoolean(itemOld->setItem(item));
+    auto tag = itemOld->save();
+    item->fromTag(*tag);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in getItem!");
 }

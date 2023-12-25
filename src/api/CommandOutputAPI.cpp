@@ -1,4 +1,5 @@
 #include "api/CommandOutputAPI.h"
+#include "mc/server/commands/CommandOutputMessageType.h"
 
 //////////////////// Class Definition ////////////////////
 
@@ -68,7 +69,7 @@ Local<Value> CommandOutputClass::success(const Arguments &args) {
       std::vector<CommandOutputParameter> param{};
       auto paramArr = args[1].asArray();
       for (int i = 0; i < paramArr.size(); ++i) {
-        param.push_back(paramArr.get(i).toStr());
+        param.push_back(CommandOutputParameter(paramArr.get(i).toStr()));
       }
       get()->success(msg, param);
       return Boolean::newBoolean(true);
@@ -88,7 +89,7 @@ Local<Value> CommandOutputClass::addMessage(const Arguments &args) {
       std::vector<CommandOutputParameter> param{};
       auto paramArr = args[1].asArray();
       for (int i = 0; i < paramArr.size(); ++i) {
-        param.push_back(paramArr.get(i).toStr());
+        param.push_back(CommandOutputParameter(paramArr.get(i).toStr()));
       }
       if (args.size() >= 3) {
         CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
@@ -99,7 +100,7 @@ Local<Value> CommandOutputClass::addMessage(const Arguments &args) {
       get()->addMessage(msg, param, (CommandOutputMessageType)0);
       return Boolean::newBoolean(true);
     }
-    get()->addMessage(msg);
+    get()->addMessage(msg, {}, CommandOutputMessageType::Success);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in addMessage!");
@@ -117,7 +118,7 @@ Local<Value> CommandOutputClass::error(const Arguments &args) {
       std::vector<CommandOutputParameter> param{};
       auto paramArr = args[1].asArray();
       for (int i = 0; i < paramArr.size(); ++i) {
-        param.push_back(paramArr.get(i).toStr());
+        param.push_back(CommandOutputParameter(paramArr.get(i).toStr()));
       }
       get()->error(msg, param);
       return Boolean::newBoolean(true);

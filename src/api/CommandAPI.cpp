@@ -11,15 +11,21 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
-#include "ll/api/command/RegisterCommandHelper.h"
-#include "ll/api/utils/STLHelper.h"
+#include "legacyapi/utils/STLHelper.h"
+#include "ll/api/command/CommandRegistrar.h"
 #include "magic_enum.hpp"
 #include "main/Configs.h"
+#include "mc/codebuilder/MCRESULT.h"
 #include "mc/deps/json/JsonHelpers.h"
+#include "mc/server/ServerLevel.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandBlockNameResult.h"
+#include "mc/server/commands/CommandContext.h"
+#include "mc/server/commands/CommandOriginLoader.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
+#include "mc/server/commands/MinecraftCommands.h"
+#include "mc/server/commands/ServerCommandOrigin.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -27,7 +33,6 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-
 
 //////////////////// Class Definition ////////////////////
 
@@ -161,10 +166,13 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const &value) {
 Local<Value> McClass::runcmd(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-
+  ServerCommandOrigin origin = ServerCommandOrigin();
+  CommandContext context =
+      CommandContext(args[0].asString().toString(),
+                     std::unique_ptr<ServerCommandOrigin>(&origin));
   try {
     return Boolean::newBoolean(
-        Level::executeCommand(args[0].asString().toString()));
+        ll::Global<Minecraft>->getCommands().executeCommand(context, true));
   }
   CATCH("Fail in RunCmd!")
 }
@@ -172,13 +180,16 @@ Local<Value> McClass::runcmd(const Arguments &args) {
 Local<Value> McClass::runcmdEx(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-
+  ServerCommandOrigin origin = ServerCommandOrigin();
+  CommandContext context =
+      CommandContext(args[0].asString().toString(),
+                     std::unique_ptr<ServerCommandOrigin>(&origin));
   try {
-    std::pair<bool, string> result =
-        Level::executeCommandEx(args[0].asString().toString());
+    MCRESULT result =
+        ll::Global<Minecraft>->getCommands().executeCommand(context, false);
     Local<Object> resObj = Object::newObject();
-    resObj.set("success", result.first);
-    resObj.set("output", result.second);
+    resObj.set("success", result.isSuccess());
+    resObj.set("output", {});
     return resObj;
   }
   CATCH("Fail in RunCmdEx!")
@@ -204,7 +215,7 @@ Local<Value> McClass::newCommand(const Arguments &args) {
     }
 
     auto desc = args[1].toStr();
-    CommandPermissionLevel permission = CommandPermissionLevel::GameMasters;
+    CommandPermissionLevel permission = CommandPermissionLevel::Admin;
     CommandFlag flag = {(CommandFlagValue)0x80};
     std::string alias = "";
     if (args.size() > 2) {

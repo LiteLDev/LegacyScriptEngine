@@ -8,6 +8,8 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
+#include "mc/dataloadhelper/DataLoadHelper.h"
+#include "mc/entity/utilities/ActorDamageCause.h"
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -214,7 +216,7 @@ Actor *EntityClass::get() {
   if (!isValid)
     return nullptr;
   else
-    return Level::getEntity(id);
+    return ll::Global<Level>->fetchEntity(id);
 }
 
 Local<Value> EntityClass::asPointer(const Arguments &args) {
@@ -489,8 +491,7 @@ Local<Value> EntityClass::getFeetPos() {
     if (!entity)
       return Local<Value>();
 
-    return FloatPos::newPos(entity->getFeetPosition(),
-                            entity->getDimensionId());
+    return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId());
   }
   CATCH("Fail in GetEntityFeetPos!")
 }
@@ -501,7 +502,7 @@ Local<Value> EntityClass::getBlockPos() {
     if (!entity)
       return Local<Value>();
 
-    return IntPos::newPos(entity->getBlockPos(), entity->getDimensionId());
+    return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId());
   }
   CATCH("Fail in GetEntityBlockPos!")
 }
@@ -679,7 +680,7 @@ Local<Value> EntityClass::getSpeed() {
     if (!entity)
       return Local<Value>();
 
-    return Number::newNumber(entity->getRealSpeed());
+    return Number::newNumber((float)entity->getPosDelta().length() * 20.0);
   }
   CATCH("Fail in getSpeed!")
 }
@@ -690,8 +691,8 @@ Local<Value> EntityClass::getDirection() {
     if (!entity)
       return Local<Value>();
 
-    Vec2 *vec = entity->getDirection();
-    return DirectionAngle::newAngle(vec->x, vec->y);
+    Vec2 vec = entity->getRotation();
+    return DirectionAngle::newAngle(vec.x, vec.y);
   }
   CATCH("Fail in getDirection!")
 }
@@ -707,6 +708,7 @@ Local<Value> EntityClass::teleport(const Arguments &args) {
     float yaw;
     FloatVec4 pos;
     bool rotationIsValid = false;
+    Vec2 ang;
 
     if (args.size() <= 2) {
       if (IsInstanceOf<IntPos>(args[0])) {
@@ -751,8 +753,8 @@ Local<Value> EntityClass::teleport(const Arguments &args) {
       pos.dim = args[3].toInt();
       if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
         auto angle = DirectionAngle::extract(args[4]);
-        pitch = angle->pitch;
-        yaw = angle->yaw;
+        ang.x = angle->pitch;
+        ang.y = angle->yaw;
         rotationIsValid = true;
       }
     } else {
@@ -760,12 +762,10 @@ Local<Value> EntityClass::teleport(const Arguments &args) {
       return Boolean::newBoolean(false);
     }
     if (!rotationIsValid) {
-      auto ang = entity->getRotation();
-      pitch = ang.x;
-      yaw = ang.y;
+      ang = entity->getRotation();
     }
-    return Boolean::newBoolean(
-        entity->teleport(pos.getVec3(), pos.dim, pitch, yaw));
+    entity->teleport(pos.getVec3(), pos.dim, ang);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in TeleportEntity!")
 }
@@ -982,7 +982,7 @@ Local<Value> EntityClass::isItemEntity(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    return Boolean::newBoolean(entity->isItemActor());
+    return Boolean::newBoolean(entity->hasCategory(ActorCategory::Item));
   }
   CATCH("Fail in isPlayer!")
 }
@@ -990,14 +990,14 @@ Local<Value> EntityClass::isItemEntity(const Arguments &args) {
 Local<Value> EntityClass::toItem(const Arguments &args) {
   try {
     Actor *entity = get();
-    if (!entity || !entity->isItemActor())
+    if (!entity || !entity->hasCategory(ActorCategory::Item))
       return Local<Value>();
 
     auto it = (ItemActor *)entity;
     if (!it)
       return Local<Value>();
     else
-      return ItemClass::newItem(it->getItemStack());
+      return ItemClass::newItem(&it->mItem);
   }
   CATCH("Fail in toItem!");
 }
@@ -1031,10 +1031,14 @@ Local<Value> EntityClass::refreshItems(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    return Boolean::newBoolean(((Mob *)entity)->refreshInventory());
+    ((Mob *)entity)->refreshInventory();
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in refreshItems!");
 }
+
+#include "mc/world/level/BlockSource.h"
+#include "mc/world/level/dimension/Dimension.h"
 
 Local<Value> EntityClass::hasContainer(const Arguments &args) {
   try {
@@ -1043,8 +1047,11 @@ Local<Value> EntityClass::hasContainer(const Arguments &args) {
       return Local<Value>();
 
     Vec3 pos = entity->getPosition();
-    return Boolean::newBoolean(
-        Level::hasContainer({pos.x, pos.y, pos.z}, entity->getDimensionId()));
+    return Boolean::newBoolean(entity->getDimension()
+                                       .getBlockSourceFromMainChunkSource()
+                                       .tryGetContainer(BlockPos(pos))
+                                   ? true
+                                   : false);
   }
   CATCH("Fail in hasContainer!");
 }
@@ -1056,12 +1063,16 @@ Local<Value> EntityClass::getContainer(const Arguments &args) {
       return Local<Value>();
 
     Vec3 pos = entity->getPosition();
-    Container *container =
-        Level::getContainer({pos.x, pos.y, pos.z}, entity->getDimensionId());
+    Container *container = entity->getDimension()
+                               .getBlockSourceFromMainChunkSource()
+                               .tryGetContainer(BlockPos(pos));
     return container ? ContainerClass::newContainer(container) : Local<Value>();
   }
   CATCH("Fail in getContainer!");
 }
+
+#include "mc/world/actor/ActorDamageByActorSource.h"
+#include "mc/world/actor/ActorDamageSource.h"
 
 Local<Value> EntityClass::hurt(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
@@ -1076,15 +1087,19 @@ Local<Value> EntityClass::hurt(const Arguments &args) {
     if (args.size() == 2) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
       type = args[1].asNumber().toInt32();
+      ActorDamageSource damageSource =
+          ActorDamageSource((ActorDamageCause)type);
       return Boolean::newBoolean(
-          entity->hurtEntity(damage, (ActorDamageCause)type));
+          entity->hurt(damageSource, damage, true, false));
     }
     if (args.size() == 3) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
       auto source = EntityClass::extract(args[2]);
       type = args[1].asNumber().toInt32();
+      ActorDamageByActorSource damageSource =
+          ActorDamageByActorSource(*source, (ActorDamageCause)type);
       return Boolean::newBoolean(
-          entity->hurtEntity(damage, (ActorDamageCause)type, source));
+          entity->hurt(damageSource, damage, true, false));
     }
     return Boolean::newBoolean(false);
   }
@@ -1115,7 +1130,7 @@ Local<Value> EntityClass::setHealth(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *healthAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->HEALTH);
+        entity->getMutableAttribute(SharedAttributes::HEALTH);
 
     healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1134,7 +1149,7 @@ Local<Value> EntityClass::setAbsorption(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *absorptionAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->ABSORPTION);
+        entity->getMutableAttribute(SharedAttributes::ABSORPTION);
 
     absorptionAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1153,7 +1168,7 @@ Local<Value> EntityClass::setAttackDamage(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *attactDamageAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->ATTACK_DAMAGE);
+        entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
 
     attactDamageAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1172,7 +1187,7 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *attactDamageAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->ATTACK_DAMAGE);
+        entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
 
     attactDamageAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -1191,7 +1206,7 @@ Local<Value> EntityClass::setFollowRange(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *followRangeAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->FOLLOW_RANGE);
+        entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE);
 
     followRangeAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1210,8 +1225,7 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *knockbackResistanceAttribute =
-        entity->getMutableAttribute(
-            Global<SharedAttributes>->KNOCKBACK_RESISTANCE);
+        entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE);
 
     knockbackResistanceAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1230,7 +1244,7 @@ Local<Value> EntityClass::setLuck(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *luckAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->LUCK);
+        entity->getMutableAttribute(SharedAttributes::LUCK);
 
     luckAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1249,7 +1263,7 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *movementSpeedAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->MOVEMENT_SPEED);
+        entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
 
     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1269,7 +1283,7 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments &args) {
 
     AttributeInstance *underwaterMovementSpeedAttribute =
         entity->getMutableAttribute(
-            Global<SharedAttributes>->UNDERWATER_MOVEMENT_SPEED);
+            SharedAttributes::UNDERWATER_MOVEMENT_SPEED);
 
     underwaterMovementSpeedAttribute->setCurrentValue(
         args[0].asNumber().toFloat());
@@ -1288,8 +1302,8 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    AttributeInstance *lavaMovementSpeedAttribute = entity->getMutableAttribute(
-        Global<SharedAttributes>->LAVA_MOVEMENT_SPEED);
+    AttributeInstance *lavaMovementSpeedAttribute =
+        entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED);
 
     lavaMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1308,7 +1322,7 @@ Local<Value> EntityClass::setMaxHealth(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *healthAttribute =
-        entity->getMutableAttribute(Global<SharedAttributes>->HEALTH);
+        entity->getMutableAttribute(SharedAttributes::HEALTH);
 
     healthAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -1328,8 +1342,8 @@ Local<Value> EntityClass::setOnFire(const Arguments &args) {
       return Local<Value>();
 
     int time = args[0].toInt();
-    bool result = entity->setOnFire(time, true);
-    return Boolean::newBoolean(result);
+    entity->setOnFire(time, true);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setOnFire!")
 }
@@ -1347,8 +1361,8 @@ Local<Value> EntityClass::setFire(const Arguments &args) {
     int time = args[0].toInt();
     bool isEffect = args[1].asBoolean().value();
 
-    bool result = entity->setOnFire(time, isEffect);
-    return Boolean::newBoolean(result);
+    entity->setOnFire(time, isEffect);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setFire!")
 }
@@ -1359,10 +1373,13 @@ Local<Value> EntityClass::stopFire(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    return Boolean::newBoolean(entity->stopFire());
+    entity->stopFire();
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in stopFire!")
 }
+
+#include "mc/entity/utilities/ActorDataIDs.h"
 
 Local<Value> EntityClass::setScale(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
@@ -1373,7 +1390,7 @@ Local<Value> EntityClass::setScale(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    entity->getEntityData().set(ActorDataKeys::SCALE,
+    entity->getEntityData().set((ushort)ActorDataIDs::Scale,
                                 args[0].asNumber().toFloat());
     return Boolean::newBoolean(true);
   }
@@ -1386,10 +1403,14 @@ Local<Value> EntityClass::getNbt(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    return NbtCompoundClass::pack(entity->getNbt());
+    CompoundTag tag = CompoundTag();
+    entity->save(tag);
+    return NbtCompoundClass::pack(&tag);
   }
   CATCH("Fail in getNbt!")
 }
+
+#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 
 Local<Value> EntityClass::setNbt(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
@@ -1403,7 +1424,8 @@ Local<Value> EntityClass::setNbt(const Arguments &args) {
     if (!nbt)
       return Local<Value>(); // Null
 
-    return Boolean::newBoolean(entity->setNbt(nbt));
+    DefaultDataLoadHelper helper = DefaultDataLoadHelper();
+    return Boolean::newBoolean(entity->load(*nbt, helper));
   }
   CATCH("Fail in setNbt!")
 }
@@ -1456,14 +1478,18 @@ Local<Value> EntityClass::getAllTags(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    auto res = entity->getAllTags();
     Local<Array> arr = Array::newArray();
-    for (auto &tag : res)
-      arr.add(String::newString(tag));
+    CompoundTag tag = CompoundTag();
+    entity->save(tag);
+    tag.getList("tags")->forEachCompoundTag([&arr](const CompoundTag &tag) {
+      arr.add(String::newString(tag.toString()));
+    });
     return arr;
   }
   CATCH("Fail in getAllTags!");
 }
+
+#include "mc/common/HitDetection.h"
 
 Local<Value> EntityClass::getEntityFromViewVector(const Arguments &args) {
 
@@ -1476,9 +1502,29 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments &args) {
       CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
       maxDistance = args[0].asNumber().toFloat();
     }
-    auto entity = actor->getActorFromViewVector(maxDistance);
-    if (entity)
-      return EntityClass::newEntity(entity);
+    Vec3 cameraPos = actor->getPosition();
+    if (actor->isSneaking()) {
+      cameraPos.y -= 0.125;
+    } else {
+      if (((Player *)actor)->isGliding()) {
+        cameraPos.y -= 1.1f;
+      }
+      if (actor->isSwimming() || actor->getDamageNearbyMobs()) {
+        cameraPos.y -= 1.2f;
+      }
+      if (actor->isSleeping()) {
+        cameraPos.y += 1.0f;
+      }
+    }
+    float distance = 1.0f;
+    Actor *result = nullptr;
+    Vec3 resultVec3{};
+    HitDetection::searchActors(actor->getViewVector(1.0f), maxDistance,
+                               cameraPos, actor->getAABB(), actor,
+                               (Player *)actor, distance, result, resultVec3,
+                               actor->isPlayer() ? true : false);
+    if (result)
+      return EntityClass::newEntity(result);
     return Local<Value>();
   }
   CATCH("Fail in getEntityFromViewVector!");

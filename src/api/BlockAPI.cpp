@@ -8,6 +8,7 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/GlobalService.h"
+#include "mc/common/wrapper/optional_ref.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/level/BlockSource.h"
@@ -15,6 +16,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "scriptx/Value.h"
 #include <exception>
 
 //////////////////// Class Definition ////////////////////
@@ -300,7 +302,8 @@ Local<Value> BlockClass::destroyBlock(const Arguments &args) {
 
 Local<Value> BlockClass::getNbt(const Arguments &args) {
   try {
-    return NbtCompoundClass::pack(std::move(block->getSerializationId()));
+    return NbtCompoundClass::pack(
+        std::move(block->getSerializationId().clone()));
   }
   CATCH("Fail in getNbt!");
 }
@@ -316,12 +319,12 @@ Local<Value> BlockClass::setNbt(const Arguments &args) {
       return Local<Value>(); // Null
 
     // update Pre Data
-    auto result = BlockSerializationUtils::tryGetBlockFromNBT(nbt);
-    Block *bl = result.second;
+    auto result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt);
+    const Block *bl = result.second;
     if (bl) {
       auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
       BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
-      bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr);
+      bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr);
     }
     preloadData(pos.getBlockPos(), pos.getDimensionId());
     return Boolean::newBoolean(true);
@@ -331,9 +334,9 @@ Local<Value> BlockClass::setNbt(const Arguments &args) {
 
 Local<Value> BlockClass::getBlockState(const Arguments &args) {
   try {
-    auto list = block->getNbt();
+    auto list = block->getSerializationId();
     try {
-      return Tag2Value((Tag *)list->get<Tag>("states"), true);
+      return Tag2Value((Tag *)list.get("states"), true);
     } catch (...) {
       return Array::newArray();
     }
@@ -345,19 +348,20 @@ Local<Value> BlockClass::getBlockState(const Arguments &args) {
 
 Local<Value> BlockClass::hasContainer(const Arguments &args) {
   try {
-    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
-    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*pos);
-    return Boolean::newBoolean(bl.hasContainer());
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+    Block bl =
+        dimPtr->getBlockSourceFromMainChunkSource().getBlock(pos.getBlockPos());
+    return Boolean::newBoolean(bl.isContainerBlock());
   }
   CATCH("Fail in hasContainer!");
 }
 
 Local<Value> BlockClass::getContainer(const Arguments &args) {
   try {
-    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
     Container *container = dimPtr->getBlockSourceFromMainChunkSource()
-                               .getBlock(*pos)
-                               .getContainer();
+                               .getBlockEntity(pos.getBlockPos())
+                               ->getContainer();
     return container ? ContainerClass::newContainer(container) : Local<Value>();
   }
   CATCH("Fail in getContainer!");
@@ -372,9 +376,9 @@ Local<Value> BlockClass::hasBlockEntity(const Arguments &args) {
 
 Local<Value> BlockClass::getBlockEntity(const Arguments &args) {
   try {
-    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
-    Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*pos);
-    BlockActor *be = bl.getBlockEntity();
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+    BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
+    BlockActor *be = bs.getBlockEntity(pos.getBlockPos());
     return be ? BlockEntityClass::newBlockEntity(be, pos.dim) : Local<Value>();
   }
   CATCH("Fail in getBlockEntity!");
@@ -382,12 +386,16 @@ Local<Value> BlockClass::getBlockEntity(const Arguments &args) {
 
 Local<Value> BlockClass::removeBlockEntity(const Arguments &args) {
   try {
-    BlockSource *bs = Level::getBlockSource(pos.dim);
-    bs->removeBlockEntity(pos.getBlockPos()); //==========???
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+    BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
+    bs.removeBlockEntity(pos.getBlockPos()); //==========???
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in removeBlockEntity!");
 }
+
+#include "mc/world/level/ChunkBlockPos.h"
+#include "mc/world/level/chunk/LevelChunk.h"
 
 // public API
 Local<Value> McClass::getBlock(const Arguments &args) {
@@ -430,10 +438,22 @@ Local<Value> McClass::getBlock(const Arguments &args) {
       return Local<Value>();
     }
 
-    auto block = Level::getBlockEx(pos.getBlockPos(), pos.dim);
+    auto dimPtr = ll::Global<Level>->getDimension(pos.dim).get();
+    if (!dimPtr) {
+      return {};
+    }
+    BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
+    auto lc = bs.getChunkAt(pos.getBlockPos());
+    if (!lc)
+      return {};
+    short minHeight = dimPtr->getMinHeight();
+    if (pos.y < minHeight || pos.y > dimPtr->getHeight())
+      return {};
+    ChunkBlockPos cbpos = ChunkBlockPos(pos.getBlockPos(), minHeight);
+    auto block = const_cast<Block *>(&lc->getBlock(cbpos));
     if (!block) {
       // LOG_WRONG_ARG_TYPE();
-      return Local<Value>();
+      return {};
     }
     BlockPos bp{pos.x, pos.y, pos.z};
     return BlockClass::newBlock(block, &bp, pos.dim);
@@ -496,14 +516,26 @@ Local<Value> McClass::setBlock(const Arguments &args) {
     }
 
     if (block.isString()) {
-      // block name
+      optional_ref<const Block> bl =
+          Block::tryGetFromRegistry(block.asString().toString(), tileData);
+      if (!bl.has_value()) {
+        return Boolean::newBoolean(false);
+      }
+      BlockSource &bs =
+          ll::Global<Level>->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
       return Boolean::newBoolean(
-          Level::setBlock(pos.getBlockPos(), pos.dim, block.toStr(), tileData));
+          bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
     } else if (IsInstanceOf<NbtCompoundClass>(block)) {
       // Nbt
-      Tag *nbt = NbtCompoundClass::extract(block);
+      CompoundTag *nbt = NbtCompoundClass::extract(block);
+      optional_ref<const Block> bl = Block::tryGetFromRegistry(*nbt);
+      if (!bl.has_value()) {
+        return Boolean::newBoolean(false);
+      }
+      BlockSource &bs =
+          ll::Global<Level>->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
       return Boolean::newBoolean(
-          Level::setBlock(pos.getBlockPos(), pos.dim, (CompoundTag *)nbt));
+          bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
     } else {
       // other block object
       Block *bl = BlockClass::extract(block);
@@ -511,8 +543,10 @@ Local<Value> McClass::setBlock(const Arguments &args) {
         LOG_WRONG_ARG_TYPE();
         return Local<Value>();
       }
+      BlockSource &bs =
+          ll::Global<Level>->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
       return Boolean::newBoolean(
-          Level::setBlock(pos.getBlockPos(), pos.dim, bl));
+          bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr));
     }
   }
   CATCH("Fail in SetBlock!")
@@ -570,8 +604,9 @@ Local<Value> McClass::spawnParticle(const Arguments &args) {
       return Local<Value>();
     }
 
-    Global<Level>->spawnParticleEffect(type.toStr(), pos.getVec3(),
-                                       Level::getDimensionPtr(pos.dim));
+    ll::Global<Level>->spawnParticleEffect(
+        type.toStr(), pos.getVec3(),
+        ll::Global<Level>->getDimension(pos.dim).get());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in SpawnParticle!")

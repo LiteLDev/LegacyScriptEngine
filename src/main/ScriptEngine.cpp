@@ -1,4 +1,3 @@
-#include <liteloader/Config.h>
 #include "api/APIHelp.h"
 #include "api/EventAPI.h"
 #include "engine/GlobalShareData.h"
@@ -16,7 +15,7 @@
 #include <memory>
 #include <filesystem>
 #include "main/Configs.h"
-#include <llapi/LoggerAPI.h>
+#include <ll/api/Logger.h>
 #include <liteloader/Version.h>
 #include <llapi/utils/FileHelper.h>
 #include "utils/JsonHelper.h"
@@ -28,7 +27,7 @@
 using namespace std;
 
 // Global vars
-::Logger logger("LiteLoader");
+ll::Logger logger("LegacyScript");
 
 
 extern void LoadDepends();
@@ -38,10 +37,6 @@ extern void LoadDebugEngine();
 
 
 void entry() {
-    // Enable thread SEH protection
-    if (!ll::isDebugMode())
-        _set_se_translator(seh_exception::TranslateSEHtoCE);
-
     // Register myself
     ll::registerPlugin(LLSE_LOADER_NAME, LLSE_LOADER_DESCRIPTION, LITELOADER_VERSION,
                        {{"GitHub", "github.com/LiteLDev/LiteLoaderBDS"}});

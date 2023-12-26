@@ -25,7 +25,7 @@
 
 // pre-declare
 extern void BindAPIs(ScriptEngine *engine);
-extern Logger logger;
+extern ll::Logger    logger;
 extern bool isInConsoleDebugMode;
 extern ScriptEngine *debugEngine;
 
@@ -271,7 +271,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string &packagePath,
     }
   } catch (const std::exception &e) {
     logger.error("Fail to load " + dirPath + "!");
-    logger.error(ll::utils::string_utils::tou8str(e.what()));
+    logger.error(ll::string_utils::tou8str(e.what()));
   } catch (...) {
     logger.error("Fail to load " + dirPath + "!");
   }
@@ -413,14 +413,14 @@ bool processPythonDebugEngine(const std::string &cmd) {
           }
         } else {
           // not in code block mode
-          if (EndsWith(cmd, ":")) {
-            // begin code block mode
-            isInsideCodeBlock = true;
-            codeBuffer = cmd + "\n";
-            OUTPUT_DEBUG_NEED_MORE_CODE_SIGN();
-            return false;
+          if (cmd.ends_with(':')) {
+              // begin code block mode
+              isInsideCodeBlock = true;
+              codeBuffer        = cmd + "\n";
+              OUTPUT_DEBUG_NEED_MORE_CODE_SIGN();
+              return false;
           } else {
-            codeBuffer = cmd;
+              codeBuffer = cmd;
           }
         }
 

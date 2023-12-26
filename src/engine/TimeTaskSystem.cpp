@@ -35,16 +35,10 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
     PrintException(e);                                                         \
     logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);         \
   }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("Error occurred in {}", TASK_TYPE);                           \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);         \
-  }                                                                            \
   catch (const std::exception &e) {                                            \
     logger.error("Error occurred in {}", TASK_TYPE);                           \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
+    logger.error(ll::string_utils::tou8str(e.what()));                  \
     logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);         \
   }                                                                            \
   catch (...) {                                                                \
@@ -66,7 +60,7 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 //     }
 //     Schedule::delay(
 //         [engine, func = std::move(func), paras = std::move(tmp)]() {
-//             if (ll::isServerStopping())
+//             if ((ll::getServerStatus() != ll::ServerStatus::Running))
 //                 return;
 //             if (!EngineManager::isValid(engine))
 //                 return;
@@ -100,7 +94,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
   data.task = Schedule::delay(
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine))
             return;
@@ -150,7 +144,7 @@ int NewTimeout(Local<String> func, int timeout) {
   data.task = Schedule::delay(
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine))
             return;
@@ -192,7 +186,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
   data.task = Schedule::repeat(
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine)) {
             ClearTimeTask(id);
@@ -248,7 +242,7 @@ int NewInterval(Local<String> func, int timeout) {
   data.task = Schedule::repeat(
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine)) {
             ClearTimeTask(id);

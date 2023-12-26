@@ -83,7 +83,7 @@ URL ParseURL(const std::string& url) {
     return result;
 }
 
-extern Logger dbLogger;
+extern ll::Logger dbLogger;
 void PrintURL(const URL& url) {
     dbLogger.debug("Parsed URL");
     dbLogger.debug("scheme: {}", url.scheme);

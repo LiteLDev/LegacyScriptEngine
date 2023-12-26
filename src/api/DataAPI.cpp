@@ -149,11 +149,11 @@ Local<Value> ConfJsonClass::init(const Arguments &args) {
   try {
     return JsonToValue(jsonConf.at(args[0].toStr()));
   } catch (const std::out_of_range &e) {
-    jsonConf[args[0].toStr()] = fifo_json::parse(ValueToJson(args[1]));
+    jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
     flush();
     return args[1];
-  } catch (const fifo_json::exception &e) {
-    jsonConf[args[0].toStr()] = fifo_json::parse(ValueToJson(args[1]));
+  } catch (const ordered_json::exception &e) {
+    jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
     flush();
     return args[1];
   }
@@ -168,7 +168,7 @@ Local<Value> ConfJsonClass::get(const Arguments &args) {
     return JsonToValue(jsonConf.at(args[0].toStr()));
   } catch (const std::out_of_range &e) {
     return args.size() >= 2 ? args[1] : Local<Value>();
-  } catch (const fifo_json::exception &e) {
+  } catch (const ordered_json::exception &e) {
     return args.size() >= 2 ? args[1] : Local<Value>();
   }
   CATCH("Fail in confJsonGet!")
@@ -179,9 +179,9 @@ Local<Value> ConfJsonClass::set(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    jsonConf[args[0].toStr()] = fifo_json::parse(ValueToJson(args[1]));
+    jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
     return Boolean::newBoolean(flush());
-  } catch (const fifo_json::exception &e) {
+  } catch (const ordered_json::exception &e) {
     return Boolean::newBoolean(false);
   }
   CATCH("Fail in confJsonSet!");
@@ -196,7 +196,7 @@ Local<Value> ConfJsonClass::del(const Arguments &args) {
       return Boolean::newBoolean(false);
 
     return Boolean::newBoolean(flush());
-  } catch (const fifo_json::exception &e) {
+  } catch (const ordered_json::exception &e) {
     return Boolean::newBoolean(false);
   }
   CATCH("Fail in confJsonDelete!");
@@ -205,9 +205,9 @@ Local<Value> ConfJsonClass::del(const Arguments &args) {
 Local<Value> ConfJsonClass::reload(const Arguments &args) {
   try {
     return Boolean::newBoolean(reload());
-  } catch (const fifo_json::exception &e) {
+  } catch (const ordered_json::exception &e) {
     logger.error("Fail to parse json content in file!");
-    logger.error(ll::utils::string_utils::tou8str(e.what()));
+    logger.error(ll::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Boolean::newBoolean(false);
   }
@@ -254,7 +254,7 @@ bool ConfJsonClass::reload() {
     return false;
 
   try {
-    jsonConf = fifo_json::parse(*jsonTexts, nullptr, true, true);
+    jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, true);
   } catch (...) {
     logger.error("Fail in confJsonReload!");
     PrintScriptStackTrace();
@@ -548,12 +548,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //         args[1].asNumber().toInt64()));
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneySet!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneySet!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   }
@@ -568,12 +568,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //     return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneyGet!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Number::newNumber(0);
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneyGet!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Number::newNumber(0);
 //   }
@@ -591,12 +591,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //         args[1].asNumber().toInt64()));
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneyAdd!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneyAdd!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   }
@@ -613,12 +613,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //         args[0].toStr(), args[1].asNumber().toInt64()));
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneyReduce!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneyReduce!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   }
@@ -640,12 +640,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //         note));
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneyTrans!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneyTrans!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Boolean::newBoolean(false);
 //   }
@@ -701,12 +701,12 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 //     return objectificationMoneyHistory(res);
 //   } catch (const std::invalid_argument &e) {
 //     logger.error("Bad argument in MoneyGetHintory!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Local<Value>();
 //   } catch (const std::out_of_range &e) {
 //     logger.error("Bad argument in MoneyGetHintory!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //     PrintScriptStackTrace();
 //     return Local<Value>();
 //   }

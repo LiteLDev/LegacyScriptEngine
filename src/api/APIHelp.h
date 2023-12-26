@@ -8,10 +8,11 @@
 #include <mc/world/level/Level.h>
 
 #include "engine/EngineOwnData.h"
-#include "legacyapi/utils/SehTranslator.h"
 #include "main/Global.hpp"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
+
+#include <ll/api/base/ErrorInfo.h>
 
 // 输出异常信息
 inline void PrintException(const script::Exception &e) {
@@ -74,26 +75,8 @@ std::string ValueKindToString(const ValueKind &kind);
 
 // 截获引擎异常
 #define CATCH(LOG)                                                             \
-  catch (const script::Exception &e) {                                         \
-    logger.error(LOG "\n");                                                    \
-    PrintException(e);                                                         \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-    return Local<Value>();                                                     \
-  }                                                                            \
-  catch (const std::exception &e) {                                            \
-    logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return Local<Value>();                                                     \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return Local<Value>();                                                     \
-  }                                                                            \
   catch (...) {                                                                \
-    logger.error("Uncaught Exception Detected!");                              \
+  ll::error_info::printCurrentException(logger);                               \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return Local<Value>();                                                     \
   }
@@ -120,76 +103,25 @@ std::string ValueKindToString(const ValueKind &kind);
   }
 
 // 截获引擎异常_Constructor
-#define CATCH_C(LOG)                                                           \
-  catch (const Exception &e) {                                                 \
-    logger.error(LOG "\n");                                                    \
-    PrintException(e);                                                         \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-    return nullptr;                                                            \
-  }                                                                            \
-  catch (const std::exception &e) {                                            \
-    logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return nullptr;                                                            \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return nullptr;                                                            \
-  }                                                                            \
+#define CATCH_C(LOG)                                                                \
   catch (...) {                                                                \
-    logger.error("Uncaught Exception Detected!");                              \
+  ll::error_info::printCurrentException(logger);                               \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return nullptr;                                                            \
+    return nullptr;                                                     \
   }
 
 // 截获引擎异常_Setter
-#define CATCH_S(LOG)                                                           \
-  catch (const Exception &e) {                                                 \
-    logger.error(LOG "\n");                                                    \
-    PrintException(e);                                                         \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-    return;                                                                    \
-  }                                                                            \
-  catch (const std::exception &e) {                                            \
-    logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return;                                                                    \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return;                                                                    \
-  }                                                                            \
+#define CATCH_S(LOG)                                                              \
   catch (...) {                                                                \
-    logger.error("Uncaught Exception Detected!");                              \
+  ll::error_info::printCurrentException(logger);                               \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return;                                                                    \
+    return ;                                                     \
   }
 
 // 截获引擎异常_Constructor
-#define CATCH_WITHOUT_RETURN(LOG)                                              \
-  catch (const Exception &e) {                                                 \
-    logger.error(LOG "\n");                                                    \
-    PrintException(e);                                                         \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-  }                                                                            \
-  catch (const std::exception &e) {                                            \
-    logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-  }                                                                            \
+#define CATCH_WITHOUT_RETURN(LOG)                                                              \
   catch (...) {                                                                \
-    logger.error("Uncaught Exception Detected!");                              \
+  ll::error_info::printCurrentException(logger);                               \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
   }
 
@@ -258,7 +190,7 @@ std::string ValueToString(Local<Value> v);
 
 // Json 序列化 反序列化
 Local<Value> JsonToValue(std::string jsonStr);
-Local<Value> JsonToValue(fifo_json j);
+Local<Value> JsonToValue(ordered_json j);
 std::string ValueToJson(Local<Value> v, int formatIndent = -1);
 
 // Get the enum's ClassDefine<void> object

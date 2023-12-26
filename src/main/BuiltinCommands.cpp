@@ -8,7 +8,7 @@
 #endif
 using namespace std;
 
-extern Logger logger;
+extern ll::Logger    logger;
 extern bool isInConsoleDebugMode;
 extern ScriptEngine* debugEngine;
 

@@ -23,7 +23,7 @@ using std::vector;
 
 // 全局工具
 extern ll::Logger logger;
-extern fifo_json globalConfig;
+extern ordered_json globalConfig;
 
 typedef unsigned long long QWORD;
 

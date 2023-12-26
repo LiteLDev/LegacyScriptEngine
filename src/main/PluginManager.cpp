@@ -54,7 +54,7 @@
 //   if (fileOrDirPath == LLSE_DEBUG_ENGINE_NAME)
 //     return true;
 
-//   if (!filesystem::exists(str2wstr(fileOrDirPath))) {
+//   if (!filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath))) {
 //     logger.error("Plugin not found! Check the path you input again.");
 //     return false;
 //   }
@@ -66,7 +66,7 @@
 //     logger.error(fileOrDirPath + " is not a valid plugin path!");
 //     return false;
 //   }
-//   std::filesystem::path p(str2wstr(fileOrDirPath));
+//   std::filesystem::path p(ll::string_utils::str2wstr(fileOrDirPath));
 //   string pluginFileName = RemoveRealAllExtension(
 //       ll::string_utils::u8str2str(p.filename().stem().u8string()));
 
@@ -209,7 +209,7 @@
 //     }
 //   } catch (const std::exception &e) {
 //     logger.error("Fail to load " + realPath + "!");
-//     logger.error(ll::utils::string_utils::tou8str(e.what()));
+//     logger.error(ll::string_utils::tou8str(e.what()));
 //   } catch (...) {
 //     logger.error("Fail to load " + realPath + "!");
 //   }
@@ -360,7 +360,7 @@
 // // Get plugin backend type from its file path (single file plugin)
 // // or its unpressed dir path (plugin package)
 // std::string PluginManager::getPluginBackendType(const std::string &path) {
-//   filesystem::path filePath(str2wstr(path));
+//   filesystem::path filePath(ll::string_utils::str2wstr(path));
 //   if (!filesystem::exists(filePath))
 //     return "";
 

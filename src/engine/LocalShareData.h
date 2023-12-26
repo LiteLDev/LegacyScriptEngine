@@ -23,7 +23,7 @@ struct RegCmdQueue {
 };
 
 // 命令回调map排序
-static struct CmdCallbackMapCmp {
+ struct CmdCallbackMapCmp {
   bool operator()(std::string const &a, std::string const &b) const {
     if (a.size() != b.size())
       return a.size() > b.size();

@@ -7,11 +7,9 @@
 #include "ll/api/utils/StringUtils.h"
 #include "ll/api/utils/WinUtils.h"
 
-#include "liteloader/Config.h"
-
 using namespace std;
 
-Logger logger("FileHelper");
+ll::Logger logger("FileHelper");
 
 ///////////// Hacker to get private FILE* /////////////
 
@@ -40,7 +38,7 @@ std::optional<std::string> ReadAllFile(const std::string &filePath,
   if (isBinary)
     mode |= std::ios_base::binary;
 
-  fRead.open(str2wstr(filePath), mode);
+  fRead.open(ll::string_utils::str2wstr(filePath), mode);
   if (!fRead.is_open()) {
     return std::nullopt;
   }
@@ -58,7 +56,7 @@ bool WriteAllFile(const std::string &filePath, const std::string &content,
   if (isBinary)
     mode |= std::ios_base::binary;
 
-  fWrite.open(str2wstr(filePath), mode);
+  fWrite.open(ll::string_utils::str2wstr(filePath), mode);
   if (!fWrite.is_open()) {
     return false;
   }
@@ -83,7 +81,7 @@ vector<string> GetFileNameList(const std::string &dir) {
 bool CreateDirs(const string path) {
   std::error_code ec;
   auto ret = std::filesystem::create_directories(
-      std::filesystem::path(str2wstr(path)), ec);
+      std::filesystem::path(ll::string_utils::str2wstr(path)), ec);
   if (ec.value() != 0) {
     logger.error("Fail to create dir, err code: {}", ec.value());
     logger.error(ec.message());
@@ -96,7 +94,7 @@ std::pair<int, std::string> UncompressFile(const std::string &filePath,
                                            int processTimeout) {
   error_code ec;
   std::filesystem::create_directories(toDir, ec);
-  std::string realToDir = EndsWith(toDir, "/") ? toDir : toDir + "/";
+  std::string realToDir = EtoDir.ends_with('/') ? toDir : toDir + "/";
   auto &&[exitCode, output] =
       NewProcessSync(fmt::format(R"({} x "{}" -o"{}" -aoa)", ZIP_PROGRAM_PATH,
                                  filePath, realToDir),

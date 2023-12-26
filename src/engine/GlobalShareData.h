@@ -1,6 +1,6 @@
 #include "api/APIHelp.h"
 #include "engine/EngineManager.h"
-#include "legacyapi/utils/SRWLock.h"
+#include <shared_mutex>
 #include <list>
 #include <map>
 #include <mutex>
@@ -27,7 +27,7 @@ struct MessageHandlers {
 // 全局共享数据
 struct GlobalDataType {
   // 引擎管理器表
-  SRWLock engineListLock;
+  std::shared_mutex         engineListLock;
   std::list<ScriptEngine *> globalEngineList;
 
   // 注册过的命令

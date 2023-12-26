@@ -15,7 +15,7 @@
 #include <vector>
 
 
-extern ::Logger logger;
+extern ll::Logger logger;
 
 // Baselibs dependency
 std::unordered_map<std::string, std::string> depends;
@@ -48,7 +48,7 @@ void LoadDepends() {
       } catch (std::exception e) {
         logger.warn(tr("llse.loader.loadDepends.fail",
                        UTF82String(i.path().filename().u8string())));
-        logger.warn(ll::utils::string_utils::tou8str(e.what()));
+        logger.warn(ll::string_utils::tou8str(e.what()));
       } catch (...) {
         logger.warn(tr("llse.loader.loadDepends.fail",
                        UTF82String(i.path().filename().u8string())));
@@ -151,22 +151,18 @@ void LoadMain_NodeJs() {
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
     std::string packFilePathStr = UTF82String(pth.make_preferred().u8string());
-    if (i.is_regular_file() &&
-        EndsWith(packFilePathStr, LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-      logger.info(tr("llse.loader.loadMain.nodejs.installPack.start",
-                     fmt::arg("path", packFilePathStr)));
-      try {
-        if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-          logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail",
-                          packFilePathStr));
+    if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
+        logger.info(tr("llse.loader.loadMain.nodejs.installPack.start", fmt::arg("path", packFilePathStr)));
+        try {
+            if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
+                logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail", packFilePathStr));
+            }
+            ++count;
+            ++installCount;
+        } catch (...) {
+            // not matched backend type
+            logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", packFilePathStr)));
         }
-        ++count;
-        ++installCount;
-      } catch (...) {
-        // not matched backend type
-        logger.warn(tr("llse.loader.loadMain.nodejs.ignored",
-                       fmt::arg("path", packFilePathStr)));
-      }
     }
   }
 
@@ -208,8 +204,7 @@ void LoadMain_Python() {
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
     std::string packFilePathStr = UTF82String(pth.make_preferred().u8string());
-    if (i.is_regular_file() &&
-        EndsWith(packFilePathStr, LLSE_PLUGIN_PACKAGE_EXTENSION)) {
+    if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
       logger.info(tr("llse.loader.loadMain.python.installPack.start",
                      fmt::arg("path", packFilePathStr)));
       try {

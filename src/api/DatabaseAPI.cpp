@@ -9,15 +9,7 @@ using namespace DB;
     return Local<Value>();                                                     \
   }                                                                            \
   catch (const std::exception &e) {                                            \
-    throw Exception(ll::utils::string_utils::tou8str(e.what()));               \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    PrintScriptStackTrace();                                                   \
-    logger.error("In API: " __FUNCTION__);                                     \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-    return Local<Value>();                                                     \
+    throw Exception(ll::string_utils::tou8str(e.what()));               \
   }                                                                            \
   catch (...) {                                                                \
     logger.error("Uncaught Exception Detected!");                              \
@@ -181,14 +173,23 @@ Local<Value> RowToLocalValue(const Row &row) {
 
 // 生成函数
 KVDBClass::KVDBClass(const Local<Object> &scriptObj, const string &dir)
-    : ScriptClass(scriptObj), kvdb(KVDB::create(dir)) {
+    : ScriptClass(scriptObj) {
+        try{
+            kvdb = std::make_unique<ll::KeyValueDB>(dir);
+        }catch(...){
+            kvdb.reset();
+        }
+
   unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback(
       [&](ScriptEngine *engine) { kvdb.reset(); });
 }
 
 KVDBClass::KVDBClass(const string &dir)
-    : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}),
-      kvdb(KVDB::create(dir)) {
+    : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {        try{
+            kvdb = std::make_unique<ll::KeyValueDB>(dir);
+        }catch(...){
+            kvdb.reset();
+        }
   unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback(
       [&](ScriptEngine *engine) { kvdb.reset(); });
 }
@@ -217,11 +218,11 @@ Local<Value> KVDBClass::get(const Arguments &args) {
     if (!isValid())
       return Local<Value>();
 
-    string res;
-    if (!kvdb->get(args[0].asString().toString(), res))
+    auto res = kvdb->get(args[0].asString().toString());
+    if (!res)
       return Local<Value>();
 
-    return JsonToValue(res);
+    return JsonToValue(*res);
   }
   CATCH_AND_THROW("Fail in DbGet!");
 }
@@ -234,7 +235,7 @@ Local<Value> KVDBClass::set(const Arguments &args) {
     if (!isValid())
       return Local<Value>();
 
-    kvdb->put(args[0].asString().toString(), ValueToJson(args[1]));
+    kvdb->set(args[0].asString().toString(), ValueToJson(args[1]));
     return Boolean::newBoolean(true);
   }
   CATCH_AND_THROW("Fail in DbSet!");

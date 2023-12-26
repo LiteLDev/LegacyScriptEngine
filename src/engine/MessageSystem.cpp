@@ -9,7 +9,6 @@
 #include <processthreadsapi.h>
 #include <process.h>
 #include <exception>
-#include <liteloader/Config.h>
 using namespace std;
 using namespace script;
 
@@ -312,11 +311,7 @@ void InitMessageSystem() {
 
     // dangerous?
     std::thread([]() {
-        SetCurrentThreadDescription(L"LLSE_MessageSystemLoop_" _CRT_WIDE(LLSE_MODULE_TYPE));
-
-       // Set global SEH-Exception handler
-        if (!ll::isDebugMode())
-            _set_se_translator(seh_exception::TranslateSEHtoCE);
+        
 
         globalShareData->messageThreads[LLSE_BACKEND_TYPE] = GetCurrentThread();
         while (true) {

@@ -21,11 +21,11 @@ Local<Value> McClass::setMotd(const Arguments& args) {
 
 Local<Value> McClass::crashBDS(const Arguments& args) //===========???
 {
-    if (ll::isDebugMode()) {
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "Crash Server", "Execute mc.crash() to crash server.");
-        throw;
-        return Boolean::newBoolean(true);
-    }
+#ifdef LL_DEBUG
+    RecordOperation(ENGINE_OWN_DATA()->pluginName, "Crash Server", "Execute mc.crash() to crash server.");
+    throw;
+    return Boolean::newBoolean(true);
+#endif
     return Boolean::newBoolean(false);
 }
 

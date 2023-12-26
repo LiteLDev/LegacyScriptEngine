@@ -1,10 +1,9 @@
 #pragma once
 #include "api/APIHelp.h"
-#include <string>
-#include <memory>
-#include "legacyapi/KVDBAPI.h"
-#include "utils/JsonHelper.h"
 #include "utils/IniHelper.h"
+#include "utils/JsonHelper.h"
+#include <memory>
+#include <string>
 
 //////////////////// Data Static ////////////////////
 
@@ -69,7 +68,7 @@ public:
 
 class ConfJsonClass : public ScriptClass, public ConfBaseClass {
 private:
-    fifo_json jsonConf;
+    ordered_json jsonConf;
     bool flush() override;
     bool close() override;
     bool reload() override;

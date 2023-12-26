@@ -7,10 +7,10 @@ extern Logger logger;
 
 SimpleIni* SimpleIni::create(const string& path, const std::string& defContent)
 {
-    if (!filesystem::exists(str2wstr(path)))
+    if (!filesystem::exists(ll::string_utils::str2wstr(path)))
     {
         //创建新的
-        filesystem::create_directories(filesystem::path(str2wstr(path)).remove_filename().u8string());
+        filesystem::create_directories(filesystem::path(ll::string_utils::str2wstr(path)).remove_filename().u8string());
 
         ofstream iniFile(path);
         if (iniFile.is_open() && defContent != "")

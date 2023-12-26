@@ -1,23 +1,19 @@
-#include "api/APIHelp.h"
 #include "api/FileSystemAPI.h"
-#include "engine/TimeTaskSystem.h"
-#include "engine/LocalShareData.h"
+#include "api/APIHelp.h"
 #include "engine/EngineManager.h"
+#include "engine/LocalShareData.h"
+#include "engine/TimeTaskSystem.h"
 #include <filesystem>
 #include <fstream>
+#include <ll/api/io/FileUtils.h>
 #include <string>
-#include <llapi/utils/FileHelper.h>
 
 using namespace std::filesystem;
 using namespace std;
 
 //////////////////// Class Definition ////////////////////
 
-enum class FileOpenMode : int {
-    ReadMode,
-    WriteMode,
-    AppendMode
-};
+enum class FileOpenMode : int { ReadMode, WriteMode, AppendMode };
 
 ClassDefine<FileClass> FileClassBuilder =
     defineClass<FileClass>("File")
@@ -70,13 +66,13 @@ ClassDefine<FileClass> FileClassBuilder =
         .build();
 
 std::optional<std::string> getDirectoryPath(const std::string& path) {
-    std::string dirPath; // Directory path
+    std::string dirPath;                       // Directory path
     if (path.find('/') != std::string::npos) { // e.g. plugins/LiteLoader/LiteLoader.json
         std::size_t pos = path.find_last_of('/');
         if (pos != std::string::npos) {
             dirPath = path.substr(0, pos);
         }
-    } else if(path.find('\\') != std::string::npos) { // e.g. plugins\\LiteLoader\\LiteLoader.json
+    } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LiteLoader\\LiteLoader.json
         std::size_t pos = path.find_last_of('\\');
         if (pos != std::string::npos) {
             dirPath = path.substr(0, pos);
@@ -89,18 +85,18 @@ std::optional<std::string> getDirectoryPath(const std::string& path) {
 
 //////////////////// Classes ////////////////////
 
-//生成函数
+// 生成函数
 FileClass::FileClass(const Local<Object>& scriptObj, std::fstream&& f, const std::string& path, bool isBinary)
 : ScriptClass(scriptObj) {
-    this->file = std::move(f);
-    this->path = path;
+    this->file     = std::move(f);
+    this->path     = path;
     this->isBinary = isBinary;
 }
 
 FileClass::FileClass(std::fstream&& f, const std::string& path, bool isBinary)
 : ScriptClass(ScriptClass::ConstructFromCpp<FileClass>{}) {
-    this->file = std::move(f);
-    this->path = path;
+    this->file     = std::move(f);
+    this->path     = path;
     this->isBinary = isBinary;
 }
 
@@ -112,7 +108,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
         CHECK_ARG_TYPE_C(args[2], ValueKind::kBoolean);
 
     try {
-        string path = args[0].toStr();
+        string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
             CreateDirs(dirPath.value());
@@ -123,7 +119,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
         FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
         // Auto Create
         if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
-            fstream tmp(str2wstr(path), ios_base::app);
+            fstream tmp(ll::string_utils::str2wstr(path), ios_base::app);
             tmp.flush();
             tmp.close();
         }
@@ -139,11 +135,11 @@ FileClass* FileClass::constructor(const Arguments& args) {
 
         bool isBinary = false;
         if (args.size() >= 3 && args[2].asBoolean().value()) {
-            isBinary = true;
-            mode |= ios_base::binary;
+            isBinary  = true;
+            mode     |= ios_base::binary;
         }
 
-        fstream fs(str2wstr(path), mode);
+        fstream fs(ll::string_utils::str2wstr(path), mode);
         if (!fs.is_open()) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
             return nullptr;
@@ -156,7 +152,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
     CATCH_C("Fail in OpenFile!");
 }
 
-//成员函数
+// 成员函数
 Local<Value> FileClass::getPath() {
     try {
         return String::newString(path);
@@ -166,7 +162,7 @@ Local<Value> FileClass::getPath() {
 
 Local<Value> FileClass::getAbsolutePath() {
     try {
-        return String::newString(canonical(filesystem::path(str2wstr(path))).u8string());
+        return String::newString(canonical(filesystem::path(ll::string_utils::str2wstr(path))).u8string());
     }
     CATCH("Fail in getAbsolutePath!");
 }
@@ -188,12 +184,13 @@ Local<Value> FileClass::readSync(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        int cnt = args[0].toInt();
+        int   cnt = args[0].toInt();
         char* buf = new char[cnt];
         file.read(buf, cnt);
         size_t bytes = file.gcount();
 
-        Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue() : String::newString(string_view(buf, bytes)).asValue();
+        Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
+                                    : String::newString(string_view(buf, bytes)).asValue();
         delete[] buf;
         return res;
     }
@@ -212,7 +209,8 @@ Local<Value> FileClass::readLineSync(const Arguments& args) {
 Local<Value> FileClass::readAllSync(const Arguments& args) {
     try {
         string res((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        return isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue() : String::newString(res).asValue();
+        return isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
+                        : String::newString(res).asValue();
     }
     CATCH("Fail in readAllSync!");
 }
@@ -251,13 +249,16 @@ Local<Value> FileClass::read(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        int cnt = args[0].toInt();
+        int                      cnt = args[0].toInt();
         script::Global<Function> callbackFunc{args[1].asFunction()};
 
-        pool.enqueue([cnt, fp{&file}, isBinary{isBinary}, lock{&lock},
-                      callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
-            SetCurrentThreadDescription(L"LLSE_FileRead_" _CRT_WIDE(LLSE_MODULE_TYPE));
-            if (ll::isServerStopping())
+        pool.enqueue([cnt,
+                      fp{&file},
+                      isBinary{isBinary},
+                      lock{&lock},
+                      callback{std::move(callbackFunc)},
+                      engine{EngineScope::currentEngine()}]() {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running))
                 return;
             if (!EngineManager::isValid(engine))
                 return;
@@ -270,13 +271,13 @@ Local<Value> FileClass::read(const Arguments& args) {
 
             EngineScope scope(engine);
             try {
-                Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue() : String::newString(string_view(buf, bytes)).asValue();
+                Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
+                                            : String::newString(string_view(buf, bytes)).asValue();
                 delete[] buf;
                 // dangerous
                 NewTimeout(callback.get(), {res}, 1);
             }
             CATCH_IN_CALLBACK("ReadFile")
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -290,10 +291,9 @@ Local<Value> FileClass::readLine(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.enqueue([fp{&file}, lock{&lock},
-                      callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
-            SetCurrentThreadDescription(L"LLSE_FileReadLine_" _CRT_WIDE(LLSE_MODULE_TYPE));
-            if (ll::isServerStopping())
+        pool.enqueue([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
+                     ) {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running))
                 return;
             if (!EngineManager::isValid(engine))
                 return;
@@ -308,7 +308,6 @@ Local<Value> FileClass::readLine(const Arguments& args) {
                 NewTimeout(callback.get(), {String::newString(buf)}, 1);
             }
             CATCH_IN_CALLBACK("FileReadLine")
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -322,10 +321,12 @@ Local<Value> FileClass::readAll(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.enqueue([fp{&file}, isBinary{isBinary}, lock{&lock},
-                      callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
-            SetCurrentThreadDescription(L"LLSE_FileReadAll_" _CRT_WIDE(LLSE_MODULE_TYPE));
-            if (ll::isServerStopping())
+        pool.enqueue([fp{&file},
+                      isBinary{isBinary},
+                      lock{&lock},
+                      callback{std::move(callbackFunc)},
+                      engine{EngineScope::currentEngine()}]() {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running))
                 return;
             if (!EngineManager::isValid(engine))
                 return;
@@ -336,11 +337,11 @@ Local<Value> FileClass::readAll(const Arguments& args) {
 
             EngineScope scope(engine);
             try {
-                Local<Value> readed = isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue() : String::newString(res).asValue();
+                Local<Value> readed = isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
+                                               : String::newString(res).asValue();
                 NewTimeout(callback.get(), {readed}, 1);
             }
             CATCH_IN_CALLBACK("FileReadAll")
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -354,7 +355,7 @@ Local<Value> FileClass::write(const Arguments& args) {
 
     try {
         string data;
-        bool isString = true;
+        bool   isString = true;
         if (args[0].isString()) {
             data = std::move(args[0].toStr());
         } else if (args[0].isByteBuffer()) {
@@ -369,10 +370,13 @@ Local<Value> FileClass::write(const Arguments& args) {
         if (args.size() >= 2)
             callbackFunc = args[1].asFunction();
 
-        pool.enqueue([fp{&file}, lock{&lock}, data{std::move(data)}, isString,
-                      callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
-            SetCurrentThreadDescription(L"LLSE_FileWrite_" _CRT_WIDE(LLSE_MODULE_TYPE));
-            if (ll::isServerStopping())
+        pool.enqueue([fp{&file},
+                      lock{&lock},
+                      data{std::move(data)},
+                      isString,
+                      callback{std::move(callbackFunc)},
+                      engine{EngineScope::currentEngine()}]() {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running))
                 return;
             if (!EngineManager::isValid(engine))
                 return;
@@ -392,7 +396,6 @@ Local<Value> FileClass::write(const Arguments& args) {
                 }
                 CATCH_IN_CALLBACK("WriteFile")
             }
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -412,10 +415,12 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
         if (args.size() >= 2)
             callbackFunc = args[1].asFunction();
 
-        pool.enqueue([fp{&file}, lock{&lock}, data{std::move(data)},
-                      callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
-            SetCurrentThreadDescription(L"LLSE_FileWriteLine_" _CRT_WIDE(LLSE_MODULE_TYPE));
-            if (ll::isServerStopping())
+        pool.enqueue([fp{&file},
+                      lock{&lock},
+                      data{std::move(data)},
+                      callback{std::move(callbackFunc)},
+                      engine{EngineScope::currentEngine()}]() {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running))
                 return;
             if (!EngineManager::isValid(engine))
                 return;
@@ -432,7 +437,6 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
                 }
                 CATCH_IN_CALLBACK("FileWriteLine")
             }
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -496,11 +500,9 @@ Local<Value> FileClass::isEOF(const Arguments& args) {
 Local<Value> FileClass::flush(const Arguments& args) {
     try {
         pool.enqueue([fp{&file}, lock{&lock}]() {
-            SetCurrentThreadDescription(L"LLSE_FileFlush_" _CRT_WIDE(LLSE_MODULE_TYPE));
             lock->lock();
             fp->flush();
             lock->unlock();
-            SetCurrentThreadDescription(L"LLSE_ThreadPool_Idle_" _CRT_WIDE(LLSE_MODULE_TYPE));
         });
         return Boolean::newBoolean(true);
     }
@@ -544,7 +546,7 @@ Local<Value> PathDelete(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(remove_all(str2wstr(args[0].asString().toString())) > 0);
+        return Boolean::newBoolean(remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Delete " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -557,7 +559,7 @@ Local<Value> PathExists(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(filesystem::exists(str2wstr(args[0].asString().toString())));
+        return Boolean::newBoolean(filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString())));
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Check " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -571,7 +573,10 @@ Local<Value> PathCopy(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        copy(str2wstr(args[0].asString().toString()), str2wstr(args[1].asString().toString()));
+        copy(
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
+        );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Copy " + args[0].asString().toString() + "!\n");
@@ -586,7 +591,10 @@ Local<Value> PathRename(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        rename(str2wstr(args[0].asString().toString()), str2wstr(args[1].asString().toString()));
+        rename(
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
+        );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Rename " + args[0].asString().toString() + "!\n");
@@ -601,8 +609,11 @@ Local<Value> PathMove(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        copy(str2wstr(args[0].asString().toString()), str2wstr(args[1].asString().toString()));
-        remove_all(str2wstr(args[0].asString().toString()));
+        copy(
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
+        );
+        remove_all(ll::string_utils::str2wstr(args[0].asString().toString()));
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Move " + args[0].asString().toString() + "!\n");
@@ -616,7 +627,7 @@ Local<Value> CheckIsDir(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(str2wstr(args[0].toStr()));
+        path p(ll::string_utils::str2wstr(args[0].toStr()));
         if (!exists(p))
             return Boolean::newBoolean(false);
 
@@ -633,7 +644,7 @@ Local<Value> GetFileSize(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(str2wstr(args[0].toStr()));
+        path p(ll::string_utils::str2wstr(args[0].toStr()));
         if (!exists(p))
             return Number::newNumber(0);
         if (directory_entry(p).is_directory())
@@ -682,7 +693,7 @@ Local<Value> FileWriteTo(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string path = args[0].toStr();
+        string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
             CreateDirs(dirPath.value());
@@ -701,7 +712,7 @@ Local<Value> FileWriteLine(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string path = args[0].toStr();
+        string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
             CreateDirs(dirPath.value());
@@ -730,7 +741,7 @@ Local<Value> OpenFile(const Arguments& args) {
         CHECK_ARG_TYPE(args[2], ValueKind::kBoolean);
 
     try {
-        string path = args[0].toStr();
+        string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
             CreateDirs(dirPath.value());
@@ -739,10 +750,10 @@ Local<Value> OpenFile(const Arguments& args) {
             return {};
         }
 
-        FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
-        ios_base::openmode mode = ios_base::in;
+        FileOpenMode       fMode = (FileOpenMode)(args[1].toInt());
+        ios_base::openmode mode  = ios_base::in;
         if (fMode == FileOpenMode::WriteMode) {
-            fstream tmp(str2wstr(path), ios_base::app);
+            fstream tmp(ll::string_utils::str2wstr(path), ios_base::app);
             tmp.flush();
             tmp.close();
             mode |= ios_base::out;
@@ -751,11 +762,11 @@ Local<Value> OpenFile(const Arguments& args) {
 
         bool isBinary = false;
         if (args.size() >= 3 && args[2].asBoolean().value()) {
-            isBinary = true;
-            mode |= ios_base::binary;
+            isBinary  = true;
+            mode     |= ios_base::binary;
         }
 
-        fstream fs(str2wstr(path), mode);
+        fstream fs(ll::string_utils::str2wstr(path), mode);
         if (!fs.is_open()) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
             return {};

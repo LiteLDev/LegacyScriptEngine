@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-// #include <liteloader/Loader.h> //todo
 #include "main/Configs.h"
 // #include <llapi/EventAPI.h> //todo
 #include "ll/api/schedule/Scheduler.h"
@@ -171,15 +170,7 @@ string EventTypeToString(EVENT_TYPES e) {
   catch (const std::exception &e) {                                            \
     logger.error("Event Callback Failed!");                                    \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
-    PrintScriptStackTrace();                                                   \
-    logger.error("In Event: " + EventTypeToString(TYPE));                      \
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
-  }                                                                            \
-  catch (const seh_exception &e) {                                             \
-    logger.error("Event Callback Failed!");                                    \
-    logger.error("SEH Uncaught Exception Detected!");                          \
-    logger.error(ll::utils::string_utils::tou8str(e.what()));                  \
+    logger.error(ll::string_utils::tou8str(e.what()));                  \
     PrintScriptStackTrace();                                                   \
     logger.error("In Event: " + EventTypeToString(TYPE));                      \
     logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
@@ -1390,9 +1381,6 @@ void InitBasicEventListeners() {
   // Plugin Hot Management
   Event::ScriptPluginManagerEvent::subscribe_ref(
       [](ScriptPluginManagerEvent &ev) {
-        // if (!ll::isDebugMode())
-        //     return false;
-
         switch (ev.operation) {
         case ScriptPluginManagerEvent::Operation::Load:
           // ev.pluginType is not used

@@ -1,15 +1,15 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "legacyapi/KVDBAPI.h"
 #include "legacyapi/db/Session.h"
+#include "ll/api/base/KeyValueDB.h"
 
 //////////////////// Classes ////////////////////
 
 //// KVDB
 class KVDBClass : public ScriptClass {
 private:
-    std::unique_ptr<KVDB> kvdb;
-    int unloadCallbackIndex = -1;
+    std::unique_ptr<ll::KeyValueDB> kvdb;
+    int                             unloadCallbackIndex = -1;
 
 public:
     explicit KVDBClass(const Local<Object>& scriptObj, const string& dir);
@@ -17,9 +17,7 @@ public:
     ~KVDBClass();
     static KVDBClass* constructor(const Arguments& args);
 
-    bool isValid() {
-        return kvdb->isValid();
-    }
+    bool isValid() { return kvdb.get(); }
 
     Local<Value> get(const Arguments& args);
     Local<Value> set(const Arguments& args);

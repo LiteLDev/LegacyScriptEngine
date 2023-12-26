@@ -2079,7 +2079,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments &args) {
         [id{player->getOrCreateUniqueID()},
          engine{EngineScope::currentEngine()},
          callback{script::Global(args[4].asFunction())}](int chosen) {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine))
             return;
@@ -2120,7 +2120,7 @@ Local<Value> PlayerClass::sendModalForm(const Arguments &args) {
         [id{player->getOrCreateUniqueID()},
          engine{EngineScope::currentEngine()},
          callback{script::Global(args[4].asFunction())}](bool chosen) {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine))
             return;
@@ -2153,13 +2153,13 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    string data = fifo_json::parse(args[0].toStr()).dump();
+    string data = ordered_json::parse(args[0].toStr()).dump();
 
     player->sendCustomFormPacket(
         data, [id{player->getOrCreateUniqueID()},
                engine{EngineScope::currentEngine()},
                callback{script::Global(args[1].asFunction())}](string result) {
-          if (ll::isServerStopping())
+          if ((ll::getServerStatus() != ll::ServerStatus::Running))
             return;
           if (!EngineManager::isValid(engine))
             return;
@@ -2177,9 +2177,9 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments &args) {
           CATCH_IN_CALLBACK("sendCustomForm")
         });
     return Number::newNumber(3);
-  } catch (const fifo_json::exception &e) {
+  } catch (const ordered_json::exception &e) {
     logger.error("Fail to parse Json string in sendCustomForm!");
-    logger.error(ll::utils::string_utils::tou8str(e.what()));
+    logger.error(ll::string_utils::tou8str(e.what()));
     PrintScriptStackTrace();
     return Local<Value>();
   }

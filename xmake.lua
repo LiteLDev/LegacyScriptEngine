@@ -14,7 +14,6 @@ add_requires("cpp-httplib v0.14.0")
 add_requires("dyncall 1.4")
 add_requires("lightwebsocketclient v1.0.0")
 add_requires("levilamina develop")
-add_requires("fifo_map v1.0.0")
 add_requires("demangler v2.0.0")
 
 -- Packages from local
@@ -54,6 +53,20 @@ target("LeviScript")
     set_languages("cxx20")
     add_files("src/**.cpp")
     add_includedirs("src")
+    set_exceptions("none")
+    add_cxflags(
+        "/utf-8",
+        "/permissive-",
+        "/EHa",
+        "/wd4819"
+        -- "/W4",
+        -- "/w44265",
+        -- "/w44289",
+        -- "/w44296",
+        -- "/w45263",
+        -- "/w44738",
+        -- "/w45204"
+    )
     add_defines(
         "_WIN32_WINNT=0x0601",
         "_AMD64_",
@@ -66,6 +79,7 @@ target("LeviScript")
         "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. SCRIPTX_BACKEND .. "/trait/Trait",
         "UNICODE",
         "LLSE_BACKEND_" .. LLSE_BACKEND,
+        "ENTT_PACKED_PAGE=128",
         "_HAS_CXX23=1"
     )
     add_shflags("/DELAYLOAD:bedrock_server.dll")
@@ -90,10 +104,8 @@ target("LeviScript")
     add_packages(
         "dyncall",
         "symbolprovider",
-        "nbt_cpp",
         "lightwebsocketclient",
         "levilamina",
-        "fifo_map",
         "demangler"
     )
 

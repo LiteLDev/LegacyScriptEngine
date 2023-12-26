@@ -10,7 +10,7 @@ Local<Value> PermInstanceToObject(const PermInstance& perm) {
     if (!perm.extra.is_object()) {
         obj.set("extra", {});
     } else {
-        obj.set("extra", JsonToValue(fifo_json(perm.extra)));
+        obj.set("extra", JsonToValue(ordered_json(perm.extra)));
     }
     return obj;
 }

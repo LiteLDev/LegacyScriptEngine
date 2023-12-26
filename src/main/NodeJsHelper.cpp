@@ -117,8 +117,8 @@ bool loadPluginCode(script::ScriptEngine *engine, std::string entryScriptPath,
   }
 
   // Process requireDir
-  if (!EndsWith(pluginDirPath, "/"))
-    pluginDirPath += "/";
+  if (!pluginDirPath.ends_with('/'))
+      pluginDirPath += "/";
   pluginDirPath = ReplaceStr(pluginDirPath, "\\", "/");
   entryScriptPath = ReplaceStr(entryScriptPath, "\\", "/");
 
@@ -168,11 +168,11 @@ bool loadPluginCode(script::ScriptEngine *engine, std::string entryScriptPath,
     uvLoopTask[env] = Schedule::repeat(
         [engine, env, isRunningMap{&isRunning},
          eventLoop{it->second->event_loop()}]() {
-          if (!ll::isServerStopping() && (*isRunningMap)[env]) {
+          if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
             EngineScope enter(engine);
             uv_run(eventLoop, UV_RUN_NOWAIT);
           }
-          if (ll::isServerStopping()) {
+          if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
             uv_stop(eventLoop);
             logger.debug("Destroy ServerStopping");
           }
@@ -389,7 +389,7 @@ bool loadNodeJsPlugin(std::string dirPath, const std::string &packagePath,
     }
   } catch (const std::exception &e) {
     logger.error("Fail to load " + dirPath + "!");
-    logger.error(ll::utils::string_utils::tou8str(e.what()));
+    logger.error(ll::string_utils::tou8str(e.what()));
   } catch (...) {
     logger.error("Fail to load " + dirPath + "!");
   }

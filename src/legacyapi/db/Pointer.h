@@ -37,7 +37,6 @@ public:
     {
         auto ptr = std::shared_ptr<T>::get();
         if (!ptr) throw std::runtime_error("The pointer is nullptr");
-        //Logger("DBG").debug("operator<< {}", (void*)ptr);
         return (*ptr) << v;
     }
 

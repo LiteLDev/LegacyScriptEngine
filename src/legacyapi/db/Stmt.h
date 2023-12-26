@@ -4,11 +4,9 @@
 
 #define IF_ENDBG if (debugOutput)
 
-class Logger;
-
 namespace DB {
 
-extern Logger dbLogger;
+extern ll::Logger dbLogger;
 
 class Session;
 

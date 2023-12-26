@@ -48,10 +48,11 @@ string& StrReplace(string& str, const string& to_replaced, const string& new_str
 }
 ////////////////// Helper //////////////////
 
-void inline LogDataHelper(Logger::OutputStream* outStream, const Arguments& args) {
+void inline LogDataHelper(ll::Logger::OutputStream* outStream, const Arguments& args) {
+    std::string res;
     for (int i = 0; i < args.size(); ++i)
-        PrintValue(*outStream, args[i]);
-    (*outStream) << Logger::endl;
+        res += ValueToString(args[i]);
+    (*outStream)(res);
 }
 
 Local<Value> LoggerClass::log(const Arguments& args) {
@@ -175,25 +176,14 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
             ENGINE_OWN_DATA()->logger.fileLevel = args[1].toInt();
             UpdateMaxLogLevel();
         }
-        return Boolean::newBoolean(ENGINE_OWN_DATA()->logger.ofs.is_open());
+        return Boolean::newBoolean(ENGINE_OWN_DATA()->logger.ofs.value().is_open());
     }
     CATCH("Fail in LoggerSetFile!")
 }
 
 Local<Value> LoggerClass::setPlayer(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 1)
-    if (args.size() >= 2)
-        CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
-
     try {
-        Player* p = PlayerClass::extract(args[0]);
-        ENGINE_OWN_DATA()->logger.player = p;
-
-        if (args.size() >= 2) {
-            ENGINE_OWN_DATA()->logger.playerLevel = args[1].toInt();
-            UpdateMaxLogLevel();
-        }
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in LoggerSetPlayer!")
 }

@@ -10,6 +10,7 @@
 #include "api/PlayerAPI.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
+#include "ll/api/service/GlobalService.h"
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -956,7 +957,7 @@ Local<Value> EntityClass::isPlayer(const Arguments &args) {
     if (!entity)
       return Local<Value>();
 
-    return Boolean::newBoolean(entity->isPlayer());
+    return Boolean::newBoolean(entity->isType(ActorType::Player));
   }
   CATCH("Fail in isPlayer!")
 }
@@ -964,7 +965,7 @@ Local<Value> EntityClass::isPlayer(const Arguments &args) {
 Local<Value> EntityClass::toPlayer(const Arguments &args) {
   try {
     Actor *entity = get();
-    if (!entity || !entity->isPlayer())
+    if (!entity || !entity->isType(ActorType::Player))
       return Local<Value>();
 
     auto pl = (Player *)entity;
@@ -1522,7 +1523,7 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments &args) {
     HitDetection::searchActors(actor->getViewVector(1.0f), maxDistance,
                                cameraPos, actor->getAABB(), actor,
                                (Player *)actor, distance, result, resultVec3,
-                               actor->isPlayer() ? true : false);
+                               actor->isType(ActorType::Player) ? true : false);
     if (result)
       return EntityClass::newEntity(result);
     return Local<Value>();
@@ -1656,7 +1657,7 @@ Local<Value> EntityClass::removeEffect(const Arguments &args) {
 
 Local<Value> McClass::getAllEntities(const Arguments &args) {
   try {
-    auto entityList = Level::getAllEntities();
+    auto entityList = ll::Global<Level>->getEntities();
     auto arr = Array::newArray();
     for (auto i : entityList) {
       arr.add(EntityClass::newEntity(i));
@@ -1677,7 +1678,7 @@ Local<Value> McClass::getEntities(const Arguments &args) {
         // IntPos
         IntPos *posObj = IntPos::extractPos(args[0]);
 
-        aabb.min = posObj->getBlockPos().toVec3();
+        aabb.min = Vec3(posObj->x, posObj->y, posObj->z);
         dim = posObj->dim;
 
       } else if (IsInstanceOf<FloatPos>(args[0])) {
@@ -1697,7 +1698,7 @@ Local<Value> McClass::getEntities(const Arguments &args) {
             LOG_ERROR_WITH_SCRIPT_INFO("Wrong Dimension!");
             return Local<Value>();
           }
-          aabb.max = posObj->getBlockPos().toVec3() + 1;
+          aabb.max = Vec3(posObj->x, posObj->y, posObj->z) + 1;
           dim = posObj->dim;
 
         } else if (IsInstanceOf<FloatPos>(args[1])) {

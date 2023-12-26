@@ -1,48 +1,52 @@
 #include "api/NativeAPI.h"
+#include "ll/api/service/GlobalService.h"
+#include "mc/world/Minecraft.h"
+#include "mc/server/common/commands/AllowListCommand.h"
+#include "mc/network/NetworkSystem.h"
 
 
 Local<Value> GlobalNativePointer::getLevelPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<Level>);
+    return NativePointer::newNativePointer(ll::Global<Level>);
 }
 
 Local<Value> GlobalNativePointer::getMinecraftPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<Minecraft>);
+    return NativePointer::newNativePointer(ll::Global<Minecraft>);
 }
 
 Local<Value> GlobalNativePointer::getServerNetworkHandlerPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<ServerNetworkHandler>);
+    return NativePointer::newNativePointer(ll::Global<ServerNetworkHandler>);
 }
 
 Local<Value> GlobalNativePointer::getMinecraftCommandsPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<MinecraftCommands>);
+    return NativePointer::newNativePointer(&ll::Global<Minecraft>->getCommands());
 }
 
 Local<Value> GlobalNativePointer::getLevelStoragePtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<LevelStorage>);
+    return NativePointer::newNativePointer(&ll::Global<Level>->getLevelStorage());
 }
 
 Local<Value> GlobalNativePointer::getDBStoragePtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<DBStorage>);
+    return NativePointer::newNativePointer(&ll::Global<Level>->getLevelStorage());
 }
 
 Local<Value> GlobalNativePointer::getRakNetServerLocatorPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<RakNetServerLocator>);
+    return NativePointer::newNativePointer(&ll::Global<NetworkSystem>->getServerLocator());
 }
 
 Local<Value> GlobalNativePointer::getRakNetRakPeerPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<RakNet::RakPeer>);
+    return NativePointer::newNativePointer(ll::Global<RakNet::RakPeer>);
 }
 
 Local<Value> GlobalNativePointer::getScoreboardPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<Scoreboard>);
+    return NativePointer::newNativePointer(&ll::Global<Level>->getScoreboard());
 }
 
 Local<Value> GlobalNativePointer::getAllowListFilePtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<AllowListFile>);
+    return NativePointer::newNativePointer(AllowListCommand::$mAllowListFile());
 }
 
 Local<Value> GlobalNativePointer::getPropertiesSettingsPtr(const Arguments& args) {
-    return NativePointer::newNativePointer(Global<PropertiesSettings>);
+    return NativePointer::newNativePointer(ll::Global<PropertiesSettings>);
 }
 
 ClassDefine<GlobalNativePointer> GlobalNativePointerBuilder =

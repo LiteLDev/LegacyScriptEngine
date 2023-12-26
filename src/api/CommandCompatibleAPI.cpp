@@ -14,15 +14,22 @@
 #include <ll/api/command/CommandRegistrar.h>
 #include <string>
 #include <vector>
+#include "ll/api/event/EventBus.h"
+#include "ll/api/event/command/SetupCommandEvent.h"
 
 using namespace std;
 
 //////////////////// Helper ////////////////////
 
 bool RegisterCmd(const string &cmd, const string &describe, int cmdLevel) {
-  ll::Global<CommandRegistry>->registerCommand(
-      cmd, describe.c_str(), (CommandPermissionLevel)cmdLevel,
-      {(CommandFlagValue)0}, {(CommandFlagValue)0x80});
+  using namespace ll::event;
+  EventBus::getInstance().emplaceListener<command::SetupCommandEvent>(
+      [cmd, describe, cmdLevel](command::SetupCommandEvent &ev) {
+        auto &registry = ev.registry();
+        registry.registerCommand(
+            cmd, describe.c_str(), (CommandPermissionLevel)cmdLevel,
+            {(CommandFlagValue)0}, {(CommandFlagValue)0x80});
+      });
   return true;
 }
 

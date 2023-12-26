@@ -215,7 +215,6 @@ template <typename T> void PrintValue(T &out, Local<Value> v) {
 }
 
 template void PrintValue(std::ostream &out, Local<Value> v);
-template void PrintValue(ll::Logger::OutputStream &out, Local<Value> v);
 
 std::string ValueToString(Local<Value> v) {
   std::ostringstream sout;

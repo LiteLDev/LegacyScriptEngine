@@ -1,6 +1,7 @@
 /*
- * Tencent is pleased to support the open source community by making ScriptX available.
- * Copyright (C) 2021 THL A29 Limited, a Tencent company.  All rights reserved.
+ * Tencent is pleased to support the open source community by making ScriptX
+ * available. Copyright (C) 2021 THL A29 Limited, a Tencent company.  All rights
+ * reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +17,56 @@
  */
 
 #pragma once
-#include <unordered_map>
 #include "../../scriptx/Engine.h"
 #include "../../scriptx/Exception.h"
 #include "../../scriptx/Native.h"
 #include "../../scriptx/utils/GlobalWeakBookkeeping.hpp"
 #include "../../scriptx/utils/MessageQueue.h"
 #include "LuaHelper.h"
+#include <unordered_map>
 
 namespace script::lua_backend {
 
-class LuaByteBufferDelegate;
+class LuaByteBufferDelegate {
+public:
+  LuaByteBufferDelegate() = default;
+  virtual ~LuaByteBufferDelegate() = default;
+
+  SCRIPTX_DISALLOW_COPY_AND_MOVE(LuaByteBufferDelegate);
+
+  virtual void init(LuaEngine *engine) = 0;
+
+  /**
+   * create a new byte buffer object, return it's index on the stack
+   */
+  virtual Local<Value> newByteBuffer(LuaEngine *engine,
+                                     std::shared_ptr<void> nativeBuffer,
+                                     size_t size) = 0;
+
+  /**
+   * get the underlying shared_ptr
+   */
+  virtual std::shared_ptr<void>
+  getByteBuffer(LuaEngine *engine, const Local<Value> &byteBuffer) = 0;
+
+  virtual size_t getByteBufferSize(LuaEngine *engine,
+                                   const Local<Value> &byteBuffer) = 0;
+
+  virtual bool isByteBuffer(LuaEngine *engine,
+                            const Local<Value> &byteBuffer) = 0;
+};
 
 class LuaEngine : public ScriptEngine {
- private:
+private:
   // any pointer is fine, just need to be unique
-  static const void* const kLuaTableNativeThisPtrToken_;
-  static const void* const kLuaTableNativeClassDefinePtrToken_;
-  static const void* const kLuaNativeConstructorMarker_;
-  static const void* const kLuaNativeInternalStorageToken_;
-  static const void* const kLuaBuiltinDefinedClassMetaDataToken_;
+  static const void *const kLuaTableNativeThisPtrToken_;
+  static const void *const kLuaTableNativeClassDefinePtrToken_;
+  static const void *const kLuaNativeConstructorMarker_;
+  static const void *const kLuaNativeInternalStorageToken_;
+  static const void *const kLuaBuiltinDefinedClassMetaDataToken_;
 
-  static const void* const kLuaGlobalRegistryToken_;
-  static const void* const kLuaWeakRegistryToken_;
+  static const void *const kLuaGlobalRegistryToken_;
+  static const void *const kLuaWeakRegistryToken_;
 
   static constexpr auto kIsInstanceBuiltInFunctionName = "isInstance";
   static constexpr auto kMetaTableBuiltInInstanceFunctions = "instanceFunction";
@@ -46,7 +74,7 @@ class LuaEngine : public ScriptEngine {
   std::mutex lock_;
   std::shared_ptr<::script::utils::MessageQueue> messageQueue_;
   size_t globalIdCounter_ = 1;
-  std::unordered_map<const void*, Global<Object>> nativeDefineRegistry_;
+  std::unordered_map<const void *, Global<Object>> nativeDefineRegistry_;
   ::script::internal::GlobalWeakBookkeeping globalWeakBookkeeping_;
   std::unique_ptr<LuaByteBufferDelegate> byteBufferDelegate_;
 
@@ -54,12 +82,13 @@ class LuaEngine : public ScriptEngine {
   size_t weakRefCount_ = 0;
   bool isDestroying_ = false;
 
-  lua_State* lua_ = nullptr;
+  lua_State *lua_ = nullptr;
 
- public:
-  explicit LuaEngine(std::shared_ptr<::script::utils::MessageQueue> queue = {},
-                     const std::function<lua_State*()>& luaStateFactory = {},
-                     std::unique_ptr<LuaByteBufferDelegate> byteBufferDelegate = {});
+public:
+  explicit LuaEngine(
+      std::shared_ptr<::script::utils::MessageQueue> queue = {},
+      const std::function<lua_State *()> &luaStateFactory = {},
+      std::unique_ptr<LuaByteBufferDelegate> byteBufferDelegate = {});
 
   SCRIPTX_DISALLOW_COPY_AND_MOVE(LuaEngine);
 
@@ -67,17 +96,19 @@ class LuaEngine : public ScriptEngine {
 
   bool isDestroying() const override;
 
-  Local<Value> get(const Local<String>& key) override;
+  Local<Value> get(const Local<String> &key) override;
 
-  void set(const Local<String>& key, const Local<Value>& value) override;
+  void set(const Local<String> &key, const Local<Value> &value) override;
   using ScriptEngine::set;
 
-  Local<Value> eval(const Local<String>& script, const Local<Value>& sourceFile);
-  Local<Value> eval(const Local<String>& script, const Local<String>& sourceFile) override;
-  Local<Value> eval(const Local<String>& script) override;
+  Local<Value> eval(const Local<String> &script,
+                    const Local<Value> &sourceFile);
+  Local<Value> eval(const Local<String> &script,
+                    const Local<String> &sourceFile) override;
+  Local<Value> eval(const Local<String> &script) override;
   using ScriptEngine::eval;
 
-  Local<Value> loadFile(const Local<String>& scriptFile) override;
+  Local<Value> loadFile(const Local<String> &scriptFile) override;
 
   std::shared_ptr<utils::MessageQueue> messageQueue() override;
 
@@ -91,122 +122,133 @@ class LuaEngine : public ScriptEngine {
 
   std::string getEngineVersion() override;
 
- protected:
+protected:
   ~LuaEngine() override;
 
- private:
+private:
   void initGlobalRegistry();
 
-  Local<Value> get(const char* key);
+  Local<Value> get(const char *key);
 
-  void set(const char* key, const Local<Value>& value);
+  void set(const char *key, const Local<Value> &value);
 
   size_t globalIdCounter();
 
-  size_t putGlobalOrWeakTable(const Local<Value>& localReference, const void* registryToken);
+  size_t putGlobalOrWeakTable(const Local<Value> &localReference,
+                              const void *registryToken);
 
-  void removeGlobalOrWeakTable(size_t id, const void* registryToken);
+  void removeGlobalOrWeakTable(size_t id, const void *registryToken);
 
-  Local<Value> getGlobalOrWeakTable(size_t index, const void* registryToken) const;
+  Local<Value> getGlobalOrWeakTable(size_t index,
+                                    const void *registryToken) const;
 
   template <typename T>
-  void registerNativeClassImpl(const ClassDefine<T>* classDefine);
+  void registerNativeClassImpl(const ClassDefine<T> *classDefine);
 
-  static const ClassDefine<void>& builtInFunctions();
+  static const ClassDefine<void> &builtInFunctions();
 
-  void registerStaticDefine(const internal::StaticDefine& staticDefine, int table, int metaTable);
+  void registerStaticDefine(const internal::StaticDefine &staticDefine,
+                            int table, int metaTable);
 
-  void defineStaticFunctions(const internal::StaticDefine& staticDefine, int tableIndex);
+  void defineStaticFunctions(const internal::StaticDefine &staticDefine,
+                             int tableIndex);
 
-  void defineStaticProperties(const internal::StaticDefine& staticDefine, int tableIndex, int i);
+  void defineStaticProperties(const internal::StaticDefine &staticDefine,
+                              int tableIndex, int i);
 
   // [0, 0, -]
   template <typename T>
-  void registerInstanceDefine(const ClassDefine<T>& classDefine, int table, int staticMeta);
+  void registerInstanceDefine(const ClassDefine<T> &classDefine, int table,
+                              int staticMeta);
 
   // [0, 0, -]
   template <typename T>
-  void defineInstanceConstructor(const ClassDefine<T>& classDefine, int instanceMeta,
-                                 int staticMeta) const;
+  void defineInstanceConstructor(const ClassDefine<T> &classDefine,
+                                 int instanceMeta, int staticMeta) const;
 
   template <typename T>
-  void defineInstanceFunctions(const ClassDefine<T>& classDefine, int instanceFunctionTable) const;
+  void defineInstanceFunctions(const ClassDefine<T> &classDefine,
+                               int instanceFunctionTable) const;
 
   template <typename T>
-  void defineInstanceProperties(const ClassDefine<T>& classDefine, int instanceMeta,
-                                int instanceFunction) const;
+  void defineInstanceProperties(const ClassDefine<T> &classDefine,
+                                int instanceMeta, int instanceFunction) const;
 
   // [0, 0, -]
-  void setupMetaTableForProperties(int metaIndex, int instanceFunction, int getterRegistryIndex,
+  void setupMetaTableForProperties(int metaIndex, int instanceFunction,
+                                   int getterRegistryIndex,
                                    int setterRegistryIndex) const;
 
-  using PushFunctionCallback = Local<Value> (*)(lua_State*, void*, const Arguments&);
+  using PushFunctionCallback = Local<Value> (*)(lua_State *, void *,
+                                                const Arguments &);
   /**
    * push a lua function, the data will not be collected automatically.
    * [0, +1, -]
    */
-  void pushFunction(const void* data, PushFunctionCallback callable);
+  void pushFunction(const void *data, PushFunctionCallback callable);
 
   template <typename T>
-  Local<Object> newNativeClassImpl(const ClassDefine<T>* classDefine,
-                                   const std::initializer_list<Local<Value>>& args) {
+  Local<Object>
+  newNativeClassImpl(const ClassDefine<T> *classDefine,
+                     const std::initializer_list<Local<Value>> &args) {
     return newNativeClassImpl(classDefine, args.size(), args.begin());
   }
 
   template <typename T>
-  Local<Object> newNativeClassImpl(const ClassDefine<T>* classDefine,
-                                   const std::vector<Local<Value>>& args) {
+  Local<Object> newNativeClassImpl(const ClassDefine<T> *classDefine,
+                                   const std::vector<Local<Value>> &args) {
     return newNativeClassImpl(classDefine, args.size(), args.data());
   }
 
   template <typename T>
-  Local<Object> newNativeClassImpl(const ClassDefine<T>* classDefine, size_t size,
-                                   const Local<Value>* ptr);
+  Local<Object> newNativeClassImpl(const ClassDefine<T> *classDefine,
+                                   size_t size, const Local<Value> *ptr);
 
   template <typename T>
-  bool isInstanceOfImpl(const Local<Value>& value, const ClassDefine<T>* classDefine);
+  bool isInstanceOfImpl(const Local<Value> &value,
+                        const ClassDefine<T> *classDefine);
 
   template <typename T>
-  T* getNativeInstanceImpl(const Local<Value>& value, const ClassDefine<T>* classDefine);
+  T *getNativeInstanceImpl(const Local<Value> &value,
+                           const ClassDefine<T> *classDefine);
 
-  static Local<Value> getClassMetaTable(lua_State* lua, int classIndex);
+  static Local<Value> getClassMetaTable(lua_State *lua, int classIndex);
 
-  static bool isInstanceOf(lua_State* lua, int classIndex, int selfIndex);
+  static bool isInstanceOf(lua_State *lua, int classIndex, int selfIndex);
 
-  static bool isInstanceOf(lua_State* lua, const void* classDefine, int selfIndex);
+  static bool isInstanceOf(lua_State *lua, const void *classDefine,
+                           int selfIndex);
 
-  static void* getNativeThis(lua_State* lua, const void* classDefine, int selfIndex);
+  static void *getNativeThis(lua_State *lua, const void *classDefine,
+                             int selfIndex);
 
-  using PushInstanceFunctionCallback = Local<Value> (*)(lua_State*, void*, void*, const Arguments&);
+  using PushInstanceFunctionCallback = Local<Value> (*)(lua_State *, void *,
+                                                        void *,
+                                                        const Arguments &);
   /**
    * [0, +1, -]
    */
-  void pushInstanceFunction(const void* data, const void* classDefine,
+  void pushInstanceFunction(const void *data, const void *classDefine,
                             PushInstanceFunctionCallback callable) const;
 
- public:
-  template <typename T, typename... Args>
-  static T make(Args&&... args) {
+public:
+  template <typename T, typename... Args> static T make(Args &&...args) {
     return T(std::forward<Args>(args)...);
   }
 
-  template <typename LocalRef>
-  static int localRefIndex(const LocalRef& ref) {
+  template <typename LocalRef> static int localRefIndex(const LocalRef &ref) {
     return ref.val_;
   }
 
-  static Arguments makeArguments(LuaEngine* engine, int stackBase, size_t paramCount,
-                                 bool isInstanceFunc);
+  static Arguments makeArguments(LuaEngine *engine, int stackBase,
+                                 size_t paramCount, bool isInstanceFunc);
 
- private:
-  template <typename T>
-  friend class ::script::Local;
+private:
+  template <typename T> friend class ::script::Local;
 
-  template <typename T>
-  friend class ::script::Global;
+  template <typename T> friend class ::script::Global;
 
-  template <typename T>
-  friend class ::script::Weak;
+  template <typename T> friend class ::script::Weak;
 
   friend class ::script::Object;
 
@@ -232,47 +274,17 @@ class LuaEngine : public ScriptEngine {
 
   friend class LuaByteBufferImpl;
 
-  friend lua_State* currentLua();
+  friend lua_State *currentLua();
 
-  friend void pushValue(lua_State* lua, const Local<Value>& local);
+  friend void pushValue(lua_State *lua, const Local<Value> &local);
 
   template <typename It>
-  friend void pushValues(lua_State* lua, size_t count, It begin);
+  friend void pushValues(lua_State *lua, size_t count, It begin);
 
-  template <typename Ref>
-  static auto& refVal(Ref* ref) {
-    return ref->val_;
-  }
+  template <typename Ref> static auto &refVal(Ref *ref) { return ref->val_; }
 
   friend struct LuaBookKeepFetcher;
 
   friend struct ::script::lua_interop;
 };
-
-class LuaByteBufferDelegate {
- public:
-  LuaByteBufferDelegate() = default;
-  virtual ~LuaByteBufferDelegate() = default;
-
-  SCRIPTX_DISALLOW_COPY_AND_MOVE(LuaByteBufferDelegate);
-
-  virtual void init(LuaEngine* engine) = 0;
-
-  /**
-   * create a new byte buffer object, return it's index on the stack
-   */
-  virtual Local<Value> newByteBuffer(LuaEngine* engine, std::shared_ptr<void> nativeBuffer,
-                                     size_t size) = 0;
-
-  /**
-   * get the underlying shared_ptr
-   */
-  virtual std::shared_ptr<void> getByteBuffer(LuaEngine* engine,
-                                              const Local<Value>& byteBuffer) = 0;
-
-  virtual size_t getByteBufferSize(LuaEngine* engine, const Local<Value>& byteBuffer) = 0;
-
-  virtual bool isByteBuffer(LuaEngine* engine, const Local<Value>& byteBuffer) = 0;
-};
-
-}  // namespace script::lua_backend
+} // namespace script::lua_backend

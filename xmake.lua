@@ -13,13 +13,13 @@ add_requires("cpp-httplib v0.14.0")
 -- Packages from liteldev-xmake-repo
 add_requires("dyncall 1.4")
 add_requires("lightwebsocketclient v1.0.0")
-add_requires("threadpool v1.0.0")
 add_requires("levilamina develop")
 add_requires("fifo_map v1.0.0")
 add_requires("demangler v2.0.0")
 
 -- Packages from local
 add_requires("scriptx-legacy")
+add_requires("threadpool")
 
 package("levilamina")
     add_urls("https://github.com/LiteLDev/LeviLamina.git")
@@ -92,11 +92,13 @@ target("LeviScript")
         "symbolprovider",
         "nbt_cpp",
         "lightwebsocketclient",
-        "threadpool",
         "levilamina",
         "fifo_map",
         "demangler"
     )
 
     -- Packages from local
-    add_packages("scriptx-legacy")
+    add_packages(
+        "scriptx-legacy",
+        "threadpool"
+    )

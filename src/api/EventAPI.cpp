@@ -12,6 +12,7 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "engine/TimeTaskSystem.h"
+#include "ll/api/service/GlobalService.h"
 #include "main/BuiltinCommands.h"
 #include "main/Global.hpp"
 #include "main/NodeJsHelper.h"
@@ -28,17 +29,17 @@
 #include "main/Configs.h"
 // #include <llapi/EventAPI.h> //todo
 #include "ll/api/schedule/Scheduler.h"
-#include "mc/BlockInstance.hpp"
-#include "mc/MobEffectInstance.hpp"
-#include "mc/VanillaBlocks.hpp"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/utils/VanillaBlocks.h"
 #include "mc/world/scores/Objective.h"
+#include "mc/world/scores/Scoreboard.h"
 
 using namespace std;
 
@@ -170,7 +171,7 @@ string EventTypeToString(EVENT_TYPES e) {
   catch (const std::exception &e) {                                            \
     logger.error("Event Callback Failed!");                                    \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::string_utils::tou8str(e.what()));                  \
+    logger.error(ll::string_utils::tou8str(e.what()));                         \
     PrintScriptStackTrace();                                                   \
     logger.error("In Event: " + EventTypeToString(TYPE));                      \
     logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);               \
@@ -309,19 +310,20 @@ bool LLSERemoveAllEventListeners(ScriptEngine *engine) {
 bool LLSECallEventsOnHotLoad(ScriptEngine *engine) {
   FakeCallEvent(engine, EVENT_TYPES::onServerStarted);
 
-  auto players = Level::getAllPlayers();
-  for (auto &pl : players)
-    FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(pl));
-  for (auto &pl : players)
-    FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(pl));
+  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+    FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
+  });
+  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+    FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
+  });
 
   return true;
 }
 
 bool LLSECallEventsOnHotUnload(ScriptEngine *engine) {
-  auto players = Level::getAllPlayers();
-  for (auto &pl : players)
-    FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(pl));
+  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+    FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
+  });
   for (auto &[index, cb] : ENGINE_GET_DATA(engine)->unloadCallbacks) {
     cb(engine);
   }

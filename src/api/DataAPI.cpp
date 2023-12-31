@@ -3,11 +3,14 @@
 #include "api/DatabaseAPI.h"
 #include <fstream>
 #include <string>
+#include <vector>
 
 // #include <llapi/PlayerInfoAPI.h>
 #include "legacyapi/Base64.hpp"
 #include "legacyapi/utils/FileHelper.h"
+#include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/CryptoUtils.h"
+#include "ll/api/utils/StringUtils.h"
 #include "main/EconomicSystem.h"
 #include "utils/JsonHelper.h"
 
@@ -17,10 +20,10 @@ using namespace std;
 
 ClassDefine<void> DataClassBuilder =
     defineClass("data")
-        // .function("xuid2name", &DataClass::xuid2name)
-        // .function("name2xuid", &DataClass::name2xuid)
-        // .function("xuid2uuid", &DataClass::xuid2uuid)
-        // .function("name2uuid", &DataClass::name2uuid)
+        .function("xuid2name", &DataClass::xuid2name)
+        .function("name2xuid", &DataClass::name2xuid)
+        .function("xuid2uuid", &DataClass::xuid2uuid)
+        .function("name2uuid", &DataClass::name2uuid)
         // .function("getAllPlayerInfo", &DataClass::getAllPlayerInfo)
         .function("parseJson", &DataClass::parseJson)
         .function("toJson", &DataClass::toJson)
@@ -34,16 +37,16 @@ ClassDefine<void> DataClassBuilder =
         .function("openConfig", &DataClass::openConfig)
         .build();
 
-// ClassDefine<void> MoneyClassBuilder =
-//     defineClass("money")
-//         .function("set", &MoneyClass::set)
-//         .function("get", &MoneyClass::get)
-//         .function("add", &MoneyClass::add)
-//         .function("reduce", &MoneyClass::reduce)
-//         .function("trans", &MoneyClass::trans)
-//         .function("getHistory", &MoneyClass::getHistory)
-//         .function("clearHistory", &MoneyClass::clearHistory)
-//         .build();
+ClassDefine<void> MoneyClassBuilder =
+    defineClass("money")
+        .function("set", &MoneyClass::set)
+        .function("get", &MoneyClass::get)
+        .function("add", &MoneyClass::add)
+        .function("reduce", &MoneyClass::reduce)
+        .function("trans", &MoneyClass::trans)
+        .function("getHistory", &MoneyClass::getHistory)
+        .function("clearHistory", &MoneyClass::clearHistory)
+        .build();
 
 ClassDefine<ConfJsonClass> ConfJsonClassBuilder =
     defineClass<ConfJsonClass>("JsonConfigFile")
@@ -650,7 +653,10 @@ Local<Value> MoneyClass::trans(const Arguments &args) {
 }
 
 Local<Array> objectificationMoneyHistory(const string &res) {
-  auto list = SplitStrWithPattern(res, "\n");
+  std::vector<std::string_view> listV =
+      ll::string_utils::splitByPattern(res, "\n");
+  std::vector<std::string> list =
+      std::vector<std::string>(listV.begin(), listV.end());
   // from -> to money time (note)
 
   Local<Array> arr = Array::newArray();
@@ -726,7 +732,9 @@ Local<Value> DataClass::xuid2name(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    return String::newString(PlayerInfo::fromXuid(args[0].toStr()));
+    auto playerInfo =
+        ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString());
+    return String::newString(playerInfo ? playerInfo->name : std::string());
   }
   CATCH("Fail in XuidToName!");
 }
@@ -736,7 +744,9 @@ Local<Value> DataClass::name2xuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    return String::newString(PlayerInfo::getXuid(args[0].toStr()));
+    auto playerInfo =
+        ll::service::PlayerInfo::getInstance().fromName(args[0].asString());
+    return String::newString(playerInfo ? playerInfo->xuid : std::string());
   }
   CATCH("Fail in NameToXuid!");
 }
@@ -746,7 +756,9 @@ Local<Value> DataClass::name2uuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    return String::newString(PlayerInfo::getUUID(args[0].toStr()));
+    auto playerInfo =
+        ll::service::PlayerInfo::getInstance().fromName(args[0].asString());
+    return String::newString(playerInfo ? playerInfo->uuid : std::string());
   }
   CATCH("Fail in NameToUuid!");
 }
@@ -756,28 +768,31 @@ Local<Value> DataClass::xuid2uuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    return String::newString(PlayerInfo::getUUIDByXuid(args[0].toStr()));
+    auto playerInfo =
+        ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString());
+    return String::newString(playerInfo ? playerInfo->uuid : std::string());
   }
   CATCH("Fail in XuidToUuid!");
 }
 
-Local<Value> DataClass::getAllPlayerInfo(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 0);
+// Unsupported
+// Local<Value> DataClass::getAllPlayerInfo(const Arguments &args) {
+//   CHECK_ARGS_COUNT(args, 0);
 
-  try {
-    auto info = PlayerInfo::getAllPlayerInfo();
-    auto arr = Array::newArray();
-    for (const auto &it : info) {
-      auto obj = Object::newObject();
-      obj.set("name", String::newString(it.name));
-      obj.set("xuid", String::newString(it.xuid));
-      obj.set("uuid", String::newString(it.uuid));
-      arr.add(obj);
-    }
-    return arr;
-  }
-  CATCH("Fail in getAllPlayerInfo!");
-}
+//   try {
+//     auto info = PlayerInfo::getAllPlayerInfo();
+//     auto arr = Array::newArray();
+//     for (const auto &it : info) {
+//       auto obj = Object::newObject();
+//       obj.set("name", String::newString(it.name));
+//       obj.set("xuid", String::newString(it.xuid));
+//       obj.set("uuid", String::newString(it.uuid));
+//       arr.add(obj);
+//     }
+//     return arr;
+//   }
+//   CATCH("Fail in getAllPlayerInfo!");
+// }
 
 Local<Value> DataClass::toJson(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);

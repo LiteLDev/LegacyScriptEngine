@@ -5,14 +5,14 @@
 
 #include <magic_enum.hpp>
 
-#include <mc/world/level/Level.h>
+#include "mc/world/level/Level.h"
 
 #include "engine/EngineOwnData.h"
 #include "main/Global.hpp"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
 
-#include <ll/api/base/ErrorInfo.h>
+#include "ll/api/base/ErrorInfo.h"
 
 // 输出异常信息
 inline void PrintException(const script::Exception &e) {
@@ -76,7 +76,7 @@ std::string ValueKindToString(const ValueKind &kind);
 // 截获引擎异常
 #define CATCH(LOG)                                                             \
   catch (...) {                                                                \
-  ll::error_info::printCurrentException(logger);                               \
+    ll::error_info::printCurrentException(logger);                             \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return Local<Value>();                                                     \
   }
@@ -103,25 +103,25 @@ std::string ValueKindToString(const ValueKind &kind);
   }
 
 // 截获引擎异常_Constructor
-#define CATCH_C(LOG)                                                                \
+#define CATCH_C(LOG)                                                           \
   catch (...) {                                                                \
-  ll::error_info::printCurrentException(logger);                               \
+    ll::error_info::printCurrentException(logger);                             \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return nullptr;                                                     \
+    return nullptr;                                                            \
   }
 
 // 截获引擎异常_Setter
-#define CATCH_S(LOG)                                                              \
+#define CATCH_S(LOG)                                                           \
   catch (...) {                                                                \
-  ll::error_info::printCurrentException(logger);                               \
+    ll::error_info::printCurrentException(logger);                             \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
-    return ;                                                     \
+    return;                                                                    \
   }
 
 // 截获引擎异常_Constructor
-#define CATCH_WITHOUT_RETURN(LOG)                                                              \
+#define CATCH_WITHOUT_RETURN(LOG)                                              \
   catch (...) {                                                                \
-  ll::error_info::printCurrentException(logger);                               \
+    ll::error_info::printCurrentException(logger);                             \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
   }
 
@@ -296,10 +296,11 @@ template <typename Type> struct EnumDefineBuilder {
   }
 };
 
-inline void ReplaceStr(std::string& str, const std::string& from, const std::string& to) {
-    size_t startPos = 0;
-    while ((startPos = str.find(from, startPos)) != std::string::npos) {
-        str.replace(startPos, from.length(), to);
-        startPos += to.length();
-    }
+inline void ReplaceStr(std::string &str, const std::string &from,
+                       const std::string &to) {
+  size_t startPos = 0;
+  while ((startPos = str.find(from, startPos)) != std::string::npos) {
+    str.replace(startPos, from.length(), to);
+    startPos += to.length();
+  }
 }

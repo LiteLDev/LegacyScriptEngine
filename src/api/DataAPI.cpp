@@ -537,250 +537,247 @@ Local<Value> ConfIniClass::close(const Arguments &args) {
 
 //////////////////// APIs ////////////////////
 
-// Local<Value> MoneyClass::set(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 2);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+Local<Value> MoneyClass::set(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 2);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
+  CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-//   try {
-//     return Boolean::newBoolean(
-//         EconomySystem::setMoney(args[0].toStr(),
-//         args[1].asNumber().toInt64()));
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneySet!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneySet!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   }
-//   CATCH("Fail in MoneySet!");
-// }
+  try {
+    return Boolean::newBoolean(
+        EconomySystem::setMoney(args[0].toStr(), args[1].asNumber().toInt64()));
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneySet!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneySet!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  }
+  CATCH("Fail in MoneySet!");
+}
 
-// Local<Value> MoneyClass::get(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
+Local<Value> MoneyClass::get(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-//   try {
-//     return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneyGet!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Number::newNumber(0);
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneyGet!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Number::newNumber(0);
-//   }
-//   CATCH("Fail in MoneyGet!");
-// }
+  try {
+    return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneyGet!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Number::newNumber(0);
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneyGet!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Number::newNumber(0);
+  }
+  CATCH("Fail in MoneyGet!");
+}
 
-// Local<Value> MoneyClass::add(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 2);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+Local<Value> MoneyClass::add(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 2);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
+  CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-//   try {
-//     return Boolean::newBoolean(
-//         EconomySystem::addMoney(args[0].toStr(),
-//         args[1].asNumber().toInt64()));
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneyAdd!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneyAdd!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   }
-//   CATCH("Fail in MoneyAdd!");
-// }
+  try {
+    return Boolean::newBoolean(
+        EconomySystem::addMoney(args[0].toStr(), args[1].asNumber().toInt64()));
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneyAdd!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneyAdd!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  }
+  CATCH("Fail in MoneyAdd!");
+}
 
-// Local<Value> MoneyClass::reduce(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 2);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+Local<Value> MoneyClass::reduce(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 2);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
+  CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-//   try {
-//     return Boolean::newBoolean(EconomySystem::reduceMoney(
-//         args[0].toStr(), args[1].asNumber().toInt64()));
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneyReduce!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneyReduce!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   }
-//   CATCH("Fail in MoneyReduce!");
-// }
+  try {
+    return Boolean::newBoolean(EconomySystem::reduceMoney(
+        args[0].toStr(), args[1].asNumber().toInt64()));
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneyReduce!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneyReduce!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  }
+  CATCH("Fail in MoneyReduce!");
+}
 
-// Local<Value> MoneyClass::trans(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 3);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[1], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
+Local<Value> MoneyClass::trans(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 3);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
+  CHECK_ARG_TYPE(args[1], ValueKind::kString);
+  CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
-//   try {
-//     string note = "";
-//     if (args.size() >= 4 && args[3].getKind() == ValueKind::kString)
-//       note = args[3].toStr();
-//     return Boolean::newBoolean(EconomySystem::transMoney(
-//         args[0].toStr(), args[1].toStr(), args[2].asNumber().toInt64(),
-//         note));
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneyTrans!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneyTrans!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Boolean::newBoolean(false);
-//   }
-//   CATCH("Fail in MoneyTrans!");
-// }
+  try {
+    string note = "";
+    if (args.size() >= 4 && args[3].getKind() == ValueKind::kString)
+      note = args[3].toStr();
+    return Boolean::newBoolean(EconomySystem::transMoney(
+        args[0].toStr(), args[1].toStr(), args[2].asNumber().toInt64(), note));
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneyTrans!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneyTrans!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Boolean::newBoolean(false);
+  }
+  CATCH("Fail in MoneyTrans!");
+}
 
-// Local<Array> objectificationMoneyHistory(const string &res) {
-//   auto list = SplitStrWithPattern(res, "\n");
-//   // from -> to money time (note)
+Local<Array> objectificationMoneyHistory(const string &res) {
+  auto list = SplitStrWithPattern(res, "\n");
+  // from -> to money time (note)
 
-//   Local<Array> arr = Array::newArray();
+  Local<Array> arr = Array::newArray();
 
-//   string from, to, time1, time2, note, tmp;
-//   long long money;
-//   for (auto &str : list) {
-//     if (str.back() == '\n')
-//       str.pop_back();
+  string from, to, time1, time2, note, tmp;
+  long long money;
+  for (auto &str : list) {
+    if (str.back() == '\n')
+      str.pop_back();
 
-//     istringstream sin(str);
-//     Local<Object> obj = Object::newObject();
+    istringstream sin(str);
+    Local<Object> obj = Object::newObject();
 
-//     note.clear();
-//     sin >> from >> tmp >> to >> money >> time1 >> time2;
-//     sin.get();
-//     getline(sin, note);
-//     if (note.front() == '(')
-//       note.erase(0, 1);
-//     if (note.back() == '\n')
-//       note.pop_back();
-//     if (note.back() == ')')
-//       note.pop_back();
+    note.clear();
+    sin >> from >> tmp >> to >> money >> time1 >> time2;
+    sin.get();
+    getline(sin, note);
+    if (note.front() == '(')
+      note.erase(0, 1);
+    if (note.back() == '\n')
+      note.pop_back();
+    if (note.back() == ')')
+      note.pop_back();
 
-//     time1 += " " + time2;
+    time1 += " " + time2;
 
-//     obj.set("from", String::newString(from));
-//     obj.set("to", String::newString(to));
-//     obj.set("money", Number::newNumber(money));
-//     obj.set("time", String::newString(time1));
-//     obj.set("note", String::newString(note));
-//     arr.add(obj);
-//   }
-//   return arr;
-// }
+    obj.set("from", String::newString(from));
+    obj.set("to", String::newString(to));
+    obj.set("money", Number::newNumber(money));
+    obj.set("time", String::newString(time1));
+    obj.set("note", String::newString(note));
+    arr.add(obj);
+  }
+  return arr;
+}
 
-// Local<Value> MoneyClass::getHistory(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 2);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
-//   CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+Local<Value> MoneyClass::getHistory(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 2);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
+  CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-//   try {
-//     string res{EconomySystem::getMoneyHist(args[0].toStr(),
-//                                            args[1].asNumber().toInt64())};
-//     return objectificationMoneyHistory(res);
-//   } catch (const std::invalid_argument &e) {
-//     logger.error("Bad argument in MoneyGetHintory!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Local<Value>();
-//   } catch (const std::out_of_range &e) {
-//     logger.error("Bad argument in MoneyGetHintory!");
-//     logger.error(ll::string_utils::tou8str(e.what()));
-//     PrintScriptStackTrace();
-//     return Local<Value>();
-//   }
-//   CATCH("Fail in MoneyGetHintory!");
-// }
+  try {
+    string res{EconomySystem::getMoneyHist(args[0].toStr(),
+                                           args[1].asNumber().toInt64())};
+    return objectificationMoneyHistory(res);
+  } catch (const std::invalid_argument &e) {
+    logger.error("Bad argument in MoneyGetHintory!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Local<Value>();
+  } catch (const std::out_of_range &e) {
+    logger.error("Bad argument in MoneyGetHintory!");
+    logger.error(ll::string_utils::tou8str(e.what()));
+    PrintScriptStackTrace();
+    return Local<Value>();
+  }
+  CATCH("Fail in MoneyGetHintory!");
+}
 
-// Local<Value> MoneyClass::clearHistory(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+Local<Value> MoneyClass::clearHistory(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
-//   try {
-//     return Boolean::newBoolean(
-//         EconomySystem::clearMoneyHist(args[0].asNumber().toInt64()));
-//   }
-//   CATCH("Fail in MoneyClearHistory!");
-// }
+  try {
+    return Boolean::newBoolean(
+        EconomySystem::clearMoneyHist(args[0].asNumber().toInt64()));
+  }
+  CATCH("Fail in MoneyClearHistory!");
+}
 
-// Local<Value> DataClass::xuid2name(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
+Local<Value> DataClass::xuid2name(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-//   try {
-//     return String::newString(PlayerInfo::fromXuid(args[0].toStr()));
-//   }
-//   CATCH("Fail in XuidToName!");
-// }
+  try {
+    return String::newString(PlayerInfo::fromXuid(args[0].toStr()));
+  }
+  CATCH("Fail in XuidToName!");
+}
 
-// Local<Value> DataClass::name2xuid(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
+Local<Value> DataClass::name2xuid(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-//   try {
-//     return String::newString(PlayerInfo::getXuid(args[0].toStr()));
-//   }
-//   CATCH("Fail in NameToXuid!");
-// }
+  try {
+    return String::newString(PlayerInfo::getXuid(args[0].toStr()));
+  }
+  CATCH("Fail in NameToXuid!");
+}
 
-// Local<Value> DataClass::name2uuid(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
+Local<Value> DataClass::name2uuid(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-//   try {
-//     return String::newString(PlayerInfo::getUUID(args[0].toStr()));
-//   }
-//   CATCH("Fail in NameToUuid!");
-// }
+  try {
+    return String::newString(PlayerInfo::getUUID(args[0].toStr()));
+  }
+  CATCH("Fail in NameToUuid!");
+}
 
-// Local<Value> DataClass::xuid2uuid(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 1);
-//   CHECK_ARG_TYPE(args[0], ValueKind::kString);
+Local<Value> DataClass::xuid2uuid(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 1);
+  CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-//   try {
-//     return String::newString(PlayerInfo::getUUIDByXuid(args[0].toStr()));
-//   }
-//   CATCH("Fail in XuidToUuid!");
-// }
+  try {
+    return String::newString(PlayerInfo::getUUIDByXuid(args[0].toStr()));
+  }
+  CATCH("Fail in XuidToUuid!");
+}
 
-// Local<Value> DataClass::getAllPlayerInfo(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 0);
+Local<Value> DataClass::getAllPlayerInfo(const Arguments &args) {
+  CHECK_ARGS_COUNT(args, 0);
 
-//   try {
-//     auto info = PlayerInfo::getAllPlayerInfo();
-//     auto arr = Array::newArray();
-//     for (const auto &it : info) {
-//       auto obj = Object::newObject();
-//       obj.set("name", String::newString(it.name));
-//       obj.set("xuid", String::newString(it.xuid));
-//       obj.set("uuid", String::newString(it.uuid));
-//       arr.add(obj);
-//     }
-//     return arr;
-//   }
-//   CATCH("Fail in getAllPlayerInfo!");
-// }
+  try {
+    auto info = PlayerInfo::getAllPlayerInfo();
+    auto arr = Array::newArray();
+    for (const auto &it : info) {
+      auto obj = Object::newObject();
+      obj.set("name", String::newString(it.name));
+      obj.set("xuid", String::newString(it.xuid));
+      obj.set("uuid", String::newString(it.uuid));
+      arr.add(obj);
+    }
+    return arr;
+  }
+  CATCH("Fail in getAllPlayerInfo!");
+}
 
 Local<Value> DataClass::toJson(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);

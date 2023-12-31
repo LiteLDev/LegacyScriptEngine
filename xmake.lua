@@ -13,36 +13,13 @@ add_requires("cpp-httplib v0.14.0")
 -- Packages from liteldev-xmake-repo
 add_requires("dyncall 1.4")
 add_requires("lightwebsocketclient v1.0.0")
-add_requires("levilamina develop")
+add_requires("levilamina")
 add_requires("demangler v2.0.0")
+add_requires("legacymoney")
 
 -- Packages from local
 add_requires("scriptx-legacy")
 add_requires("threadpool")
-
-package("levilamina")
-    add_urls("https://github.com/LiteLDev/LeviLamina.git")
-
-    -- Dependencies from xmake-repo.
-    add_deps("entt 3.12.2")
-    add_deps("fmt 10.1.1")
-    add_deps("gsl 4.0.0")
-    add_deps("leveldb 1.23")
-    add_deps("magic_enum 0.9.0")
-    add_deps("nlohmann_json 3.11.2")
-    add_deps("rapidjson 1.1.0")
-
-    -- Dependencies from liteldev-repo.
-    add_deps("ctre 3.8.1")
-    add_deps("pcg_cpp 1.0.0")
-    add_deps("pfr 2.1.1")
-    add_deps("preloader 1.3.1")
-    add_deps("symbolprovider 1.1.0")
-    add_deps("bdslibrary 1.20.50.03")
-
-    on_install(function (package)
-        import("package.tools.xmake").install(package)
-    end)
 
 local LLSE_BACKEND = "LUA"
 local LLSE_BACKEND_LIBRARY = "Lua"
@@ -106,7 +83,8 @@ target("LeviScript")
         "symbolprovider",
         "lightwebsocketclient",
         "levilamina",
-        "demangler"
+        "demangler",
+        "legacymoney"
     )
 
     -- Packages from local

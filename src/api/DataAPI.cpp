@@ -721,8 +721,8 @@ Local<Value> MoneyClass::clearHistory(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
   try {
-    return Boolean::newBoolean(
-        EconomySystem::clearMoneyHist(args[0].asNumber().toInt64()));
+    EconomySystem::clearMoneyHist(args[0].asNumber().toInt64());
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in MoneyClearHistory!");
 }
@@ -732,8 +732,8 @@ Local<Value> DataClass::xuid2name(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    auto playerInfo =
-        ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString());
+    auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(
+        args[0].asString().toString());
     return String::newString(playerInfo ? playerInfo->name : std::string());
   }
   CATCH("Fail in XuidToName!");
@@ -744,8 +744,8 @@ Local<Value> DataClass::name2xuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    auto playerInfo =
-        ll::service::PlayerInfo::getInstance().fromName(args[0].asString());
+    auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(
+        args[0].asString().toString());
     return String::newString(playerInfo ? playerInfo->xuid : std::string());
   }
   CATCH("Fail in NameToXuid!");
@@ -756,9 +756,10 @@ Local<Value> DataClass::name2uuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    auto playerInfo =
-        ll::service::PlayerInfo::getInstance().fromName(args[0].asString());
-    return String::newString(playerInfo ? playerInfo->uuid : std::string());
+    auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(
+        args[0].asString().toString());
+    return String::newString(playerInfo ? playerInfo->uuid.asString()
+                                        : std::string());
   }
   CATCH("Fail in NameToUuid!");
 }
@@ -768,9 +769,10 @@ Local<Value> DataClass::xuid2uuid(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    auto playerInfo =
-        ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString());
-    return String::newString(playerInfo ? playerInfo->uuid : std::string());
+    auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(
+        args[0].asString().toString());
+    return String::newString(playerInfo ? playerInfo->uuid.asString()
+                                        : std::string());
   }
   CATCH("Fail in XuidToUuid!");
 }

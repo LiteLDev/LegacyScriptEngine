@@ -6,7 +6,10 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "legacyapi/utils/STLHelper.h"
+#include "ll/api/event/EventBus.h"
+#include "ll/api/event/world/ServerStartedEvent.h"
 #include "ll/api/memory/Memory.h"
+#include "ll/api/service/Bedrock.h"
 #include "main/Configs.h"
 #include "main/Global.hpp"
 #include "utils/Utils.h"
@@ -14,25 +17,21 @@
 #include <ll/api/command/CommandRegistrar.h>
 #include <string>
 #include <vector>
-#include "ll/api/event/EventBus.h"
-#include "ll/api/event/command/SetupCommandEvent.h"
 
 using namespace std;
 
 //////////////////// Helper ////////////////////
 
 bool RegisterCmd(const string &cmd, const string &describe, int cmdLevel) {
-  using namespace ll::event;
-  EventBus::getInstance().emplaceListener<command::SetupCommandEvent>(
-      [cmd, describe, cmdLevel](command::SetupCommandEvent &ev) {
-        auto &registry = ev.registry();
-        registry.registerCommand(
-            cmd, describe.c_str(), (CommandPermissionLevel)cmdLevel,
-            {(CommandFlagValue)0}, {(CommandFlagValue)0x80});
-      });
-  return true;
+  ll::event::EventBus::getInstance()
+      .emplaceListener<ll::event::ServerStartedEvent>(
+          [&](ll::event::ServerStartedEvent &ev) {
+            auto &registry = ll::service::getCommandRegistry().get();
+            registry.registerCommand(
+                cmd, describe.c_str(), (CommandPermissionLevel)cmdLevel,
+                {(CommandFlagValue)0}, {(CommandFlagValue)0x80});
+          });
 }
-
 // Helper
 void LLSERegisterNewCmd(bool isPlayerCmd, string cmd, const string &describe,
                         int level, Local<Function> func) {

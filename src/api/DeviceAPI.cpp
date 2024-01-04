@@ -1,5 +1,6 @@
 #include "api/DeviceAPI.h"
 #include "api/APIHelp.h"
+#include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"
 #include "mc/network/ConnectionRequest.h"
@@ -48,7 +49,7 @@ Player *DeviceClass::getPlayer() {
   if (!isValid)
     return nullptr;
   else
-    return ll::Global<Level>->getPlayer(id);
+    return ll::service::getLevel()->getPlayer(id);
 }
 
 Local<Value> DeviceClass::getIP() {
@@ -127,8 +128,10 @@ Local<Value> DeviceClass::getServerAddress() {
     }
     if (player->isSimulatedPlayer())
       String::newString("unknown");
-    auto map =
-        ll::Global<ServerNetworkHandler>->fetchConnectionRequest(player->getNetworkIdentifier()).mRawToken.get()->mDataInfo.value_.map_;
+    auto map = ll::service::getServerNetworkHandler()
+                   ->fetchConnectionRequest(player->getNetworkIdentifier())
+                   .mRawToken.get()
+                   ->mDataInfo.value_.map_;
     for (auto iter = map->begin(); iter != map->end(); ++iter) {
       string s(iter->first.c_str());
       if (s.find("ServerAddress") != s.npos) {

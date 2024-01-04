@@ -12,7 +12,7 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "engine/TimeTaskSystem.h"
-#include "ll/api/service/GlobalService.h"
+#include "ll/api/service/Bedrock.h"
 #include "main/BuiltinCommands.h"
 #include "main/Global.hpp"
 #include "main/NodeJsHelper.h"
@@ -310,10 +310,10 @@ bool LLSERemoveAllEventListeners(ScriptEngine *engine) {
 bool LLSECallEventsOnHotLoad(ScriptEngine *engine) {
   FakeCallEvent(engine, EVENT_TYPES::onServerStarted);
 
-  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+  ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
     FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
   });
-  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+  ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
     FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
   });
 
@@ -321,7 +321,7 @@ bool LLSECallEventsOnHotLoad(ScriptEngine *engine) {
 }
 
 bool LLSECallEventsOnHotUnload(ScriptEngine *engine) {
-  ll::Global<Level>->forEachPlayer([&](Player &pl) -> bool {
+  ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
     FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
   });
   for (auto &[index, cb] : ENGINE_GET_DATA(engine)->unloadCallbacks) {

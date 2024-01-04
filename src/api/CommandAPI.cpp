@@ -13,6 +13,7 @@
 #include "engine/LocalShareData.h"
 #include "legacyapi/utils/STLHelper.h"
 #include "ll/api/command/CommandRegistrar.h"
+#include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "main/Configs.h"
 #include "mc/codebuilder/MCRESULT.h"
@@ -172,7 +173,8 @@ Local<Value> McClass::runcmd(const Arguments &args) {
                      std::unique_ptr<ServerCommandOrigin>(&origin));
   try {
     return Boolean::newBoolean(
-        ll::Global<Minecraft>->getCommands().executeCommand(context, true));
+        ll::service::getMinecraft()->getCommands().executeCommand(context,
+                                                                  true));
   }
   CATCH("Fail in RunCmd!")
 }
@@ -185,8 +187,8 @@ Local<Value> McClass::runcmdEx(const Arguments &args) {
       CommandContext(args[0].asString().toString(),
                      std::unique_ptr<ServerCommandOrigin>(&origin));
   try {
-    MCRESULT result =
-        ll::Global<Minecraft>->getCommands().executeCommand(context, false);
+    MCRESULT result = ll::service::getMinecraft()->getCommands().executeCommand(
+        context, false);
     Local<Object> resObj = Object::newObject();
     resObj.set("success", result.isSuccess());
     resObj.set("output", {});

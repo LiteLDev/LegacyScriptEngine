@@ -8,9 +8,9 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
+#include "ll/api/service/Bedrock.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
-#include "ll/api/service/GlobalService.h"
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -217,7 +217,7 @@ Actor *EntityClass::get() {
   if (!isValid)
     return nullptr;
   else
-    return ll::Global<Level>->fetchEntity(id);
+    return ll::service::getLevel()->fetchEntity(id);
 }
 
 Local<Value> EntityClass::asPointer(const Arguments &args) {
@@ -1657,7 +1657,7 @@ Local<Value> EntityClass::removeEffect(const Arguments &args) {
 
 Local<Value> McClass::getAllEntities(const Arguments &args) {
   try {
-    auto entityList = ll::Global<Level>->getEntities();
+    auto entityList = ll::service::getLevel()->getEntities();
     auto arr = Array::newArray();
     for (auto i : entityList) {
       arr.add(EntityClass::newEntity(i));

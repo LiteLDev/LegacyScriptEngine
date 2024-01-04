@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "ll/api/Logger.h"
-#include "ll/api/service/GlobalService.h"
+#include "ll/api/service/Bedrock.h"
 #include "mc/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
 
@@ -60,7 +60,7 @@ public:
   }
 };
 
-using ll::i18n::tr;
+using ll::i18n::detail::tr;
 
 inline std::string DimId2Name(int dimid) {
   std::string name;

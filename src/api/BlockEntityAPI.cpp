@@ -5,7 +5,7 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/memory/Memory.h"
-#include "ll/api/service/GlobalService.h"
+#include "ll/api/service/Bedrock.h"
 #include "main/Global.hpp"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
@@ -97,7 +97,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments &args) {
     if (!nbt)
       return Local<Value>(); // Null
     void *helper = LL_RESOLVE_SYMBOL("??_7DefaultDataLoadHelper@@6B@");
-    blockEntity->load(*ll::Global<Level>, *nbt, (DataLoadHelper &)helper);
+    blockEntity->load(*ll::service::getLevel(), *nbt, (DataLoadHelper &)helper);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setNbt!")
@@ -106,7 +106,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments &args) {
 Local<Value> BlockEntityClass::getBlock(const Arguments &args) {
   try {
     BlockPos bp = blockEntity->getPosition();
-    auto dimPtr = ll::Global<Level>->getDimension(dim).get();
+    auto dimPtr = ll::service::getLevel()->getDimension(dim).get();
     Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(bp);
     return BlockClass::newBlock(&bl, &bp, dim);
   }

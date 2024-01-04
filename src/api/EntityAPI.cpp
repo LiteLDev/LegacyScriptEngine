@@ -8,9 +8,17 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
+#include "ll/api/base/StdInt.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/common/HitDetection.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
+#include "mc/entity/utilities/ActorType.h"
+#include "mc/enums/FacingID.h"
+#include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/effect/MobEffectInstance.h"
+#include "mc/world/level/Spawner.h"
+#include "mc/world/level/block/Block.h"
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -998,7 +1006,7 @@ Local<Value> EntityClass::toItem(const Arguments &args) {
     if (!it)
       return Local<Value>();
     else
-      return ItemClass::newItem(&it->mItem);
+      return ItemClass::newItem(&it->item());
   }
   CATCH("Fail in toItem!");
 }
@@ -1490,8 +1498,6 @@ Local<Value> EntityClass::getAllTags(const Arguments &args) {
   CATCH("Fail in getAllTags!");
 }
 
-#include "mc/common/HitDetection.h"
-
 Local<Value> EntityClass::getEntityFromViewVector(const Arguments &args) {
 
   try {
@@ -1503,20 +1509,7 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments &args) {
       CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
       maxDistance = args[0].asNumber().toFloat();
     }
-    Vec3 cameraPos = actor->getPosition();
-    if (actor->isSneaking()) {
-      cameraPos.y -= 0.125;
-    } else {
-      if (((Player *)actor)->isGliding()) {
-        cameraPos.y -= 1.1f;
-      }
-      if (actor->isSwimming() || actor->getDamageNearbyMobs()) {
-        cameraPos.y -= 1.2f;
-      }
-      if (actor->isSleeping()) {
-        cameraPos.y += 1.0f;
-      }
-    }
+    Vec3 cameraPos = actor->getHeadPos();
     float distance = 1.0f;
     Actor *result = nullptr;
     Vec3 resultVec3{};
@@ -1537,10 +1530,10 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments &args) {
     if (!actor)
       return Local<Value>();
     bool includeLiquid = false;
-    bool solidOnly = false;
+    bool solidOnly = false; // not used
     float maxDistance = 5.25f;
-    bool ignoreBorderBlocks = true;
-    bool fullOnly = false;
+    bool ignoreBorderBlocks = true; // not used
+    bool fullOnly = false;          // not used
     if (args.size() > 0) {
       CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
       includeLiquid = args[0].asBoolean().value();
@@ -1557,11 +1550,19 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments &args) {
       CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
       fullOnly = args[3].asBoolean().value();
     }
-    auto blockInstance = actor->getBlockFromViewVector(
-        includeLiquid, solidOnly, maxDistance, ignoreBorderBlocks, fullOnly);
-    if (blockInstance.isNull())
+    HitResult res = actor->traceRay(maxDistance, false, true);
+    Block bl;
+    BlockPos bp;
+    if (includeLiquid && res.mIsHitLiquid) {
+      bp = res.mLiquidPos;
+    } else {
+      bp = res.mBlockPos;
+    }
+    actor->getDimensionBlockSource().getBlock(bp);
+    if (bl.isEmpty())
       return Local<Value>();
-    return BlockClass::newBlock(std::move(blockInstance));
+    return BlockClass::newBlock(std::move(&bl), &bp,
+                                actor->getDimensionId().id);
   }
   CATCH("Fail in getBlockFromViewVector!");
 }
@@ -1583,8 +1584,9 @@ Local<Value> EntityClass::getBiomeId() {
     Actor *actor = get();
     if (!actor)
       return Local<Value>();
-    auto bio = actor->getBiome();
-    return Number::newNumber(bio->getId());
+    auto bio =
+        actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
+    return Number::newNumber(bio.getId());
   }
   CATCH("Fail in getBiomeId!");
 }
@@ -1594,8 +1596,9 @@ Local<Value> EntityClass::getBiomeName() {
     Actor *actor = get();
     if (!actor)
       return Local<Value>();
-    auto bio = actor->getBiome();
-    return String::newString(bio->getName());
+    auto bio =
+        actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
+    return String::newString(bio.getName());
   }
   CATCH("Fail in getBiomeName!");
 }
@@ -1657,10 +1660,10 @@ Local<Value> EntityClass::removeEffect(const Arguments &args) {
 
 Local<Value> McClass::getAllEntities(const Arguments &args) {
   try {
-    auto entityList = ll::service::getLevel()->getEntities();
+    auto &entityList = ll::service::getLevel()->getEntities();
     auto arr = Array::newArray();
-    for (auto i : entityList) {
-      arr.add(EntityClass::newEntity(i));
+    for (auto &i : entityList) {
+      arr.add(EntityClass::newEntity(i.tryUnwrap()));
     }
     return arr;
   }
@@ -1736,12 +1739,14 @@ Local<Value> McClass::getEntities(const Arguments &args) {
     }
 
     auto arr = Array::newArray();
-    auto *bs = Level::getBlockSource(dim);
-    if (bs == nullptr) {
-      LOG_ERROR_WITH_SCRIPT_INFO("Wrong Dimension!");
-      return Local<Value>();
-    }
-    auto entityList = bs->getEntities(aabb, dis);
+    BlockSource &bs = ll::service::getLevel()
+                          ->getDimension(dim)
+                          ->getBlockSourceFromMainChunkSource();
+    // if (!bs) {
+    //   LOG_ERROR_WITH_SCRIPT_INFO("Wrong Dimension!");
+    //   return Local<Value>();
+    // }
+    auto entityList = bs.getEntities(aabb, dis);
     for (auto i : entityList) {
       arr.add(EntityClass::newEntity(i));
     }
@@ -1798,8 +1803,12 @@ Local<Value> McClass::cloneMob(const Arguments &args) {
       LOG_WRONG_ARGS_COUNT();
       return Local<Value>();
     }
-
-    auto entity = Level::cloneMob(pos.getVec3(), pos.dim, ac);
+    ActorDefinitionIdentifier id(ac->getTypeName());
+    Mob *entity = ll::service::getLevel()->getSpawner().spawnMob(
+        ll::service::getLevel()
+            ->getDimension(pos.dim)
+            ->getBlockSourceFromMainChunkSource(),
+        id, nullptr, pos.getVec3(), false, true, false);
     if (!entity)
       return Local<Value>(); // Null
     else
@@ -1853,7 +1862,12 @@ Local<Value> McClass::spawnMob(const Arguments &args) {
       return Local<Value>();
     }
 
-    auto entity = Level::spawnMob(pos.getVec3(), pos.dim, name);
+    ActorDefinitionIdentifier id(name);
+    Mob *entity = ll::service::getLevel()->getSpawner().spawnMob(
+        ll::service::getLevel()
+            ->getDimension(pos.dim)
+            ->getBlockSourceFromMainChunkSource(),
+        id, nullptr, pos.getVec3(), false, true, false);
     if (!entity)
       return Local<Value>(); // Null
     else
@@ -1919,8 +1933,12 @@ Local<Value> McClass::explode(const Arguments &args) {
     bool isDestroy = args[beginIndex + 2].asBoolean().value();
     bool isFire = args[beginIndex + 3].asBoolean().value();
 
-    return Boolean::newBoolean(Level::createExplosion(
-        pos.getVec3(), pos.dim, source, power, isFire, isDestroy));
+    ll::service::getLevel()->explode(ll::service::getLevel()
+                                         ->getDimension(pos.dim)
+                                         ->getBlockSourceFromMainChunkSource(),
+                                     source, pos.getVec3(), power, isFire,
+                                     isDestroy, 3.40282347e+38, false);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in Explode!");
 }

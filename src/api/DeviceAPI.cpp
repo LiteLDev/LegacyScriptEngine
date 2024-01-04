@@ -150,7 +150,10 @@ Local<Value> DeviceClass::getClientId() {
     if (!player)
       return Local<Value>();
 
-    return String::newString(player->getDeviceId()); //=============???
+    return String::newString(
+        ll::service::getServerNetworkHandler()
+            ->fetchConnectionRequest(player->getNetworkIdentifier())
+            .getDeviceId()); //=============???
   }
   CATCH("Fail in getClientId!")
 }

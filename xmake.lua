@@ -34,15 +34,7 @@ target("LeviScript")
     add_cxflags(
         "/utf-8",
         "/permissive-",
-        "/EHa",
-        "/wd4819"
-        -- "/W4",
-        -- "/w44265",
-        -- "/w44289",
-        -- "/w44296",
-        -- "/w45263",
-        -- "/w44738",
-        -- "/w45204"
+        "/EHa"
     )
     add_defines(
         "_WIN32_WINNT=0x0601",

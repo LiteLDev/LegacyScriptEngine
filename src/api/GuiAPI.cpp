@@ -156,8 +156,11 @@ void CustomFormClass::sendForm(ll::form::CustomForm *form, Player *player,
 
         EngineScope scope(engine);
         try {
-          callback.get().call({}, PlayerClass::newPlayer(&pl),
-                              JsonToValue(data)); // Todo
+            Local<Object> result;
+            for (auto& [k,v] : data) {
+                std::visit([&](auto&& val) { result.set(k, val); }, v);
+            }
+            callback.get().call({}, PlayerClass::newPlayer(&pl), result); 
         }
         CATCH_WITHOUT_RETURN("Fail in form callback!")
       });

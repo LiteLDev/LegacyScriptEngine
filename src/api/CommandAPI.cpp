@@ -16,6 +16,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "main/Configs.h"
+#include "mc/_HeaderOutputPredefine.h"
 #include "mc/codebuilder/MCRESULT.h"
 #include "mc/deps/json/JsonHelpers.h"
 #include "mc/server/ServerLevel.h"
@@ -167,7 +168,9 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const &value) {
 Local<Value> McClass::runcmd(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-  ServerCommandOrigin origin = ServerCommandOrigin();
+  ServerCommandOrigin origin =
+      ServerCommandOrigin("Server", ll::service::getLevel()->asServer(),
+                          CommandPermissionLevel::Internal, 0);
   CommandContext context =
       CommandContext(args[0].asString().toString(),
                      std::unique_ptr<ServerCommandOrigin>(&origin));
@@ -182,7 +185,9 @@ Local<Value> McClass::runcmd(const Arguments &args) {
 Local<Value> McClass::runcmdEx(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-  ServerCommandOrigin origin = ServerCommandOrigin();
+  ServerCommandOrigin origin =
+      ServerCommandOrigin("Server", ll::service::getLevel()->asServer(),
+                          CommandPermissionLevel::Internal, 0);
   CommandContext context =
       CommandContext(args[0].asString().toString(),
                      std::unique_ptr<ServerCommandOrigin>(&origin));
@@ -231,7 +236,8 @@ Local<Value> McClass::newCommand(const Arguments &args) {
         }
       }
     }
-    auto command = DynamicCommand::createCommand(name, desc, permission, flag);
+    auto command = DynamicCommand::createCommand(
+        ll::service::getCommandRegistry(), name, desc, permission, flag);
     if (command) {
       if (!alias.empty())
         command->setAlias(alias);
@@ -532,7 +538,8 @@ Local<Value> CommandClass::setup(const Arguments &args) {
     }
     if (registered)
       return Boolean::newBoolean(true);
-    return Boolean::newBoolean(DynamicCommand::setup(std::move(uptr)));
+    return Boolean::newBoolean(DynamicCommand::setup(
+        ll::service::getCommandRegistry(), std::move(uptr)));
   }
   CATCH("Fail in setup!")
 }
@@ -592,14 +599,18 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   try {
     auto name = args[0].toStr();
-    return getStringArray(get()->getSoftEnumValues(name));
+    return getStringArray(get()->softEnums[name]);
   }
   CATCH("Fail in getSoftEnumValues");
 }
 
 Local<Value> CommandClass::getSoftEnumNames(const Arguments &args) {
   try {
-    return getStringArray(get()->getSoftEnumNames());
+    std::vector<std::string> stringArray;
+    for (auto &i : get()->softEnums) {
+      stringArray.push_back(i.first);
+    }
+    return getStringArray(stringArray);
   }
   CATCH("Fail in getSoftEnumNames");
 }

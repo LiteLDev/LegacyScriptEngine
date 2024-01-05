@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 
-
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
 #include "api/ContainerAPI.h"
@@ -21,7 +20,6 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "main/Global.hpp"
-
 
 #include "api/NativeAPI.h"
 
@@ -247,7 +245,8 @@ Local<Value> BigInteger_Helper(ordered_json &i) {
 
 void JsonToValue_Helper(Local<Array> &res, ordered_json &j);
 
-void JsonToValue_Helper(Local<Object> &res, const string &key, ordered_json &j) {
+void JsonToValue_Helper(Local<Object> &res, const string &key,
+                        ordered_json &j) {
   switch (j.type()) {
   case ordered_json::value_t::string:
     res.set(key, String::newString(j.get<string>()));
@@ -374,7 +373,7 @@ Local<Value> JsonToValue(std::string jsonStr) {
     auto j = ordered_json::parse(jsonStr, nullptr, true, true);
     return JsonToValue(j);
   } catch (const ordered_json::exception &e) {
-    logger.warn(tr("llse.apiHelp.parseJson.fail") +
+    logger.warn("{}{}", tr("llse.apiHelp.parseJson.fail"),
                 ll::string_utils::tou8str(e.what()));
     return String::newString(jsonStr);
   }

@@ -15,23 +15,35 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/PlayerInfo.h"
 #include "main/EconomicSystem.h"
-#include <llapi/mc/NetworkIdentifier.hpp>
+#include "mc/network/NetworkIdentifier.h"
+#include "mc/server/ServerPlayer.h"
 #include <mc/world/actor/Actor.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>
 
-#include <mc/world/Container.h
 #include "MoreGlobal.h"
+#include "ll/api/service/PlayerInfo.h"
 #include "main/SafeGuardRecord.h"
+#include "mc/certificates/WebToken.h"
+#include "mc/dataloadhelper/DataLoadHelper.h"
+#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
+#include "mc/enums/TextPacketType.h"
+#include "mc/network/ConnectionRequest.h"
+#include "mc/network/ServerNetworkHandler.h"
+#include "mc/network/packet/SetTitlePacket.h"
+#include "mc/network/packet/TextPacket.h"
+#include "mc/network/packet/UpdateAbilitiesPacket.h"
+#include "mc/server/commands/MinecraftCommands.h"
+#include "mc/server/commands/PlayerCommandOrigin.h"
+#include "mc/world/Container.h"
+#include "mc/world/Minecraft.h"
+#include "mc/world/actor/player/PlayerUISlot.h"
+#include "mc/world/level/LayeredAbilities.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include <algorithm>
-#include <llapi/PlayerInfoAPI.h>
-#include <llapi/mc/ListTag.hpp>
-#include <llapi/mc/Scoreboard.hpp>
-#include <llapi/mc/ScoreboardId.hpp>
-#include <llapi/mc/SimulatedPlayer.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
@@ -44,6 +56,7 @@
 #include <mc/world/level/IConstBlockSource.h>
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/scores/Objective.h>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -316,16 +329,18 @@ Local<Value> McClass::getPlayerNbt(const Arguments &args) {
     Player *pl = ll::service::getLevel()->getPlayer(uuid);
     if (pl) {
       pl->save(tag);
-    } else {
-      std::string serverId = pl->getServerId();
-      if (!serverId.empty()) {
-        if (MoreGlobal::getDBStorage()->hasKey(serverId,
-                                               DBHelpers::Category::Player)) {
-          tag = MoreGlobal::getDBStorage()->getCompoundTag(
-              serverId, DBHelpers::Category::Player)
-        }
-      }
     }
+    // else {
+    //   std::string serverId = pl->getServerId();
+    //   if (!serverId.empty()) {
+    //     if (MoreGlobal::getDBStorage()->hasKey(serverId,
+    //                                            DBHelpers::Category::Player))
+    //                                            {
+    //       tag = MoreGlobal::getDBStorage()->getCompoundTag(
+    //           serverId, DBHelpers::Category::Player);
+    //     }
+    //   }
+    // }
     if (!tag.isEmpty()) {
       return NbtCompoundClass::pack(&tag);
     } else {
@@ -340,8 +355,11 @@ Local<Value> McClass::setPlayerNbt(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto nbt = NbtCompoundClass::extract(args[1]);
-    Player::setPlayerNbt(uuid, nbt);
+    auto tag = NbtCompoundClass::extract(args[1]);
+    Player *pl = ll::service::getLevel()->getPlayer(uuid);
+    if (pl) {
+      pl->load(*tag, defaultDataLoadHelper);
+    }
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setPlayerNbt!")
@@ -467,9 +485,11 @@ Local<Value> McClass::getPlayer(const Arguments &args) {
 
     transform(target.begin(), target.end(), target.begin(),
               ::tolower); // lower case the string
-    auto playerList = Level::getAllPlayers();
+    std::vector<Player *> playerList;
     int delta = 2147483647; // c++ int max
     Player *found = nullptr;
+    ll::service::getLevel()->forEachPlayer(
+        [&](Player &player) -> bool { playerList.push_back(&player); });
 
     for (Player *p : playerList) {
       if (p->getXuid() == target ||
@@ -499,10 +519,10 @@ Local<Value> McClass::getPlayer(const Arguments &args) {
 
 Local<Value> McClass::getOnlinePlayers(const Arguments &args) {
   try {
-    auto players = Level::getAllPlayers();
     Local<Array> list = Array::newArray();
-    for (auto p : players)
-      list.add(PlayerClass::newPlayer(p));
+    ll::service::getLevel()->forEachPlayer([&](Player &player) -> bool {
+      list.add(PlayerClass::newPlayer(&player));
+    });
     return list;
   }
   CATCH("Fail in GetOnlinePlayers!")
@@ -513,13 +533,16 @@ Local<Value> McClass::broadcast(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
   try {
-    TextType type = TextType::RAW;
+    TextPacketType type = TextPacketType::Raw;
     if (args.size() >= 2 && args[1].isNumber()) {
       int newType = args[1].asNumber().toInt32();
-      if (newType >= 0 && newType <= 9)
-        type = (TextType)newType;
+      if (newType >= 0 && newType <= 11)
+        type = (TextPacketType)newType;
     }
-    Level::broadcastText(args[0].toStr(), type);
+    TextPacket pkt = TextPacket();
+    pkt.mType = type;
+    pkt.mMessage = args[0].asString().toString();
+    pkt.sendToClients();
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in Broadcast!")
@@ -538,7 +561,7 @@ Player *PlayerClass::get() {
   if (!isValid)
     return nullptr;
   else
-    return Global<Level>->getPlayer(id);
+    return ll::service::getLevel()->getPlayer(id);
 }
 
 Local<Value> PlayerClass::getName() {
@@ -569,8 +592,7 @@ Local<Value> PlayerClass::getFeetPos() {
     if (!player)
       return Local<Value>();
 
-    return FloatPos::newPos(player->getFeetPosition(),
-                            player->getDimensionId());
+    return FloatPos::newPos(player->getFeetPos(), player->getDimensionId());
   }
   CATCH("Fail in getPlayerFeetPos!")
 }
@@ -581,7 +603,7 @@ Local<Value> PlayerClass::getBlockPos() {
     if (!player)
       return Local<Value>();
 
-    return IntPos::newPos(player->getBlockPos(), player->getDimensionId());
+    return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId());
   }
   CATCH("Fail in getPlayerBlockPos!")
 }
@@ -592,11 +614,12 @@ Local<Value> PlayerClass::getLastDeathPos() {
     if (!player) {
       return Local<Value>();
     }
-    auto pos = player->getLastDeathPosition();
-    if (pos.second == -1) {
+    auto pos = player->getLastDeathPos();
+    auto dim = player->getLastDeathDimension();
+    if (dim == -1) {
       return Local<Value>();
     }
-    return IntPos::newPos(pos.first, pos.second);
+    return IntPos::newPos(pos.value(), dim->id);
   }
   CATCH("Fail in getLastDeathPos!")
 }
@@ -612,7 +635,9 @@ Local<Value> PlayerClass::getXuid() {
       xuid = player->getXuid();
     } catch (...) {
       logger.debug("Fail in getXuid!");
-      xuid = PlayerInfo::getXuid(player->getRealName());
+      xuid = ll::service::PlayerInfo::getInstance()
+                 .fromName(player->getRealName())
+                 ->xuid;
     }
     return String::newString(xuid);
   }
@@ -627,10 +652,12 @@ Local<Value> PlayerClass::getUuid() {
 
     string uuid;
     try {
-      uuid = player->getUuid();
+      uuid = player->getUuid().asString();
     } catch (...) {
       logger.debug("Fail in getUuid!");
-      uuid = PlayerInfo::getUUID(player->getRealName());
+      uuid = ll::service::PlayerInfo::getInstance()
+                 .fromName(player->getRealName())
+                 ->uuid.asString();
     }
     return String::newString(uuid);
   }
@@ -654,7 +681,7 @@ Local<Value> PlayerClass::getIP() {
     if (!player)
       return Local<Value>();
 
-    return String::newString(player->getNetworkIdentifier()->getIP());
+    return String::newString(player->getNetworkIdentifier().getAddress());
   }
   CATCH("Fail in GetIP!")
 }
@@ -959,7 +986,17 @@ Local<Value> PlayerClass::getUniqueID() {
 
 Local<Value> PlayerClass::getLangCode() {
   try {
-    auto result = get()->getLanguageCode();
+    std::string result = "unknown";
+    auto map = ll::service::getServerNetworkHandler()
+                   ->fetchConnectionRequest(get()->getNetworkIdentifier())
+                   .mRawToken.get()
+                   ->mDataInfo.value_.map_;
+    for (auto &iter : *map) {
+      string s(iter.first.c_str());
+      if (s.find("LanguageCode") != std::string::npos) {
+        result = iter.second.value_.string_;
+      }
+    }
     return String::newString(result);
   }
   CATCH("Fail in getLangCode!");
@@ -1224,8 +1261,7 @@ Local<Value> PlayerClass::teleport(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Boolean::newBoolean(false);
-    float pitch;
-    float yaw;
+    Vec2 angle;
     FloatVec4 pos;
     bool rotationIsValid = false;
 
@@ -1254,9 +1290,9 @@ Local<Value> PlayerClass::teleport(const Arguments &args) {
         return Boolean::newBoolean(false);
       }
       if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
-        auto angle = DirectionAngle::extract(args[1]);
-        pitch = angle->pitch;
-        yaw = angle->yaw;
+        auto ang = DirectionAngle::extract(args[1]);
+        angle.x = ang->pitch;
+        angle.y = ang->yaw;
         rotationIsValid = true;
       }
     } else if (args.size() <= 5) { // teleport(x,y,z,dimid[,rot])
@@ -1271,9 +1307,9 @@ Local<Value> PlayerClass::teleport(const Arguments &args) {
       pos.z = args[2].asNumber().toFloat();
       pos.dim = args[3].toInt();
       if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
-        auto angle = DirectionAngle::extract(args[4]);
-        pitch = angle->pitch;
-        yaw = angle->yaw;
+        auto ang = DirectionAngle::extract(args[4]);
+        angle.x = ang->pitch;
+        angle.y = ang->yaw;
         rotationIsValid = true;
       }
     } else {
@@ -1281,12 +1317,10 @@ Local<Value> PlayerClass::teleport(const Arguments &args) {
       return Boolean::newBoolean(false);
     }
     if (!rotationIsValid) {
-      auto ang = player->getRotation();
-      pitch = ang.x;
-      yaw = ang.y;
+      angle = player->getRotation();
     }
-    return Boolean::newBoolean(
-        player->teleport(pos.getVec3(), pos.dim, pitch, yaw));
+    player->teleport(pos.getVec3(), pos.dim, angle);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in TeleportPlayer!")
 }
@@ -1313,8 +1347,6 @@ Local<Value> PlayerClass::isOP(const Arguments &args) {
   }
   CATCH("Fail in IsOP!")
 }
-
-#include <llapi/mc/UpdateAbilitiesPacket.hpp>
 
 Local<Value> PlayerClass::setPermLevel(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
@@ -1377,8 +1409,11 @@ Local<Value> PlayerClass::runcmd(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Local<Value>();
-
-    return Boolean::newBoolean(player->runcmd(args[0].toStr()));
+    CommandContext context = CommandContext(
+        args[0].asString().toString(),
+        std::make_unique<PlayerCommandOrigin>(PlayerCommandOrigin(*get())));
+    ll::service::getMinecraft()->getCommands().executeCommand(context);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in runcmd!");
 }
@@ -1396,7 +1431,7 @@ Local<Value> PlayerClass::kick(const Arguments &args) {
     if (args.size() >= 1)
       msg = args[0].toStr();
 
-    player->kick(msg);
+    player->disconnect(msg);
     return Boolean::newBoolean(true); //=======???
   }
   CATCH("Fail in kickPlayer!");
@@ -1411,14 +1446,17 @@ Local<Value> PlayerClass::tell(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    TextType type = TextType::RAW;
+    TextPacketType type = TextPacketType::Raw;
     if (args.size() >= 2 && args[1].isNumber()) {
       int newType = args[1].asNumber().toInt32();
-      if (newType >= 0 && newType <= 9)
-        type = (TextType)newType;
+      if (newType >= 0 && newType <= 11)
+        type = (TextPacketType)newType;
     }
 
-    player->sendTextPacket(args[0].toStr(), type);
+    TextPacket pkt = TextPacket();
+    pkt.mType = type;
+    pkt.mMessage = args[0].asString().toString();
+    player->sendNetworkPacket(pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in tell!");
@@ -1433,7 +1471,7 @@ Local<Value> PlayerClass::setTitle(const Arguments &args) {
       return Local<Value>();
 
     string content;
-    TitleType type = TitleType::SetTitle;
+    SetTitlePacket::TitleType type = SetTitlePacket::TitleType::Title;
     int fadeInTime = 10;
     int stayTime = 70;
     int fadeOutTime = 20;
@@ -1444,7 +1482,7 @@ Local<Value> PlayerClass::setTitle(const Arguments &args) {
     }
     if (args.size() >= 2) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-      type = (TitleType)args[1].toInt();
+      type = (SetTitlePacket::TitleType)args[1].toInt();
     }
     if (args.size() >= 5) {
       CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
@@ -1455,8 +1493,12 @@ Local<Value> PlayerClass::setTitle(const Arguments &args) {
       fadeOutTime = args[4].toInt();
     }
 
-    return Boolean::newBoolean(player->sendTitlePacket(
-        content, type, fadeInTime, stayTime, fadeOutTime));
+    SetTitlePacket pkt = SetTitlePacket(type, content);
+    pkt.mFadeInTime = fadeInTime;
+    pkt.mStayTime = stayTime;
+    pkt.mFadeOutTime = fadeOutTime;
+    player->sendNetworkPacket(pkt);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setTitle!");
 }

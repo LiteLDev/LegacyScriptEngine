@@ -168,12 +168,11 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const &value) {
 Local<Value> McClass::runcmd(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-  ServerCommandOrigin origin =
-      ServerCommandOrigin("Server", ll::service::getLevel()->asServer(),
-                          CommandPermissionLevel::Internal, 0);
   CommandContext context =
       CommandContext(args[0].asString().toString(),
-                     std::unique_ptr<ServerCommandOrigin>(&origin));
+                     std::make_unique<ServerCommandOrigin>(ServerCommandOrigin(
+                         "Server", ll::service::getLevel()->asServer(),
+                         CommandPermissionLevel::Internal, 0)));
   try {
     return Boolean::newBoolean(
         ll::service::getMinecraft()->getCommands().executeCommand(context,
@@ -185,12 +184,11 @@ Local<Value> McClass::runcmd(const Arguments &args) {
 Local<Value> McClass::runcmdEx(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1)
   CHECK_ARG_TYPE(args[0], ValueKind::kString)
-  ServerCommandOrigin origin =
-      ServerCommandOrigin("Server", ll::service::getLevel()->asServer(),
-                          CommandPermissionLevel::Internal, 0);
   CommandContext context =
       CommandContext(args[0].asString().toString(),
-                     std::unique_ptr<ServerCommandOrigin>(&origin));
+                     std::make_unique<ServerCommandOrigin>(ServerCommandOrigin(
+                         "Server", ll::service::getLevel()->asServer(),
+                         CommandPermissionLevel::Internal, 0)));
   try {
     MCRESULT result = ll::service::getMinecraft()->getCommands().executeCommand(
         context, false);

@@ -22,7 +22,7 @@ using namespace std;
 
 //////////////////// Helper ////////////////////
 
-bool RegisterCmd(const string &cmd, const string &describe, int cmdLevel) {
+void RegisterCmd(const string &cmd, const string &describe, int cmdLevel) {
   ll::event::EventBus::getInstance()
       .emplaceListener<ll::event::ServerStartedEvent>(
           [&](ll::event::ServerStartedEvent &ev) {

@@ -18,7 +18,7 @@ public:
 
   static Local<Object> newForm();
   static ll::form::SimpleForm *extract(Local<Value> v);
-  static bool sendForm(ll::form::SimpleForm *form, Player *player,
+  static void sendForm(ll::form::SimpleForm *form, Player *player,
                        script::Local<Function> &callback);
 
   Local<Value> setTitle(const Arguments &args);
@@ -38,7 +38,7 @@ public:
 
   static Local<Object> newForm();
   static ll::form::CustomForm *extract(Local<Value> v);
-  static bool sendForm(ll::form::CustomForm *form, Player *player,
+  static void sendForm(ll::form::CustomForm *form, Player *player,
                        script::Local<Function> &callback);
 
   Local<Value> setTitle(const Arguments &args);

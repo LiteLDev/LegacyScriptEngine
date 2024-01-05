@@ -2195,22 +2195,20 @@ Local<Value> PlayerClass::sendForm(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    bool res = false;
-
     Form::SimpleForm *form = SimpleFormClass::extract(args[0]);
     if (IsInstanceOf<SimpleFormClass>(args[0])) {
       Local<Function> callback = args[1].asFunction();
-      res = SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player,
-                                      callback);
+      SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player,
+                                callback);
     } else if (IsInstanceOf<CustomFormClass>(args[0])) {
       Local<Function> callback = args[1].asFunction();
-      res = CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player,
-                                      callback);
+      CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player,
+                                callback);
     } else {
       LOG_WRONG_ARG_TYPE();
       return Local<Value>();
     }
-    return Boolean::newBoolean(res);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in sendForm!");
 }

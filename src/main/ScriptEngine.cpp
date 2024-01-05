@@ -1,5 +1,6 @@
 #include "api/APIHelp.h"
 #include "api/EventAPI.h"
+#include "api/MoreGlobal.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
@@ -13,9 +14,6 @@
 #include <chrono>
 #include <exception>
 #include <filesystem>
-#include <liteloader/Version.h>
-#include <ll/api/Logger.h>
-#include <llapi/utils/FileHelper.h>
 #include <memory>
 #include <string>
 #include <thread>
@@ -36,12 +34,12 @@ extern void LoadDebugEngine();
 
 void entry() {
   // Register myself
-  ll::registerPlugin(LLSE_LOADER_NAME, LLSE_LOADER_DESCRIPTION,
-                     LITELOADER_VERSION,
-                     {{"GitHub", "github.com/LiteLDev/LiteLoaderBDS"}});
+  // ll::registerPlugin(LLSE_LOADER_NAME, LLSE_LOADER_DESCRIPTION,
+  //                    LITELOADER_VERSION,
+  //                    {{"GitHub", "github.com/LiteLDev/LiteLoaderBDS"}});
 
   // Load i18n files
-  Translation::loadFromImpl(GetCurrentModule(), ll::getLoaderHandle());
+  // Translation::loadFromImpl(GetCurrentModule(), ll::getLoaderHandle());
 
   // Init global share data
   InitLocalShareData();
@@ -83,4 +81,6 @@ void entry() {
 
   // Init message system
   InitMessageSystem();
+
+  MoreGlobal::Init();
 }

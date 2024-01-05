@@ -14,6 +14,7 @@
 #include "api/PacketAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/service/Bedrock.h"
 #include "main/EconomicSystem.h"
 #include <llapi/mc/NetworkIdentifier.hpp>
 #include <mc/world/actor/Actor.h>
@@ -22,7 +23,9 @@
 #include <mc/world/attribute/AttributeInstance.h>
 
 #include <mc/world/Container.h
+#include "MoreGlobal.h"
 #include "main/SafeGuardRecord.h"
+#include "mc/world/level/storage/DBStorage.h"
 #include <algorithm>
 #include <llapi/PlayerInfoAPI.h>
 #include <llapi/mc/ListTag.hpp>
@@ -309,9 +312,22 @@ Local<Value> McClass::getPlayerNbt(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto nbt = Player::getPlayerNbt(uuid);
-    if (nbt != nullptr) {
-      return NbtCompoundClass::pack(Player::getPlayerNbt(uuid));
+    CompoundTag tag;
+    Player *pl = ll::service::getLevel()->getPlayer(uuid);
+    if (pl) {
+      pl->save(tag);
+    } else {
+      std::string serverId = pl->getServerId();
+      if (!serverId.empty()) {
+        if (MoreGlobal::getDBStorage()->hasKey(serverId,
+                                               DBHelpers::Category::Player)) {
+          tag = MoreGlobal::getDBStorage()->getCompoundTag(
+              serverId, DBHelpers::Category::Player)
+        }
+      }
+    }
+    if (!tag.isEmpty()) {
+      return NbtCompoundClass::pack(&tag);
     } else {
       return Local<Value>();
     }

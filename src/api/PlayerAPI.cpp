@@ -17,6 +17,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "main/EconomicSystem.h"
+#include "mc/entity/utilities/ActorDataIDs.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/server/ServerPlayer.h"
 #include <mc/world/actor/Actor.h>
@@ -33,8 +34,10 @@
 #include "mc/enums/TextPacketType.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
+#include "mc/network/packet/LevelChunkPacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
 #include "mc/network/packet/TextPacket.h"
+#include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
@@ -43,6 +46,8 @@
 #include "mc/world/actor/player/PlayerUISlot.h"
 #include "mc/world/level/LayeredAbilities.h"
 #include "mc/world/level/storage/DBStorage.h"
+#include "mc/world/scores/ScoreInfo.h"
+#include "mc/world/scores/Scoreboard.h"
 #include <algorithm>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -1512,7 +1517,11 @@ Local<Value> PlayerClass::talkAs(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    player->sendTextTalkPacket(args[0].toStr(), nullptr);
+    TextPacket pkt = TextPacket();
+    pkt.createChat(player->getRealName(), args[0].asString().toString(),
+                   player->getXuid(), player->getPlatformOnlineId());
+    ll::service::getServerNetworkHandler()->handle(
+        player->getNetworkIdentifier(), pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in talkAs!");
@@ -1530,7 +1539,10 @@ Local<Value> PlayerClass::talkTo(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    player->sendTextTalkPacket(args[0].toStr(), target);
+    TextPacket pkt = TextPacket();
+    pkt.createChat(player->getRealName(), args[0].asString().toString(),
+                   player->getXuid(), player->getPlatformOnlineId());
+    target->sendNetworkPacket(pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in talkTo!");
@@ -1542,7 +1554,8 @@ Local<Value> PlayerClass::getHand(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return ItemClass::newItem(player->getHandSlot());
+    return ItemClass::newItem(
+        const_cast<ItemStack *>(&player->getSelectedItem()));
   }
   CATCH("Fail in getHand!");
 }
@@ -1586,7 +1599,8 @@ Local<Value> PlayerClass::getEnderChest(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return ContainerClass::newContainer(player->getEnderChestContainer());
+    // Todo
+    return ContainerClass::newContainer();
   }
   CATCH("Fail in getEnderChest!");
 }
@@ -1596,8 +1610,9 @@ Local<Value> PlayerClass::getRespawnPosition(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Local<Value>();
-    auto position = player->getRespawnPosition();
-    return IntPos::newPos(position.first, position.second);
+    BlockPos position = player->getSpawnPosition();
+    DimensionType dim = player->getSpawnDimension();
+    return IntPos::newPos(position, dim);
   }
   CATCH("Fail in getRespawnPosition!")
 }
@@ -1654,7 +1669,8 @@ Local<Value> PlayerClass::refreshItems(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(player->refreshInventory());
+    player->refreshInventory();
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in refreshItems!");
 }
@@ -1667,8 +1683,9 @@ Local<Value> PlayerClass::rename(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Local<Value>();
-
-    return Boolean::newBoolean(player->rename(args[0].toStr()));
+    player->setNameTag(args[0].toStr());
+    player->_sendDirtyActorData();
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in RenamePlayer!");
 }
@@ -1739,7 +1756,7 @@ Local<Value> PlayerClass::setScale(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    player->getEntityData().set(ActorDataKeys::SCALE,
+    player->getEntityData().set((ushort)ActorDataIDs::Scale,
                                 args[0].asNumber().toFloat());
     return Boolean::newBoolean(true);
   }
@@ -1783,7 +1800,7 @@ Local<Value> PlayerClass::reduceExperience(const Arguments &args) {
       return Local<Value>();
     }
 
-    player->reduceExperience(args[0].toInt());
+    player->addExperience(-args[0].toInt());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in reduceExperience!");
@@ -1795,7 +1812,7 @@ Local<Value> PlayerClass::getCurrentExperience(const Arguments &arg) {
     if (!player) {
       return Local<Value>();
     }
-    return Number::newNumber(player->getCurrentExperience());
+    return Number::newNumber(player->getXpEarnedAtCurrentLevel());
   }
   CATCH("Fail in getCurrentExperience!")
 }
@@ -1810,7 +1827,8 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments &args) {
       return Local<Value>();
     }
 
-    player->setCurrentExperience(args[0].toInt());
+    AttributeInstance *attr = player->getMutableAttribute(Player::EXPERIENCE);
+    attr->setCurrentValue(args[0].asNumber().toFloat()); // Not sure about that
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setCurrentExperience!");
@@ -1822,7 +1840,9 @@ Local<Value> PlayerClass::getTotalExperience(const Arguments &arg) {
     if (!player) {
       return Local<Value>();
     }
-    return Number::newNumber((int64_t)player->getTotalExperience());
+    return Number::newNumber(
+        (int32_t)player->getXpNeededForLevelRange(0, player->getPlayerLevel()) +
+        player->getXpEarnedAtCurrentLevel());
   }
   CATCH("Fail in getTotalExperience!")
 }
@@ -1836,8 +1856,8 @@ Local<Value> PlayerClass::setTotalExperience(const Arguments &args) {
     if (!player) {
       return Local<Value>();
     }
-
-    player->setTotalExperience(args[0].asNumber().toInt64());
+    player->resetPlayerLevel();
+    player->addExperience(args[0].asNumber().toInt32());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setTotalExperience!");
@@ -1865,8 +1885,9 @@ Local<Value> PlayerClass::transServer(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(
-        player->transferServer(args[0].toStr(), (short)args[1].toInt()));
+    TransferPacket pkt = TransferPacket(args[0].toStr(), args[1].toInt());
+    player->sendNetworkPacket(pkt);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in transServer!");
 }
@@ -1880,7 +1901,10 @@ Local<Value> PlayerClass::crash(const Arguments &args) {
     RecordOperation(ENGINE_OWN_DATA()->pluginName, "Crash Player",
                     "Execute player.crash() to crash player <" +
                         player->getRealName() + ">");
-    return Boolean::newBoolean(player->crashClient());
+    LevelChunkPacket pkt = LevelChunkPacket();
+    pkt.mCacheEnabled = true;
+    player->sendNetworkPacket(pkt);
+    return Boolean::newBoolean(false);
   }
   CATCH("Fail in crashPlayer!");
 }
@@ -1917,7 +1941,18 @@ Local<Value> PlayerClass::getScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Number::newNumber(Scoreboard::getScore(player, args[0].toStr()));
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *obj = score.getObjective(args[0].asString().toString());
+    if (!obj) {
+      throw std::invalid_argument("Objective " + args[0].asString().toString() +
+                                  " not found");
+    }
+    const ScoreboardId &id =
+        score.getScoreboardId(player->getOrCreateUniqueID());
+    if (!id.isValid()) {
+      score.createScoreboardId(*player);
+    }
+    return Number::newNumber(obj->getPlayerScore(id)); // Todo
   }
   CATCH("Fail in getScore!");
 }
@@ -1932,8 +1967,7 @@ Local<Value> PlayerClass::setScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(::Global<Scoreboard>->setScore(
-        player, args[0].toStr(), args[1].toInt()));
+    return Boolean::newBoolean();
   }
   CATCH("Fail in setScore!");
 }

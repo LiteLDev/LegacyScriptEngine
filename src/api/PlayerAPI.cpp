@@ -14,10 +14,13 @@
 #include "api/PacketAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/ServerInfo.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "main/EconomicSystem.h"
 #include "mc/entity/utilities/ActorDataIDs.h"
+#include "mc/enums/BossBarColor.h"
+#include "mc/enums/ScorePacketType.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/server/ServerPlayer.h"
 #include <mc/world/actor/Actor.h>
@@ -34,20 +37,30 @@
 #include "mc/enums/TextPacketType.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
+#include "mc/network/packet/AddEntityPacket.h"
+#include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
+#include "mc/network/packet/ScorePacketInfo.h"
+#include "mc/network/packet/SetDisplayObjectivePacket.h"
+#include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
 #include "mc/network/packet/TextPacket.h"
 #include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
+#include "mc/world/ActorUniqueID.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
+#include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/actor/player/PlayerUISlot.h"
+#include "mc/world/events/BossEventUpdateType.h"
 #include "mc/world/level/LayeredAbilities.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
+#include "mc/world/scores/ScoreboardId.h"
+#include "scriptx/Value.h"
 #include <algorithm>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -1952,7 +1965,7 @@ Local<Value> PlayerClass::getScore(const Arguments &args) {
     if (!id.isValid()) {
       score.createScoreboardId(*player);
     }
-    return Number::newNumber(obj->getPlayerScore(id)); // Todo
+    return Number::newNumber(obj->getPlayerScore(id).mScore);
   }
   CATCH("Fail in getScore!");
 }
@@ -1967,7 +1980,20 @@ Local<Value> PlayerClass::setScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean();
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *obj = score.getObjective(args[0].asString().toString());
+    if (!obj) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id =
+        score.getScoreboardId(player->getOrCreateUniqueID());
+    if (!id.isValid()) {
+      score.createScoreboardId(*player);
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Set);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in setScore!");
 }
@@ -1982,8 +2008,20 @@ Local<Value> PlayerClass::addScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(::Global<Scoreboard>->addScore(
-        player, args[0].toStr(), args[1].toInt()));
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *obj = score.getObjective(args[0].asString().toString());
+    if (!obj) {
+      return Boolean::newBoolean(false)
+    }
+    const ScoreboardId &id =
+        score.getScoreboardId(player->getOrCreateUniqueID());
+    if (!id.isValid()) {
+      score.createScoreboardId(*player);
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Add);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in addScore!");
 }
@@ -1998,8 +2036,20 @@ Local<Value> PlayerClass::reduceScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(::Global<Scoreboard>->reduceScore(
-        player, args[0].toStr(), args[1].toInt()));
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *obj = score.getObjective(args[0].asString().toString());
+    if (!obj) {
+      return Boolean::newBoolean(false)
+    }
+    const ScoreboardId &id =
+        score.getScoreboardId(player->getOrCreateUniqueID());
+    if (!id.isValid()) {
+      score.createScoreboardId(*player);
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Subtract);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in reduceScore!");
 }
@@ -2013,8 +2063,18 @@ Local<Value> PlayerClass::deleteScore(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *obj = score.getObjective(args[0].asString().toString());
+    if (!obj) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id =
+        score.getScoreboardId(player->getOrCreateUniqueID());
+    if (!id.isValid()) {
+      score.createScoreboardId(*player);
+    }
     return Boolean::newBoolean(
-        ::Global<Scoreboard>->deleteScore(player, args[0].toStr()));
+        score.getScoreboardIdentityRef(id)->removeFromObjective(score, *obj));
   }
   CATCH("Fail in deleteScore!");
 }
@@ -2042,8 +2102,31 @@ Local<Value> PlayerClass::setSidebar(const Arguments &args) {
     if (args.size() >= 3)
       sortOrder = args[2].toInt();
 
-    return Boolean::newBoolean(player->setSidebar(
-        args[0].toStr(), data, (ObjectiveSortOrder)sortOrder));
+    SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
+        "sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
+        (ObjectiveSortOrder)sortOrder);
+    player->sendNetworkPacket(disObjPkt);
+    std::vector<ScorePacketInfo> info;
+    static std::set<uint64_t> scoreIds; // Store scoreboard ids
+    for (auto &i : data) {
+      uint64_t Id = 0;
+      do {
+        Id = (uint64_t)((rand() << 16) + rand() + 1145140);
+      } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
+      const ScoreboardId &id = ScoreboardId(Id);
+      ScorePacketInfo pktInfo = ScorePacketInfo();
+      pktInfo.mScoreboardId = id;
+      pktInfo.mObjectiveName = "FakeScoreObj";
+      pktInfo.mIdentityType = IdentityDefinition::Type::FakePlayer;
+      pktInfo.mScoreValue = i.second;
+      pktInfo.mFakePlayerName = i.first;
+      info.emplace_back(pktInfo);
+    }
+    SetScorePacket setPkt = SetScorePacket();
+    setPkt.mType = ScorePacketType::Change;
+    setPkt.mScoreInfo = info;
+    player->sendNetworkPacket(disObjPkt);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setSidebar!")
 }
@@ -2054,7 +2137,10 @@ Local<Value> PlayerClass::removeSidebar(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(player->removeSidebar());
+    SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
+        "sidebar", "", "", "dummy", ObjectiveSortOrder::Ascending);
+    player->sendNetworkPacket(disObjPkt);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in removeSidebar!")
 }
@@ -2079,8 +2165,19 @@ Local<Value> PlayerClass::setBossBar(const Arguments &args) {
       else if (percent > 100)
         percent = 100;
       float value = (float)percent / 100;
-      BossEventColour colour = (BossEventColour)args[3].toInt();
-      player->updateBossEvent(uid, args[1].toStr(), value, colour);
+      AddEntityPacket entityPkt = AddEntityPacket();
+      // Todo
+      // AddEntityPacket(uid, "player", Vec3(getPos().x, (float)-70,
+      // getPos().z), Vec2{0, 0}, 0)
+
+      BossBarColor color = (BossBarColor)args[3].toInt();
+      BossEventPacket pkt = BossEventPacket();
+      pkt.mBossID = ActorUniqueID(uid);
+      pkt.mName = args[1].asString().toString();
+      pkt.mHealthPercent = value;
+      pkt.mColor = color;
+      player->sendNetworkPacket(entityPkt);
+      player->sendNetworkPacket(pkt);
       return Boolean::newBoolean(true);
     }
     CATCH("Fail in addBossBar!")
@@ -2100,11 +2197,15 @@ Local<Value> PlayerClass::setBossBar(const Arguments &args) {
     else if (percent > 100)
       percent = 100;
     float value = (float)percent / 100;
-    BossEventColour colour = BossEventColour::Red;
+    BossBarColor color = BossBarColor::Red;
     if (args.size() >= 3)
-      colour = (BossEventColour)args[2].toInt();
-    player->sendBossEventPacket(BossEvent::Show, args[0].toStr(), value,
-                                colour);
+      color = (BossBarColor)args[2].toInt();
+    BossEventPacket pkt = BossEventPacket();
+    pkt.mEventType = BossEventUpdateType::Add;
+    pkt.mName = args[0].asString().toString();
+    pkt.mHealthPercent = value;
+    pkt.mColor = color;
+    player->sendNetworkPacket(pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setBossBar!")
@@ -2117,8 +2218,10 @@ Local<Value> PlayerClass::removeBossBar(const Arguments &args) {
       if (!player)
         return Local<Value>();
 
-      player->sendBossEventPacket(BossEvent::Hide, "", 0,
-                                  BossEventColour::Red); // Remove
+      BossEventPacket pkt = BossEventPacket();
+      pkt.mEventType = BossEventUpdateType::Remove;
+      pkt.mColor = BossBarColor::Red;
+      player->sendNetworkPacket(pkt);
       return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeBossBar!")
@@ -2130,7 +2233,10 @@ Local<Value> PlayerClass::removeBossBar(const Arguments &args) {
       if (!player)
         return Local<Value>();
       int64_t uid = args[0].asNumber().toInt64();
-      player->removeBossEvent(uid); // Remove
+      BossEventPacket pkt = BossEventPacket();
+      pkt.mBossID = ActorUniqueID(uid);
+      pkt.mEventType = BossEventUpdateType::Remove;
+      player->sendNetworkPacket(pkt);
       return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeBossBar!")
@@ -2176,7 +2282,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments &args) {
           if (!EngineManager::isValid(engine))
             return;
 
-          Player *pl = Global<Level>->getPlayer(id);
+          Player *pl = ll::service::getLevel()->getPlayer(id);
           if (!pl)
             return;
 
@@ -2217,7 +2323,7 @@ Local<Value> PlayerClass::sendModalForm(const Arguments &args) {
           if (!EngineManager::isValid(engine))
             return;
 
-          Player *pl = Global<Level>->getPlayer(id);
+          Player *pl = ll::service::getLevel()->getPlayer(id);
           if (!pl)
             return;
 
@@ -2256,7 +2362,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments &args) {
           if (!EngineManager::isValid(engine))
             return;
 
-          Player *pl = Global<Level>->getPlayer(id);
+          Player *pl = ll::service::getLevel()->getPlayer(id);
           if (!pl)
             return;
 

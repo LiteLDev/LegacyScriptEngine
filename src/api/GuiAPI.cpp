@@ -156,11 +156,20 @@ void CustomFormClass::sendForm(ll::form::CustomForm *form, Player *player,
 
         EngineScope scope(engine);
         try {
-            Local<Object> result;
+            nlohmann::ordered_json result;
             for (auto& [k,v] : data) {
-                std::visit([&](auto&& val) { result.set(k, val); }, v);
+                std::visit(
+                    [&](auto&& val) {
+                        if (!std::is_same_v<std::remove_cvref_t<decltype(val)>,std::monostate>) {
+                            result[k] = val;
+                        } else {
+                            result[k] = nullptr;
+                        }
+                    },
+                    v
+                );
             }
-            callback.get().call({}, PlayerClass::newPlayer(&pl), result); 
+            callback.get().call({}, PlayerClass::newPlayer(&pl), JsonToValue(result)); 
         }
         CATCH_WITHOUT_RETURN("Fail in form callback!")
       });

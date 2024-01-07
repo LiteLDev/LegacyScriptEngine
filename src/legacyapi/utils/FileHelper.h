@@ -5,9 +5,6 @@
 #include <optional>
 #include <string>
 
-FILE *GetFILEfromFstream(std::fstream &fs);
-HANDLE GetHANDLEfromFstream(std::fstream &fs);
-
 std::vector<std::string> GetFileNameList(const std::string &dir);
 bool CreateDirs(const std::string path);
 std::optional<std::string> ReadAllFile(const std::string &filePath,

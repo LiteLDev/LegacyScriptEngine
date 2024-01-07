@@ -70,7 +70,7 @@ Local<Value> NativePointer::fromSymbol(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-    return newNativePointer(dlsym_real(args[0].asString().toStringHolder().c_str()));
+    return newNativePointer(ll::memory::resolveSymbol(args[0].asString().toStringHolder().c_str()));
 }
 
 Local<Value> NativePointer::mallocMem(const Arguments& args) {
@@ -167,26 +167,16 @@ Local<Value> NativePointer::offset(const Arguments& args) {
 
 Local<Value> NativePointer::getMemByte() {
     try {
-        auto ptr = get();
-        if (!ptr)
-            return Local<Value>();
-        std::vector<uint8_t> buffer(1);
-        ModUtils::MemCopy((uintptr_t)&buffer[0], (uintptr_t)ptr, buffer.size());
-        uint8_t em = buffer[0];
-        stringstream ss;
-        ss << hex << int(em);
-        return String::newString(ss.str());
+        return String::newString("0");
     }
     CATCH("Fail in NativePointer::getMemByte!")
 }
 
 void NativePointer::setMemByte(const Local<Value>& value) {
-    try {
-        ModUtils::MemSet((uintptr_t)get(), (unsigned char)stoul(value.asString().toString(), nullptr, 16), 1);
-    } catch (...) {
+
         logger.error("Fail to set mem!");
         logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
-    }
+    
 }
 
 Local<Value> NativePointer::getChar() {

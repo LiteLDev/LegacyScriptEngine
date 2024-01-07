@@ -398,7 +398,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments &args) {
         tags.push_back(value.asString().toString());
       }
     }
-    Player::setPlayerNbtTags(uuid, nbt, tags);
+    ll::service::getLevel()->getPlayer(uuid)->loadFromNbt(*nbt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setPlayerNbtTags!")
@@ -409,7 +409,7 @@ Local<Value> McClass::deletePlayerNbt(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    Player::deletePlayerNbt(uuid);
+    ll::service::getLevel()->getLevelStorage().deleteData("player_" + uuid.asString(),DBHelpers::Category::Player);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in deletePlayerNbt!")

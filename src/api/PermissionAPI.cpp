@@ -1,6 +1,6 @@
 #define NEW_DEFINES
 #include "api/PermissionAPI.h"
-
+/*
 using namespace ll::perm;
 
 Local<Value> PermInstanceToObject(const PermInstance& perm) {
@@ -439,4 +439,4 @@ Local<Value> PermissionClass::saveData(const Arguments& args) {
     }
     CATCH_AND_THROW;
     return {};
-}
+}*/

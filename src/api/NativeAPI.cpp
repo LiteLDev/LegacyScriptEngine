@@ -1,8 +1,8 @@
 #include "api/NativeAPI.h"
 
-#include <ll/api/memory/Hook.h>
+#include "ll/api/memory/Hook.h"
 #include <magic_enum.hpp>
-#include <Tools/Demangler/include/MicrosoftDemangle.h>
+#include "demangler/MicrosoftDemangle.h"
 
 
 Concurrency::concurrent_unordered_map<std::string, NativeFunction> NativeFunction::parsedSymbol;
@@ -200,8 +200,8 @@ inline std::string NativeFunction::buildDynCallbackSig() {
     result[params_size + 1] = getTypeSignature(mReturnVal);
     return result;
 }
-NativeFunction::Types NativeFunction::getNativeType(llvm::ms_demangle::Node* type) {
-    using namespace llvm::ms_demangle;
+NativeFunction::Types NativeFunction::getNativeType(demangler::ms_demangle::Node* type) {
+    using namespace demangler::ms_demangle;
     if (type) {
         if (type->kind() == NodeKind::PrimitiveType) {
             switch (((PrimitiveTypeNode*)type)->PrimKind) {
@@ -267,10 +267,10 @@ NativeFunction NativeFunction::getOrParse(const std::string& symbol) {
         return iter->second; // return by copy
     }
     // no cache found
-    using namespace llvm::ms_demangle;
+    using namespace demangler::ms_demangle;
     NativeFunction result;
 
-    result.mFunction = dlsym_real(symbol.c_str());
+    result.mFunction = ll::memory::resolveSymbol(symbol.c_str());
     result.mSymbol = symbol;
 
     Demangler demangler;
@@ -298,7 +298,7 @@ NativeFunction NativeFunction::getOrParse(const std::string& symbol) {
     return result;
 }
 Local<Value> ScriptNativeFunction::fromSymbol(const Arguments& args) {
-    using namespace llvm::ms_demangle;
+    using namespace demangler::ms_demangle;
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     const std::string symbol = args[0].toStr();
@@ -509,7 +509,7 @@ Local<Value> ScriptNativeFunction::hook(const Arguments& args) {
     hookSymbol->mNativeCallack = dcbNewCallback(hookSymbol->buildDynCallbackSig().c_str(), &nativeCallbackHandler, hookSymbol);
     hookSymbol->mScriptCallback = args[0].asFunction();
     void* hookOriginl = nullptr;
-    int hookResult = HookFunction(hookSymbol->mFunction, &hookOriginl, hookSymbol->mNativeCallack);
+    int hookResult = ll::memory::hook(hookSymbol->mFunction, &hookOriginl, (ll::memory::FuncPtr*)hookSymbol->mNativeCallack,ll::memory::HookPriority::Low);
     hookSymbol->mFunction = hookOriginl;
     return scriptResult;
 }

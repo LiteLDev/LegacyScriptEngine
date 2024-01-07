@@ -11,7 +11,7 @@
 #include <thread>
 #include <windows.h>
 
-#define H do_hash
+#define H ll::hash::do_hash
 using namespace std;
 
 //////////////////// APIs ////////////////////
@@ -20,11 +20,11 @@ Local<Value> Log(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
 
   try {
-    auto &infoOut = ENGINE_OWN_DATA()->logger.info;
-
+    std::ostringstream sout;
     for (int i = 0; i < args.size(); ++i)
-      PrintValue(infoOut, args[i]);
-    infoOut << Logger::endl;
+        PrintValue(sout, args[i]);
+    sout << std::endl;
+    ENGINE_OWN_DATA()->logger.info(sout.str());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in Log!");
@@ -36,7 +36,7 @@ Local<Value> ColorLog(const Arguments &args) {
 
   try {
     std::string prefix = "";
-    switch (H(args[0].asString().toString().c_str())) {
+    switch (H(args[0].asString().toString())) {
     case H("dk_blue"):
       prefix = "\x1b[34m";
       break;
@@ -86,13 +86,12 @@ Local<Value> ColorLog(const Arguments &args) {
       LOG_ERROR_WITH_SCRIPT_INFO("Invalid color!");
       break;
     }
-    // if (!ll::globalConfig.colorLog)
-    //     prefix = "";
-    auto &infoOut = ENGINE_OWN_DATA()->logger.info;
-    infoOut << prefix;
+    std::ostringstream sout;
+    sout << prefix;
     for (int i = 1; i < args.size(); ++i)
-      PrintValue(infoOut, args[i]);
-    infoOut << "\x1b[0m" << Logger::endl;
+        PrintValue(sout, args[i]);
+    sout << "\x1b[0m" << std::endl;
+    ENGINE_OWN_DATA()->logger.info(sout.str());
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in Log!");

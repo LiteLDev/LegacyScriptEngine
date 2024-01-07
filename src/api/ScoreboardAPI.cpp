@@ -1,13 +1,14 @@
-#include "api/APIHelp.h"
-#include <llapi/mc/Scoreboard.hpp>
-#include <mc/world/scores/Objective.h>
-#include <mc/world/actor/player/Player.h>
 #include "api/ScoreboardAPI.h"
+#include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
+#include <mc/world/actor/player/Player.h>
+#include <mc/world/scores/Objective.h>
+#include <mc/world/scores/Scoreboard.h>
+#include <mc/world/scores/ScoreboardId.h>
 #include <optional>
 using namespace std;
-
+/*
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<ObjectiveClass> ObjectiveClassBuilder =
@@ -41,7 +42,7 @@ void ObjectiveClass::set(Objective* obj) {
 
 Objective* ObjectiveClass::get() {
     if (isValid)
-        return ::Global<Scoreboard>->getObjective(objname);
+        return ll::service::getLevel()->getScoreboard().getObjective(objname);
     return nullptr;
 }
 
@@ -74,10 +75,9 @@ Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
             return Local<Value>();
 
         string slot = args[0].toStr();
-        int sort = 0;
+        int    sort = 0;
         if (args.size() == 2)
             sort = args[1].toInt();
-
         return Boolean::newBoolean(obj->setDisplay(slot, (ObjectiveSortOrder)sort));
     }
     CATCH("Fail in setDisplay");
@@ -88,11 +88,11 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int          score = args[1].toInt();
         Local<Value> rtn;
 
         if (args[0].isString()) {
-            string id = args[0].toStr();
+            string             id  = args[0].toStr();
             std::optional<int> res = Scoreboard::setScore(objname, id, score);
             if (res)
                 rtn = Number::newNumber(*res);
@@ -115,11 +115,11 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int          score = args[1].toInt();
         Local<Value> rtn;
 
         if (args[0].isString()) {
-            string id = args[0].toStr();
+            string             id  = args[0].toStr();
             std::optional<int> res = Scoreboard::addScore(objname, id, score);
             if (res)
                 rtn = Number::newNumber(*res);
@@ -142,11 +142,11 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int          score = args[1].toInt();
         Local<Value> rtn;
 
         if (args[0].isString()) {
-            string id = args[0].toStr();
+            string             id  = args[0].toStr();
             std::optional<int> res = Scoreboard::reduceScore(objname, id, score);
             if (res)
                 rtn = Number::newNumber(*res);
@@ -171,8 +171,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
         bool res = false;
         if (args[0].isString()) {
             res = Scoreboard::removeFromObjective(objname, args[0].toStr());
-        }
-        else if (IsInstanceOf<PlayerClass>(args[0]))
+        } else if (IsInstanceOf<PlayerClass>(args[0]))
             res = Scoreboard::removeFromObjective(objname, PlayerClass::extract(args[0]));
         else {
             LOG_WRONG_ARG_TYPE();
@@ -211,7 +210,7 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
 
     try {
         string slot = args[0].toStr();
-        auto res = ::Global<Scoreboard>->getDisplayObjective(slot);
+        auto   res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
         if (!res)
             return Local<Value>();
@@ -226,7 +225,7 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
 
     try {
         string slot = args[0].toStr();
-        auto res = ::Global<Scoreboard>->clearDisplayObjective(slot);
+        auto   res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
 
         if (!res)
             return Local<Value>();
@@ -241,7 +240,7 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
 
     try {
         string name = args[0].toStr();
-        auto res = ::Global<Scoreboard>->getObjective(name);
+        auto   res  = ll::service::getLevel()->getScoreboard().getObjective(name);
 
         if (!res)
             return Local<Value>();
@@ -257,7 +256,7 @@ Local<Value> McClass::newScoreObjective(const Arguments& args) {
         CHECK_ARG_TYPE(args[1], ValueKind::kString)
 
     try {
-        string name = args[0].toStr();
+        string name    = args[0].toStr();
         string display = name;
         if (args.size() >= 2)
             display = args[1].toStr();
@@ -274,9 +273,9 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
 
     try {
         string name = args[0].toStr();
-        auto obj = ::Global<Scoreboard>->getObjective(name);
+        auto   obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
         if (obj) {
-            ::Global<Scoreboard>->removeObjective(obj);
+            ll::service::getLevel()->getScoreboard().removeObjective(obj);
             return Boolean::newBoolean(true);
         }
         return Boolean::newBoolean(false);
@@ -288,7 +287,7 @@ Local<Value> McClass::getAllScoreObjectives(const Arguments& args) {
     try {
         Local<Array> res = Array::newArray();
 
-        auto objs = ::Global<Scoreboard>->getObjectives();
+        auto objs = ll::service::getLevel()->getScoreboard().getObjectives();
         for (auto& obj : objs) {
             if (obj)
                 res.add(ObjectiveClass::newObjective((Objective*)obj));
@@ -297,3 +296,4 @@ Local<Value> McClass::getAllScoreObjectives(const Arguments& args) {
     }
     CATCH("Fail in GetAllScoreObjectives!")
 }
+*/

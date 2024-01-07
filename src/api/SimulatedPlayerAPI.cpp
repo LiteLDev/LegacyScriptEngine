@@ -1,34 +1,30 @@
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
-#include "api/DeviceAPI.h"
-#include "api/PlayerAPI.h"
-#include "api/McAPI.h"
 #include "api/ContainerAPI.h"
-#include "api/ItemAPI.h"
+#include "api/DeviceAPI.h"
 #include "api/EntityAPI.h"
+#include "api/ItemAPI.h"
+#include "api/McAPI.h"
 #include "api/NbtAPI.h"
+#include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "main/SafeGuardRecord.h"
+#include "mc/scripting/modules/minecraft/ScriptNavigationResult.h"
+#include "mc/server/SimulatedPlayer.h"
+#include <algorithm>
+#include <mc/nbt/CompoundTag.h>
+#include <mc/world/Container.h>
+#include <mc/world/SimpleContainer.h>
+#include <mc/world/actor/Actor.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/level/BlockSource.h>
-#include <llapi/mc/NetworkIdentifier.hpp>
-#include <mc/world/actor/Actor.h>
-#include <mc/world/Container.h
-#include <mc/world/SimpleContainer.h>
-#include <llapi/mc/Scoreboard.hpp>
-#include <mc/world/scores/Objective.h>
-#include <llapi/mc/ScoreboardId.hpp>
-#include <llapi/mc/ListTag.hpp>
-#include <mc/nbt/CompoundTag.h>
-#include <llapi/mc/SimulatedPlayer.hpp>
 #include <mc/world/level/block/Block.h>
-#include <llapi/PlayerInfoAPI.h>
-#include "main/SafeGuardRecord.h"
+#include <mc/world/scores/Objective.h>
 #include <string>
-#include <vector>
 #include <unordered_map>
-#include <algorithm>
+#include <vector>
 using namespace std;
 
 Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
@@ -85,7 +81,7 @@ Local<Value> PlayerClass::simulateSneak(const Arguments& args) {
         if (!sp)
             return Local<Value>();
 
-        return Boolean::newBoolean(sp->simulateSneak());
+        return Boolean::newBoolean(sp->simulateSneaking());
     }
     CATCH("Fail in " __FUNCTION__ "!")
 }
@@ -122,7 +118,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
             return Local<Value>();
 
         if (args.size() == 0)
-            return Boolean::newBoolean(sp->simulateDestroy());
+            return Boolean::newBoolean(sp->simulateDestroyLookAt());
 
         int dimid = sp->getDimensionId();
         BlockPos bpos;
@@ -263,8 +259,7 @@ Local<Value> PlayerClass::simulateRespawn(const Arguments& args) {
         if (!sp)
             return Local<Value>();
        if(sp->simulateRespawn()){
-            auto position = sp->getRespawnPosition();
-          get()->teleport(position.first.bottomCenter(), position.second);
+            get()->teleport(sp->getSpawnPosition().bottomCenter(), sp->getSpawnDimension());
             return Boolean::newBoolean(true);
        }else{
             return Boolean::newBoolean(false);
@@ -285,7 +280,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[0]);
-            target = pos->getBlockPos().toVec3();
+            target = pos->getBlockPos();
             index += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[0]);
@@ -330,7 +325,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[0]);
-            target = pos->getBlockPos().toVec3();
+            target = pos->getBlockPos();
             index += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[0]);
@@ -375,7 +370,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[0]);
-            target = pos->getBlockPos().toVec3();
+            target = pos->getBlockPos();
             index += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[0]);

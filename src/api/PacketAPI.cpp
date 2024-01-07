@@ -1,15 +1,16 @@
+#include "api/PacketAPI.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
-#include "api/McAPI.h"
 #include "api/BlockAPI.h"
+#include "api/BlockEntityAPI.h"
 #include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
-#include "api/BlockEntityAPI.h"
-#include "api/NbtAPI.h"
+#include "api/McAPI.h"
 #include "api/NativeAPI.h"
-#include <llapi/mc/Packet.hpp>
-#include "api/PacketAPI.h"
-#include <llapi/mc/MinecraftPackets.hpp>
+#include "api/NbtAPI.h"
+#include "mc/deps/core/utility/BinaryStream.h"
+#include "mc/network/packet/Packet.h"
+#include "mc/network/MinecraftPackets.h"
 
 
 //////////////////// Class Definition ////////////////////
@@ -157,11 +158,6 @@ Local<Value> BinaryStreamClass::reserve(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
-        BinaryStream* bs = get();
-        if (!bs) {
-            return Local<Value>();
-        }
-        bs->reserve(args[0].asNumber().toInt32());
 		return Boolean::newBoolean(true);
 	}
 	CATCH("Fail in BinaryStream reserve!");
@@ -437,7 +433,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args){
             LOG_WRONG_ARG_TYPE()
             return Local<Value>();
         }
-        pkt->writeCompoundTag(*nbt);
+        pkt->writeType(*nbt);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in BinaryStream writeCompoundTag!");
@@ -450,7 +446,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args){
         if (!bs) {
             return Local<Value>();
         }
-        auto pkt = MinecraftPackets::createPacket(args[0].asNumber().toInt32());
+        auto pkt = MinecraftPackets::createPacket((MinecraftPacketIds)args[0].asNumber().toInt32());
         pkt->read(*bs);
         return PacketClass::newPacket(pkt);
     }

@@ -289,9 +289,11 @@ bool LLSECallEventsOnHotLoad(ScriptEngine *engine) {
 
   ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
     FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
+    return true;
   });
-  ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
-    FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
+  ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+      FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
+      return true;
   });
 
   return true;

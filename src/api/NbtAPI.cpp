@@ -4,23 +4,13 @@
 #include <string>
 #include "api/ItemAPI.h"
 #include "api/BlockAPI.h"
-#include <llapi/mc/EndTag.hpp>
-#include <llapi/mc/ByteTag.hpp>
-#include <llapi/mc/ShortTag.hpp>
-#include <llapi/mc/IntTag.hpp>
-#include <llapi/mc/Int64Tag.hpp>
-#include <llapi/mc/FloatTag.hpp>
-#include <llapi/mc/DoubleTag.hpp>
-#include <llapi/mc/ByteArrayTag.hpp>
-#include <llapi/mc/StringTag.hpp>
-#include <llapi/mc/ListTag.hpp>
 #include <mc/nbt/CompoundTag.h>
 #include <magic_enum.hpp>
 
 using magic_enum::enum_cast;
 
 using namespace std;
-
+/*
 
 //////////////////// Class Definition ////////////////////
 
@@ -191,8 +181,7 @@ NbtEndClass::NbtEndClass(std::unique_ptr<EndTag> p)
 
 NbtEndClass* NbtEndClass::constructor(const Arguments& args) {
     try {
-        auto tag = EndTag::create();
-        return new NbtEndClass(args.thiz(), std::move(tag));
+        return new NbtEndClass(args.thiz(), std::make_unique<EndTag>());
     }
     CATCH_C("Fail in Create EndTag!");
 }
@@ -270,7 +259,7 @@ NbtByteClass::NbtByteClass(std::unique_ptr<ByteTag> p)
 
 NbtByteClass* NbtByteClass::constructor(const Arguments& args) {
     try {
-        auto tag = ByteTag::create((char)args[0].toInt());
+        auto tag = ByteTag((char)args[0].toInt());
         return new NbtByteClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create ByteTag!");
@@ -349,7 +338,7 @@ NbtIntClass::NbtIntClass(std::unique_ptr<IntTag> p)
 
 NbtIntClass* NbtIntClass::constructor(const Arguments& args) {
     try {
-        auto tag = IntTag::create(args[0].toInt());
+        auto tag = IntTag(args[0].toInt());
         return new NbtIntClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create IntTag!");
@@ -428,7 +417,7 @@ NbtShortClass::NbtShortClass(std::unique_ptr<ShortTag> p)
 
 NbtShortClass* NbtShortClass::constructor(const Arguments& args) {
     try {
-        auto tag = ShortTag::create(args[0].toInt());
+        auto tag = ShortTag(args[0].toInt());
         return new NbtShortClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create ShortTag!");
@@ -507,7 +496,7 @@ NbtLongClass::NbtLongClass(std::unique_ptr<Int64Tag> p)
 
 NbtLongClass* NbtLongClass::constructor(const Arguments& args) {
     try {
-        auto tag = Int64Tag::create(args[0].asNumber().toInt64());
+        auto tag = Int64Tag(args[0].asNumber().toInt64());
         return new NbtLongClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create LongTag!");
@@ -586,7 +575,7 @@ NbtFloatClass::NbtFloatClass(std::unique_ptr<FloatTag> p)
 
 NbtFloatClass* NbtFloatClass::constructor(const Arguments& args) {
     try {
-        auto tag = FloatTag::create(args[0].asNumber().toFloat());
+        auto tag = FloatTag(args[0].asNumber().toFloat());
         return new NbtFloatClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create FloatTag!");
@@ -665,7 +654,7 @@ NbtDoubleClass::NbtDoubleClass(std::unique_ptr<DoubleTag> p)
 
 NbtDoubleClass* NbtDoubleClass::constructor(const Arguments& args) {
     try {
-        auto tag = DoubleTag::create(args[0].asNumber().toDouble());
+        auto tag = DoubleTag(args[0].asNumber().toDouble());
         return new NbtDoubleClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create DoubleTag!");
@@ -744,7 +733,7 @@ NbtStringClass::NbtStringClass(std::unique_ptr<StringTag> p)
 
 NbtStringClass* NbtStringClass::constructor(const Arguments& args) {
     try {
-        auto tag = StringTag::create(args[0].toStr());
+        auto tag = StringTag(args[0].toStr());
         return new NbtStringClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create StringTag!");
@@ -824,7 +813,7 @@ NbtByteArrayClass::NbtByteArrayClass(std::unique_ptr<ByteArrayTag> p)
 NbtByteArrayClass* NbtByteArrayClass::constructor(const Arguments& args) {
     try {
         auto buf = args[0].asByteBuffer();
-        auto tag = ByteArrayTag::create((char*)buf.getRawBytes(), buf.byteLength());
+        auto tag = ByteArrayTag((char*)buf.getRawBytes(), buf.byteLength());
         return new NbtByteArrayClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create ByteArrayTag!");
@@ -942,14 +931,14 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
                 tag->add(NbtCompoundClass::extract(arr.get(i))->clone());
         else if (t.isArray()) {
             for (int i = 0; i < arr.size(); ++i) {
-                auto arrTag = ListTag::create();
+                auto arrTag = ListTag();
                 auto data = arr.get(i).asArray();
                 NbtListClassAddHelper(arrTag.get(), data);
                 tag->add(std::move(arrTag));
             }
         } else if (t.isObject()) {
             for (int i = 0; i < arr.size(); ++i) {
-                auto objTag = CompoundTag::create();
+                auto objTag = CompoundTag();
                 auto data = arr.get(i).asObject();
                 NbtCompoundClassAddHelper(objTag.get(), data);
                 tag->add(std::move(objTag));
@@ -962,7 +951,7 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
 
 NbtListClass* NbtListClass::constructor(const Arguments& args) {
     try {
-        auto tag = ListTag::create();
+        auto tag = ListTag();
 
         if (args.size() >= 1 && args[0].isArray()) {
             auto arr = args[0].asArray();
@@ -1025,7 +1014,7 @@ Local<Value> NbtListClass::getTypeOf(const Arguments& args) {
             return Local<Value>();
         }
 
-        return Number::newNumber(int(list[index]->getTagType()));
+        return Number::newNumber(int(list[index]->getId()));
     }
     CATCH("Fail in NBT GetTypeOf!");
 }
@@ -1040,10 +1029,10 @@ Local<Value> NbtListClass::setEnd(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::End) {
+        } else if (list[0]->getId() != Tag::Type::End) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asEndTag()->set();
+            list[index]->as_ptr<EndTag>()->set();
         }
         return this->getScriptObject();
     }
@@ -1061,10 +1050,10 @@ Local<Value> NbtListClass::setByte(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Byte) {
+        } else if (list[0]->getId() != Tag::Type::Byte) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asByteTag()->set(args[1].toInt());
+            list[index]->as_ptr<ByteTag>()->set(args[1].toInt());
         }
         return this->getScriptObject();
     }
@@ -1082,10 +1071,10 @@ Local<Value> NbtListClass::setInt(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Int) {
+        } else if (list[0]->getId() != Tag::Type::Int) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asIntTag()->set(args[1].toInt());
+            list[index]->as_ptr<IntTag>()->set(args[1].toInt());
         }
         return this->getScriptObject();
     }
@@ -1103,10 +1092,10 @@ Local<Value> NbtListClass::setShort(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Short) {
+        } else if (list[0]->getId() != Tag::Type::Short) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asShortTag()->set(args[1].toInt());
+            list[index]->as_ptr<ShortTag>()->set(args[1].toInt());
         }
         return this->getScriptObject();
     }
@@ -1124,10 +1113,10 @@ Local<Value> NbtListClass::setLong(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Int64) {
+        } else if (list[0]->getId() != Tag::Type::Int64) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asInt64Tag()->set(args[1].asNumber().toInt64());
+            list[index]->as_ptr<Int64Tag>()->set(args[1].asNumber().toInt64());
         }
         return this->getScriptObject();
     }
@@ -1145,10 +1134,10 @@ Local<Value> NbtListClass::setFloat(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Float) {
+        } else if (list[0]->getId() != Tag::Type::Float) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asFloatTag()->set(args[1].asNumber().toFloat());
+            list[index]->as_ptr<FloatTag>()->set(args[1].asNumber().toFloat());
         }
         return this->getScriptObject();
     }
@@ -1166,10 +1155,10 @@ Local<Value> NbtListClass::setDouble(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::Double) {
+        } else if (list[0]->getId() != Tag::Type::Double) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asDoubleTag()->set(args[1].asNumber().toDouble());
+            list[index]->as_ptr<DoubleTag>()->set(args[1].asNumber().toDouble());
         }
         return this->getScriptObject();
     }
@@ -1187,10 +1176,10 @@ Local<Value> NbtListClass::setString(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::String) {
+        } else if (list[0]->getId() != Tag::Type::String) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index]->asStringTag()->set(args[1].toStr());
+            list[index]->as_ptr<StringTag>()->set(args[1].toStr());
         }
 
         return this->getScriptObject();
@@ -1209,7 +1198,7 @@ Local<Value> NbtListClass::setByteArray(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-        } else if (list[0]->getTagType() != Tag::Type::ByteArray) {
+        } else if (list[0]->getId() != Tag::Type::ByteArray) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
             auto data = args[1].asByteBuffer();
@@ -1348,7 +1337,7 @@ Local<Value> NbtListClass::getTag(const Arguments& args) {
         }
 
         Local<Value> res;
-        switch (list[index]->getTagType()) {
+        switch (list[index]->getId()) {
             case Tag::Type::End:
                 res = NbtEndClass::pack(list[index]->asEndTag(), true); // share ptr
                 break;
@@ -1456,12 +1445,12 @@ void NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj) {
             else if (IsInstanceOf<NbtCompoundClass>(t))
                 tag->put(keys[i], NbtCompoundClass::extract(obj.get(keys[i]))->clone());
             else if (t.isArray()) {
-                auto arrTag = ListTag::create();
+                auto arrTag = ListTag();
                 auto data = obj.get(keys[i]).asArray();
                 NbtListClassAddHelper(arrTag.get(), data);
                 tag->put(keys[i], std::move(arrTag));
             } else if (t.isObject()) {
-                auto objTag = CompoundTag::create();
+                auto objTag = CompoundTag();
                 auto data = obj.get(keys[i]).asObject();
                 NbtCompoundClassAddHelper(objTag.get(), data);
                 tag->put(keys[i], std::move(objTag));
@@ -1474,7 +1463,7 @@ void NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj) {
 
 NbtCompoundClass* NbtCompoundClass::constructor(const Arguments& args) {
     try {
-        auto tag = CompoundTag::create();
+        auto tag = CompoundTag();
 
         if (args.size() >= 1 && args[0].isObject()) {
             auto obj = args[0].asObject();
@@ -1540,7 +1529,7 @@ Local<Value> NbtCompoundClass::getTypeOf(const Arguments& args) {
         auto& list = nbt->value();
         auto key = args[0].toStr();
 
-        return Number::newNumber(int(list.at(key).getTagType()));
+        return Number::newNumber(int(list.at(key).getId()));
     } catch (const out_of_range& e) {
         return Local<Value>();
     }
@@ -1645,7 +1634,7 @@ Local<Value> NbtCompoundClass::setDouble(const Arguments& args) {
         auto key = args[0].toStr();
         auto data = args[1].asNumber().toDouble();
 
-        list.at(key).asDoubleTag()->value() = data;
+        list.at(key).as_ptr<DoubleTag>()->value() = data;
         return this->getScriptObject();
     }
     CATCH("Fail in NBT SetDouble!");
@@ -1744,7 +1733,7 @@ Local<Value> NbtCompoundClass::getData(const Arguments& args) {
         auto& list = nbt->value();
         auto key = args[0].toStr();
 
-        return Tag2Value(list.at(key).asTag());
+        return Tag2Value(list.at(key).as_ptr<Tag>());
     } catch (const out_of_range& e) {
         return Local<Value>();
     }
@@ -1759,7 +1748,7 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
         auto key = args[0].toStr();
 
         Local<Value> res;
-        switch (nbt->value().at(key).getTagType()) {
+        switch (nbt->value().at(key).getId()) {
             case Tag::Type::End:
                 res = NbtEndClass::pack(nbt->value().at(key).asEndTag(), true); // share ptr
                 break;
@@ -1810,7 +1799,7 @@ Local<Value> NbtCompoundClass::toObject(const Arguments& args) {
         Local<Object> obj = Object::newObject();
 
         for (auto& [k, v] : comp) {
-            obj.set(k, Tag2Value(v.asTag(), true));
+            obj.set(k, Tag2Value(v.as_ptr<Tag>(), true));
         }
         return obj;
     }
@@ -1862,7 +1851,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
         Local<Value> res;
         switch (type) {
             case Tag::Type::End: {
-                auto tag = EndTag::create();
+                auto tag = EndTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set();
                 }
@@ -1870,7 +1859,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Byte: {
-                auto tag = ByteTag::create();
+                auto tag = ByteTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].toInt());
                 }
@@ -1878,7 +1867,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Short: {
-                auto tag = ShortTag::create();
+                auto tag = ShortTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].toInt());
                 }
@@ -1886,7 +1875,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Int: {
-                auto tag = IntTag::create();
+                auto tag = IntTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].toInt());
                 }
@@ -1894,7 +1883,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Int64: {
-                auto tag = Int64Tag::create();
+                auto tag = Int64Tag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].asNumber().toInt64());
                 }
@@ -1902,7 +1891,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Float: {
-                auto tag = FloatTag::create();
+                auto tag = FloatTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].asNumber().toFloat());
                 }
@@ -1910,7 +1899,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Double: {
-                auto tag = DoubleTag::create();
+                auto tag = DoubleTag();
                 if (args.size() >= 2 && args[1].isNumber()) {
                     tag->set(args[1].asNumber().toDouble());
                 }
@@ -1918,7 +1907,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::String: {
-                auto tag = StringTag::create();
+                auto tag = StringTag();
                 if (args.size() >= 2 && args[1].isString()) {
                     tag->set(args[1].toStr());
                 }
@@ -1926,7 +1915,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::ByteArray: {
-                auto tag = ByteArrayTag::create();
+                auto tag = ByteArrayTag();
                 if (args.size() >= 2 && args[1].isByteBuffer()) {
                     Local<ByteBuffer> buf = args[1].asByteBuffer();
                     tag->set(TagMemoryChunk((char*)buf.getRawBytes(), buf.byteLength()));
@@ -1935,7 +1924,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::List: {
-                auto tag = ListTag::create();
+                auto tag = ListTag();
                 if (args.size() >= 2 && args[1].isArray()) {
                     Local<Array> arr = args[1].asArray();
                     NbtListClassAddHelper(tag.get(), arr);
@@ -1944,7 +1933,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
                 break;
             }
             case Tag::Type::Compound: {
-                auto tag = CompoundTag::create();
+                auto tag = CompoundTag();
                 if (args.size() >= 2 && args[1].isObject()) {
                     Local<Object> obj = args[1].asObject();
                     NbtCompoundClassAddHelper(tag.get(), obj);
@@ -2005,35 +1994,35 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion = fal
 Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
     Local<Array> res = Array::newArray();
 
-    auto& list = nbt->asListTag()->value();
+    auto& list = nbt->as_ptr<ListTag>()->value();
     for (auto& tag : list) {
-        switch (tag->getTagType()) {
+        switch (tag->getId()) {
             case Tag::Type::End:
                 res.add(Local<Value>());
                 break;
             case Tag::Type::Byte:
-                res.add(Number::newNumber(tag->asByteTag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<ByteTag>()->value()));
                 break;
             case Tag::Type::Short:
-                res.add(Number::newNumber(tag->asShortTag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<ShortTag>()->value()));
                 break;
             case Tag::Type::Int:
-                res.add(Number::newNumber(tag->asIntTag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<IntTag>()->value()));
                 break;
             case Tag::Type::Int64:
-                res.add(Number::newNumber(tag->asInt64Tag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<Int64Tag>()->value()));
                 break;
             case Tag::Type::Float:
-                res.add(Number::newNumber(tag->asFloatTag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<FloatTag>()->value()));
                 break;
             case Tag::Type::Double:
-                res.add(Number::newNumber(tag->asDoubleTag()->value()));
+                res.add(Number::newNumber(tag->as_ptr<DoubleTag>()->value()));
                 break;
             case Tag::Type::String:
-                res.add(String::newString(tag->asStringTag()->value()));
+                res.add(String::newString(tag->as_ptr<StringTag>()->value()));
                 break;
             case Tag::Type::ByteArray: {
-                auto& data = tag->asByteArrayTag()->value();
+                auto& data = tag->as_ptr<ByteArrayTag>()->value();
                 res.add(ByteBuffer::newByteBuffer(data.data.get(), data.size));
                 break;
             }
@@ -2041,13 +2030,13 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
                 if (!autoExpansion)
                     res.add(NbtListClass::pack(tag->asListTag()));
                 else
-                    res.add(Tag2Value_ListHelper(tag->asListTag(), autoExpansion));
+                    res.add(Tag2Value_ListHelper(tag->as_ptr<ListTag>(), autoExpansion));
                 break;
             case Tag::Type::Compound:
                 if (!autoExpansion)
                     res.add(NbtCompoundClass::pack(tag->asCompoundTag()));
                 else
-                    res.add(Tag2Value_CompoundHelper(tag->asCompoundTag(), autoExpansion));
+                    res.add(Tag2Value_CompoundHelper(tag->as_ptr<CompoundTag>(), autoExpansion));
             default:
                 res.add(Local<Value>());
                 break;
@@ -2059,35 +2048,35 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
 Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
     Local<Object> res = Object::newObject();
 
-    auto& list = nbt->asCompoundTag()->value();
+    auto& list = nbt->as_ptr<CompoundTag>()->value();
     for (auto& [key, tag] : list) {
-        switch (tag.getTagType()) {
+        switch (tag.getId()) {
             case Tag::Type::End:
                 res.set(key, Local<Value>());
                 break;
             case Tag::Type::Byte:
-                res.set(key, Number::newNumber(tag.asByteTag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<ByteTag>()->get()));
                 break;
             case Tag::Type::Short:
-                res.set(key, Number::newNumber(tag.asShortTag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<ShortTag>()->get()));
                 break;
             case Tag::Type::Int:
-                res.set(key, Number::newNumber(tag.asIntTag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<IntTag>()->get()));
                 break;
             case Tag::Type::Int64:
-                res.set(key, Number::newNumber(tag.asInt64Tag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<Int64Tag>()->get()));
                 break;
             case Tag::Type::Float:
-                res.set(key, Number::newNumber(tag.asFloatTag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<FloatTag>()->get()));
                 break;
             case Tag::Type::Double:
-                res.set(key, Number::newNumber(tag.asDoubleTag()->get()));
+                res.set(key, Number::newNumber(tag.as_ptr<DoubleTag>()->get()));
                 break;
             case Tag::Type::String:
-                res.set(key, String::newString(tag.asStringTag()->get()));
+                res.set(key, String::newString(tag.as_ptr<StringTag>()->get()));
                 break;
             case Tag::Type::ByteArray: {
-                auto& data = tag.asByteArrayTag()->value();
+                auto& data = tag.as_ptr<ByteArrayTag>()->value();
                 res.set(key, ByteBuffer::newByteBuffer(data.data.get(), data.size));
                 break;
             }
@@ -2095,13 +2084,13 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
                 if (!autoExpansion)
                     res.set(key, NbtListClass::pack(tag.asListTag()));
                 else
-                    res.set(key, Tag2Value_ListHelper(tag.asListTag(), autoExpansion));
+                    res.set(key, Tag2Value_ListHelper(tag.as_ptr<ListTag>(), autoExpansion));
                 break;
             case Tag::Type::Compound:
                 if (!autoExpansion)
                     res.set(key, NbtCompoundClass::pack(tag.asCompoundTag()));
                 else
-                    res.set(key, Tag2Value_CompoundHelper(tag.asCompoundTag(), autoExpansion));
+                    res.set(key, Tag2Value_CompoundHelper(tag.as_ptr<CompoundTag>(), autoExpansion));
             default:
                 res.set(key, Local<Value>());
                 break;
@@ -2113,33 +2102,33 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
 Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
     Local<Value> value;
 
-    switch (nbt->getTagType()) {
+    switch (nbt->getId()) {
         case Tag::Type::End:
             value = Number::newNumber(0);
             break;
         case Tag::Type::Byte:
-            value = Number::newNumber(nbt->asByteTag()->get());
+            value = Number::newNumber(nbt->as_ptr<ByteTag>()->get());
             break;
         case Tag::Type::Short:
-            value = Number::newNumber(nbt->asShortTag()->get());
+            value = Number::newNumber(nbt->as_ptr<ShortTag>()->get());
             break;
         case Tag::Type::Int:
-            value = Number::newNumber(nbt->asIntTag()->get());
+            value = Number::newNumber(nbt->as_ptr<IntTag>()->get());
             break;
         case Tag::Type::Int64:
-            value = Number::newNumber(nbt->asInt64Tag()->get());
+            value = Number::newNumber(nbt->as_ptr<Int64Tag>()->get());
             break;
         case Tag::Type::Float:
-            value = Number::newNumber(nbt->asFloatTag()->get());
+            value = Number::newNumber(nbt->as_ptr<FloatTag>()->get());
             break;
         case Tag::Type::Double:
-            value = Number::newNumber(nbt->asDoubleTag()->get());
+            value = Number::newNumber(nbt->as_ptr<DoubleTag>()->get());
             break;
         case Tag::Type::String:
-            value = String::newString(nbt->asStringTag()->get());
+            value = String::newString(nbt->as_ptr<StringTag>()->get());
             break;
         case Tag::Type::ByteArray: {
-            auto& data = nbt->asByteArrayTag()->value();
+            auto& data = nbt->as_ptr<ByteArrayTag>()->value();
             value = ByteBuffer::newByteBuffer(data.data.get(), data.size);
             break;
         }
@@ -2147,13 +2136,13 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
             if (!autoExpansion)
                 value = NbtListClass::pack(nbt->asListTag());
             else
-                value = Tag2Value_ListHelper(nbt->asListTag(), autoExpansion);
+                value = Tag2Value_ListHelper(nbt->as_ptr<ListTag>(), autoExpansion);
             break;
         case Tag::Type::Compound:
             if (!autoExpansion)
                 value = NbtCompoundClass::pack(nbt->asCompoundTag());
             else
-                value = Tag2Value_CompoundHelper(nbt->asCompoundTag(), autoExpansion);
+                value = Tag2Value_CompoundHelper(nbt->as_ptr<CompoundTag>(), autoExpansion);
             break;
         default:
             value = Local<Value>();
@@ -2161,3 +2150,4 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
     }
     return value;
 }
+*/

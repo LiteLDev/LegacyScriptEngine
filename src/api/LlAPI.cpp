@@ -136,11 +136,14 @@ Local<Value> LlClass::getVersionStatus() {
     CATCH("Fail in LLSEGetVersionStatus")
 }
 
-Local<Value> LlClass::registerPlugin(const Arguments& args) { try{}
+Local<Value> LlClass::registerPlugin(const Arguments& args) { try{
+        return {};
+    }
     CATCH("Fail in LLAPI");
 }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
+        return {};
     }
     CATCH("Fail in LLAPI");
 }
@@ -161,18 +164,21 @@ Local<Value> LlClass::requireVersion(const Arguments& args) {
 
 Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     try {
+        return {};
     }
     CATCH("Fail in LLAPI");
 }
 // For Compatibility
 Local<Value> LlClass::listPlugins(const Arguments& args) {
     try {
+        return {};
     }
     CATCH("Fail in LLAPI");
 }
 
 Local<Value> LlClass::require(const Arguments& args) {
     try {
+        return {};
     }
     CATCH("Fail in LLAPI");
 }

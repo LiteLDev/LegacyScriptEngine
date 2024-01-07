@@ -12,8 +12,6 @@
 #include <mc/nbt/ShortTag.h>
 #include <mc/nbt/StringTag.h>
 
-extern struct Tag;
-
 // NBT Static
 class NbtStatic : public ScriptClass {
 public:

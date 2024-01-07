@@ -1,7 +1,7 @@
 #pragma once
-#include <llapi/PermissionAPI.h>
+// #include <api/PermissionAPI.h>
 #include "api/APIHelp.h"
-
+/*
 class RoleClass : public ScriptClass {
 
     std::weak_ptr<ll::perm::Role> role;
@@ -90,3 +90,4 @@ public:
 };
 
 extern ClassDefine<void> PermissionClassBuilder;
+*/

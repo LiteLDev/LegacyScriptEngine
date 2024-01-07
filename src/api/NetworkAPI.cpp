@@ -3,10 +3,7 @@
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
 #include "main/SafeGuardRecord.h"
-#include <LightWebSocketClient/WebSocketClient.h>
-#include <httplib/httplib.h>
-#include <llapi/ScheduleAPI.h>
-#include <llapi/utils/NetworkHelper.h>
+#include  "ll/api/ServerInfo.h"
 #include <string>
 #include <vector>
 using namespace std;
@@ -156,7 +153,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
             engine->isDestroying())
             return;
-        Schedule::nextTick([nowList, engine, msg = std::move(msg)]() {
+        std::thread([nowList, engine, msg = std::move(msg)]() {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
@@ -165,7 +162,7 @@ void WSClientClass::initListeners_s() {
                 for (auto& listener : *nowList) {
                     listener.func.get().call({}, {String::newString(msg)});
                 }
-        });
+        }).detach();
     });
 
     ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]},
@@ -173,7 +170,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
             engine->isDestroying())
             return;
-        Schedule::nextTick([nowList, engine, data = std::move(data)]() mutable {
+        std::thread([nowList, engine, data = std::move(data)]() mutable {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
@@ -182,7 +179,7 @@ void WSClientClass::initListeners_s() {
                 for (auto& listener : *nowList) {
                     listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
                 }
-        });
+        }).detach();
     });
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]},
@@ -190,7 +187,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
             engine->isDestroying())
             return;
-        Schedule::nextTick([nowList, engine, msg = std::move(msg)]() {
+         std::thread([nowList, engine, msg = std::move(msg)]() {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
@@ -199,7 +196,7 @@ void WSClientClass::initListeners_s() {
                 for (auto& listener : *nowList) {
                     listener.func.get().call({}, {String::newString(msg)});
                 }
-        });
+        }).detach();
     });
 
     ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]},
@@ -207,7 +204,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
             engine->isDestroying())
             return;
-        Schedule::nextTick([nowList, engine, code]() {
+        std::thread([nowList, engine, code]() {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
@@ -216,7 +213,7 @@ void WSClientClass::initListeners_s() {
                 for (auto& listener : *nowList) {
                     listener.func.get().call({}, {Number::newNumber(code)});
                 }
-        });
+        }).detach();
     });
 }
 
@@ -399,7 +396,7 @@ using namespace httplib;
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||                 \
             engine->isDestroying())                                                                                    \
             return;                                                                                                    \
-        auto task = Schedule::nextTick([this, engine, req, &resp] {                                                    \
+       std::thread([this, engine, req, &resp] {                                                           \
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||             \
                 engine->isDestroying())                                                                                \
                 return;                                                                                                \
@@ -419,9 +416,7 @@ using namespace httplib;
                     }                                                                                                  \
                 }                                                                                                      \
             }                                                                                                          \
-        });                                                                                                            \
-        while (!task.isFinished())                                                                                     \
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));                                                 \
+        }).join();                                                                                                            \
     });
 
 HttpServerClass::HttpServerClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), svr(new Server) {}
@@ -440,35 +435,6 @@ Local<Value> HttpServerClass::onGet(const Arguments& args) {
         auto path = args[0].toStr();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Get, path, func);
-        /* for debug
-        callbacks.emplace(make_pair(path, HttpServerCallback{EngineScope::currentEngine(),
-        script::Global<Function>{func}, HttpRequestType::Get, path})); svr->Get(path.c_str(), [this, engine =
-        EngineScope::currentEngine()](const Request& req, Response& resp) { if ((ll::getServerStatus() !=
-        ll::ServerStatus::Running) || !EngineManager::isValid(engine) || engine->isDestroying()) return; auto task =
-        Schedule::nextTick([this, engine, req, &resp] { if ((ll::getServerStatus() != ll::ServerStatus::Running) ||
-        !EngineManager::isValid(engine) || engine->isDestroying()) return; EngineScope enter(engine); for (auto& [k, v]
-        : this->callbacks)
-                {
-                    if (v.type != HttpRequestType::Get) return;
-                    std::regex rgx(k);
-                    std::smatch matches;
-                    if (std::regex_match(req.path, matches, rgx))
-                    {
-                        if (matches == req.matches)
-                        {
-                            auto reqObj = new HttpRequestClass(req);
-                            auto respObj = new HttpResponseClass(resp);
-                            v.func.get().call({}, reqObj, respObj);
-                            resp = *respObj->get();
-                            break;
-                        }
-                    }
-                }
-            });
-            while (!task.isFinished())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        });
-        */
         return this->getScriptObject();
     }
     CATCH("Fail in onGet")
@@ -556,7 +522,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                 engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
-            auto task    = Schedule::nextTick([this, engine, req, &resp, &handled] {
+          std::thread([this, engine, req, &resp, &handled] {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                     engine->isDestroying())
                     return;
@@ -568,9 +534,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                     handled = true;
                 }
                 resp = *respObj->get();
-            });
-            while (!task.isFinished())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }).join();
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
         });
         return this->getScriptObject();
@@ -589,7 +553,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
-            auto task = Schedule::nextTick([this, engine, req, &resp] {
+       std::thread([this, engine, req, &resp] {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                     engine->isDestroying())
                     return;
@@ -598,9 +562,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
                 auto        respObj = new HttpResponseClass(resp);
                 this->postRoutingCallback.func.get().call({}, reqObj, respObj);
                 resp = *respObj->get();
-            });
-            while (!task.isFinished())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }).join();
         });
         return this->getScriptObject();
     }
@@ -617,7 +579,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                 engine->isDestroying())
                 return;
-            auto task = Schedule::nextTick([this, engine, req, &resp] {
+           std::thread([this, engine, req, &resp] {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                     engine->isDestroying())
                     return;
@@ -626,9 +588,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
                 auto        respObj = new HttpResponseClass(resp);
                 this->errorCallback.func.get().call({}, reqObj, respObj);
                 resp = *respObj->get();
-            });
-            while (!task.isFinished())
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }).join();
         });
         return this->getScriptObject();
     }
@@ -646,7 +606,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                     engine->isDestroying())
                     return;
-                auto task = Schedule::nextTick([this, engine, req, &resp, e] {
+              std::thread([this, engine, req, &resp, e] {
                     if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) ||
                         engine->isDestroying())
                         return;
@@ -661,9 +621,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                         this->exceptionCallback.func.get().call({}, reqObj, respObj, String::newString(exp.what()));
                     }
                     resp = *respObj->get();
-                });
-                while (!task.isFinished())
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }).join();
             }
         );
         return this->getScriptObject();
@@ -993,6 +951,125 @@ Local<Value> HttpResponseClass::getVersion() {
 }
 
 //////////////////// APIs ////////////////////
+using namespace std;
+
+void SplitHttpUrl(const std::string& url, string& host, string& path) {
+    host = url;
+
+    bool foundProtocol = host.find('/') != string::npos;
+
+    auto splitPos = host.find('/', foundProtocol ? host.find('/') + 2 : 0); // 查找协议后的第一个/分割host与路径
+    if (splitPos == string::npos) {
+        path = "/";
+    } else {
+        path = host.substr(splitPos);
+        host = host.substr(0, splitPos);
+    }
+}
+bool HttpGet(
+    const string&                      url,
+    const httplib::Headers&            headers,
+    const function<void(int, string)>& callback,
+    int                                timeout = -1
+) {
+    string host, path;
+    SplitHttpUrl(url, host, path);
+
+    auto* cli = new httplib::Client(host.c_str());
+    if (!cli->is_valid()) {
+        delete cli;
+        return false;
+    }
+    if (timeout > 0)
+        cli->set_connection_timeout(timeout, 0);
+
+    std::thread([cli, headers, callback, path{std::move(path)}]() {
+        try {
+            auto response = cli->Get(path.c_str(), headers);
+            delete cli;
+
+            if (!response)
+                callback(-1, "");
+            else
+                callback(response->status, response->body);
+        } catch (...) {
+        }
+    }).detach();
+
+    return true;
+}
+
+bool HttpGet(const string& url, const function<void(int, string)>& callback, int timeout = -1) {
+    return HttpGet(url, {}, callback, timeout);
+}
+
+
+bool HttpPost(
+    const string&                           url,
+    const httplib::Headers&                 headers,
+    const string&                           data,
+    const string&                           type,
+    const std::function<void(int, string)>& callback,
+    int                                     timeout = -1
+) {
+    string host, path;
+    SplitHttpUrl(url, host, path);
+    auto* cli = new httplib::Client(host.c_str());
+    if (!cli->is_valid()) {
+        delete cli;
+        return false;
+    }
+    if (timeout > 0)
+        cli->set_connection_timeout(timeout, 0);
+
+    std::thread([cli, headers, data, type, callback, path{std::move(path)}]() {
+        try {
+            auto response = cli->Post(path.c_str(), headers, data, type.c_str());
+            delete cli;
+            if (!response)
+                callback(-1, "");
+            else
+                callback(response->status, response->body);
+        } catch (...) {
+        }
+    }).detach();
+    return true;
+}
+
+bool HttpPost(
+    const string&                           url,
+    const string&                           data,
+    const string&                           type,
+    const std::function<void(int, string)>& callback,
+    int                                     timeout = -1
+) {
+    return HttpPost(url,{}, data, type, callback,timeout);
+}
+
+bool HttpGetSync(const std::string& url, int* statusRtn, std::string* dataRtn, int timeout = -1) {
+    string host, path;
+    SplitHttpUrl(url, host, path);
+
+    httplib::Client cli(host.c_str());
+    if (!cli.is_valid()) {
+        return false;
+    }
+    if (timeout > 0)
+        cli.set_connection_timeout(timeout, 0);
+
+    auto response = cli.Get(path.c_str());
+
+    if (!response)
+        return false;
+    else {
+        if (statusRtn)
+            *statusRtn = response->status;
+        if (dataRtn)
+            *dataRtn = response->body;
+    }
+    return true;
+}
+
 
 Local<Value> NetworkClass::httpGet(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);

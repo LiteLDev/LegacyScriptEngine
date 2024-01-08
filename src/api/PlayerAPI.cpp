@@ -15,6 +15,9 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/ServerInfo.h"
+#include "ll/api/form/CustomForm.h"
+#include "ll/api/form/FormBase.h"
+#include "ll/api/form/SimpleForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "main/EconomicSystem.h"
@@ -29,6 +32,7 @@
 #include <mc/world/attribute/AttributeInstance.h>
 
 #include "MoreGlobal.h"
+#include "ll/api/form/ModalForm.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
@@ -55,6 +59,7 @@
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/actor/player/PlayerUISlot.h"
 #include "mc/world/events/BossEventUpdateType.h"
+#include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/LayeredAbilities.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/scores/ScoreInfo.h"
@@ -409,7 +414,8 @@ Local<Value> McClass::deletePlayerNbt(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    ll::service::getLevel()->getLevelStorage().deleteData("player_" + uuid.asString(),DBHelpers::Category::Player);
+    ll::service::getLevel()->getLevelStorage().deleteData(
+        "player_" + uuid.asString(), DBHelpers::Category::Player);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in deletePlayerNbt!")
@@ -2264,36 +2270,33 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments &args) {
     if (imagesArr.size() != textsArr.size() || !imagesArr.get(0).isString())
       return Local<Value>();
 
-    vector<string> texts, images;
+    ll::form::SimpleForm form(args[0].asString().toString(),
+                              args[1].asString().toString());
     for (int i = 0; i < textsArr.size(); ++i) {
-      texts.push_back(textsArr.get(i).toStr());
+      Local<Value> img = imagesArr.get(i);
+      if (img.isString()) {
+        form.appendButton(textsArr.get(i).asString().toString(),
+                          img.asString().toString());
+      } else {
+        form.appendButton(textsArr.get(i).asString().toString());
+      }
     }
-    for (int i = 0; i < imagesArr.size(); ++i) {
-      images.push_back(imagesArr.get(i).toStr());
-    }
+    form.sendTo(*player, [engine{EngineScope::currentEngine()},
+                          callback{script::Global(args[4].asFunction())}](
+                             Player &pl, int chosen) {
+      if ((ll::getServerStatus() != ll::ServerStatus::Running))
+        return;
+      if (!EngineManager::isValid(engine))
+        return;
 
-    player->sendSimpleFormPacket(
-        args[0].toStr(), args[1].toStr(), texts, images,
-        [id{player->getOrCreateUniqueID()},
-         engine{EngineScope::currentEngine()},
-         callback{script::Global(args[4].asFunction())}](int chosen) {
-          if ((ll::getServerStatus() != ll::ServerStatus::Running))
-            return;
-          if (!EngineManager::isValid(engine))
-            return;
-
-          Player *pl = ll::service::getLevel()->getPlayer(id);
-          if (!pl)
-            return;
-
-          EngineScope scope(engine);
-          try {
-            callback.get().call({}, PlayerClass::newPlayer(pl),
-                                chosen >= 0 ? Number::newNumber(chosen)
-                                            : Local<Value>());
-          }
-          CATCH_IN_CALLBACK("sendSimpleForm")
-        });
+      EngineScope scope(engine);
+      try {
+        callback.get().call({}, PlayerClass::newPlayer(&pl),
+                            chosen >= 0 ? Number::newNumber(chosen)
+                                        : Local<Value>());
+      }
+      CATCH_IN_CALLBACK("sendSimpleForm")
+    });
 
     return Number::newNumber(1);
   }
@@ -2313,28 +2316,25 @@ Local<Value> PlayerClass::sendModalForm(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    player->sendModalFormPacket(
-        args[0].toStr(), args[1].toStr(), args[2].toStr(), args[3].toStr(),
-        [id{player->getOrCreateUniqueID()},
-         engine{EngineScope::currentEngine()},
-         callback{script::Global(args[4].asFunction())}](bool chosen) {
-          if ((ll::getServerStatus() != ll::ServerStatus::Running))
-            return;
-          if (!EngineManager::isValid(engine))
-            return;
+    ll::form::ModalForm form(
+        args[0].asString().toString(), args[1].asString().toString(),
+        args[2].asString().toString(), args[3].asString().toString());
+    form.sendTo(*player, [engine{EngineScope::currentEngine()},
+                          callback{script::Global(args[4].asFunction())}](
+                             Player &pl, bool chosen) {
+      if ((ll::getServerStatus() != ll::ServerStatus::Running))
+        return;
+      if (!EngineManager::isValid(engine))
+        return;
 
-          Player *pl = ll::service::getLevel()->getPlayer(id);
-          if (!pl)
-            return;
-
-          EngineScope scope(engine);
-          try {
-            callback.get().call({}, PlayerClass::newPlayer(pl),
-                                chosen >= 0 ? Boolean::newBoolean(chosen)
-                                            : Local<Value>());
-          }
-          CATCH_IN_CALLBACK("sendModalForm")
-        });
+      EngineScope scope(engine);
+      try {
+        callback.get().call({}, PlayerClass::newPlayer(&pl),
+                            chosen ? Boolean::newBoolean(chosen)
+                                   : Local<Value>());
+      }
+      CATCH_IN_CALLBACK("sendModalForm")
+    });
 
     return Number::newNumber(2);
   }
@@ -2351,7 +2351,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    string data = ordered_json::parse(args[0].toStr()).dump();
+    std::string data = ordered_json::parse(args[0].toStr()).dump();
 
     player->sendCustomFormPacket(
         data, [id{player->getOrCreateUniqueID()},
@@ -2393,7 +2393,7 @@ Local<Value> PlayerClass::sendForm(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    Form::SimpleForm *form = SimpleFormClass::extract(args[0]);
+    ll::form::SimpleForm *form = SimpleFormClass::extract(args[0]);
     if (IsInstanceOf<SimpleFormClass>(args[0])) {
       Local<Function> callback = args[1].asFunction();
       SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player,
@@ -2506,14 +2506,14 @@ Local<Value> PlayerClass::hurt(const Arguments &args) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
       type = args[1].asNumber().toInt32();
       return Boolean::newBoolean(
-          player->hurtEntity(damage, (ActorDamageCause)type));
+          player->hurtByCause(damage, (ActorDamageCause)type));
     }
     if (args.size() == 3) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
       auto source = EntityClass::extract(args[2]);
       type = args[1].asNumber().toInt32();
       return Boolean::newBoolean(
-          player->hurtEntity(damage, (ActorDamageCause)type, source));
+          player->hurtByCause(damage, (ActorDamageCause)type, source));
     }
     return Boolean::newBoolean(false);
   }
@@ -2544,7 +2544,7 @@ Local<Value> PlayerClass::setHealth(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *healthAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->HEALTH);
+        player->getMutableAttribute(SharedAttributes::HEALTH);
 
     healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2563,7 +2563,7 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *healthAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->HEALTH);
+        player->getMutableAttribute(SharedAttributes::HEALTH);
 
     healthAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -2582,7 +2582,7 @@ Local<Value> PlayerClass::setAbsorption(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *absorptionAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->ABSORPTION);
+        player->getMutableAttribute(SharedAttributes::ABSORPTION);
 
     absorptionAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2601,7 +2601,7 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *attactDamageAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->ATTACK_DAMAGE);
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
 
     attactDamageAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2620,7 +2620,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *attactDamageAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->ATTACK_DAMAGE);
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
 
     attactDamageAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -2639,7 +2639,7 @@ Local<Value> PlayerClass::setFollowRange(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *followRangeAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->FOLLOW_RANGE);
+        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE);
 
     followRangeAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2658,8 +2658,7 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *knockbackResistanceAttribute =
-        player->getMutableAttribute(
-            Global<SharedAttributes>->KNOCKBACK_RESISTANCE);
+        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE);
 
     knockbackResistanceAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2678,7 +2677,7 @@ Local<Value> PlayerClass::setLuck(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *luckAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->LUCK);
+        player->getMutableAttribute(SharedAttributes::LUCK);
 
     luckAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2697,7 +2696,7 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments &args) {
       return Local<Value>();
 
     AttributeInstance *movementSpeedAttribute =
-        player->getMutableAttribute(Global<SharedAttributes>->MOVEMENT_SPEED);
+        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
 
     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2717,7 +2716,7 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments &args) {
 
     AttributeInstance *underwaterMovementSpeedAttribute =
         player->getMutableAttribute(
-            Global<SharedAttributes>->UNDERWATER_MOVEMENT_SPEED);
+            SharedAttributes::UNDERWATER_MOVEMENT_SPEED);
 
     underwaterMovementSpeedAttribute->setCurrentValue(
         args[0].asNumber().toFloat());
@@ -2736,8 +2735,8 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    AttributeInstance *lavaMovementSpeedAttribute = player->getMutableAttribute(
-        Global<SharedAttributes>->LAVA_MOVEMENT_SPEED);
+    AttributeInstance *lavaMovementSpeedAttribute =
+        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED);
 
     lavaMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -2778,8 +2777,8 @@ Local<Value> PlayerClass::setFire(const Arguments &args) {
     int time = args[0].toInt();
     bool isEffectValue = args[1].asBoolean().value();
 
-    bool result = player->setOnFire(time, isEffectValue);
-    return Boolean::newBoolean(result);
+    player->setOnFire(time, isEffectValue);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setFire!");
 }
@@ -2790,7 +2789,8 @@ Local<Value> PlayerClass::stopFire(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return Boolean::newBoolean(player->stopFire());
+    player->stopFire();
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in stopFire!");
 }
@@ -2807,8 +2807,8 @@ Local<Value> PlayerClass::setOnFire(const Arguments &args) {
 
     int time = args[0].toInt();
 
-    bool result = player->setOnFire(time, true);
-    return Boolean::newBoolean(result);
+    player->setOnFire(time, true);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setOnFire!");
 }
@@ -2833,14 +2833,19 @@ Local<Value> PlayerClass::giveItem(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    auto item = ItemClass::extract(args[0]);
+    ItemStack *item = ItemClass::extract(args[0]);
     if (!item)
       return Local<Value>(); // Null
     if (args.size() >= 2) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-      return Boolean::newBoolean(player->giveItem(item, args[1].toInt()));
+      item->set(args[1].asNumber().toInt32());
     }
-    return Boolean::newBoolean(player->giveItem(item));
+    bool result = player->add(*item);
+    if (!result) {
+      player->drop(*item, false);
+    }
+    player->sendInventory(true);
+    return Boolean::newBoolean(result);
   }
   CATCH("Fail in giveItem!");
 }
@@ -2859,8 +2864,35 @@ Local<Value> PlayerClass::clearItem(const Arguments &args) {
       CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
       clearCount = args[1].asNumber().toInt32();
     }
-    return Number::newNumber(
-        (int32_t)player->clearItem(args[0].toStr(), clearCount));
+    int result = 0;
+    for (std::reference_wrapper<ItemStack> item :
+         player->getInventory().getSlotsNonConst()) {
+      if (item.get().getTypeName() == args[0].asString().toString()) {
+        if (item.get().mCount < clearCount) {
+          result += item.get().mCount;
+        }
+        item.get().remove(clearCount);
+      }
+    }
+    for (std::reference_wrapper<ItemStack> item :
+         player->getHandContainer().getSlotsNonConst()) {
+      if (item.get().getTypeName() == args[0].asString().toString()) {
+        if (item.get().mCount < clearCount) {
+          result += item.get().mCount;
+        }
+        item.get().remove(clearCount);
+      }
+    }
+    for (std::reference_wrapper<ItemStack> item :
+         player->getArmorContainer().getSlotsNonConst()) {
+      if (item.get().getTypeName() == args[0].asString().toString()) {
+        if (item.get().mCount < clearCount) {
+          result += item.get().mCount;
+        }
+        item.get().remove(clearCount);
+      }
+    }
+    return Number::newNumber(result);
   }
   CATCH("Fail in clearItem!");
 }

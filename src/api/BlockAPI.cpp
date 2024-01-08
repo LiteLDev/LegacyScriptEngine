@@ -87,8 +87,7 @@ Local<Object> BlockClass::newBlock(Block const *p, BlockPos const *pos,
 }
 
 Local<Object> BlockClass::newBlock(BlockPos const *pos, int dim) {
-  auto dimPtr = ll::service::getLevel()->getDimension(dim).get();
-  Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(*pos);
+  Block bl     = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(*pos);
   return BlockClass::newBlock(&bl, pos, dim);
 }
 
@@ -104,8 +103,7 @@ Local<Object> BlockClass::newBlock(Block const *p, BlockPos const *pos,
 
 Local<Object> BlockClass::newBlock(IntVec4 pos) {
   BlockPos bp = {(float)pos.x, (float)pos.y, (float)pos.z};
-  auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-  Block bl = dimPtr->getBlockSourceFromMainChunkSource().getBlock(bp);
+  Block    bl     = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
   return BlockClass::newBlock(&bl, &bp, pos.dim);
 }
 
@@ -292,8 +290,7 @@ Local<Value> BlockClass::destroyBlock(const Arguments &args) {
   try {
     // same as `Level::getBlockInstance(pos.getBlockPos(),
     // pos.dim).breakNaturally()` when drop
-    auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-    BlockSource &bl = dimPtr->getBlockSourceFromMainChunkSource();
+    BlockSource& bl     = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
     return Boolean::newBoolean(ll::service::getLevel()->destroyBlock(
         bl, pos.getBlockPos(), args[0].asBoolean().value()));
   }
@@ -322,9 +319,7 @@ Local<Value> BlockClass::setNbt(const Arguments &args) {
     auto result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt);
     const Block *bl = result.second;
     if (bl) {
-      auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-      BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
-      bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr);
+ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr);
     }
     preloadData(pos.getBlockPos(), pos.getDimensionId());
     return Boolean::newBoolean(true);
@@ -348,9 +343,8 @@ Local<Value> BlockClass::getBlockState(const Arguments &args) {
 
 Local<Value> BlockClass::hasContainer(const Arguments &args) {
   try {
-    auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
     Block bl =
-        dimPtr->getBlockSourceFromMainChunkSource().getBlock(pos.getBlockPos());
+        ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(pos.getBlockPos());
     return Boolean::newBoolean(bl.isContainerBlock());
   }
   CATCH("Fail in hasContainer!");
@@ -358,8 +352,9 @@ Local<Value> BlockClass::hasContainer(const Arguments &args) {
 
 Local<Value> BlockClass::getContainer(const Arguments &args) {
   try {
-    auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-    Container *container = dimPtr->getBlockSourceFromMainChunkSource()
+    Container* container = ll::service::getLevel()
+                               ->getDimension(pos.dim)
+                               ->getBlockSourceFromMainChunkSource()
                                .getBlockEntity(pos.getBlockPos())
                                ->getContainer();
     return container ? ContainerClass::newContainer(container) : Local<Value>();
@@ -376,9 +371,12 @@ Local<Value> BlockClass::hasBlockEntity(const Arguments &args) {
 
 Local<Value> BlockClass::getBlockEntity(const Arguments &args) {
   try {
-    auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-    BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
-    BlockActor *be = bs.getBlockEntity(pos.getBlockPos());
+    BlockActor* be = ll::service::getLevel()->
+    getDimension(pos.dim)->
+    getBlockSourceFromMainChunkSource().
+    getBlockEntity(
+        pos.getBlockPos()
+    );
     return be ? BlockEntityClass::newBlockEntity(be, pos.dim) : Local<Value>();
   }
   CATCH("Fail in getBlockEntity!");
@@ -386,9 +384,7 @@ Local<Value> BlockClass::getBlockEntity(const Arguments &args) {
 
 Local<Value> BlockClass::removeBlockEntity(const Arguments &args) {
   try {
-    auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).get();
-    BlockSource &bs = dimPtr->getBlockSourceFromMainChunkSource();
-    bs.removeBlockEntity(pos.getBlockPos()); //==========???
+ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().removeBlockEntity(pos.getBlockPos()); //==========???
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in removeBlockEntity!");

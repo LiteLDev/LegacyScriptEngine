@@ -61,7 +61,9 @@
 #include "mc/world/events/BossEventUpdateType.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/LayeredAbilities.h"
+#include "mc/world/level/block/Block.h"
 #include "mc/world/level/storage/DBStorage.h"
+#include "mc/world/phys/HitResult.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
@@ -2931,7 +2933,9 @@ Local<Value> PlayerClass::getNbt(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    return NbtCompoundClass::pack(player->getNbt());
+    CompoundTag tag = CompoundTag();
+    player->save(tag);
+    return NbtCompoundClass::pack(&tag);
   }
   CATCH("Fail in getNbt!")
 }
@@ -2948,7 +2952,8 @@ Local<Value> PlayerClass::setNbt(const Arguments &args) {
     if (!nbt)
       return Local<Value>(); // Null
 
-    return Boolean::newBoolean(player->setNbt(nbt));
+    DefaultDataLoadHelper helper = DefaultDataLoadHelper();
+    return Boolean::newBoolean(player->load(*nbt, helper));
   }
   CATCH("Fail in setNbt!")
 }
@@ -3001,10 +3006,12 @@ Local<Value> PlayerClass::getAllTags(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    auto res = player->getAllTags();
     Local<Array> arr = Array::newArray();
-    for (auto &tag : res)
-      arr.add(String::newString(tag));
+    CompoundTag tag = CompoundTag();
+    player->save(tag);
+    tag.getList("Tags")->forEachCompoundTag([&arr](const CompoundTag &tag) {
+      arr.add(String::newString(tag.toString()));
+    });
     return arr;
   }
   CATCH("Fail in getAllTags!");
@@ -3016,9 +3023,10 @@ Local<Value> PlayerClass::getAbilities(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    auto list = player->getNbt();
+    CompoundTag tag = CompoundTag();
+    player->save(tag);
     try {
-      return Tag2Value((Tag *)list->getCompoundTag("abilities"), true);
+      return Tag2Value(tag.getCompound("abilities"), true);
     } catch (...) {
       return Object::newObject();
     }
@@ -3034,14 +3042,14 @@ Local<Value> PlayerClass::getAttributes(const Arguments &args) {
 
     Local<Array> res = Array::newArray();
 
-    auto list = player->getNbt();
+    CompoundTag tag = CompoundTag();
+    player->save(tag);
     try {
-      ListTag *attr = (ListTag *)list->getListTag("Attributes");
-
       Local<Array> arr = Array::newArray();
-      for (auto &tag : attr->value()) {
-        arr.add(Tag2Value(tag, true));
-      }
+      tag.getList("Attributes")
+          ->forEachCompoundTag([&](const CompoundTag &tag) {
+            arr.add(Tag2Value(const_cast<CompoundTag *>(&tag), true));
+          });
       return arr;
     } catch (...) {
       return Array::newArray();
@@ -3061,7 +3069,8 @@ Local<Value> PlayerClass::getEntityFromViewVector(const Arguments &args) {
       CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
       maxDistance = args[0].asNumber().toFloat();
     }
-    auto entity = player->getActorFromViewVector(maxDistance);
+    HitResult result = player->traceRay(maxDistance);
+    Actor *entity = result.getEntity();
     if (entity)
       return EntityClass::newEntity(entity);
     return Local<Value>();
@@ -3075,10 +3084,10 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments &args) {
     if (!player)
       return Local<Value>();
     bool includeLiquid = false;
-    bool solidOnly = false;
+    bool solidOnly = false; // not used
     float maxDistance = 5.25f;
-    bool ignoreBorderBlocks = true;
-    bool fullOnly = false;
+    bool ignoreBorderBlocks = true; // not used
+    bool fullOnly = false;          // not used
     if (args.size() > 0) {
       CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
       includeLiquid = args[0].asBoolean().value();
@@ -3095,11 +3104,19 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments &args) {
       CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
       fullOnly = args[3].asBoolean().value();
     }
-    auto blockInstance = player->getBlockFromViewVector(
-        includeLiquid, solidOnly, maxDistance, ignoreBorderBlocks, fullOnly);
-    if (blockInstance.isNull())
+    HitResult res = player->traceRay(maxDistance, false, true);
+    Block bl;
+    BlockPos bp;
+    if (includeLiquid && res.mIsHitLiquid) {
+      bp = res.mLiquidPos;
+    } else {
+      bp = res.mBlockPos;
+    }
+    player->getDimensionBlockSource().getBlock(bp);
+    if (bl.isEmpty())
       return Local<Value>();
-    return BlockClass::newBlock(std::move(blockInstance));
+    return BlockClass::newBlock(std::move(&bl), &bp,
+                                player->getDimensionId().id);
   }
   CATCH("Fail in getBlockFromViewVector!");
 }

@@ -1624,7 +1624,7 @@ Local<Value> PlayerClass::getEnderChest(const Arguments &args) {
       return Local<Value>();
 
     // Todo
-    return ContainerClass::newContainer();
+    return ContainerClass::newContainer(player->getEnderChestContainer());
   }
   CATCH("Fail in getEnderChest!");
 }
@@ -2022,7 +2022,7 @@ Local<Value> PlayerClass::addScore(const Arguments &args) {
     Scoreboard &score = ll::service::getLevel()->getScoreboard();
     Objective *obj = score.getObjective(args[0].asString().toString());
     if (!obj) {
-      return Boolean::newBoolean(false)
+      return Boolean::newBoolean(false);
     }
     const ScoreboardId &id =
         score.getScoreboardId(player->getOrCreateUniqueID());
@@ -2050,7 +2050,7 @@ Local<Value> PlayerClass::reduceScore(const Arguments &args) {
     Scoreboard &score = ll::service::getLevel()->getScoreboard();
     Objective *obj = score.getObjective(args[0].asString().toString());
     if (!obj) {
-      return Boolean::newBoolean(false)
+      return Boolean::newBoolean(false);
     }
     const ScoreboardId &id =
         score.getScoreboardId(player->getOrCreateUniqueID());
@@ -3261,20 +3261,21 @@ Local<Value> PlayerClass::getAllItems(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    ItemStack *hand = player->getHandSlot();
-    ItemStack *offHand = (ItemStack *)&player->getOffhandSlot();
-    vector<const ItemStack *> inventory = player->getInventory().getAllSlots();
-    vector<const ItemStack *> armor = player->getArmorContainer().getAllSlots();
+    const ItemStack &hand = player->getCarriedItem();
+    const ItemStack &offHand = player->getOffhandSlot();
+    vector<const ItemStack *> inventory = player->getInventory().getSlots();
+    vector<const ItemStack *> armor = player->getArmorContainer().getSlots();
     vector<const ItemStack *> endChest =
-        player->getEnderChestContainer()->getAllSlots();
+        player->getEnderChestContainer()->getSlots();
 
     Local<Object> result = Object::newObject();
 
     // hand
-    result.set("hand", ItemClass::newItem(hand));
+    result.set("hand", ItemClass::newItem(const_cast<ItemStack *>(&hand)));
 
     // offHand
-    result.set("offHand", ItemClass::newItem(offHand));
+    result.set("offHand",
+               ItemClass::newItem(const_cast<ItemStack *>(&offHand)));
 
     // inventory
     Local<Array> inventoryArr = Array::newArray();

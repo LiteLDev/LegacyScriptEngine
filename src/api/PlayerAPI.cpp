@@ -67,6 +67,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/phys/HitResult.h"
+#include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
@@ -408,7 +409,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments &args) {
         tags.push_back(value.asString().toString());
       }
     }
-    ll::service::getLevel()->getPlayer(uuid)->loadFromNbt(*nbt);
+    ll::service::getLevel()->getPlayer(uuid)->load(*nbt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setPlayerNbtTags!")
@@ -431,13 +432,15 @@ Local<Value> McClass::getPlayerScore(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   CHECK_ARG_TYPE(args[1], ValueKind::kString);
   try {
-    auto uuid = mce::UUID::fromString(args[0].asString().toString());
     auto obj = args[1].asString().toString();
-    auto scorev = Scoreboard::queryPlayerScore(uuid, obj);
-    if (scorev.has_value())
-      return Number::newNumber(scorev.value());
-    else
-      return Local<Value>();
+    Scoreboard &board = ll::service::getLevel()->getScoreboard();
+    Objective *objective = board.getObjective(obj);
+    ScoreboardId sid = board.getScoreboardId(
+        PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
+    if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
+      return {};
+    }
+    return Number::newNumber(objective->getPlayerScore(sid).mScore);
   }
   CATCH("Fail in getPlayerScore!")
 }
@@ -449,11 +452,26 @@ Local<Value> McClass::setPlayerScore(const Arguments &args) {
   CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto obj = args[1].asString().toString();
-    auto value = args[2].asNumber().toInt32();
-    auto res = Scoreboard::forceModifyPlayerScore(uuid, obj, value,
-                                                  PlayerScoreSetFunction::Set);
-    return Boolean::newBoolean(res);
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *objective = score.getObjective(args[1].asString().toString());
+    if (!objective) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id = score.getScoreboardId(
+        PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
+    if (!id.isValid()) {
+      Player *pl = ll::service::getLevel()->getPlayer(uuid);
+      if (pl) {
+        score.createScoreboardId(*pl);
+      } else {
+        return Boolean::newBoolean(false);
+      }
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *objective,
+                            args[2].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Set);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in setPlayerScore!")
 }
@@ -465,11 +483,26 @@ Local<Value> McClass::addPlayerScore(const Arguments &args) {
   CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto obj = args[1].asString().toString();
-    auto value = args[2].asNumber().toInt32();
-    auto res = Scoreboard::forceModifyPlayerScore(uuid, obj, value,
-                                                  PlayerScoreSetFunction::Add);
-    return Boolean::newBoolean(res);
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *objective = score.getObjective(args[1].asString().toString());
+    if (!objective) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id = score.getScoreboardId(
+        PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
+    if (!id.isValid()) {
+      Player *pl = ll::service::getLevel()->getPlayer(uuid);
+      if (pl) {
+        score.createScoreboardId(*pl);
+      } else {
+        return Boolean::newBoolean(false);
+      }
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *objective,
+                            args[2].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Add);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in addPlayerScore!")
 }
@@ -481,11 +514,26 @@ Local<Value> McClass::reducePlayerScore(const Arguments &args) {
   CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
   try {
     auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto obj = args[1].asString().toString();
-    auto value = args[2].asNumber().toInt32();
-    auto res = Scoreboard::forceModifyPlayerScore(
-        uuid, obj, value, PlayerScoreSetFunction::Remove);
-    return Boolean::newBoolean(res);
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *objective = score.getObjective(args[1].asString().toString());
+    if (!objective) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id = score.getScoreboardId(
+        PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
+    if (!id.isValid()) {
+      Player *pl = ll::service::getLevel()->getPlayer(uuid);
+      if (pl) {
+        score.createScoreboardId(*pl);
+      } else {
+        return Boolean::newBoolean(false);
+      }
+    }
+    bool isSuccess = false;
+    score.modifyPlayerScore(isSuccess, id, *objective,
+                            args[2].asNumber().toInt32(),
+                            PlayerScoreSetFunction::Subtract);
+    return Boolean::newBoolean(isSuccess);
   }
   CATCH("Fail in reducePlayerScore!")
 }
@@ -495,10 +543,19 @@ Local<Value> McClass::deletePlayerScore(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
   CHECK_ARG_TYPE(args[1], ValueKind::kString);
   try {
-    auto uuid = mce::UUID::fromString(args[0].asString().toString());
-    auto obj = args[1].asString().toString();
-    auto res = Scoreboard::forceRemovePlayerScoreFromObjective(uuid, obj);
-    return Boolean::newBoolean(res);
+    Scoreboard &score = ll::service::getLevel()->getScoreboard();
+    Objective *objective = score.getObjective(args[1].asString().toString());
+    if (!objective) {
+      return Boolean::newBoolean(false);
+    }
+    const ScoreboardId &id = score.getScoreboardId(
+        PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
+    if (!id.isValid()) {
+      return Boolean::newBoolean(true);
+    }
+    return Boolean::newBoolean(
+        score.getScoreboardIdentityRef(id)->removeFromObjective(score,
+                                                                *objective));
   }
   CATCH("Fail in deletePlayerScore!")
 }
@@ -2082,7 +2139,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments &args) {
     const ScoreboardId &id =
         score.getScoreboardId(player->getOrCreateUniqueID());
     if (!id.isValid()) {
-      score.createScoreboardId(*player);
+      return Boolean::newBoolean(true);
     }
     return Boolean::newBoolean(
         score.getScoreboardIdentityRef(id)->removeFromObjective(score, *obj));
@@ -2871,7 +2928,7 @@ Local<Value> PlayerClass::clearItem(const Arguments &args) {
     }
     int result = 0;
     for (std::reference_wrapper<ItemStack> item :
-         player->getInventory().getSlotsNonConst()) {
+         player->getInventory().getSlotCopies()) {
       if (item.get().getTypeName() == args[0].asString().toString()) {
         if (item.get().mCount < clearCount) {
           result += item.get().mCount;
@@ -2880,7 +2937,7 @@ Local<Value> PlayerClass::clearItem(const Arguments &args) {
       }
     }
     for (std::reference_wrapper<ItemStack> item :
-         player->getHandContainer().getSlotsNonConst()) {
+         player->getHandContainer().getSlotCopies()) {
       if (item.get().getTypeName() == args[0].asString().toString()) {
         if (item.get().mCount < clearCount) {
           result += item.get().mCount;
@@ -2889,7 +2946,7 @@ Local<Value> PlayerClass::clearItem(const Arguments &args) {
       }
     }
     for (std::reference_wrapper<ItemStack> item :
-         player->getArmorContainer().getSlotsNonConst()) {
+         player->getArmorContainer().getSlotCopies()) {
       if (item.get().getTypeName() == args[0].asString().toString()) {
         if (item.get().mCount < clearCount) {
           result += item.get().mCount;

@@ -49,8 +49,10 @@
 #include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
 #include "mc/network/packet/TextPacket.h"
+#include "mc/network/packet/ToastRequestPacket.h"
 #include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
+#include "mc/network/packet/UpdateAdventureSettingsPacket.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
 #include "mc/world/ActorUniqueID.h"
@@ -58,6 +60,7 @@
 #include "mc/world/Minecraft.h"
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/actor/player/PlayerUISlot.h"
+#include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BossEventUpdateType.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/LayeredAbilities.h"
@@ -3310,7 +3313,7 @@ Local<Value> PlayerClass::removeItem(const Arguments &args) {
     int count = args[1].toInt();
 
     Container &container = player->getInventory();
-    if (inventoryId > container.getSize())
+    if (inventoryId > container.getContainerSize())
       return Boolean::newBoolean(false);
     container.removeItem(inventoryId, count);
     return Boolean::newBoolean(true);
@@ -3328,7 +3331,9 @@ Local<Value> PlayerClass::sendToast(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    player->sendToastPacket(args[0].toStr(), args[1].toStr());
+    ToastRequestPacket pkt = ToastRequestPacket(args[0].asString().toString(),
+                                                args[1].asString().toString());
+    player->sendNetworkPacket(pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in sendToast!");
@@ -3487,8 +3492,36 @@ Local<Value> PlayerClass::setAbility(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Local<Value>();
-    player->setAbility(AbilitiesIndex(args[0].asNumber().toInt32()),
-                       args[1].asBoolean().value());
+    bool value = args[1].asBoolean().value();
+    AbilitiesIndex index = AbilitiesIndex(args[0].asNumber().toInt32());
+    ActorUniqueID uid = player->getOrCreateUniqueID();
+    auto &abilities = player->getAbilities();
+    bool flying = abilities.getAbility(AbilitiesIndex::Flying).getBool();
+    if (index == AbilitiesIndex::Flying && value && player->isOnGround()) {
+      abilities.setAbility(AbilitiesIndex::MayFly, value);
+    }
+    if (index == AbilitiesIndex::MayFly && value == false && flying) {
+      abilities.setAbility(AbilitiesIndex::Flying, false);
+    }
+    abilities.setAbility(index, value);
+    auto mayfly = abilities.getAbility(AbilitiesIndex::MayFly).getBool();
+    auto noclip = abilities.getAbility(AbilitiesIndex::NoClip).getBool();
+    player->setCanFly(mayfly || noclip);
+    if (index == AbilitiesIndex::NoClip) {
+      abilities.setAbility(AbilitiesIndex::Flying, value);
+    }
+    flying = abilities.getAbility(AbilitiesIndex::Flying).getBool();
+    Ability &ab =
+        abilities.getAbility(AbilitiesLayer(1), AbilitiesIndex::Flying);
+    ab.setBool(0);
+    if (flying)
+      ab.setBool(1);
+    UpdateAbilitiesPacket pkt(uid, abilities);
+    UpdateAdventureSettingsPacket pkt2 =
+        UpdateAdventureSettingsPacket(AdventureSettings());
+    abilities.setAbility(AbilitiesIndex::Flying, flying);
+    player->sendNetworkPacket(pkt2);
+    player->sendNetworkPacket(pkt);
     return Boolean::newBoolean(true);
   }
   CATCH("Fail in setAbility!");
@@ -3499,8 +3532,9 @@ Local<Value> PlayerClass::getBiomeId() {
     Player *player = get();
     if (!player)
       return Local<Value>();
-    auto bio = player->getBiome();
-    return Number::newNumber(bio->getId());
+    Biome bio =
+        player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+    return Number::newNumber(bio.getId());
   }
   CATCH("Fail in getBiomeId!");
 }
@@ -3510,8 +3544,9 @@ Local<Value> PlayerClass::getBiomeName() {
     Player *player = get();
     if (!player)
       return Local<Value>();
-    auto bio = player->getBiome();
-    return String::newString(bio->getName());
+    Biome bio =
+        player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+    return String::newString(bio.getName());
   }
   CATCH("Fail in getBiomeName!");
 }

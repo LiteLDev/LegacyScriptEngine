@@ -11,7 +11,6 @@
 #include <string>
 
 using namespace std::filesystem;
-using namespace std;
 
 //////////////////// Class Definition ////////////////////
 
@@ -272,7 +271,7 @@ Local<Value> FileClass::read(const Arguments &args) {
 
     pool.enqueue([cnt, fp{&file}, isBinary{isBinary}, lock{&lock},
                   callback{std::move(callbackFunc)},
-                  engine{EngineScope::currentEngine()}]() ->void{
+                  engine{EngineScope::currentEngine()}]() -> void {
       if ((ll::getServerStatus() != ll::ServerStatus::Running))
         return;
       if (!EngineManager::isValid(engine))
@@ -490,7 +489,7 @@ Local<Value> FileClass::setSize(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
   try {
-      return Boolean::newBoolean(false);
+    return Boolean::newBoolean(false);
   }
   CATCH("Fail in setSize!");
 }

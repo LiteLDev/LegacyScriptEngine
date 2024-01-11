@@ -90,8 +90,6 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace std;
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<PlayerClass> PlayerClassBuilder =

@@ -8,8 +8,6 @@
 #include <map>
 #include <vector>
 
-using namespace std;
-
 std::atomic_uint timeTaskId = 0;
 CsLock locker;
 struct TimeTaskData {
@@ -38,7 +36,7 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
   catch (const std::exception &e) {                                            \
     logger.error("Error occurred in {}", TASK_TYPE);                           \
     logger.error("C++ Uncaught Exception Detected!");                          \
-    logger.error(ll::string_utils::tou8str(e.what()));                  \
+    logger.error(ll::string_utils::tou8str(e.what()));                         \
     logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);         \
   }                                                                            \
   catch (...) {                                                                \

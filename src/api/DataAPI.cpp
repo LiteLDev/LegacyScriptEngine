@@ -14,8 +14,6 @@
 #include "main/EconomicSystem.h"
 #include "utils/JsonHelper.h"
 
-using namespace std;
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<void> DataClassBuilder =

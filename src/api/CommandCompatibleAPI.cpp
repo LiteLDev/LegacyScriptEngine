@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 //////////////////// Helper ////////////////////
 
 void RegisterCmd(const string &cmd, const string &describe, int cmdLevel) {

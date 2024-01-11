@@ -9,8 +9,6 @@
 #include "mc/world/level/Level.h"
 #include <string>
 
-using namespace std;
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<DeviceClass> DeviceClassBuilder =

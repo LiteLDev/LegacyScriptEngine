@@ -23,8 +23,6 @@
 
 #include "api/NativeAPI.h"
 
-using namespace std;
-
 //////////////////// APIs ////////////////////
 template <typename T> void PrintValue(T &out, Local<Value> v) {
   switch (v.getKind()) {

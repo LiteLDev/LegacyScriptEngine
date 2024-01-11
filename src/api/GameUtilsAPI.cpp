@@ -1,7 +1,6 @@
-#include "api/APIHelp.h"
 #include "api/GameUtilsAPI.h"
+#include "api/APIHelp.h"
 
-using namespace std;
 
 ClassDefine<void> TextClassBuilder =
     defineClass("Format")

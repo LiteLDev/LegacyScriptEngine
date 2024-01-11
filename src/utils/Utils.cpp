@@ -2,23 +2,21 @@
 #include <combaseapi.h>
 
 #include "engine/LocalShareData.h"
+#include "ll/api/utils/StringUtils.h"
 #include "utils/Utils.h"
 #include <ctime>
-#include <llapi/utils/StringHelper.h>
 #include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
 
-using namespace std;
-
-vector<string> SplitCmdLine(const string &paras) {
+std::vector<std::string> SplitCmdLine(const std::string &paras) {
   if (paras.empty())
-    return vector<string>();
+    return std::vector<std::string>();
 
-  vector<string> res;
-  string now, strInQuote = "";
-  istringstream strIn(paras);
+  std::vector<std::string> res;
+  std::string now, strInQuote = "";
+  std::istringstream strIn(paras);
   while (strIn >> now) {
     if (!strInQuote.empty()) {
       strInQuote = strInQuote + " " + now;
@@ -39,7 +37,7 @@ vector<string> SplitCmdLine(const string &paras) {
     }
   }
   if (!strInQuote.empty()) {
-    istringstream leftIn(strInQuote);
+    std::istringstream leftIn(strInQuote);
     while (leftIn >> now)
       res.push_back(now);
   }
@@ -49,8 +47,10 @@ vector<string> SplitCmdLine(const string &paras) {
 bool IsVersionLess(const std::string &v1, const std::string &v2) {
   auto vers1 = ll::string_utils::splitByPattern(v1, ".");
   auto vers2 = ll::string_utils::splitByPattern(v2, ".");
-  return IsVersionLess(stoi(vers1[0]), stoi(vers1[1]), stoi(vers1[2]),
-                       stoi(vers2[0]), stoi(vers2[1]), stoi(vers2[2]));
+  return IsVersionLess(
+      std::stoi(std::string(vers1[0])), std::stoi(std::string(vers1[1])),
+      std::stoi(std::string(vers1[2])), std::stoi(std::string(vers2[0])),
+      std::stoi(std::string(vers2[1])), std::stoi(std::string(vers2[2])));
 }
 
 bool IsVersionLess(int v1a, int v1b, int v1c, int v2a, int v2b, int v2c) {
@@ -58,7 +58,7 @@ bool IsVersionLess(int v1a, int v1b, int v1c, int v2a, int v2b, int v2c) {
           (v1a == v2a && v1b == v2b && v1c < v2c));
 }
 
-wchar_t *str2cwstr(string str) {
+wchar_t *str2cwstr(std::string str) {
   auto len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
   wchar_t *buffer = new wchar_t[len + 1];
   MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, len + 1);
@@ -78,7 +78,7 @@ unsigned long long GetCurrentTimeStampMS() {
   return nNow;
 }
 
-string Raw_GetDateTimeStr() {
+std::string Raw_GetDateTimeStr() {
   time_t t = time(NULL);
   tm ts;
   localtime_s(&ts, &t);
@@ -87,7 +87,7 @@ string Raw_GetDateTimeStr() {
   return string(buf);
 }
 
-string Raw_RandomGuid() {
+std::string Raw_RandomGuid() {
   GUID guid;
   CoCreateGuid(&guid);
 
@@ -99,7 +99,7 @@ string Raw_RandomGuid() {
   return string(dst);
 }
 
-wstring Raw_RandomGuidW() {
+std::wstring Raw_RandomGuidW() {
   GUID guid;
   CoCreateGuid(&guid);
 
@@ -108,5 +108,5 @@ wstring Raw_RandomGuidW() {
                guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1],
                guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5],
                guid.Data4[6], guid.Data4[7]);
-  return wstring(dst);
+  return std::wstring(dst);
 }

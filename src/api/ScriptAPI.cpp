@@ -12,7 +12,6 @@
 #include <windows.h>
 
 #define H ll::hash::do_hash
-using namespace std;
 
 //////////////////// APIs ////////////////////
 
@@ -22,7 +21,7 @@ Local<Value> Log(const Arguments &args) {
   try {
     std::ostringstream sout;
     for (int i = 0; i < args.size(); ++i)
-        PrintValue(sout, args[i]);
+      PrintValue(sout, args[i]);
     sout << std::endl;
     ENGINE_OWN_DATA()->logger.info(sout.str());
     return Boolean::newBoolean(true);
@@ -89,7 +88,7 @@ Local<Value> ColorLog(const Arguments &args) {
     std::ostringstream sout;
     sout << prefix;
     for (int i = 1; i < args.size(); ++i)
-        PrintValue(sout, args[i]);
+      PrintValue(sout, args[i]);
     sout << "\x1b[0m" << std::endl;
     ENGINE_OWN_DATA()->logger.info(sout.str());
     return Boolean::newBoolean(true);

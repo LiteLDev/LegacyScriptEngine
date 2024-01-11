@@ -1,98 +1,100 @@
+#include "engine/RemoteCall.h"
 #include "api/APIHelp.h"
 #include "api/LlAPI.h"
-#include "engine/RemoteCall.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
-#include <llapi/utils/STLHelper.h>
-#include <sstream>
-#include <string>
+#include "legacyapi/utils/STLHelper.h"
+#include "main/Configs.h"
 #include <map>
 #include <process.h>
-#include "main/Configs.h"
+#include <sstream>
+#include <string>
 
-using namespace std;
-
-unordered_map<int, string> remoteResultMap;
+std::unordered_map<int, string> remoteResultMap;
 
 //////////////////// 消息循环 ////////////////////
 
-void inline StringTrim(string& str) {
-    if (str.back() == '\n')
-        str.pop_back();
+void inline StringTrim(string &str) {
+  if (str.back() == '\n')
+    str.pop_back();
 }
 
-void RemoteSyncCallRequest(ModuleMessage& msg) {
-    // logger.debug("*** Remote call request received.");
-    // logger.debug("*** Current Module:{}", LLSE_MODULE_TYPE);
+void RemoteSyncCallRequest(ModuleMessage &msg) {
+  // logger.debug("*** Remote call request received.");
+  // logger.debug("*** Current Module:{}", LLSE_MODULE_TYPE);
 
-    istringstream sin(msg.getData());
+  std::istringstream sin(msg.getData());
 
-    string funcName, argsList;
-    getline(sin, funcName);
-    StringTrim(funcName);
+  string funcName, argsList;
+  getline(sin, funcName);
+  StringTrim(funcName);
 
-    ScriptEngine* engine = nullptr;
-    try {
-        // Real Call
-        ExportedFuncData* funcData = &(globalShareData->exportedFuncs).at(funcName);
-        engine = funcData->engine;
-        EngineScope enter(engine);
+  ScriptEngine *engine = nullptr;
+  try {
+    // Real Call
+    ExportedFuncData *funcData = &(globalShareData->exportedFuncs).at(funcName);
+    engine = funcData->engine;
+    EngineScope enter(engine);
 
-        string arg;
-        vector<Local<Value>> argsVector;
-        while (getline(sin, arg)) {
-            StringTrim(arg);
-            argsVector.push_back(JsonToValue(arg));
-        }
-
-        // logger.debug("*** Before remote call execute");
-        Local<Value> result = funcData->func.get().call({}, argsVector);
-        // logger.debug("*** After remote call execute");
-
-        // Feedback
-        // logger.debug("*** Before remote call result return");
-        if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, ValueToJson(result))) {
-            logger.error("Fail to post remote call result return!");
-        }
-        // logger.debug("*** After remote call result return");
-    } catch (const Exception& e) {
-        logger.error("Error occurred in remote engine!\n");
-        if (engine) {
-            EngineScope enter(engine);
-            PrintException(e);
-            logger.error("[Error] In Plugin: " + ENGINE_OWN_DATA()->pluginName);
-        }
-
-        // Feedback
-        if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            logger.error("Fail to post remote call result return!");
-        }
-    } catch (const std::out_of_range& e) {
-        logger.error(string("Fail to import! Function [") + funcName + "] has not been exported!");
-
-        // Feedback
-        if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            logger.error("Fail to post remote call result return!");
-            ;
-        }
-    } catch (...) {
-        logger.error("Error occurred in remote engine!");
-
-        // Feedback
-        if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            logger.error("Fail to post remote call result return!");
-            ;
-        }
+    string arg;
+    vector<Local<Value>> argsVector;
+    while (getline(sin, arg)) {
+      StringTrim(arg);
+      argsVector.push_back(JsonToValue(arg));
     }
+
+    // logger.debug("*** Before remote call execute");
+    Local<Value> result = funcData->func.get().call({}, argsVector);
+    // logger.debug("*** After remote call execute");
+
+    // Feedback
+    // logger.debug("*** Before remote call result return");
+    if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn,
+                        ValueToJson(result))) {
+      logger.error("Fail to post remote call result return!");
+    }
+    // logger.debug("*** After remote call result return");
+  } catch (const Exception &e) {
+    logger.error("Error occurred in remote engine!\n");
+    if (engine) {
+      EngineScope enter(engine);
+      PrintException(e);
+      logger.error("[Error] In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+    }
+
+    // Feedback
+    if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn,
+                        "[null]")) {
+      logger.error("Fail to post remote call result return!");
+    }
+  } catch (const std::out_of_range &e) {
+    logger.error(string("Fail to import! Function [") + funcName +
+                 "] has not been exported!");
+
+    // Feedback
+    if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn,
+                        "[null]")) {
+      logger.error("Fail to post remote call result return!");
+      ;
+    }
+  } catch (...) {
+    logger.error("Error occurred in remote engine!");
+
+    // Feedback
+    if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn,
+                        "[null]")) {
+      logger.error("Fail to post remote call result return!");
+      ;
+    }
+  }
 }
 
-void RemoteSyncCallReturn(ModuleMessage& msg) {
-    // logger.debug("*** Remote call result message received.");
-    // logger.debug("*** Result: {}", msg.getData());
-    remoteResultMap[msg.getId()] = msg.getData();
-    OperationCount(to_string(msg.getId())).done();
+void RemoteSyncCallReturn(ModuleMessage &msg) {
+  // logger.debug("*** Remote call result message received.");
+  // logger.debug("*** Result: {}", msg.getData());
+  remoteResultMap[msg.getId()] = msg.getData();
+  OperationCount(std::to_string(msg.getId())).done();
 }
-
 
 //////////////////// Remote Call ////////////////////
 #if false

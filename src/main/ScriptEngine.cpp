@@ -22,7 +22,6 @@
 #ifdef LLSE_BACKEND_PYTHON
 #include "PythonHelper.h"
 #endif
-using namespace std;
 
 // Global vars
 ll::Logger logger("LegacyScript");

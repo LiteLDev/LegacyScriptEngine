@@ -7,8 +7,6 @@
 #include "ll/api/utils/StringUtils.h"
 #include "ll/api/utils/WinUtils.h"
 
-using namespace std;
-
 ll::Logger logger("FileHelper");
 
 std::optional<std::string> ReadAllFile(const std::string &filePath,
@@ -46,20 +44,20 @@ bool WriteAllFile(const std::string &filePath, const std::string &content,
   return true;
 }
 
-vector<string> GetFileNameList(const std::string &dir) {
+std::vector<std::string> GetFileNameList(const std::string &dir) {
   std::filesystem::directory_entry d(dir);
   if (!d.is_directory())
     return {};
 
-  vector<string> list;
+  std::vector<std::string> list;
   std::filesystem::directory_iterator deps(d);
   for (auto &i : deps) {
-    list.push_back(UTF82String(i.path().filename().u8string()));
+    list.push_back(ll::string_utils::u8str2str(i.path().filename().u8string()));
   }
   return list;
 }
 
-bool CreateDirs(const string path) {
+bool CreateDirs(const std::string path) {
   std::error_code ec;
   auto ret = std::filesystem::create_directories(
       std::filesystem::path(ll::string_utils::str2wstr(path)), ec);
@@ -73,7 +71,7 @@ bool CreateDirs(const string path) {
 std::pair<int, std::string> UncompressFile(const std::string &filePath,
                                            const std::string &toDir,
                                            int processTimeout) {
-  error_code ec;
+  std::error_code ec;
   std::filesystem::create_directories(toDir, ec);
   std::string realToDir = EtoDir.ends_with('/') ? toDir : toDir + "/";
   auto &&[exitCode, output] =

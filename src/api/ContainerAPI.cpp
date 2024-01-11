@@ -6,8 +6,6 @@
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/item/registry/ItemStack.h"
 
-using namespace std;
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<ContainerClass> ContainerClassBuilder =

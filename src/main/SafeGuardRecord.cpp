@@ -3,19 +3,18 @@
 #include <fstream>
 #include <scriptx/include/scriptx/ScriptX.h>
 
-using namespace std;
-
-ofstream record;
+std::ofstream record;
 
 void InitSafeGuardRecord() {
-  filesystem::create_directories("logs/LiteLoader");
-  record.open(string("logs/LiteLoader/Sensitive_Operation_Records-") +
+  std::filesystem::create_directories("logs/LiteLoader");
+  record.open(std::string("logs/LiteLoader/Sensitive_Operation_Records-") +
                   LLSE_BACKEND_TYPE + ".log",
-              ios::app);
+              std::ios::app);
 }
 
-void RecordOperation(const string &pluginName, const std::string &operation,
-                     const string &content) {
+void RecordOperation(const std::string &pluginName,
+                     const std::string &operation, const std::string &content) {
   if (record.is_open())
-    record << "[" << operation << "]<" << pluginName << "> " << content << endl;
+    record << "[" << operation << "]<" << pluginName << "> " << content
+           << std::endl;
 }

@@ -17,8 +17,6 @@
 #include "ll/api/event/player/PlayerLeaveEvent.h"
 #include "mc/world/actor/player/Player.h"
 
-using namespace std;
-
 //////////////////// Listeners ////////////////////
 
 enum class EVENT_TYPES : int {
@@ -291,9 +289,9 @@ bool LLSECallEventsOnHotLoad(ScriptEngine *engine) {
     FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
     return true;
   });
-  ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-      FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
-      return true;
+  ll::service::getLevel()->forEachPlayer([&](Player &pl) -> bool {
+    FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
+    return true;
   });
 
   return true;

@@ -9,7 +9,6 @@
 #include <mc/world/scores/Scoreboard.h>
 #include <mc/world/scores/ScoreboardId.h>
 #include <optional>
-using namespace std;
 
 //////////////////// Class Definition ////////////////////
 

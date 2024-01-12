@@ -9,7 +9,6 @@
 #include <sstream>
 #include <string>
 
-
 //////////////////// Classes ////////////////////
 
 ClassDefine<void> LoggerClassBuilder =
@@ -168,7 +167,7 @@ Local<Value> LoggerClass::setFile(const Arguments &args) {
 
   try {
     string newFile = args[0].asString().toString();
-    ENGINE_OWN_DATA()->logger.setFile(newFile, ios::app);
+    ENGINE_OWN_DATA()->logger.setFile(newFile, std::ios::app);
 
     if (args.size() >= 2) {
       ENGINE_OWN_DATA()->logger.fileLevel = args[1].toInt();

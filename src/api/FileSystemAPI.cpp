@@ -129,27 +129,27 @@ FileClass *FileClass::constructor(const Arguments &args) {
     FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
     // Auto Create
     if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
-      fstream tmp(ll::string_utils::str2wstr(path), ios_base::app);
+      std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
       tmp.flush();
       tmp.close();
     }
 
-    ios_base::openmode mode = ios_base::in;
+    std::ios_base::openmode mode = std::ios_base::in;
     if (fMode == FileOpenMode::WriteMode) {
-      mode |= ios_base::out;
+      mode |= std::ios_base::out;
       // mode |= ios_base::ate;
-      mode |= ios_base::trunc;
+      mode |= std::ios_base::trunc;
     } else if (fMode == FileOpenMode::AppendMode) {
-      mode |= ios_base::app;
+      mode |= std::ios_base::app;
     }
 
     bool isBinary = false;
     if (args.size() >= 3 && args[2].asBoolean().value()) {
       isBinary = true;
-      mode |= ios_base::binary;
+      mode |= std::ios_base::binary;
     }
 
-    fstream fs(ll::string_utils::str2wstr(path), mode);
+    std::fstream fs(ll::string_utils::str2wstr(path), mode);
     if (!fs.is_open()) {
       LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
       return nullptr;
@@ -174,7 +174,7 @@ Local<Value> FileClass::getPath() {
 Local<Value> FileClass::getAbsolutePath() {
   try {
     return String::newString(
-        canonical(filesystem::path(ll::string_utils::str2wstr(path)))
+        canonical(std::filesystem::path(ll::string_utils::str2wstr(path)))
             .u8string());
   }
   CATCH("Fail in getAbsolutePath!");
@@ -204,7 +204,7 @@ Local<Value> FileClass::readSync(const Arguments &args) {
 
     Local<Value> res =
         isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
-                 : String::newString(string_view(buf, bytes)).asValue();
+                 : String::newString(std::string_view(buf, bytes)).asValue();
     delete[] buf;
     return res;
   }
@@ -286,8 +286,9 @@ Local<Value> FileClass::read(const Arguments &args) {
       EngineScope scope(engine);
       try {
         Local<Value> res =
-            isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
-                     : String::newString(string_view(buf, bytes)).asValue();
+            isBinary
+                ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
+                : String::newString(std::string_view(buf, bytes)).asValue();
         delete[] buf;
         // dangerous
         NewTimeout(callback.get(), {res}, 1);
@@ -464,17 +465,17 @@ Local<Value> FileClass::seekTo(const Arguments &args) {
     int pos = args[0].toInt();
     if (args[1].asBoolean().value()) {
       // relative
-      ios_base::seekdir way = ios_base::cur;
+      std::ios_base::seekdir way = std::ios_base::cur;
       file.seekg(pos, way);
       file.seekp(pos, way);
     } else {
       // absolute
       if (pos >= 0) {
-        ios_base::seekdir way = ios_base::beg;
+        std::ios_base::seekdir way = std::ios_base::beg;
         file.seekg(pos, way);
         file.seekp(pos, way);
       } else {
-        ios_base::seekdir way = ios_base::end;
+        std::ios_base::seekdir way = std::ios_base::end;
         file.seekg(0, way);
         file.seekp(0, way);
       }
@@ -573,7 +574,7 @@ Local<Value> PathExists(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
   try {
-    return Boolean::newBoolean(filesystem::exists(
+    return Boolean::newBoolean(std::filesystem::exists(
         ll::string_utils::str2wstr(args[0].asString().toString())));
   } catch (const filesystem_error &e) {
     LOG_ERROR_WITH_SCRIPT_INFO("Fail to Check " +
@@ -768,22 +769,22 @@ Local<Value> OpenFile(const Arguments &args) {
     }
 
     FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
-    ios_base::openmode mode = ios_base::in;
+    std::ios_base::openmode mode = std::ios_base::in;
     if (fMode == FileOpenMode::WriteMode) {
-      fstream tmp(ll::string_utils::str2wstr(path), ios_base::app);
+      std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
       tmp.flush();
       tmp.close();
-      mode |= ios_base::out;
+      mode |= std::ios_base::out;
     } else if (fMode == FileOpenMode::AppendMode)
-      mode |= ios_base::app;
+      mode |= std::ios_base::app;
 
     bool isBinary = false;
     if (args.size() >= 3 && args[2].asBoolean().value()) {
       isBinary = true;
-      mode |= ios_base::binary;
+      mode |= std::ios_base::binary;
     }
 
-    fstream fs(ll::string_utils::str2wstr(path), mode);
+    std::fstream fs(ll::string_utils::str2wstr(path), mode);
     if (!fs.is_open()) {
       LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
       return {};

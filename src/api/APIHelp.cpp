@@ -76,8 +76,9 @@ template <typename T> void PrintValue(T &out, Local<Value> v) {
     // FloatPos
     FloatPos *floatpos = FloatPos::extractPos(v);
     if (floatpos != nullptr) {
-      out << fixed << setprecision(2) << DimId2Name(floatpos->dim) << "("
-          << floatpos->x << "," << floatpos->y << "," << floatpos->z << ")";
+      out << std::fixed << std::setprecision(2) << DimId2Name(floatpos->dim)
+          << "(" << floatpos->x << "," << floatpos->y << "," << floatpos->z
+          << ")";
       break;
     }
 

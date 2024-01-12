@@ -235,7 +235,7 @@ Local<Value> ConfJsonClass::write(const Arguments &args) {
 }
 
 bool ConfJsonClass::flush() {
-  ofstream jsonFile(confPath);
+  std::ofstream jsonFile(confPath);
   if (jsonFile.is_open()) {
     jsonFile << jsonConf.dump(4);
     jsonFile.close();
@@ -665,7 +665,7 @@ Local<Array> objectificationMoneyHistory(const string &res) {
     if (str.back() == '\n')
       str.pop_back();
 
-    istringstream sin(str);
+    std::istringstream sin(str);
     Local<Object> obj = Object::newObject();
 
     note.clear();

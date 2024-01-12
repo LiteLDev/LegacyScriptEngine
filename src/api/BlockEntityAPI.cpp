@@ -84,7 +84,7 @@ Local<Value> BlockEntityClass::getType() {
 Local<Value> BlockEntityClass::getNbt(const Arguments &args) {
   try {
     return NbtCompoundClass::pack(std::move(
-        blockEntity->saveToNbt())); // Not sure is that will get right value
+        blockEntity->save())); // Not sure is that will get right value
   }
   CATCH("Fail in getNbt!")
 }
@@ -106,7 +106,10 @@ Local<Value> BlockEntityClass::setNbt(const Arguments &args) {
 Local<Value> BlockEntityClass::getBlock(const Arguments &args) {
   try {
     BlockPos bp = blockEntity->getPosition();
-    Block    bl     = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
+    Block bl = ll::service::getLevel()
+                   ->getDimension(dim)
+                   ->getBlockSourceFromMainChunkSource()
+                   .getBlock(bp);
     return BlockClass::newBlock(&bl, &bp, dim);
   }
   CATCH("Fail in getBlock!")

@@ -1049,7 +1049,8 @@ Local<Value> NbtByteArrayClass::pack(ByteArrayTag *tag, bool noDelete) {
       nbtObj->canDelete = false;
       return nbtObj->getScriptObject();
     } else
-      return (new NbtByteArrayClass(Tag::asTypedTag<ByteArrayTag>(tag->copy())))
+      return (new NbtByteArrayClass(
+                  std::make_unique<ByteArrayTag>(tag->as<ByteArrayTag>())))
           ->getScriptObject();
   }
   CATCH("Fail in construct NbtByteArray!");
@@ -1068,8 +1069,8 @@ Local<Value> NbtByteArrayClass::getType(const Arguments &args) {
 
 Local<Value> NbtByteArrayClass::get(const Arguments &args) {
   try {
-    auto &data = nbt.data;
-    return ByteBuffer::newByteBuffer(data.data.get(), data.size);
+    auto &data = nbt->data;
+    return ByteBuffer::newByteBuffer((char *)data.mBuffer.get(), data.mSize);
   }
   CATCH("Fail in NbtValueGet!")
 }
@@ -1080,7 +1081,7 @@ Local<Value> NbtByteArrayClass::toString(const Arguments &args) {
 
   try {
     return String::newString(
-        TagToJson(nbt, args.size() >= 1 ? args[0].toInt() : -1));
+        TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
   }
   CATCH("Fail in NBTtoJson!");
 }
@@ -1150,14 +1151,14 @@ void NbtListClassAddHelper(ListTag *tag, Local<Array> &arr) {
       for (int i = 0; i < arr.size(); ++i) {
         auto arrTag = ListTag();
         auto data = arr.get(i).asArray();
-        NbtListClassAddHelper(arrTag.get(), data);
+        NbtListClassAddHelper(&arrTag, data);
         tag->add(std::move(arrTag));
       }
     } else if (t.isObject()) {
       for (int i = 0; i < arr.size(); ++i) {
         auto objTag = CompoundTag();
         auto data = arr.get(i).asObject();
-        NbtCompoundClassAddHelper(objTag.get(), data);
+        NbtCompoundClassAddHelper(&objTag, data);
         tag->add(std::move(objTag));
       }
     } else {
@@ -1172,10 +1173,10 @@ NbtListClass *NbtListClass::constructor(const Arguments &args) {
 
     if (args.size() >= 1 && args[0].isArray()) {
       auto arr = args[0].asArray();
-      NbtListClassAddHelper(tag.get(), arr);
+      NbtListClassAddHelper(&tag, arr);
     }
 
-    return new NbtListClass(args.thiz(), std::move(tag));
+    return new NbtListClass(args.thiz(), std::make_unique<ListTag>(tag));
   }
   CATCH_C("Fail in Create ListTag!");
 }
@@ -1216,7 +1217,7 @@ Local<Value> NbtListClass::getType(const Arguments &args) {
 
 Local<Value> NbtListClass::getSize(const Arguments &args) {
   try {
-    return Number::newNumber((int)nbt->getSize());
+    return Number::newNumber((int)nbt->size());
   }
   CATCH("Fail in NBT GetSize!");
 }
@@ -1226,14 +1227,14 @@ Local<Value> NbtListClass::getTypeOf(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
   try {
-    auto list = nbt->get();
+    auto list = nbt.get();
     auto index = args[0].toInt();
 
-    if (index >= list.size() || index < 0) {
+    if (index >= list->size() || index < 0) {
       return Local<Value>();
     }
 
-    return Number::newNumber(int(list[index]->getId()));
+    return Number::newNumber(int(list[index].getId()));
   }
   CATCH("Fail in NBT GetTypeOf!");
 }
@@ -1243,12 +1244,12 @@ Local<Value> NbtListClass::setEnd(const Arguments &args) {
   CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
   try {
-    auto list = nbt->get();
+    auto list = nbt.get();
     auto index = args[0].toInt();
 
-    if (index >= list.size() || index < 0) {
+    if (index >= list->size() || index < 0) {
       LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
-    } else if (list[0]->getId() != Tag::Type::End) {
+    } else if (list[0].getId() != Tag::Type::End) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT
 List!"); } else { list[index]->as_ptr<EndTag>()->set();
     }

@@ -5,7 +5,7 @@ add_repositories("local-repo repo")
 
 -- Packages from xmake-repo
 add_requires("asio 1.28.0")
-add_requires("openssl 1.1.1-t")
+add_requires("openssl")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
 add_requires("cpp-httplib v0.14.0")

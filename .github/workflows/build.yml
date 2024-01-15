@@ -2,15 +2,24 @@ on:
   pull_request:
   push:
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/AppData/Local/.xmake
+            .xmake
+          key: xmake-legacyscriptengine-windows-x64-${{ github.sha }}
+          restore-keys: |
+            xmake-legacyscriptengine-windows-x64-
+
       - uses: xmake-io/github-action-setup-xmake@v1
-      
+
       - run: |
           xmake repo -u
 

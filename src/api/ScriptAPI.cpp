@@ -100,7 +100,7 @@ Local<Value> FastLog(const Arguments &args) {
   CHECK_ARGS_COUNT(args, 1);
 
   try {
-    ostringstream sout;
+    std::ostringstream sout;
     for (int i = 0; i < args.size(); ++i)
       PrintValue(sout, args[i]);
 

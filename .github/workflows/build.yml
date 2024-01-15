@@ -1,0 +1,27 @@
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+      
+      - run: |
+          xmake repo -u
+
+      - run: |
+          xmake f -a x64 -m release -p windows -v -y
+
+      - run: |
+          xmake -w -y
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-windows-x64-${{ github.sha }}
+          path: |
+            bin/

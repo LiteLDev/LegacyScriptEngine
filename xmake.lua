@@ -10,7 +10,7 @@ add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
 add_requires("cpp-httplib v0.14.0")
 add_requires("sqlite3 3.43.0+200")
-add_requires("mysql 8.0.31")
+add_requires("mariadb-connector-c 3.3.4")
 
 -- Packages from liteldev-xmake-repo
 add_requires("dyncall 1.4")
@@ -70,7 +70,7 @@ target("LeviScript")
         "fmt",
         "cpp-httplib",
         "sqlite3",
-        "mysql"
+        "mariadb-connector-c"
     )
 
     -- Packages from liteldev-xmake-repo

@@ -1,7 +1,6 @@
 #pragma once
 #include "legacyapi/db/Session.h"
-
-struct MYSQL;
+#include "mariadb/mysql.h"
 
 namespace DB {
 

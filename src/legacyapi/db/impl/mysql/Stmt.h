@@ -1,8 +1,6 @@
 #pragma once
 #include "legacyapi/db/Stmt.h"
-#include "mysql/mysql.h"
-
-struct MYSQL_STMT;
+#include "mariadb/mysql.h"
 
 namespace DB {
 
@@ -12,9 +10,9 @@ struct Receiver {
   MYSQL_FIELD field;
   std::shared_ptr<char[]> buffer;
   unsigned long length = 0;
-  bool isNull = false;
+  my_bool isNull = false;
   bool isUnsigned = false;
-  bool error = false;
+  my_bool error = false;
 };
 
 class MySQLStmt : public Stmt {

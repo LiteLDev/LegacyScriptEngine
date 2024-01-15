@@ -1,7 +1,6 @@
-#include "llapi/db/ConnParams.h"
-#include "llapi/LoggerAPI.h"
-#include "llapi/utils/StringHelper.h"
-
+#include "legacyapi/db/ConnParams.h"
+#include "ll/api/Logger.h"
+#include "ll/api/utils/StringUtils.h"
 
 namespace DB {
 
@@ -66,7 +65,7 @@ URL ParseURL(const std::string &url) {
     if (pos != std::string::npos) {
       result.fragment = cur.substr(pos + 1);
     }
-    std::vector<std::string> pairs =
+    std::vector<std::string_view> pairs =
         ll::string_utils::splitByPattern(query, "&");
     for (auto &pair : pairs) {
       std::string k, v;

@@ -1,7 +1,6 @@
 #include "legacyapi/db/impl/mysql/Session.h"
-#include "legacyapi/LoggerAPI.h"
 #include "legacyapi/db/impl/mysql/Stmt.h"
-#include <mysql/mysql.h>
+#include "mysql/mysql.h"
 
 #define OK 0
 

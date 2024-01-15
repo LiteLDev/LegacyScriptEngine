@@ -1,5 +1,6 @@
 #pragma once
 #include "legacyapi/db/Stmt.h"
+#include "mysql/mysql.h"
 
 struct MYSQL_STMT;
 
@@ -59,9 +60,9 @@ public:
   int getParamsCount() const;
   DBType getType() const;
 
-  LIAPI static SharedPointer<Stmt> create(const std::weak_ptr<Session> &sess,
-                                          const std::string &sql,
-                                          bool autoExecute = false);
+  static SharedPointer<Stmt> create(const std::weak_ptr<Session> &sess,
+                                    const std::string &sql,
+                                    bool autoExecute = false);
 };
 
 } // namespace DB

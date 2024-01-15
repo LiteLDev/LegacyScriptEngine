@@ -1016,8 +1016,9 @@ void SplitHttpUrl(const std::string &url, string &host, string &path) {
     host = host.substr(0, splitPos);
   }
 }
-bool HttpGet(const string &url, const httplib::Headers &headers,
-             const function<void(int, string)> &callback, int timeout = -1) {
+bool HttpGet(const std::string &url, const httplib::Headers &headers,
+             const std::function<void(int, std::string)> &callback,
+             int timeout = -1) {
   string host, path;
   SplitHttpUrl(url, host, path);
 
@@ -1045,16 +1046,17 @@ bool HttpGet(const string &url, const httplib::Headers &headers,
   return true;
 }
 
-bool HttpGet(const string &url, const function<void(int, string)> &callback,
+bool HttpGet(const std::string &url,
+             const std::function<void(int, std::string)> &callback,
              int timeout = -1) {
   return HttpGet(url, {}, callback, timeout);
 }
 
-bool HttpPost(const string &url, const httplib::Headers &headers,
-              const string &data, const string &type,
-              const std::function<void(int, string)> &callback,
+bool HttpPost(const std::string &url, const httplib::Headers &headers,
+              const std::string &data, const std::string &type,
+              const std::function<void(int, std::string)> &callback,
               int timeout = -1) {
-  string host, path;
+  std::string host, path;
   SplitHttpUrl(url, host, path);
   auto *cli = new httplib::Client(host.c_str());
   if (!cli->is_valid()) {

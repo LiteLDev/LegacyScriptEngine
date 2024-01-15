@@ -3,15 +3,21 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/MessageSystem.h"
-#include <llapi/ScheduleAPI.h>
-#include <llapi/utils/STLHelper.h>
+#include "legacyapi/utils/STLHelper.h"
+#include "ll/api/schedule/Scheduler.h"
+#include <ll/api/ServerInfo.h>
+#include <ll/api/chrono/GameChrono.h>
+#include <ll/api/schedule/Task.h>
 #include <map>
+#include <mutex>
+#include <shared_mutex>
 #include <vector>
 
 std::atomic_uint timeTaskId = 0;
-CsLock locker;
+std::shared_mutex locker;
+ll::schedule::ServerTimeScheduler scheduler;
 struct TimeTaskData {
-  ScheduleTask task;
+  std::shared_ptr<ll::schedule::Task<ll::chrono::ServerClock>> task;
   script::Global<Function> func;
   vector<script::Global<Value>> paras;
   script::Global<String> code;
@@ -88,8 +94,8 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
   data.engine = EngineScope::currentEngine();
   for (auto &para : paras)
     data.paras.emplace_back(std::move(para));
-
-  data.task = Schedule::delay(
+  data.task = scheduler.add<ll::schedule::DelayTask>(
+      ll::chrono::ticks(timeout / 50),
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
           if ((ll::getServerStatus() != ll::ServerStatus::Running))
@@ -100,7 +106,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
           EngineScope scope(engine);
           TimeTaskData taskData;
           {
-            CsLockHolder lock(locker);
+            std::unique_lock<std::shared_mutex> lock(locker);
 
             auto t = timeTaskMap.find(id);
             if (t == timeTaskMap.end())
@@ -125,9 +131,8 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
           }
         }
         TIMETASK_CATCH("setTimeout-Function");
-      },
-      timeout / 50);
-  CsLockHolder lock(locker);
+      });
+  std::unique_lock<std::shared_mutex> lock(locker);
   data.swap(timeTaskMap[tid]);
   return tid;
 }
@@ -139,7 +144,8 @@ int NewTimeout(Local<String> func, int timeout) {
   data.code = func;
   data.engine = EngineScope::currentEngine();
 
-  data.task = Schedule::delay(
+  data.task = scheduler.add<ll::schedule::DelayTask>(
+      ll::chrono::ticks(timeout / 50),
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
           if ((ll::getServerStatus() != ll::ServerStatus::Running))
@@ -149,7 +155,7 @@ int NewTimeout(Local<String> func, int timeout) {
           EngineScope scope(engine);
           TimeTaskData taskData;
           {
-            CsLockHolder lock(locker);
+            std::unique_lock<std::shared_mutex> lock(locker);
 
             auto t = timeTaskMap.find(id);
             if (t == timeTaskMap.end())
@@ -164,10 +170,9 @@ int NewTimeout(Local<String> func, int timeout) {
           engine->eval(code);
         }
         TIMETASK_CATCH("setTimeout-String");
-      },
-      timeout / 50);
+      });
 
-  CsLockHolder lock(locker);
+  std::unique_lock<std::shared_mutex> lock(locker);
   data.swap(timeTaskMap[tid]);
   return tid;
 }
@@ -181,7 +186,8 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
   for (auto &para : paras)
     data.paras.emplace_back(std::move(para));
 
-  data.task = Schedule::repeat(
+  data.task = scheduler.add<ll::schedule::RepeatTask>(
+      ll::chrono::ticks(timeout / 50),
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
           if ((ll::getServerStatus() != ll::ServerStatus::Running))
@@ -194,7 +200,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
           Local<Value> func = Local<Value>();
           vector<Local<Value>> args;
           {
-            CsLockHolder lock(locker);
+            std::unique_lock<std::shared_mutex> lock(locker);
 
             auto t = timeTaskMap.find(id);
             if (t == timeTaskMap.end())
@@ -222,10 +228,9 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
             func.asFunction().call();
         }
         TIMETASK_CATCH("setInterval-Function");
-      },
-      timeout / 50);
+      });
 
-  CsLockHolder lock(locker);
+  std::unique_lock<std::shared_mutex> lock(locker);
   data.swap(timeTaskMap[tid]);
   return tid;
 }
@@ -237,7 +242,8 @@ int NewInterval(Local<String> func, int timeout) {
   data.code = func;
   data.engine = EngineScope::currentEngine();
 
-  data.task = Schedule::repeat(
+  data.task = scheduler.add<ll::schedule::RepeatTask>(
+      ll::chrono::ticks(timeout / 50),
       [engine{EngineScope::currentEngine()}, id{tid}]() {
         try {
           if ((ll::getServerStatus() != ll::ServerStatus::Running))
@@ -249,7 +255,7 @@ int NewInterval(Local<String> func, int timeout) {
           EngineScope scope(engine);
           std::string code;
           {
-            CsLockHolder lock(locker);
+            std::unique_lock<std::shared_mutex> lock(locker);
 
             auto t = timeTaskMap.find(id);
             if (t == timeTaskMap.end())
@@ -264,10 +270,9 @@ int NewInterval(Local<String> func, int timeout) {
             engine->eval(code);
         }
         TIMETASK_CATCH("setInterval-String");
-      },
-      timeout / 50);
+      });
 
-  CsLockHolder lock(locker);
+  std::unique_lock<std::shared_mutex> lock(locker);
   data.swap(timeTaskMap[tid]);
   return tid;
 }
@@ -276,7 +281,7 @@ bool ClearTimeTask(int id) {
   assert(EngineScope::currentEngine() != nullptr);
   TimeTaskData data;
   try {
-    CsLockHolder lock(locker);
+    std::unique_lock<std::shared_mutex> lock(locker);
     auto it = timeTaskMap.find(id);
     if (it != timeTaskMap.end()) {
       data.swap(timeTaskMap[id]);
@@ -295,7 +300,7 @@ void LLSERemoveTimeTaskData(ScriptEngine *engine) {
   EngineScope enter(engine);
   std::unordered_map<int, TimeTaskData> tmpMap;
   try {
-    CsLockHolder lock(locker);
+    std::unique_lock<std::shared_mutex> lock(locker);
     for (auto it = timeTaskMap.begin(); it != timeTaskMap.end();) {
       if (it->second.engine == engine) {
         it->second.swap(tmpMap[it->first]);

@@ -385,7 +385,7 @@ Local<Value> McClass::setPlayerNbt(const Arguments &args) {
     auto tag = NbtCompoundClass::extract(args[1]);
     Player *pl = ll::service::getLevel()->getPlayer(uuid);
     if (pl) {
-      pl->load(*tag, defaultDataLoadHelper);
+      pl->load(*tag, ll::defaultDataLoadHelper);
     }
     return Boolean::newBoolean(true);
   }
@@ -2165,42 +2165,43 @@ Local<Value> PlayerClass::setSidebar(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    std::vector<std::pair<std::string, int>> data;
-    auto source = args[1].asObject();
-    auto keys = source.getKeyNames();
-    for (auto &key : keys) {
-      data.push_back(make_pair(key, source.get(key).toInt()));
-    }
+    // std::vector<std::pair<std::string, int>> data;
+    // auto source = args[1].asObject();
+    // auto keys = source.getKeyNames();
+    // for (auto &key : keys) {
+    //   data.push_back(make_pair(key, source.get(key).toInt()));
+    // }
 
-    int sortOrder = 1;
-    if (args.size() >= 3)
-      sortOrder = args[2].toInt();
+    // int sortOrder = 1;
+    // if (args.size() >= 3)
+    //   sortOrder = args[2].toInt();
 
-    SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
-        "sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
-        (ObjectiveSortOrder)sortOrder);
-    player->sendNetworkPacket(disObjPkt);
-    std::vector<ScorePacketInfo> info;
-    static std::set<uint64_t> scoreIds; // Store scoreboard ids
-    for (auto &i : data) {
-      uint64_t Id = 0;
-      do {
-        Id = (uint64_t)((rand() << 16) + rand() + 1145140);
-      } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
-      const ScoreboardId &id = ScoreboardId(Id);
-      ScorePacketInfo pktInfo = ScorePacketInfo();
-      pktInfo.mScoreboardId = id;
-      pktInfo.mObjectiveName = "FakeScoreObj";
-      pktInfo.mIdentityType = IdentityDefinition::Type::FakePlayer;
-      pktInfo.mScoreValue = i.second;
-      pktInfo.mFakePlayerName = i.first;
-      info.emplace_back(pktInfo);
-    }
-    SetScorePacket setPkt = SetScorePacket();
-    setPkt.mType = ScorePacketType::Change;
-    setPkt.mScoreInfo = info;
-    player->sendNetworkPacket(disObjPkt);
-    return Boolean::newBoolean(true);
+    // SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
+    //     "sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
+    //     (ObjectiveSortOrder)sortOrder);
+    // player->sendNetworkPacket(disObjPkt);
+    // std::vector<ScorePacketInfo> info;
+    // static std::set<uint64_t> scoreIds; // Store scoreboard ids
+    // uint64_t Id = 0;
+    // do {
+    //   Id = (uint64_t)((rand() << 16) + rand() + 1145140);
+    // } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
+    // const ScoreboardId &boardId = ScoreboardId(Id);
+    // for (auto &i : data) {
+    //   ScorePacketInfo pktInfo = ScorePacketInfo();
+    //   pktInfo.mScoreboardId = boardId;
+    //   pktInfo.mObjectiveName = "FakeScoreObj";
+    //   pktInfo.mIdentityType = IdentityDefinition::Type::FakePlayer;
+    //   pktInfo.mScoreValue = i.second;
+    //   pktInfo.mFakePlayerName = i.first;
+    //   info.emplace_back(pktInfo);
+    // }
+    // SetScorePacket setPkt = SetScorePacket();
+    // setPkt.mType = ScorePacketType::Change;
+    // setPkt.mScoreInfo = info;
+
+    // player->sendNetworkPacket(disObjPkt);
+    return Boolean::newBoolean(false); // Todo
   }
   CATCH("Fail in setSidebar!")
 }
@@ -2418,30 +2419,31 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments &args) {
     Player *player = get();
     if (!player)
       return Local<Value>();
+    // Todo
+    // std::string data = ordered_json::parse(args[0].toStr()).dump();
 
-    std::string data = ordered_json::parse(args[0].toStr()).dump();
+    // player->sendCustomFormPacket(
+    //     data, [id{player->getOrCreateUniqueID()},
+    //            engine{EngineScope::currentEngine()},
+    //            callback{script::Global(args[1].asFunction())}](string result)
+    //            {
+    //       if ((ll::getServerStatus() != ll::ServerStatus::Running))
+    //         return;
+    //       if (!EngineManager::isValid(engine))
+    //         return;
 
-    player->sendCustomFormPacket(
-        data, [id{player->getOrCreateUniqueID()},
-               engine{EngineScope::currentEngine()},
-               callback{script::Global(args[1].asFunction())}](string result) {
-          if ((ll::getServerStatus() != ll::ServerStatus::Running))
-            return;
-          if (!EngineManager::isValid(engine))
-            return;
+    //       Player *pl = ll::service::getLevel()->getPlayer(id);
+    //       if (!pl)
+    //         return;
 
-          Player *pl = ll::service::getLevel()->getPlayer(id);
-          if (!pl)
-            return;
-
-          EngineScope scope(engine);
-          try {
-            callback.get().call({}, PlayerClass::newPlayer(pl),
-                                result != "null" ? JsonToValue(result)
-                                                 : Local<Value>());
-          }
-          CATCH_IN_CALLBACK("sendCustomForm")
-        });
+    //       EngineScope scope(engine);
+    //       try {
+    //         callback.get().call({}, PlayerClass::newPlayer(pl),
+    //                             result != "null" ? JsonToValue(result)
+    //                                              : Local<Value>());
+    //       }
+    //       CATCH_IN_CALLBACK("sendCustomForm")
+    //     });
     return Number::newNumber(3);
   } catch (const ordered_json::exception &e) {
     logger.error("Fail to parse Json string in sendCustomForm!");

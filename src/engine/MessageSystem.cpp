@@ -2,13 +2,17 @@
 #include "api/APIHelp.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
+#include "ll/api/event/EventBus.h"
+#include "ll/api/event/world/ServerStoppingEvent.h"
 #include "utils/IniHelper.h"
 #include "utils/Utils.h"
 #include <exception>
-#include <llapi/EventAPI.h>
-#include <llapi/LLAPI.h>
+#include <ll/api/ServerInfo.h>
+#include <ll/api/event/EventBus.h>
+#include <mutex>
 #include <process.h>
 #include <processthreadsapi.h>
+#include <shared_mutex>
 
 using namespace script;
 
@@ -303,7 +307,7 @@ void MessageSystemLoopOnce() {
   //     return;
   std::list<ScriptEngine *> tmpList;
   {
-    SRWLockSharedHolder lock(globalShareData->engineListLock);
+    std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     // low efficiency
     tmpList = globalShareData->globalEngineList;
   }
@@ -339,20 +343,19 @@ void InitMessageSystem() {
   globalShareData->messageSystemHandlers[LLSE_MODULE_TYPE] = {
       ModuleMessage::handle, ModuleMessage::cleanup};
 
-  Event::ServerStoppedEvent::subscribe([](const auto &ev) {
-    EndMessageSystemLoop();
-    return true;
-  });
+  ll::event::EventBus::getInstance()
+      .emplaceListener<ll::event::ServerStoppingEvent>(
+          [](ll::event::ServerStoppingEvent &ev) { EndMessageSystemLoop(); });
 
   // dangerous?
   std::thread([]() {
     globalShareData->messageThreads[LLSE_BACKEND_TYPE] = GetCurrentThread();
     while (true) {
       MessageSystemLoopOnce();
-      if (ll::getServerStatus() >= ll::ServerStatus::Stopping)
+      if (ll::getServerStatus() != ll::ServerStatus::Stopping)
         return;
       SleepEx(5, true);
-      if (ll::getServerStatus() >= ll::ServerStatus::Stopping)
+      if (ll::getServerStatus() != ll::ServerStatus::Stopping)
         return;
     }
   }).detach();

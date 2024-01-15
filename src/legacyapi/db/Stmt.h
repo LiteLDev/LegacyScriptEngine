@@ -1,6 +1,7 @@
 #pragma once
 #include "legacyapi/db/Pointer.h"
 #include "legacyapi/db/RowSet.h"
+#include "ll/api/Logger.h"
 
 #define IF_ENDBG if (debugOutput)
 

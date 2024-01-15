@@ -9,6 +9,8 @@ add_requires("openssl 1.1.1-t")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
 add_requires("cpp-httplib v0.14.0")
+add_requires("sqlite3 3.43.0+200")
+add_requires("mysql 8.0.31")
 
 -- Packages from liteldev-xmake-repo
 add_requires("dyncall 1.4")
@@ -66,7 +68,9 @@ target("LeviScript")
         "leveldb",
         "rapidjson",
         "fmt",
-        "cpp-httplib"
+        "cpp-httplib",
+        "sqlite3",
+        "mysql"
     )
 
     -- Packages from liteldev-xmake-repo

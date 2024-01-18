@@ -26,7 +26,7 @@ local LLSE_BACKEND = "LUA"
 local LLSE_BACKEND_LIBRARY = "Lua"
 local SCRIPTX_BACKEND = "Lua"
 
-target("LeviScript")
+target("LegacyScriptEngine")
     set_kind("shared")
     set_languages("cxx20")
     add_files("src/**.cpp")

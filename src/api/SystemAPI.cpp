@@ -26,9 +26,10 @@ ClassDefine<void> SystemClassBuilder =
         .function("newProcess", &SystemClass::newProcess)
         .build();
 
-#define READ_BUFFER_SIZE 4096
+// From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
 bool NewProcess(const std::string &process,
-                std::function<void(int, std::string)> callback, int timeLimit) {
+                std::function<void(int, std::string)> callback = nullptr,
+                int timeLimit = -1) {
   SECURITY_ATTRIBUTES sa;
   HANDLE hRead, hWrite;
   sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -66,15 +67,15 @@ bool NewProcess(const std::string &process,
       WaitForSingleObject(hProcess, timeLimit);
       TerminateProcess(hProcess, -1);
     }
-    char buffer[READ_BUFFER_SIZE];
+    char buffer[4096];
     string strOutput;
     DWORD bytesRead, exitCode;
 
     delete[] wCmd;
     GetExitCodeProcess(hProcess, &exitCode);
     while (true) {
-      ZeroMemory(buffer, READ_BUFFER_SIZE);
-      if (!ReadFile(hRead, buffer, READ_BUFFER_SIZE, &bytesRead, nullptr))
+      ZeroMemory(buffer, 4096);
+      if (!ReadFile(hRead, buffer, 4096, &bytesRead, nullptr))
         break;
       strOutput.append(buffer, bytesRead);
     }
@@ -89,12 +90,12 @@ bool NewProcess(const std::string &process,
                    ll::string_utils::tou8str(e.what()));
       logger.error("In NewProcess callback");
       //   PrintCurrentStackTraceback();
-      ll::error_info::printCurrentException();
+      ll::error_info::printCurrentException(logger);
     } catch (...) {
       logger.error("NewProcess Callback Failed!");
       logger.error("Uncaught Exception Detected!");
       //   PrintCurrentStackTraceback();
-      ll::error_info::printCurrentException();
+      ll::error_info::printCurrentException(logger);
     }
   }).detach();
 

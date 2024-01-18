@@ -68,14 +68,77 @@ bool CreateDirs(const std::string path) {
   return ret;
 }
 
+// From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
+wchar_t *str2cwstr(const std::string &str) {
+  auto len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+  auto *buffer = new wchar_t[len + 1];
+  MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, len + 1);
+  buffer[len] = L'\0';
+  return buffer;
+}
+
+std::pair<int, std::string> NewProcessSync(const std::string &process,
+                                           int timeLimit = -1,
+                                           bool noReadOutput = true) {
+  SECURITY_ATTRIBUTES sa;
+  HANDLE hRead, hWrite;
+  sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+  sa.lpSecurityDescriptor = nullptr;
+  sa.bInheritHandle = TRUE;
+
+  if (!CreatePipe(&hRead, &hWrite, &sa, 0))
+    return {-1, ""};
+  STARTUPINFOW si = {0};
+  PROCESS_INFORMATION pi;
+
+  si.cb = sizeof(STARTUPINFO);
+  GetStartupInfoW(&si);
+  si.hStdOutput = si.hStdError = hWrite;
+  si.dwFlags = STARTF_USESTDHANDLES;
+
+  auto wCmd = str2cwstr(process);
+  if (!CreateProcessW(nullptr, wCmd, nullptr, nullptr, TRUE, 0, nullptr,
+                      nullptr, &si, &pi)) {
+    delete[] wCmd;
+    return {-1, ""};
+  }
+  CloseHandle(hWrite);
+  CloseHandle(pi.hThread);
+
+  if (timeLimit == -1)
+    WaitForSingleObject(pi.hProcess, INFINITE);
+  else {
+    WaitForSingleObject(pi.hProcess, timeLimit);
+    TerminateProcess(pi.hProcess, -1);
+  }
+  char buffer[4096];
+  std::string strOutput;
+  DWORD bytesRead, exitCode;
+
+  delete[] wCmd;
+  GetExitCodeProcess(pi.hProcess, &exitCode);
+  if (!noReadOutput) {
+    while (true) {
+      ZeroMemory(buffer, 4096);
+      if (!ReadFile(hRead, buffer, 4096, &bytesRead, nullptr))
+        break;
+      strOutput.append(buffer, bytesRead);
+    }
+  }
+  CloseHandle(hRead);
+  CloseHandle(pi.hProcess);
+  return {exitCode, strOutput};
+}
+
 std::pair<int, std::string> UncompressFile(const std::string &filePath,
                                            const std::string &toDir,
                                            int processTimeout) {
   std::error_code ec;
   std::filesystem::create_directories(toDir, ec);
-  std::string realToDir = EtoDir.ends_with('/') ? toDir : toDir + "/";
+  std::string realToDir = toDir.ends_with('/') ? toDir : toDir + "/";
   auto &&[exitCode, output] =
-      NewProcessSync(fmt::format(R"({} x "{}" -o"{}" -aoa)", ZIP_PROGRAM_PATH,
+      NewProcessSync(fmt::format(R"({} x "{}" -o"{}" -aoa)",
+                                 "./plugins/LegacyScriptEngine/7z/7za.exe",
                                  filePath, realToDir),
                      processTimeout);
   return {exitCode, std::move(output)};

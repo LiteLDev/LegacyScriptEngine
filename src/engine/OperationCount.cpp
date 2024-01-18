@@ -4,7 +4,6 @@
 #include "main/Configs.h"
 #include <vector>
 
-
 OperationCount::OperationCount(const string &name) : name(name) {}
 
 OperationCount OperationCount::create(const string &name) {
@@ -49,7 +48,9 @@ int OperationCount::get() {
 bool OperationCount::hasReachCount(int count) { return get() >= count; }
 
 bool OperationCount::hasReachMaxEngineCount() {
-  return hasReachCount(PluginManager::getAllScriptPlugins().size());
+  // Todo
+  // return hasReachCount(PluginManager::getAllScriptPlugins().size());
+  return false;
 }
 
 bool OperationCount::hasReachMaxBackendCount() {

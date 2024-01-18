@@ -7,7 +7,7 @@
 #include "engine/LocalShareData.h"
 #include "legacyapi/utils/STLHelper.h"
 #include "ll/api/event/EventBus.h"
-#include "ll/api/event/world/ServerStartedEvent.h"
+#include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "main/Configs.h"

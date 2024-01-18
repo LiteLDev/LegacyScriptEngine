@@ -2,6 +2,7 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/utils/StringUtils.h"
 #include "main/Configs.h"
 #include "main/NodeJsHelper.h"
 #include "main/PluginManager.h"
@@ -13,7 +14,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
 
 extern ll::Logger logger;
 
@@ -38,20 +38,23 @@ void LoadDepends() {
     if (i.is_regular_file() &&
         i.path().filename() == string("BaseLib") + LLSE_SOURCE_FILE_EXTENSION) {
       try {
-        auto path = UTF82String(i.path().generic_u8string());
+        auto path = ll::string_utils::u8str2str(i.path().generic_u8string());
         auto content = ReadAllFile(path);
         if (!content)
           throw("Fail to open plugin file!");
         depends.emplace(path, *content);
-        logger.info(tr("llse.loader.loadDepends.success",
-                       UTF82String(i.path().filename().u8string())));
+        logger.info(
+            tr("llse.loader.loadDepends.success",
+               ll::string_utils::u8str2str(i.path().filename().u8string())));
       } catch (std::exception e) {
-        logger.warn(tr("llse.loader.loadDepends.fail",
-                       UTF82String(i.path().filename().u8string())));
+        logger.warn(
+            tr("llse.loader.loadDepends.fail",
+               ll::string_utils::u8str2str(i.path().filename().u8string())));
         logger.warn(ll::string_utils::tou8str(e.what()));
       } catch (...) {
-        logger.warn(tr("llse.loader.loadDepends.fail",
-                       UTF82String(i.path().filename().u8string())));
+        logger.warn(
+            tr("llse.loader.loadDepends.fail",
+               ll::string_utils::u8str2str(i.path().filename().u8string())));
       }
     }
   }
@@ -106,9 +109,11 @@ void LoadMain() {
     if (i.is_regular_file() &&
         i.path().extension() == LLSE_SOURCE_FILE_EXTENSION) {
       try {
-        if (PluginManager::loadPlugin(UTF82String(i.path().generic_u8string()),
-                                      false, true))
-          ++count;
+        // Todo
+        // if (PluginManager::loadPlugin(
+        //         ll::string_utils::u8str2str(i.path().generic_u8string()),
+        //         false, true))
+        ++count;
       } catch (...) {
       }
     }
@@ -129,7 +134,8 @@ void LoadMain_NodeJs() {
   std::filesystem::directory_iterator files(LLSE_PLUGINS_ROOT_DIR);
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
-    std::string targetDirStr = UTF82String(pth.make_preferred().u8string());
+    std::string targetDirStr =
+        ll::string_utils::u8str2str(pth.make_preferred().u8string());
     if (i.is_directory() && pth.filename() != "node_modules") {
       if (std::filesystem::exists(pth / "package.json")) {
         try {
@@ -150,19 +156,24 @@ void LoadMain_NodeJs() {
   files = std::filesystem::directory_iterator(LLSE_PLUGINS_LOAD_DIR);
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
-    std::string packFilePathStr = UTF82String(pth.make_preferred().u8string());
-    if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-        logger.info(tr("llse.loader.loadMain.nodejs.installPack.start", fmt::arg("path", packFilePathStr)));
-        try {
-            if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-                logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail", packFilePathStr));
-            }
-            ++count;
-            ++installCount;
-        } catch (...) {
-            // not matched backend type
-            logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", packFilePathStr)));
+    std::string packFilePathStr =
+        ll::string_utils::u8str2str(pth.make_preferred().u8string());
+    if (i.is_regular_file() &&
+        packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
+      logger.info(tr("llse.loader.loadMain.nodejs.installPack.start",
+                     fmt::arg("path", packFilePathStr)));
+      try {
+        if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
+          logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail",
+                          packFilePathStr));
         }
+        ++count;
+        ++installCount;
+      } catch (...) {
+        // not matched backend type
+        logger.warn(tr("llse.loader.loadMain.nodejs.ignored",
+                       fmt::arg("path", packFilePathStr)));
+      }
     }
   }
 
@@ -182,7 +193,8 @@ void LoadMain_Python() {
   std::filesystem::directory_iterator files(LLSE_PLUGINS_ROOT_DIR);
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
-    std::string targetDirStr = UTF82String(pth.make_preferred().u8string());
+    std::string targetDirStr =
+        ll::string_utils::u8str2str(pth.make_preferred().u8string());
     if (i.is_directory() && pth.filename() != "site-packages") {
       if (std::filesystem::exists(pth / "pyproject.toml")) {
         try {
@@ -203,8 +215,10 @@ void LoadMain_Python() {
   files = std::filesystem::directory_iterator(LLSE_PLUGINS_LOAD_DIR);
   for (auto &i : files) {
     std::filesystem::path pth = i.path();
-    std::string packFilePathStr = UTF82String(pth.make_preferred().u8string());
-    if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
+    std::string packFilePathStr =
+        ll::string_utils::u8str2str(pth.make_preferred().u8string());
+    if (i.is_regular_file() &&
+        packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
       logger.info(tr("llse.loader.loadMain.python.installPack.start",
                      fmt::arg("path", packFilePathStr)));
       try {
@@ -227,8 +241,9 @@ void LoadMain_Python() {
     if (i.is_regular_file() &&
         i.path().extension() == LLSE_SOURCE_FILE_EXTENSION) {
       try {
-        if (PluginManager::loadPlugin(UTF82String(i.path().generic_u8string()),
-                                      false, true))
+        if (PluginManager::loadPlugin(
+                ll::string_utils::u8str2str(i.path().generic_u8string()), false,
+                true))
           ++count;
       } catch (...) {
       }

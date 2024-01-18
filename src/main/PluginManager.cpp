@@ -51,13 +51,13 @@ bool PluginManager::loadPlugin(const std::string &fileOrDirPath, bool isHotLoad,
   if (fileOrDirPath == LLSE_DEBUG_ENGINE_NAME)
     return true;
 
-  if (!filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath))) {
+  if (!std::filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath))) {
     logger.error("Plugin not found! Check the path you input again.");
     return false;
   }
 
   // Get bacis information
-  bool isPluginPackage = filesystem::is_directory(fileOrDirPath);
+  bool isPluginPackage = std::filesystem::is_directory(fileOrDirPath);
   string backendType = getPluginBackendType(fileOrDirPath);
   if (backendType.empty()) {
     logger.error(fileOrDirPath + " is not a valid plugin path!");
@@ -73,7 +73,7 @@ bool PluginManager::loadPlugin(const std::string &fileOrDirPath, bool isHotLoad,
     // Get plugin package
     // Clean temp dir first
     std::error_code ec;
-    filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
+    std::filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
 
     // Uncompress package to temp dir
     string uncompressToDir = LLSE_PLUGIN_PACKAGE_TEMP_DIR;
@@ -113,10 +113,9 @@ bool PluginManager::loadPlugin(const std::string &fileOrDirPath, bool isHotLoad,
   // Single file plugin
   // Check duplicated
   if (PluginManager::getPlugin(pluginFileName)) {
-    // logger.error("This plugin has been loaded by LiteLoader. You cannot
-    load
-        // it twice.");
-        return false;
+    // logger.error("This plugin has been loaded by LiteLoader. You cannot load
+    // it twice.");
+    return false;
   }
 
   ScriptEngine *engine = nullptr;
@@ -221,7 +220,7 @@ bool PluginManager::loadPluginPackage(const std::string &dirPath,
   // "dirPath" is public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR) or normal
   // plugin dir "packagePath" will point to plugin package path if
   // isUncompressedFirstTime == true
-  if (!filesystem::is_directory(dirPath))
+  if (!std::filesystem::is_directory(dirPath))
     return false;
   bool result = false;
 
@@ -264,13 +263,14 @@ bool PluginManager::unloadPlugin(const std::string &name) {
   engine->getData().reset();
 
   PluginManager::unRegisterPlugin(name);
-  ll::schedule::DelayTask<ll::chrono::ServerClock>(1, [engine]() {
+  ll::schedule::DelayTask<ll::chrono::ServerClock> task(
+      ll::chrono::ticks(1), [engine]() {
 #ifdef LLSE_BACKEND_NODEJS
-    NodeJsHelper::stopEngine(engine);
+        NodeJsHelper::stopEngine(engine);
 #else
     engine->destroy();
 #endif
-  });
+      });
 
   logger.info(pluginName + " unloaded.");
   return true;
@@ -285,7 +285,7 @@ bool PluginManager::reloadPlugin(const std::string &name) {
   if (!plugin)
     return false;
 
-  string filePath = plugin->filePath;
+  std::string filePath = plugin->getManifest().entry;
   if (!PluginManager::unloadPlugin(name))
     return false;
   try {
@@ -299,12 +299,12 @@ bool PluginManager::reloadPlugin(const std::string &name) {
 bool PluginManager::reloadAllPlugins() {
   auto pluginsList = PluginManager::getLocalPlugins();
   for (auto &plugin : pluginsList)
-    reloadPlugin(plugin.second->name);
+    reloadPlugin(plugin.second->getManifest().name);
   return true;
 }
 
 ll::plugin::Plugin *PluginManager::getPlugin(std::string name) {
-  return PluginManager::getPlugin(std::move(name), true);
+  return PluginManager::getPlugin(std::move(name));
 }
 
 // Get all plugins of current language
@@ -318,7 +318,7 @@ PluginManager::getLocalPlugins() {
     if (name != LLSE_DEBUG_ENGINE_NAME) {
       ll::plugin::Plugin *plugin = PluginManager::getPlugin(name);
       if (plugin)
-        res[plugin->name] = plugin;
+        res[plugin->getManifest().entry] = plugin;
     }
   }
   return res;
@@ -328,7 +328,7 @@ std::unordered_map<std::string, ll::plugin::Plugin *>
 PluginManager::getAllScriptPlugins() {
   auto res = getAllPlugins();
   erase_if(res, [](auto &item) {
-    return item.second->type != ll::plugin::Plugin::PluginType::ScriptPlugin;
+    return item.second->type != ll::plugin::ScriptPlugin;
   });
   return res;
 }
@@ -355,11 +355,11 @@ bool PluginManager::unRegisterPlugin(std::string name) {
 // Get plugin backend type from its file path (single file plugin)
 // or its unpressed dir path (plugin package)
 std::string PluginManager::getPluginBackendType(const std::string &path) {
-  filesystem::path filePath(ll::string_utils::str2wstr(path));
-  if (!filesystem::exists(filePath))
+  std::filesystem::path filePath(ll::string_utils::str2wstr(path));
+  if (!std::filesystem::exists(filePath))
     return "";
 
-  if (filesystem::is_directory(filePath)) {
+  if (std::filesystem::is_directory(filePath)) {
     // Uncompressed plugin package
     auto identifiers = LLSE_VALID_PLUGIN_PACKAGE_IDENTIFIER;
     vector<string> filesExts = {};
@@ -376,8 +376,8 @@ std::string PluginManager::getPluginBackendType(const std::string &path) {
             std::filesystem::directory_iterator files(filePath);
             for (auto &item : files) {
               if (item.is_regular_file())
-                filesExts.emplace_back(
-                    UTF82String(item.path().extension().u8string()));
+                filesExts.emplace_back(ll::string_utils::u8str2str(
+                    item.path().extension().u8string()));
             }
           }
           string compareExt = id.substr(id.find_last_of('.'));
@@ -388,7 +388,7 @@ std::string PluginManager::getPluginBackendType(const std::string &path) {
           }
         } else {
           // match identifier like "package.json"
-          if (filesystem::exists(filePath / id)) {
+          if (std::filesystem::exists(filePath / id)) {
             // match
             return LLSE_VALID_BACKENDS[i];
           }
@@ -396,7 +396,7 @@ std::string PluginManager::getPluginBackendType(const std::string &path) {
       }
   } else {
     // Common plugin file
-    string ext = UTF82String(filePath.extension().u8string());
+    string ext = ll::string_utils::u8str2str(filePath.extension().u8string());
     if (ext == LLSE_PLUGIN_PACKAGE_EXTENSION) {
       // Never consider .llplugin
       // Just uncompress it and then come to check

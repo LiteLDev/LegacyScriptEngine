@@ -61,6 +61,7 @@ public:
 };
 
 using ll::i18n::detail::tr;
+using ll::i18n_literals::operator""_tr;
 
 inline std::string DimId2Name(int dimid) {
   std::string name;

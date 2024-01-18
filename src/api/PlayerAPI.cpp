@@ -576,8 +576,10 @@ Local<Value> McClass::getPlayer(const Arguments &args) {
     std::vector<Player *> playerList;
     int delta = 2147483647; // c++ int max
     Player *found = nullptr;
-    ll::service::getLevel()->forEachPlayer(
-        [&](Player &player) -> bool { playerList.push_back(&player); });
+    ll::service::getLevel()->forEachPlayer([&](Player &player) {
+      playerList.push_back(&player);
+      return true;
+    });
 
     for (Player *p : playerList) {
       if (p->getXuid() == target ||
@@ -608,8 +610,9 @@ Local<Value> McClass::getPlayer(const Arguments &args) {
 Local<Value> McClass::getOnlinePlayers(const Arguments &args) {
   try {
     Local<Array> list = Array::newArray();
-    ll::service::getLevel()->forEachPlayer([&](Player &player) -> bool {
+    ll::service::getLevel()->forEachPlayer([&](Player &player) {
       list.add(PlayerClass::newPlayer(&player));
+      return true;
     });
     return list;
   }

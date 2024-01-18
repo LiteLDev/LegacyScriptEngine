@@ -178,9 +178,8 @@ bool PluginManager::loadPlugin(const std::string &fileOrDirPath, bool isHotLoad,
       LLSECallEventsOnHotLoad(engine);
 
     // Success
-    logger.info(tr("llse.loader.loadMain.loadedPlugin",
-                   fmt::arg("type", backendType),
-                   fmt::arg("name", pluginName)));
+    logger.info("llse.loader.loadMain.loadedPlugin"_tr(
+        fmt::arg("type", backendType), fmt::arg("name", pluginName)));
     return true;
   } catch (const Exception &e) {
     logger.error("Fail to load " + realPath + "!");
@@ -326,17 +325,21 @@ PluginManager::getLocalPlugins() {
 
 std::unordered_map<std::string, ll::plugin::Plugin *>
 PluginManager::getAllScriptPlugins() {
-  auto res = getAllPlugins();
-  erase_if(res, [](auto &item) {
-    return item.second->type != ll::plugin::ScriptPlugin;
-  });
-  return res;
+  // Todo
+  // auto res = getAllPlugins();
+  // erase_if(res, [](auto &item) {
+  //   return item.second->type != ll::plugin::ScriptPlugin;
+  // });
+  // return res;
+  return {};
 }
 
 // Get all plugins
 std::unordered_map<std::string, ll::plugin::Plugin *>
 PluginManager::getAllPlugins() {
-  return ll::PluginManager::getAllPlugins();
+  // Todo
+  // return ll::PluginManager::getAllPlugins();
+  return {};
 }
 
 bool PluginManager::registerPlugin(std::string filePath, std::string name,
@@ -344,12 +347,16 @@ bool PluginManager::registerPlugin(std::string filePath, std::string name,
                                    std::map<std::string, std::string> others) {
   others["PluginType"] = "Script Plugin";
   others["PluginFilePath"] = std::move(filePath);
-  return ll::PluginManager::registerPlugin(nullptr, std::move(name),
-                                           std::move(desc), version, others);
+  // Todo
+  // return ll::PluginManager::registerPlugin(nullptr, std::move(name),
+  //                                          std::move(desc), version, others);
+  return true;
 }
 
 bool PluginManager::unRegisterPlugin(std::string name) {
-  return ll::PluginManager::unRegisterPlugin(std::move(name));
+  // Todo
+  // return ll::PluginManager::unRegisterPlugin(std::move(name));
+  return true;
 }
 
 // Get plugin backend type from its file path (single file plugin)

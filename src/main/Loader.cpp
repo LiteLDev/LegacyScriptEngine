@@ -44,17 +44,14 @@ void LoadDepends() {
           throw("Fail to open plugin file!");
         depends.emplace(path, *content);
         logger.info(
-            tr("llse.loader.loadDepends.success",
-               ll::string_utils::u8str2str(i.path().filename().u8string())));
+            "llse.loader.loadDepends.success"_tr(i.path().filename().string()));
       } catch (std::exception e) {
         logger.warn(
-            tr("llse.loader.loadDepends.fail",
-               ll::string_utils::u8str2str(i.path().filename().u8string())));
+            "llse.loader.loadDepends.fail"_tr(i.path().filename().string()));
         logger.warn(ll::string_utils::tou8str(e.what()));
       } catch (...) {
         logger.warn(
-            tr("llse.loader.loadDepends.fail",
-               ll::string_utils::u8str2str(i.path().filename().u8string())));
+            "llse.loader.loadDepends.fail"_tr(i.path().filename().string()));
       }
     }
   }
@@ -102,7 +99,7 @@ void LoadMain() {
 
   // Load simple file plugin
   logger.info(
-      tr("llse.loader.loadMain.start", fmt::arg("type", LLSE_MODULE_TYPE)));
+      "llse.loader.loadMain.start"_tr(fmt::arg("type", LLSE_MODULE_TYPE)));
   int count = 0;
   std::filesystem::directory_iterator files(LLSE_PLUGINS_LOAD_DIR);
   for (auto &i : files) {
@@ -118,8 +115,8 @@ void LoadMain() {
       }
     }
   }
-  logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count),
-                 fmt::arg("type", LLSE_MODULE_TYPE)));
+  logger.info("llse.loader.loadMain.done"_tr(
+      fmt::arg("count", count), fmt::arg("type", LLSE_MODULE_TYPE)));
 #endif
 }
 

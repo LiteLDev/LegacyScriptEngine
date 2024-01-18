@@ -5,11 +5,9 @@ add_repositories("local-repo repo")
 
 -- Packages from xmake-repo
 add_requires("asio 1.28.0")
-add_requires("zlib")
-add_requires("openssl 1.1.1-t")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
-add_requires("cpp-httplib v0.14.0")
+add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
 add_requires("sqlite3 3.43.0+200")
 add_requires("mariadb-connector-c 3.3.4")
 
@@ -59,8 +57,6 @@ target("LeviScript")
     -- Packages from xmake-repo
     add_packages(
         "nlohmann_json",
-        "openssl",
-        "zlib",
         "gsl",
         "simpleini",
         "toml++",

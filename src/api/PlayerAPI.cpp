@@ -1682,7 +1682,6 @@ Local<Value> PlayerClass::getEnderChest(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    // Todo
     return ContainerClass::newContainer(player->getEnderChestContainer());
   }
   CATCH("Fail in getEnderChest!");
@@ -2165,43 +2164,43 @@ Local<Value> PlayerClass::setSidebar(const Arguments &args) {
     if (!player)
       return Local<Value>();
 
-    // std::vector<std::pair<std::string, int>> data;
-    // auto source = args[1].asObject();
-    // auto keys = source.getKeyNames();
-    // for (auto &key : keys) {
-    //   data.push_back(make_pair(key, source.get(key).toInt()));
-    // }
+    std::vector<std::pair<std::string, int>> data;
+    auto source = args[1].asObject();
+    auto keys = source.getKeyNames();
+    for (auto &key : keys) {
+      data.push_back(make_pair(key, source.get(key).toInt()));
+    }
 
-    // int sortOrder = 1;
-    // if (args.size() >= 3)
-    //   sortOrder = args[2].toInt();
+    int sortOrder = 1;
+    if (args.size() >= 3)
+      sortOrder = args[2].toInt();
 
-    // SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
-    //     "sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
-    //     (ObjectiveSortOrder)sortOrder);
-    // player->sendNetworkPacket(disObjPkt);
-    // std::vector<ScorePacketInfo> info;
-    // static std::set<uint64_t> scoreIds; // Store scoreboard ids
-    // uint64_t Id = 0;
-    // do {
-    //   Id = (uint64_t)((rand() << 16) + rand() + 1145140);
-    // } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
-    // const ScoreboardId &boardId = ScoreboardId(Id);
-    // for (auto &i : data) {
-    //   ScorePacketInfo pktInfo = ScorePacketInfo();
-    //   pktInfo.mScoreboardId = boardId;
-    //   pktInfo.mObjectiveName = "FakeScoreObj";
-    //   pktInfo.mIdentityType = IdentityDefinition::Type::FakePlayer;
-    //   pktInfo.mScoreValue = i.second;
-    //   pktInfo.mFakePlayerName = i.first;
-    //   info.emplace_back(pktInfo);
-    // }
-    // SetScorePacket setPkt = SetScorePacket();
-    // setPkt.mType = ScorePacketType::Change;
-    // setPkt.mScoreInfo = info;
+    SetDisplayObjectivePacket disObjPkt = SetDisplayObjectivePacket(
+        "sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
+        (ObjectiveSortOrder)sortOrder);
+    player->sendNetworkPacket(disObjPkt);
+    std::vector<ScorePacketInfo> info;
+    static std::set<uint64_t> scoreIds; // Store scoreboard ids
+    uint64_t Id = 0;
+    do {
+      Id = (uint64_t)((rand() << 16) + rand() + 1145140);
+    } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
+    const ScoreboardId &boardId = ScoreboardId(Id);
+    for (auto &i : data) {
+      ScorePacketInfo pktInfo = ScorePacketInfo();
+      pktInfo.mScoreboardId = boardId;
+      pktInfo.mObjectiveName = "FakeScoreObj";
+      pktInfo.mIdentityType = IdentityDefinition::Type::FakePlayer;
+      pktInfo.mScoreValue = i.second;
+      pktInfo.mFakePlayerName = i.first;
+      info.emplace_back(pktInfo);
+    }
+    SetScorePacket setPkt = SetScorePacket();
+    setPkt.mType = ScorePacketType::Change;
+    setPkt.mScoreInfo = info;
 
-    // player->sendNetworkPacket(disObjPkt);
-    return Boolean::newBoolean(false); // Todo
+    player->sendNetworkPacket(disObjPkt);
+    return Boolean::newBoolean(true);
   }
   CATCH("Fail in setSidebar!")
 }
@@ -2243,7 +2242,8 @@ Local<Value> PlayerClass::setBossBar(const Arguments &args) {
       AddEntityPacket entityPkt = AddEntityPacket();
       // Todo
       // AddEntityPacket(uid, "player", Vec3(getPos().x, (float)-70,
-      // getPos().z), Vec2{0, 0}, 0)
+      // getPos().z),
+      //                 Vec2{0, 0}, 0);
 
       BossBarColor color = (BossBarColor)args[3].toInt();
       BossEventPacket pkt = BossEventPacket();

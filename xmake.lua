@@ -4,7 +4,6 @@ add_repositories("liteldev-xmake-repo https://github.com/LiteLDev/xmake-repo.git
 add_repositories("local-repo repo")
 
 -- Packages from xmake-repo
-add_requires("asio 1.28.0")
 add_requires("simpleini v4.19")
 add_requires("toml++ v3.4.0")
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
@@ -17,6 +16,7 @@ add_requires("lightwebsocketclient v1.0.0")
 add_requires("levilamina")
 add_requires("demangler v2.0.0")
 add_requires("legacymoney")
+add_requires("legacyparticleapi")
 
 -- Packages from local
 add_requires("scriptx-legacy")
@@ -57,15 +57,11 @@ target("LegacyScriptEngine")
     -- Packages from xmake-repo
     add_packages(
         "nlohmann_json",
-        "gsl",
         "simpleini",
         "toml++",
         "magic_enum",
-        "asio",
-        "entt",
         "leveldb",
         "rapidjson",
-        "fmt",
         "cpp-httplib",
         "sqlite3",
         "mariadb-connector-c"
@@ -74,11 +70,11 @@ target("LegacyScriptEngine")
     -- Packages from liteldev-xmake-repo
     add_packages(
         "dyncall",
-        "symbolprovider",
         "lightwebsocketclient",
         "levilamina",
         "demangler",
-        "legacymoney"
+        "legacymoney",
+        "legacyparticleapi"
     )
 
     -- Packages from local

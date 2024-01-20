@@ -12,7 +12,7 @@
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
 
-#include "ll/api/base/ErrorInfo.h"
+#include "ll/api/utils/ErrorUtils.h"
 
 // 输出异常信息
 inline void PrintException(const script::Exception &e) {
@@ -76,7 +76,7 @@ std::string ValueKindToString(const ValueKind &kind);
 // 截获引擎异常
 #define CATCH(LOG)                                                             \
   catch (...) {                                                                \
-    ll::error_info::printCurrentException(logger);                             \
+    ll::error_utils::printCurrentException(logger);                            \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return Local<Value>();                                                     \
   }
@@ -105,7 +105,7 @@ std::string ValueKindToString(const ValueKind &kind);
 // 截获引擎异常_Constructor
 #define CATCH_C(LOG)                                                           \
   catch (...) {                                                                \
-    ll::error_info::printCurrentException(logger);                             \
+    ll::error_utils::printCurrentException(logger);                            \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return nullptr;                                                            \
   }
@@ -113,7 +113,7 @@ std::string ValueKindToString(const ValueKind &kind);
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                           \
   catch (...) {                                                                \
-    ll::error_info::printCurrentException(logger);                             \
+    ll::error_utils::printCurrentException(logger);                            \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
     return;                                                                    \
   }
@@ -121,7 +121,7 @@ std::string ValueKindToString(const ValueKind &kind);
 // 截获引擎异常_Constructor
 #define CATCH_WITHOUT_RETURN(LOG)                                              \
   catch (...) {                                                                \
-    ll::error_info::printCurrentException(logger);                             \
+    ll::error_utils::printCurrentException(logger);                            \
     LOG_ERROR_WITH_SCRIPT_INFO();                                              \
   }
 

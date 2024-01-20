@@ -11,7 +11,7 @@
 #include <thread>
 #include <windows.h>
 
-#define H ll::hash::do_hash
+#define H ll::hash_utils::do_hash
 
 //////////////////// APIs ////////////////////
 

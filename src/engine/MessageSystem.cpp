@@ -7,8 +7,8 @@
 #include "utils/IniHelper.h"
 #include "utils/Utils.h"
 #include <exception>
-#include <ll/api/ServerInfo.h>
 #include <ll/api/event/EventBus.h>
+#include <ll/api/service/ServerInfo.h>
 #include <mutex>
 #include <process.h>
 #include <processthreadsapi.h>

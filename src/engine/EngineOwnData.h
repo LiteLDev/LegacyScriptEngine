@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <dyncall/dyncall.h>
+#include "dyncall/dyncall.h"
 
 #include "ll/api/Logger.h"
 

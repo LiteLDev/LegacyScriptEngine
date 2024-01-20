@@ -30,7 +30,7 @@
 
 // #include "api/PermissionAPI.h"
 #include "api/InternationalAPI.h"
-// #include "api/ParticleAPI.h"
+#include "api/ParticleAPI.h"
 
 void BindAPIs(ScriptEngine *engine) {
 
@@ -58,7 +58,7 @@ void BindAPIs(ScriptEngine *engine) {
   engine->registerNativeClass(VersionClassBuilder);
   engine->registerNativeClass(NbtStaticBuilder);
   engine->registerNativeClass(TextClassBuilder);
-  // engine->registerNativeClass(ParticleColorBuilder);
+  engine->registerNativeClass(ParticleColorBuilder);
   engine->registerNativeClass(DirectionAngleBuilder);
   engine->registerNativeClass(ActorDamageCauseBuilder);
 
@@ -114,7 +114,7 @@ void BindAPIs(ScriptEngine *engine) {
   engine->registerNativeClass<HttpResponseClass>(HttpResponseClassBuilder);
   engine->registerNativeClass<BinaryStreamClass>(BinaryStreamClassBuilder);
   // engine->registerNativeClass<RoleClass>(RoleClassBuilder);
-  // engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
+  engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
 
   //////////////// NativeFFI ////////////////
   engine->registerNativeClass(NativeTypeEnumBuilder);

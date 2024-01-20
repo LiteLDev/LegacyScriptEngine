@@ -2,11 +2,11 @@
 #include "api/APIHelp.h"
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
-#include "ll/api/ServerInfo.h"
-#include "ll/api/base/ErrorInfo.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
+#include "ll/api/service/ServerInfo.h"
+#include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/SafeGuardRecord.h"
 #include "utils/Utils.h"
@@ -59,7 +59,7 @@ bool NewProcess(const std::string &process,
                callback{std::move(callback)}, timeLimit{timeLimit},
                wCmd{wCmd}]() {
 #ifndef LSE_DEBUG
-    _set_se_translator(ll::error_info::translateSEHtoCE);
+    _set_se_translator(ll::error_utils::translateSEHtoCE);
 #endif
     if (timeLimit == -1)
       WaitForSingleObject(hProcess, INFINITE);
@@ -85,17 +85,17 @@ bool NewProcess(const std::string &process,
     try {
       if (callback)
         callback((int)exitCode, strOutput);
-    } catch (const ll::error_info::seh_exception &e) {
+    } catch (const ll::error_utils::seh_exception &e) {
       logger.error("SEH Uncaught Exception Detected!\n{}",
                    ll::string_utils::tou8str(e.what()));
       logger.error("In NewProcess callback");
       //   PrintCurrentStackTraceback();
-      ll::error_info::printCurrentException(logger);
+      ll::error_utils::printCurrentException(logger);
     } catch (...) {
       logger.error("NewProcess Callback Failed!");
       logger.error("Uncaught Exception Detected!");
       //   PrintCurrentStackTraceback();
-      ll::error_info::printCurrentException(logger);
+      ll::error_utils::printCurrentException(logger);
     }
   }).detach();
 

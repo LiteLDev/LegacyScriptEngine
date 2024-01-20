@@ -21,6 +21,7 @@
 #include "ll/api/event/player/PlayerDieEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerLeaveEvent.h"
+#include "ll/api/event/player/PlayerRespawnEvent.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/dimension/Dimension.h"
 
@@ -426,15 +427,16 @@ void EnableEventListener(int eventId) {
         });
     break;
 
-    // case EVENT_TYPES::onRespawn:
-    //   Event::PlayerRespawnEvent::subscribe([](const PlayerRespawnEvent &ev) {
-    //     IF_LISTENED(EVENT_TYPES::onRespawn) {
-    //       CallEvent(EVENT_TYPES::onRespawn,
-    //                 PlayerClass::newPlayer((Player *)ev.mPlayer));
-    //     }
-    //     IF_LISTENED_END(EVENT_TYPES::onRespawn)
-    //   });
-    //   break;
+  case EVENT_TYPES::onRespawn:
+    bus.emplaceListener<ll::event::PlayerRespawnEvent>(
+        [](ll::event::PlayerRespawnEvent &ev) {
+          IF_LISTENED(EVENT_TYPES::onRespawn) {
+            CallEvent(EVENT_TYPES::onRespawn,
+                      PlayerClass::newPlayer(&ev.self()));
+          }
+          IF_LISTENED_END(EVENT_TYPES::onRespawn)
+        });
+    break;
 
     // case EVENT_TYPES::onStartDestroyBlock:
     //   Event::PlayerStartDestroyBlockEvent::subscribe(

@@ -14,12 +14,15 @@
 #include <list>
 #include <shared_mutex>
 
+#include "EntityAPI.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/player/PlayerConnectEvent.h"
+#include "ll/api/event/player/PlayerDieEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerLeaveEvent.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Listeners ////////////////////
 
@@ -314,6 +317,7 @@ bool LLSECallEventsOnHotUnload(ScriptEngine *engine) {
 
 //////////////////// Events ////////////////////
 
+// Todo
 void EnableEventListener(int eventId) {
   using namespace ll::event;
   EventBus &bus = EventBus::getInstance();
@@ -406,18 +410,21 @@ void EnableEventListener(int eventId) {
     //       });
     //   break;
 
-    // case EVENT_TYPES::onPlayerDie:
-    //   Event::PlayerDieEvent::subscribe([](const PlayerDieEvent &ev) {
-    //     IF_LISTENED(EVENT_TYPES::onPlayerDie) {
-    //       Actor *source = ev.mDamageSource->getEntity();
-    //       CallEvent(EVENT_TYPES::onPlayerDie,
-    //       PlayerClass::newPlayer(ev.mPlayer),
-    //                 (source ? EntityClass::newEntity(source) :
-    //                 Local<Value>()));
-    //     }
-    //     IF_LISTENED_END(EVENT_TYPES::onPlayerDie);
-    //   });
-    //   break;
+  case EVENT_TYPES::onPlayerDie:
+    bus.emplaceListener<ll::event::PlayerDieEvent>(
+        [](ll::event::PlayerDieEvent &ev) {
+          IF_LISTENED(EVENT_TYPES::onPlayerDie) {
+            Actor *source =
+                ll::service::getLevel()
+                    ->getDimension(ev.self().getDimensionId())
+                    ->fetchEntity(ev.source().getEntityUniqueID(), false);
+            CallEvent(
+                EVENT_TYPES::onPlayerDie, PlayerClass::newPlayer(&ev.self()),
+                (source ? EntityClass::newEntity(source) : Local<Value>()));
+          }
+          IF_LISTENED_END(EVENT_TYPES::onPlayerDie);
+        });
+    break;
 
     // case EVENT_TYPES::onRespawn:
     //   Event::PlayerRespawnEvent::subscribe([](const PlayerRespawnEvent &ev) {

@@ -4,11 +4,15 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
+#include "ll/api/schedule/Scheduler.h"
+#include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
 #include "main/Global.hpp"
 #include <exception>
 #include <list>
+#include <shared_mutex>
 
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
@@ -1449,36 +1453,35 @@ void InitBasicEventListeners() {
   //     return true;
   //   });
 
-  //   // 植入tick
-  //   Schedule::repeat(
-  //       []() {
-  // #ifndef LLSE_BACKEND_NODEJS
-  //         try {
-  //           std::list<ScriptEngine *> tmpList;
-  //           {
-  //             SRWLockSharedHolder lock(globalShareData->engineListLock);
-  //             // low efficiency
-  //             tmpList = globalShareData->globalEngineList;
-  //           }
-  //           for (auto engine : tmpList) {
-  //             if (EngineManager::isValid(engine) &&
-  //                 EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE)
-  //                 {
-  //               EngineScope enter(engine);
-  //               engine->messageQueue()->loopQueue(
-  //                   script::utils::MessageQueue::LoopType::kLoopOnce);
-  //             }
-  //           }
-  //         } catch (...) {
-  //           logger.error("Error occurred in Engine Message Loop!");
-  //           logger.error("Uncaught Exception Detected!");
-  //         }
-  // #endif
-  //         // Call tick event
-  //         IF_LISTENED(EVENT_TYPES::onTick) { CallEvent(EVENT_TYPES::onTick);
-  //         } IF_LISTENED_END(EVENT_TYPES::onTick);
-  //       },
-  //       1);
+  // 植入tick
+  ll::schedule::ServerTimeScheduler scheduler;
+  scheduler.add<ll::schedule::RepeatTask>(ll::chrono::ticks(1), []() {
+#ifndef LLSE_BACKEND_NODEJS
+    try {
+      std::list<ScriptEngine *> tmpList;
+      {
+        std::shared_lock<std::shared_mutex> lock(
+            globalShareData->engineListLock);
+        // low efficiency
+        tmpList = globalShareData->globalEngineList;
+      }
+      for (auto engine : tmpList) {
+        if (EngineManager::isValid(engine) &&
+            EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
+          EngineScope enter(engine);
+          engine->messageQueue()->loopQueue(
+              script::utils::MessageQueue::LoopType::kLoopOnce);
+        }
+      }
+    } catch (...) {
+      logger.error("Error occurred in Engine Message Loop!");
+      logger.error("Uncaught Exception Detected!");
+    }
+#endif
+    // Call tick event
+    IF_LISTENED(EVENT_TYPES::onTick) { CallEvent(EVENT_TYPES::onTick); }
+    IF_LISTENED_END(EVENT_TYPES::onTick);
+  });
 }
 
 /* onTurnLectern // 由于还是不能拦截掉书，暂时注释

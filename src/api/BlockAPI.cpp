@@ -16,7 +16,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "scriptx/Value.h"
+#include "ScriptX/ScriptX.h"
 #include <exception>
 
 //////////////////// Class Definition ////////////////////

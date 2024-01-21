@@ -32,6 +32,7 @@
 #include <mc/world/attribute/AttributeInstance.h>
 
 #include "MoreGlobal.h"
+#include "ScriptX/ScriptX.h"
 #include "ll/api/form/ModalForm.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "main/SafeGuardRecord.h"
@@ -71,7 +72,6 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
-#include "scriptx/Value.h"
 #include <algorithm>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -89,6 +89,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 
 //////////////////// Class Definition ////////////////////
 

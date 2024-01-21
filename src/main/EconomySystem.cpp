@@ -12,6 +12,7 @@ ll::Logger economicLogger("EconomicSystem");
 bool EconomySystem::init() {
   LLMoney_ListenBeforeEvent(MoneyBeforeEventCallback);
   LLMoney_ListenAfterEvent(MoneyEventCallback);
+  return true;
 }
 
 money_t EconomySystem::getMoney(xuid_t player) { return LLMoney_Get(player); }

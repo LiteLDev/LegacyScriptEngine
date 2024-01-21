@@ -7,7 +7,7 @@
 #include "ll/api/utils/StringUtils.h"
 #include "ll/api/utils/WinUtils.h"
 
-ll::Logger logger("FileHelper");
+extern ll::Logger logger;
 
 std::optional<std::string> ReadAllFile(const std::string &filePath,
                                        bool isBinary) {

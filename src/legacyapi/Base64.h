@@ -29,13 +29,9 @@ inline const char _base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                     "abcdefghijklmnopqrstuvwxyz"
                                     "0123456789+/";
 
-inline size_t getEncodeLength(size_t len) {
-    return (len + 2 - ((len + 2) % 3)) / 3 * 4;
-}
+inline size_t getEncodeLength(size_t len) { return (len + 2 - ((len + 2) % 3)) / 3 * 4; }
 
-inline size_t getEncodeLength(const std::string& str) {
-    return getEncodeLength(str.length());
-}
+inline size_t getEncodeLength(const std::string& str) { return getEncodeLength(str.length()); }
 
 inline size_t getDecodeLength(const std::string& in) {
     unsigned char count      = 0;
@@ -44,7 +40,7 @@ inline size_t getDecodeLength(const std::string& in) {
         ++count;
     }
     input_size -= count;     // remove padding size
-    count = 0;               // reset padding counter
+    count      = 0;          // reset padding counter
     while (input_size % 4) { // redo padding
         input_size++;
         count++;
@@ -53,16 +49,11 @@ inline size_t getDecodeLength(const std::string& in) {
 }
 
 inline unsigned char decodeLookup(unsigned char c) {
-    if (c >= 'A' && c <= 'Z')
-        return c - 'A';
-    if (c >= 'a' && c <= 'z')
-        return c - 71;
-    if (c >= '0' && c <= '9')
-        return c + 4;
-    if (c == '+')
-        return 62;
-    if (c == '/')
-        return 63;
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 71;
+    if (c >= '0' && c <= '9') return c + 4;
+    if (c == '+') return 62;
+    if (c == '/') return 63;
     return 64;
 }
 
@@ -78,7 +69,7 @@ inline std::string Encode(const std::string& text_input) {
         j += 8;
         while (j >= 0) {
             result += _base64_table[(i >> j) & 0x3F];
-            j -= 6;
+            j      -= 6;
         }
     }
 
@@ -107,12 +98,9 @@ inline std::string Decode(const std::string& base64_input) {
 
         uint32_t data = (c1 << 3 * 6) + (c2 << 2 * 6) + (c3 << 1 * 6) + (c4 << 0 * 6);
 
-        if (j < output_size)
-            out[j++] = (data >> 2 * 8) & 0xFF;
-        if (j < output_size)
-            out[j++] = (data >> 1 * 8) & 0xFF;
-        if (j < output_size)
-            out[j++] = (data >> 0 * 8) & 0xFF;
+        if (j < output_size) out[j++] = (data >> 2 * 8) & 0xFF;
+        if (j < output_size) out[j++] = (data >> 1 * 8) & 0xFF;
+        if (j < output_size) out[j++] = (data >> 0 * 8) & 0xFF;
     }
 
     return out;

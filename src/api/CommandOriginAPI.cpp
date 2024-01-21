@@ -20,8 +20,7 @@
 #include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Class Definition ////////////////////
-ClassDefine<void> OriginTypeStaticBuilder =
-    EnumDefineBuilder<CommandOriginType>::build("CommandOriginType");
+ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("CommandOriginType");
 
 ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
     defineClass<CommandOriginClass>("LLSE_CommandOrigin")
@@ -41,86 +40,80 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOriginClass::CommandOriginClass(CommandOrigin const *p)
-    : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
-      ptr(p){};
+CommandOriginClass::CommandOriginClass(CommandOrigin const* p)
+: ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
+  ptr(p){};
 
-Local<Object> CommandOriginClass::newCommandOrigin(CommandOrigin const *p) {
-  auto newp = new CommandOriginClass(p);
-  return newp->getScriptObject();
+Local<Object> CommandOriginClass::newCommandOrigin(CommandOrigin const* p) {
+    auto newp = new CommandOriginClass(p);
+    return newp->getScriptObject();
 }
 
 Local<Value> CommandOriginClass::getOriginType() {
-  try {
-    return Number::newNumber((int)get()->getOriginType());
-  }
-  CATCH("Fail in getOriginType!");
+    try {
+        return Number::newNumber((int)get()->getOriginType());
+    }
+    CATCH("Fail in getOriginType!");
 }
 
 Local<Value> CommandOriginClass::getOriginTypeName() {
-  try {
-    return String::newString(
-        magic_enum::enum_name((CommandOriginType)get()->getOriginType()));
-  }
-  CATCH("Fail in getOriginTypeName!");
+    try {
+        return String::newString(magic_enum::enum_name((CommandOriginType)get()->getOriginType()));
+    }
+    CATCH("Fail in getOriginTypeName!");
 }
 
 Local<Value> CommandOriginClass::getOriginName() {
-  try {
-    return String::newString(get()->getName());
-  }
-  CATCH("Fail in getOriginName!");
+    try {
+        return String::newString(get()->getName());
+    }
+    CATCH("Fail in getOriginName!");
 }
 
 Local<Value> CommandOriginClass::getBlockPosition() {
-  try {
-    auto dim = get()->getDimension();
-    return IntPos::newPos(get()->getBlockPosition(),
-                          dim ? (int)dim->getDimensionId() : 0);
-  }
-  CATCH("Fail in getBlockPosition!");
+    try {
+        auto dim = get()->getDimension();
+        return IntPos::newPos(get()->getBlockPosition(), dim ? (int)dim->getDimensionId() : 0);
+    }
+    CATCH("Fail in getBlockPosition!");
 }
 
 Local<Value> CommandOriginClass::getPosition() {
-  try {
-    auto dim = get()->getDimension();
-    return FloatPos::newPos(get()->getWorldPosition(),
-                            dim ? (int)dim->getDimensionId() : 0);
-  }
-  CATCH("Fail in getPosition!");
+    try {
+        auto dim = get()->getDimension();
+        return FloatPos::newPos(get()->getWorldPosition(), dim ? (int)dim->getDimensionId() : 0);
+    }
+    CATCH("Fail in getPosition!");
 }
 
 Local<Value> CommandOriginClass::getEntity() {
-  try {
-    auto entity = get()->getEntity();
-    if (!entity)
-      return Local<Value>();
-    return EntityClass::newEntity(entity);
-  }
-  CATCH("Fail in getEntity!");
+    try {
+        auto entity = get()->getEntity();
+        if (!entity) return Local<Value>();
+        return EntityClass::newEntity(entity);
+    }
+    CATCH("Fail in getEntity!");
 }
 
 Local<Value> CommandOriginClass::getPlayer() {
-  try {
-    auto player = get()->getEntity();
-    if (!player)
-      return Local<Value>();
-    return PlayerClass::newPlayer((Player *)player);
-  }
-  CATCH("Fail in getPlayer!");
+    try {
+        auto player = get()->getEntity();
+        if (!player) return Local<Value>();
+        return PlayerClass::newPlayer((Player*)player);
+    }
+    CATCH("Fail in getPlayer!");
 }
 
-Local<Value> CommandOriginClass::getNbt(const Arguments &args) {
-  try {
-    return NbtCompoundClass::pack(
-        std::make_unique<CompoundTag>(get()->serialize()));
-  }
-  CATCH("Fail in getNbt!");
+Local<Value> CommandOriginClass::getNbt(const Arguments& args) {
+    try {
+        return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get()->serialize()));
+    }
+    CATCH("Fail in getNbt!");
 }
 
 Local<Value> CommandOriginClass::toString() {
-  try {
-    return String::newString("<CommandOrigin>");
-  }
-  CATCH("Fail in toString!");
+    try {
+        return String::newString("<CommandOrigin>");
+    }
+    CATCH("Fail in toString!");
 }

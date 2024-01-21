@@ -16,7 +16,7 @@ public:
     static Local<Value> isBeta();
     static Local<Value> isDev();
     static Local<Value> isWine();
-    static Local<Value> isDebugMode(); 
+    static Local<Value> isDebugMode();
 
     static Local<Value> registerPlugin(const Arguments& args);
     static Local<Value> versionString(const Arguments& args);

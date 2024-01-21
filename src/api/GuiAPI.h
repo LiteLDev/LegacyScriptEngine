@@ -9,44 +9,42 @@
 
 class SimpleFormClass : public ScriptClass {
 private:
-  ll::form::SimpleForm form;
+    ll::form::SimpleForm form;
 
 public:
-  SimpleFormClass();
+    SimpleFormClass();
 
-  ll::form::SimpleForm *get() { return &form; }
+    ll::form::SimpleForm* get() { return &form; }
 
-  static Local<Object> newForm();
-  static ll::form::SimpleForm *extract(Local<Value> v);
-  static void sendForm(ll::form::SimpleForm *form, Player *player,
-                       script::Local<Function> &callback);
+    static Local<Object>         newForm();
+    static ll::form::SimpleForm* extract(Local<Value> v);
+    static void sendForm(ll::form::SimpleForm* form, Player* player, script::Local<Function>& callback);
 
-  Local<Value> setTitle(const Arguments &args);
-  Local<Value> setContent(const Arguments &args);
-  Local<Value> addButton(const Arguments &args);
+    Local<Value> setTitle(const Arguments& args);
+    Local<Value> setContent(const Arguments& args);
+    Local<Value> addButton(const Arguments& args);
 };
 extern ClassDefine<SimpleFormClass> SimpleFormClassBuilder;
 
 class CustomFormClass : public ScriptClass {
 private:
-  ll::form::CustomForm form;
+    ll::form::CustomForm form;
 
 public:
-  CustomFormClass();
+    CustomFormClass();
 
-  ll::form::CustomForm *get() { return &form; }
+    ll::form::CustomForm* get() { return &form; }
 
-  static Local<Object> newForm();
-  static ll::form::CustomForm *extract(Local<Value> v);
-  static void sendForm(ll::form::CustomForm *form, Player *player,
-                       script::Local<Function> &callback);
+    static Local<Object>         newForm();
+    static ll::form::CustomForm* extract(Local<Value> v);
+    static void sendForm(ll::form::CustomForm* form, Player* player, script::Local<Function>& callback);
 
-  Local<Value> setTitle(const Arguments &args);
-  Local<Value> addLabel(const Arguments &args);
-  Local<Value> addInput(const Arguments &args);
-  Local<Value> addSwitch(const Arguments &args);
-  Local<Value> addDropdown(const Arguments &args);
-  Local<Value> addSlider(const Arguments &args);
-  Local<Value> addStepSlider(const Arguments &args);
+    Local<Value> setTitle(const Arguments& args);
+    Local<Value> addLabel(const Arguments& args);
+    Local<Value> addInput(const Arguments& args);
+    Local<Value> addSwitch(const Arguments& args);
+    Local<Value> addDropdown(const Arguments& args);
+    Local<Value> addSlider(const Arguments& args);
+    Local<Value> addStepSlider(const Arguments& args);
 };
 extern ClassDefine<CustomFormClass> CustomFormClassBuilder;

@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include "api/APIHelp.h"
+#include <string>
 
 
 //////////////////// Classes ////////////////////
@@ -12,19 +12,17 @@ private:
 
     // Pre data
     std::string name, type;
-    int id, count, aux;
+    int         id, count, aux;
 
 public:
     explicit ItemClass(ItemStack* p);
     void preloadData();
 
-    ItemStack* get() {
-        return item;
-    }
+    ItemStack* get() { return item; }
 
     static Local<Object> newItem(ItemStack* p);
-    static ItemStack* extract(Local<Value> v);
-    Local<Value> asPointer(const Arguments& args);
+    static ItemStack*    extract(Local<Value> v);
+    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getType();

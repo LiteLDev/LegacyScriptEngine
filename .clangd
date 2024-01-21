@@ -8,3 +8,8 @@ CompileFlags:
   Add: 
     - "-ferror-limit=0"
     - "-D__FUNCTION__=\"dummy\""
+    - "-Yumc/_HeaderOutputPredefine.h"
+    - "-FImc/_HeaderOutputPredefine.h" # clangd bug can't find pch file
+  Remove: 
+    - "/Yu_HeaderOutputPredefine.h"
+    - "/FI_HeaderOutputPredefine.h"

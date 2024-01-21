@@ -8,18 +8,16 @@ class BlockActor;
 class BlockEntityClass : public ScriptClass {
 private:
     BlockActor* blockEntity;
-    int dim;
+    int         dim;
 
 public:
     explicit BlockEntityClass(BlockActor* be, int dim);
 
-    BlockActor* get() {
-        return blockEntity;
-    }
+    BlockActor* get() { return blockEntity; }
 
     static Local<Object> newBlockEntity(BlockActor* be, int dim);
-    static BlockActor* extract(Local<Value> v);
-    Local<Value> asPointer(const Arguments& args);
+    static BlockActor*   extract(Local<Value> v);
+    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getPos();

@@ -50,18 +50,18 @@ extern ClassDefine<void> MoneyClassBuilder;
 
 class ConfBaseClass {
 protected:
-    std::string confPath;
-    virtual bool flush() = 0;
-    virtual bool close() = 0;
+    std::string  confPath;
+    virtual bool flush()  = 0;
+    virtual bool close()  = 0;
     virtual bool reload() = 0;
 
 public:
     explicit ConfBaseClass(const string& dir);
 
     virtual Local<Value> reload(const Arguments& args) = 0;
-    virtual Local<Value> close(const Arguments& args) = 0;
-    Local<Value> getPath(const Arguments& args);
-    Local<Value> read(const Arguments& args);
+    virtual Local<Value> close(const Arguments& args)  = 0;
+    Local<Value>         getPath(const Arguments& args);
+    Local<Value>         read(const Arguments& args);
     virtual Local<Value> write(const Arguments& args) = 0;
 };
 
@@ -69,9 +69,9 @@ public:
 class ConfJsonClass : public ScriptClass, public ConfBaseClass {
 private:
     ordered_json jsonConf;
-    bool flush() override;
-    bool close() override;
-    bool reload() override;
+    bool         flush() override;
+    bool         close() override;
+    bool         reload() override;
 
 public:
     explicit ConfJsonClass(const Local<Object>& scriptObj, const string& path, const string& defContent);
@@ -79,10 +79,10 @@ public:
     ~ConfJsonClass();
     static ConfJsonClass* constructor(const Arguments& args);
 
-    Local<Value> init(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> del(const Arguments& args);
+    Local<Value>         init(const Arguments& args);
+    Local<Value>         get(const Arguments& args);
+    Local<Value>         set(const Arguments& args);
+    Local<Value>         del(const Arguments& args);
     virtual Local<Value> reload(const Arguments& args) override;
     virtual Local<Value> close(const Arguments& args) override;
     virtual Local<Value> write(const Arguments& args) override;
@@ -96,9 +96,9 @@ extern ClassDefine<ConfJsonClass> ConfJsonClassBuilder;
 class ConfIniClass : public ScriptClass, public ConfBaseClass {
 private:
     SimpleIni* iniConf;
-    bool flush() override;
-    bool close() override;
-    bool reload() override;
+    bool       flush() override;
+    bool       close() override;
+    bool       reload() override;
 
 public:
     explicit ConfIniClass(const Local<Object>& scriptObj, const string& path, const string& defContent);
@@ -106,17 +106,15 @@ public:
     ~ConfIniClass();
     static ConfIniClass* constructor(const Arguments& args);
 
-    bool isValid() {
-        return iniConf != nullptr;
-    }
+    bool isValid() { return iniConf != nullptr; }
 
-    Local<Value> init(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> getStr(const Arguments& args);
-    Local<Value> getInt(const Arguments& args);
-    Local<Value> getFloat(const Arguments& args);
-    Local<Value> getBool(const Arguments& args);
-    Local<Value> del(const Arguments& args);
+    Local<Value>         init(const Arguments& args);
+    Local<Value>         set(const Arguments& args);
+    Local<Value>         getStr(const Arguments& args);
+    Local<Value>         getInt(const Arguments& args);
+    Local<Value>         getFloat(const Arguments& args);
+    Local<Value>         getBool(const Arguments& args);
+    Local<Value>         del(const Arguments& args);
     virtual Local<Value> reload(const Arguments& args) override;
     virtual Local<Value> close(const Arguments& args) override;
     virtual Local<Value> write(const Arguments& args) override;

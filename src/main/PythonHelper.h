@@ -1,9 +1,9 @@
 #pragma once
 #if defined(LLSE_BACKEND_PYTHON)
 #include "Configs.h"
+#include <ScriptX/ScriptX.h>
 #include <filesystem>
 #include <map>
-#include <ScriptX/ScriptX.h>
 #include <string>
 
 namespace PythonHelper {
@@ -11,19 +11,17 @@ namespace PythonHelper {
 bool initPythonRuntime();
 
 // raw, will throw exception if fail
-bool loadPluginCode(script::ScriptEngine *engine, std::string entryScriptPath,
-                    std::string pluginDirPath);
-bool loadPythonPlugin(std::string dirPath, const std::string &packagePath,
-                      bool isHotLoad = false);
+bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath);
+bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad = false);
 
-std::string findEntryScript(const std::string &dirPath);
-std::string getPluginPackageName(const std::string &dirPath);
-std::string getPluginPackDependencyFilePath(const std::string &dirPath);
+std::string findEntryScript(const std::string& dirPath);
+std::string getPluginPackageName(const std::string& dirPath);
+std::string getPluginPackDependencyFilePath(const std::string& dirPath);
 
-bool processPythonDebugEngine(const std::string &cmd);
+bool processPythonDebugEngine(const std::string& cmd);
 
-bool processConsolePipCmd(const std::string &cmd);
-int executePipCommand(std::string cmd);
+bool processConsolePipCmd(const std::string& cmd);
+int  executePipCommand(std::string cmd);
 
 // This fix is used for Python3.10's bug:
 // The thread will freeze when creating a new engine while another thread is

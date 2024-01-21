@@ -4,8 +4,8 @@
 #include <vector>
 
 
-// Baselibs dependency 
+// Baselibs dependency
 extern std::unordered_map<std::string, std::string> depends;
 
 // Pre-declared
-extern void BindAPIs(ScriptEngine *engine);
+extern void BindAPIs(ScriptEngine* engine);

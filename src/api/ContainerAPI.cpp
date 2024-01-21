@@ -17,8 +17,7 @@ ClassDefine<ContainerClass> ContainerClassBuilder =
         .instanceProperty("type", &ContainerClass::getType)
 
         .instanceFunction("addItem", &ContainerClass::addItem)
-        .instanceFunction("addItemToFirstEmptySlot",
-                          &ContainerClass::addItemToFirstEmptySlot)
+        .instanceFunction("addItemToFirstEmptySlot", &ContainerClass::addItemToFirstEmptySlot)
         .instanceFunction("hasRoomFor", &ContainerClass::hasRoomFor)
         .instanceFunction("removeItem", &ContainerClass::removeItem)
         .instanceFunction("getItem", &ContainerClass::getItem)
@@ -34,170 +33,166 @@ ClassDefine<ContainerClass> ContainerClassBuilder =
 
 //////////////////// Classes ////////////////////
 
-ContainerClass::ContainerClass(Container *p)
-    : ScriptClass(ScriptClass::ConstructFromCpp<ContainerClass>{}),
-      container(p) {}
+ContainerClass::ContainerClass(Container* p)
+: ScriptClass(ScriptClass::ConstructFromCpp<ContainerClass>{}),
+  container(p) {}
 
 // 生成函数
-Local<Object> ContainerClass::newContainer(Container *p) {
-  auto newp = new ContainerClass(p);
-  return newp->getScriptObject();
+Local<Object> ContainerClass::newContainer(Container* p) {
+    auto newp = new ContainerClass(p);
+    return newp->getScriptObject();
 }
-Container *ContainerClass::extract(Local<Value> v) {
-  if (EngineScope::currentEngine()->isInstanceOf<ContainerClass>(v))
-    return EngineScope::currentEngine()
-        ->getNativeInstance<ContainerClass>(v)
-        ->get();
-  else
-    return nullptr;
+Container* ContainerClass::extract(Local<Value> v) {
+    if (EngineScope::currentEngine()->isInstanceOf<ContainerClass>(v))
+        return EngineScope::currentEngine()->getNativeInstance<ContainerClass>(v)->get();
+    else return nullptr;
 }
 
 // 成员函数
 Local<Value> ContainerClass::getSize() {
-  try {
-    return Number::newNumber(container->getContainerSize());
-  }
-  CATCH("Fail in getSize!")
+    try {
+        return Number::newNumber(container->getContainerSize());
+    }
+    CATCH("Fail in getSize!")
 }
 
 Local<Value> ContainerClass::getType() {
-  try {
-    return String::newString(container->getTypeName());
-  }
-  CATCH("Fail in getType!")
-}
-
-Local<Value> ContainerClass::asPointer(const Arguments &args) {
-  try {
-    return NativePointer::newNativePointer(container);
-  }
-  CATCH("Fail in asPointer!")
-}
-
-Local<Value> ContainerClass::addItem(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 1);
-
-  try {
-    ItemStack *item = ItemClass::extract(args[0]);
-    if (!item) {
-      LOG_WRONG_ARG_TYPE();
-      return Local<Value>();
+    try {
+        return String::newString(container->getTypeName());
     }
-    if (args.size() >= 2) {
-      CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-      for (unsigned short i = 0; i < args[1].toInt(); ++i) {
-        if (container->addItem(*item)) {
-          return Boolean::newBoolean(false);
+    CATCH("Fail in getType!")
+}
+
+Local<Value> ContainerClass::asPointer(const Arguments& args) {
+    try {
+        return NativePointer::newNativePointer(container);
+    }
+    CATCH("Fail in asPointer!")
+}
+
+Local<Value> ContainerClass::addItem(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+
+    try {
+        ItemStack* item = ItemClass::extract(args[0]);
+        if (!item) {
+            LOG_WRONG_ARG_TYPE();
+            return Local<Value>();
         }
-      }
-      return Boolean::newBoolean(true);
+        if (args.size() >= 2) {
+            CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+            for (unsigned short i = 0; i < args[1].toInt(); ++i) {
+                if (container->addItem(*item)) {
+                    return Boolean::newBoolean(false);
+                }
+            }
+            return Boolean::newBoolean(true);
+        }
+        return Boolean::newBoolean(container->addItem(*item));
     }
-    return Boolean::newBoolean(container->addItem(*item));
-  }
-  CATCH("Fail in addItem!");
+    CATCH("Fail in addItem!");
 }
 
-Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 1);
+Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
 
-  try {
-    ItemStack *item = ItemClass::extract(args[0]);
-    if (!item) {
-      LOG_WRONG_ARG_TYPE();
-      return Local<Value>();
+    try {
+        ItemStack* item = ItemClass::extract(args[0]);
+        if (!item) {
+            LOG_WRONG_ARG_TYPE();
+            return Local<Value>();
+        }
+        return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
     }
-    return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
-  }
-  CATCH("Fail in addItemToFirstEmptySlot!");
+    CATCH("Fail in addItemToFirstEmptySlot!");
 }
 
-Local<Value> ContainerClass::hasRoomFor(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 1);
+Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
 
-  try {
-    ItemStack *item = ItemClass::extract(args[0]);
-    if (!item) {
-      LOG_WRONG_ARG_TYPE();
-      return Local<Value>();
+    try {
+        ItemStack* item = ItemClass::extract(args[0]);
+        if (!item) {
+            LOG_WRONG_ARG_TYPE();
+            return Local<Value>();
+        }
+        return Boolean::newBoolean(container->hasRoomForItem(*item));
     }
-    return Boolean::newBoolean(container->hasRoomForItem(*item));
-  }
-  CATCH("Fail in hasRoomFor!");
+    CATCH("Fail in hasRoomFor!");
 }
 
-Local<Value> ContainerClass::removeItem(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 2);
-  CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
-  CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+Local<Value> ContainerClass::removeItem(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+    CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-  try {
-    container->removeItem(args[0].toInt(), args[1].toInt());
-    return Boolean::newBoolean(true);
-  }
-  CATCH("Fail in removeItem!");
-}
-
-Local<Value> ContainerClass::getItem(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 1);
-  CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
-
-  try {
-    ItemStack *item = (ItemStack *)&container->getItem(args[0].toInt());
-    if (!item) {
-      LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
-      return Local<Value>();
+    try {
+        container->removeItem(args[0].toInt(), args[1].toInt());
+        return Boolean::newBoolean(true);
     }
-    return ItemClass::newItem(item);
-  }
-  CATCH("Fail in getItem!");
+    CATCH("Fail in removeItem!");
 }
 
-Local<Value> ContainerClass::setItem(const Arguments &args) {
-  CHECK_ARGS_COUNT(args, 2);
-  CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+Local<Value> ContainerClass::getItem(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
-  try {
-    ItemStack *item = ItemClass::extract(args[1]);
-    if (!item) {
-      LOG_WRONG_ARG_TYPE();
-      return Local<Value>();
+    try {
+        ItemStack* item = (ItemStack*)&container->getItem(args[0].toInt());
+        if (!item) {
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
+            return Local<Value>();
+        }
+        return ItemClass::newItem(item);
     }
-
-    ItemStack *itemOld = (ItemStack *)&container->getItem(args[0].toInt());
-    if (!itemOld)
-      return Boolean::newBoolean(false);
-
-    auto tag = itemOld->save();
-    item->fromTag(*tag);
-    return Boolean::newBoolean(true);
-  }
-  CATCH("Fail in getItem!");
+    CATCH("Fail in getItem!");
 }
 
-Local<Value> ContainerClass::getAllItems(const Arguments &args) {
-  try {
-    auto list = container->getSlots();
+Local<Value> ContainerClass::setItem(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
-    Local<Array> res = Array::newArray();
-    for (auto &item : list) {
-      res.add(ItemClass::newItem((ItemStack *)item));
+    try {
+        ItemStack* item = ItemClass::extract(args[1]);
+        if (!item) {
+            LOG_WRONG_ARG_TYPE();
+            return Local<Value>();
+        }
+
+        ItemStack* itemOld = (ItemStack*)&container->getItem(args[0].toInt());
+        if (!itemOld) return Boolean::newBoolean(false);
+
+        auto tag = itemOld->save();
+        item->fromTag(*tag);
+        return Boolean::newBoolean(true);
     }
-    return res;
-  }
-  CATCH("Fail in getAllItems!");
+    CATCH("Fail in getItem!");
 }
 
-Local<Value> ContainerClass::removeAllItems(const Arguments &args) {
-  try {
-    container->removeAllItems();
-    return Boolean::newBoolean(true);
-  }
-  CATCH("Fail in removeAllItems!");
+Local<Value> ContainerClass::getAllItems(const Arguments& args) {
+    try {
+        auto list = container->getSlots();
+
+        Local<Array> res = Array::newArray();
+        for (auto& item : list) {
+            res.add(ItemClass::newItem((ItemStack*)item));
+        }
+        return res;
+    }
+    CATCH("Fail in getAllItems!");
 }
 
-Local<Value> ContainerClass::isEmpty(const Arguments &args) {
-  try {
-    return Boolean::newBoolean(container->isEmpty());
-  }
-  CATCH("Fail in isEmpty!");
+Local<Value> ContainerClass::removeAllItems(const Arguments& args) {
+    try {
+        container->removeAllItems();
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in removeAllItems!");
+}
+
+Local<Value> ContainerClass::isEmpty(const Arguments& args) {
+    try {
+        return Boolean::newBoolean(container->isEmpty());
+    }
+    CATCH("Fail in isEmpty!");
 }

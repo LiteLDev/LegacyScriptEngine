@@ -1,4 +1,4 @@
-#include "main/Global.hpp"
+#include "main/Global.h"
 
 // 声明
 class Scoreboard;

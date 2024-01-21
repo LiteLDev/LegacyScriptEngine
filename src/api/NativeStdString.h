@@ -8,17 +8,13 @@ private:
 public:
     explicit NativeStdString(const Local<Object>& scriptObj, std::string* ptr);
     explicit NativeStdString(std::string* ptr);
-    static std::string* extract(Local<Value> v);
-    static Local<Object> newNativeStdString(std::string* ptr);
+    static std::string*     extract(Local<Value> v);
+    static Local<Object>    newNativeStdString(std::string* ptr);
     static NativeStdString* constructor(const Arguments& args);
 
-    void* get() {
-        return mStr;
-    }
+    void* get() { return mStr; }
 
-    void set(std::string* ptr) {
-        mStr = ptr;
-    };
+    void set(std::string* ptr) { mStr = ptr; };
 
     Local<Value> getNpos();
 

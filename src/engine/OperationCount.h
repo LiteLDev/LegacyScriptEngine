@@ -9,18 +9,14 @@ private:
 public:
     OperationCount(const string& name);
     static OperationCount create(const string& name);
-    static bool exists(const string& name);
-    bool remove();
-    operator bool() {
-        return exists(name);
-    }
+    static bool           exists(const string& name);
+    bool                  remove();
+                          operator bool() { return exists(name); }
 
-    bool done();
-    inline bool finish() {
-        return done();
-    }
+    bool        done();
+    inline bool finish() { return done(); }
 
-    int get();
+    int  get();
     bool hasReachCount(int count);
     bool hasReachMaxEngineCount();
     bool hasReachMaxBackendCount();

@@ -30,15 +30,14 @@ extern bool          isInConsoleDebugMode;
 extern ScriptEngine* debugEngine;
 
 struct PyConfig;
-typedef PyObject* (*create_stdio_func_type)(
-    const PyConfig* config,
-    PyObject*       io,
-    int             fd,
-    int             write_mode,
-    const char*     name,
-    const wchar_t*  encoding,
-    const wchar_t*  errors
-);
+typedef PyObject* (*create_stdio_func_type
+)(const PyConfig* config,
+  PyObject*       io,
+  int             fd,
+  int             write_mode,
+  const char*     name,
+  const wchar_t*  encoding,
+  const wchar_t*  errors);
 
 namespace PythonHelper {
 
@@ -306,7 +305,7 @@ std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
             if (projectNode["dependencies"]) {
                 toml::array* arr = projectNode["dependencies"].as_array();
                 arr->for_each([&dependsAdded](toml::value<std::string>& elem) {
-                    std::optional<std::string> depend  = *elem;
+                    std::optional<std::string> depend = *elem;
                     dependsAdded                      += "\n" + *depend;
                 });
             }

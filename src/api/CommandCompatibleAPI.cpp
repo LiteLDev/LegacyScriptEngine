@@ -42,8 +42,10 @@ void LLSERegisterNewCmd(bool isPlayerCmd, string cmd, const string& describe, in
         localShareData->playerCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
         globalShareData->playerRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
     } else {
-        localShareData
-            ->consoleCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
+        localShareData->consoleCmdCallbacks[cmd] = {
+            EngineScope::currentEngine(),
+            level,
+            script::Global<Function>(func)};
         globalShareData->consoleRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
     }
 

@@ -16,6 +16,10 @@ add_requires(
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
 add_requires("scriptx 0.1.0", {configs={backend=get_config("backend")}})
 
+if not has_config("vs_runtime") then
+    set_runtimes("MD")
+end
+
 local LLSE_BACKEND = "LUA"
 local LLSE_BACKEND_LIBRARY = "Lua"
 local SCRIPTX_BACKEND = "Lua"

@@ -5,32 +5,46 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        backend:
+          - lua
+          - nodejs
+          - python310
+          - quickjs
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/AppData/Local/.xmake
-            .xmake
-          key: xmake-legacyscriptengine-windows-x64-${{ github.sha }}
-          restore-keys: |
-            xmake-legacyscriptengine-windows-x64-
-
       - uses: xmake-io/github-action-setup-xmake@v1
-
+      
       - run: |
           xmake repo -u
 
       - run: |
-          xmake f -a x64 -m release -p windows -v -y
+          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
 
       - run: |
           xmake -w -y
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}-windows-x64-${{ github.sha }}
+          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |
-            bin/
+            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.dll
+            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.pdb
+
+  check-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: |
+          npm install clang-format@1.8.0
+
+      - run: |
+          npx clang-format --dry-run --Werror $(find . -type f -name '*.cpp' -o -name '*.h')

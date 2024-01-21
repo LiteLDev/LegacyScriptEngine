@@ -46,8 +46,8 @@ body:
 
   - type: input
     attributes:
-      label: Version
-      description: The version of the plugin you are using. (e.g. 1.0.0)
+      label: LegacyScriptEngine Version
+      description: The version of LegacyScriptEngine you are using. (e.g. 1.0.0)
 
   - type: textarea
     attributes:

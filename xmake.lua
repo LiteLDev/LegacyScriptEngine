@@ -21,8 +21,6 @@ if not has_config("vs_runtime") then
 end
 
 local LLSE_BACKEND = "LUA"
-local LLSE_BACKEND_LIBRARY = "Lua"
-local SCRIPTX_BACKEND = "Lua"
 
 option("backend")
     set_default("lua")
@@ -83,7 +81,6 @@ target("legacy-script-engine")
     )
     add_defines(
         "_HAS_CXX23=1", -- To enable C++23 features
-
         "_WIN32_WINNT=0x0601",
         "_AMD64_",
         "_CONSOLE",
@@ -105,7 +102,6 @@ target("legacy-script-engine")
     add_packages(
         "levilamina",
         "scriptx",
-
         "nlohmann_json",
         "simpleini",
         "toml++",
@@ -123,6 +119,7 @@ target("legacy-script-engine")
         "legacyparticleapi"
     )
     add_shflags(
+        "/NODEFAULTLIB:library",
         "/DELAYLOAD:bedrock_server.dll"
     )
     set_basename("legacy-script-engine-$(backend)")

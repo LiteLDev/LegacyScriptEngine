@@ -1,7 +1,7 @@
 #include "main/Configs.h"
 #include <filesystem>
 #include <fstream>
-#include <scriptx/include/scriptx/ScriptX.h>
+#include <ScriptX/ScriptX.h>
 
 std::ofstream record;
 

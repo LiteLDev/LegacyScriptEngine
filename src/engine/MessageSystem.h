@@ -2,7 +2,7 @@
 #include "api/APIHelp.h"
 #include "engine/OperationCount.h"
 #include <map>
-#include <scriptx/include/scriptx/ScriptX.h>
+#include <ScriptX/ScriptX.h>
 #include <string>
 #include <vector>
 #include <windows.h>

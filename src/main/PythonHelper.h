@@ -3,7 +3,7 @@
 #include "Configs.h"
 #include <filesystem>
 #include <map>
-#include <scriptx/include/scriptx/ScriptX.h>
+#include <ScriptX/ScriptX.h>
 #include <string>
 
 namespace PythonHelper {

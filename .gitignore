@@ -50,7 +50,13 @@ _deps
 ## Others
 .idea
 .vscode
-
-build
 docs
 lib
+
+# Xmake cache
+.xmake/
+build/
+.cache/
+
+# MacOS Cache
+.DS_Store

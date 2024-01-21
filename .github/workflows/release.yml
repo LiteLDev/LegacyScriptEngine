@@ -1,0 +1,73 @@
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        backend:
+          - lua
+          - nodejs
+          - python310
+          - quickjs
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+      
+      - run: |
+          xmake repo -u
+
+      - run: |
+          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
+
+      - run: |
+          xmake -w -y
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          path: |
+            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.dll
+
+  upload-to-release:
+    needs:
+      - build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend:
+          - lua
+          - nodejs
+          - python310
+          - quickjs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          path: release/legacy-script-engine-${{ matrix.backend }}/
+
+      - run: |
+          cp -r assets/${{ matrix.backend }}/* release/legacy-script-engine-${{ matrix.backend }}/
+
+      - run: |
+          cp LICENSE README.md release/
+
+      - name: Archive release
+        run: |
+          cd release
+          zip -r ../legacy-script-engine-${{ matrix.backend }}-windows-x64.zip *
+          cd ..
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          files: |
+            legacy-script-engine-${{ matrix.backend }}-windows-x64.zip

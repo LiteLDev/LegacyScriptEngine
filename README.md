@@ -1,3 +1,3 @@
 # LegacyScriptEngine
 
-A powerful engine enabling creating Minecraft Bedrock Server plugins with Python, JavaScript and Lua
+A plugin engine for running LLSE plugins on LeviLamina

@@ -31,7 +31,7 @@ jobs:
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |
-            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.dll
+            bin/
 
   upload-to-release:
     needs:

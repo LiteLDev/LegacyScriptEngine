@@ -65,16 +65,9 @@ target("legacy-script-engine")
     )
     add_defines(
         "_HAS_CXX23=1", -- To enable C++23 features.
-        "_WIN32_WINNT=0x0601",
-        "_AMD64_",
-        "_CONSOLE",
-        "_WINDLL",
-        "_UNICODE",
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
-        "NDEBUG",
-        "NOMINMAX",
-        "UNICODE",
-        "ENTT_PACKED_PAGE=128"
+        "NOMINMAX", -- To avoid conflicts with std::min and std::max.
+        "UNICODE" -- To enable Unicode support.
     )
     add_files(
         "src/**.cpp"
@@ -122,3 +115,14 @@ target("legacy-script-engine")
             "LLSE_BACKEND_QUICKJS"
         )
     end
+
+    after_build(function (target)
+        local plugin_packer = import("scripts.after_build")
+
+        local plugin_define = {
+            pluginName = target:basename(),
+            pluginFile = path.filename(target:targetfile()),
+        }
+        
+        plugin_packer.pack_plugin(target,plugin_define)
+    end)

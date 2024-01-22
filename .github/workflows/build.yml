@@ -31,8 +31,7 @@ jobs:
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |
-            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.dll
-            build/windows/x64/release/legacy-script-engine-${{ matrix.backend }}.pdb
+            bin/
 
   check-style:
     runs-on: ubuntu-latest

@@ -13,12 +13,10 @@
 #include "api/NbtAPI.h"
 #include "api/NetworkAPI.h"
 #include "api/PlayerAPI.h"
-#include "engine/EngineOwnData.h"
 #include "main/Global.h"
 
 #include <cmath>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 

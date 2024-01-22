@@ -184,7 +184,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
             LLSERemoveAllEventListeners(engine);
             LLSERemoveCmdRegister(engine);
             LLSERemoveCmdCallback(engine);
-            LLSERemoveAllExportedFuncs(engine);
+            // LLSERemoveAllExportedFuncs(engine);
 
             engine->getData().reset();
             EngineManager::unRegisterEngine(engine);
@@ -246,7 +246,7 @@ bool PluginManager::unloadPlugin(const std::string& name) {
     LLSERemoveAllEventListeners(engine);
     LLSERemoveCmdRegister(engine);
     LLSERemoveCmdCallback(engine);
-    LLSERemoveAllExportedFuncs(engine);
+    // LLSERemoveAllExportedFuncs(engine); // TODO
 
     EngineManager::unRegisterEngine(engine);
     engine->getData().reset();

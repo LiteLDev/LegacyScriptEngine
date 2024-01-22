@@ -2055,25 +2055,26 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
             (ObjectiveSortOrder)sortOrder
         );
         player->sendNetworkPacket(disObjPkt);
-        std::vector<ScorePacketInfo> info;
-        static std::set<uint64_t>    scoreIds; // Store scoreboard ids
-        uint64_t                     Id = 0;
+        // std::vector<ScorePacketInfo> info; // TODO
+        static std::set<uint64_t> scoreIds; // Store scoreboard ids
+        uint64_t                  Id = 0;
         do {
             Id = (uint64_t)((rand() << 16) + rand() + 1145140);
         } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
         const ScoreboardId& boardId = ScoreboardId(Id);
         for (auto& i : data) {
-            ScorePacketInfo pktInfo = ScorePacketInfo();
-            pktInfo.mScoreboardId   = boardId;
-            pktInfo.mObjectiveName  = "FakeScoreObj";
-            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
-            pktInfo.mScoreValue     = i.second;
-            pktInfo.mFakePlayerName = i.first;
-            info.emplace_back(pktInfo);
+            // TODO
+            // ScorePacketInfo pktInfo = ScorePacketInfo();
+            // pktInfo.mScoreboardId   = boardId;
+            // pktInfo.mObjectiveName  = "FakeScoreObj";
+            // pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
+            // pktInfo.mScoreValue     = i.second;
+            // pktInfo.mFakePlayerName = i.first;
+            // info.emplace_back(pktInfo);
         }
-        SetScorePacket setPkt = SetScorePacket();
-        setPkt.mType          = ScorePacketType::Change;
-        setPkt.mScoreInfo     = info;
+        // SetScorePacket setPkt = SetScorePacket();
+        // setPkt.mType = ScorePacketType::Change;
+        // setPkt.mScoreInfo     = info; // TODO
 
         player->sendNetworkPacket(disObjPkt);
         return Boolean::newBoolean(true);
@@ -2110,8 +2111,8 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             int     percent = args[2].toInt();
             if (percent < 0) percent = 0;
             else if (percent > 100) percent = 100;
-            float           value     = (float)percent / 100;
-            AddEntityPacket entityPkt = AddEntityPacket();
+            float value = (float)percent / 100;
+            // AddEntityPacket entityPkt = AddEntityPacket(); // TODO
             // Todo
             // AddEntityPacket(uid, "player", Vec3(getPos().x, (float)-70,
             // getPos().z),
@@ -2123,7 +2124,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             pkt.mName             = args[1].asString().toString();
             pkt.mHealthPercent    = value;
             pkt.mColor            = color;
-            player->sendNetworkPacket(entityPkt);
+            // player->sendNetworkPacket(entityPkt);
             player->sendNetworkPacket(pkt);
             return Boolean::newBoolean(true);
         }

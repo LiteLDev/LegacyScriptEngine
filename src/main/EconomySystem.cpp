@@ -11,8 +11,9 @@ ll::Logger economicLogger("EconomicSystem");
 ////////////// Helper //////////////
 
 bool EconomySystem::init() {
-    LLMoney_ListenBeforeEvent(MoneyBeforeEventCallback);
-    LLMoney_ListenAfterEvent(MoneyEventCallback);
+    // TODO
+    // LLMoney_ListenBeforeEvent(MoneyBeforeEventCallback);
+    // LLMoney_ListenAfterEvent(MoneyEventCallback);
     return true;
 }
 

@@ -1,12 +1,10 @@
 // Windows ComBase API
 #include "utils/Utils.h"
 
-#include "engine/LocalShareData.h"
 #include "ll/api/utils/StringUtils.h"
 
 #include <combaseapi.h>
 #include <ctime>
-#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -76,7 +74,8 @@ unsigned long long GetCurrentTimeStampMS() {
         currentTime.wHour,
         currentTime.wDay,
         currentTime.wMonth - 1,
-        currentTime.wYear - 1900};
+        currentTime.wYear - 1900
+    };
 
     unsigned long long nNow = mktime(&currTm) * 1000 + currentTime.wMilliseconds;
     return nNow;
@@ -88,12 +87,12 @@ std::string Raw_GetDateTimeStr() {
     localtime_s(&ts, &t);
     char buf[24] = {0};
     strftime(buf, 24, "%Y-%m-%d %H:%M:%S", &ts);
-    return string(buf);
+    return std::string(buf);
 }
 
 std::string Raw_RandomGuid() {
     GUID guid;
-    CoCreateGuid(&guid);
+    // CoCreateGuid(&guid); // TODO
 
     char dst[36] = {0};
     snprintf(
@@ -112,12 +111,12 @@ std::string Raw_RandomGuid() {
         guid.Data4[6],
         guid.Data4[7]
     );
-    return string(dst);
+    return std::string(dst);
 }
 
 std::wstring Raw_RandomGuidW() {
     GUID guid;
-    CoCreateGuid(&guid);
+    // CoCreateGuid(&guid); // TODO
 
     wchar_t dst[36] = {0};
     _snwprintf_s(

@@ -218,5 +218,5 @@ extern ClassDefine<void>                 NativeTypeEnumBuilder;
 extern ClassDefine<ScriptNativeFunction> NativeCallBuilder;
 extern ClassDefine<DynamicHookData>      NativeHookBuilder;
 extern ClassDefine<NativePointer>        NativePointerBuilder;
-extern ClassDefine<NativePatch>          NativePatchBuilder;
-extern ClassDefine<GlobalNativePointer>  GlobalNativePointerBuilder;
+// extern ClassDefine<NativePatch>          NativePatchBuilder;
+extern ClassDefine<GlobalNativePointer> GlobalNativePointerBuilder;

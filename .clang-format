@@ -44,6 +44,4 @@ PointerAlignment: Left
 TabWidth: 4
 UseTab: Never
 SortIncludes: CaseSensitive
-
 IncludeBlocks: Regroup
-MaxEmptyLinesToKeep: 1

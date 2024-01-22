@@ -1,13 +1,9 @@
 #include "api/LlAPI.h"
 
 #include "api/APIHelp.h"
-#include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/utils/WinUtils.h"
-#include "utils/Utils.h"
 
-#include <filesystem>
-#include <map>
 #include <string>
 
 //////////////////// Classes ////////////////////
@@ -227,4 +223,19 @@ Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments& args) {
         return String::newString(EngineScope::currentEngine()->getEngineVersion());
     }
     CATCH("Fail in LLSEGetScriptEngineVerison")
+}
+
+Local<Value> LlClass::exportFunc(const Arguments& args) {
+    // TODO
+    return Local<Value>();
+}
+
+Local<Value> LlClass::importFunc(const Arguments& args) {
+    // TODO
+    return Local<Value>();
+}
+
+Local<Value> LlClass::hasFuncExported(const Arguments& args) {
+    // TODO
+    return Local<Value>();
 }

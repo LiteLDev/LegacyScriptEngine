@@ -9,9 +9,9 @@ jobs:
       matrix:
         backend:
           - lua
-          # - nodejs
-          # - python310
-          # - quickjs
+          - nodejs
+          - python310
+          - quickjs
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4

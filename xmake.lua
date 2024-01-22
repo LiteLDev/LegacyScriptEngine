@@ -14,7 +14,7 @@ add_requires(
     "legacyparticleapi"
 )
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
-add_requires("scriptx 0.1.0", {configs={backend=get_config("backend")}})
+add_requires("scriptx", {configs={backend=get_config("backend")}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")
@@ -24,54 +24,37 @@ local LLSE_BACKEND = "LUA"
 
 option("backend")
     set_default("lua")
-    set_values("lua", "nodejs", "python310", "quickjs")
+    set_values("libnode", "lua", "python310", "quickjs")
 
 package("scriptx")
-    add_configs("backend", {default = "lua", values = {"lua", "nodejs", "python310", "quickjs"}})
+    add_configs("backend", {default = "lua", values = {"libnode", "lua", "python310", "quickjs"}})
     add_includedirs(
-        "include/scriptx/src/include/",
-        "include/$(backend)/"
-    )
-    add_linkdirs(
-        "lib/scriptx/"
+        "include/scriptx/src/include/"
     )
     add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v$(version)/scriptx-windows-x64.zip")
-    add_versions("0.1.0", "c0077eed8daf0e50a455cfde6396c2c04ba4d7a03a40424aa7da3571f9e8b7b4")
+    add_versions("0.1.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
 
     on_install(function (package)
+        os.cp("*", package:installdir())
+    end)
+
+    on_load(function (package)
         local backend = package:config("backend")
 
-        local backend_info = {
-            ["lua"] = {
-                backend = "lua",
-                scriptx = "Lua",
-            },
-            ["nodejs"] = {
-                backend = "libnode",
-                scriptx = "V8",
-            },
-            ["python310"] = {
-                backend = "python310",
-                scriptx = "Python",
-            },
-            ["quickjs"] = {
-                backend = "quickjs",
-                scriptx = "QuickJs",
-            },
+        local scriptx_backend = {
+            lua = "Lua",
+            nodejs = "V8",
+            python310 = "Python",
+            quickjs = "QuickJs",
         }
 
-        -- ScriptX
-        os.cp("include/scriptx/*", package:installdir("include", "scriptx"))
-        os.cp("lib/scriptx/" .. backend_info[backend].scriptx .. ".lib",
-            package:installdir("lib", "scriptx"))
-        package:add("defines", "SCRIPTX_BACKEND=" .. backend_info[backend].scriptx)
-        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. backend_info[backend].scriptx .. "/trait/Trait")
-
-        -- Backend
-        os.cp("include/" .. backend_info[backend].backend .. "/*",
-            package:installdir("include", backend_info[backend].backend))
-        os.cp("lib/" .. backend_info[backend].backend .. ".lib",
-            package:installdir("lib"))
+        print("Using ScriptX config: backend=" .. backend .. ", scriptx_backend=" .. scriptx_backend[backend])
+        
+        package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backend[backend])
+        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backend[backend] .. "/trait/Trait")
+        package:add("includedirs", "include/" .. backend .. "/")
+        package:add("links", backend)
+        package:add("links", "scriptx_" .. scriptx_backend[backend])
     end)
 
 target("legacy-script-engine")
@@ -119,7 +102,6 @@ target("legacy-script-engine")
         "legacyparticleapi"
     )
     add_shflags(
-        "/NODEFAULTLIB:library",
         "/DELAYLOAD:bedrock_server.dll"
     )
     set_basename("legacy-script-engine-$(backend)")

@@ -39,8 +39,8 @@ package("scriptx")
         local backend = package:config("backend")
 
         local scriptx_backend = {
+            libnode = "V8",
             lua = "Lua",
-            nodejs = "V8",
             python310 = "Python",
             quickjs = "QuickJs",
         }

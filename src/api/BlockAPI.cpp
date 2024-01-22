@@ -85,7 +85,7 @@ Local<Object> BlockClass::newBlock(Block const* p, BlockPos const* pos, int dim)
 }
 
 Local<Object> BlockClass::newBlock(BlockPos const* pos, int dim) {
-    Block bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(*pos);
+    auto& bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(*pos);
     return BlockClass::newBlock(&bl, pos, dim);
 }
 
@@ -98,7 +98,7 @@ Local<Object> BlockClass::newBlock(Block const* p, BlockPos const* pos, BlockSou
 
 Local<Object> BlockClass::newBlock(IntVec4 pos) {
     BlockPos bp = {(float)pos.x, (float)pos.y, (float)pos.z};
-    Block    bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
+    auto&    bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
     return BlockClass::newBlock(&bl, &bp, pos.dim);
 }
 
@@ -337,7 +337,7 @@ Local<Value> BlockClass::getBlockState(const Arguments& args) {
 
 Local<Value> BlockClass::hasContainer(const Arguments& args) {
     try {
-        Block bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(
+        auto& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(
             pos.getBlockPos()
         );
         return Boolean::newBoolean(bl.isContainerBlock());

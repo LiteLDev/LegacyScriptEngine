@@ -103,7 +103,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
 Local<Value> BlockEntityClass::getBlock(const Arguments& args) {
     try {
         BlockPos bp = blockEntity->getPosition();
-        Block    bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
+        auto&    bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
         return BlockClass::newBlock(&bl, &bp, dim);
     }
     CATCH("Fail in getBlock!")

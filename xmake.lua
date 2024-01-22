@@ -2,25 +2,21 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
 add_requires(
-    "simpleini v4.19",
-    "toml++ 3.4.0",
-    "sqlite3 3.43.0+200",
-    "mariadb-connector-c 3.3.4",
+    "demangler v2.0.0",
     "dyncall 1.4",
-    "lightwebsocketclient 1.0.0",
-    "demangler 2.0.0",
+    "legacymoney 0.1.5",
+    "legacyparticleapi 0.1.1",
     "levilamina 0.5.1",
-    "legacymoney",
-    "legacyparticleapi"
+    "lightwebsocketclient 1.0.0",
+    "mariadb-connector-c 3.3.4",
+    "simpleini v4.19",
+    "sqlite3 3.43.0+200",
+    "toml++ v3.4.0"
 )
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
-add_requires("scriptx", {configs={backend=get_config("backend")}})
+add_requires("scriptx 0.1.0", {configs={backend=get_config("backend")}})
 
-if not has_config("vs_runtime") then
-    set_runtimes("MD")
-end
-
-local LLSE_BACKEND = "LUA"
+set_runtimes("MD") -- For compatibility with the /MT build configuration of ScriptX.
 
 option("backend")
     set_default("lua")
@@ -63,7 +59,7 @@ target("legacy-script-engine")
         "/utf-8"
     )
     add_defines(
-        "_HAS_CXX23=1", -- To enable C++23 features
+        "_HAS_CXX23=1", -- To enable C++23 features.
         "_WIN32_WINNT=0x0601",
         "_AMD64_",
         "_CONSOLE",
@@ -73,7 +69,7 @@ target("legacy-script-engine")
         "NDEBUG",
         "NOMINMAX",
         "UNICODE",
-        "LLSE_BACKEND_" .. LLSE_BACKEND,
+        "LLSE_BACKEND_LUA",
         "ENTT_PACKED_PAGE=128"
     )
     add_files(
@@ -83,28 +79,23 @@ target("legacy-script-engine")
         "src"
     )
     add_packages(
-        "levilamina",
-        "scriptx",
-        "nlohmann_json",
-        "simpleini",
-        "toml++",
-        "magic_enum",
-        "leveldb",
-        "rapidjson",
         "cpp-httplib",
-        "sqlite3",
-        "mariadb-connector-c",
-
-        "dyncall",
-        "lightwebsocketclient",
         "demangler",
+        "dyncall",
         "legacymoney",
-        "legacyparticleapi"
+        "legacyparticleapi",
+        "levilamina",
+        "lightwebsocketclient",
+        "mariadb-connector-c",
+        "scriptx",
+        "simpleini",
+        "sqlite3",
+        "toml++"
     )
     add_shflags(
-        "/DELAYLOAD:bedrock_server.dll"
+        "/DELAYLOAD:bedrock_server.dll" -- To allow including Minecraft headers without linking.
     )
     set_basename("legacy-script-engine-$(backend)")
-    set_exceptions("none") -- To avoid conflicts with /EHa
+    set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
     set_languages("cxx20")

@@ -119,6 +119,6 @@ target("legacy-script-engine")
         )
     elseif is_config("backend", "quickjs") then
         add_defines(
-            "LLSE_BACKEND_JS"
+            "LLSE_BACKEND_QUICKJS"
         )
     end

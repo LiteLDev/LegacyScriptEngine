@@ -13,7 +13,6 @@
 #include "mc/network/MinecraftPackets.h"
 #include "mc/network/packet/Packet.h"
 
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<PacketClass> PacketClassBuilder = defineClass<PacketClass>("LLSE_Packet")
@@ -117,7 +116,6 @@ Local<Object> BinaryStreamClass::newBinaryStream() {
     return out->getScriptObject();
 }
 
-
 // member function
 
 Local<Value> BinaryStreamClass::getAndReleaseData() {
@@ -214,7 +212,6 @@ Local<Value> BinaryStreamClass::writeFloat(const Arguments& args) {
     }
     CATCH("Fail in BinaryStream writeFloat!");
 }
-
 
 Local<Value> BinaryStreamClass::writeSignedBigEndianInt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);

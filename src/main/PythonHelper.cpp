@@ -21,7 +21,6 @@
 #include <llapi/utils/WinHelper.h>
 #include <tomlplusplus/toml.hpp>
 
-
 #define PIP_EXECUTE_TIMEOUT 1800 * 1000
 
 // pre-declare

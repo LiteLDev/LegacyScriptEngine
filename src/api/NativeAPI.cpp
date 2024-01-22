@@ -5,7 +5,6 @@
 
 #include <magic_enum.hpp>
 
-
 Concurrency::concurrent_unordered_map<std::string, NativeFunction> NativeFunction::parsedSymbol;
 
 #define NATIVE_CHECK_ARG_TYPE(TYPE)                                                                                    \
@@ -482,7 +481,6 @@ char NativeFunction::nativeCallbackHandler(DCCallback* cb, DCArgs* args, DCValue
 
     return NativeFunction::getTypeSignature(hookInfo->mReturnVal);
 }
-
 
 Local<Value> ScriptNativeFunction::setAddress(const Local<Value>& value) {
     auto engine          = this->getScriptEngine();

@@ -4,7 +4,6 @@
 
 #include <stdexcept>
 
-
 namespace DB {
 
 RowSet::RowSet(const std::shared_ptr<RowHeader>& header) : std::vector<Row>(), header(header) {

@@ -16,7 +16,6 @@
 #include <uv/uv.h>
 #include <v8/v8.h>
 
-
 // pre-declare
 extern void BindAPIs(ScriptEngine* engine);
 

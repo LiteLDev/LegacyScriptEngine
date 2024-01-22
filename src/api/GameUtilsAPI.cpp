@@ -2,7 +2,6 @@
 
 #include "api/APIHelp.h"
 
-
 ClassDefine<void> TextClassBuilder = defineClass("Format")
                                          .property("Black", []() { return String::newString("§0"); })
                                          .property("DarkBlue", []() { return String::newString("§1"); })

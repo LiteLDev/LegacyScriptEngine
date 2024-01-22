@@ -10,7 +10,6 @@
 #include <map>
 #include <string>
 
-
 //////////////////// Classes ////////////////////
 
 ClassDefine<void> LlClassBuilder = defineClass("ll")

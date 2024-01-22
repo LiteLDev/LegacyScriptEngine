@@ -1,4 +1,4 @@
-add_rules("mode.debug", "mode.release", "mode.releasedbg")
+add_rules("mode.debug", "mode.release")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
 add_requires(
@@ -9,7 +9,7 @@ add_requires(
     "levilamina 0.5.1",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
-    "mariadb-connector-c 3.3.4",
+    -- "mariadb-connector-c 3.3.4",
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
     "toml++ v3.4.0"
@@ -66,7 +66,7 @@ target("legacy-script-engine")
         "_CONSOLE",
         "_WINDLL",
         "_UNICODE",
-        "CPPHTTPLIB_OPENSSL_SUPPORT",
+        "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
         "NDEBUG",
         "NOMINMAX",
         "UNICODE",
@@ -88,7 +88,7 @@ target("legacy-script-engine")
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
-        "mariadb-connector-c",
+        -- "mariadb-connector-c",
         "scriptx",
         "simpleini",
         "sqlite3",

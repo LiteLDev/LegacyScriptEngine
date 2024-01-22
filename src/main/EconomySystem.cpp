@@ -3,6 +3,7 @@
 #include "engine/LocalShareData.h"
 #include "ll/api/Logger.h"
 #include "main/EconomicSystem.h"
+
 #include <string>
 
 ll::Logger economicLogger("EconomicSystem");

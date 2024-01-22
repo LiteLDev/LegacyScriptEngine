@@ -1,7 +1,9 @@
 #include "engine/OperationCount.h"
+
 #include "engine/GlobalShareData.h"
 #include "ll/api/plugin/PluginManager.h"
 #include "main/Configs.h"
+
 #include <vector>
 
 OperationCount::OperationCount(const string& name) : name(name) {}

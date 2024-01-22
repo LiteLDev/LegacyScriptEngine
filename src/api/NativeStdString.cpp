@@ -1,5 +1,7 @@
 #include "api/NativeStdString.h"
+
 #include "api/NativeAPI.h"
+
 #include <string>
 
 //////////////////// Class Definition ////////////////////

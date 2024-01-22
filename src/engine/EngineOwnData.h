@@ -1,18 +1,16 @@
 #pragma once
 
+#include "dyncall/dyncall.h"
+#include "ll/api/Logger.h"
+#include "ll/api/i18n/I18nAPI.h"
+#include "main/Configs.h"
+#include "utils/UsingScriptX.inc"
+
 #include <fstream>
 #include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#include "dyncall/dyncall.h"
-
-#include "ll/api/Logger.h"
-
-#include "ll/api/i18n/I18nAPI.h"
-#include "main/Configs.h"
-#include "utils/UsingScriptX.inc"
 
 struct FormCallbackData {
     script::ScriptEngine*            engine;

@@ -7,6 +7,7 @@
 #include "main/NodeJsHelper.h"
 #include "main/PluginManager.h"
 #include "utils/IniHelper.h"
+
 #include <exception>
 #include <filesystem>
 #include <fstream>

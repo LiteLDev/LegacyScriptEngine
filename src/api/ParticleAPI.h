@@ -3,6 +3,7 @@
 //
 #pragma once
 #include "BaseAPI.h"
+
 #include <ParticleAPI.h>
 
 class ParticleSpawner : public ParticleCUI, public ScriptClass {

@@ -1,4 +1,5 @@
 #include "main/PluginManager.h"
+
 #include "api/APIHelp.h"
 #include "api/CommandAPI.h"
 #include "api/EventAPI.h"
@@ -15,6 +16,7 @@
 #include "main/Configs.h"
 #include "main/Global.h"
 #include "main/Loader.h"
+
 #include <filesystem>
 #include <utility>
 

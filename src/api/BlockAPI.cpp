@@ -1,4 +1,5 @@
 #include "api/BlockAPI.h"
+
 #include "ScriptX/ScriptX.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
@@ -17,6 +18,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
+
 #include <exception>
 
 //////////////////// Class Definition ////////////////////

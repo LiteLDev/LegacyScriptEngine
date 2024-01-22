@@ -1,5 +1,6 @@
 #pragma once
 #include "legacyapi/db/Row.h"
+
 #include <vector>
 
 #undef max

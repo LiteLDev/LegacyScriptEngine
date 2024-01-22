@@ -13,6 +13,7 @@
 #include "main/SafeGuardRecord.h"
 #include "mc/scripting/modules/minecraft/ScriptNavigationResult.h"
 #include "mc/server/SimulatedPlayer.h"
+
 #include <algorithm>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/world/Container.h>

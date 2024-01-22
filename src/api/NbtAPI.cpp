@@ -1,4 +1,5 @@
 ﻿#include "api/NbtAPI.h"
+
 #include "api/APIHelp.h"
 #include "api/BlockAPI.h"
 #include "api/ItemAPI.h"
@@ -14,6 +15,7 @@
 #include "mc/nbt/ShortTag.h"
 #include "mc/nbt/StringTag.h"
 #include "mc/nbt/TagMemoryChunk.h"
+
 #include <magic_enum.hpp>
 #include <mc/nbt/CompoundTag.h>
 #include <memory>

@@ -1,4 +1,5 @@
 #include "main/Configs.h"
+
 #include <ScriptX/ScriptX.h>
 #include <filesystem>
 #include <fstream>

@@ -1,4 +1,5 @@
 #include "api/DeviceAPI.h"
+
 #include "api/APIHelp.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
@@ -7,6 +8,7 @@
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/Level.h"
+
 #include <string>
 
 //////////////////// Class Definition ////////////////////

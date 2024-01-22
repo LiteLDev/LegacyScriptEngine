@@ -3,6 +3,7 @@
 #include "mc/nbt/ByteArrayTag.h"
 #include "mc/nbt/DoubleTag.h"
 #include "mc/nbt/Tag.h"
+
 #include <mc/nbt/CompoundTag.h>
 #include <mc/nbt/EndTag.h>
 #include <mc/nbt/FloatTag.h>

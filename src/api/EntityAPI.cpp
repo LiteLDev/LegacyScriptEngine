@@ -1,4 +1,5 @@
 #include "api/EntityAPI.h"
+
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
@@ -19,6 +20,7 @@
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/Block.h"
+
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>

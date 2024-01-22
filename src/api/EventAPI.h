@@ -1,6 +1,5 @@
 #pragma once
 #include "api/APIHelp.h"
-
 #include "main/EconomicSystem.h"
 
 //////////////////// Funcs ////////////////////

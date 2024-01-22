@@ -3,6 +3,7 @@
 #include "legacyapi/db/Pointer.h"
 #include "legacyapi/db/RowSet.h"
 #include "legacyapi/db/Stmt.h"
+
 #include <stdexcept>
 
 namespace DB {

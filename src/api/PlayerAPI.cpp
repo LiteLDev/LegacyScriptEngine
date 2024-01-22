@@ -1,4 +1,7 @@
 #include "api/PlayerAPI.h"
+
+#include "MoreGlobal.h"
+#include "ScriptX/ScriptX.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
@@ -16,31 +19,22 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/form/CustomForm.h"
 #include "ll/api/form/FormBase.h"
+#include "ll/api/form/ModalForm.h"
 #include "ll/api/form/SimpleForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
 #include "main/EconomicSystem.h"
-#include "mc/entity/utilities/ActorDataIDs.h"
-#include "mc/enums/BossBarColor.h"
-#include "mc/enums/ScorePacketType.h"
-#include "mc/network/NetworkIdentifier.h"
-#include "mc/server/ServerPlayer.h"
-#include <mc/world/actor/Actor.h>
-#include <mc/world/actor/player/Player.h>
-#include <mc/world/attribute/Attribute.h>
-#include <mc/world/attribute/AttributeInstance.h>
-
-#include "MoreGlobal.h"
-#include "ScriptX/ScriptX.h"
-#include "ll/api/form/ModalForm.h"
-#include "ll/api/service/PlayerInfo.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
+#include "mc/entity/utilities/ActorDataIDs.h"
+#include "mc/enums/BossBarColor.h"
+#include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
 #include "mc/network/ConnectionRequest.h"
+#include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/AddEntityPacket.h"
 #include "mc/network/packet/BossEventPacket.h"
@@ -54,6 +48,7 @@
 #include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/network/packet/UpdateAdventureSettingsPacket.h"
+#include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
 #include "mc/world/ActorUniqueID.h"
@@ -72,13 +67,18 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+
 #include <algorithm>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/world/SimpleContainer.h>
+#include <mc/world/actor/Actor.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
+#include <mc/world/actor/player/Player.h>
+#include <mc/world/attribute/Attribute.h>
+#include <mc/world/attribute/AttributeInstance.h>
 #include <mc/world/attribute/SharedAttributes.h>
 #include <mc/world/level/BlockSource.h>
 #include <mc/world/level/Command.h>

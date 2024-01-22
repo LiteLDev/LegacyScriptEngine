@@ -1,11 +1,5 @@
 #include "api/APIHelp.h"
 
-#include <cmath>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
 #include "api/ContainerAPI.h"
@@ -15,13 +9,18 @@
 #include "api/EntityAPI.h"
 #include "api/GuiAPI.h"
 #include "api/ItemAPI.h"
+#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/NetworkAPI.h"
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "main/Global.h"
 
-#include "api/NativeAPI.h"
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
 //////////////////// APIs ////////////////////
 template <typename T>

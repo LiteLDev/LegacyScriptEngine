@@ -1,7 +1,9 @@
 #include "engine/GlobalShareData.h"
+
 #include "api/APIHelp.h"
 #include "engine/LocalShareData.h"
 #include "main/Configs.h"
+
 #include <Windows.h>
 #include <cstdlib>
 #include <ctime>

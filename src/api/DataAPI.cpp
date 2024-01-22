@@ -1,6 +1,8 @@
 #include "api/DataAPI.h"
+
 #include "api/APIHelp.h"
 #include "api/DatabaseAPI.h"
+
 #include <fstream>
 #include <string>
 #include <vector>

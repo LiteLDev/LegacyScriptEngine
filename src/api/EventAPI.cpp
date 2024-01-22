@@ -1,4 +1,6 @@
 #include "api/EventAPI.h"
+
+#include "EntityAPI.h"
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
@@ -6,24 +8,22 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
-#include "ll/api/schedule/Scheduler.h"
-#include "ll/api/schedule/Task.h"
-#include "ll/api/service/Bedrock.h"
-#include "main/Global.h"
-#include <exception>
-#include <list>
-#include <shared_mutex>
-
-#include "EntityAPI.h"
-#include "ll/api/event/EventBus.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/player/PlayerConnectEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerLeaveEvent.h"
 #include "ll/api/event/player/PlayerRespawnEvent.h"
+#include "ll/api/schedule/Scheduler.h"
+#include "ll/api/schedule/Task.h"
+#include "ll/api/service/Bedrock.h"
+#include "main/Global.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/dimension/Dimension.h"
+
+#include <exception>
+#include <list>
+#include <shared_mutex>
 
 //////////////////// Listeners ////////////////////
 

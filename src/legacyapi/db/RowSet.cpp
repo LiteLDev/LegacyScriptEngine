@@ -1,5 +1,7 @@
 #include "legacyapi/db/RowSet.h"
+
 #include "fmt/core.h"
+
 #include <stdexcept>
 
 

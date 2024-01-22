@@ -1,4 +1,5 @@
 #include "legacyapi/db/impl/sqlite/Session.h"
+
 #include "legacyapi/db/impl/sqlite/Stmt.h"
 #include "sqlite3.h"
 

@@ -1,7 +1,9 @@
 #include "main/BuiltinCommands.h"
+
 #include "api/APIHelp.h"
 #include "ll/api/Logger.h"
 #include "ll/api/utils/StringUtils.h"
+
 #include <string>
 
 #ifdef LLSE_BACKEND_PYTHON

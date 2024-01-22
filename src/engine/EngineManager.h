@@ -1,6 +1,7 @@
 #pragma once
 #include "ScriptX/ScriptX.h"
 #include "main/PluginManager.h"
+
 #include <map>
 #include <string>
 #include <vector>

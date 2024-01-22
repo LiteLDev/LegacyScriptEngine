@@ -1,6 +1,7 @@
 #pragma once
 #include "api/APIHelp.h"
 #include "main/Global.h"
+
 #include <string>
 
 //////////////////// Classes ////////////////////

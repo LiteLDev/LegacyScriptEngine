@@ -1,16 +1,15 @@
 #include "api/BaseAPI.h"
 
-#include <cmath>
-
-#include "mc/world/Facing.h"
-#include <mc/world/actor/ActorDamageSource.h>
-#include <mc/world/level/BlockSource.h>
-
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "main/Global.h"
 #include "mc/common/Common.h"
 #include "mc/common/SharedConstants.h"
+#include "mc/world/Facing.h"
+
+#include <cmath>
+#include <mc/world/actor/ActorDamageSource.h>
+#include <mc/world/level/BlockSource.h>
 
 ///////////////////// Enum //////////////////////
 ClassDefine<void> DamageCauseEnumBuilder = EnumDefineBuilder<ActorDamageCause>::build("DamageCause");

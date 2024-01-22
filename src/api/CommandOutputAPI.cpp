@@ -1,4 +1,5 @@
 #include "api/CommandOutputAPI.h"
+
 #include "mc/server/commands/CommandOutputMessageType.h"
 
 //////////////////// Class Definition ////////////////////

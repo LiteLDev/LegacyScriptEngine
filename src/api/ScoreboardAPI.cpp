@@ -1,9 +1,11 @@
 #include "api/ScoreboardAPI.h"
+
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/world/scores/ScoreInfo.h"
+
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/scores/Objective.h>
 #include <mc/world/scores/Scoreboard.h>

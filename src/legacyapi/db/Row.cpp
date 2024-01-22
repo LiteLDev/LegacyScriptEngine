@@ -1,5 +1,7 @@
 #include "legacyapi/db/Row.h"
+
 #include "ll/api/utils/HashUtils.h"
+
 #include <stdexcept>
 
 namespace DB {

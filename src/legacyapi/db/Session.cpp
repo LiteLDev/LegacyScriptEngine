@@ -1,4 +1,5 @@
 #include "legacyapi/db/Session.h"
+
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/db/impl/sqlite/Session.h"
 

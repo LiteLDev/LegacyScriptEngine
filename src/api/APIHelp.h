@@ -1,18 +1,15 @@
 ﻿#pragma once
 
-#include <exception>
-#include <string>
-
-#include <magic_enum.hpp>
-
-#include "mc/world/level/Level.h"
-
 #include "engine/EngineOwnData.h"
+#include "ll/api/utils/ErrorUtils.h"
 #include "main/Global.h"
+#include "mc/world/level/Level.h"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.inc"
 
-#include "ll/api/utils/ErrorUtils.h"
+#include <exception>
+#include <magic_enum.hpp>
+#include <string>
 
 // 输出异常信息
 inline void PrintException(const script::Exception& e) {

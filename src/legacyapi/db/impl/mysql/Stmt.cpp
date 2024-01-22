@@ -1,4 +1,5 @@
 #include "legacyapi/db/impl/mysql/Stmt.h"
+
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/utils/StringReader.h"
 #include "ll/api/Logger.h"

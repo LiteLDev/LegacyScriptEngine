@@ -52,6 +52,10 @@ package("scriptx")
         package:add("includedirs", "include/" .. backend .. "/")
         package:add("links", backend)
         package:add("links", "scriptx_" .. scriptx_backends[backend])
+
+        if backend == "libnode" then
+            package:add("includedirs", "include/libnode/v8/") -- Because ScriptX has #include <v8.h> in its headers.
+        end
     end)
 
 target("legacy-script-engine")
@@ -101,20 +105,20 @@ target("legacy-script-engine")
     set_kind("shared")
     set_languages("cxx20")
 
-    on_load(function (target)
-        import("core.base.option")
-
-        local backend = option.get("backend")
-
-        local backend_define_suffixes = {
-            libnode = "NODEJS",
-            lua = "LUA",
-            python310 = "_PYTHON",
-            quickjs = "JS",
-        }
-
-        print("Using target config: backend=" .. backend .. ", backend_define_suffix=" .. 
-            backend_define_suffixes[backend])
-
-        target:add("defines", "LLSE_BACKEND_" .. backend_define_suffixes[backend])
-    end)
+    if is_config("backend", "libnode") then
+        add_defines(
+            "LLSE_BACKEND_NODEJS"
+        )
+    elseif is_config("backend", "lua") then
+        add_defines(
+            "LLSE_BACKEND_LUA"
+        )
+    elseif is_config("backend", "python310") then
+        add_defines(
+            "LLSE_BACKEND_PYTHON"
+        )
+    elseif is_config("backend", "quickjs") then
+        add_defines(
+            "LLSE_BACKEND_JS"
+        )
+    end

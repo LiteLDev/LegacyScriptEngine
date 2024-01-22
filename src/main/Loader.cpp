@@ -114,7 +114,7 @@ void LoadMain() {
 #ifdef LLSE_BACKEND_NODEJS
 // NodeJs后端 - 主加载
 void LoadMain_NodeJs() {
-    logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Node.js")));
+    // logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Node.js")));
     int installCount = 0;
     int count        = 0;
 
@@ -131,7 +131,7 @@ void LoadMain_NodeJs() {
                     }
                 } catch (...) {}
             } else {
-                logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", targetDirStr)));
+                // logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", targetDirStr)));
             }
         }
     }
@@ -143,28 +143,28 @@ void LoadMain_NodeJs() {
         std::filesystem::path pth             = i.path();
         std::string           packFilePathStr = ll::string_utils::u8str2str(pth.make_preferred().u8string());
         if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-            logger.info(tr("llse.loader.loadMain.nodejs.installPack.start", fmt::arg("path", packFilePathStr)));
+            // logger.info(tr("llse.loader.loadMain.nodejs.installPack.start", fmt::arg("path", packFilePathStr)));
             try {
                 if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-                    logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail", packFilePathStr));
+                    // logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail", packFilePathStr));
                 }
                 ++count;
                 ++installCount;
             } catch (...) {
                 // not matched backend type
-                logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", packFilePathStr)));
+                // logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", packFilePathStr)));
             }
         }
     }
 
-    logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Node.js")));
+    // logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Node.js")));
 }
 #endif
 
 #ifdef LLSE_BACKEND_PYTHON
 // Python后端 - 主加载
 void LoadMain_Python() {
-    logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Python")));
+    // logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Python")));
     int installCount = 0;
     int count        = 0;
 
@@ -181,7 +181,7 @@ void LoadMain_Python() {
                     }
                 } catch (...) {}
             } else {
-                logger.warn(tr("llse.loader.loadMain.python.ignored", fmt::arg("path", targetDirStr)));
+                // logger.warn(tr("llse.loader.loadMain.python.ignored", fmt::arg("path", targetDirStr)));
             }
         }
     }
@@ -193,16 +193,16 @@ void LoadMain_Python() {
         std::filesystem::path pth             = i.path();
         std::string           packFilePathStr = ll::string_utils::u8str2str(pth.make_preferred().u8string());
         if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-            logger.info(tr("llse.loader.loadMain.python.installPack.start", fmt::arg("path", packFilePathStr)));
+            // logger.info(tr("llse.loader.loadMain.python.installPack.start", fmt::arg("path", packFilePathStr)));
             try {
                 if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-                    logger.error(tr("llse.loader.loadMain.python.installPack.fail", packFilePathStr));
+                    // logger.error(tr("llse.loader.loadMain.python.installPack.fail", packFilePathStr));
                 }
                 ++count;
                 ++installCount;
             } catch (...) {
                 // not matched backend type
-                logger.warn(tr("llse.loader.loadMain.python.ignored", packFilePathStr));
+                // logger.warn(tr("llse.loader.loadMain.python.ignored", packFilePathStr));
             }
         }
     }
@@ -218,7 +218,7 @@ void LoadMain_Python() {
         }
     }
 
-    logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Python")));
+    // logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Python")));
 }
 #endif
 

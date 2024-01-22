@@ -38,20 +38,20 @@ package("scriptx")
     on_load(function (package)
         local backend = package:config("backend")
 
-        local scriptx_backend = {
+        local scriptx_backends = {
             libnode = "V8",
             lua = "Lua",
             python310 = "Python",
             quickjs = "QuickJs",
         }
 
-        print("Using ScriptX config: backend=" .. backend .. ", scriptx_backend=" .. scriptx_backend[backend])
+        print("Using ScriptX config: backend=" .. backend .. ", scriptx_backend=" .. scriptx_backends[backend])
         
-        package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backend[backend])
-        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backend[backend] .. "/trait/Trait")
+        package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backends[backend])
+        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backends[backend] .. "/trait/Trait")
         package:add("includedirs", "include/" .. backend .. "/")
         package:add("links", backend)
-        package:add("links", "scriptx_" .. scriptx_backend[backend])
+        package:add("links", "scriptx_" .. scriptx_backends[backend])
     end)
 
 target("legacy-script-engine")
@@ -70,7 +70,6 @@ target("legacy-script-engine")
         "NDEBUG",
         "NOMINMAX",
         "UNICODE",
-        "LLSE_BACKEND_LUA",
         "ENTT_PACKED_PAGE=128"
     )
     add_files(
@@ -101,3 +100,21 @@ target("legacy-script-engine")
     set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
     set_languages("cxx20")
+
+    on_load(function (target)
+        import("core.base.option")
+
+        local backend = option.get("backend")
+
+        local backend_define_suffixes = {
+            libnode = "NODEJS",
+            lua = "LUA",
+            python310 = "_PYTHON",
+            quickjs = "JS",
+        }
+
+        print("Using target config: backend=" .. backend .. ", backend_define_suffix=" .. 
+            backend_define_suffixes[backend])
+
+        target:add("defines", "LLSE_BACKEND_" .. backend_define_suffixes[backend])
+    end)

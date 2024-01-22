@@ -302,6 +302,7 @@ bool LLSECallEventsOnHotLoad(ScriptEngine* engine) {
 bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
         FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
+        return true;
     });
     for (auto& [index, cb] : ENGINE_GET_DATA(engine)->unloadCallbacks) {
         cb(engine);

@@ -1,5 +1,13 @@
 {
     "name": "${pluginName}",
     "entry": "${pluginFile}",
-    "type": "native"
+    "type": "native",
+    "dependencies": [
+        {
+            "name": "LegacyMoney"
+        },
+        {
+            "name": "LegacyParticleAPI"
+        }
+    ]
 }

@@ -74,8 +74,7 @@ unsigned long long GetCurrentTimeStampMS() {
         currentTime.wHour,
         currentTime.wDay,
         currentTime.wMonth - 1,
-        currentTime.wYear - 1900
-    };
+        currentTime.wYear - 1900};
 
     unsigned long long nNow = mktime(&currTm) * 1000 + currentTime.wMilliseconds;
     return nNow;

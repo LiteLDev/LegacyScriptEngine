@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         backend:
+          - libnode
           - lua
-          - nodejs
           - python310
           - quickjs
     runs-on: windows-latest
@@ -42,8 +42,8 @@ jobs:
     strategy:
       matrix:
         backend:
+          - libnode
           - lua
-          - nodejs
           - python310
           - quickjs
     steps:

@@ -2972,16 +2972,19 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             fullOnly = args[3].asBoolean().value();
         }
         HitResult res = player->traceRay(maxDistance, false, true);
-        Block     bl;
-        BlockPos  bp;
-        if (includeLiquid && res.mIsHitLiquid) {
-            bp = res.mLiquidPos;
-        } else {
-            bp = res.mBlockPos;
-        }
-        player->getDimensionBlockSource().getBlock(bp);
-        if (bl.isEmpty()) return Local<Value>();
-        return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
+
+        return Local<Value>();
+        // TODO
+        // Block     bl;
+        // BlockPos  bp;
+        // if (includeLiquid && res.mIsHitLiquid) {
+        //     bp = res.mLiquidPos;
+        // } else {
+        //     bp = res.mBlockPos;
+        // }
+        // player->getDimensionBlockSource().getBlock(bp);
+        // if (bl.isEmpty()) return Local<Value>();
+        // return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");
 }
@@ -3354,7 +3357,7 @@ Local<Value> PlayerClass::getBiomeId() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        Biome bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+        Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return Number::newNumber(bio.getId());
     }
     CATCH("Fail in getBiomeId!");
@@ -3364,7 +3367,7 @@ Local<Value> PlayerClass::getBiomeName() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        Biome bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+        Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return String::newString(bio.getName());
     }
     CATCH("Fail in getBiomeName!");

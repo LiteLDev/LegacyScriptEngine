@@ -1422,16 +1422,19 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             fullOnly = args[3].asBoolean().value();
         }
         HitResult res = actor->traceRay(maxDistance, false, true);
-        Block     bl;
-        BlockPos  bp;
-        if (includeLiquid && res.mIsHitLiquid) {
-            bp = res.mLiquidPos;
-        } else {
-            bp = res.mBlockPos;
-        }
-        actor->getDimensionBlockSource().getBlock(bp);
-        if (bl.isEmpty()) return Local<Value>();
-        return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
+
+        return Local<Value>(); // Temporary solution
+        // TODO: Fix this, block cannot be constructed.
+        // Block     bl;
+        // BlockPos  bp;
+        // if (includeLiquid && res.mIsHitLiquid) {
+        //     bp = res.mLiquidPos;
+        // } else {
+        //     bp = res.mBlockPos;
+        // }
+        // actor->getDimensionBlockSource().getBlock(bp);
+        // if (bl.isEmpty()) return Local<Value>();
+        // return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");
 }
@@ -1451,7 +1454,7 @@ Local<Value> EntityClass::getBiomeId() {
     try {
         Actor* actor = get();
         if (!actor) return Local<Value>();
-        auto bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
+        auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return Number::newNumber(bio.getId());
     }
     CATCH("Fail in getBiomeId!");
@@ -1461,7 +1464,7 @@ Local<Value> EntityClass::getBiomeName() {
     try {
         Actor* actor = get();
         if (!actor) return Local<Value>();
-        auto bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
+        auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return String::newString(bio.getName());
     }
     CATCH("Fail in getBiomeName!");

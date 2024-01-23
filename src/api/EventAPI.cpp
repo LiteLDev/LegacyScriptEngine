@@ -20,6 +20,7 @@
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
@@ -28,8 +29,6 @@
 #include <exception>
 #include <list>
 #include <shared_mutex>
-
-
 
 //////////////////// Listeners ////////////////////
 
@@ -1363,9 +1362,9 @@ void InitBasicEventListeners() {
     //     }
     //     return true;
     //   });
-    bus.emplaceListener<ExecuteCommandEvent>([](ExecuteCommandEvent& ev) {
+    bus.emplaceListener<ExecutingCommandEvent>([](ExecutingCommandEvent& ev) {
         if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
-            string cmd = ev.commandContext().mCommand;
+            std::string cmd = ev.commandContext().mCommand.erase(0, 1);
 
             if (!ProcessDebugEngine(cmd)) return false;
 #ifdef LLSE_BACKEND_NODEJS
@@ -1374,9 +1373,9 @@ void InitBasicEventListeners() {
             if (!PythonHelper::processConsolePipCmd(ev.mCommand)) return false;
 #endif
             // CallEvents
-            vector<string> paras;
-            bool           isFromOtherEngine = false;
-            string         prefix            = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
+            std::vector<std::string> paras;
+            bool                     isFromOtherEngine = false;
+            std::string              prefix            = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
 
             if (!prefix.empty()) {
                 // LLSE Registered Cmd

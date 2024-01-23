@@ -43,10 +43,8 @@ void LLSERegisterNewCmd(bool isPlayerCmd, string cmd, const string& describe, in
         localShareData->playerCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
         globalShareData->playerRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
     } else {
-        localShareData->consoleCmdCallbacks[cmd] = {
-            EngineScope::currentEngine(),
-            level,
-            script::Global<Function>(func)};
+        localShareData
+            ->consoleCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
         globalShareData->consoleRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
     }
 
@@ -125,7 +123,7 @@ void ProcessRegCmdQueue() {
     toRegCmdQueue.clear();
 }
 
-string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& receiveParas, bool* fromOtherEngine) {
+std::string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& receiveParas, bool* fromOtherEngine) {
     std::unordered_map<std::string, std::string>& registeredMap =
         isPlayerCmd ? globalShareData->playerRegisteredCmd : globalShareData->consoleRegisteredCmd;
     for (auto& [prefix, fromEngine] : registeredMap) {

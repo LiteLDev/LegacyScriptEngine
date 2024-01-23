@@ -91,7 +91,7 @@ target("legacy-script-engine")
         "toml++"
     )
     add_shflags(
-        "/DELAYLOAD:bedrock_server.dll" -- To allow including Minecraft headers without linking.
+        "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.
     )
     set_basename("legacy-script-engine-$(backend)")
     set_exceptions("none") -- To avoid conflicts with /EHa.

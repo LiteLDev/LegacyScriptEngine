@@ -79,10 +79,8 @@ void RegisterDebugCommand() {
             auto result = debugEngine->eval(results["eval"].getRaw<std::string>());
             PrintValue(std::cout, result);
             std::cout << std::endl;
-            OUTPUT_DEBUG_SIGN();
         } catch (Exception& e) {
             PrintException(e);
-            OUTPUT_DEBUG_SIGN();
         }
     });
     DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(command));

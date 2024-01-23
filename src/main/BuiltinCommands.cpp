@@ -25,7 +25,7 @@ extern ScriptEngine* debugEngine;
 bool ProcessDebugEngine(const std::string& cmd) {
 #ifdef LLSE_BACKEND_PYTHON
     // process python debug seperately
-    return PythonHelper::processPythonDebugEngine(cmd;
+    return PythonHelper::processPythonDebugEngine(cmd);
 #endif
     if (isInConsoleDebugMode) {
         EngineScope enter(debugEngine);

@@ -1371,9 +1371,15 @@ void InitBasicEventListeners() {
                 return false;
             }
 #ifdef LLSE_BACKEND_NODEJS
-            if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) return false;
+            if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) {
+                ev.cancel();
+                return false;
+            }
 #elif defined(LLSE_BACKEND_PYTHON)
-            if (!PythonHelper::processConsolePipCmd(ev.mCommand)) return false;
+            if (!PythonHelper::processConsolePipCmd(ev.mCommand)) {
+                ev.cancel();
+                return false;
+            }
 #endif
             // CallEvents
             std::vector<std::string> paras;
@@ -1391,7 +1397,10 @@ void InitBasicEventListeners() {
                     return false;
                 }
             } else {
-                if (isFromOtherEngine) return false;
+                if (isFromOtherEngine) {
+                    ev.cancel();
+                    return false;
+                }
 
                 // Other Cmd
                 IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }

@@ -17,4 +17,4 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine);
 bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value);
 bool MoneyEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value);
 
-bool LLSECallServerStartedEvent();
+void LLSECallServerStartedEvent();

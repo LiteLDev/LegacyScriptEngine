@@ -1,3 +1,5 @@
+#include "../api/EventAPI.h"
+#include "BuiltinCommands.h"
 #include "api/APIHelp.h"
 #include "api/EventAPI.h"
 #include "api/MoreGlobal.h"
@@ -34,7 +36,7 @@ extern void LoadMain();
 extern void BindAPIs(ScriptEngine* engine);
 extern void LoadDebugEngine();
 
-void entry() {
+void LSE_Load() {
     // Register myself
     // ll::registerPlugin(LLSE_LOADER_NAME, LLSE_LOADER_DESCRIPTION,
     //                    LITELOADER_VERSION,
@@ -85,4 +87,10 @@ void entry() {
     InitMessageSystem();
 
     MoreGlobal::Init();
+}
+
+
+void LSE_Enable() {
+    RegisterDebugCommand();
+    LLSECallServerStartedEvent();
 }

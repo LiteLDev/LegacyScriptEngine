@@ -3,6 +3,7 @@
 #include "../engine/LocalShareData.h"
 #include "../engine/TimeTaskSystem.h"
 #include "../main/BuiltinCommands.h"
+#include "BlockAPI.h"
 #include "CommandCompatibleAPI.h"
 #include "EntityAPI.h"
 #include "api/APIHelp.h"
@@ -17,10 +18,12 @@
 #include "ll/api/event/player/PlayerAttackEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/player/PlayerConnectEvent.h"
+#include "ll/api/event/player/PlayerDestroyBlockEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerLeaveEvent.h"
 #include "ll/api/event/player/PlayerRespawnEvent.h"
+#include "ll/api/memory/Hook.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
@@ -28,6 +31,8 @@
 #include "main/Global.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/level./BlockSource.h"
+#include "mc/world/level/BlockEventCoordinator.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <exception>
@@ -253,6 +258,13 @@ string EventTypeToString(EVENT_TYPES e) { return string(magic_enum::enum_name(e)
     }                                                                                                                  \
     }                                                                                                                  \
     return true;
+#define IF_LISTENED_END_VOID(TYPE)                                                                                     \
+    catch (...) {                                                                                                      \
+        logger.error("Event Callback Failed!");                                                                        \
+        logger.error("Uncaught Exception Detected!");                                                                  \
+        logger.error("In Event: " + EventTypeToString(TYPE));                                                          \
+    }                                                                                                                  \
+    }
 
 //////////////////// APIs ////////////////////
 
@@ -323,6 +335,27 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
 }
 
 //////////////////// Events ////////////////////
+
+LL_AUTO_TYPE_INSTANCE_HOOK(
+    PlayerStartDestroyHook,
+    HookPriority::Normal,
+    BlockEventCoordinator,
+    &BlockEventCoordinator::sendBlockDestructionStarted,
+    void,
+    Player&         player,
+    BlockPos const& blockPos,
+    uchar           unk_char
+) {
+    IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
+        CallEventRtnVoid(
+            EVENT_TYPES::onStartDestroyBlock,
+            PlayerClass::newPlayer(&player),
+            BlockClass::newBlock(blockPos, player.getDimensionId())
+        );
+    }
+    IF_LISTENED_END_VOID(EVENT_TYPES::onStartDestroyBlock)
+    origin(player, blockPos, unk_char);
+}
 
 // Todo
 void EnableEventListener(int eventId) {
@@ -437,29 +470,22 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onStartDestroyBlock:
-        //   Event::PlayerStartDestroyBlockEvent::subscribe(
-        //       [](const PlayerStartDestroyBlockEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
-        //           CallEvent(EVENT_TYPES::onStartDestroyBlock,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock);
-        //       });
-        //   break;
+    case EVENT_TYPES::onStartDestroyBlock:
 
-        // case EVENT_TYPES::onDestroyBlock:
-        //   Event::PlayerDestroyBlockEvent::subscribe(
-        //       [](const PlayerDestroyBlockEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onDestroyBlock) {
-        //           CallEvent(EVENT_TYPES::onDestroyBlock,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onDestroyBlock);
-        //       });
-        //   break;
+        break;
+
+    case EVENT_TYPES::onDestroyBlock:
+        bus.emplaceListener<PlayerDestroyBlockEvent>([](PlayerDestroyBlockEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
+                CallEvent(
+                    EVENT_TYPES::onStartDestroyBlock,
+                    PlayerClass::newPlayer(&ev.self()),
+                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock);
+        });
+        break;
 
         // case EVENT_TYPES::onPlaceBlock:
         //   Event::PlayerPlaceBlockEvent::subscribe(
@@ -1502,14 +1528,18 @@ page, totalPages, Boolean::newBoolean(shouldDropBook));
 }
 */
 
-bool LLSECallServerStartedEvent() {
+void LLSECallServerStartedEvent() {
     IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventDelayed(EVENT_TYPES::onServerStarted); }
-    IF_LISTENED_END(EVENT_TYPES::onServerStarted);
-    isCmdRegisterEnabled = true;
+    catch (...) {
+        logger.error("Event Callback Failed!");
+        logger.error("Uncaught Exception Detected!");
+        logger.error("In Event: " + EventTypeToString(EVENT_TYPES::onServerStarted));
+    }
+}
+isCmdRegisterEnabled = true;
 
-    // 处理延迟注册
-    ProcessRegCmdQueue();
-    return true;
+// 处理延迟注册
+ProcessRegCmdQueue();
 }
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value) {

@@ -1364,7 +1364,8 @@ void InitBasicEventListeners() {
     //   });
     bus.emplaceListener<ExecutingCommandEvent>([](ExecutingCommandEvent& ev) {
         if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
-            std::string cmd = ev.commandContext().mCommand.erase(0, 1);
+            std::string cmd = ev.commandContext().mCommand;
+            cmd.erase(0, 1);
 
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();

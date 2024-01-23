@@ -164,7 +164,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
         )
     );
     try {
-        return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, true));
+        return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, false));
     }
     CATCH("Fail in RunCmd!")
 }
@@ -179,10 +179,10 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         )
     );
     try {
-        MCRESULT      result = ll::service::getMinecraft()->getCommands().executeCommand(context, false);
+        MCRESULT      result = ll::service::getMinecraft()->getCommands().executeCommand(context, true);
         Local<Object> resObj = Object::newObject();
         resObj.set("success", result.isSuccess());
-        resObj.set("output", {});
+        resObj.set("output", result.getFullCode());
         return resObj;
     }
     CATCH("Fail in RunCmdEx!")
@@ -474,13 +474,11 @@ Local<Value> CommandClass::setCallback(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
     try {
-        auto                    func                  = args[0].asFunction();
-        DynamicCommandInstance* command               = get();
-        auto&                   commandName           = command->getCommandName();
-        localShareData->commandCallbacks[commandName] = {
-            EngineScope::currentEngine(),
-            0,
-            script::Global<Function>(func)};
+        auto                    func        = args[0].asFunction();
+        DynamicCommandInstance* command     = get();
+        auto&                   commandName = command->getCommandName();
+        localShareData
+            ->commandCallbacks[commandName] = {EngineScope::currentEngine(), 0, script::Global<Function>(func)};
         if (registered) return Boolean::newBoolean(true);
         get()->setCallback(onExecute);
         return Boolean::newBoolean(true);

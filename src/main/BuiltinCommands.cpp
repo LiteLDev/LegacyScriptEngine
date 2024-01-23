@@ -27,20 +27,6 @@ bool ProcessDebugEngine(const std::string& cmd) {
     // process python debug seperately
     return PythonHelper::processPythonDebugEngine(cmd);
 #endif
-
-    if (cmd == LLSE_DEBUG_CMD) {
-        if (isInConsoleDebugMode) {
-            // EndDebug
-            logger.info("Debug mode ended");
-            isInConsoleDebugMode = false;
-        } else {
-            // StartDebug
-            logger.info("Debug mode begins");
-            isInConsoleDebugMode = true;
-            OUTPUT_DEBUG_SIGN();
-        }
-        return false;
-    }
     if (isInConsoleDebugMode) {
         EngineScope enter(debugEngine);
         try {
@@ -64,23 +50,36 @@ bool ProcessDebugEngine(const std::string& cmd) {
 void RegisterDebugCommand() {
     auto command = DynamicCommand::createCommand(
         ll::service::getCommandRegistry(),
-        "lsedebug",
+        LLSE_DEBUG_CMD,
         "Debug LegacyScriptEngine",
         CommandPermissionLevel::Owner
     );
     command->mandatory("eval", DynamicCommand::ParameterType::RawText);
     command->addOverload("eval");
-    command->setCallback([](DynamicCommand const&                                    cmd,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
+    command->setCallback([](DynamicCommand const&,
+                            CommandOrigin const&,
+                            CommandOutput&,
                             std::unordered_map<std::string, DynamicCommand::Result>& results) {
-        EngineScope enter(debugEngine);
-        try {
-            auto result = debugEngine->eval(results["eval"].getRaw<std::string>());
-            PrintValue(std::cout, result);
-            std::cout << std::endl;
-        } catch (Exception& e) {
-            PrintException(e);
+        if (results["eval"].isSet) {
+            EngineScope enter(debugEngine);
+            try {
+                auto result = debugEngine->eval(results["eval"].getRaw<std::string>());
+                PrintValue(std::cout, result);
+                std::cout << std::endl;
+            } catch (Exception& e) {
+                PrintException(e);
+            }
+        } else {
+            if (isInConsoleDebugMode) {
+                // EndDebug
+                logger.info("Debug mode ended");
+                isInConsoleDebugMode = false;
+            } else {
+                // StartDebug
+                logger.info("Debug mode begins");
+                isInConsoleDebugMode = true;
+                OUTPUT_DEBUG_SIGN();
+            }
         }
     });
     DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(command));

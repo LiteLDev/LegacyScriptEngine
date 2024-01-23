@@ -7,6 +7,7 @@
 #include "engine/LocalShareData.h"
 #include "engine/MessageSystem.h"
 #include "engine/RemoteCall.h"
+#include "ll/api/i18n/I18nAPI.h"
 #include "main/Configs.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
@@ -39,7 +40,7 @@ void entry() {
     //                    {{"GitHub", "github.com/LiteLDev/LiteLoaderBDS"}});
 
     // Load i18n files
-    // Translation::loadFromImpl(GetCurrentModule(), ll::getLoaderHandle());
+    ll::i18n::load(u8"plugins/LeviLamina/lang");
 
     // Init global share data
     InitLocalShareData();

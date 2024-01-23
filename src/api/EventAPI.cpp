@@ -1,5 +1,6 @@
 #include "api/EventAPI.h"
 
+#include "../engine/LocalShareData.h"
 #include "../main/BuiltinCommands.h"
 #include "CommandCompatibleAPI.h"
 #include "EntityAPI.h"
@@ -29,6 +30,8 @@
 #include <exception>
 #include <list>
 #include <shared_mutex>
+#include <string>
+
 
 //////////////////// Listeners ////////////////////
 
@@ -1326,42 +1329,6 @@ void InitBasicEventListeners() {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();
 
-    //   Event::PlayerCmdEvent::subscribe([](const PlayerCmdEvent &ev) {
-    //     string cmd = ev.mCommand;
-    //     Player *player = ev.mPlayer;
-
-    //     vector<string> paras;
-    //     bool isFromOtherEngine = false;
-    //     string prefix = LLSEFindCmdReg(true, cmd, paras, &isFromOtherEngine);
-
-    //     if (!prefix.empty()) {
-    //       // LLSE Registered Cmd
-    //       int perm = localShareData->playerCmdCallbacks[prefix].perm;
-    //       auto permission_level = player->getCommandPermissionLevel();
-    //       if (static_cast<int>(permission_level) >= perm) {
-    //         bool callbackRes = CallPlayerCmdCallback(player, prefix, paras);
-    //         IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-    //           CallEvent(EVENT_TYPES::onPlayerCmd,
-    //           PlayerClass::newPlayer(player),
-    //                     String::newString(cmd));
-    //         }
-    //         IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
-    //         if (!callbackRes)
-    //           return false;
-    //       }
-    //     } else {
-    //       if (isFromOtherEngine)
-    //         return false;
-
-    //       // Other Cmd
-    //       IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-    //         CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player),
-    //                   String::newString(cmd));
-    //       }
-    //       IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
-    //     }
-    //     return true;
-    //   });
     bus.emplaceListener<ExecutingCommandEvent>([](ExecutingCommandEvent& ev) {
         if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
             std::string cmd = ev.commandContext().mCommand;
@@ -1409,6 +1376,35 @@ void InitBasicEventListeners() {
                 IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
             }
+        } else if (ev.commandContext().mOrigin->getOriginType() == CommandOriginType::Player) {
+            std::string              cmd = ev.commandContext().mCommand;
+            std::vector<std::string> paras;
+            bool                     isFromOtherEngine = false;
+            std::string              prefix            = LLSEFindCmdReg(true, cmd, paras, &isFromOtherEngine);
+            Player*                  player            = static_cast<Player*>(ev.commandContext().mOrigin->getEntity());
+
+            if (!prefix.empty()) {
+                // LLSE Registered Cmd
+                int  perm             = localShareData->playerCmdCallbacks[prefix].perm;
+                auto permission_level = player->getCommandPermissionLevel();
+                if (static_cast<int>(permission_level) >= perm) {
+                    bool callbackRes = CallPlayerCmdCallback(player, prefix, paras);
+                    IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
+                        CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd));
+                    }
+                    IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
+                    if (!callbackRes) return false;
+                }
+            } else {
+                if (isFromOtherEngine) return false;
+
+                // Other Cmd
+                IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
+                    CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd));
+                }
+                IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
+            }
+            return true;
         }
         return true;
     });

@@ -30,7 +30,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
     if (isInConsoleDebugMode) {
         EngineScope enter(debugEngine);
         try {
-            if (cmd == "stop") {
+            if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
                 return true;
             } else {
                 auto               result = debugEngine->eval(cmd);

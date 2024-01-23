@@ -25,11 +25,11 @@ struct TimeTaskData {
     script::Global<String>                                       code;
     ScriptEngine*                                                engine;
     inline void                                                  swap(TimeTaskData& rhs) {
-                                                         std::swap(rhs.task, task);
-                                                         std::swap(rhs.engine, engine);
-                                                         rhs.code.swap(code);
-                                                         rhs.paras.swap(paras);
-                                                         rhs.func.swap(func);
+        std::swap(rhs.task, task);
+        std::swap(rhs.engine, engine);
+        rhs.code.swap(code);
+        rhs.paras.swap(paras);
+        rhs.func.swap(func);
     }
 };
 std::unordered_map<int, TimeTaskData> timeTaskMap;
@@ -55,38 +55,36 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 
 //////////////////// API ////////////////////
 
-// void NewTimeout_s(script::Global<Function> func, vector<script::Local<Value>>
-// paras, int timeout, ScriptEngine* engine)
-//{
-//     std::vector<script::Global<Value>> tmp;
-//     if (paras.size() > 0) {
-//         EngineScope enter(engine);
-//         for (auto& para : paras)
-//             tmp.emplace_back(std::move(para));
-//     }
-//     Schedule::delay(
-//         [engine, func = std::move(func), paras = std::move(tmp)]() {
-//             if ((ll::getServerStatus() != ll::ServerStatus::Running))
-//                 return;
-//             if (!EngineManager::isValid(engine))
-//                 return;
-//             EngineScope enter(engine);
-//             if (paras.empty()) {
-//                 func.get().call();
-//             }
-//             else
-//             {
-//                 vector<Local<Value>> args;
-//                 for (auto& para : paras)
-//                     if (para.isEmpty())
-//                         return;
-//                     else
-//                         args.emplace_back(para.get());
-//                 func.get().call({}, args);
-//             }
-//         },
-//         timeout / 50);
-// }
+void NewTimeout_s(
+    script::Global<Function>     func,
+    vector<script::Local<Value>> paras,
+    int                          timeout,
+    ScriptEngine*                engine
+) {
+    std::vector<script::Global<Value>> tmp;
+    if (paras.size() > 0) {
+        EngineScope enter(engine);
+        for (auto& para : paras) tmp.emplace_back(std::move(para));
+    }
+    ll::schedule::ServerTimeScheduler scheduler;
+    scheduler.add<ll::schedule::DelayTask>(
+        ll::chrono::ticks(timeout / 50),
+        [engine, func = std::move(func), paras = std::move(tmp)]() {
+            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if (!EngineManager::isValid(engine)) return;
+            EngineScope enter(engine);
+            if (paras.empty()) {
+                func.get().call();
+            } else {
+                vector<Local<Value>> args;
+                for (auto& para : paras)
+                    if (para.isEmpty()) return;
+                    else args.emplace_back(para.get());
+                func.get().call({}, args);
+            }
+        }
+    );
+}
 
 int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;

@@ -1,6 +1,7 @@
 #include "api/EventAPI.h"
 
 #include "../engine/LocalShareData.h"
+#include "../engine/TimeTaskSystem.h"
 #include "../main/BuiltinCommands.h"
 #include "CommandCompatibleAPI.h"
 #include "EntityAPI.h"
@@ -1441,24 +1442,6 @@ void InitBasicEventListeners() {
     //         return true;
     //       });
 
-    //   // For RegisterCmd...
-    //   Event::RegCmdEvent::subscribe([](const RegCmdEvent &ev) {
-    //     isCmdRegisterEnabled = true;
-
-    //     // 处理延迟注册
-    //     ProcessRegCmdQueue();
-    //     return true;
-    //   });
-
-    //   // ===== onServerStarted =====
-    //   Event::ServerStartedEvent::subscribe([](Event::ServerStartedEvent ev) {
-    //     IF_LISTENED(EVENT_TYPES::onServerStarted) {
-    //       CallEventDelayed(EVENT_TYPES::onServerStarted);
-    //     }
-    //     IF_LISTENED_END(EVENT_TYPES::onServerStarted);
-    //     return true;
-    //   });
-
     // 植入tick
     ll::schedule::ServerTimeScheduler scheduler;
     scheduler.add<ll::schedule::RepeatTask>(ll::chrono::ticks(1), []() {
@@ -1515,6 +1498,16 @@ page, totalPages, Boolean::newBoolean(shouldDropBook));
     original(handler,id,pkt);
 }
 */
+
+bool LLSECallServerStartedEvent() {
+    IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventDelayed(EVENT_TYPES::onServerStarted); }
+    IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+    isCmdRegisterEnabled = true;
+
+    // 处理延迟注册
+    ProcessRegCmdQueue();
+    return true;
+}
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value) {
     switch (type) {

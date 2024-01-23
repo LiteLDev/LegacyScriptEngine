@@ -54,7 +54,7 @@ void RegisterDebugCommand() {
         "Debug LegacyScriptEngine",
         CommandPermissionLevel::Owner
     );
-    command->mandatory("eval", DynamicCommand::ParameterType::RawText);
+    command->optional("eval", DynamicCommand::ParameterType::RawText);
     command->addOverload("eval");
     command->setCallback([](DynamicCommand const&,
                             CommandOrigin const&,

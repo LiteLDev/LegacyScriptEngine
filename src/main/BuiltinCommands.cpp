@@ -33,9 +33,10 @@ bool ProcessDebugEngine(const std::string& cmd) {
             if (cmd == "stop") {
                 return true;
             } else {
-                auto result = debugEngine->eval(cmd);
-                PrintValue(std::cout, result);
-                std::cout << std::endl;
+                auto               result = debugEngine->eval(cmd);
+                std::ostringstream sout;
+                PrintValue(sout, result);
+                logger.info(sout.str());
                 OUTPUT_DEBUG_SIGN();
             }
         } catch (Exception& e) {
@@ -63,9 +64,10 @@ void RegisterDebugCommand() {
         if (results["eval"].isSet) {
             EngineScope enter(debugEngine);
             try {
-                auto result = debugEngine->eval(results["eval"].getRaw<std::string>());
-                PrintValue(std::cout, result);
-                std::cout << std::endl;
+                auto               result = debugEngine->eval(results["eval"].getRaw<std::string>());
+                std::ostringstream sout;
+                PrintValue(sout, result);
+                logger.info(sout.str());
             } catch (Exception& e) {
                 PrintException(e);
             }

@@ -27,7 +27,7 @@
 #endif
 
 // Global vars
-ll::Logger logger("LegacyScript");
+ll::Logger logger(LLSE_LOADER_NAME);
 
 extern void LoadDepends();
 extern void LoadMain();

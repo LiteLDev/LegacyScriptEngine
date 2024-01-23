@@ -1366,7 +1366,10 @@ void InitBasicEventListeners() {
         if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
             std::string cmd = ev.commandContext().mCommand.erase(0, 1);
 
-            if (!ProcessDebugEngine(cmd)) return false;
+            if (!ProcessDebugEngine(cmd)) {
+                ev.cancel();
+                return false;
+            }
 #ifdef LLSE_BACKEND_NODEJS
             if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) return false;
 #elif defined(LLSE_BACKEND_PYTHON)
@@ -1383,7 +1386,10 @@ void InitBasicEventListeners() {
                 bool callbackRes = CallServerCmdCallback(prefix, paras);
                 IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
-                if (!callbackRes) return false;
+                if (!callbackRes) {
+                    ev.cancel();
+                    return false;
+                }
             } else {
                 if (isFromOtherEngine) return false;
 

@@ -1,5 +1,7 @@
 #include "api/EventAPI.h"
 
+#include "../main/BuiltinCommands.h"
+#include "CommandCompatibleAPI.h"
 #include "EntityAPI.h"
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
@@ -8,6 +10,7 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
+#include "ll/api/event/command/ExecuteCommandEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/player/PlayerConnectEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
@@ -18,12 +21,15 @@
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
 #include "main/Global.h"
+#include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <exception>
 #include <list>
 #include <shared_mutex>
+
+
 
 //////////////////// Listeners ////////////////////
 
@@ -1319,6 +1325,7 @@ void EnableEventListener(int eventId) {
 
 void InitBasicEventListeners() {
     using namespace ll::event;
+    EventBus& bus = EventBus::getInstance();
 
     //   Event::PlayerCmdEvent::subscribe([](const PlayerCmdEvent &ev) {
     //     string cmd = ev.mCommand;
@@ -1356,49 +1363,38 @@ void InitBasicEventListeners() {
     //     }
     //     return true;
     //   });
+    bus.emplaceListener<ExecuteCommandEvent>([](ExecuteCommandEvent& ev) {
+        if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
+            string cmd = ev.commandContext().mCommand;
 
-    //   Event::ConsoleCmdEvent::subscribe_ref([](ConsoleCmdEvent &ev) {
-    //     string cmd = ev.mCommand;
+            if (!ProcessDebugEngine(cmd)) return false;
+#ifdef LLSE_BACKEND_NODEJS
+            if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) return false;
+#elif defined(LLSE_BACKEND_PYTHON)
+            if (!PythonHelper::processConsolePipCmd(ev.mCommand)) return false;
+#endif
+            // CallEvents
+            vector<string> paras;
+            bool           isFromOtherEngine = false;
+            string         prefix            = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
 
-    //     // PreProcess
-    //     if (!ProcessDebugEngine(cmd))
-    //       return false;
-    //     if (!ProcessOldHotManageCommand(ev.mCommand))
-    //       return false;
-    // #ifdef LLSE_BACKEND_NODEJS
-    //     if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand))
-    //       return false;
-    // #elif defined(LLSE_BACKEND_PYTHON)
-    //     if (!PythonHelper::processConsolePipCmd(ev.mCommand))
-    //       return false;
-    // #endif
-    //     // CallEvents
-    //     vector<string> paras;
-    //     bool isFromOtherEngine = false;
-    //     string prefix = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
+            if (!prefix.empty()) {
+                // LLSE Registered Cmd
 
-    //     if (!prefix.empty()) {
-    //       // LLSE Registered Cmd
+                bool callbackRes = CallServerCmdCallback(prefix, paras);
+                IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
+                IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
+                if (!callbackRes) return false;
+            } else {
+                if (isFromOtherEngine) return false;
 
-    //       bool callbackRes = CallServerCmdCallback(prefix, paras);
-    //       IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
-    //         CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd));
-    //       }
-    //       IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
-    //       if (!callbackRes)
-    //         return false;
-    //     } else {
-    //       if (isFromOtherEngine)
-    //         return false;
-
-    //       // Other Cmd
-    //       IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
-    //         CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd));
-    //       }
-    //       IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
-    //     }
-    //     return true;
-    //   });
+                // Other Cmd
+                IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
+                IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
+            }
+        }
+        return true;
+    });
 
     //   // Plugin Hot Management
     //   Event::ScriptPluginManagerEvent::subscribe_ref(

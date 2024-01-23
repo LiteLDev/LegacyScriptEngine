@@ -54,31 +54,3 @@ bool ProcessDebugEngine(const std::string& cmd) {
     }
     return true;
 }
-
-bool StartsWith(const std::string& str, const std::string& start) {
-    size_t srcLen   = str.size();
-    size_t startLen = start.size();
-    if (srcLen >= startLen) {
-        string temp = str.substr(0, startLen);
-        if (temp == start) return true;
-    }
-
-    return false;
-}
-
-#define FIX_OLD_COMMAND(OLDCMD, NEWCMD)                                                                                \
-    if (StartsWith(cmd, OLDCMD)) {                                                                                     \
-        logger.warn("* Please use command " #NEWCMD " instead.");                                                      \
-        cmd.replace(0, 3, "ll");                                                                                       \
-    }
-
-bool ProcessOldHotManageCommand(std::string& cmd) {
-    FIX_OLD_COMMAND("lxl list", "ll list");
-    FIX_OLD_COMMAND("lxl load", "ll load");
-    FIX_OLD_COMMAND("lxl unload", "ll unload");
-    FIX_OLD_COMMAND("lxl reload", "ll reload");
-    FIX_OLD_COMMAND("lxl version", "ll version");
-    FIX_OLD_COMMAND("lxl update", "ll upgrade");
-
-    return true;
-}

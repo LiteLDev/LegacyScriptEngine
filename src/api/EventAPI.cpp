@@ -13,6 +13,8 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
+#include "ll/api/event/player/PlayerAddExperienceEvent.h"
+#include "ll/api/event/player/PlayerAttackEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/player/PlayerConnectEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
@@ -1207,17 +1209,18 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onExperienceAdd:
-        //   Event::PlayerExperienceAddEvent::subscribe(
-        //       [](const PlayerExperienceAddEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onExperienceAdd) {
-        //           CallEvent(EVENT_TYPES::onExperienceAdd,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     Number::newNumber(ev.mExp));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onExperienceAdd);
-        //       });
-        //   break;
+    case EVENT_TYPES::onExperienceAdd:
+        bus.emplaceListener<PlayerAddExperienceEvent>([](PlayerAddExperienceEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onExperienceAdd) {
+                CallEvent(
+                    EVENT_TYPES::onExperienceAdd,
+                    PlayerClass::newPlayer(&ev.self()),
+                    Number::newNumber(ev.experience())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onExperienceAdd);
+        });
+        break;
 
         // case EVENT_TYPES::onBedEnter:
         //   Event::PlayerBedEnterEvent::subscribe([](const PlayerBedEnterEvent &ev)
@@ -1245,18 +1248,18 @@ void EnableEventListener(int eventId) {
 
         //   /* DEPRECATED AND RECENTLY REMOVED - START */
 
-        // case EVENT_TYPES::onAttack:
-        //   Event::PlayerAttackEvent::subscribe([](const PlayerAttackEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onAttack) {
-        //       if (ev.mTarget) {
-        //         CallEvent(EVENT_TYPES::onAttack,
-        //         PlayerClass::newPlayer(ev.mPlayer),
-        //                   EntityClass::newEntity(ev.mTarget));
-        //       }
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onAttack);
-        //   });
-        //   break;
+    case EVENT_TYPES::onAttack:
+        bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onAttack) {
+                CallEvent(
+                    EVENT_TYPES::onAttack,
+                    PlayerClass::newPlayer(&ev.self()),
+                    EntityClass::newEntity(&ev.target())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onAttack);
+        });
+        break;
 
         // case EVENT_TYPES::onContainerChangeSlot:
         //   Event::ContainerChangeEvent::subscribe([](const ContainerChangeEvent

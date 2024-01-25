@@ -40,7 +40,7 @@ inline size_t getDecodeLength(const std::string& in) {
         ++count;
     }
     input_size -= count;     // remove padding size
-    count      = 0;          // reset padding counter
+    count       = 0;         // reset padding counter
     while (input_size % 4) { // redo padding
         input_size++;
         count++;
@@ -65,7 +65,7 @@ inline std::string Encode(const std::string& text_input) {
     int j = -6;
 
     for (auto c : text_input) {
-        i = (i << 8) + static_cast<uint8_t>(c);
+        i  = (i << 8) + static_cast<uint8_t>(c);
         j += 8;
         while (j >= 0) {
             result += _base64_table[(i >> j) & 0x3F];

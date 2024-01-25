@@ -116,16 +116,15 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnBinaryReceived(
-        [nowList{&listeners[int(WSClientEvents::onBinaryReceived)]}](WebSocketClient& client, vector<uint8_t> data) {
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    if (!EngineManager::isValid(listener.engine)) return;
-                    EngineScope enter(listener.engine);
-                    NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
-                }
-        }
-    );
+    ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]
+                         }](WebSocketClient& client, vector<uint8_t> data) {
+        if (!nowList->empty())
+            for (auto& listener : *nowList) {
+                if (!EngineManager::isValid(listener.engine)) return;
+                EngineScope enter(listener.engine);
+                NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+            }
+    });
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]}](WebSocketClient& client, string msg) {
         if (!nowList->empty())
@@ -136,8 +135,8 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnLostConnection([nowList{
-                             &listeners[int(WSClientEvents::onLostConnection)]}](WebSocketClient& client, int code) {
+    ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]
+                         }](WebSocketClient& client, int code) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -390,7 +389,8 @@ using namespace httplib;
             EngineScope::currentEngine(),                                                                              \
             script::Global<Function>{func},                                                                            \
             HttpRequestType::method,                                                                                   \
-            path}                                                                                                      \
+            path                                                                                                       \
+        }                                                                                                              \
     ));                                                                                                                \
     svr->##method##(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {  \
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)                    \

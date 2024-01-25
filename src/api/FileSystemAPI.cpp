@@ -137,7 +137,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
 
         bool isBinary = false;
         if (args.size() >= 3 && args[2].asBoolean().value()) {
-            isBinary = true;
+            isBinary  = true;
             mode     |= std::ios_base::binary;
         }
 
@@ -740,7 +740,7 @@ Local<Value> OpenFile(const Arguments& args) {
 
         bool isBinary = false;
         if (args.size() >= 3 && args[2].asBoolean().value()) {
-            isBinary = true;
+            isBinary  = true;
             mode     |= std::ios_base::binary;
         }
 

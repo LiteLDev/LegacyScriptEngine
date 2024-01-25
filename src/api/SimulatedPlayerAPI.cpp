@@ -256,12 +256,12 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
         float  speed = 1.0f;
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
-            auto pos = IntPos::extractPos(args[0]);
-            target   = pos->getBlockPos();
+            auto pos  = IntPos::extractPos(args[0]);
+            target    = pos->getBlockPos();
             index    += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
-            auto pos = FloatPos::extractPos(args[0]);
-            target   = pos->getVec3();
+            auto pos  = FloatPos::extractPos(args[0]);
+            target    = pos->getVec3();
             index    += 1;
         }
 #ifdef ENABLE_NUMBERS_AS_POS
@@ -270,7 +270,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            Vec3 pos = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
+            Vec3 pos  = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
             index    += 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -300,12 +300,12 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
         float  speed = 1.0f;
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
-            auto pos = IntPos::extractPos(args[0]);
-            target   = pos->getBlockPos();
+            auto pos  = IntPos::extractPos(args[0]);
+            target    = pos->getBlockPos();
             index    += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
-            auto pos = FloatPos::extractPos(args[0]);
-            target   = pos->getVec3();
+            auto pos  = FloatPos::extractPos(args[0]);
+            target    = pos->getVec3();
             index    += 1;
         }
 #ifdef ENABLE_NUMBERS_AS_POS
@@ -314,7 +314,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            Vec3 pos = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
+            Vec3 pos  = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
             index    += 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -344,12 +344,12 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
         float  speed = 1.0f;
         size_t index = 0;
         if (IsInstanceOf<IntPos>(args[0])) {
-            auto pos = IntPos::extractPos(args[0]);
-            target   = pos->getBlockPos();
+            auto pos  = IntPos::extractPos(args[0]);
+            target    = pos->getBlockPos();
             index    += 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
-            auto pos = FloatPos::extractPos(args[0]);
-            target   = pos->getVec3();
+            auto pos  = FloatPos::extractPos(args[0]);
+            target    = pos->getVec3();
             index    += 1;
         }
 #ifdef ENABLE_NUMBERS_AS_POS
@@ -358,7 +358,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            Vec3 pos = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
+            Vec3 pos  = Vec3(args[0].asNumber().toFloat(), args[1].asNumber().toFloat(), args[2].asNumber().toFloat());
             index    += 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS

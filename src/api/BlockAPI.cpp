@@ -576,7 +576,8 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
                 args[0].asNumber().toFloat(),
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
-                args[3].toInt()};
+                args[3].toInt()
+            };
             type = args[4];
         } else {
             LOG_WRONG_ARGS_COUNT();

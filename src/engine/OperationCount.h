@@ -11,7 +11,7 @@ public:
     static OperationCount create(const string& name);
     static bool           exists(const string& name);
     bool                  remove();
-                          operator bool() { return exists(name); }
+    operator bool() { return exists(name); }
 
     bool        done();
     inline bool finish() { return done(); }

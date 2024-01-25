@@ -8,12 +8,12 @@
 
 #define GETVEC3(v, d, u)                                                                                               \
     if (IsInstanceOf<IntPos>(u)) {                                                                                     \
-        auto pos2 = EngineScope::currentEngine()->getNativeInstance<IntPos>(u);                                        \
-        v         = Vec3(pos2->x, pos2->y, pos2->z);                                                                   \
+        auto pos2  = EngineScope::currentEngine() -> getNativeInstance<IntPos>(u);                                     \
+        v          = Vec3(pos2->x, pos2->y, pos2->z);                                                                  \
         v         += 0.5f;                                                                                             \
-        d         = pos2->dim;                                                                                         \
+        d          = pos2->dim;                                                                                        \
     } else if (IsInstanceOf<FloatPos>(u)) {                                                                            \
-        auto pos2 = EngineScope::currentEngine()->getNativeInstance<FloatPos>(u);                                      \
+        auto pos2 = EngineScope::currentEngine() -> getNativeInstance<FloatPos>(u);                                    \
         v         = Vec3(pos2->x, pos2->y, pos2->z);                                                                   \
         d         = pos2->dim;                                                                                         \
     } else {                                                                                                           \

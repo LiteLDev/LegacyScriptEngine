@@ -14,12 +14,12 @@ class CommandClass : public ScriptClass {
     bool                                    registered = false;
     inline DynamicCommandInstance*          get() { return ptr; }
     inline std::vector<std::string>         parseStringList(Local<Array> arr) {
-                if (arr.size() == 0 || !arr.get(0).isString()) return {};
+        if (arr.size() == 0 || !arr.get(0).isString()) return {};
         std::vector<std::string> strs;
-                for (size_t i = 0; i < arr.size(); ++i) {
-                    strs.push_back(arr.get(i).toStr());
+        for (size_t i = 0; i < arr.size(); ++i) {
+            strs.push_back(arr.get(i).toStr());
         }
-                return std::move(strs);
+        return std::move(strs);
     }
     inline Local<Value> getStringArray(std::vector<std::string> values) {
         Local<Array> arr = Array::newArray(values.size());

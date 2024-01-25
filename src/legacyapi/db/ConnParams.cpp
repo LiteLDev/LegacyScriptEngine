@@ -79,15 +79,15 @@ URL ParseURL(const std::string& url) {
 
 extern ll::Logger dbLogger;
 void              PrintURL(const URL& url) {
-                 dbLogger.debug("Parsed URL");
-                 dbLogger.debug("scheme: {}", url.scheme);
-                 dbLogger.debug("user: {}", url.user);
-                 dbLogger.debug("password: {}", url.password);
-                 dbLogger.debug("host: {}", url.host);
-                 dbLogger.debug("port: {}", url.port);
-                 dbLogger.debug("path: {}", url.path);
-                 dbLogger.debug("query:");
-                 for (auto& pair : url.query) dbLogger.debug("- {}: {}", pair.first, pair.second);
+    dbLogger.debug("Parsed URL");
+    dbLogger.debug("scheme: {}", url.scheme);
+    dbLogger.debug("user: {}", url.user);
+    dbLogger.debug("password: {}", url.password);
+    dbLogger.debug("host: {}", url.host);
+    dbLogger.debug("port: {}", url.port);
+    dbLogger.debug("path: {}", url.path);
+    dbLogger.debug("query:");
+    for (auto& pair : url.query) dbLogger.debug("- {}: {}", pair.first, pair.second);
     dbLogger.debug("fragment: {}", url.fragment);
 }
 

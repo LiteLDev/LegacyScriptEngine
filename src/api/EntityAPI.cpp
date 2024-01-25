@@ -1665,7 +1665,8 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()};
+                args[4].toInt()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -1726,7 +1727,8 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()};
+                args[4].toInt()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -1790,7 +1792,8 @@ Local<Value> McClass::explode(const Arguments& args) {
                 args[0].asNumber().toFloat(),
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
-                args[3].toInt()};
+                args[3].toInt()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();

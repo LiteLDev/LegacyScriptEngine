@@ -15,7 +15,7 @@ add_requires(
     "toml++ v3.4.0"
 )
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
-add_requires("scriptx 0.1.0", {configs={backend=get_config("backend")}})
+add_requires("scriptx", {configs={backend=get_config("backend")}})
 
 set_runtimes("MD") -- For compatibility with the /MT build configuration of ScriptX.
 
@@ -23,16 +23,44 @@ option("backend")
     set_default("lua")
     set_values("libnode", "lua", "python310", "quickjs")
 
+package("lua")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/lua-5.4.2_Win64_vc17_lib.zip")
+    add_versions("0.0.0", "ea586157b104e3d4635dfa9ae2fa2245ba6afca22b5a93147c398a43d2d5688b")
+
+    on_install(function (package)
+        os.cp("include/*", package:installdir("include"))
+        os.cp("lua54.lib", package:installdir("lib"))
+    end)
+
+package("quickjs")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/scriptx-windows-x64.zip")
+    add_versions("0.0.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
+
+    on_install(function (package)
+        os.cp("include/quickjs/*", package:installdir("include"))
+        os.cp("lib/quickjs.lib", package:installdir("lib"))
+    end)
+
 package("scriptx")
     add_configs("backend", {default = "lua", values = {"libnode", "lua", "python310", "quickjs"}})
     add_includedirs(
         "include/scriptx/src/include/"
     )
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v$(version)/scriptx-windows-x64.zip")
-    add_versions("0.1.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/scriptx-windows-x64.zip")
+    add_versions("0.0.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
 
     on_install(function (package)
-        os.cp("*", package:installdir())
+        local backend = package:config("backend")
+
+        local scriptx_backends = {
+            libnode = "V8",
+            lua = "Lua",
+            python310 = "Python",
+            quickjs = "QuickJs",
+        }
+
+        os.cp("include/scriptx/*", package:installdir("include"))
+        os.cp("scriptx_" .. scriptx_backends[backend] .. ".lib", package:installdir("lib"))
     end)
 
     on_load(function (package)
@@ -49,13 +77,7 @@ package("scriptx")
         
         package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backends[backend])
         package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backends[backend] .. "/trait/Trait")
-        package:add("includedirs", "include/" .. backend .. "/")
-        package:add("links", backend)
-        package:add("links", "scriptx_" .. scriptx_backends[backend])
-
-        if backend == "libnode" then
-            package:add("includedirs", "include/libnode/v8/") -- Because ScriptX has #include <v8.h> in its headers.
-        end
+        package:add("deps", backend)
     end)
 
 target("legacy-script-engine")

@@ -60,7 +60,7 @@ package("scriptx")
         }
 
         os.cp("include/scriptx/*", package:installdir("include"))
-        os.cp("scriptx_" .. scriptx_backends[backend] .. ".lib", package:installdir("lib"))
+        os.cp("lib/scriptx_" .. scriptx_backends[backend] .. ".lib", package:installdir("lib"))
     end)
 
     on_load(function (package)

@@ -18,13 +18,13 @@ jobs:
 
       - uses: xmake-io/github-action-setup-xmake@v1
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/AppData/Local/.xmake
-          key: xmake-${{ hashFiles('xmake.lua') }}
-          restore-keys: |
-            xmake-
+      # - uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       ~/AppData/Local/.xmake
+      #     key: xmake-${{ hashFiles('xmake.lua') }}
+      #     restore-keys: |
+      #       xmake-
       
       - run: |
           xmake repo -u

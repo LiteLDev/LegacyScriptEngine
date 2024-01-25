@@ -174,50 +174,43 @@ string EventTypeToString(EVENT_TYPES e) { return string(magic_enum::enum_name(e)
         logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
     }
 
-// 调用事件监听函数，拦截不执行original
-#define CallEventRtnVoid(TYPE, ...)                                                                                    \
-    std::list<ListenerListType>& nowList   = listenerList[int(TYPE)];                                                  \
-    bool                         passToBDS = true;                                                                     \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) passToBDS = false;                          \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
-    }                                                                                                                  \
-    if (!passToBDS) {                                                                                                  \
-        return;                                                                                                        \
-    }
-
-// 调用事件监听函数，拦截返回false
+// 调用事件监听函数，取消事件
 #define CallEvent(TYPE, ...)                                                                                           \
-    std::list<ListenerListType>& nowList   = listenerList[int(TYPE)];                                                  \
-    bool                         passToBDS = true;                                                                     \
+    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
         try {                                                                                                          \
             auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) passToBDS = false;                          \
+            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
+                ev.cancel();                                                                                           \
+                return;                                                                                                \
+            }                                                                                                          \
         }                                                                                                              \
         LISTENER_CATCH(TYPE)                                                                                           \
-    }                                                                                                                  \
-    return passToBDS;
+    }
 
 // 调用事件监听函数，拦截返回RETURN_VALUE
 #define CallEventRtnValue(TYPE, RETURN_VALUE, ...)                                                                     \
-    std::list<ListenerListType>& nowList   = listenerList[int(TYPE)];                                                  \
-    bool                         passToBDS = true;                                                                     \
+    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
         try {                                                                                                          \
             auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) passToBDS = false;                          \
+            if (result.isBoolean() && result.asBoolean().value() == false) return RETURN_VALUE;                        \
         }                                                                                                              \
         LISTENER_CATCH(TYPE)                                                                                           \
-    }                                                                                                                  \
-    if (!passToBDS) {                                                                                                  \
-        return RETURN_VALUE;                                                                                           \
+    }
+
+// 调用事件监听函数，拦截返回
+#define CallEventVoid(TYPE, ...)                                                                                       \
+    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
+    for (auto& listener : nowList) {                                                                                   \
+        EngineScope enter(listener.engine);                                                                            \
+        try {                                                                                                          \
+            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
+            if (result.isBoolean() && result.asBoolean().value() == false) return;                                     \
+        }                                                                                                              \
+        LISTENER_CATCH(TYPE)                                                                                           \
     }
 
 // 模拟事件调用监听
@@ -251,14 +244,6 @@ string EventTypeToString(EVENT_TYPES e) { return string(magic_enum::enum_name(e)
     if (!listenerList[int(TYPE)].empty()) {                                                                            \
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
-    catch (...) {                                                                                                      \
-        logger.error("Event Callback Failed!");                                                                        \
-        logger.error("Uncaught Exception Detected!");                                                                  \
-        logger.error("In Event: " + EventTypeToString(TYPE));                                                          \
-    }                                                                                                                  \
-    }                                                                                                                  \
-    return true;
-#define IF_LISTENED_END_VOID(TYPE)                                                                                     \
     catch (...) {                                                                                                      \
         logger.error("Event Callback Failed!");                                                                        \
         logger.error("Uncaught Exception Detected!");                                                                  \
@@ -347,13 +332,13 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     uchar           unk_char
 ) {
     IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
-        CallEventRtnVoid(
+        CallEventVoid(
             EVENT_TYPES::onStartDestroyBlock,
             PlayerClass::newPlayer(&player),
             BlockClass::newBlock(blockPos, player.getDimensionId())
         );
     }
-    IF_LISTENED_END_VOID(EVENT_TYPES::onStartDestroyBlock)
+    IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
     origin(player, blockPos, unk_char);
 }
 
@@ -380,7 +365,7 @@ void EnableEventListener(int eventId) {
 
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerLeaveEvent>([](PlayerLeaveEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onLeft) { CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); }
+            IF_LISTENED(EVENT_TYPES::onLeft) { CallEventVoid(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); }
             IF_LISTENED_END(EVENT_TYPES::onLeft);
         });
         break;
@@ -451,7 +436,7 @@ void EnableEventListener(int eventId) {
                 Actor* source = ll::service::getLevel()
                                     ->getDimension(ev.self().getDimensionId())
                                     ->fetchEntity(ev.source().getEntityUniqueID(), false);
-                CallEvent(
+                CallEventVoid(
                     EVENT_TYPES::onPlayerDie,
                     PlayerClass::newPlayer(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>())
@@ -464,7 +449,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onRespawn:
         bus.emplaceListener<ll::event::PlayerRespawnEvent>([](ll::event::PlayerRespawnEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
-                CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self()));
+                CallEventVoid(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self()));
             }
             IF_LISTENED_END(EVENT_TYPES::onRespawn)
         });
@@ -1368,17 +1353,17 @@ void InitBasicEventListeners() {
 
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();
-                return false;
+                return;
             }
 #ifdef LLSE_BACKEND_NODEJS
             if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) {
                 ev.cancel();
-                return false;
+                return;
             }
 #elif defined(LLSE_BACKEND_PYTHON)
             if (!PythonHelper::processConsolePipCmd(ev.mCommand)) {
                 ev.cancel();
-                return false;
+                return;
             }
 #endif
             // CallEvents
@@ -1394,12 +1379,12 @@ void InitBasicEventListeners() {
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
                 if (!callbackRes) {
                     ev.cancel();
-                    return false;
+                    return;
                 }
             } else {
                 if (isFromOtherEngine) {
                     ev.cancel();
-                    return false;
+                    return;
                 }
 
                 // Other Cmd
@@ -1423,10 +1408,16 @@ void InitBasicEventListeners() {
                         CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd));
                     }
                     IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
-                    if (!callbackRes) return false;
+                    if (!callbackRes) {
+                        ev.cancel();
+                        return;
+                    }
                 }
             } else {
-                if (isFromOtherEngine) return false;
+                if (isFromOtherEngine) {
+                    ev.cancel();
+                    return;
+                }
 
                 // Other Cmd
                 IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
@@ -1434,9 +1425,9 @@ void InitBasicEventListeners() {
                 }
                 IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
             }
-            return true;
+            return;
         }
-        return true;
+        return;
     });
 
     //   // Plugin Hot Management
@@ -1494,7 +1485,7 @@ void InitBasicEventListeners() {
         }
 #endif
         // Call tick event
-        IF_LISTENED(EVENT_TYPES::onTick) { CallEvent(EVENT_TYPES::onTick); }
+        IF_LISTENED(EVENT_TYPES::onTick) { CallEventVoid(EVENT_TYPES::onTick); }
         IF_LISTENED_END(EVENT_TYPES::onTick);
     });
 }
@@ -1546,22 +1537,23 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyAdd) {
-            CallEvent(EVENT_TYPES::beforeMoneyAdd, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::beforeMoneyAdd, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyAdd);
         break;
     }
     case LLMoneyEvent::Reduce: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyReduce) {
-            CallEvent(EVENT_TYPES::beforeMoneyReduce, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::beforeMoneyReduce, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyReduce);
         break;
     }
     case LLMoneyEvent::Trans: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyTrans) {
-            CallEvent(
+            CallEventRtnValue(
                 EVENT_TYPES::beforeMoneyTrans,
+                false,
                 String::newString(from),
                 String::newString(to),
                 Number::newNumber(value)
@@ -1572,7 +1564,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t
     }
     case LLMoneyEvent::Set: {
         IF_LISTENED(EVENT_TYPES::beforeMoneySet) {
-            CallEvent(EVENT_TYPES::beforeMoneySet, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::beforeMoneySet, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneySet);
         break;
@@ -1587,22 +1579,23 @@ bool MoneyEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::onMoneyAdd) {
-            CallEvent(EVENT_TYPES::onMoneyAdd, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::onMoneyAdd, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneyAdd);
         break;
     }
     case LLMoneyEvent::Reduce: {
         IF_LISTENED(EVENT_TYPES::onMoneyReduce) {
-            CallEvent(EVENT_TYPES::onMoneyReduce, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::onMoneyReduce, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneyReduce);
         break;
     }
     case LLMoneyEvent::Trans: {
         IF_LISTENED(EVENT_TYPES::onMoneyTrans) {
-            CallEvent(
+            CallEventRtnValue(
                 EVENT_TYPES::onMoneyTrans,
+                false,
                 String::newString(from),
                 String::newString(to),
                 Number::newNumber(value)
@@ -1613,7 +1606,7 @@ bool MoneyEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value
     }
     case LLMoneyEvent::Set: {
         IF_LISTENED(EVENT_TYPES::onMoneySet) {
-            CallEvent(EVENT_TYPES::onMoneySet, String::newString(to), Number::newNumber(value));
+            CallEventRtnValue(EVENT_TYPES::onMoneySet, false, String::newString(to), Number::newNumber(value));
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneySet);
         break;

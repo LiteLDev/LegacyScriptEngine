@@ -21,7 +21,7 @@ set_runtimes("MD") -- For compatibility with the /MT build configuration of Scri
 
 option("backend")
     set_default("lua")
-    set_values("libnode", "lua", "python310", "quickjs")
+    set_values("lua", "quickjs")
 
 package("quickjs")
     add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/scriptx-windows-x64.zip")
@@ -33,7 +33,7 @@ package("quickjs")
     end)
 
 package("scriptx")
-    add_configs("backend", {default = "lua", values = {"libnode", "lua", "python310", "quickjs"}})
+    add_configs("backend", {default = "lua", values = {"lua", "quickjs"}})
     add_includedirs(
         "include/src/include/"
     )
@@ -44,9 +44,7 @@ package("scriptx")
         local backend = package:config("backend")
 
         local scriptx_backends = {
-            libnode = "V8",
             lua = "Lua",
-            python310 = "Python",
             quickjs = "QuickJs",
         }
 
@@ -58,16 +56,12 @@ package("scriptx")
         local backend = package:config("backend")
 
         local deps = {
-            libnode = "v8",
             lua = "lua v5.4.6",
-            python310 = "python",
             quickjs = "quickjs",
         }
 
         local scriptx_backends = {
-            libnode = "V8",
             lua = "Lua",
-            python310 = "Python",
             quickjs = "QuickJs",
         }
 
@@ -118,24 +112,6 @@ target("legacy-script-engine")
     set_kind("shared")
     set_languages("cxx20")
 
-    if is_config("backend", "libnode") then
-        add_defines(
-            "LLSE_BACKEND_NODEJS"
-        )
-    elseif is_config("backend", "lua") then
-        add_defines(
-            "LLSE_BACKEND_LUA"
-        )
-    elseif is_config("backend", "python310") then
-        add_defines(
-            "LLSE_BACKEND_PYTHON"
-        )
-    elseif is_config("backend", "quickjs") then
-        add_defines(
-            "LLSE_BACKEND_QUICKJS"
-        )
-    end
-
     after_build(function (target)
         local plugin_packer = import("scripts.after_build")
 
@@ -145,4 +121,19 @@ target("legacy-script-engine")
         }
         
         plugin_packer.pack_plugin(target,plugin_define)
+    end)
+
+    on_load(function (target)
+        import("core.project.config")
+
+        local backend = config.get("backend")
+
+        local llse_backend = {
+            lua = "LUA",
+            quickjs = "QUICKJS",
+        }
+
+        print("Using LegacyScriptEngine config: backend=" .. backend .. ", llse_backend=" .. llse_backend[backend])
+
+        target:add("defines", "LLSE_BACKEND_" .. llse_backend[backend])
     end)

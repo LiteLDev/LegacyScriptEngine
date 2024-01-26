@@ -17,7 +17,7 @@ add_requires(
 add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
 add_requires("scriptx", {configs={backend=get_config("backend")}})
 
-set_runtimes("MD") -- For compatibility with the /MT build configuration of ScriptX.
+set_runtimes("MD") -- For compatibility with the /MD build configuration of ScriptX.
 
 option("backend")
     set_default("lua")
@@ -34,21 +34,13 @@ package("quickjs")
 package("scriptx")
     add_configs("backend", {default = "lua", values = {"lua", "quickjs"}})
     add_includedirs(
-        "include/src/include/"
+        "src/include/"
     )
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/full.zip")
-    add_versions("latest", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/scriptx.zip")
+    add_versions("latest", "dd5fb21370a59f38e4c33f48f4a6eecb25692283e4d49bbee983453e05b128ab")
 
     on_install(function (package)
-        local backend = package:config("backend")
-
-        local scriptx_backends = {
-            lua = "Lua",
-            quickjs = "QuickJs",
-        }
-
-        os.cp("include/scriptx/*", package:installdir("include"))
-        os.cp("lib/scriptx_" .. scriptx_backends[backend] .. ".lib", package:installdir("lib"))
+        os.cp("*", package:installdir())
     end)
 
     on_load(function (package)
@@ -69,6 +61,7 @@ package("scriptx")
         package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backends[backend])
         package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backends[backend] .. "/trait/Trait")
         package:add("deps", deps[backend])
+        package:add("links", "scriptx_" .. scriptx_backends[backend])
     end)
 
 target("legacy-script-engine")

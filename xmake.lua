@@ -24,12 +24,11 @@ option("backend")
     set_values("lua", "quickjs")
 
 package("quickjs")
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/scriptx-windows-x64.zip")
-    add_versions("0.0.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/quickjs.zip")
+    add_versions("latest", "af0c38b0cf80aa1deb58e727e408477fffcc6f5f57da537dffc335861d652ed0")
 
     on_install(function (package)
-        os.cp("include/quickjs/*", package:installdir("include"))
-        os.cp("lib/quickjs.lib", package:installdir("lib"))
+        os.cp("*", package:installdir())
     end)
 
 package("scriptx")
@@ -37,8 +36,8 @@ package("scriptx")
     add_includedirs(
         "include/src/include/"
     )
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/v0.1.0/scriptx-windows-x64.zip")
-    add_versions("0.0.0", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
+    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/full.zip")
+    add_versions("latest", "d47729b73f37eaeb6c5dead4301e16feffd692ca10156a42449826997a1256c2")
 
     on_install(function (package)
         local backend = package:config("backend")

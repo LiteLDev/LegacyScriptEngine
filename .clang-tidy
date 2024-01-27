@@ -6,7 +6,6 @@ concurrency-*,
 cppcoreguidelines-*,
 llvm-*,
 misc-*,
-modernize-*,
 performance-*,
 portability-*,
 readability-*

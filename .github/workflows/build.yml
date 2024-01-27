@@ -49,6 +49,7 @@ jobs:
       - id: cpp-linter-action
         uses: cpp-linter/cpp-linter-action@v2
         with:
+          files-changed-only: false
           style: file
           tidy-checks: ''
           version: 17

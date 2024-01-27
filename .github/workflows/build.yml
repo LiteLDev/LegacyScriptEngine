@@ -35,7 +35,7 @@ jobs:
       - run: |
           xmake -w -y
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |

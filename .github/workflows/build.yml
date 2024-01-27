@@ -41,7 +41,7 @@ jobs:
           path: |
             bin/
 
-  check-style:
+  check-code:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +49,12 @@ jobs:
       - run: |
           choco install llvm -y --version=17.0.6
 
-      - run: |
+      - name: clang-format
+        run: |
           Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
           Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
+
+      - name: clang-tidy
+        run: |
+          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-tidy -p build -header-filter=src/ $_.FullName }
+          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-tidy -p build -header-filter=src/ $_.FullName }

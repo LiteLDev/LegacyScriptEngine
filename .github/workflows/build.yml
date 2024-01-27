@@ -46,15 +46,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
-          choco install llvm -y --version=17.0.6
+      - id: cpp-linter-action
+        uses: cpp-linter/cpp-linter-action@v2
+        with:
+          style: file
+          tidy-checks: ''
+          version: 17
 
-      - name: clang-format
+      - if: ${{ steps.cpp-linter-action.outputs.checks-failed > 0 }}
         run: |
-          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
-          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
-
-      - name: clang-tidy
-        run: |
-          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-tidy -p build -header-filter=src/ $_.FullName }
-          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-tidy -p build -header-filter=src/ $_.FullName }
+          exit 1

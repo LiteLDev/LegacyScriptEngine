@@ -409,19 +409,19 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onAttackEntity:
-        //   Event::PlayerAttackEvent::subscribe([](const PlayerAttackEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onAttackEntity) {
-        //       if (ev.mTarget) {
-        //         CallEvent(EVENT_TYPES::onAttackEntity,
-        //                   PlayerClass::newPlayer(ev.mPlayer),
-        //                   EntityClass::newEntity(ev.mTarget),
-        //                   Number::newNumber(ev.mAttackDamage));
-        //       }
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onAttackEntity);
-        //   });
-        //   break;
+    case EVENT_TYPES::onAttackEntity:
+        bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onAttackEntity) {
+                CallEvent(
+                    EVENT_TYPES::onAttackEntity,
+                    PlayerClass::newPlayer(&ev.self()),
+                    EntityClass::newEntity(&ev.target())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onAttackEntity);
+        });
+        break;
+        break;
 
         // case EVENT_TYPES::onAttackBlock:
         //   Event::PlayerAttackBlockEvent::subscribe(

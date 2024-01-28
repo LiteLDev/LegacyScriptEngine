@@ -3,9 +3,11 @@
 #include "../engine/LocalShareData.h"
 #include "../engine/TimeTaskSystem.h"
 #include "../main/BuiltinCommands.h"
+#include "BaseAPI.h"
 #include "BlockAPI.h"
 #include "CommandCompatibleAPI.h"
 #include "EntityAPI.h"
+#include "ItemAPI.h"
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
@@ -20,9 +22,18 @@
 #include "ll/api/event/player/PlayerConnectEvent.h"
 #include "ll/api/event/player/PlayerDestroyBlockEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
+#include "ll/api/event/player/PlayerInteractBlockEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
+#include "ll/api/event/player/PlayerJumpEvent.h"
 #include "ll/api/event/player/PlayerLeaveEvent.h"
+#include "ll/api/event/player/PlayerPickUpItemEvent.h"
+#include "ll/api/event/player/PlayerPlaceBlockEvent.h"
 #include "ll/api/event/player/PlayerRespawnEvent.h"
+#include "ll/api/event/player/PlayerSneakEvent.h"
+#include "ll/api/event/player/PlayerSprintEvent.h"
+#include "ll/api/event/player/PlayerSwingEvent.h"
+#include "ll/api/event/player/PlayerUseItemEvent.h"
+#include "ll/api/event/player/PlayerUseItemOnEvent.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
@@ -39,7 +50,6 @@
 #include <list>
 #include <shared_mutex>
 #include <string>
-
 
 //////////////////// Listeners ////////////////////
 
@@ -390,15 +400,14 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onPlayerSwing:
-        //   Event::PlayerSwingEvent::subscribe([](const PlayerSwingEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
-        //       CallEvent(EVENT_TYPES::onPlayerSwing,
-        //                 PlayerClass::newPlayer(ev.mPlayer));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onPlayerSwing);
-        //   });
-        //   break;
+    case EVENT_TYPES::onPlayerSwing:
+        bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
+                CallEventVoid(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self()));
+            }
+            IF_LISTENED_END(EVENT_TYPES::onPlayerSwing);
+        });
+        break;
 
         // case EVENT_TYPES::onAttackEntity:
         //   Event::PlayerAttackEvent::subscribe([](const PlayerAttackEvent &ev) {
@@ -472,29 +481,31 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onPlaceBlock:
-        //   Event::PlayerPlaceBlockEvent::subscribe(
-        //       [](const PlayerPlaceBlockEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onPlaceBlock) {
-        //           CallEvent(EVENT_TYPES::onPlaceBlock,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);
-        //       });
-        //   break;
+    case EVENT_TYPES::onPlaceBlock:
+        bus.emplaceListener<PlayerPlacingBlockEvent>([](PlayerPlacingBlockEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onPlaceBlock) {
+                CallEvent(
+                    EVENT_TYPES::onPlaceBlock,
+                    PlayerClass::newPlayer(&ev.self()),
+                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);
+        });
+        break;
 
-        // case EVENT_TYPES::afterPlaceBlock:
-        //   Event::BlockPlacedByPlayerEvent::subscribe(
-        //       [](const BlockPlacedByPlayerEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
-        //           CallEvent(EVENT_TYPES::afterPlaceBlock,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
-        //       });
-        //   break;
+    case EVENT_TYPES::afterPlaceBlock:
+        bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
+                CallEventVoid(
+                    EVENT_TYPES::afterPlaceBlock,
+                    PlayerClass::newPlayer(&ev.self()),
+                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
+        });
+        break;
 
         /*case EVENT_TYPES::onMove:
             Event::PlayerMoveEvent::subscribe([](const PlayerMoveEvent& ev) {
@@ -507,14 +518,12 @@ void EnableEventListener(int eventId) {
             });
             break;*/
 
-        // case EVENT_TYPES::onJump:
-        //   Event::PlayerJumpEvent::subscribe([](const PlayerJumpEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onJump) {
-        //       CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(ev.mPlayer));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onJump);
-        //   });
-        //   break;
+    case EVENT_TYPES::onJump:
+        bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onJump) { CallEventVoid(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); }
+            IF_LISTENED_END(EVENT_TYPES::onJump);
+        });
+        break;
 
         // case EVENT_TYPES::onDropItem:
         //   Event::PlayerDropItemEvent::subscribe([](const PlayerDropItemEvent &ev)
@@ -529,19 +538,19 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onTakeItem:
-        //   Event::PlayerPickupItemEvent::subscribe(
-        //       [](const PlayerPickupItemEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onTakeItem) {
-        //           CallEvent(EVENT_TYPES::onTakeItem,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     EntityClass::newEntity(ev.mItemEntity),
-        //                     ev.mItemStack ? ItemClass::newItem(ev.mItemStack)
-        //                                   : Local<Value>());
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onTakeItem);
-        //       });
-        //   break;
+    case EVENT_TYPES::onTakeItem:
+        bus.emplaceListener<PlayerPickUpItemEvent>([](PlayerPickUpItemEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onTakeItem) {
+                CallEvent(
+                    EVENT_TYPES::onTakeItem,
+                    PlayerClass::newPlayer(&ev.self()),
+                    EntityClass::newEntity(&ev.itemActor()),
+                    ItemClass::newItem(&ev.itemActor().item())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onTakeItem);
+        });
+        break;
 
         // case EVENT_TYPES::onOpenContainer:
         //   Event::PlayerOpenContainerEvent::subscribe(
@@ -580,32 +589,30 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onUseItem:
-        //   Event::PlayerUseItemEvent::subscribe([](const PlayerUseItemEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onUseItem) {
-        //       CallEvent(EVENT_TYPES::onUseItem,
-        //                 PlayerClass::newPlayer((Player *)ev.mPlayer),
-        //                 ItemClass::newItem(ev.mItemStack));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onUseItem);
-        //   });
-        //   break;
+    case EVENT_TYPES::onUseItem:
+        bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onUseItem) {
+                CallEvent(EVENT_TYPES::onUseItem, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item()));
+            }
+            IF_LISTENED_END(EVENT_TYPES::onUseItem);
+        });
+        break;
 
-        // case EVENT_TYPES::onUseItemOn:
-        //   Event::PlayerUseItemOnEvent::subscribe([](const PlayerUseItemOnEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onUseItemOn) {
-        //       CallEvent(EVENT_TYPES::onUseItemOn,
-        //                 PlayerClass::newPlayer((Player *)ev.mPlayer),
-        //                 ItemClass::newItem(ev.mItemStack),
-        //                 BlockClass::newBlock(ev.mBlockInstance),
-        //                 Number::newNumber(ev.mFace),
-        //                 FloatPos::newPos(ev.mClickPos,
-        //                 ev.mPlayer->getDimensionId()));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onUseItemOn);
-        //   });
-        //   break;
+    case EVENT_TYPES::onUseItemOn:
+        bus.emplaceListener<PlayerUseItemOnEvent>([](PlayerUseItemOnEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onUseItemOn) {
+                CallEvent(
+                    EVENT_TYPES::onUseItemOn,
+                    PlayerClass::newPlayer(&ev.self()),
+                    ItemClass::newItem(&ev.item()),
+                    BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
+                    Number::newNumber(ev.face()),
+                    FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onUseItemOn);
+        });
+        break;
 
         // case EVENT_TYPES::onUseBucketPlace:
         // case EVENT_TYPES::onUseBucketTake:
@@ -679,26 +686,43 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onChangeSprinting:
-        //   Event::PlayerSprintEvent::subscribe([](const PlayerSprintEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-        //       CallEvent(EVENT_TYPES::onChangeSprinting,
-        //                 PlayerClass::newPlayer(ev.mPlayer),
-        //                 Boolean::newBoolean(ev.mIsSprinting));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
-        //   });
-        //   break;
+    case EVENT_TYPES::onChangeSprinting:
+        bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
+                CallEventVoid(
+                    EVENT_TYPES::onChangeSprinting,
+                    PlayerClass::newPlayer(&ev.self()),
+                    Boolean::newBoolean(true)
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
+        });
+        bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
+                CallEventVoid(
+                    EVENT_TYPES::onChangeSprinting,
+                    PlayerClass::newPlayer(&ev.self()),
+                    Boolean::newBoolean(false)
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
+        });
+        break;
 
-        // case EVENT_TYPES::onSneak:
-        //   Event::PlayerSneakEvent::subscribe([](const PlayerSneakEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onSneak) {
-        //       CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(ev.mPlayer),
-        //                 Boolean::newBoolean(ev.mIsSneaking));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onSneak);
-        //   });
-        //   break;
+    case EVENT_TYPES::onSneak:
+        bus.emplaceListener<PlayerSneakingEvent>([](PlayerSneakingEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onSneak) {
+                CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(true));
+            }
+            IF_LISTENED_END(EVENT_TYPES::onSneak);
+        });
+        bus.emplaceListener<PlayerSneakedEvent>([](PlayerSneakedEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onSneak) {
+                CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(false));
+            }
+            IF_LISTENED_END(EVENT_TYPES::onSneak);
+        });
+        break;
 
         // case EVENT_TYPES::onOpenContainerScreen:
         //   Event::PlayerOpenContainerScreenEvent::subscribe(
@@ -1067,18 +1091,18 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onBlockInteracted:
-        //   Event::BlockInteractedEvent::subscribe([](const BlockInteractedEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
-        //       CallEvent(EVENT_TYPES::onBlockInteracted,
-        //                 PlayerClass::newPlayer(ev.mPlayer),
-        //                 BlockClass::newBlock(ev.mBlockInstance));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
-        //   });
-        //   break;
+    case EVENT_TYPES::onBlockInteracted:
 
+        bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
+                CallEvent(
+                    EVENT_TYPES::onBlockInteracted,
+                    PlayerClass::newPlayer(&ev.self()),
+                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
+        });
         // case EVENT_TYPES::onFarmLandDecay:
         //   Event::FarmLandDecayEvent::subscribe([](const FarmLandDecayEvent &ev) {
         //     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {

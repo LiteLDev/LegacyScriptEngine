@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    runs-on: windows-latest
     strategy:
       matrix:
         backend:
@@ -12,7 +13,6 @@ jobs:
           - lua
           # - python310
           - quickjs
-    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -43,8 +43,26 @@ jobs:
 
   check-code:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        backend:
+          # - libnode
+          - lua
+          # - python310
+          - quickjs
     steps:
       - uses: actions/checkout@v4
+
+      - uses: xmake-io/github-action-setup-xmake@v1
+
+      - run: |
+          xmake repo -u
+
+      - run: |
+          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
+
+      - run: |
+          xmake project -k compile_commands
 
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -7,9 +7,9 @@
 std::ofstream record;
 
 void InitSafeGuardRecord() {
-    std::filesystem::create_directories("logs/LiteLoader");
+    std::filesystem::create_directories("logs/LegacyScriptEngine");
     record.open(
-        std::string("logs/LiteLoader/Sensitive_Operation_Records-") + LLSE_BACKEND_TYPE + ".log",
+        std::string("logs/LegacyScriptEngine/Sensitive_Operation_Records-") + LLSE_BACKEND_TYPE + ".log",
         std::ios::app
     );
 }

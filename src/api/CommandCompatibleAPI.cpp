@@ -21,22 +21,24 @@
 
 //////////////////// Helper ////////////////////
 
-void RegisterCmd(const string& cmd, const string& describe, int cmdLevel) {
-    ll::event::EventBus::getInstance().emplaceListener<ll::event::ServerStartedEvent>(
-        [&](ll::event::ServerStartedEvent& ev) {
-            auto& registry = ll::service::getCommandRegistry().get();
-            registry.registerCommand(
-                cmd,
-                describe.c_str(),
-                (CommandPermissionLevel)cmdLevel,
-                {(CommandFlagValue)0},
-                {(CommandFlagValue)0x80}
-            );
-        }
+void RegisterCmd(const std::string& cmd, const std::string& describe, int cmdLevel) {
+    auto& registry = ll::service::getCommandRegistry().get();
+    registry.registerCommand(
+        cmd,
+        describe.c_str(),
+        (CommandPermissionLevel)cmdLevel,
+        {(CommandFlagValue)0},
+        {(CommandFlagValue)0x80}
     );
 }
 // Helper
-void LLSERegisterNewCmd(bool isPlayerCmd, string cmd, const string& describe, int level, Local<Function> func) {
+void LLSERegisterNewCmd(
+    bool               isPlayerCmd,
+    std::string        cmd,
+    const std::string& describe,
+    int                level,
+    Local<Function>    func
+) {
     if (cmd[0] == '/') cmd = cmd.erase(0, 1);
 
     if (isPlayerCmd) {

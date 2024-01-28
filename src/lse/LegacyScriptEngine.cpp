@@ -76,7 +76,6 @@ bool LegacyScriptEngine::enable() {
 
     // Code for enabling the plugin goes here.
     RegisterDebugCommand();
-    LLSECallServerStartedEvent();
     return true;
 }
 

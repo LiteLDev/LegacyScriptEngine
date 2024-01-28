@@ -34,6 +34,7 @@
 #include "ll/api/event/player/PlayerSwingEvent.h"
 #include "ll/api/event/player/PlayerUseItemEvent.h"
 #include "ll/api/event/player/PlayerUseItemOnEvent.h"
+#include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
@@ -1416,7 +1417,10 @@ void InitBasicEventListeners() {
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
             }
         } else if (ev.commandContext().mOrigin->getOriginType() == CommandOriginType::Player) {
-            std::string              cmd = ev.commandContext().mCommand;
+            std::string cmd = ev.commandContext().mCommand;
+            if (cmd.starts_with("/")) {
+                cmd.erase(0, 1);
+            }
             std::vector<std::string> paras;
             bool                     isFromOtherEngine = false;
             std::string              prefix            = LLSEFindCmdReg(true, cmd, paras, &isFromOtherEngine);
@@ -1486,6 +1490,19 @@ void InitBasicEventListeners() {
     //         return true;
     //       });
 
+    // ===== onServerStarted =====
+    bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent& ev) {
+        IF_LISTENED(EVENT_TYPES::onServerStarted) {
+            // CallEventDelayed(EVENT_TYPES::onServerStarted);
+            CallEventVoid(EVENT_TYPES::onServerStarted);
+        }
+        IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+        isCmdRegisterEnabled = true;
+
+        // 处理延迟注册
+        ProcessRegCmdQueue();
+    });
+
     // 植入tick
     ll::schedule::ServerTimeScheduler scheduler;
     scheduler.add<ll::schedule::RepeatTask>(ll::chrono::ticks(1), []() {
@@ -1542,20 +1559,6 @@ page, totalPages, Boolean::newBoolean(shouldDropBook));
     original(handler,id,pkt);
 }
 */
-
-void LLSECallServerStartedEvent() {
-    IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventDelayed(EVENT_TYPES::onServerStarted); }
-    catch (...) {
-        logger.error("Event Callback Failed!");
-        logger.error("Uncaught Exception Detected!");
-        logger.error("In Event: " + EventTypeToString(EVENT_TYPES::onServerStarted));
-    }
-}
-isCmdRegisterEnabled = true;
-
-// 处理延迟注册
-ProcessRegCmdQueue();
-}
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value) {
     switch (type) {

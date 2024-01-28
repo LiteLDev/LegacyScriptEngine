@@ -104,13 +104,14 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         return loadPluginPackage(realPath, fileOrDirPath, isHotLoad, isUncompressedFirstTime);
     }
 
+    // Todo
     // Single file plugin
     // Check duplicated
-    if (PluginManager::getPlugin(pluginFileName)) {
-        // logger.error("This plugin has been loaded by LiteLoader. You cannot load
-        // it twice.");
-        return false;
-    }
+    // if (PluginManager::getPlugin(pluginFileName)) {
+    //     // logger.error("This plugin has been loaded by LiteLoader. You cannot load
+    //     // it twice.");
+    //     return false;
+    // }
 
     ScriptEngine* engine = nullptr;
     try {
@@ -161,9 +162,10 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         std::string const& pluginName = ENGINE_OWN_DATA()->pluginName;
         ExitEngineScope    exit;
 
+        // Todo
         // If plugin itself doesn't register, help it to do so
-        if (!PluginManager::getPlugin(pluginName))
-            PluginManager::registerPlugin(realPath, pluginName, pluginName, ll::Version(1, 0, 0), {});
+        // if (!PluginManager::getPlugin(pluginName))
+        //     PluginManager::registerPlugin(realPath, pluginName, pluginName, ll::Version(1, 0, 0), {});
 
         // Call necessary events when at hot load
         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
@@ -287,7 +289,9 @@ bool PluginManager::reloadAllPlugins() {
     return true;
 }
 
-ll::plugin::Plugin* PluginManager::getPlugin(std::string name) { return PluginManager::getPlugin(std::move(name)); }
+ll::plugin::Plugin* PluginManager::getPlugin(std::string name) { // Todo
+    return {};
+}
 
 // Get all plugins of current language
 std::unordered_map<std::string, ll::plugin::Plugin*> PluginManager::getLocalPlugins() {

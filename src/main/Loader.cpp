@@ -100,10 +100,8 @@ void LoadMain() {
         if (i.is_regular_file() && i.path().extension() == LLSE_SOURCE_FILE_EXTENSION) {
             try {
                 // Todo
-                // if (PluginManager::loadPlugin(
-                //         ll::string_utils::u8str2str(i.path().generic_u8string()),
-                //         false, true))
-                ++count;
+                if (PluginManager::loadPlugin(ll::string_utils::u8str2str(i.path().generic_u8string()), false, true))
+                    ++count;
             } catch (...) {}
         }
     }

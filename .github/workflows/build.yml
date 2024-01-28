@@ -46,7 +46,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - id: cpp-linter-action
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: cpp-linter-action
         uses: cpp-linter/cpp-linter-action@v2
         with:
           files-changed-only: false

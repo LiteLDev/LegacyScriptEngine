@@ -38,7 +38,7 @@ CommentPragmas: '^ IWYU pragma:'
 ConstructorInitializerIndentWidth: 0
 IndentWidth: 4
 Language: Cpp
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 1
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
 TabWidth: 4

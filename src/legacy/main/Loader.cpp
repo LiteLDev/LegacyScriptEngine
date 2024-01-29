@@ -82,7 +82,7 @@ void LoadDebugEngine() {
             if (!content.empty()) debugEngine->eval(content, path);
         }
     } catch (const Exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n");
+        lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n{}\n", e.stacktrace());
         throw;
     }
 }

@@ -39,7 +39,18 @@ auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
     return *selfPluginInstance;
 }
 
-auto loadBaseLib() -> bool;
+auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
+    auto path = self.getPluginDir() / "BaseLib.lua";
+
+    auto content = ll::file_utils::readFile(path);
+
+    if (!content) {
+        throw std::runtime_error("failed to read " + path.string());
+    }
+
+    depends.emplace(path.string(), *content);
+}
+
 auto load(ll::plugin::NativePlugin& self) -> bool {
     auto& logger = self.getLogger();
 
@@ -54,7 +65,7 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     InitSafeGuardRecord();
     EconomySystem::init();
 
-    loadBaseLib();
+    loadBaseLib(self);
 
     // TODO: Load main
 
@@ -65,18 +76,6 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     MoreGlobal::Init();
 
     return true;
-}
-
-auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
-    auto path = self.getPluginDir() / "BaseLib.lua";
-
-    auto content = ll::file_utils::readFile(path);
-
-    if (!content) {
-        throw std::runtime_error("failed to read " + path.string());
-    }
-
-    depends.emplace(path.string(), *content);
 }
 
 extern "C" {

@@ -1,9 +1,9 @@
 #include "PluginManager.h"
 
-#include "ll/api/plugin/Plugin.h"
-#include "lse/Entry.h"
-#include "main/PluginManager.h"
+#include "Entry.h"
+#include "legacy/main/PluginManager.h"
 
+#include <ll/api/plugin/Plugin.h>
 #include <ll/api/plugin/PluginManager.h>
 
 #if LEGACY_SCRIPT_ENGINE_BACKEND == lua
@@ -19,6 +19,10 @@ constexpr auto PluginManagerName = "lse-quickjs";
 #error "LEGACY_SCRIPT_ENGINE_BACKEND is not defined!"
 
 #endif
+
+// temporary fix
+auto ll::plugin::PluginManager::load(ll::plugin::Manifest /*manifest*/) -> bool { return true; } // NOLINT
+auto ll::plugin::PluginManager::unload(std::string_view /*name*/) -> bool { return true; }
 
 namespace lse {
 

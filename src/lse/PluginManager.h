@@ -15,6 +15,7 @@ public:
     auto operator=(const PluginManager&) -> PluginManager& = delete;
     auto operator=(PluginManager&&) -> PluginManager&      = delete;
 
+protected:
     ~PluginManager() override = default;
 
     auto load(ll::plugin::Manifest manifest) -> bool override;

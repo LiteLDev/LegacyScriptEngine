@@ -324,17 +324,19 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
 }
 
 Local<Value> BlockClass::getBlockState(const Arguments& args) {
-    try {
-        auto list = block->getSerializationId();
-        try {
-            return Tag2Value((Tag*)list.get("states"), true);
-        } catch (...) {
-            return Array::newArray();
-        }
-    } catch (const std::out_of_range& e) {
-        return Object::newObject();
-    }
-    CATCH("Fail in getBlockState!")
+    return Local<Value>();
+    // TODO
+    // try {
+    //     auto list = block->getSerializationId();
+    //     try {
+    //         return Tag2Value((Tag*)list.get("states"), true);
+    //     } catch (...) {
+    //         return Array::newArray();
+    //     }
+    // } catch (const std::out_of_range& e) {
+    //     return Object::newObject();
+    // }
+    // CATCH("Fail in getBlockState!")
 }
 
 Local<Value> BlockClass::hasContainer(const Arguments& args) {

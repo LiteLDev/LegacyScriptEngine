@@ -1358,9 +1358,10 @@ Local<Value> EntityClass::getAllTags(const Arguments& args) {
         Local<Array> arr = Array::newArray();
         CompoundTag  tag = CompoundTag();
         entity->save(tag);
-        tag.getList("tags")->forEachCompoundTag([&arr](const CompoundTag& tag) {
-            arr.add(String::newString(tag.toString()));
-        });
+        // TODO
+        // tag.getList("tags")->forEachCompoundTag([&arr](const CompoundTag& tag) {
+        //     arr.add(String::newString(tag.toString()));
+        // });
         return arr;
     }
     CATCH("Fail in getAllTags!");

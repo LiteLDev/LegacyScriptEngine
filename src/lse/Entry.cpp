@@ -43,34 +43,28 @@ auto loadBaseLib() -> bool;
 auto load(ll::plugin::NativePlugin& self) -> bool {
     auto& logger = self.getLogger();
 
-    try {
-        logger.info("loading...");
+    logger.info("loading...");
 
-        selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
+    selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
 
-        ll::i18n::load(self.getLangDir());
+    ll::i18n::load(self.getLangDir());
 
-        InitLocalShareData();
-        InitGlobalShareData();
-        InitSafeGuardRecord();
-        EconomySystem::init();
+    InitLocalShareData();
+    InitGlobalShareData();
+    InitSafeGuardRecord();
+    EconomySystem::init();
 
-        loadBaseLib();
+    loadBaseLib();
 
-        // TODO: Load main
+    // TODO: Load main
 
-        LoadDebugEngine();
+    LoadDebugEngine();
 
-        InitBasicEventListeners();
-        InitMessageSystem();
-        MoreGlobal::Init();
+    InitBasicEventListeners();
+    InitMessageSystem();
+    MoreGlobal::Init();
 
-        return true;
-
-    } catch (std::exception& err) {
-        logger.error("failed to load: {}", err.what());
-        return false;
-    }
+    return true;
 }
 
 auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {

@@ -95,7 +95,6 @@ function pack_plugin(target,plugin_define)
         local manifestfile = path.join(outputdir, "manifest.json")
         local oritargetfile = target:targetfile()
         local oripdbfile = path.join(path.directory(oritargetfile), path.basename(oritargetfile) .. ".pdb")
-        local langfile = path.join(os.projectdir(), "src/lang")
 
         os.mkdir(outputdir)
         os.cp(oritargetfile, targetfile)
@@ -105,7 +104,15 @@ function pack_plugin(target,plugin_define)
 
         formattedmanifest = string_formatter(manifest, plugin_define)
         io.writefile(manifestfile,formattedmanifest)
+
+        -- Copy i18n files.
+        local langfile = path.join(os.projectdir(), "src", "lang")
         os.cp(langfile, path.join(outputdir, "lang"))
+
+        -- Copy base library files.
+        local baselib_file = path.join(os.projectdir(), "src", "baselib")
+        os.cp(baselib_file, outputdir)
+
         cprint("${bright green}[Plugin Packer]: ${reset}plugin already generated to " .. outputdir)
     else
         cprint("${bright yellow}warn: ${reset}not found manifest.json in root dir!")

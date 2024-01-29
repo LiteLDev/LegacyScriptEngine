@@ -83,6 +83,9 @@ jobs:
           xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
 
       - run: |
+          xmake project -k compile_commands
+
+      - run: |
           choco install llvm -y --version=17.0.6
           
       - name: clang-tidy

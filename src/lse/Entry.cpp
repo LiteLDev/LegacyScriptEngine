@@ -101,7 +101,7 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 }
 
 auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
-    auto path = self.getPluginDir() / "BaseLib.lua";
+    auto path = self.getPluginDir() / "baselib" / "BaseLib.lua";
 
     auto content = ll::file_utils::readFile(path);
 

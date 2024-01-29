@@ -101,12 +101,7 @@ auto migratePlugins() -> void {
     logger.info("migrating legacy plugins...");
 
     for (const auto& path : pluginPaths) {
-        try {
-            migratePlugin(path);
-
-        } catch (const std::exception& e) {
-            logger.error("failed to migrate legacy plugin at {}: {}", path.string(), e.what());
-        }
+        migratePlugin(path);
     }
 
     logger.warn("legacy plugins have been migrated, please restart the server to load them!");

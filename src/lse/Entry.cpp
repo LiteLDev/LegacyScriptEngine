@@ -20,6 +20,7 @@
 #include <ll/api/plugin/NativePlugin.h>
 #include <ll/api/plugin/PluginManagerRegistry.h>
 #include <memory>
+#include <stdexcept>
 
 namespace lse {
 
@@ -88,10 +89,10 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     const auto& configFilePath = self.getConfigDir() / "config.json";
     if (!ll::config::loadConfig(config, configFilePath)) {
         logger.warn("cannot load configurations from {}", configFilePath);
-        logger.info("saving default configurations");
+        logger.info("saving default configurations to {}", configFilePath);
 
         if (!ll::config::saveConfig(config, configFilePath)) {
-            logger.error("cannot save default configurations to {}", configFilePath);
+            throw std::runtime_error(fmt::format("cannot save default configurations to {}", configFilePath));
         }
     }
 

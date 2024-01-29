@@ -17,6 +17,7 @@ public:
 
     ~PluginManager() override = default;
 
+private:
     auto load(ll::plugin::Manifest manifest) -> bool override;
     auto unload(std::string_view name) -> bool override;
 };

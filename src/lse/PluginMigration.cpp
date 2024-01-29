@@ -10,17 +10,15 @@
 #include <ll/api/reflection/Serialization.h>
 #include <unordered_set>
 
-#if LEGACY_SCRIPT_ENGINE_BACKEND == lua
+#if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto PluginExtName = ".lua";
 
-#elif LEGACY_SCRIPT_ENGINE_BACKEND == quickjs
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
 constexpr auto PluginExtName = ".js";
-
-#else
-
-#error "LEGACY_SCRIPT_ENGINE_BACKEND is not defined!"
 
 #endif
 

@@ -74,7 +74,6 @@ target("legacy-script-engine")
     add_defines(
         "_HAS_CXX23=1", -- To enable C++23 features.
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
-        "LEGACY_SCRIPT_ENGINE_BACKEND=$(backend)", -- To use the backend specified by the user.
         "NOMINMAX", -- To avoid conflicts with std::min and std::max.
         "UNICODE" -- To enable Unicode support.
     )
@@ -109,6 +108,14 @@ target("legacy-script-engine")
     set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
     set_languages("cxx20")
+
+    on_load(function (target)
+        import("core.base.option")
+
+        local backend = option.get("backend")
+
+        target:add("defines", "LEGACY_SCRIPT_ENGINE_BACKEND_" .. string.upper(backend))
+    end)
 
     after_build(function (target)
         local plugin_packer = import("scripts.after_build")

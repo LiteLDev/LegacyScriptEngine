@@ -10,17 +10,15 @@
 #include <memory>
 #include <stdexcept>
 
-#if LEGACY_SCRIPT_ENGINE_BACKEND == lua
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto PluginManagerName = "lse-lua";
 
-#elif LEGACY_SCRIPT_ENGINE_BACKEND == quickjs
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
 constexpr auto PluginManagerName = "lse-quickjs";
-
-#else
-
-#error "LEGACY_SCRIPT_ENGINE_BACKEND is not defined!"
 
 #endif
 

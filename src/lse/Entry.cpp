@@ -142,6 +142,8 @@ auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
     }
 
     depends.emplace(path.string(), *content);
+
+    return true;
 }
 
 } // namespace lse

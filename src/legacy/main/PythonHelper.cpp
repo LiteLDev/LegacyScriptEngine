@@ -193,7 +193,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
         if (!PluginManager::getPlugin(pluginName)) {
             // Plugin did't register itself. Help to register it
             string                   description = pluginName;
-            ll::Version              ver(1, 0, 0);
+            ll::data::Version        ver(1, 0, 0);
             std::map<string, string> others = {};
 
             // Read information from pyproject.toml
@@ -211,7 +211,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
 
                 // version
                 if (projectNode["version"]) {
-                    ver = ll::Version::parse(*(projectNode["version"].value<std::string>()));
+                    ver = ll::data::Version::parse(*(projectNode["version"].value<std::string>()));
                 }
 
                 // TODO: more information to read

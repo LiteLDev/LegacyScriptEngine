@@ -290,7 +290,7 @@
 //         if (!PluginManager::getPlugin(pluginName)) {
 //             // Plugin did't register itself. Help to register it
 //             string                   description = pluginName;
-//             ll::Version              ver(1, 0, 0);
+//             ll::data::Version              ver(1, 0, 0);
 //             std::map<string, string> others = {};
 
 //             // Read information from package.json
@@ -307,7 +307,7 @@
 //                 }
 //                 // version
 //                 if (j.contains("version") && j["version"].is_string()) {
-//                     ver = ll::Version::parse(j["version"].get<std::string>());
+//                     ver = ll::data::Version::parse(j["version"].get<std::string>());
 //                 }
 //                 // license
 //                 if (j.contains("license") && j["license"].is_string()) {

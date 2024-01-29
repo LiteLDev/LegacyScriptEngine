@@ -165,7 +165,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         // Todo
         // If plugin itself doesn't register, help it to do so
         // if (!PluginManager::getPlugin(pluginName))
-        //     PluginManager::registerPlugin(realPath, pluginName, pluginName, ll::Version(1, 0, 0), {});
+        //     PluginManager::registerPlugin(realPath, pluginName, pluginName, ll::data::Version(1, 0, 0), {});
 
         // Call necessary events when at hot load
         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
@@ -329,7 +329,7 @@ bool PluginManager::registerPlugin(
     std::string                        filePath,
     std::string                        name,
     std::string                        desc,
-    ll::Version                        version,
+    ll::data::Version                  version,
     std::map<std::string, std::string> others
 ) {
     others["PluginType"]     = "Script Plugin";

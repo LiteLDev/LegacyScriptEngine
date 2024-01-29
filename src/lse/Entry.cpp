@@ -22,6 +22,18 @@
 #include <memory>
 #include <stdexcept>
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
+
+constexpr auto BaseLibFileName = "BaseLib.lua";
+
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
+
+constexpr auto BaseLibFileName = "BaseLib.js";
+
+#endif
+
 namespace lse {
 
 namespace {
@@ -133,7 +145,7 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 }
 
 auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
-    auto path = self.getPluginDir() / "baselib" / "BaseLib.lua";
+    auto path = self.getPluginDir() / "baselib" / BaseLibFileName;
 
     auto content = ll::file_utils::readFile(path);
 

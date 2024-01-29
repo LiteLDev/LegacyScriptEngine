@@ -1,9 +1,9 @@
 #pragma once
 
-#include "LegacyScriptEngine.h"
+#include <ll/api/plugin/NativePlugin.h>
 
 namespace lse {
 
-[[nodiscard]] LegacyScriptEngine& getLegacyScriptEngine();
+[[nodiscard]] auto getSelfPluginInstance() -> ll::plugin::NativePlugin&;
 
 } // namespace lse

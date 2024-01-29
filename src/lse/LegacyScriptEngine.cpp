@@ -1,82 +1,82 @@
-#include "LegacyScriptEngine.h"
+// #include "LegacyScriptEngine.h"
 
-#include "../api/EventAPI.h"
-#include "../api/MoreGlobal.h"
-#include "../engine/GlobalShareData.h"
-#include "../engine/LocalShareData.h"
-#include "../engine/MessageSystem.h"
-#include "../main/BuiltinCommands.h"
-#include "../main/SafeGuardRecord.h"
+// #include "../api/EventAPI.h"
+// #include "../api/MoreGlobal.h"
+// #include "../engine/GlobalShareData.h"
+// #include "../engine/LocalShareData.h"
+// #include "../engine/MessageSystem.h"
+// #include "../main/BuiltinCommands.h"
+// #include "../main/SafeGuardRecord.h"
 
-#include <ll/api/plugin/NativePlugin.h>
+// #include <ll/api/plugin/NativePlugin.h>
 
-#ifdef LLSE_BACKEND_PYTHON
-#include "../main/PythonHelper.h"
-#endif
+// #ifdef LLSE_BACKEND_PYTHON
+// #include "../main/PythonHelper.h"
+// #endif
 
-ll::Logger logger(LLSE_LOADER_NAME);
+// ll::Logger logger(LLSE_LOADER_NAME);
 
-extern void LoadDepends();
-extern void LoadMain();
-extern void BindAPIs(ScriptEngine* engine);
-extern void LoadDebugEngine();
+// extern void LoadDepends();
+// extern void LoadMain();
+// extern void BindAPIs(ScriptEngine* engine);
+// extern void LoadDebugEngine();
 
-namespace lse {
+// namespace lse {
 
-LegacyScriptEngine::LegacyScriptEngine(ll::plugin::NativePlugin& self) : mSelf(self) {
-    mSelf.getLogger().info("loading...");
+// LegacyScriptEngine::LegacyScriptEngine(ll::plugin::NativePlugin& self) : mSelf(self) {
+//     mSelf.getLogger().info("loading...");
 
-    // Code for loading the plugin goes here.
-    // Load i18n files
-    ll::i18n::load(u8"plugins/LeviLamina/lang");
+//     // Code for loading the plugin goes here.
+//     // Load i18n files
+//     ll::i18n::load(u8"plugins/LeviLamina/lang");
 
-    // Init global share data
-    InitLocalShareData();
-    InitGlobalShareData();
-    InitSafeGuardRecord();
+//     // Init global share data
+//     InitLocalShareData();
+//     InitGlobalShareData();
+//     InitSafeGuardRecord();
 
-    EconomySystem::init();
+//     EconomySystem::init();
 
-#ifdef LLSE_BACKEND_PYTHON
-    // This fix is used for Python3.10's bug:
-    // The thread will freeze when creating a new engine while another thread is
-    // blocking to read stdin Side effects: sys.stdin cannot be used after this
-    // patch. More info to see: https://github.com/python/cpython/issues/83526
-    //
-    // Attention! When CPython is upgraded, this fix must be re-adapted or
-    // removed!!
-    //
-    PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
+// #ifdef LLSE_BACKEND_PYTHON
+//     // This fix is used for Python3.10's bug:
+//     // The thread will freeze when creating a new engine while another thread is
+//     // blocking to read stdin Side effects: sys.stdin cannot be used after this
+//     // patch. More info to see: https://github.com/python/cpython/issues/83526
+//     //
+//     // Attention! When CPython is upgraded, this fix must be re-adapted or
+//     // removed!!
+//     //
+//     PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
 
-    PythonHelper::initPythonRuntime();
-#endif
+//     PythonHelper::initPythonRuntime();
+// #endif
 
-    // Pre-load depending libs
-    LoadDepends();
+//     // Pre-load depending libs
+//     LoadDepends();
 
-    // Load plugins
-    LoadMain();
+//     // Load plugins
+//     LoadMain();
 
-    // Register real-time debug
-    LoadDebugEngine();
+//     // Register real-time debug
+//     LoadDebugEngine();
 
-    // Register basic event listeners
-    InitBasicEventListeners();
+//     // Register basic event listeners
+//     InitBasicEventListeners();
 
-    // Init message system
-    InitMessageSystem();
+//     // Init message system
+//     InitMessageSystem();
 
-    MoreGlobal::Init();
-}
+//     MoreGlobal::Init();
+// }
 
-ll::plugin::NativePlugin& LegacyScriptEngine::getSelf() const { return mSelf; }
+// ll::plugin::NativePlugin& LegacyScriptEngine::getSelf() const { return mSelf; }
 
-bool LegacyScriptEngine::enable() {
-    mSelf.getLogger().info("enabling...");
+// bool LegacyScriptEngine::enable() {
+//     mSelf.getLogger().info("enabling...");
 
-    // Code for enabling the plugin goes here.
-    RegisterDebugCommand();
-    return true;
-}
+//     // Code for enabling the plugin goes here.
+//     RegisterDebugCommand();
+//     return true;
+// }
 
-} // namespace lse
+// } // namespace lse

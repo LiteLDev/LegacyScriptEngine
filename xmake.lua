@@ -6,7 +6,7 @@ add_requires(
     "dyncall 1.4",
     "legacymoney 0.1.5",
     "legacyparticleapi 0.1.1",
-    "levilamina 0.5.1",
+    "levilamina 0.6.0",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
     -- "mariadb-connector-c 3.3.4",
@@ -72,6 +72,7 @@ target("legacy-script-engine")
     add_defines(
         "_HAS_CXX23=1", -- To enable C++23 features.
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
+        "LEGACY_SCRIPT_ENGINE_BACKEND=$(backend)", -- To use the backend specified by the user.
         "NOMINMAX", -- To avoid conflicts with std::min and std::max.
         "UNICODE" -- To enable Unicode support.
     )
@@ -113,19 +114,4 @@ target("legacy-script-engine")
         }
         
         plugin_packer.pack_plugin(target,plugin_define)
-    end)
-
-    on_load(function (target)
-        import("core.project.config")
-
-        local backend = config.get("backend")
-
-        local llse_backend = {
-            lua = "LUA",
-            quickjs = "QUICKJS",
-        }
-
-        print("Using LegacyScriptEngine config: backend=" .. backend .. ", llse_backend=" .. llse_backend[backend])
-
-        target:add("defines", "LLSE_BACKEND_" .. llse_backend[backend])
     end)

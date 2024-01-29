@@ -33,6 +33,7 @@
 #include "mc/enums/BossBarColor.h"
 #include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
+#include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
@@ -2882,7 +2883,7 @@ Local<Value> PlayerClass::getAllTags(const Arguments& args) {
         Local<Array> arr = Array::newArray();
         CompoundTag  tag = CompoundTag();
         player->save(tag);
-        tag.getList("Tags")->forEachCompoundTag([&arr](const CompoundTag& tag) {
+        tag.at("Tags").get<ListTag>().forEachCompoundTag([&arr](const CompoundTag& tag) {
             arr.add(String::newString(tag.toString()));
         });
         return arr;
@@ -2898,7 +2899,7 @@ Local<Value> PlayerClass::getAbilities(const Arguments& args) {
         CompoundTag tag = CompoundTag();
         player->save(tag);
         try {
-            return Tag2Value(tag.getCompound("abilities"), true);
+            return Tag2Value(&tag.at("abilities").get<CompoundTag>(), true);
         } catch (...) {
             return Object::newObject();
         }
@@ -2917,7 +2918,7 @@ Local<Value> PlayerClass::getAttributes(const Arguments& args) {
         player->save(tag);
         try {
             Local<Array> arr = Array::newArray();
-            tag.getList("Attributes")->forEachCompoundTag([&](const CompoundTag& tag) {
+            tag.at("Attributes").get<ListTag>().forEachCompoundTag([&](const CompoundTag& tag) {
                 arr.add(Tag2Value(const_cast<CompoundTag*>(&tag), true));
             });
             return arr;

@@ -29,6 +29,7 @@
 #include "mc/server/commands/CommandPermissionLevel.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
+#include "mc/world/Minecraft.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -37,6 +38,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+
 
 //////////////////// Class Definition ////////////////////
 

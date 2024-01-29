@@ -59,6 +59,8 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     return true;
 }
 
+auto getConfig() -> const Config& { return config; }
+
 auto getPluginManager() -> PluginManager& {
     if (!pluginManager) {
         throw std::runtime_error("pluginManager is null");
@@ -93,11 +95,6 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
         }
     }
 
-    // Migrate plugins if needed.
-    if (config.migratePlugins) {
-        migratePlugins();
-    }
-
     // Initialize LLSE stuff.
     ll::i18n::load(self.getLangDir());
 
@@ -121,6 +118,12 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
     if (!pluginManagerRegistry.addManager(pluginManager)) {
         throw std::runtime_error("failed to register plugin manager");
+    }
+
+    // Migrate plugins if needed.
+    // Must execute after plugin manager is registered.
+    if (config.migratePlugins) {
+        migratePlugins();
     }
 
     logger.info("loaded");

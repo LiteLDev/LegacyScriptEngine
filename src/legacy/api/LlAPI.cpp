@@ -2,7 +2,9 @@
 
 #include "api/APIHelp.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/service/ServerInfo.h"
 #include "ll/api/utils/WinUtils.h"
+#include "lse/PluginManager.h"
 
 #include <string>
 
@@ -66,7 +68,7 @@ Local<Value> LlClass::isWine() {
 
 Local<Value> LlClass::isDebugMode() {
     try {
-#ifdef LL_DEBUG
+#ifdef LEGACYSCRIPTENGINE_DEBUG
         return Boolean::newBoolean(true);
 #else
         return Boolean::newBoolean(false);
@@ -77,14 +79,14 @@ Local<Value> LlClass::isDebugMode() {
 
 Local<Value> LlClass::isRelease() {
     try {
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(!ll::getLoaderVersion().preRelease.has_value());
     }
     CATCH("Fail in LLSEIsRelease")
 }
 
 Local<Value> LlClass::isBeta() {
     try {
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(ll::getLoaderVersion().preRelease.has_value());
     }
     CATCH("Fail in LLSEIsBeta")
 }
@@ -98,21 +100,21 @@ Local<Value> LlClass::isDev() {
 
 Local<Value> LlClass::getMajorVersion() {
     try {
-        return Number::newNumber(3);
+        return Number::newNumber(ll::getLoaderVersion().major);
     }
     CATCH("Fail in LLSEGetMajorVersion")
 }
 
 Local<Value> LlClass::getMinorVersion() {
     try {
-        return Number::newNumber(0);
+        return Number::newNumber(ll::getLoaderVersion().minor);
     }
     CATCH("Fail in LLSEGetMinorVersion")
 }
 
 Local<Value> LlClass::getRevisionVersion() {
     try {
-        return Number::newNumber(0);
+        return Number::newNumber(ll::getLoaderVersion().patch);
     }
     CATCH("Fail in LLSEGetRevisionVersion")
 }
@@ -139,13 +141,38 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
 }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
+        auto plugin = lse::getPluginManager().getPlugin(args[0].asString().toString());
+        if (plugin) {
+            auto result = Object::newObject();
+
+            result.set("name", plugin->getManifest().name);
+            if (plugin->getManifest().description.has_value()) {
+                result.set("desc", plugin->getManifest().description.value());
+            }
+
+            auto ver = Array::newArray();
+            ver.add(Number::newNumber(plugin->getManifest().version->major));
+            ver.add(Number::newNumber(plugin->getManifest().version->minor));
+            ver.add(Number::newNumber(plugin->getManifest().version->patch));
+
+            result.set("version", ver);
+            result.set("versionStr", plugin->getManifest().version->to_string());
+            result.set("filePath", plugin->getManifest().entry);
+
+            auto others = Object::newObject();
+            for (const auto& [k, v] : *plugin->getManifest().extraInfo) {
+                others.set(k, v);
+            }
+            result.set("others", others);
+            return result;
+        }
         return {};
     }
     CATCH("Fail in LLAPI");
 }
 Local<Value> LlClass::versionString(const Arguments& args) {
     try {
-        return String::newString("3.0.0");
+        return String::newString(ll::getLoaderVersion().to_string());
     }
     CATCH("Fail in LLSEGetVersionString!")
 }
@@ -194,11 +221,11 @@ Local<Value> LlClass::getVersionStatusFunction(const Arguments& args) { return N
 Local<Value> LlClass::version(const Arguments& args) {
     try {
         Local<Object> ver = Object::newObject();
-        ver.set("major", 3);
-        ver.set("minor", 0);
-        ver.set("revision", 0);
-        ver.set("isBeta", false);
-        ver.set("isRelease", true);
+        ver.set("major", ll::getLoaderVersion().major);
+        ver.set("minor", ll::getLoaderVersion().minor);
+        ver.set("revision", ll::getLoaderVersion().patch);
+        ver.set("isBeta", !ll::getLoaderVersion().preRelease.has_value());
+        ver.set("isRelease", ll::getLoaderVersion().preRelease.has_value());
         ver.set("isDev", false);
         return ver;
     }
@@ -208,7 +235,7 @@ Local<Value> LlClass::version(const Arguments& args) {
 // For Compatibility
 Local<Value> LlClass::isDebugModeFunction(const Arguments& args) {
     try {
-#ifdef LL_DEBUG
+#ifdef LEGACYSCRIPTENGINE_DEBUG
         return Boolean::newBoolean(true);
 #else
         return Boolean::newBoolean(false);

@@ -110,6 +110,10 @@ target("legacy-script-engine")
     set_kind("shared")
     set_languages("cxx20")
 
+    if is_mode("debug") then
+        add_defines("LEGACYSCRIPTENGINE_DEBUG")
+    end
+
     after_build(function (target)
         local plugin_packer = import("scripts.after_build")
 

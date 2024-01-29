@@ -22,7 +22,6 @@ using std::string;
 using std::vector;
 
 // 全局工具
-extern ll::Logger   logger;
 extern ordered_json globalConfig;
 
 typedef unsigned long long QWORD;

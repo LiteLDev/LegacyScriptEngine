@@ -6,17 +6,16 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/HashUtils.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 #include "mc/server/commands/CommandParameterOption.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
 
 #include <string>
 
-
 #ifdef LLSE_BACKEND_PYTHON
 #include "PythonHelper.h"
 #endif
 
-extern ll::Logger    logger;
 extern bool          isInConsoleDebugMode;
 extern ScriptEngine* debugEngine;
 
@@ -36,7 +35,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
                 auto               result = debugEngine->eval(cmd);
                 std::ostringstream sout;
                 PrintValue(sout, result);
-                logger.info(sout.str());
+                lse::getSelfPluginInstance().getLogger().info(sout.str());
                 OUTPUT_DEBUG_SIGN();
             }
         } catch (Exception& e) {
@@ -67,18 +66,18 @@ void RegisterDebugCommand() {
                 auto               result = debugEngine->eval(results["eval"].getRaw<std::string>());
                 std::ostringstream sout;
                 PrintValue(sout, result);
-                logger.info(sout.str());
+                lse::getSelfPluginInstance().getLogger().info(sout.str());
             } catch (Exception& e) {
                 PrintException(e);
             }
         } else {
             if (isInConsoleDebugMode) {
                 // EndDebug
-                logger.info("Debug mode ended");
+                lse::getSelfPluginInstance().getLogger().info("Debug mode ended");
                 isInConsoleDebugMode = false;
             } else {
                 // StartDebug
-                logger.info("Debug mode begins");
+                lse::getSelfPluginInstance().getLogger().info("Debug mode begins");
                 isInConsoleDebugMode = true;
                 OUTPUT_DEBUG_SIGN();
             }

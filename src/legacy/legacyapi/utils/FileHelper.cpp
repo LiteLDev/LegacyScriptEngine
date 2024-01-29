@@ -2,11 +2,10 @@
 
 #include "ll/api/utils/StringUtils.h"
 #include "ll/api/utils/WinUtils.h"
+#include "lse/Entry.h"
 
 #include <filesystem>
 #include <io.h>
-
-extern ll::Logger logger;
 
 std::optional<std::string> ReadAllFile(const std::string& filePath, bool isBinary) {
     std::ifstream fRead;
@@ -54,8 +53,8 @@ bool CreateDirs(const std::string path) {
     std::error_code ec;
     auto ret = std::filesystem::create_directories(std::filesystem::path(ll::string_utils::str2wstr(path)), ec);
     if (ec.value() != 0) {
-        logger.error("Fail to create dir, err code: {}", ec.value());
-        logger.error(ec.message());
+        lse::getSelfPluginInstance().getLogger().error("Fail to create dir, err code: {}", ec.value());
+        lse::getSelfPluginInstance().getLogger().error(ec.message());
     }
     return ret;
 }

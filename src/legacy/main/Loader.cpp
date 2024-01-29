@@ -3,6 +3,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 #include "main/Configs.h"
 #include "main/NodeJsHelper.h"
 #include "main/PluginManager.h"
@@ -15,8 +16,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-extern ll::Logger logger;
 
 // Baselibs dependency
 std::unordered_map<std::string, std::string> depends;
@@ -42,12 +41,18 @@ void LoadDepends() {
                 auto content = ReadAllFile(path);
                 if (!content) throw("Fail to open plugin file!");
                 depends.emplace(path, *content);
-                logger.info("llse.loader.loadDepends.success"_tr(i.path().filename().string()));
+                lse::getSelfPluginInstance().getLogger().info(
+                    "llse.loader.loadDepends.success"_tr(i.path().filename().string())
+                );
             } catch (std::exception e) {
-                logger.warn("llse.loader.loadDepends.fail"_tr(i.path().filename().string()));
-                logger.warn(ll::string_utils::tou8str(e.what()));
+                lse::getSelfPluginInstance().getLogger().warn(
+                    "llse.loader.loadDepends.fail"_tr(i.path().filename().string())
+                );
+                lse::getSelfPluginInstance().getLogger().warn(ll::string_utils::tou8str(e.what()));
             } catch (...) {
-                logger.warn("llse.loader.loadDepends.fail"_tr(i.path().filename().string()));
+                lse::getSelfPluginInstance().getLogger().warn(
+                    "llse.loader.loadDepends.fail"_tr(i.path().filename().string())
+                );
             }
         }
     }
@@ -67,7 +72,7 @@ void LoadDebugEngine() {
     try {
         BindAPIs(debugEngine);
     } catch (const Exception& e) {
-        logger.error("Fail in binding Debug Engine!\n");
+        lse::getSelfPluginInstance().getLogger().error("Fail in binding Debug Engine!\n");
         throw;
     }
 
@@ -77,7 +82,7 @@ void LoadDebugEngine() {
             if (!content.empty()) debugEngine->eval(content, path);
         }
     } catch (const Exception& e) {
-        logger.error("Fail in Loading Dependence Lib!\n");
+        lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n");
         throw;
     }
 }
@@ -93,7 +98,7 @@ void LoadMain() {
 #else
 
     // Load simple file plugin
-    logger.info("llse.loader.loadMain.start"_tr(fmt::arg("type", LLSE_MODULE_TYPE)));
+    lse::getSelfPluginInstance().getLogger().info("llse.loader.loadMain.start"_tr(fmt::arg("type", LLSE_MODULE_TYPE)));
     int                                 count = 0;
     std::filesystem::directory_iterator files(LLSE_PLUGINS_LOAD_DIR);
     for (auto& i : files) {
@@ -105,14 +110,16 @@ void LoadMain() {
             } catch (...) {}
         }
     }
-    logger.info("llse.loader.loadMain.done"_tr(fmt::arg("count", count), fmt::arg("type", LLSE_MODULE_TYPE)));
+    lse::getSelfPluginInstance().getLogger().info(
+        "llse.loader.loadMain.done"_tr(fmt::arg("count", count), fmt::arg("type", LLSE_MODULE_TYPE))
+    );
 #endif
 }
 
 #ifdef LLSE_BACKEND_NODEJS
 // NodeJs后端 - 主加载
 void LoadMain_NodeJs() {
-    // logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Node.js")));
+    // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.start", fmt::arg("type", "Node.js")));
     int installCount = 0;
     int count        = 0;
 
@@ -129,7 +136,8 @@ void LoadMain_NodeJs() {
                     }
                 } catch (...) {}
             } else {
-                // logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", targetDirStr)));
+                // lse::getSelfPluginInstance().getLogger().warn(tr("llse.loader.loadMain.nodejs.ignored",
+                // fmt::arg("path", targetDirStr)));
             }
         }
     }
@@ -141,28 +149,32 @@ void LoadMain_NodeJs() {
         std::filesystem::path pth             = i.path();
         std::string           packFilePathStr = ll::string_utils::u8str2str(pth.make_preferred().u8string());
         if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-            // logger.info(tr("llse.loader.loadMain.nodejs.installPack.start", fmt::arg("path", packFilePathStr)));
+            // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.nodejs.installPack.start",
+            // fmt::arg("path", packFilePathStr)));
             try {
                 if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-                    // logger.error(tr("llse.loader.loadMain.nodejs.installPack.fail", packFilePathStr));
+                    // lse::getSelfPluginInstance().getLogger().error(tr("llse.loader.loadMain.nodejs.installPack.fail",
+                    // packFilePathStr));
                 }
                 ++count;
                 ++installCount;
             } catch (...) {
                 // not matched backend type
-                // logger.warn(tr("llse.loader.loadMain.nodejs.ignored", fmt::arg("path", packFilePathStr)));
+                // lse::getSelfPluginInstance().getLogger().warn(tr("llse.loader.loadMain.nodejs.ignored",
+                // fmt::arg("path", packFilePathStr)));
             }
         }
     }
 
-    // logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Node.js")));
+    // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.done", fmt::arg("count", count),
+    // fmt::arg("type", "Node.js")));
 }
 #endif
 
 #ifdef LLSE_BACKEND_PYTHON
 // Python后端 - 主加载
 void LoadMain_Python() {
-    // logger.info(tr("llse.loader.loadMain.start", fmt::arg("type", "Python")));
+    // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.start", fmt::arg("type", "Python")));
     int installCount = 0;
     int count        = 0;
 
@@ -179,7 +191,8 @@ void LoadMain_Python() {
                     }
                 } catch (...) {}
             } else {
-                // logger.warn(tr("llse.loader.loadMain.python.ignored", fmt::arg("path", targetDirStr)));
+                // lse::getSelfPluginInstance().getLogger().warn(tr("llse.loader.loadMain.python.ignored",
+                // fmt::arg("path", targetDirStr)));
             }
         }
     }
@@ -191,16 +204,19 @@ void LoadMain_Python() {
         std::filesystem::path pth             = i.path();
         std::string           packFilePathStr = ll::string_utils::u8str2str(pth.make_preferred().u8string());
         if (i.is_regular_file() && packFilePathStr.ends_with(LLSE_PLUGIN_PACKAGE_EXTENSION)) {
-            // logger.info(tr("llse.loader.loadMain.python.installPack.start", fmt::arg("path", packFilePathStr)));
+            // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.python.installPack.start",
+            // fmt::arg("path", packFilePathStr)));
             try {
                 if (!PluginManager::loadPlugin(packFilePathStr, false, true)) {
-                    // logger.error(tr("llse.loader.loadMain.python.installPack.fail", packFilePathStr));
+                    // lse::getSelfPluginInstance().getLogger().error(tr("llse.loader.loadMain.python.installPack.fail",
+                    // packFilePathStr));
                 }
                 ++count;
                 ++installCount;
             } catch (...) {
                 // not matched backend type
-                // logger.warn(tr("llse.loader.loadMain.python.ignored", packFilePathStr));
+                // lse::getSelfPluginInstance().getLogger().warn(tr("llse.loader.loadMain.python.ignored",
+                // packFilePathStr));
             }
         }
     }
@@ -216,7 +232,8 @@ void LoadMain_Python() {
         }
     }
 
-    // logger.info(tr("llse.loader.loadMain.done", fmt::arg("count", count), fmt::arg("type", "Python")));
+    // lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.done", fmt::arg("count", count),
+    // fmt::arg("type", "Python")));
 }
 #endif
 

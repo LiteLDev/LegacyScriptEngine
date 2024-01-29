@@ -10,6 +10,7 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
+#include "lse/Entry.h"
 #include "utils/Utils.h"
 
 #include <Python.h>
@@ -25,7 +26,6 @@
 
 // pre-declare
 extern void          BindAPIs(ScriptEngine* engine);
-extern ll::Logger    logger;
 extern bool          isInConsoleDebugMode;
 extern ScriptEngine* debugEngine;
 
@@ -64,7 +64,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         engine->loadFile(entryScriptPath);
     } catch (const Exception& e1) {
         // Fail
-        logger.error("Fail in Loading Script Plugin!\n");
+        lse::getSelfPluginInstance().getLogger().error("Fail in Loading Script Plugin!\n");
         throw e1;
     }
     return true;
@@ -114,7 +114,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
         std::string dependTmpFilePath = PythonHelper::getPluginPackDependencyFilePath(dirPath);
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
-            logger.info(
+            lse::getSelfPluginInstance().getLogger().info(
                 tr("llse.loader.python.executePipInstall.start",
                    fmt::arg("name", UTF82String(filesystem::path(dirPath).filename().u8string())))
             );
@@ -124,8 +124,11 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
                      + UTF82String(realPackageInstallDir.u8string()) + "\" --disable-pip-version-check"
                  ))
                 == 0) {
-                logger.info(tr("llse.loader.python.executePipInstall.success"));
-            } else logger.error(tr("llse.loader.python.executePipInstall.fail", fmt::arg("code", exitCode)));
+                lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.python.executePipInstall.success"));
+            } else
+                lse::getSelfPluginInstance().getLogger().error(
+                    tr("llse.loader.python.executePipInstall.fail", fmt::arg("code", exitCode))
+                );
 
             // remove temp dependency file after installation
             std::error_code ec;
@@ -165,7 +168,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
             engine->set("__file__", entryPathFormatted);
             // engine->set("__name__", String::newString("__main__"));
         } catch (const Exception& e) {
-            logger.error("Fail in setting sys.path!\n");
+            lse::getSelfPluginInstance().getLogger().error("Fail in setting sys.path!\n");
             throw;
         }
 
@@ -173,7 +176,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
         try {
             BindAPIs(engine);
         } catch (const Exception& e) {
-            logger.error("Fail in Binding APIs!\n");
+            lse::getSelfPluginInstance().getLogger().error("Fail in Binding APIs!\n");
             throw;
         }
 
@@ -183,7 +186,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
                 if (!content.empty()) engine->eval(content, path);
             }
         } catch (const Exception& e) {
-            logger.error("Fail in Loading Dependence Lib!\n");
+            lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n");
             throw;
         }
 
@@ -225,13 +228,15 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
 
         // Success
-        logger.info(tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Python"), fmt::arg("name", pluginName)));
+        lse::getSelfPluginInstance().getLogger().info(
+            tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Python"), fmt::arg("name", pluginName))
+        );
         return true;
     } catch (const Exception& e) {
-        logger.error("Fail to load " + dirPath + "!");
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
         if (engine) {
             EngineScope enter(engine);
-            logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
             PrintException(e);
             ExitEngineScope exit;
 
@@ -248,10 +253,10 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
             engine->destroy();
         }
     } catch (const std::exception& e) {
-        logger.error("Fail to load " + dirPath + "!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
     } catch (...) {
-        logger.error("Fail to load " + dirPath + "!");
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
     }
     return false;
 }
@@ -341,11 +346,11 @@ bool processPythonDebugEngine(const std::string& cmd) {
     if (cmd == LLSE_DEBUG_CMD) {
         if (isInConsoleDebugMode) {
             // EndDebug
-            logger.info("Debug mode ended");
+            lse::getSelfPluginInstance().getLogger().info("Debug mode ended");
             isInConsoleDebugMode = false;
         } else {
             // StartDebug
-            logger.info("Debug mode begins");
+            lse::getSelfPluginInstance().getLogger().info("Debug mode begins");
             codeBuffer.clear();
             isInsideCodeBlock    = false;
             isInConsoleDebugMode = true;
@@ -392,7 +397,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
             } catch (const Exception& e) {
                 isInsideCodeBlock = false;
                 codeBuffer.clear();
-                logger.error("Exception:\n" + e.stacktrace() + "\n" + e.message());
+                lse::getSelfPluginInstance().getLogger().error("Exception:\n" + e.stacktrace() + "\n" + e.message());
             }
         }
         OUTPUT_DEBUG_SIGN();

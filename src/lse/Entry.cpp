@@ -14,8 +14,6 @@
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/NativePlugin.h>
 #include <memory>
-
-ll::Logger logger(LLSE_LOADER_NAME);
 namespace lse {
 
 namespace {

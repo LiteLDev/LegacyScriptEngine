@@ -3,14 +3,13 @@
 #include "ll/api/Logger.h"
 #include "ll/api/i18n/I18nAPI.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 
 #include <Nlohmann/json.hpp>
 #include <filesystem>
 #include <string>
 
 using namespace nlohmann;
-
-extern ll::Logger logger;
 
 inline ordered_json CreateJson(const std::string& path, const std::string& defContent, bool allowComment = true) {
     ordered_json jsonConf;
@@ -28,8 +27,8 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
                 CreateDirs(dirPath);
             }
         } else {
-            logger.error("Fail in create json file!");
-            logger.error("invalid path");
+            lse::getSelfPluginInstance().getLogger().error("Fail in create json file!");
+            lse::getSelfPluginInstance().getLogger().error("invalid path");
             jsonConf = ordered_json::object();
         }
 
@@ -37,8 +36,8 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(defContent, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                logger.error("Fail to parse default json content!");
-                logger.error(ll::string_utils::tou8str(e.what()));
+                lse::getSelfPluginInstance().getLogger().error("Fail to parse default json content!");
+                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
                 jsonConf = ordered_json::object();
             }
         } else {
@@ -57,8 +56,8 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                logger.error("Fail to parse json content in file!");
-                logger.error(ll::string_utils::tou8str(e.what()));
+                lse::getSelfPluginInstance().getLogger().error("Fail to parse json content in file!");
+                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
                 jsonConf = ordered_json::object();
             }
         }

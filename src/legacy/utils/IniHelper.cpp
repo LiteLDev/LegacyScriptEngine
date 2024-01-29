@@ -2,10 +2,9 @@
 
 #include "legacyapi/utils/FileHelper.h"
 #include "ll/api/Logger.h"
+#include "lse/Entry.h"
 
 #include <filesystem>
-
-extern ll::Logger logger;
 
 SimpleIni* SimpleIni::create(const std::string& path, const std::string& defContent) {
     if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
@@ -24,8 +23,8 @@ SimpleIni* SimpleIni::create(const std::string& path, const std::string& defCont
     root->SetUnicode(true);
     auto res = root->LoadFile(path.c_str());
     if (res < 0) {
-        logger.error("Failed in loading ini file");
-        logger.error(string("Error Code:") + std::to_string((int)res));
+        lse::getSelfPluginInstance().getLogger().error("Failed in loading ini file");
+        lse::getSelfPluginInstance().getLogger().error(string("Error Code:") + std::to_string((int)res));
         delete root;
         return nullptr;
     } else {

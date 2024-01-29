@@ -133,7 +133,7 @@ Local<Value> LlClass::getVersionStatus() {
 
 Local<Value> LlClass::registerPlugin(const Arguments& args) {
     try {
-        return {};
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in LLAPI");
 }

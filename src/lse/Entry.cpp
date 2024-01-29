@@ -21,7 +21,6 @@
 #include <ll/api/plugin/PluginManagerRegistry.h>
 #include <memory>
 
-
 namespace lse {
 
 namespace {
@@ -54,6 +53,8 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     logger.info("enabling...");
 
     RegisterDebugCommand();
+
+    logger.info("enabled");
 
     return true;
 }
@@ -121,6 +122,8 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     if (!pluginManagerRegistry.addManager(pluginManager)) {
         throw std::runtime_error("failed to register plugin manager");
     }
+
+    logger.info("loaded");
 
     return true;
 }

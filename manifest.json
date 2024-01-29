@@ -2,6 +2,7 @@
     "name": "${pluginName}",
     "entry": "${pluginFile}",
     "type": "native",
+    "passive": true,
     "dependencies": [
         {
             "name": "LegacyMoney"

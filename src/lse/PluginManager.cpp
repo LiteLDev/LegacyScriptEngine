@@ -10,13 +10,13 @@
 #include <memory>
 #include <stdexcept>
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_lua
 
 constexpr auto PluginManagerName = "lse-lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_quickjs
 
 constexpr auto PluginManagerName = "lse-quickjs";
 

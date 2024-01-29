@@ -167,7 +167,7 @@ Local<Value> RowToLocalValue(const Row& row) {
 // 生成函数
 KVDBClass::KVDBClass(const Local<Object>& scriptObj, const string& dir) : ScriptClass(scriptObj) {
     try {
-        kvdb = std::make_unique<ll::KeyValueDB>(dir);
+        kvdb = std::make_unique<ll::data::KeyValueDB>(dir);
     } catch (...) {
         kvdb.reset();
     }
@@ -177,7 +177,7 @@ KVDBClass::KVDBClass(const Local<Object>& scriptObj, const string& dir) : Script
 
 KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
     try {
-        kvdb = std::make_unique<ll::KeyValueDB>(dir);
+        kvdb = std::make_unique<ll::data::KeyValueDB>(dir);
     } catch (...) {
         kvdb.reset();
     }

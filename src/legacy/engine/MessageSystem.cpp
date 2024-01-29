@@ -103,11 +103,17 @@ ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data,
             engineList.push_back(engine);
         } catch (const Exception& e) {
             EngineScope scope(engine);
-            logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+            lse::getSelfPluginInstance().getLogger().error(
+                "Fail to post message to plugin {}",
+                ENGINE_GET_DATA(engine)->pluginName
+            );
             PrintException(e);
         } catch (...) {
             EngineScope scope(engine);
-            logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+            lse::getSelfPluginInstance().getLogger().error(
+                "Fail to post message to plugin {}",
+                ENGINE_GET_DATA(engine)->pluginName
+            );
         }
     }
     return ModuleMessageResult(msgId, engineList);
@@ -127,11 +133,17 @@ ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string data
             engineList.push_back(engine);
         } catch (const Exception& e) {
             EngineScope scope(engine);
-            logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+            lse::getSelfPluginInstance().getLogger().error(
+                "Fail to post message to plugin {}",
+                ENGINE_GET_DATA(engine)->pluginName
+            );
             PrintException(e);
         } catch (...) {
             EngineScope scope(engine);
-            logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+            lse::getSelfPluginInstance().getLogger().error(
+                "Fail to post message to plugin {}",
+                ENGINE_GET_DATA(engine)->pluginName
+            );
         }
     }
     return ModuleMessageResult(msgId, engineList);
@@ -152,11 +164,17 @@ ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, Message
                 engineList.push_back(engine);
             } catch (const Exception& e) {
                 EngineScope scope(engine);
-                logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+                lse::getSelfPluginInstance().getLogger().error(
+                    "Fail to post message to plugin {}",
+                    ENGINE_GET_DATA(engine)->pluginName
+                );
                 PrintException(e);
             } catch (...) {
                 EngineScope scope(engine);
-                logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+                lse::getSelfPluginInstance().getLogger().error(
+                    "Fail to post message to plugin {}",
+                    ENGINE_GET_DATA(engine)->pluginName
+                );
             }
         }
     }
@@ -175,11 +193,17 @@ ModuleMessageResult ModuleMessage::sendTo(ScriptEngine* engine, MessageType type
         return ModuleMessageResult(msgId, {engine});
     } catch (const Exception& e) {
         EngineScope scope(engine);
-        logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Fail to post message to plugin {}",
+            ENGINE_GET_DATA(engine)->pluginName
+        );
         PrintException(e);
     } catch (...) {
         EngineScope scope(engine);
-        logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Fail to post message to plugin {}",
+            ENGINE_GET_DATA(engine)->pluginName
+        );
     }
     return ModuleMessageResult(msgId, {});
 }
@@ -199,11 +223,17 @@ ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::str
                 return ModuleMessageResult(msgId, {engine});
             } catch (const Exception& e) {
                 EngineScope scope(engine);
-                logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+                lse::getSelfPluginInstance().getLogger().error(
+                    "Fail to post message to plugin {}",
+                    ENGINE_GET_DATA(engine)->pluginName
+                );
                 PrintException(e);
             } catch (...) {
                 EngineScope scope(engine);
-                logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+                lse::getSelfPluginInstance().getLogger().error(
+                    "Fail to post message to plugin {}",
+                    ENGINE_GET_DATA(engine)->pluginName
+                );
             }
         }
     }
@@ -222,10 +252,16 @@ bool ModuleMessage::sendResult(MessageType type, std::string data, int64_t delay
         return true;
     } catch (const Exception& e) {
         EngineScope scope(engine);
-        logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Fail to post message to plugin {}",
+            ENGINE_GET_DATA(engine)->pluginName
+        );
         PrintException(e);
     } catch (...) {
-        logger.error("Fail to post message to plugin {}", ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Fail to post message to plugin {}",
+            ENGINE_GET_DATA(engine)->pluginName
+        );
     }
     return false;
 }
@@ -294,18 +330,18 @@ void MessageSystemLoopOnce() {
                 }
             } catch (const Exception& e) {
                 EngineScope scope(engine);
-                logger.error("Error occurred in Engine Message Loop!");
-                logger.error("Uncaught Script Exception Detected!");
+                lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
+                lse::getSelfPluginInstance().getLogger().error("Uncaught Script Exception Detected!");
                 PrintException(e);
-                logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
             } catch (...) {
-                logger.error("Error occurred in Engine Message Loop!");
-                logger.error("Uncaught Exception Detected!");
+                lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
+                lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
             }
         }
     }
     // messageLoopLock.unlock();
-    // logger.debug("Engine-{} Message Loop.", LLSE_MODULE_TYPE);
+    // lse::getSelfPluginInstance().getLogger().debug("Engine-{} Message Loop.", LLSE_MODULE_TYPE);
 }
 
 void InitMessageSystem() {

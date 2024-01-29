@@ -166,8 +166,8 @@ Local<Value> NativePointer::getMemByte() {
 
 void NativePointer::setMemByte(const Local<Value>& value) {
 
-    logger.error("Fail to set mem!");
-    logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+    lse::getSelfPluginInstance().getLogger().error("Fail to set mem!");
+    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
 }
 
 Local<Value> NativePointer::getChar() {
@@ -181,8 +181,8 @@ void NativePointer::setChar(const Local<Value>& value) {
     try {
         *(char*)get() = (char)value.asNumber().toInt32();
     } catch (...) {
-        logger.error("Fail to set char!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set char!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -196,8 +196,8 @@ void NativePointer::setUchar(const Local<Value>& value) {
     try {
         *(unsigned char*)get() = (unsigned char)value.asNumber().toInt32();
     } catch (...) {
-        logger.error("Fail to set uchar!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set uchar!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -211,8 +211,8 @@ void NativePointer::setShort(const Local<Value>& value) {
     try {
         *(short*)get() = (short)value.asNumber().toInt32();
     } catch (...) {
-        logger.error("Fail to set short!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set short!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -226,8 +226,8 @@ void NativePointer::setUshort(const Local<Value>& value) {
     try {
         *(unsigned short*)get() = (unsigned short)value.asNumber().toInt32();
     } catch (...) {
-        logger.error("Fail to set ushort!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set ushort!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -241,8 +241,8 @@ void NativePointer::setInt(const Local<Value>& value) {
     try {
         *(int*)get() = (int)value.asNumber().toInt32();
     } catch (...) {
-        logger.error("Fail to set int!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set int!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -256,8 +256,8 @@ void NativePointer::setUint(const Local<Value>& value) {
     try {
         *(unsigned int*)get() = (unsigned int)value.asNumber().toInt64();
     } catch (...) {
-        logger.error("Fail to set uint!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set uint!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -271,8 +271,8 @@ void NativePointer::setLong(const Local<Value>& value) {
     try {
         *(long*)get() = (long)value.asNumber().toInt64();
     } catch (...) {
-        logger.error("Fail to set long!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set long!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -286,8 +286,8 @@ void NativePointer::setUlong(const Local<Value>& value) {
     try {
         *(unsigned long*)get() = (unsigned long)value.asNumber().toInt64();
     } catch (...) {
-        logger.error("Fail to set ulong!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set ulong!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -302,8 +302,8 @@ void NativePointer::setLonglong(const Local<Value>& value) {
     try {
         *(long long*)get() = (long long)value.asNumber().toInt64();
     } catch (...) {
-        logger.error("Fail to set longlong!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set longlong!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -317,8 +317,8 @@ void NativePointer::setUlonglong(const Local<Value>& value) {
     try {
         *(unsigned long long*)get() = (unsigned long long)value.asNumber().toInt64();
     } catch (...) {
-        logger.error("Fail to set ulonglong!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set ulonglong!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -332,8 +332,8 @@ void NativePointer::setFloat(const Local<Value>& value) {
     try {
         *(float*)get() = (float)value.asNumber().toFloat();
     } catch (...) {
-        logger.error("Fail to set float!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set float!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -347,8 +347,8 @@ void NativePointer::setDouble(const Local<Value>& value) {
     try {
         *(double*)get() = (double)value.asNumber().toFloat();
     } catch (...) {
-        logger.error("Fail to set double!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set double!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -362,8 +362,8 @@ void NativePointer::setString(const Local<Value>& value) {
     try {
         *(string*)get() = value.asString().toString();
     } catch (...) {
-        logger.error("Fail to set string!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set string!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 
@@ -378,8 +378,8 @@ void NativePointer::setBool(const Local<Value>& value) {
     try {
         *(bool*)get() = value.asBoolean().value();
     } catch (...) {
-        logger.error("Fail to set bool!");
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Fail to set bool!");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 }
 

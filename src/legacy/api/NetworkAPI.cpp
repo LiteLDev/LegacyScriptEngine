@@ -305,9 +305,9 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 if (callback.isEmpty()) return;
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
-                logger.error("WSClientClass::connectAsync Failed!");
-                logger.error("Uncaught Exception Detected!");
-                logger.error("In Plugin: " + pluginName);
+                lse::getSelfPluginInstance().getLogger().error("WSClientClass::connectAsync Failed!");
+                lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
+                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + pluginName);
             }
         }).detach();
         return Boolean::newBoolean(true);

@@ -50,7 +50,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
     if (fileOrDirPath == LLSE_DEBUG_ENGINE_NAME) return true;
 
     if (!std::filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath))) {
-        logger.error("Plugin not found! Check the path you input again.");
+        lse::getSelfPluginInstance().getLogger().error("Plugin not found! Check the path you input again.");
         return false;
     }
 
@@ -58,7 +58,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
     bool   isPluginPackage = std::filesystem::is_directory(fileOrDirPath);
     string backendType     = getPluginBackendType(fileOrDirPath);
     if (backendType.empty()) {
-        logger.error(fileOrDirPath + " is not a valid plugin path!");
+        lse::getSelfPluginInstance().getLogger().error(fileOrDirPath + " is not a valid plugin path!");
         return false;
     }
     std::filesystem::path p(ll::string_utils::str2wstr(fileOrDirPath));
@@ -77,8 +77,10 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         auto [exitCode, output] =
             UncompressFile(fileOrDirPath, uncompressToDir, LLSE_PLUGIN_PACKAGE_UNCOMPRESS_TIMEOUT);
         if (exitCode != 0) {
-            logger.error("Fail to uncompress plugin package at " + fileOrDirPath + "!");
-            logger.debug(output);
+            lse::getSelfPluginInstance().getLogger().error(
+                "Fail to uncompress plugin package at " + fileOrDirPath + "!"
+            );
+            lse::getSelfPluginInstance().getLogger().debug(output);
             return false;
         }
 
@@ -90,7 +92,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
 
     // Re-check backendType
     if (backendType.empty() || backendType == "PluginPackage") {
-        logger.error(pluginFileName + " is not a valid plugin!");
+        lse::getSelfPluginInstance().getLogger().error(pluginFileName + " is not a valid plugin!");
         return false;
     } else if (backendType != LLSE_BACKEND_TYPE) {
         // Unmatched backend
@@ -108,7 +110,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
     // Single file plugin
     // Check duplicated
     // if (PluginManager::getPlugin(pluginFileName)) {
-    //     // logger.error("This plugin has been loaded by LiteLoader. You cannot load
+    //     // lse::getSelfPluginInstance().getLogger().error("This plugin has been loaded by LiteLoader. You cannot load
     //     // it twice.");
     //     return false;
     // }
@@ -128,7 +130,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         try {
             BindAPIs(engine);
         } catch (const Exception& e) {
-            logger.error("Fail in Binding APIs!\n");
+            lse::getSelfPluginInstance().getLogger().error("Fail in Binding APIs!\n");
             throw;
         }
         // Load depend libs
@@ -137,7 +139,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
                 if (!content.empty()) engine->eval(content, path);
             }
         } catch (const Exception& e) {
-            logger.error("Fail in Loading Dependence Lib!\n");
+            lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n");
             throw;
         }
 
@@ -155,7 +157,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
                 engine->eval(*scripts, ENGINE_OWN_DATA()->pluginFileOrDirPath);
             } catch (const Exception& e2) {
                 // Fail
-                logger.error("Fail in Loading Script Plugin!\n");
+                lse::getSelfPluginInstance().getLogger().error("Fail in Loading Script Plugin!\n");
                 throw e1; // throw the original exception out
             }
         }
@@ -171,14 +173,15 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
 
         // Success
-        logger.info("llse.loader.loadMain.loadedPlugin"_tr(fmt::arg("type", backendType), fmt::arg("name", pluginName))
+        lse::getSelfPluginInstance().getLogger().info(
+            "llse.loader.loadMain.loadedPlugin"_tr(fmt::arg("type", backendType), fmt::arg("name", pluginName))
         );
         return true;
     } catch (const Exception& e) {
-        logger.error("Fail to load " + realPath + "!");
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + realPath + "!");
         if (engine) {
             EngineScope enter(engine);
-            logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
             PrintException(e);
             ExitEngineScope exit;
 
@@ -195,10 +198,10 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
             engine->destroy();
         }
     } catch (const std::exception& e) {
-        logger.error("Fail to load " + realPath + "!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + realPath + "!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
     } catch (...) {
-        logger.error("Fail to load " + realPath + "!");
+        lse::getSelfPluginInstance().getLogger().error("Fail to load " + realPath + "!");
     }
     return false;
 }
@@ -262,7 +265,7 @@ bool PluginManager::unloadPlugin(const std::string& name) {
 #endif
     });
 
-    logger.info(pluginName + " unloaded.");
+    lse::getSelfPluginInstance().getLogger().info(pluginName + " unloaded.");
     return true;
 }
 

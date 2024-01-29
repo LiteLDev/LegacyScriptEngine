@@ -353,7 +353,11 @@ Local<Value> JsonToValue(std::string jsonStr) {
         auto j = ordered_json::parse(jsonStr, nullptr, true, true);
         return JsonToValue(j);
     } catch (const ordered_json::exception& e) {
-        logger.warn("{}{}", tr("llse.apiHelp.parseJson.fail"), ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().warn(
+            "{}{}",
+            tr("llse.apiHelp.parseJson.fail"),
+            ll::string_utils::tou8str(e.what())
+        );
         return String::newString(jsonStr);
     }
 }

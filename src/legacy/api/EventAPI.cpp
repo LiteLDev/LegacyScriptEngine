@@ -171,18 +171,18 @@ string EventTypeToString(EVENT_TYPES e) { return string(magic_enum::enum_name(e)
 
 #define LISTENER_CATCH(TYPE)                                                                                           \
     catch (const Exception& e) {                                                                                       \
-        logger.error("Event Callback Failed!");                                                                        \
-        logger.error(e.what());                                                                                        \
-        logger.error("In Event: " + EventTypeToString(TYPE));                                                          \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
+        lse::getSelfPluginInstance().getLogger().error(e.what());                                                      \
+        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
-        logger.error("Event Callback Failed!");                                                                        \
-        logger.error("C++ Uncaught Exception Detected!");                                                              \
-        logger.error(ll::string_utils::tou8str(e.what()));                                                             \
+        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
+        lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");                            \
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));                           \
         PrintScriptStackTrace();                                                                                       \
-        logger.error("In Event: " + EventTypeToString(TYPE));                                                          \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
     }
 
 // 调用事件监听函数，取消事件
@@ -256,9 +256,9 @@ string EventTypeToString(EVENT_TYPES e) { return string(magic_enum::enum_name(e)
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
-        logger.error("Event Callback Failed!");                                                                        \
-        logger.error("Uncaught Exception Detected!");                                                                  \
-        logger.error("In Event: " + EventTypeToString(TYPE));                                                          \
+        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
+        lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
+        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
     }                                                                                                                  \
     }
 
@@ -290,8 +290,8 @@ bool LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const L
         }
         return true;
     } catch (...) {
-        logger.error("Event \"" + eventName + "\" No Found!\n");
-        logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Event \"" + eventName + "\" No Found!\n");
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);
         return false;
     }
 }
@@ -1211,7 +1211,7 @@ void EnableEventListener(int eventId) {
         //   break;
 
         // case EVENT_TYPES::onMobSpawn:
-        //   logger.warn(
+        //   lse::getSelfPluginInstance().getLogger().warn(
         //       "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn'
         //       instead.");
         //   Event::MobTrySpawnEvent::subscribe([](const MobTrySpawnEvent &ev) {
@@ -1521,8 +1521,8 @@ void InitBasicEventListeners() {
                 }
             }
         } catch (...) {
-            logger.error("Error occurred in Engine Message Loop!");
-            logger.error("Uncaught Exception Detected!");
+            lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
+            lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
         }
 #endif
         // Call tick event

@@ -9,26 +9,26 @@ Concurrency::concurrent_unordered_map<std::string, NativeFunction> NativeFunctio
 
 #define NATIVE_CHECK_ARG_TYPE(TYPE)                                                                                    \
     if (args[i].getKind() != TYPE) {                                                                                   \
-        logger.error("Wrong type of argument!");                                                                       \
-        logger.error("In Symbol: " + funcSymbol->mSymbol);                                                             \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("Wrong type of argument!");                                     \
+        lse::getSelfPluginInstance().getLogger().error("In Symbol: " + funcSymbol->mSymbol);                           \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
         return Local<Value>();                                                                                         \
     }
 
 #define NATIVE_CHECK_ARG_CLASS(TYPE)                                                                                   \
     if (!IsInstanceOf<TYPE>(args[i])) {                                                                                \
-        logger.error("Wrong type of argument!");                                                                       \
-        logger.error("In Symbol: " + funcSymbol->mSymbol);                                                             \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("Wrong type of argument!");                                     \
+        lse::getSelfPluginInstance().getLogger().error("In Symbol: " + funcSymbol->mSymbol);                           \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
         return Local<Value>();                                                                                         \
     }
 
 Local<Value> NativeFunction::callNativeFunction(DCCallVM* vm, NativeFunction* funcSymbol, const Arguments& args) {
     if (args.size() < funcSymbol->mParams.size()) {
-        logger.error("Too Few arguments!");
-        logger.error("In Component: NativeCall");
-        logger.error("In Symbol: " + funcSymbol->mSymbol);
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Too Few arguments!");
+        lse::getSelfPluginInstance().getLogger().error("In Component: NativeCall");
+        lse::getSelfPluginInstance().getLogger().error("In Symbol: " + funcSymbol->mSymbol);
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
         return Local<Value>();
     }
 
@@ -472,11 +472,11 @@ char NativeFunction::nativeCallbackHandler(DCCallback* cb, DCArgs* args, DCValue
             break;
         }
     } catch (const Exception& e) {
-        logger.error("Hook Callback Failed!");
-        logger.error("Message: {}", e.message());
-        logger.error("StackTrace: {}", e.stacktrace());
-        logger.error("In Symbol: " + hookInfo->mSymbol);
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("Hook Callback Failed!");
+        lse::getSelfPluginInstance().getLogger().error("Message: {}", e.message());
+        lse::getSelfPluginInstance().getLogger().error("StackTrace: {}", e.stacktrace());
+        lse::getSelfPluginInstance().getLogger().error("In Symbol: " + hookInfo->mSymbol);
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
     }
 
     return NativeFunction::getTypeSignature(hookInfo->mReturnVal);

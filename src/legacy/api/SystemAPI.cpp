@@ -83,15 +83,18 @@ bool NewProcess(
         try {
             if (callback) callback((int)exitCode, strOutput);
         } catch (const ll::error_utils::seh_exception& e) {
-            logger.error("SEH Uncaught Exception Detected!\n{}", ll::string_utils::tou8str(e.what()));
-            logger.error("In NewProcess callback");
+            lse::getSelfPluginInstance().getLogger().error(
+                "SEH Uncaught Exception Detected!\n{}",
+                ll::string_utils::tou8str(e.what())
+            );
+            lse::getSelfPluginInstance().getLogger().error("In NewProcess callback");
             //   PrintCurrentStackTraceback();
-            ll::error_utils::printCurrentException(logger);
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         } catch (...) {
-            logger.error("NewProcess Callback Failed!");
-            logger.error("Uncaught Exception Detected!");
+            lse::getSelfPluginInstance().getLogger().error("NewProcess Callback Failed!");
+            lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
             //   PrintCurrentStackTraceback();
-            ll::error_utils::printCurrentException(logger);
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         }
     }).detach();
 

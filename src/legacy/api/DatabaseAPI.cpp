@@ -3,19 +3,19 @@ using namespace DB;
 
 #define CATCH_AND_THROW(LOG)                                                                                           \
     catch (const Exception& e) {                                                                                       \
-        logger.error(LOG##"\n");                                                                                       \
+        lse::getSelfPluginInstance().getLogger().error(LOG##"\n");                                                     \
         PrintException(e);                                                                                             \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
         throw Exception(ll::string_utils::tou8str(e.what()));                                                          \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        logger.error("Uncaught Exception Detected!");                                                                  \
+        lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
         PrintScriptStackTrace();                                                                                       \
-        logger.error("In API: " __FUNCTION__);                                                                         \
-        logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                                                   \
+        lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                       \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
         return Local<Value>();                                                                                         \
     }
 

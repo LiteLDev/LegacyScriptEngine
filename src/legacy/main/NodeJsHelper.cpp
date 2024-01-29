@@ -43,7 +43,7 @@
 //     std::vector<std::string> errors;
 //     auto                     exitCode = node::InitializeNodeWithArgs(&args, &exec_args, &errors);
 //     if (exitCode != 0) {
-//         logger.error("Failed to initialize node! NodeJs plugins won't be loaded");
+//         lse::getSelfPluginInstance().getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
 //         return false;
 //     }
 
@@ -78,8 +78,8 @@
 //     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
 //     if (!setup) {
-//         for (const std::string& err : errors) logger.error("CommonEnvironmentSetup Error: {}", err.c_str());
-//         return nullptr;
+//         for (const std::string& err : errors) lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup
+//         Error: {}", err.c_str()); return nullptr;
 //     }
 //     v8::Isolate*       isolate = setup->isolate();
 //     node::Environment* env     = setup->env();
@@ -91,7 +91,7 @@
 
 //     script::ScriptEngine* engine = new script::ScriptEngineImpl({}, isolate, setup->context(), false);
 
-//     logger.debug("Initialize ScriptEngine for node.js [{}]", (void*)engine);
+//     lse::getSelfPluginInstance().getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine);
 //     environments[engine] = env;
 //     (*setups)[engine]    = std::move(setup);
 //     isRunning[env]       = true;
@@ -100,8 +100,8 @@
 //         isolate,
 //         [](void* arg) {
 //             static_cast<script::ScriptEngine*>(arg)->destroy();
-//             logger.debug("Destory ScriptEngine for node.js [{}]", arg);
-//             logger.debug("Destroy EnvironmentCleanupHook");
+//             lse::getSelfPluginInstance().getLogger().debug("Destory ScriptEngine for node.js [{}]", arg);
+//             lse::getSelfPluginInstance().getLogger().debug("Destroy EnvironmentCleanupHook");
 //         },
 //         engine
 //     );
@@ -164,7 +164,7 @@
 //                 }
 //                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
 //                     uv_stop(eventLoop);
-//                     logger.debug("Destroy ServerStopping");
+//                     lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
 //                 }
 //             },
 //             2
@@ -205,13 +205,13 @@
 
 //         return true;
 //     } catch (...) {
-//         logger.error("Fail to stop engine {}", (void*)env);
+//         lse::getSelfPluginInstance().getLogger().error("Fail to stop engine {}", (void*)env);
 //         return false;
 //     }
 // }
 
 // bool stopEngine(script::ScriptEngine* engine) {
-//     logger.info("NodeJs plugin {} exited.", ENGINE_GET_DATA(engine)->pluginName);
+//     lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", ENGINE_GET_DATA(engine)->pluginName);
 //     auto env = NodeJsHelper::getEnvironmentOf(engine);
 //     return stopEngine(env);
 // }
@@ -262,13 +262,14 @@
 //     if (NodeJsHelper::doesPluginPackHasDependency(dirPath)
 //         && !filesystem::exists(filesystem::path(dirPath) / "node_modules")) {
 //         int exitCode = 0;
-//         logger.info(
+//         lse::getSelfPluginInstance().getLogger().info(
 //             tr("llse.loader.nodejs.executeNpmInstall.start",
 //                fmt::arg("name", UTF82String(filesystem::path(dirPath).filename().u8string())))
 //         );
 //         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath)) == 0)
-//             logger.info(tr("llse.loader.nodejs.executeNpmInstall.success"));
-//         else logger.error(tr("llse.loader.nodejs.executeNpmInstall.fail", fmt::arg("code", exitCode)));
+//             lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.nodejs.executeNpmInstall.success"));
+//         else lse::getSelfPluginInstance().getLogger().error(tr("llse.loader.nodejs.executeNpmInstall.fail",
+//         fmt::arg("code", exitCode)));
 //     }
 
 //     // Create engine & Load plugin
@@ -281,7 +282,7 @@
 //             // setData
 //             ENGINE_OWN_DATA()->pluginName          = pluginName;
 //             ENGINE_OWN_DATA()->pluginFileOrDirPath = dirPath;
-//             ENGINE_OWN_DATA()->logger.title        = pluginName;
+//             ENGINE_OWN_DATA()->lse::getSelfPluginInstance().getLogger().title        = pluginName;
 //             // bindAPIs
 //             BindAPIs(engine);
 //         }
@@ -322,7 +323,8 @@
 //                     others["Repository"] = j["repository"]["url"].get<std::string>();
 //                 }
 //             } catch (...) {
-//                 logger.warn(tr("llse.loader.nodejs.register.fail", fmt::arg("name", pluginName)));
+//                 lse::getSelfPluginInstance().getLogger().warn(tr("llse.loader.nodejs.register.fail", fmt::arg("name",
+//                 pluginName)));
 //             }
 
 //             // register
@@ -333,13 +335,13 @@
 //         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
 
 //         // Success
-//         logger.info(tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Node.js"), fmt::arg("name",
-//         pluginName))); return true;
+//         lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type",
+//         "Node.js"), fmt::arg("name", pluginName))); return true;
 //     } catch (const Exception& e) {
-//         logger.error("Fail to load " + dirPath + "!");
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
 //         if (engine) {
 //             EngineScope enter(engine);
-//             logger.error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+//             lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
 //             PrintException(e);
 //             ExitEngineScope exit;
 
@@ -358,10 +360,10 @@
 //             NodeJsHelper::stopEngine(engine);
 //         }
 //     } catch (const std::exception& e) {
-//         logger.error("Fail to load " + dirPath + "!");
-//         logger.error(ll::string_utils::tou8str(e.what()));
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
+//         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
 //     } catch (...) {
-//         logger.error("Fail to load " + dirPath + "!");
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
 //     }
 //     return false;
 // }
@@ -454,8 +456,8 @@
 //     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
 //     if (!setup) {
-//         for (const std::string& err : errors) logger.error("CommonEnvironmentSetup Error: {}", err.c_str());
-//         return -1;
+//         for (const std::string& err : errors) lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup
+//         Error: {}", err.c_str()); return -1;
 //     }
 //     v8::Isolate*       isolate   = setup->isolate();
 //     node::Environment* env       = setup->env();
@@ -485,7 +487,7 @@
 //                 throw "error";
 //             exit_code = node::SpinEventLoop(env).FromMaybe(1);
 //         } catch (...) {
-//             logger.error("Fail to execute NPM command. Error occurs");
+//             lse::getSelfPluginInstance().getLogger().error("Fail to execute NPM command. Error occurs");
 //         }
 //     }
 

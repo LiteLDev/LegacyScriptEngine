@@ -204,8 +204,8 @@ Local<Value> ConfJsonClass::reload(const Arguments& args) {
     try {
         return Boolean::newBoolean(reload());
     } catch (const ordered_json::exception& e) {
-        logger.error("Fail to parse json content in file!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Fail to parse json content in file!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     }
@@ -252,7 +252,7 @@ bool ConfJsonClass::reload() {
     try {
         jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, true);
     } catch (...) {
-        logger.error("Fail in confJsonReload!");
+        lse::getSelfPluginInstance().getLogger().error("Fail in confJsonReload!");
         PrintScriptStackTrace();
     }
 
@@ -523,13 +523,13 @@ Local<Value> MoneyClass::set(const Arguments& args) {
     try {
         return Boolean::newBoolean(EconomySystem::setMoney(args[0].toStr(), args[1].asNumber().toInt64()));
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneySet!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneySet!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneySet!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneySet!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     }
@@ -543,13 +543,13 @@ Local<Value> MoneyClass::get(const Arguments& args) {
     try {
         return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneyGet!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGet!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Number::newNumber(0);
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneyGet!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGet!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Number::newNumber(0);
     }
@@ -564,13 +564,13 @@ Local<Value> MoneyClass::add(const Arguments& args) {
     try {
         return Boolean::newBoolean(EconomySystem::addMoney(args[0].toStr(), args[1].asNumber().toInt64()));
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneyAdd!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyAdd!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneyAdd!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyAdd!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     }
@@ -585,13 +585,13 @@ Local<Value> MoneyClass::reduce(const Arguments& args) {
     try {
         return Boolean::newBoolean(EconomySystem::reduceMoney(args[0].toStr(), args[1].asNumber().toInt64()));
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneyReduce!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyReduce!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneyReduce!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyReduce!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     }
@@ -611,13 +611,13 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
             EconomySystem::transMoney(args[0].toStr(), args[1].toStr(), args[2].asNumber().toInt64(), note)
         );
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneyTrans!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyTrans!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneyTrans!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyTrans!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Boolean::newBoolean(false);
     }
@@ -668,13 +668,13 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
         string res{EconomySystem::getMoneyHist(args[0].toStr(), args[1].asNumber().toInt64())};
         return objectificationMoneyHistory(res);
     } catch (const std::invalid_argument& e) {
-        logger.error("Bad argument in MoneyGetHintory!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Local<Value>();
     } catch (const std::out_of_range& e) {
-        logger.error("Bad argument in MoneyGetHintory!");
-        logger.error(ll::string_utils::tou8str(e.what()));
+        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
         return Local<Value>();
     }

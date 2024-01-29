@@ -37,20 +37,20 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 #define TIMETASK_CATCH(TASK_TYPE)                                                                                      \
     catch (const Exception& e) {                                                                                       \
         EngineScope scope(engine);                                                                                     \
-        logger.error("Error occurred in {}", TASK_TYPE);                                                               \
+        lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
         PrintException(e);                                                                                             \
-        logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);                                             \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);           \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
-        logger.error("Error occurred in {}", TASK_TYPE);                                                               \
-        logger.error("C++ Uncaught Exception Detected!");                                                              \
-        logger.error(ll::string_utils::tou8str(e.what()));                                                             \
-        logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);                                             \
+        lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
+        lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");                            \
+        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));                           \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);           \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        logger.error("Error occurred in {}", TASK_TYPE);                                                               \
-        logger.error("Uncaught Exception Detected!");                                                                  \
-        logger.error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);                                             \
+        lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
+        lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);           \
     }
 
 //////////////////// API ////////////////////
@@ -268,7 +268,7 @@ bool ClearTimeTask(int id) {
             timeTaskMap.erase(id);
         }
     } catch (...) {
-        logger.error("Fail in ClearTimeTask");
+        lse::getSelfPluginInstance().getLogger().error("Fail in ClearTimeTask");
     }
     return true;
 }
@@ -288,7 +288,7 @@ void LLSERemoveTimeTaskData(ScriptEngine* engine) {
             } else ++it;
         }
     } catch (...) {
-        logger.info("Fail in LLSERemoveTimeTaskData");
+        lse::getSelfPluginInstance().getLogger().info("Fail in LLSERemoveTimeTaskData");
     }
     tmpMap.clear();
 }

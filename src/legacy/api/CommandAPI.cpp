@@ -39,7 +39,6 @@
 #include <string>
 #include <vector>
 
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<void> PermissionStaticBuilder  = EnumDefineBuilder<CommandPermissionLevel>::build("PermType");
@@ -200,7 +199,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
         auto name     = args[0].toStr();
         auto instance = DynamicCommand::getInstance(name);
         if (instance) {
-            logger.info(
+            lse::getSelfPluginInstance().getLogger().info(
                 "Dynamic command {} already exists, changes will not be "
                 "applied except for setOverload!",
                 name
@@ -431,7 +430,10 @@ void onExecute(
     auto  instance    = command.getInstance();
     auto& commandName = instance->getCommandName();
     if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
-        logger.warn("Command {} failed to execute, is the plugin unloaded?", commandName);
+        lse::getSelfPluginInstance().getLogger().warn(
+            "Command {} failed to execute, is the plugin unloaded?",
+            commandName
+        );
         return;
     }
     EngineScope enter(localShareData->commandCallbacks[commandName].fromEngine);
@@ -456,7 +458,10 @@ void onExecute2(
     auto  instance    = command.getInstance();
     auto& commandName = instance->getCommandName();
     if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
-        logger.warn("Command {} failed to execute, is the plugin unloaded?", commandName);
+        lse::getSelfPluginInstance().getLogger().warn(
+            "Command {} failed to execute, is the plugin unloaded?",
+            commandName
+        );
         return;
     }
     EngineScope enter(localShareData->commandCallbacks[commandName].fromEngine);

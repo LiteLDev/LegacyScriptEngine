@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "Overworld",
+      "1": "Nether",
+      "2": "End",
+      "unknown": "Diğer boyut"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "LLMoney.dll bulunamadı, ScriptEngine Ekonomi Sistemi çalışamayacak"
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - Eklenti gereksinimi başarıyla yüklendi. Yüklendi: ",
+          "fail": " - Eklenti gereksinim yüklemesi başarısız oldu",
+          "download": {
+            "success": " - Gereksinim başarıyla indirildi! Yol: ",
+            "fail": " - Eklenti gereksinimini indirme başarısız oldu! Kod: "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "JSON ayrıştırma hatası"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "Bağımlılık {} yüklendi.",
+        "fail": "Bağımlılık yüklenemedi: {}"
+      },
+      "loadMain": {
+        "start": "{type} eklentileri yükleniyor...",
+        "done": "{count} tane {type} eklenti(ler) yüklendi.",
+        "nodejs": {
+          "installPack": {
+            "fail": "Eklenti paketi {} yüklenemedi, lütfen package.json dosyanızı kontrol edin!",
+            "start": "Node.js eklenti paketi \"{path}\" bulundu! Yüklemeyi deneyin..."
+          },
+          "ignored": "{path} dizininde package.json dosyası bulunamadı, yok sayıldı."
+        },
+        "loadedPlugin": "{type} eklenti <{name}> yüklendi.",
+        "installPluginPack": {
+          "done": "{count} tane {type} eklenti paket(ler) indirildi."
+        },
+        "python": {
+          "ignored": "pyproject.toml dosyası {path} dizininde bulunamadı, yoksayıldı.",
+          "installPack": {
+            "start": "Python eklenti paketi \"{path}\" bulundu! Yüklemeyi deneyin...",
+            "fail": "Eklenti paketi {} yüklenemedi, lütfen kaynak dosyaları kontrol edin!"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Npm başarıyla tamamlandı.",
+          "start": "Eklenti {name} için \"npm install\" çalıştırılıyor...",
+          "fail": "Hata oluştu. Çıkış kodu: {code}"
+        },
+        "register": {
+          "fail": "Eklenti {name} kaydedilmesine yardımcı olunamıyor!"
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "Eklenti, {name} için \"pip install\" çalıştırılıyor...",
+          "success": "Pip başarıyla tamamlandı.",
+          "fail": "Hata oluştu. Çıkış kodu: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "{0} için gerekli olan eklenti bulunamadı.",
+      "success": "{1} için gerekli olan {0} adlı eklenti yüklendi.",
+      "network": {
+        "fail": "{0} tarafından gerekli olan eklenti indirilirken hata oluştu, http kodu: {1}"
+      },
+      "download": {
+        "success": "{0} tarafından gerekli olan eklenti başarıyla indirildi, yol {1}."
+      }
+    }
+  }
+}

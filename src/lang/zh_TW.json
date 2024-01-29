@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "主世界",
+      "1": "地獄",
+      "2": "終界",
+      "unknown": "其他維度"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "LLMoney.dll 不存在，ScriptEngine 經濟系統將不起作用"
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - 插件依賴庫加載成功。已加載：",
+          "fail": " - 插件前置加載失敗",
+          "download": {
+            "success": " - 成功下載前置檔案！ 檔案位置： ",
+            "fail": " - 插件前置下載失敗！錯誤代碼： "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "JSON解析錯誤"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "依賴 {} 已載入",
+        "fail": "無法載入依賴 {}"
+      },
+      "loadMain": {
+        "start": "載入 {type} 插件中...",
+        "done": "{count} 個 {type} 已成功載入。",
+        "nodejs": {
+          "installPack": {
+            "fail": "安裝插件 {} 失敗，請檢查您的 package.json 文件！",
+            "start": "發現 Node.js 插件包 \"{path}\"! 嘗試安裝中..."
+          },
+          "ignored": "在目錄 {path} 中找不到 package.json 文件, 已忽略"
+        },
+        "loadedPlugin": "{type} 插件 <{name}> 已加載。",
+        "installPluginPack": {
+          "done": "已安裝 {count} 個 {type} 插件包"
+        },
+        "python": {
+          "ignored": "在目錄 {path} 中找不到 pyproject.toml 文件, 已忽略",
+          "installPack": {
+            "start": "找到 Python 插件包 \"{path}\"！嘗試安裝...",
+            "fail": "安裝插件 {} 失敗，請檢查插件源文件！"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Npm 命令已成功完成",
+          "start": "正在為 {name} 插件執行 “npm install”...",
+          "fail": "發生錯誤. 退出代碼: {code}"
+        },
+        "register": {
+          "fail": "無法讓插件 {name} 被註冊！"
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "正在為 {name} 插件執行 “pip install”...",
+          "success": "Pip 命令已成功完成",
+          "fail": "發生錯誤. 退出代碼: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "沒有找到插件依賴 {0}。",
+      "success": "Plugin named {0} which is required by {1} loaded.",
+      "network": {
+        "fail": "Error occurred when download plugin which is required by {0}, http code: {1}"
+      },
+      "download": {
+        "success": "Download plugin which is required by {0} successfully, path {1}."
+      }
+    }
+  }
+}

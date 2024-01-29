@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "Thế giới chính",
+      "1": "Địa ngục",
+      "2": "The End",
+      "unknown": "Không gian khác"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "Không tìm thấy LLMoney.dll, ScriptEngine Economy System sẽ không hoạt động"
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - Plugin được yêu cầu tải thành công. Tải thành công: ",
+          "fail": " - Plugin được yêu cầu tải không thành công",
+          "download": {
+            "success": " - Đã tải thành công yêu cầu! Đường dẫn: ",
+            "fail": " - Yêu cầu tải xuống plugin không thành công! Mã số: "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "Lỗi phân tích cú pháp JSON"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "Phụ thuộc {} đã được tải.",
+        "fail": "Không thể tải phụ thuộc {}"
+      },
+      "loadMain": {
+        "start": "Đang tải {type} plugin...",
+        "done": "{count} {type} plugin đã được tải.",
+        "nodejs": {
+          "installPack": {
+            "fail": "Không thể cài đặt gói plugin {}, vui lòng kiểm tra tệp package.json của bạn!",
+            "start": "Đã tìm thấy gói plugin Node.js \"{path}\"! Hãy thử cài đặt..."
+          },
+          "ignored": "Không tìm thấy tệp package.json trong thư mục {path}, đã bỏ qua."
+        },
+        "loadedPlugin": "Đã tải {type} plugin <{name}>.",
+        "installPluginPack": {
+          "done": "Đã cài đặt gói plugin {count} {type}."
+        },
+        "python": {
+          "ignored": "Không tìm thấy tệp pyproject.toml trong thư mục {path}, đã bỏ qua.",
+          "installPack": {
+            "start": "Đã tìm thấy gói plugin Python \"{path}\"! Đang thử cài đặt...",
+            "fail": "Không thể cài đặt gói plugin {}, vui lòng kiểm tra các tệp nguồn!"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Npm kết thúc thành công.",
+          "start": "Đang thực thi \"npm install\" cho plugin {name}...",
+          "fail": "Xảy ra lỗi. Mã thoát: {code}"
+        },
+        "register": {
+          "fail": "Không thể giúp plugin {name} được đăng ký!"
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "Đang thực thi \"pip install\" cho plugin {name}...",
+          "success": "Pip kết thúc thành công.",
+          "fail": "Xảy ra lỗi. Mã thoát: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "Không tìm thấy plugin cần thiết cho {0}.",
+      "success": "Plugin có tên {0} cần thiết cho {1} đã được tải.",
+      "network": {
+        "fail": "Đã xảy ra lỗi khi tải plugin cần thiết cho {0}, mã http: {1}"
+      },
+      "download": {
+        "success": "Tải plugin cần thiết cho {0} thành công, đường dẫn {1}."
+      }
+    }
+  }
+}

@@ -6,7 +6,7 @@ add_requires(
     "dyncall 1.4",
     "legacymoney 0.1.5",
     "legacyparticleapi 0.1.1",
-    "levilamina 0.6.0",
+    "levilamina 0.6.1",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
     -- "mariadb-connector-c 3.3.4",

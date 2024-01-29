@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "오버월드",
+      "1": "네더",
+      "2": "엔더",
+      "unknown": "다른 월드"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "LLmoney.dll 이 발견되지 않았습니다. ScriptEngine의 Economy System이 동작하지 않습니다."
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - 요구되는 플러그인 로드에 성공했습니다. 로드됨: ",
+          "fail": " - 요구되는 플러그인을 로드하지 못했습니다. ",
+          "download": {
+            "success": " - 필요한 것들을 다운로드 했습니다! 경로: ",
+            "fail": " - 필요한 플러그인을 다운로드 하지 못했습니다! 코드: "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "JSON 파싱 오류"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "Dependence {} 가 로드됐습니다.",
+        "fail": "Dependence '{}' 로드에 실패했습니다."
+      },
+      "loadMain": {
+        "start": "{type} 플러그인을 로드합니다...",
+        "done": "{count} 개의 {type} 플러그인을 로드합니다...",
+        "nodejs": {
+          "installPack": {
+            "fail": "플러그인 팩 {} 로드에 실패했습니다. package.json 파일을 확인해주세요!",
+            "start": "Node.js 플러그인 팩 \"{path}\"을 발견했습니다. 설치를 시도합니다..."
+          },
+          "ignored": "경로 {path} 에서 package.json 파일을 찾지 못하여 무시합니다."
+        },
+        "loadedPlugin": "{type} 타입 플러그인 <{name}> 를 로드했습니다.",
+        "installPluginPack": {
+          "done": "{count} 개의 {type} 플러그인 팩이 로드됐습니다."
+        },
+        "python": {
+          "ignored": "{path} 경로에서 pyproject.toml 파일을 찾지 못하여 무시합니다",
+          "installPack": {
+            "start": "\"{path}\"에 있는 파이썬 플러그인팩을 찾았습니다! 설치를 시도합니다...",
+            "fail": "플러그인 팩 {} 을(를) 설치하는데 실패했습니다. 소스 파일을 확인해주세요!"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Npm이 성공적으로 설치됐습니다.",
+          "start": "플러그인 {name} 에 대하여 \"npm install\" 명령어를 실행합니다.",
+          "fail": "에러 발생. 코드 종료: {code}"
+        },
+        "register": {
+          "fail": "플러그인 {name} 을 등록하지 못했습니다."
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "{name} 플러그인에 대하여 pip install 명령어를 실행중입니다",
+          "success": "pip가 성공적으로 실행됐습니다",
+          "fail": "에러가 발생했습니다. 종료 코드: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "Plugin which is required by {0} not found.",
+      "success": "{0} 에 필요한 {1} 플러그인이 로드되었습니다",
+      "network": {
+        "fail": "{0} 에서 필요한 플러그인 다운로드를 실패했습니다. http 코드: {1}"
+      },
+      "download": {
+        "success": "{0} 에 필요한 플러그인 을 성공적으로 다운로드했습니다. 경로:{1}"
+      }
+    }
+  }
+}

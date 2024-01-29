@@ -1,6 +1,8 @@
 #include "Entry.h"
 
+#include "Config.h"
 #include "PluginManager.h"
+#include "PluginMigration.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/MoreGlobal.h"
 #include "legacy/engine/GlobalShareData.h"
@@ -11,15 +13,20 @@
 #include "legacy/main/Loader.h"
 #include "legacy/main/SafeGuardRecord.h"
 
+#include <fmt/format.h>
 #include <functional>
+#include <ll/api/Config.h>
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/NativePlugin.h>
 #include <ll/api/plugin/PluginManagerRegistry.h>
 #include <memory>
 
+
 namespace lse {
 
 namespace {
+
+Config config; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
@@ -74,6 +81,23 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
     selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
 
+    // Load configuration.
+    const auto& configFilePath = self.getConfigDir() / "config.json";
+    if (!ll::config::loadConfig(config, configFilePath)) {
+        logger.warn("cannot load configurations from {}", configFilePath);
+        logger.info("saving default configurations");
+
+        if (!ll::config::saveConfig(config, configFilePath)) {
+            logger.error("cannot save default configurations to {}", configFilePath);
+        }
+    }
+
+    // Migrate plugins if needed.
+    if (config.migratePlugins) {
+        migratePlugins();
+    }
+
+    // Initialize LLSE stuff.
     ll::i18n::load(self.getLangDir());
 
     InitLocalShareData();
@@ -89,6 +113,7 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     InitMessageSystem();
     MoreGlobal::Init();
 
+    // Register plugin manager.
     pluginManager = std::make_shared<PluginManager>();
 
     auto& pluginManagerRegistry = ll::plugin::PluginManagerRegistry::getInstance();
@@ -106,7 +131,7 @@ auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
     auto content = ll::file_utils::readFile(path);
 
     if (!content) {
-        throw std::runtime_error("failed to read " + path.string());
+        throw std::runtime_error(fmt::format("failed to read {}", path.string()));
     }
 
     depends.emplace(path.string(), *content);

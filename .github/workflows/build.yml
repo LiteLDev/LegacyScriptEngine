@@ -18,13 +18,13 @@ jobs:
 
       - uses: xmake-io/github-action-setup-xmake@v1
 
-      # - uses: actions/cache@v4
-      #   with:
-      #     path: |
-      #       ~/AppData/Local/.xmake
-      #     key: xmake-${{ hashFiles('xmake.lua') }}
-      #     restore-keys: |
-      #       xmake-
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/.xmake
+          key: xmake-${{ hashFiles('xmake.lua') }}
+          restore-keys: |
+            xmake-
       
       - run: |
           xmake repo -u
@@ -41,7 +41,20 @@ jobs:
           path: |
             bin/
 
-  check-code:
+  clang-format:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          choco install llvm -y --version=17.0.6
+
+      - name: clang-format
+        run: |
+          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
+          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-format -i -Werror $_.FullName }
+
+  clang-tidy:
     runs-on: windows-latest
     strategy:
       matrix:
@@ -55,6 +68,14 @@ jobs:
 
       - uses: xmake-io/github-action-setup-xmake@v1
 
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/.xmake
+          key: xmake-${{ hashFiles('xmake.lua') }}
+          restore-keys: |
+            xmake-
+      
       - run: |
           xmake repo -u
 
@@ -62,18 +83,9 @@ jobs:
           xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
 
       - run: |
-          xmake project -k compile_commands
-
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        id: cpp-linter-action
-        uses: cpp-linter/cpp-linter-action@v2
-        with:
-          files-changed-only: false
-          style: file
-          tidy-checks: ''
-          version: 17
-
-      - if: ${{ steps.cpp-linter-action.outputs.checks-failed > 0 }}
+          choco install llvm -y --version=17.0.6
+          
+      - name: clang-tidy
         run: |
-          exit 1
+          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-tidy $_.FullName }
+          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-tidy $_.FullName }

@@ -6,7 +6,7 @@
 
 namespace lse {
 
-class PluginManager final : public ll::plugin::PluginManager {
+class PluginManager : public ll::plugin::PluginManager {
 public:
     PluginManager();
 
@@ -15,7 +15,6 @@ public:
     auto operator=(const PluginManager&) -> PluginManager& = delete;
     auto operator=(PluginManager&&) -> PluginManager&      = delete;
 
-protected:
     ~PluginManager() override = default;
 
     auto load(ll::plugin::Manifest manifest) -> bool override;

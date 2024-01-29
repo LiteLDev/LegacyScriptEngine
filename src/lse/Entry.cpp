@@ -5,6 +5,7 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "engine/MessageSystem.h"
+#include "main/BuiltinCommands.h"
 #include "main/EconomicSystem.h"
 #include "main/Loader.h"
 #include "main/SafeGuardRecord.h"
@@ -14,6 +15,7 @@
 #include <ll/api/plugin/NativePlugin.h>
 #include <memory>
 
+ll::Logger logger(LLSE_LOADER_NAME);
 namespace lse {
 
 namespace {
@@ -27,7 +29,7 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 
     logger.info("enabling...");
-
+    RegisterDebugCommand();
     return true;
 }
 

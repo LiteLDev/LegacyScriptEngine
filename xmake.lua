@@ -80,7 +80,8 @@ target("legacy-script-engine")
         "src/**.cpp"
     )
     add_includedirs(
-        "src"
+        "src",
+        "src/legacy"
     )
     add_packages(
         "cpp-httplib",

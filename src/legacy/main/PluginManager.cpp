@@ -1,4 +1,3 @@
-#if false
 #include "main/PluginManager.h"
 
 #include "api/APIHelp.h"
@@ -406,4 +405,3 @@ std::string PluginManager::getPluginBackendType(const std::string& path) {
     // none backend matched
     return "";
 }
-#endif

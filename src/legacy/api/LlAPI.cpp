@@ -66,12 +66,12 @@ Local<Value> LlClass::isWine() {
     CATCH("Fail in LLSEIsWine")
 }
 
-Local<Value> LlClass::isDebugMode() {
+auto LlClass::isDebugMode() -> Local<Value> {
     try {
-#ifdef LEGACYSCRIPTENGINE_DEBUG
-        return Boolean::newBoolean(true);
-#else
+#ifdef NDEBUG
         return Boolean::newBoolean(false);
+#else
+        return Boolean::newBoolean(true);
 #endif
     }
     CATCH("Fail in LLSEIsDebugMode")

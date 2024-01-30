@@ -72,7 +72,6 @@ target("legacy-script-engine")
         "/utf-8"
     )
     add_defines(
-        "LEGACY_SCRIPT_ENGINE_BACKEND_$(backend)",
         "_HAS_CXX23=1", -- To enable C++23 features.
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
         "NOMINMAX", -- To avoid conflicts with std::min and std::max.
@@ -105,13 +104,22 @@ target("legacy-script-engine")
     add_shflags(
         "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.
     )
-    set_basename("legacy-script-engine-$(backend)")
     set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
     set_languages("cxx20")
 
-    if is_mode("debug") then
-        add_defines("LEGACYSCRIPTENGINE_DEBUG")
+    if is_config("backend", "lua") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_LUA"
+        )
+        set_basename("legacy-script-engine-lua")
+
+    elseif is_config("backend", "quickjs") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
+        )
+        set_basename("legacy-script-engine-quickjs")
+
     end
 
     after_build(function (target)

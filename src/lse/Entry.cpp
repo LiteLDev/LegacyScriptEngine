@@ -22,13 +22,13 @@
 #include <memory>
 #include <stdexcept>
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_lua
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto BaseLibFileName = "BaseLib.lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_quickjs
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
 constexpr auto BaseLibFileName = "BaseLib.js";
 

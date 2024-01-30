@@ -10,13 +10,13 @@
 #include <ll/api/reflection/Serialization.h>
 #include <unordered_set>
 
-#if LEGACY_SCRIPT_ENGINE_BACKEND_lua
+#if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto PluginExtName = ".lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_quickjs
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
 constexpr auto PluginExtName = ".js";
 

@@ -471,7 +471,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onStartDestroyBlock:
-        PlayerStartDestroyHook().hook();
+        PlayerStartDestroyHook::hook();
         break;
 
     case EVENT_TYPES::onDestroyBlock:

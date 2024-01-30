@@ -1,23 +1,20 @@
 add_rules("mode.debug", "mode.release")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
-add_requires(
-    "demangler v2.0.0",
-    "dyncall 1.4",
-    "fmt 10.1.1",
-    "legacymoney 0.1.5",
-    "legacyparticleapi 0.1.1",
-    "levilamina 0.6.3",
-    "lightwebsocketclient 1.0.0",
-    "magic_enum v0.9.0",
-    -- "mariadb-connector-c 3.3.4",
-    "nlohmann_json 3.11.2",
-    "simpleini v4.19",
-    "sqlite3 3.43.0+200",
-    "toml++ v3.4.0"
-)
 add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
-add_requires("scriptx", {configs={backend=get_config("backend")}})
+add_requires("demangler v2.0.0", {configs={shared=false}})
+add_requires("dyncall 1.4", {configs={shared=false}})
+add_requires("fmt 10.1.1", {configs={shared=false}})
+add_requires("legacymoney 0.1.5", {configs={shared=false}})
+add_requires("legacyparticleapi 0.1.1", {configs={shared=false}})
+add_requires("levilamina 0.6.3", {configs={shared=false}})
+add_requires("lightwebsocketclient 1.0.0", {configs={shared=false}})
+add_requires("magic_enum v0.9.0", {configs={shared=false}})
+add_requires("nlohmann_json 3.11.2", {configs={shared=false}})
+add_requires("scriptx", {configs={shared=false, backend=get_config("backend")}})
+add_requires("simpleini v4.19", {configs={shared=false}})
+add_requires("sqlite3 3.43.0+200", {configs={shared=false}})
+add_requires("toml++ v3.4.0", {configs={shared=false}})
 
 set_runtimes("MD") -- For compatibility with the /MD build configuration of ScriptX.
 
@@ -94,7 +91,6 @@ target("legacy-script-engine")
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
-        -- "mariadb-connector-c",
         "nlohmann_json",
         "scriptx",
         "simpleini",

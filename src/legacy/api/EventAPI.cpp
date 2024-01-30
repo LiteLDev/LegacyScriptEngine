@@ -16,6 +16,7 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
+#include "ll/api/event/entity/ActorHurtEvent.h"
 #include "ll/api/event/entity/MobDieEvent.h"
 #include "ll/api/event/player/PlayerAddExperienceEvent.h"
 #include "ll/api/event/player/PlayerAttackEvent.h"
@@ -955,27 +956,29 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onMobHurt:
-        //   Event::MobHurtEvent::subscribe([](const MobHurtEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        //       Actor *source = nullptr;
-        //       if (ev.mDamageSource->isEntitySource()) {
-        //         if (ev.mDamageSource->isChildEntitySource())
-        //           source =
-        //           Level::getEntity(ev.mDamageSource->getEntityUniqueID());
-        //         else
-        //           source =
-        //               Level::getEntity(ev.mDamageSource->getDamagingEntityUniqueID());
-        //       }
+    case EVENT_TYPES::onMobHurt:
+        bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobHurt) {
+                Actor* source = nullptr;
+                if (ev.source().isEntitySource()) {
+                    if (ev.source().isChildEntitySource()) {
+                        source = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID());
+                    } else {
+                        source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
+                    }
+                }
 
-        //       CallEvent(EVENT_TYPES::onMobHurt, EntityClass::newEntity(ev.mMob),
-        //                 source ? EntityClass::newEntity(source) : Local<Value>(),
-        //                 Number::newNumber(float(ev.mDamage)),
-        //                 Number::newNumber((int)ev.mDamageSource->getCause()));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-        //   });
-        //   break;
+                CallEvent(
+                    EVENT_TYPES::onMobHurt,
+                    EntityClass::newEntity(&ev.self()),
+                    source ? EntityClass::newEntity(source) : Local<Value>(),
+                    Number::newNumber(float(ev.damage())),
+                    Number::newNumber((int)ev.source().getCause())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+        });
+        break;
 
         // case EVENT_TYPES::onStepOnPressurePlate:
         //   Event::EntityStepOnPressurePlateEvent::subscribe(

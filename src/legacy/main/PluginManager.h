@@ -1,3 +1,4 @@
+#ifdef false
 #pragma once
 #include "ll/api/plugin/Plugin.h"
 #include "ll/api/plugin/PluginManager.h"
@@ -39,3 +40,4 @@ public:
         std::map<std::string, std::string> others
     );
 };
+#endif

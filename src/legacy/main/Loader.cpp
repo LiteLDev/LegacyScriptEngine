@@ -28,6 +28,7 @@ bool          isInConsoleDebugMode = false;
 extern void BindAPIs(ScriptEngine* engine);
 
 // Pre-load dependency
+#ifdef false
 void LoadDepends() {
 #ifdef LLSE_BACKEND_NODEJS
     return; // NodeJs backend load depends code in another place
@@ -57,6 +58,7 @@ void LoadDepends() {
         }
     }
 }
+#endif
 
 // Load debug engine
 void LoadDebugEngine() {
@@ -89,6 +91,7 @@ void LoadDebugEngine() {
 
 // Main load procedure
 void LoadMain_Package();
+#ifdef false
 void LoadMain() {
 
 #if LLSE_IS_PLUGIN_PACKAGE
@@ -104,7 +107,6 @@ void LoadMain() {
     for (auto& i : files) {
         if (i.is_regular_file() && i.path().extension() == LLSE_SOURCE_FILE_EXTENSION) {
             try {
-                // Todo
                 if (PluginManager::loadPlugin(ll::string_utils::u8str2str(i.path().generic_u8string()), false, true))
                     ++count;
             } catch (...) {}
@@ -115,6 +117,7 @@ void LoadMain() {
     );
 #endif
 }
+#endif
 
 #ifdef LLSE_BACKEND_NODEJS
 // NodeJs后端 - 主加载

@@ -2085,7 +2085,7 @@ Local<Value> PlayerClass::removeSidebar(const Arguments& args) {
     CATCH("Fail in removeSidebar!")
 }
 
-Local<Value> PlayerClass::setBossBar(const Arguments& args) {
+Local<Value> PlayerClass::setBossBar(const Arguments& args) { // Todo
     CHECK_ARGS_COUNT(args, 2);
     if (args[0].getKind() == ValueKind::kNumber) {
         CHECK_ARGS_COUNT(args, 4);

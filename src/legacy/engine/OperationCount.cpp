@@ -46,8 +46,7 @@ int OperationCount::get() {
 bool OperationCount::hasReachCount(int count) { return get() >= count; }
 
 bool OperationCount::hasReachMaxEngineCount() {
-    // Todo
-    // return hasReachCount(PluginManager::getAllScriptPlugins().size());
+    return hasReachCount(lse::getPluginManager().getPluginCount());
     return false;
 }
 

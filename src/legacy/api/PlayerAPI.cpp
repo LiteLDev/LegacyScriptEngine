@@ -40,6 +40,7 @@
 #include "mc/network/packet/AddEntityPacket.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
+#include "mc/network/packet/RemoveObjectivePacket.h"
 #include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
 #include "mc/network/packet/SetScorePacket.h"
@@ -2050,17 +2051,11 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
 
         SetDisplayObjectivePacket
             disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
-        player->sendNetworkPacket(disObjPkt);
+        disObjPkt.sendTo(*player);
         std::vector<ScorePacketInfo> info;
-        static std::set<uint64_t>    scoreIds; // Store scoreboard ids
-        uint64_t                     Id = 0;
-        do {
-            Id = (uint64_t)((rand() << 16) + rand() + 1145140);
-        } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
-        const ScoreboardId& boardId = ScoreboardId(Id);
         for (auto& i : data) {
             ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId   = boardId;
+            pktInfo.mScoreboardId   = ScoreboardId(i.second);
             pktInfo.mObjectiveName  = "FakeScoreObj";
             pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
             pktInfo.mScoreValue     = i.second;
@@ -2068,8 +2063,7 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
             info.emplace_back(pktInfo);
         }
         SetScorePacket setPkt = SetScorePacket::change(info);
-        player->sendNetworkPacket(setPkt);
-        player->sendNetworkPacket(disObjPkt);
+        setPkt.sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setSidebar!")
@@ -2079,10 +2073,9 @@ Local<Value> PlayerClass::removeSidebar(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-
-        SetDisplayObjectivePacket disObjPkt =
-            SetDisplayObjectivePacket("sidebar", "", "", "dummy", ObjectiveSortOrder::Ascending);
-        player->sendNetworkPacket(disObjPkt);
+        RemoveObjectivePacket pkt;
+        pkt.mObjectiveName = "FakeScoreObj";
+        player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeSidebar!")

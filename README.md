@@ -10,7 +10,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine
 
 ## Usage
 
-__TODO__
+Put LLSE plugins directly in `/path/to/bedrock_dedicated_server/plugins/` and run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically. To load them, you need to restart the server.
 
 ## Contributing
 

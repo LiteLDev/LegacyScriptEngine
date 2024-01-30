@@ -187,14 +187,47 @@ Local<Value> LlClass::requireVersion(const Arguments& args) {
 
 Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     try {
-        return {};
+        Local<Array> plugins = Array::newArray();
+        lse::getPluginManager().forEachPlugin([&](std::string_view name, ll::plugin::Plugin& plugin) {
+            // Create plugin object
+            auto pluginObject = Object::newObject();
+
+            pluginObject.set("name", plugin.getManifest().name);
+            if (plugin.getManifest().description.has_value()) {
+                pluginObject.set("desc", plugin.getManifest().description.value());
+            }
+
+            auto ver = Array::newArray();
+            ver.add(Number::newNumber(plugin.getManifest().version->major));
+            ver.add(Number::newNumber(plugin.getManifest().version->minor));
+            ver.add(Number::newNumber(plugin.getManifest().version->patch));
+
+            pluginObject.set("version", ver);
+            pluginObject.set("versionStr", plugin.getManifest().version->to_string());
+            pluginObject.set("filePath", plugin.getManifest().entry);
+
+            auto others = Object::newObject();
+            for (const auto& [k, v] : *plugin.getManifest().extraInfo) {
+                others.set(k, v);
+            }
+            pluginObject.set("others", others);
+
+            // Add plugin object to list
+            plugins.add(pluginObject);
+            return true;
+        });
     }
     CATCH("Fail in LLAPI");
 }
 // For Compatibility
 Local<Value> LlClass::listPlugins(const Arguments& args) {
     try {
-        return {};
+        Local<Array> plugins = Array::newArray();
+        lse::getPluginManager().forEachPlugin([&](std::string_view name, ll::plugin::Plugin&) {
+            plugins.add(String::newString(name));
+            return true;
+        });
+        return plugins;
     }
     CATCH("Fail in LLAPI");
 }

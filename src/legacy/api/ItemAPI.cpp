@@ -292,7 +292,7 @@ Local<Value> ItemClass::isWearableItem() {
 
 Local<Value> ItemClass::asPointer(const Arguments& args) {
     try {
-        return NativePointer::newNativePointer(item);
+        return NativePointer::newNativePointer(item.get());
     }
     CATCH("Fail in asPointer!");
 }
@@ -303,8 +303,8 @@ Local<Value> ItemClass::set(const Arguments& args) {
     try {
         auto itemNew = ItemClass::extract(args[0]);
         if (!itemNew) return Local<Value>(); // Null
-
-        return Boolean::newBoolean(item = itemNew);
+        item = std::unique_ptr<ItemStack>(itemNew);
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in set!");
 }

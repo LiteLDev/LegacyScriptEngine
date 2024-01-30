@@ -224,13 +224,18 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                 }
             }
         }
-        auto command = DynamicCommand::createCommand(ll::service::getCommandRegistry(), name, desc, permission, flag);
-        if (command) {
-            if (!alias.empty()) command->setAlias(alias);
-            return CommandClass::newCommand(std::move(command));
-        } else {
+        if (ll::service::getCommandRegistry().has_value()) {
+            auto command =
+                DynamicCommand::createCommand(ll::service::getCommandRegistry().get(), name, desc, permission, flag);
+            if (command) {
+                if (!alias.empty()) {
+                    command->setAlias(alias);
+                }
+                return CommandClass::newCommand(std::move(command));
+            }
             return Boolean::newBoolean(false);
         }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in newCommand!")
 }

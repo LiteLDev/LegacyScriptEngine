@@ -37,6 +37,7 @@
 #include "ll/api/event/player/PlayerUseItemEvent.h"
 #include "ll/api/event/player/PlayerUseItemOnEvent.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
+#include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
@@ -1213,29 +1214,34 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onMobSpawn:
-        //   lse::getSelfPluginInstance().getLogger().warn(
-        //       "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn'
-        //       instead.");
-        //   Event::MobTrySpawnEvent::subscribe([](const MobTrySpawnEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-        //       CallEvent(EVENT_TYPES::onMobSpawn, String::newString(ev.mTypeName),
-        //                 FloatPos::newPos(ev.mPos, ev.mDimensionId));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
-        //   });
-        //   break;
+    case EVENT_TYPES::onMobSpawn:
+        lse::getSelfPluginInstance().getLogger().warn(
+            "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
+        );
+        bus.emplaceListener<SpawnMobEvent>([](SpawnMobEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobSpawn) {
+                CallEventVoid(
+                    EVENT_TYPES::onMobSpawn,
+                    String::newString(ev.identifier().getFullName()),
+                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
+        });
+        break;
 
-        // case EVENT_TYPES::onMobTrySpawn:
-        //   Event::MobTrySpawnEvent::subscribe([](const MobTrySpawnEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-        //       CallEvent(EVENT_TYPES::onMobTrySpawn,
-        //       String::newString(ev.mTypeName),
-        //                 FloatPos::newPos(ev.mPos, ev.mDimensionId));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
-        //   });
-        //   break;
+    case EVENT_TYPES::onMobTrySpawn:
+        bus.emplaceListener<SpawnMobEvent>([](SpawnMobEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
+                CallEventVoid(
+                    EVENT_TYPES::onMobTrySpawn,
+                    String::newString(ev.identifier().getFullName()),
+                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
+        });
+        break;
 
         // case EVENT_TYPES::onMobSpawned:
         //   Event::MobSpawnedEvent::subscribe([](const MobSpawnedEvent &ev) {

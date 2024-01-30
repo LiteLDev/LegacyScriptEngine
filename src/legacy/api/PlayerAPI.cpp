@@ -2056,26 +2056,25 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
             (ObjectiveSortOrder)sortOrder
         );
         player->sendNetworkPacket(disObjPkt);
-        // std::vector<ScorePacketInfo> info; // TODO
-        static std::set<uint64_t> scoreIds; // Store scoreboard ids
-        uint64_t                  Id = 0;
+        std::vector<ScorePacketInfo> info;
+        static std::set<uint64_t>    scoreIds; // Store scoreboard ids
+        uint64_t                     Id = 0;
         do {
             Id = (uint64_t)((rand() << 16) + rand() + 1145140);
         } while (scoreIds.find(Id) != scoreIds.end()); // Generate random id
         const ScoreboardId& boardId = ScoreboardId(Id);
         for (auto& i : data) {
-            // TODO
-            // ScorePacketInfo pktInfo = ScorePacketInfo();
-            // pktInfo.mScoreboardId   = boardId;
-            // pktInfo.mObjectiveName  = "FakeScoreObj";
-            // pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
-            // pktInfo.mScoreValue     = i.second;
-            // pktInfo.mFakePlayerName = i.first;
-            // info.emplace_back(pktInfo);
+            ScorePacketInfo pktInfo = ScorePacketInfo();
+            pktInfo.mScoreboardId   = boardId;
+            pktInfo.mObjectiveName  = "FakeScoreObj";
+            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
+            pktInfo.mScoreValue     = i.second;
+            pktInfo.mFakePlayerName = i.first;
+            info.emplace_back(pktInfo);
         }
-        // SetScorePacket setPkt = SetScorePacket();
-        // setPkt.mType = ScorePacketType::Change;
-        // setPkt.mScoreInfo     = info; // TODO
+        SetScorePacket setPkt = SetScorePacket();
+        setPkt.mType          = ScorePacketType::Change;
+        setPkt.mScoreInfo     = info;
 
         player->sendNetworkPacket(disObjPkt);
         return Boolean::newBoolean(true);

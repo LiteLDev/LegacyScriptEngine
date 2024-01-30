@@ -37,6 +37,7 @@
 #include "ll/api/event/player/PlayerUseItemEvent.h"
 #include "ll/api/event/player/PlayerUseItemOnEvent.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
+#include "ll/api/event/world/BlockChangedEvent.h"
 #include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/memory/Hook.h"
@@ -1179,16 +1180,18 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onBlockChanged:
-        //   Event::BlockChangedEvent::subscribe([](const BlockChangedEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onBlockChanged) {
-        //       CallEvent(EVENT_TYPES::onBlockChanged,
-        //                 BlockClass::newBlock(ev.mPreviousBlockInstance),
-        //                 BlockClass::newBlock(ev.mNewBlockInstance));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onBlockChanged);
-        //   });
-        //   break;
+    case EVENT_TYPES::onBlockChanged:
+        bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onBlockChanged) {
+                CallEventVoid(
+                    EVENT_TYPES::onBlockChanged,
+                    BlockClass::newBlock(&ev.previousBlock(), &ev.pos(), &ev.blockSource()),
+                    BlockClass::newBlock(&ev.newBlock(), &ev.pos(), &ev.blockSource())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onBlockChanged);
+        });
+        break;
 
         // case EVENT_TYPES::onScoreChanged:
         //   Event::PlayerScoreChangedEvent::subscribe(

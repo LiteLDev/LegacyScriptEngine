@@ -16,7 +16,7 @@ add_requires(
     "sqlite3 3.43.0+200",
     "toml++ v3.4.0"
 )
-add_requires("cpp-httplib v0.14.0", {configs = {ssl=true, zlib=true}})
+add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
 add_requires("scriptx", {configs={backend=get_config("backend")}})
 
 set_runtimes("MD") -- For compatibility with the /MD build configuration of ScriptX.

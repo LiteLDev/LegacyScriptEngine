@@ -1532,7 +1532,9 @@ Local<Value> McClass::getAllEntities(const Arguments& args) {
         auto& entityList = ll::service::getLevel()->getEntities();
         auto  arr        = Array::newArray();
         for (auto& i : entityList) {
-            arr.add(EntityClass::newEntity(i.tryUnwrap()));
+            if (i._hasValue() && i.tryUnwrap().has_value()) {
+                arr.add(EntityClass::newEntity(&i.tryUnwrap().get()));
+            }
         }
         return arr;
     }

@@ -212,7 +212,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
         auto                   desc       = args[1].toStr();
         CommandPermissionLevel permission = CommandPermissionLevel::Admin;
         CommandFlag            flag       = {(CommandFlagValue)0x80};
-        std::string            alias      = "";
+        std::string            alias;
         if (args.size() > 2) {
             permission = parseEnum<CommandPermissionLevel>(args[2]);
             if (args.size() > 3) {

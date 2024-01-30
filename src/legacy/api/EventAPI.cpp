@@ -16,6 +16,7 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
+#include "ll/api/event/entity/MobDieEvent.h"
 #include "ll/api/event/player/PlayerAddExperienceEvent.h"
 #include "ll/api/event/player/PlayerAttackEvent.h"
 #include "ll/api/event/player/PlayerChatEvent.h"
@@ -988,26 +989,25 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onMobDie:
-        //   Event::MobDieEvent::subscribe([](const MobDieEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onMobDie) {
-        //       Actor *source = nullptr;
-        //       if (ev.mDamageSource->isEntitySource()) {
-        //         source =
-        //             Level::getEntity(ev.mDamageSource->getDamagingEntityUniqueID());
-        //         if (ev.mDamageSource->isChildEntitySource())
-        //           source = source->getOwner();
-        //       }
+    case EVENT_TYPES::onMobDie:
+        bus.emplaceListener<MobDieEvent>([](MobDieEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobDie) {
+                Actor* source = nullptr;
+                if (ev.source().isEntitySource()) {
+                    source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
+                    if (ev.source().isChildEntitySource()) source = source->getOwner();
+                }
 
-        //       CallEvent(EVENT_TYPES::onMobDie,
-        //                 EntityClass::newEntity((Actor *)ev.mMob),
-        //                 (source ? EntityClass::newEntity(source) :
-        //                 Local<Value>()),
-        //                 Number::newNumber((int)ev.mDamageSource->getCause()));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onMobDie);
-        //   });
-        //   break;
+                CallEventVoid(
+                    EVENT_TYPES::onMobDie,
+                    EntityClass::newEntity(&ev.self()),
+                    (source ? EntityClass::newEntity(source) : Local<Value>()),
+                    Number::newNumber((int)ev.source().getCause())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobDie);
+        });
+        break;
 
         // case EVENT_TYPES::onSpawnProjectile:
         //   Event::ProjectileSpawnEvent::subscribe([](const ProjectileSpawnEvent

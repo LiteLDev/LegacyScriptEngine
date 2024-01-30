@@ -29,12 +29,16 @@
 #include "mc/certificates/WebToken.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
+#include "mc/entity/EntityIdTraits.h"
+#include "mc/entity/gamerefs_entity/EntityRegistry.h"
 #include "mc/entity/utilities/ActorDataIDs.h"
 #include "mc/enums/BossBarColor.h"
+#include "mc/enums/MinecraftPacketIds.h"
 #include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
+#include "mc/network/MinecraftPackets.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/AddEntityPacket.h"
@@ -2098,19 +2102,50 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             if (percent < 0) percent = 0;
             else if (percent > 100) percent = 100;
             float value = (float)percent / 100;
-            // AddEntityPacket entityPkt = AddEntityPacket(); // TODO
-            // Todo
-            // AddEntityPacket(uid, "player", Vec3(getPos().x, (float)-70,
-            // getPos().z),
-            //                 Vec2{0, 0}, 0);
+
+            // Remove BossBar firstly
+            BossEventPacket removePkt = BossEventPacket();
+            removePkt.mBossID         = ActorUniqueID(uid);
+            removePkt.mEventType      = BossEventUpdateType::Remove;
+            player->sendNetworkPacket(removePkt);
+
+            BinaryStream bs;
+            bs.writeVarInt64(uid);
+            bs.writeUnsignedVarInt64(uid);
+            bs.writeString("minecraft:player");
+            bs.writeFloat(player->getPosition().x);
+            bs.writeFloat(player->getPosition().y);
+            bs.writeFloat(player->getPosition().z);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            bs.writeFloat(0.0);
+            // Atrribute
+            bs.writeUnsignedVarInt(0);
+
+            // DataItem
+            bs.writeUnsignedVarInt(0);
+            // PropertySyncIntEntry
+            bs.writeUnsignedVarInt(0);
+            // PropertySyncFloatEntry
+            bs.writeUnsignedVarInt(0);
+
+            // Links
+            bs.writeUnsignedVarInt(0);
+            auto addPkt = MinecraftPackets::createPacket(MinecraftPacketIds::AddEntity);
+            addPkt->read(bs);
 
             BossBarColor    color = (BossBarColor)args[3].toInt();
-            BossEventPacket pkt   = BossEventPacket();
-            pkt.mBossID           = ActorUniqueID(uid);
-            pkt.mName             = args[1].asString().toString();
-            pkt.mHealthPercent    = value;
-            pkt.mColor            = color;
-            // player->sendNetworkPacket(entityPkt);
+            BossEventPacket pkt;
+            pkt.mEventType     = BossEventUpdateType::Add;
+            pkt.mBossID        = ActorUniqueID(uid);
+            pkt.mName          = args[1].asString().toString();
+            pkt.mHealthPercent = value;
+            pkt.mColor         = color;
+            player->sendNetworkPacket(*addPkt);
             player->sendNetworkPacket(pkt);
             return Boolean::newBoolean(true);
         }
@@ -2126,14 +2161,15 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
         int percent = args[1].toInt();
         if (percent < 0) percent = 0;
         else if (percent > 100) percent = 100;
-        float        value = (float)percent / 100;
+        float value = (float)percent / 100;
+
         BossBarColor color = BossBarColor::Red;
         if (args.size() >= 3) color = (BossBarColor)args[2].toInt();
-        BossEventPacket pkt = BossEventPacket();
-        pkt.mEventType      = BossEventUpdateType::Add;
-        pkt.mName           = args[0].asString().toString();
-        pkt.mHealthPercent  = value;
-        pkt.mColor          = color;
+        BossEventPacket pkt;
+        pkt.mEventType     = BossEventUpdateType::Add;
+        pkt.mName          = args[0].asString().toString();
+        pkt.mHealthPercent = value;
+        pkt.mColor         = color;
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }

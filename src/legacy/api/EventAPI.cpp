@@ -37,6 +37,7 @@
 #include "ll/api/event/player/PlayerUseItemEvent.h"
 #include "ll/api/event/player/PlayerUseItemOnEvent.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
+#include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/schedule/Scheduler.h"
@@ -1169,15 +1170,14 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onFireSpread:
-        //   Event::FireSpreadEvent::subscribe([](const FireSpreadEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onFireSpread) {
-        //       CallEvent(EVENT_TYPES::onFireSpread,
-        //                 IntPos::newPos(ev.mTarget, ev.mDimensionId));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onFireSpread);
-        //   });
-        //   break;
+    case EVENT_TYPES::onFireSpread:
+        bus.emplaceListener<FireSpreadEvent>([](FireSpreadEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onFireSpread) {
+                CallEvent(EVENT_TYPES::onFireSpread, IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId()));
+            }
+            IF_LISTENED_END(EVENT_TYPES::onFireSpread);
+        });
+        break;
 
         // case EVENT_TYPES::onBlockChanged:
         //   Event::BlockChangedEvent::subscribe([](const BlockChangedEvent &ev) {

@@ -10,8 +10,8 @@ add_requires(
     "levilamina 0.6.3",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
-    -- "mariadb-connector-c 3.3.4",
     "nlohmann_json 3.11.2",
+    "openssl 1.1.1-w",
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
     "toml++ v3.4.0"
@@ -94,7 +94,6 @@ target("legacy-script-engine")
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
-        -- "mariadb-connector-c",
         "nlohmann_json",
         "scriptx",
         "simpleini",

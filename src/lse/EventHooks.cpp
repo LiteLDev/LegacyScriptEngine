@@ -35,7 +35,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     PlayerDropItemHook,
     HookPriority::Normal,
     Player,
-    &Player::drop,
+    "?drop@Player@@UEAA_NAEBVItemStack@@_N@Z",
     bool,
     ItemStack const& item,
     bool             randomly

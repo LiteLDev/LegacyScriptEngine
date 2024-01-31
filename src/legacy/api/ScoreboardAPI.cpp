@@ -316,10 +316,14 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
 
     try {
         string name = args[0].toStr();
-        auto   res  = ll::service::getLevel()->getScoreboard().getObjective(name);
-
-        if (!res) return Local<Value>();
-        return ObjectiveClass::newObjective(res);
+        if (ll::service::getLevel().has_value()) {
+            auto res = ll::service::getLevel()->getScoreboard().getObjective(name);
+            if (!res) {
+                return {};
+            };
+            return ObjectiveClass::newObjective(res);
+        }
+        return {};
     }
     CATCH("Fail in GetScoreObjective");
 }

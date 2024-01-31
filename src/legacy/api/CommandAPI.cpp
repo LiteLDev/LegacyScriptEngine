@@ -192,8 +192,9 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             command->execute(origin, output);
             for (auto msg : output.getMessages()) {
-                outputStr = outputStr.append(I18n::get(msg.getMessageId(), msg.getParams()));
+                outputStr = outputStr.append(I18n::get(msg.getMessageId(), msg.getParams())).append("\n");
             }
+            outputStr.erase(outputStr.size() - 1, 1);
             Local<Object> resObj = Object::newObject();
             resObj.set("success", output.getSuccessCount() ? true : false);
             resObj.set("output", outputStr);

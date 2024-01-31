@@ -11,6 +11,7 @@
 // #include <llapi/SendPacketAPI.h> //todo
 #include "ll/api/service/ServerInfo.h"
 
+#include <cstdlib>
 #include <iostream>
 #include <mc/world/actor/player/Player.h>
 
@@ -148,6 +149,7 @@ void CustomFormClass::sendForm(ll::form::CustomForm* form, Player* player, scrip
                         v
                     );
                 }
+
                 callback.get().call({}, PlayerClass::newPlayer(&pl), JsonToValue(result));
             }
             CATCH_WITHOUT_RETURN("Fail in form callback!")
@@ -196,10 +198,16 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
 Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
-    if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
+    if (args.size() >= 2) {
+        if (!args[1].isBoolean() && !args[1].isNumber()) {
+            LOG_WRONG_ARG_TYPE();
+            return Local<Value>();
+        }
+    }
 
     try {
-        bool def = args.size() >= 2 ? args[1].asBoolean().value() : false;
+        bool def =
+            args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
 
         form.appendToggle(args[0].toStr(), args[0].toStr(), def);
         return this->getScriptObject();

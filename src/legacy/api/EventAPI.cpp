@@ -329,17 +329,9 @@ void EnableEventListener(int eventId) {
         lse::EventHooks::PlayerOpenContainerEvent();
         break;
 
-        // case EVENT_TYPES::onCloseContainer:
-        //   Event::PlayerCloseContainerEvent::subscribe(
-        //       [](const PlayerCloseContainerEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        //           CallEvent(EVENT_TYPES::onCloseContainer,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
-        //       });
-        //   break;
+    case EVENT_TYPES::onCloseContainer:
+        lse::EventHooks::PlayerCloseContainerEvent();
+        break;
 
         // case EVENT_TYPES::onInventoryChange:
         //   Event::PlayerInventoryChangeEvent::subscribe(

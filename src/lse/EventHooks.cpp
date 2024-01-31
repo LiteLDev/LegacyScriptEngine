@@ -12,6 +12,9 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/level/BlockEventCoordinator.h"
+#include "mc/world/level/block/actor/BarrelBlockActor.h"
+#include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/actor/ChestBlockActor.h"
 
 namespace lse {
 namespace EventHooks {
@@ -83,8 +86,54 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     return origin(playerOpenContainerEvent);
 }
 
+LL_AUTO_TYPE_INSTANCE_HOOK(
+    PlayerCloseContainerHook1,
+    HookPriority::Normal,
+    ChestBlockActor,
+    "?stopOpen@ChestBlockActor@@UEAAXAEAVPlayer@@@Z",
+    void,
+    Player const& player
+) {
+    IF_LISTENED(EVENT_TYPES::onCloseContainer) {
+        CallEventVoid(
+            EVENT_TYPES::onCloseContainer,
+            PlayerClass::newPlayer(const_cast<Player*>(&player)),
+            BlockClass::newBlock(
+                ((BlockActor*)((char*)this - 240))->getPosition(),
+                player.getDimensionId()
+            ) // IDA ChestBlockActor::stopOpen
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
+}
+
+LL_AUTO_TYPE_INSTANCE_HOOK(
+    PlayerCloseContainerHook2,
+    HookPriority::Normal,
+    BarrelBlockActor,
+    "?stopOpen@BarrelBlockActor@@UEAAXAEAVPlayer@@@Z",
+    void,
+    Player const& player
+) {
+    IF_LISTENED(EVENT_TYPES::onCloseContainer) {
+        CallEventVoid(
+            EVENT_TYPES::onCloseContainer,
+            PlayerClass::newPlayer(const_cast<Player*>(&player)),
+            BlockClass::newBlock(
+                ((BlockActor*)((char*)this - 240))->getPosition(),
+                player.getDimensionId()
+            ) // IDA ChestBlockActor::stopOpen
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
+void PlayerCloseContainerEvent() {
+    PlayerCloseContainerHook1::hook();
+    PlayerCloseContainerHook2::hook();
+}
 } // namespace EventHooks
 } // namespace lse

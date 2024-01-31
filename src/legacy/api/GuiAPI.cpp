@@ -131,7 +131,7 @@ void CustomFormClass::sendForm(ll::form::CustomForm* form, Player* player, scrip
         *player,
         [engine{EngineScope::currentEngine()},
          callback{std::move(callbackFunc)}](Player& pl, ll::form::CustomFormResult const& data) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if (ll::getServerStatus() != ll::ServerStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
@@ -142,9 +142,7 @@ void CustomFormClass::sendForm(ll::form::CustomForm* form, Player* player, scrip
                     std::visit(
                         [&](auto&& val) {
                             if constexpr (!std::is_same_v<std::remove_cvref_t<decltype(val)>, std::monostate>) {
-                                result[k] = val;
-                            } else {
-                                result[k] = nullptr;
+                                result.emplace_back(val);
                             }
                         },
                         v

@@ -18,7 +18,7 @@
 
 namespace lse {
 namespace EventHooks {
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     PlayerStartDestroyHook,
     HookPriority::Normal,
     BlockEventCoordinator,
@@ -39,7 +39,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     origin(player, blockPos, unk_char);
 }
 
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     PlayerDropItemHook,
     HookPriority::Normal,
     Player,
@@ -60,7 +60,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     return origin(item, randomly);
 }
 
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     PlayerOpenContainerHook,
     HookPriority::Normal,
     VanillaServerGameplayEventListener,
@@ -86,7 +86,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     return origin(playerOpenContainerEvent);
 }
 
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook1,
     HookPriority::Normal,
     ChestBlockActor,
@@ -105,9 +105,10 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
+    origin(player);
 }
 
-LL_AUTO_TYPE_INSTANCE_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook2,
     HookPriority::Normal,
     BarrelBlockActor,
@@ -126,6 +127,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
+    origin(player);
 }
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }

@@ -21,6 +21,7 @@
 #include "mc/codebuilder/MCRESULT.h"
 #include "mc/deps/json/JsonHelpers.h"
 #include "mc/enums/CurrentCmdVersion.h"
+#include "mc/locale/I18n.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -186,19 +187,19 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         [](std::string const& err) {}
     );
     CommandOutput output(CommandOutputType::AllOutput);
+    std::string   outputStr;
     try {
-        command->execute(origin, output);
-        // for (auto i : output.getMessages()) {
-        //     lse::getSelfPluginInstance().getLogger().info(i.getMessageId());
-        //     for (auto i1 : i.getParams()) {
-        //         lse::getSelfPluginInstance().getLogger().info(i1);
-        //     }
-        // }
-        auto&         messages = output.getMessages();
-        Local<Object> resObj   = Object::newObject();
-        resObj.set("success", output.getSuccessCount() ? true : false);
-        resObj.set("output", messages.empty() ? "" : messages.back().getMessageId());
-        return resObj;
+        if (command) {
+            command->execute(origin, output);
+            for (auto msg : output.getMessages()) {
+                outputStr = outputStr.append(I18n::get(msg.getMessageId(), msg.getParams()));
+            }
+            Local<Object> resObj = Object::newObject();
+            resObj.set("success", output.getSuccessCount() ? true : false);
+            resObj.set("output", outputStr);
+            return resObj;
+        }
+        return {};
     }
     CATCH("Fail in RunCmdEx!")
 }

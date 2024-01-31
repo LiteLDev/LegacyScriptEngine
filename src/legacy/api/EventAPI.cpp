@@ -307,18 +307,9 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onDropItem:
-        //   Event::PlayerDropItemEvent::subscribe([](const PlayerDropItemEvent &ev)
-        //   {
-        //     IF_LISTENED(EVENT_TYPES::onDropItem) {
-        //       CallEvent(
-        //           EVENT_TYPES::onDropItem, PlayerClass::newPlayer(ev.mPlayer),
-        //           ItemClass::newItem(ev.mItemStack)); // ###### Q lost items
-        //           ######
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onDropItem);
-        //   });
-        //   break;
+    case EVENT_TYPES::onDropItem:
+        lse::EventHooks::PlayerDropItem();
+        break;
 
     case EVENT_TYPES::onTakeItem:
         bus.emplaceListener<PlayerPickUpItemEvent>([](PlayerPickUpItemEvent& ev) {

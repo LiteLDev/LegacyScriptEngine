@@ -2,7 +2,9 @@
 
 #include "api/BlockAPI.h"
 #include "api/EventAPI.h"
+#include "api/ItemAPI.h"
 #include "api/PlayerAPI.h"
+#include "ll/api/memory/Hook.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/BlockEventCoordinator.h"
 
@@ -29,6 +31,28 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     origin(player, blockPos, unk_char);
 }
 
+LL_AUTO_TYPE_INSTANCE_HOOK(
+    PlayerDropItemHook,
+    HookPriority::Normal,
+    Player,
+    &Player::drop,
+    bool,
+    ItemStack const& item,
+    bool             randomly
+) {
+    IF_LISTENED(EVENT_TYPES::onDropItem) {
+        CallEventRtnValue(
+            EVENT_TYPES::onDropItem,
+            false,
+            PlayerClass::newPlayer(this),
+            ItemClass::newItem(const_cast<ItemStack*>(&item))
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onDropItem);
+    return origin(item, randomly);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
+void PlayerDropItem() { PlayerDropItemHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

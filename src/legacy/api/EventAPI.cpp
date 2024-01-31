@@ -333,18 +333,9 @@ void EnableEventListener(int eventId) {
         lse::EventHooks::PlayerCloseContainerEvent();
         break;
 
-        // case EVENT_TYPES::onInventoryChange:
-        //   Event::PlayerInventoryChangeEvent::subscribe(
-        //       [](const PlayerInventoryChangeEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onInventoryChange) {
-        //           CallEvent(EVENT_TYPES::onInventoryChange,
-        //                     PlayerClass::newPlayer(ev.mPlayer), ev.mSlot,
-        //                     ItemClass::newItem(ev.mPreviousItemStack),
-        //                     ItemClass::newItem(ev.mNewItemStack));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
-        //       });
-        //   break;
+    case EVENT_TYPES::onInventoryChange:
+        lse::EventHooks::PlayerChangeSlotEvent();
+        break;
 
     case EVENT_TYPES::onUseItem:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {

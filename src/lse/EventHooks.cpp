@@ -11,6 +11,7 @@
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/events/EventResult.h"
+#include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
@@ -130,6 +131,31 @@ LL_TYPE_INSTANCE_HOOK(
     origin(player);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerChangeSlotHook,
+    HookPriority::Normal,
+    Player,
+    &Player::inventoryChanged,
+    void,
+    Container&       container,
+    int              slot,
+    ItemStack const& oldItem,
+    ItemStack const& newItem,
+    bool             idk
+) {
+    IF_LISTENED(EVENT_TYPES::onInventoryChange) {
+        CallEventVoid(
+            EVENT_TYPES::onInventoryChange,
+            PlayerClass::newPlayer(this),
+            slot,
+            ItemClass::newItem(const_cast<ItemStack*>(&oldItem)),
+            ItemClass::newItem(const_cast<ItemStack*>(&newItem))
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
+    origin(container, slot, oldItem, newItem, idk);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -137,5 +163,6 @@ void PlayerCloseContainerEvent() {
     PlayerCloseContainerHook1::hook();
     PlayerCloseContainerHook2::hook();
 }
+void PlayerChangeSlotEvent() { PlayerChangeSlotHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

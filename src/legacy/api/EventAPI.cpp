@@ -325,17 +325,9 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onOpenContainer:
-        //   Event::PlayerOpenContainerEvent::subscribe(
-        //       [](const PlayerOpenContainerEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onOpenContainer) {
-        //           CallEvent(EVENT_TYPES::onOpenContainer,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onOpenContainer);
-        //       });
-        //   break;
+    case EVENT_TYPES::onOpenContainer:
+        lse::EventHooks::PlayerOpenContainerEvent();
+        break;
 
         // case EVENT_TYPES::onCloseContainer:
         //   Event::PlayerCloseContainerEvent::subscribe(

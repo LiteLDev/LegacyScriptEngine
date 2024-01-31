@@ -20,13 +20,17 @@
 #include "mc/_HeaderOutputPredefine.h"
 #include "mc/codebuilder/MCRESULT.h"
 #include "mc/deps/json/JsonHelpers.h"
+#include "mc/enums/CurrentCmdVersion.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandBlockNameResult.h"
 #include "mc/server/commands/CommandContext.h"
 #include "mc/server/commands/CommandOriginLoader.h"
+#include "mc/server/commands/CommandOutputParameter.h"
+#include "mc/server/commands/CommandOutputType.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
+#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
 #include "mc/world/Minecraft.h"
@@ -173,17 +177,27 @@ Local<Value> McClass::runcmd(const Arguments& args) {
 Local<Value> McClass::runcmdEx(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
-    CommandContext context = CommandContext(
+    auto origin =
+        ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0);
+    auto command = ll::service::getMinecraft()->getCommands().compileCommand(
         args[0].asString().toString(),
-        std::make_unique<ServerCommandOrigin>(
-            ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0)
-        )
+        origin,
+        (CurrentCmdVersion)CommandVersion::CurrentVersion,
+        [](std::string const& err) {}
     );
+    CommandOutput output(CommandOutputType::AllOutput);
     try {
-        MCRESULT      result = ll::service::getMinecraft()->getCommands().executeCommand(context, true);
-        Local<Object> resObj = Object::newObject();
-        resObj.set("success", result.isSuccess());
-        resObj.set("output", result.getFullCode());
+        command->execute(origin, output);
+        // for (auto i : output.getMessages()) {
+        //     lse::getSelfPluginInstance().getLogger().info(i.getMessageId());
+        //     for (auto i1 : i.getParams()) {
+        //         lse::getSelfPluginInstance().getLogger().info(i1);
+        //     }
+        // }
+        auto&         messages = output.getMessages();
+        Local<Object> resObj   = Object::newObject();
+        resObj.set("success", output.getSuccessCount() ? true : false);
+        resObj.set("output", messages.empty() ? "" : messages.back().getMessageId());
         return resObj;
     }
     CATCH("Fail in RunCmdEx!")

@@ -406,20 +406,9 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onContainerChange:
-        //   Event::ContainerChangeEvent::subscribe([](const ContainerChangeEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        //       CallEvent(EVENT_TYPES::onContainerChange,
-        //                 PlayerClass::newPlayer(ev.mPlayer),
-        //                 BlockClass::newBlock(ev.mBlockInstance),
-        //                 Number::newNumber(ev.mSlot),
-        //                 ItemClass::newItem(ev.mPreviousItemStack),
-        //                 ItemClass::newItem(ev.mNewItemStack));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onContainerChange);
-        //   });
-        //   break;
+    case EVENT_TYPES::onContainerChange:
+        lse::EventHooks::ContainerChangeEvent();
+        break;
 
         // case EVENT_TYPES::onChangeArmorStand:
         //   Event::ArmorStandChangeEvent::subscribe(

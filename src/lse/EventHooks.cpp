@@ -10,6 +10,7 @@
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
@@ -156,6 +157,33 @@ LL_TYPE_INSTANCE_HOOK(
     origin(container, slot, oldItem, newItem, idk);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ContainerChangeHook,
+    HookPriority::Normal,
+    LevelContainerModel,
+    "?_onItemChanged@LevelContainerModel@@MEAAXHAEBVItemStack@@0@Z",
+    void,
+    int              slotNumber,
+    ItemStack const& oldItem,
+    ItemStack const& newItem
+) {
+    IF_LISTENED(EVENT_TYPES::onContainerChange) {
+        Player* player = ll::memory::dAccess<Player*>(this, 208); // IDA LevelContainerModel::LevelContainerModel
+        if (player->hasOpenContainer()) {
+            CallEventVoid(
+                EVENT_TYPES::onContainerChange,
+                PlayerClass::newPlayer(player),
+                BlockClass::newBlock((BlockPos*)((char*)this + 216), player->getDimensionId()),
+                Number::newNumber(slotNumber + this->_getContainerOffset()),
+                ItemClass::newItem(const_cast<ItemStack*>(&oldItem)),
+                ItemClass::newItem(const_cast<ItemStack*>(&newItem))
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onContainerChange);
+    origin(slotNumber, oldItem, newItem);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -164,5 +192,6 @@ void PlayerCloseContainerEvent() {
     PlayerCloseContainerHook2::hook();
 }
 void PlayerChangeSlotEvent() { PlayerChangeSlotHook::hook(); }
+void ContainerChangeEvent() { ContainerChangeHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

@@ -190,7 +190,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
     std::string   outputStr;
     try {
         if (command) {
-            command->execute(origin, output);
+            command->run(origin, output);
             for (auto msg : output.getMessages()) {
                 outputStr = outputStr.append(I18n::get(msg.getMessageId(), msg.getParams())).append("\n");
             }

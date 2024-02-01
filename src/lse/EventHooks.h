@@ -11,5 +11,7 @@ void ContainerChangeEvent();
 void PlayerAttackBlockEvent();
 void ArmorStandSwapItemEvent();
 void PlayerUseFrameEvent();
+void ProjectileSpawnEvent();
+void ProjectileCreatedEvent();
 } // namespace EventHooks
 } // namespace lse

@@ -189,6 +189,17 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         LISTENER_CATCH(TYPE)                                                                                           \
     }
 
+// 调用事件监听函数，不可拦截
+#define CallEventUncancelable(TYPE, ...)                                                                               \
+    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
+    for (auto& listener : nowList) {                                                                                   \
+        EngineScope enter(listener.engine);                                                                            \
+        try {                                                                                                          \
+            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
+        }                                                                                                              \
+        LISTENER_CATCH(TYPE)                                                                                           \
+    }
+
 // 模拟事件调用监听
 #define FakeCallEvent(ENGINE, TYPE, ...)                                                                               \
     {                                                                                                                  \

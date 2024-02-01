@@ -725,29 +725,13 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onSpawnProjectile:
-        //   Event::ProjectileSpawnEvent::subscribe([](const ProjectileSpawnEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        //       CallEvent(EVENT_TYPES::onSpawnProjectile,
-        //                 EntityClass::newEntity(ev.mShooter),
-        //                 String::newString(ev.mType));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
-        //   });
-        //   break;
+    case EVENT_TYPES::onSpawnProjectile:
+        lse::EventHooks::ProjectileSpawnEvent();
+        break;
 
-        // case EVENT_TYPES::onProjectileCreated:
-        //   Event::ProjectileCreatedEvent::subscribe(
-        //       [](const ProjectileCreatedEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onProjectileCreated) {
-        //           CallEvent(EVENT_TYPES::onProjectileCreated,
-        //                     EntityClass::newEntity(ev.mShooter),
-        //                     EntityClass::newEntity(ev.mProjectile));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onProjectileCreated);
-        //       });
-        //   break;
+    case EVENT_TYPES::onProjectileCreated:
+        lse::EventHooks::ProjectileCreatedEvent();
+        break;
 
         // case EVENT_TYPES::onProjectileHitEntity:
         //   Event::ProjectileHitEntityEvent::subscribe(

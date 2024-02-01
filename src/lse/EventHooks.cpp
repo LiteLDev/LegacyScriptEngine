@@ -10,12 +10,15 @@
 #include "mc/entity/WeakEntityRef.h"
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
+#include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ArmorStand.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/EventResult.h"
+#include "mc/world/item/CrossbowItem.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
+#include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
@@ -276,6 +279,39 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, pos);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileSpawnHook1,
+    HookPriority::Normal,
+    Spawner,
+    &Spawner::spawnProjectile,
+    Actor*,
+    BlockSource&                     region,
+    ActorDefinitionIdentifier const& id,
+    Actor*                           spawner,
+    Vec3 const&                      position,
+    Vec3 const&                      direction
+) {
+    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
+        CallEventRtnValue(
+            EVENT_TYPES::onSpawnProjectile,
+            nullptr,
+            EntityClass::newEntity(spawner),
+            String::newString(id.getCanonicalName())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
+    Actor* projectile = origin(region, id, spawner, position, direction);
+    IF_LISTENED(EVENT_TYPES::onProjectileCreated) {
+        CallEventUncancelable(
+            EVENT_TYPES::onProjectileCreated,
+            EntityClass::newEntity(spawner),
+            EntityClass::newEntity(projectile)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onProjectileCreated);
+    return projectile;
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -291,5 +327,7 @@ void PlayerUseFrameEvent() {
     PlayerUseFrameHook1::hook();
     PlayerUseFrameHook2::hook();
 }
+void ProjectileSpawnEvent() { ProjectileSpawnHook1::hook(); };
+void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 } // namespace EventHooks
 } // namespace lse

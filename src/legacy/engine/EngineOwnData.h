@@ -17,11 +17,11 @@ struct FormCallbackData {
     script::Global<script::Function> func;
 };
 
-struct RemoteCallData {
-    std::string              nameSpace;
-    std::string              funcName;
-    script::Global<Function> callback;
-};
+// struct RemoteCallData {
+//     std::string              nameSpace;
+//     std::string              funcName;
+//     script::Global<Function> callback;
+// };
 
 /*
 struct SimpleCallbackData
@@ -44,7 +44,7 @@ struct EngineOwnData {
     std::map<unsigned, FormCallbackData> formCallbacks;
 
     // RemoteCall Exported Functions: unordered_map<nameSpace, funcName>
-    std::unordered_map<std::string, RemoteCallData> exportFuncs;
+    // std::unordered_map<std::string, RemoteCallData> exportFuncs;
 
     /*
     uint64_t simpleCallbackIndex = 0;

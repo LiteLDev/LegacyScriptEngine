@@ -284,18 +284,3 @@ Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments& args) {
     }
     CATCH("Fail in LLSEGetScriptEngineVerison")
 }
-
-Local<Value> LlClass::exportFunc(const Arguments& args) {
-    // TODO
-    return Local<Value>();
-}
-
-Local<Value> LlClass::importFunc(const Arguments& args) {
-    // TODO
-    return Local<Value>();
-}
-
-Local<Value> LlClass::hasFuncExported(const Arguments& args) {
-    // TODO
-    return Local<Value>();
-}

@@ -9,17 +9,23 @@ class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    ItemStack* item;
+    std::variant<std::unique_ptr<ItemStack>, ItemStack*> item;
 
     // Pre data
     std::string name, type;
     int         id, count, aux;
 
 public:
-    explicit ItemClass(ItemStack* p);
+    explicit ItemClass(ItemStack* p, bool isNew);
     void preloadData();
 
-    ItemStack* get() { return item; }
+    ItemStack* get() {
+        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
+            return std::get<std::unique_ptr<ItemStack>>(item).get();
+        } else {
+            return std::get<ItemStack*>(item);
+        }
+    }
 
     static Local<Object> newItem(ItemStack* p);
     static ItemStack*    extract(Local<Value> v);

@@ -1,5 +1,6 @@
 #include "EventHooks.h"
 
+#include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
 #include "api/EntityAPI.h"
 #include "api/EventAPI.h"
@@ -12,6 +13,7 @@
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ArmorStand.h"
+#include "mc/world/actor/boss/WitherBoss.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/EventResult.h"
@@ -27,6 +29,8 @@
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
+#include "mc/world/phys/AABB.h"
+
 
 namespace lse {
 namespace EventHooks {
@@ -372,6 +376,30 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(passenger);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    WitherDestroyHook,
+    HookPriority::Normal,
+    WitherBoss,
+    &WitherBoss::_destroyBlocks,
+    void,
+    Level&                       level,
+    AABB const&                  bb,
+    BlockSource&                 region,
+    int                          range,
+    WitherBoss::WitherAttackType type
+) {
+    IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
+        CallEventVoid(
+            EVENT_TYPES::onWitherBossDestroy,
+            EntityClass::newEntity(this),
+            IntPos::newPos(bb.min, region.getDimensionId()),
+            IntPos::newPos(bb.max, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
+    return origin(level, bb, region, range, type);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -394,5 +422,6 @@ void ProjectileSpawnEvent() {
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
 void ActorRideEvent() { ActorRideHook::hook(); }
+void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

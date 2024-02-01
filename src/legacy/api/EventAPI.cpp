@@ -648,20 +648,9 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onWitherBossDestroy:
-        //   Event::WitherBossDestroyEvent::subscribe(
-        //       [](const WitherBossDestroyEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        //           AABB range = ev.mDestroyRange;
-        //           int dimId = ((Actor *)ev.mWitherBoss)->getDimensionId();
-        //           CallEvent(EVENT_TYPES::onWitherBossDestroy,
-        //                     EntityClass::newEntity((Actor *)ev.mWitherBoss),
-        //                     IntPos::newPos(range.min.toBlockPos(), dimId),
-        //                     IntPos::newPos(range.max.toBlockPos(), dimId));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
-        //       });
-        //   break;
+    case EVENT_TYPES::onWitherBossDestroy:
+        lse::EventHooks::WitherDestroyEvent();
+        break;
 
     case EVENT_TYPES::onMobHurt:
         bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {

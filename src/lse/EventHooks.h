@@ -15,5 +15,6 @@ void ProjectileSpawnEvent();
 void ProjectileCreatedEvent();
 void PressurePlateTriggerEvent();
 void ActorRideEvent();
+void WitherDestroyEvent();
 } // namespace EventHooks
 } // namespace lse

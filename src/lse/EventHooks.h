@@ -8,5 +8,6 @@ void PlayerOpenContainerEvent();
 void PlayerCloseContainerEvent();
 void PlayerChangeSlotEvent();
 void ContainerChangeEvent();
+void PlayerAttackBlockEvent();
 } // namespace EventHooks
 } // namespace lse

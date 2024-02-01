@@ -205,21 +205,9 @@ void EnableEventListener(int eventId) {
         break;
         break;
 
-        // case EVENT_TYPES::onAttackBlock:
-        //   Event::PlayerAttackBlockEvent::subscribe(
-        //       [](const PlayerAttackBlockEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onAttackBlock) {
-        //           CallEvent(
-        //               EVENT_TYPES::onAttackBlock,
-        //               PlayerClass::newPlayer(ev.mPlayer),
-        //               BlockClass::newBlock(ev.mBlockInstance),
-        //               !ev.mItemStack->isNull() ?
-        //               ItemClass::newItem(ev.mItemStack)
-        //                                        : Local<Value>());
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
-        //       });
-        //   break;
+    case EVENT_TYPES::onAttackBlock:
+        lse::EventHooks::PlayerAttackBlockEvent();
+        break;
 
     case EVENT_TYPES::onPlayerDie:
         bus.emplaceListener<ll::event::PlayerDieEvent>([](ll::event::PlayerDieEvent& ev) {

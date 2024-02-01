@@ -14,6 +14,7 @@
 #include "mc/world/events/EventResult.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
+#include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
@@ -184,6 +185,29 @@ LL_TYPE_INSTANCE_HOOK(
     origin(slotNumber, oldItem, newItem);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerAttackBlockHook,
+    HookPriority::Normal,
+    Block,
+    &Block::attack,
+    bool,
+    Player*         player,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onAttackBlock) {
+        ItemStack const& item = player->getSelectedItem();
+        CallEventRtnValue(
+            EVENT_TYPES::onAttackBlock,
+            false,
+            PlayerClass::newPlayer(player),
+            BlockClass::newBlock(pos, player->getDimensionId()),
+            !item.isNull() ? ItemClass::newItem(const_cast<ItemStack*>(&item)) : Local<Value>()
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
+    return origin(player, pos);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -193,5 +217,6 @@ void PlayerCloseContainerEvent() {
 }
 void PlayerChangeSlotEvent() { PlayerChangeSlotHook::hook(); }
 void ContainerChangeEvent() { ContainerChangeHook::hook(); }
+void PlayerAttackBlockEvent() { PlayerAttackBlockHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

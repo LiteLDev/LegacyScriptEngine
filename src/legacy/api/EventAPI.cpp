@@ -776,29 +776,13 @@ void EnableEventListener(int eventId) {
         lse::EventHooks::FarmDecayEvent();
         break;
 
-        // case EVENT_TYPES::onPistonTryPush:
-        //   Event::PistonTryPushEvent::subscribe([](const PistonTryPushEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onPistonTryPush) {
-        //       BlockInstance bl(ev.mPistonBlockInstance);
-        //       CallEvent(EVENT_TYPES::onPistonTryPush,
-        //                 IntPos::newPos(bl.getPosition(), bl.getDimensionId()),
-        //                 BlockClass::newBlock(ev.mTargetBlockInstance));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onPistonTryPush);
-        //   });
-        //   break;
+    case EVENT_TYPES::onPistonTryPush:
+        lse::EventHooks::PistonPushEvent();
+        break;
 
-        // case EVENT_TYPES::onPistonPush:
-        //   Event::PistonPushEvent::subscribe([](const PistonPushEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onPistonPush) {
-        //       BlockInstance bl(ev.mPistonBlockInstance);
-        //       CallEvent(EVENT_TYPES::onPistonPush,
-        //                 IntPos::newPos(bl.getPosition(), bl.getDimensionId()),
-        //                 BlockClass::newBlock(ev.mTargetBlockInstance));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onPistonPush);
-        //   });
-        //   break;
+    case EVENT_TYPES::onPistonPush:
+        lse::EventHooks::PistonPushEvent();
+        break;
 
         // case EVENT_TYPES::onHopperSearchItem:
         //   Event::HopperSearchItemEvent::subscribe(

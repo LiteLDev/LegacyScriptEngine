@@ -30,6 +30,7 @@
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
+#include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/phys/AABB.h"
 
 namespace lse {
@@ -422,6 +423,42 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, actor, fallDistance);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PistonPushHook,
+    HookPriority::Normal,
+    PistonBlockActor,
+    &PistonBlockActor::_attachedBlockWalker,
+    bool,
+    BlockSource&    region,
+    BlockPos const& curPos,
+    uchar           curBranchFacing,
+    uchar           pistonMoveFacing
+) {
+    IF_LISTENED(EVENT_TYPES::onPistonTryPush) {
+        if (region.getBlock(curPos).isAir()) {
+            return origin(region, curPos, curBranchFacing, pistonMoveFacing);
+        }
+        CallEventRtnValue(
+            EVENT_TYPES::onPistonTryPush,
+            false,
+            IntPos::newPos(curPos, region.getDimensionId()),
+            BlockClass::newBlock(curPos, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPistonTryPush);
+    bool shouldPush = origin(region, curPos, curBranchFacing, pistonMoveFacing);
+    IF_LISTENED(EVENT_TYPES::onPistonPush) {
+        if (shouldPush) {
+            CallEventUncancelable(
+                EVENT_TYPES::onPistonPush,
+                IntPos::newPos(curPos, region.getDimensionId()),
+                BlockClass::newBlock(curPos, region.getDimensionId())
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPistonPush);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -446,5 +483,6 @@ void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
+void PistionPushEvent() { PistonPushHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

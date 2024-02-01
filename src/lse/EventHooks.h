@@ -17,5 +17,6 @@ void PressurePlateTriggerEvent();
 void ActorRideEvent();
 void WitherDestroyEvent();
 void FarmDecayEvent();
+void PistonPushEvent();
 } // namespace EventHooks
 } // namespace lse

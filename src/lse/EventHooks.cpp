@@ -16,6 +16,7 @@
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/item/CrossbowItem.h"
+#include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
 #include "mc/world/level/Spawner.h"
@@ -312,6 +313,26 @@ LL_TYPE_INSTANCE_HOOK(
     return projectile;
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileSpawnHook2,
+    HookPriority::Normal,
+    CrossbowItem,
+    &CrossbowItem::_shootFirework,
+    void,
+    ItemInstance const& projectileInstance,
+    Player&             player
+) {
+    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
+        CallEventVoid(
+            EVENT_TYPES::onSpawnProjectile,
+            EntityClass::newEntity(&player),
+            String::newString(projectileInstance.getTypeName())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
+    origin(projectileInstance, player);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -327,7 +348,10 @@ void PlayerUseFrameEvent() {
     PlayerUseFrameHook1::hook();
     PlayerUseFrameHook2::hook();
 }
-void ProjectileSpawnEvent() { ProjectileSpawnHook1::hook(); };
+void ProjectileSpawnEvent() {
+    ProjectileSpawnHook1::hook();
+    ProjectileSpawnHook2 ::hook();
+};
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 } // namespace EventHooks
 } // namespace lse

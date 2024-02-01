@@ -435,7 +435,7 @@ DynamicCommandInstance const* DynamicCommand::Result::getInstance() const {
 DynamicCommandInstance*
 DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class DynamicCommandInstance> commandInstance) {
     std::string name = commandInstance->getCommandName();
-#if defined(LL_DEBUG)
+#if defined(LEGACYSCRIPTENGINE_DEBUG)
     logger.debug("Setting up command \"{}\"", name);
 #endif
     // Check if there is another command with the same name

@@ -1,26 +1,11 @@
 #pragma once
 
-#include <algorithm>
-#include <cstddef>
-#include <functional>
-#include <initializer_list>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
 #include "fmt/core.h"
-#include "magic_enum.hpp"
-
 #include "ll/api/base/Concepts.h"
 #include "ll/api/base/Macro.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-
+#include "magic_enum.hpp"
 #include "mc/deps/core/common/bedrock/typeid_t.h"
 #include "mc/deps/json/Value.h"
 #include "mc/math/Vec3.h"
@@ -44,6 +29,20 @@
 #include "mc/world/effect/MobEffect.h"
 #include "mc/world/level/BlockPos.h"
 #include "mc/world/level/Command.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 
 namespace ll::memory {
 template <class Ret, class... Args>
@@ -257,25 +256,25 @@ public:
         DynamicCommandInstance const* instance;
         CommandOrigin const*          origin;
 
-        LLAPI Result(
+        Result(
             ParameterPtr const*           ptr,
             DynamicCommand const*         command,
             CommandOrigin const*          origin,
             DynamicCommandInstance const* instance = nullptr
         );
-        LLAPI Result();
-        LLAPI std::string const& getEnumValue() const;
+        Result();
+        std::string const& getEnumValue() const;
 
         /**
          * @brief Get the parameter type.
          *
          * @return The parameter type
          */
-        LLAPI ParameterType getType() const;
+        ParameterType getType() const;
 
-        LLAPI std::string getName() const;
-        LLAPI std::string                   toDebugString() const;
-        LLAPI DynamicCommandInstance const* getInstance() const;
+        std::string                   getName() const;
+        std::string                   toDebugString() const;
+        DynamicCommandInstance const* getInstance() const;
 
         template <ll::concepts::ConceptFor<valid_type> T>
         T const& getRaw() const {
@@ -363,9 +362,9 @@ public:
         friend struct Result;
 
     public:
-        LLAPI        ParameterPtr(ParameterType type, size_t offset);
-        LLAPI bool   isValueSet(DynamicCommand const* command) const;
-        LLAPI Result getResult(DynamicCommand const* command, CommandOrigin const* origin) const;
+        ParameterPtr(ParameterType type, size_t offset);
+        bool   isValueSet(DynamicCommand const* command) const;
+        Result getResult(DynamicCommand const* command, CommandOrigin const* origin) const;
 
         size_t getOffset() const { return offset; }
     };
@@ -386,7 +385,7 @@ public:
 
     public:
         ParameterData() = delete;
-        LLAPI ParameterData(ParameterData const&);
+        ParameterData(ParameterData const&);
 
         /**
          * @brief Construct a parameter.
@@ -397,7 +396,7 @@ public:
          * @param enumOptions The enumeration option corresponding to the parameter
          * @return The parameter
          */
-        LLAPI ParameterData(
+        ParameterData(
             std::string const&            name,
             DynamicCommand::ParameterType type,
             bool                          optional        = false,
@@ -406,14 +405,14 @@ public:
             CommandParameterOption        parameterOption = CommandParameterOption::None
         );
 
-        LLAPI ParameterData(
+        ParameterData(
             std::string const&            name,
             DynamicCommand::ParameterType type,
             std::string const&            enumOptions     = "",
             std::string const&            identifier      = "",
             CommandParameterOption        parameterOption = CommandParameterOption::None
         );
-        LLAPI CommandParameterData makeParameterData() const;
+        CommandParameterData makeParameterData() const;
 
         friend class DynamicCommandInstance;
         friend class DynamicCommand;
@@ -523,14 +522,14 @@ public:
     /*0*/ virtual ~DynamicCommand();
     /*1*/ virtual void execute(class CommandOrigin const& origin, class CommandOutput& output) const;
 
-    LLAPI static std::unique_ptr<class DynamicCommandInstance> createCommand(
+    static std::unique_ptr<class DynamicCommandInstance> createCommand(
         CommandRegistry&       registry,
         std::string const&     name,
         std::string const&     description,
         CommandPermissionLevel permission = CommandPermissionLevel::GameDirectors,
         CommandFlag            flag       = CommandFlagValue::NotCheat
     );
-    LLAPI static std::unique_ptr<class DynamicCommandInstance> createCommand(
+    static std::unique_ptr<class DynamicCommandInstance> createCommand(
         CommandRegistry&                                            registry,
         std::string const&                                          name,
         std::string const&                                          description,
@@ -542,7 +541,7 @@ public:
         CommandFlag                                                 flag       = CommandFlagValue::NotCheat
     );
 
-    LLAPI static DynamicCommandInstance const*
+    static DynamicCommandInstance const*
     setup(CommandRegistry& registry, std::unique_ptr<class DynamicCommandInstance> commandInstance);
 
     /**
@@ -572,13 +571,13 @@ public:
     );
 
     // Experiment
-    LLAPI static bool unregisterCommand(CommandRegistry& registry, std::string const& name);
+    static bool unregisterCommand(CommandRegistry& registry, std::string const& name);
 
-    LLAPI static void updateAvailableCommands(CommandRegistry& registry);
+    static void updateAvailableCommands(CommandRegistry& registry);
 
-    LLAPI DynamicCommandInstance const* getInstance() const;
+    DynamicCommandInstance const* getInstance() const;
 
-    LLAPI static DynamicCommandInstance const* getInstance(std::string const& commandName);
+    static DynamicCommandInstance const* getInstance(std::string const& commandName);
 };
 
 /**
@@ -618,7 +617,6 @@ public:
     std::vector<std::string>                                        enumValues = {};
     std::unordered_map<std::string_view, std::pair<size_t, size_t>> enumRanges = {};
 
-
     // SoftEnum
     mutable std::unordered_map<std::string, std::vector<std::string>> softEnums;
 
@@ -643,17 +641,17 @@ private:
 public:
     virtual ~DynamicCommandInstance();
 
-    LLAPI static std::unique_ptr<DynamicCommandInstance> create(
+    static std::unique_ptr<DynamicCommandInstance> create(
         CommandRegistry&       registry,
         std::string const&     name,
         std::string const&     description,
         CommandPermissionLevel permission = CommandPermissionLevel::GameDirectors,
         CommandFlag            flag       = CommandFlagValue::NotCheat
     );
-    LLAPI std::string const& setEnum(std::string const& description, std::vector<std::string> const& values);
-    LLAPI std::string const& getEnumValue(size_t index) const;
-    LLAPI ParameterIndex     newParameter(DynamicCommand::ParameterData&& data);
-    LLAPI ParameterIndex     newParameter(
+    std::string const& setEnum(std::string const& description, std::vector<std::string> const& values);
+    std::string const& getEnumValue(size_t index) const;
+    ParameterIndex     newParameter(DynamicCommand::ParameterData&& data);
+    ParameterIndex     newParameter(
             std::string const&            name,
             DynamicCommand::ParameterType type,
             bool                          optional        = false,
@@ -661,55 +659,55 @@ public:
             std::string const&            identifier      = "",
             CommandParameterOption        parameterOption = CommandParameterOption::None
         );
-    LLAPI ParameterIndex findParameterIndex(std::string const& param);
-    LLAPI ParameterIndex mandatory(
+    ParameterIndex findParameterIndex(std::string const& param);
+    ParameterIndex mandatory(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         std::string const&            description,
         std::string const&            identifier,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
-    LLAPI ParameterIndex mandatory(
+    ParameterIndex mandatory(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         std::string const&            description,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
-    LLAPI ParameterIndex mandatory(
+    ParameterIndex mandatory(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
-    LLAPI ParameterIndex optional(
+    ParameterIndex optional(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         std::string const&            description,
         std::string const&            identifier,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
-    LLAPI ParameterIndex optional(
+    ParameterIndex optional(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         std::string const&            description,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
-    LLAPI ParameterIndex optional(
+    ParameterIndex optional(
         std::string const&            name,
         DynamicCommand::ParameterType type,
         CommandParameterOption        parameterOption = CommandParameterOption::None
     );
 
-    // LLAPI bool addOverload();
-    LLAPI bool addOverload(std::vector<ParameterIndex>&& params);
-    LLAPI bool addOverload(std::vector<std::string>&& params);
-    LLAPI bool addOverload(std::vector<char const*>&& params);
-    LLAPI bool addOverload(std::vector<DynamicCommand::ParameterData>&& params);
-    LLAPI bool setAlias(std::string const& alias);
-    LLAPI void setCallback(DynamicCommand::callback_fn&& callback) const;
-    LLAPI void removeCallback() const;
-    LLAPI std::string setSoftEnum(std::string const& name, std::vector<std::string> const& values) const;
-    LLAPI bool        addSoftEnumValues(std::string const& name, std::vector<std::string> const& values) const;
-    LLAPI bool        removeSoftEnumValues(std::string const& name, std::vector<std::string> const& values) const;
+    //  bool addOverload();
+    bool        addOverload(std::vector<ParameterIndex>&& params);
+    bool        addOverload(std::vector<std::string>&& params);
+    bool        addOverload(std::vector<char const*>&& params);
+    bool        addOverload(std::vector<DynamicCommand::ParameterData>&& params);
+    bool        setAlias(std::string const& alias);
+    void        setCallback(DynamicCommand::callback_fn&& callback) const;
+    void        removeCallback() const;
+    std::string setSoftEnum(std::string const& name, std::vector<std::string> const& values) const;
+    bool        addSoftEnumValues(std::string const& name, std::vector<std::string> const& values) const;
+    bool        removeSoftEnumValues(std::string const& name, std::vector<std::string> const& values) const;
 
     template <ll::concepts::IsString T>
     ParameterIndex toIndex(T const& arg) {
@@ -728,14 +726,14 @@ public:
     bool addOverload(std::initializer_list<T>&& params) {
         return addOverload((std::vector<T>)params);
     }
-    LLAPI std::string const& getCommandName() const;
-    ParameterIndex           newParameter(
-                  std::string const&            name,
-                  DynamicCommand::ParameterType type,
-                  char const*                   description,
-                  std::string const&            identifier,
-                  CommandParameterOption        parameterOption = CommandParameterOption::None
-              ) {
+    std::string const& getCommandName() const;
+    ParameterIndex     newParameter(
+            std::string const&            name,
+            DynamicCommand::ParameterType type,
+            char const*                   description,
+            std::string const&            identifier,
+            CommandParameterOption        parameterOption = CommandParameterOption::None
+        ) {
         return newParameter(name, type, false, (std::string const&)description, identifier, parameterOption);
     };
     bool hasRegistered() const { return DynamicCommand::getInstance(getCommandName()) != nullptr; };

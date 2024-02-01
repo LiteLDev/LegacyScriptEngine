@@ -1,8 +1,8 @@
 #include "main/BuiltinCommands.h"
 
 #include "api/APIHelp.h"
+#include "legacyapi/command/DynamicCommand.h"
 #include "ll/api/Logger.h"
-#include "ll/api/command/DynamicCommand.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/HashUtils.h"
 #include "ll/api/utils/StringUtils.h"

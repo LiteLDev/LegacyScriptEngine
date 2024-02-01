@@ -256,6 +256,27 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlaceBlock:
         bus.emplaceListener<PlayerPlacingBlockEvent>([](PlayerPlacingBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlaceBlock) {
+                BlockPos truePos = ev.pos();
+                switch (ev.face()) {
+                case 0:
+                    --truePos.y;
+                    break;
+                case 1:
+                    ++truePos.y;
+                    break;
+                case 2:
+                    --truePos.z;
+                    break;
+                case 3:
+                    ++truePos.z;
+                    break;
+                case 4:
+                    --truePos.x;
+                    break;
+                case 5:
+                    ++truePos.x;
+                    break;
+                }
                 CallEvent(
                     EVENT_TYPES::onPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),

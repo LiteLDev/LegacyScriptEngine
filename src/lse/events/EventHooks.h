@@ -18,6 +18,6 @@ void PressurePlateTriggerEvent();
 void ProjectileCreatedEvent();
 void ProjectileSpawnEvent();
 void WitherDestroyEvent();
+void PlayerEatEvent();
 
 } // namespace lse::events
-

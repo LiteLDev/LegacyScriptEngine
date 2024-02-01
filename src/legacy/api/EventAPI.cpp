@@ -48,6 +48,8 @@
 #include "main/Global.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/item/Item.h"
+#include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level./BlockSource.h"
 #include "mc/world/level/dimension/Dimension.h"
 
@@ -464,25 +466,23 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onEat:
-        //   Event::PlayerEatEvent::subscribe([](const PlayerEatEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onEat) {
-        //       CallEvent(EVENT_TYPES::onEat, PlayerClass::newPlayer(ev.mPlayer),
-        //                 ItemClass::newItem(ev.mFoodItem));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onEat);
-        //   });
-        //   break;
+    case EVENT_TYPES::onEat:
+        bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onEat) {
+                if ((ev.item().getItem()->isFood() || ev.item().isPotionItem()
+                     || ev.item().getTypeName() == VanillaItemNames::MilkBucket.c_str())
+                    && (ev.self().isHungry() || ev.self().forceAllowEating())) {
+                    CallEvent(EVENT_TYPES::onEat, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item()));
+                }
+            }
+            IF_LISTENED_END(EVENT_TYPES::onEat);
+        });
 
-        // case EVENT_TYPES::onAte:
-        //   Event::PlayerAteEvent::subscribe([](const PlayerAteEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onAte) {
-        //       CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(ev.mPlayer),
-        //                 ItemClass::newItem(ev.mFoodItem));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onAte);
-        //   });
-        //   break;
+        break;
+
+    case EVENT_TYPES::onAte:
+        lse::events::PlayerEatEvent();
+        break;
 
         // case EVENT_TYPES::onConsumeTotem:
         //   Event::PlayerConsumeTotemEvent::subscribe(

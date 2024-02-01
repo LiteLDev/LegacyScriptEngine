@@ -464,6 +464,25 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onPistonPush);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerEatHook,
+    HookPriority::Normal,
+    Player,
+    "?eat@Player@@QEAAXAEBVItemStack@@@Z",
+    void,
+    ItemStack const& instance
+) {
+    IF_LISTENED(EVENT_TYPES::onAte) {
+        CallEventVoid(
+            EVENT_TYPES::onAte,
+            PlayerClass::newPlayer(this),
+            ItemClass::newItem(const_cast<ItemStack*>(&instance))
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAte);
+    origin(instance);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -489,6 +508,7 @@ void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
+void PlayerEatEvent() { PlayerEatHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

@@ -1,15 +1,15 @@
 #pragma once
 #include "api/APIHelp.h"
 
-#include <memory>
 #include <string>
+
 
 //////////////////// Classes ////////////////////
 class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    std::unique_ptr<ItemStack> item;
+    ItemStack* item;
 
     // Pre data
     std::string name, type;
@@ -19,7 +19,7 @@ public:
     explicit ItemClass(ItemStack* p);
     void preloadData();
 
-    ItemStack* get() { return item.get(); }
+    ItemStack* get() { return item; }
 
     static Local<Object> newItem(ItemStack* p);
     static ItemStack*    extract(Local<Value> v);

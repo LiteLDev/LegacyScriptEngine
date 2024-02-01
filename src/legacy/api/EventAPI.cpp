@@ -693,17 +693,9 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onStepOnPressurePlate:
-        //   Event::EntityStepOnPressurePlateEvent::subscribe(
-        //       [](const EntityStepOnPressurePlateEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onStepOnPressurePlate) {
-        //           CallEvent(EVENT_TYPES::onStepOnPressurePlate,
-        //                     EntityClass::newEntity(ev.mActor),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onStepOnPressurePlate);
-        //       });
-        //   break;
+    case EVENT_TYPES::onStepOnPressurePlate:
+        lse::EventHooks::PressurePlateTriggerEvent();
+        break;
 
     case EVENT_TYPES::onMobDie:
         bus.emplaceListener<MobDieEvent>([](MobDieEvent& ev) {

@@ -13,5 +13,6 @@ void ArmorStandSwapItemEvent();
 void PlayerUseFrameEvent();
 void ProjectileSpawnEvent();
 void ProjectileCreatedEvent();
+void PressurePlateTriggerEvent();
 } // namespace EventHooks
 } // namespace lse

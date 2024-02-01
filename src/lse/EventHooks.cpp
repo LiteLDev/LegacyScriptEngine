@@ -19,7 +19,9 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
+#include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Spawner.h"
+#include "mc/world/level/block/BasePressurePlateBlock.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
@@ -333,6 +335,28 @@ LL_TYPE_INSTANCE_HOOK(
     origin(projectileInstance, player);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PressurePlateTriggerHook,
+    HookPriority::Normal,
+    BasePressurePlateBlock,
+    "?shouldTriggerEntityInside@BasePressurePlateBlock@@UEBA_NAEAVBlockSource@@AEBVBlockPos@@AEAVActor@@@Z",
+    bool,
+    BlockSource&    region,
+    BlockPos const& pos,
+    Actor&          entity
+) {
+    IF_LISTENED(EVENT_TYPES::onStepOnPressurePlate) {
+        CallEventRtnValue(
+            EVENT_TYPES::onStepOnPressurePlate,
+            false,
+            EntityClass::newEntity(&entity),
+            BlockClass::newBlock(pos, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onStepOnPressurePlate);
+    return origin(region, pos, entity);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -353,5 +377,6 @@ void ProjectileSpawnEvent() {
     ProjectileSpawnHook2 ::hook();
 };
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
+void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

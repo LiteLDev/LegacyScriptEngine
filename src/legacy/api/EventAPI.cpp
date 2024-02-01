@@ -44,7 +44,7 @@
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/StringUtils.h"
-#include "lse/EventHooks.h"
+#include "lse/events/EventHooks.h"
 #include "main/Global.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
@@ -206,7 +206,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onAttackBlock:
-        lse::EventHooks::PlayerAttackBlockEvent();
+        lse::events::PlayerAttackBlockEvent();
         break;
 
     case EVENT_TYPES::onPlayerDie:
@@ -235,7 +235,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onStartDestroyBlock:
-        lse::EventHooks::PlayerStartDestroyBlock();
+        lse::events::PlayerStartDestroyBlock();
         break;
 
     case EVENT_TYPES::onDestroyBlock:
@@ -296,7 +296,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onDropItem:
-        lse::EventHooks::PlayerDropItem();
+        lse::events::PlayerDropItem();
         break;
 
     case EVENT_TYPES::onTakeItem:
@@ -314,15 +314,15 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onOpenContainer:
-        lse::EventHooks::PlayerOpenContainerEvent();
+        lse::events::PlayerOpenContainerEvent();
         break;
 
     case EVENT_TYPES::onCloseContainer:
-        lse::EventHooks::PlayerCloseContainerEvent();
+        lse::events::PlayerCloseContainerEvent();
         break;
 
     case EVENT_TYPES::onInventoryChange:
-        lse::EventHooks::PlayerChangeSlotEvent();
+        lse::events::PlayerChangeSlotEvent();
         break;
 
     case EVENT_TYPES::onUseItem:
@@ -395,11 +395,11 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onContainerChange:
-        lse::EventHooks::ContainerChangeEvent();
+        lse::events::ContainerChangeEvent();
         break;
 
     case EVENT_TYPES::onChangeArmorStand:
-        lse::EventHooks::ArmorStandSwapItemEvent();
+        lse::events::ArmorStandSwapItemEvent();
         break;
 
     case EVENT_TYPES::onChangeSprinting:
@@ -551,7 +551,7 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onRide:
-        lse::EventHooks::ActorRideEvent();
+        lse::events::ActorRideEvent();
         break;
 
         // case EVENT_TYPES::onEntityExplode:
@@ -649,7 +649,7 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onWitherBossDestroy:
-        lse::EventHooks::WitherDestroyEvent();
+        lse::events::WitherDestroyEvent();
         break;
 
     case EVENT_TYPES::onMobHurt:
@@ -677,7 +677,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onStepOnPressurePlate:
-        lse::EventHooks::PressurePlateTriggerEvent();
+        lse::events::PressurePlateTriggerEvent();
         break;
 
     case EVENT_TYPES::onMobDie:
@@ -701,11 +701,11 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onSpawnProjectile:
-        lse::EventHooks::ProjectileSpawnEvent();
+        lse::events::ProjectileSpawnEvent();
         break;
 
     case EVENT_TYPES::onProjectileCreated:
-        lse::EventHooks::ProjectileCreatedEvent();
+        lse::events::ProjectileCreatedEvent();
         break;
 
         // case EVENT_TYPES::onProjectileHitEntity:
@@ -756,7 +756,7 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onUseFrameBlock:
-        lse::EventHooks::PlayerUseFrameEvent();
+        lse::events::PlayerUseFrameEvent();
         break;
 
     case EVENT_TYPES::onBlockInteracted:
@@ -773,15 +773,15 @@ void EnableEventListener(int eventId) {
         });
 
     case EVENT_TYPES::onFarmLandDecay:
-        lse::EventHooks::FarmDecayEvent();
+        lse::events::FarmDecayEvent();
         break;
 
     case EVENT_TYPES::onPistonTryPush:
-        lse::EventHooks::PistonPushEvent();
+        lse::events::PistonPushEvent();
         break;
 
     case EVENT_TYPES::onPistonPush:
-        lse::EventHooks::PistonPushEvent();
+        lse::events::PistonPushEvent();
         break;
 
         // case EVENT_TYPES::onHopperSearchItem:

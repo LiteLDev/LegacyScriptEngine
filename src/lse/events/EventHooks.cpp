@@ -1,40 +1,45 @@
 #include "EventHooks.h"
 
-#include "api/BaseAPI.h"
-#include "api/BlockAPI.h"
-#include "api/EntityAPI.h"
-#include "api/EventAPI.h"
-#include "api/ItemAPI.h"
-#include "api/PlayerAPI.h"
-#include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
-#include "mc/entity/WeakEntityRef.h"
-#include "mc/entity/utilities/ActorType.h"
-#include "mc/server/module/VanillaServerGameplayEventListener.h"
-#include "mc/world/actor/ActorDefinitionIdentifier.h"
-#include "mc/world/actor/ArmorStand.h"
-#include "mc/world/actor/boss/WitherBoss.h"
-#include "mc/world/actor/player/Player.h"
-#include "mc/world/containers/models/LevelContainerModel.h"
-#include "mc/world/events/EventResult.h"
-#include "mc/world/item/CrossbowItem.h"
-#include "mc/world/item/ItemInstance.h"
-#include "mc/world/item/registry/ItemStack.h"
-#include "mc/world/level/BlockEventCoordinator.h"
-#include "mc/world/level/BlockSource.h"
-#include "mc/world/level/Spawner.h"
-#include "mc/world/level/block/BasePressurePlateBlock.h"
-#include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/FarmBlock.h"
-#include "mc/world/level/block/ItemFrameBlock.h"
-#include "mc/world/level/block/actor/BarrelBlockActor.h"
-#include "mc/world/level/block/actor/BlockActor.h"
-#include "mc/world/level/block/actor/ChestBlockActor.h"
-#include "mc/world/level/block/actor/PistonBlockActor.h"
-#include "mc/world/phys/AABB.h"
+#include "legacy/api/BaseAPI.h"
+#include "legacy/api/BlockAPI.h"
+#include "legacy/api/EntityAPI.h"
+#include "legacy/api/EventAPI.h"
+#include "legacy/api/ItemAPI.h"
+#include "legacy/api/PlayerAPI.h"
 
-namespace lse {
-namespace EventHooks {
+#include <ll/api/memory/Hook.h>
+#include <ll/api/memory/Memory.h>
+#include <mc/entity/WeakEntityRef.h>
+#include <mc/entity/utilities/ActorType.h>
+#include <mc/server/module/VanillaServerGameplayEventListener.h>
+#include <mc/world/actor/ActorDefinitionIdentifier.h>
+#include <mc/world/actor/ArmorStand.h>
+#include <mc/world/actor/boss/WitherBoss.h>
+#include <mc/world/actor/player/Player.h>
+#include <mc/world/containers/models/LevelContainerModel.h>
+#include <mc/world/events/EventResult.h>
+#include <mc/world/item/CrossbowItem.h>
+#include <mc/world/item/ItemInstance.h>
+#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/level/BlockEventCoordinator.h>
+#include <mc/world/level/BlockSource.h>
+#include <mc/world/level/Spawner.h>
+#include <mc/world/level/block/BasePressurePlateBlock.h>
+#include <mc/world/level/block/Block.h>
+#include <mc/world/level/block/FarmBlock.h>
+#include <mc/world/level/block/ItemFrameBlock.h>
+#include <mc/world/level/block/actor/BarrelBlockActor.h>
+#include <mc/world/level/block/actor/BlockActor.h>
+#include <mc/world/level/block/actor/ChestBlockActor.h>
+#include <mc/world/level/block/actor/PistonBlockActor.h>
+#include <mc/world/phys/AABB.h>
+
+namespace lse::events {
+
+// NOLINTBEGIN(modernize-use-trailing-return-type)
+// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
+
 LL_TYPE_INSTANCE_HOOK(
     PlayerStartDestroyHook,
     HookPriority::Normal,
@@ -484,5 +489,9 @@ void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
-} // namespace EventHooks
-} // namespace lse
+
+// NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
+// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTEND(modernize-use-trailing-return-type)
+
+} // namespace lse::events

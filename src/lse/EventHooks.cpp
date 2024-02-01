@@ -357,6 +357,21 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, pos, entity);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ActorRideHook,
+    HookPriority::Normal,
+    Actor,
+    "?canAddPassenger@Actor@@UEBA_NAEAV1@@Z",
+    bool,
+    Actor& passenger
+) {
+    IF_LISTENED(EVENT_TYPES::onRide) {
+        CallEventRtnValue(EVENT_TYPES::onRide, false, EntityClass::newEntity(&passenger), EntityClass::newEntity(this));
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRide);
+    return origin(passenger);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -378,5 +393,6 @@ void ProjectileSpawnEvent() {
 };
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
+void ActorRideEvent() { ActorRideHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

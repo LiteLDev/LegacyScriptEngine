@@ -550,15 +550,9 @@ void EnableEventListener(int eventId) {
         //       });
         //   break;
 
-        // case EVENT_TYPES::onRide:
-        //   Event::EntityRideEvent::subscribe([](const EntityRideEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onRide) {
-        //       CallEvent(EVENT_TYPES::onRide, EntityClass::newEntity(ev.mRider),
-        //                 EntityClass::newEntity(ev.mVehicle));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onRide);
-        //   });
-        //   break;
+    case EVENT_TYPES::onRide:
+        lse::EventHooks::ActorRideEvent();
+        break;
 
         // case EVENT_TYPES::onEntityExplode:
         //   Event::EntityExplodeEvent::subscribe([](const EntityExplodeEvent &ev) {

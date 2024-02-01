@@ -771,17 +771,10 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
         });
-        // case EVENT_TYPES::onFarmLandDecay:
-        //   Event::FarmLandDecayEvent::subscribe([](const FarmLandDecayEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
-        //       BlockInstance bl(ev.mBlockInstance);
-        //       CallEvent(EVENT_TYPES::onFarmLandDecay,
-        //                 IntPos::newPos(bl.getPosition(), bl.getDimensionId()),
-        //                 EntityClass::newEntity(ev.mActor));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onFarmLandDecay);
-        //   });
-        //   break;
+
+    case EVENT_TYPES::onFarmLandDecay:
+        lse::EventHooks::FarmDecayEvent();
+        break;
 
         // case EVENT_TYPES::onPistonTryPush:
         //   Event::PistonTryPushEvent::subscribe([](const PistonTryPushEvent &ev) {

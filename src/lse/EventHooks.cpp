@@ -25,12 +25,12 @@
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/BasePressurePlateBlock.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/FarmBlock.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
 #include "mc/world/phys/AABB.h"
-
 
 namespace lse {
 namespace EventHooks {
@@ -397,7 +397,29 @@ LL_TYPE_INSTANCE_HOOK(
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
-    return origin(level, bb, region, range, type);
+    origin(level, bb, region, range, type);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    FarmDecayHook,
+    HookPriority::Normal,
+    FarmBlock,
+    "?transformOnFall@FarmBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@PEAVActor@@M@Z",
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    Actor*          actor,
+    float           fallDistance
+) {
+    IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
+        CallEventVoid(
+            EVENT_TYPES::onFarmLandDecay,
+            IntPos::newPos(pos, region.getDimensionId()),
+            EntityClass::newEntity(actor)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onFarmLandDecay);
+    origin(region, pos, actor, fallDistance);
 }
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
@@ -423,5 +445,6 @@ void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
+void FarmDecayEvent() { FarmDecayHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

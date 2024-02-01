@@ -122,7 +122,8 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
         return ItemClass::newItem(
             new ItemStack(result.getRaw<CommandItem>()
                               .createInstance(1, 1, *new CommandOutput(CommandOutputType::None), true)
-                              .value_or(ItemInstance::EMPTY_ITEM))
+                              .value_or(ItemInstance::EMPTY_ITEM)),
+            true
         );
     case DynamicCommand::ParameterType::Block:
         return BlockClass::newBlock(

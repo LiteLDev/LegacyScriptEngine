@@ -80,8 +80,8 @@ ItemClass::ItemClass(ItemStack* p, bool isNew) : ScriptClass(ScriptClass::Constr
 }
 
 // 生成函数
-Local<Object> ItemClass::newItem(ItemStack* p) {
-    auto newp = new ItemClass(p, true);
+Local<Object> ItemClass::newItem(ItemStack* p, bool isNew) {
+    auto newp = new ItemClass(p, isNew);
     return newp->getScriptObject();
 }
 
@@ -311,7 +311,11 @@ Local<Value> ItemClass::set(const Arguments& args) {
     try {
         auto itemNew = ItemClass::extract(args[0]);
         if (!itemNew) return Local<Value>(); // Null
-        item = std::unique_ptr<ItemStack>(itemNew);
+
+        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
+            std::get<std::unique_ptr<ItemStack>>(item).reset();
+        }
+        (item = itemNew);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in set!");
@@ -322,7 +326,7 @@ Local<Value> ItemClass::clone(const Arguments& args) {
         auto item = get();
         if (!item) return Local<Value>(); // Null
         auto itemNew = new ItemStack(*item);
-        return ItemClass::newItem(itemNew);
+        return ItemClass::newItem(itemNew, true);
     }
     CATCH("Fail in cloneItem!");
 }
@@ -432,7 +436,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
 
                 ItemStack* item = new ItemStack{type, cnt};
                 if (!item) return Local<Value>(); // Null
-                else return ItemClass::newItem(item);
+                else return ItemClass::newItem(item, true);
             } else {
                 LOG_TOO_FEW_ARGS();
                 return Local<Value>();
@@ -443,7 +447,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 auto newItem = new ItemStack{ItemStack::EMPTY_ITEM};
                 newItem->load(*nbt);
                 if (!newItem) return Local<Value>(); // Null
-                else return ItemClass::newItem(newItem);
+                else return ItemClass::newItem(newItem, true);
             } else {
                 LOG_WRONG_ARG_TYPE();
                 return Local<Value>();

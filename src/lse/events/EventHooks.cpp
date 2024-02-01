@@ -77,7 +77,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onDropItem,
             false,
             PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(item))
+            ItemClass::newItem(&const_cast<ItemStack&>(item), false)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onDropItem);
@@ -171,8 +171,8 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onInventoryChange,
             PlayerClass::newPlayer(this),
             slot,
-            ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-            ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+            ItemClass::newItem(&const_cast<ItemStack&>(oldItem),false),
+            ItemClass::newItem(&const_cast<ItemStack&>(newItem),false)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
@@ -197,8 +197,8 @@ LL_TYPE_INSTANCE_HOOK(
                 PlayerClass::newPlayer(player),
                 BlockClass::newBlock((BlockPos*)((char*)this + 216), player->getDimensionId()),
                 Number::newNumber(slotNumber + this->_getContainerOffset()),
-                ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                ItemClass::newItem(&const_cast<ItemStack&>(oldItem),false),
+                ItemClass::newItem(&const_cast<ItemStack&>(newItem),false)
             );
         }
     }
@@ -222,7 +222,7 @@ LL_TYPE_INSTANCE_HOOK(
             false,
             PlayerClass::newPlayer(player),
             BlockClass::newBlock(pos, player->getDimensionId()),
-            !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
+            !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item),false) : Local<Value>()
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
@@ -478,7 +478,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventVoid(
             EVENT_TYPES::onAte,
             PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(instance))
+            ItemClass::newItem(&const_cast<ItemStack&>(instance),false)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);

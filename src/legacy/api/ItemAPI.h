@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 //////////////////// Classes ////////////////////
 class ItemStack;
 
@@ -27,7 +26,7 @@ public:
         }
     }
 
-    static Local<Object> newItem(ItemStack* p);
+    static Local<Object> newItem(ItemStack* p, bool isNew);
     static ItemStack*    extract(Local<Value> v);
     Local<Value>         asPointer(const Arguments& args);
 

@@ -921,7 +921,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
 
         auto it = (ItemActor*)entity;
         if (!it) return Local<Value>();
-        else return ItemClass::newItem(&it->item());
+        else return ItemClass::newItem(&it->item(),false);
     }
     CATCH("Fail in toItem!");
 }

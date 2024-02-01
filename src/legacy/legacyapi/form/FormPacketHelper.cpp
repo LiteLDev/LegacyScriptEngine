@@ -160,7 +160,7 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
     formTypes.erase(formId);
 }
 
-LL_TYPE_INSTANCE_HOOK(
+LL_AUTO_TYPE_INSTANCE_HOOK(
     FormResponseHandler,
     HookPriority::Highest,
     PacketHandlerDispatcherInstance<ModalFormResponsePacket>,

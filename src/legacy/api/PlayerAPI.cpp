@@ -2301,7 +2301,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        // Todo
+
         std::string data = ordered_json::parse(args[0].toStr()).dump();
 
         unsigned               formId = lse::form::NewFormId();

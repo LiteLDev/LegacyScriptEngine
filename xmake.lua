@@ -106,6 +106,7 @@ target("legacy-script-engine")
     set_exceptions("none") -- To avoid conflicts with /EHa.
     set_kind("shared")
     set_languages("cxx20")
+    set_symbols("debug")
 
     if is_config("backend", "lua") then
         add_defines(

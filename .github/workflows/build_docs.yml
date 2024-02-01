@@ -1,0 +1,36 @@
+on:
+  push:
+    paths:
+      - .github/workflows/build_docs.yml
+      - docs/**
+      - mkdocs.yml
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          pip install -r requirements.txt
+
+      - run: |
+          mkdocs build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: |
+            site/
+
+  deploy:
+    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs:
+      - build
+    permissions:
+      id-token: write
+      pages: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/deploy-pages@v4
+  

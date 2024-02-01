@@ -5,8 +5,6 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "engine/LocalShareData.h"
-#include "ll/api/form/SimpleForm.h"
 
 // #include <llapi/SendPacketAPI.h> //todo
 #include "ll/api/service/ServerInfo.h"
@@ -46,26 +44,26 @@ Local<Object> SimpleFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
+lse::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<SimpleFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<SimpleFormClass>(v)->get();
     else return nullptr;
 }
 
-void SimpleFormClass::sendForm(ll::form::SimpleForm* form, Player* player, script::Local<Function>& callback) {
+void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, script::Local<Function>& callback) {
     script::Global<Function> callbackFunc{callback};
 
     form->sendTo(
-        *player,
-        [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player& pl, int chosen) {
+        player,
+        [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* pl, int chosen) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
             EngineScope scope(engine);
             try {
-                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(&pl), Local<Value>());
-                else callback.get().call({}, PlayerClass::newPlayer(&pl), Number::newNumber(chosen));
+                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl), Local<Value>());
+                else callback.get().call({}, PlayerClass::newPlayer(pl), Number::newNumber(chosen));
             }
             CATCH_WITHOUT_RETURN("Fail in form callback!")
         }
@@ -102,7 +100,7 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
 
     try {
         string image = args.size() >= 2 ? args[1].toStr() : "";
-        form.appendButton(args[0].toStr(), image);
+        form.addButton(args[0].toStr(), image);
         return this->getScriptObject();
     }
     CATCH("Fail in addButton!")
@@ -118,39 +116,26 @@ Local<Object> CustomFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-ll::form::CustomForm* CustomFormClass::extract(Local<Value> v) {
+lse::form::CustomForm* CustomFormClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<CustomFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<CustomFormClass>(v)->get();
     else return nullptr;
 }
 
 // 成员函数
-void CustomFormClass::sendForm(ll::form::CustomForm* form, Player* player, script::Local<Function>& callback) {
+void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, script::Local<Function>& callback) {
     script::Global<Function> callbackFunc{callback};
 
-    form->sendTo(
-        *player,
-        [engine{EngineScope::currentEngine()},
-         callback{std::move(callbackFunc)}](Player& pl, ll::form::CustomFormResult const& data) {
+    form->sendToForRawJson(
+        player,
+        [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* player, std::string data) {
             if (ll::getServerStatus() != ll::ServerStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
             EngineScope scope(engine);
             try {
-                nlohmann::ordered_json result;
-                for (auto& [k, v] : data) {
-                    std::visit(
-                        [&](auto&& val) {
-                            if constexpr (!std::is_same_v<std::remove_cvref_t<decltype(val)>, std::monostate>) {
-                                result.emplace_back(val);
-                            }
-                        },
-                        v
-                    );
-                }
-
-                callback.get().call({}, PlayerClass::newPlayer(&pl), JsonToValue(result));
+                callback.get().call({}, PlayerClass::newPlayer(player), JsonToValue(data));
             }
             CATCH_WITHOUT_RETURN("Fail in form callback!")
         }
@@ -173,7 +158,7 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        form.appendLabel(args[0].toStr());
+        form.addLabel(args[0].toStr(), args[0].toStr());
         return this->getScriptObject();
     }
     CATCH("Fail in addLabel!")
@@ -189,7 +174,7 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
         string placeholder = args.size() >= 2 ? args[1].toStr() : "";
         string def         = args.size() >= 3 ? args[2].toStr() : "";
 
-        form.appendInput(args[0].toStr(), args[0].toStr(), placeholder, def);
+        form.addInput(args[0].toStr(), args[0].toStr(), placeholder, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addInput!")
@@ -209,7 +194,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
         bool def =
             args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
 
-        form.appendToggle(args[0].toStr(), args[0].toStr(), def);
+        form.addToggle(args[0].toStr(), args[0].toStr(), def);
         return this->getScriptObject();
     }
     CATCH("Fail in addSwitch!")
@@ -228,7 +213,7 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
 
         int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.appendDropdown(args[0].toStr(), args[0].toStr(), options, def);
+        form.addDropdown(args[0].toStr(), args[0].toStr(), options, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addDropdown!")
@@ -251,7 +236,7 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         int defValue = args.size() >= 5 ? args[4].asNumber().toInt32() : minValue;
         if (defValue < minValue || defValue > maxValue) defValue = minValue;
 
-        form.appendSlider(args[0].toStr(), args[0].toStr(), minValue, maxValue, step, defValue);
+        form.addSlider(args[0].toStr(), args[0].toStr(), minValue, maxValue, step, defValue);
         return this->getScriptObject();
     }
     CATCH("Fail in addSlider!")
@@ -270,7 +255,7 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
 
         int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.appendStepSlider(args[0].toStr(), args[0].toStr(), steps, defIndex);
+        form.addStepSlider(args[0].toStr(), args[0].toStr(), steps, defIndex);
         return this->getScriptObject();
     }
     CATCH("Fail in addStepSlider!")

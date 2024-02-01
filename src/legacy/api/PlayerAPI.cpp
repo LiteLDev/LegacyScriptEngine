@@ -17,10 +17,9 @@
 #include "api/PacketAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "legacyapi/form/FormPacketHelper.h"
+#include "legacyapi/form/FormUI.h"
 #include "ll/api/form/CustomForm.h"
-#include "ll/api/form/FormBase.h"
-#include "ll/api/form/ModalForm.h"
-#include "ll/api/form/SimpleForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
@@ -44,6 +43,7 @@
 #include "mc/network/packet/AddEntityPacket.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
+#include "mc/network/packet/ModalFormRequestPacket.h"
 #include "mc/network/packet/RemoveObjectivePacket.h"
 #include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
@@ -2224,29 +2224,26 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
         auto imagesArr = args[3].asArray();
         if (imagesArr.size() != textsArr.size() || !imagesArr.get(0).isString()) return Local<Value>();
 
-        ll::form::SimpleForm form(args[0].asString().toString(), args[1].asString().toString());
+        lse::form::SimpleForm form(args[0].asString().toString(), args[1].asString().toString());
         for (int i = 0; i < textsArr.size(); ++i) {
             Local<Value> img = imagesArr.get(i);
             if (img.isString()) {
-                form.appendButton(textsArr.get(i).asString().toString(), img.asString().toString());
+                form.addButton(textsArr.get(i).asString().toString(), img.asString().toString());
             } else {
-                form.appendButton(textsArr.get(i).asString().toString());
+                form.addButton(textsArr.get(i).asString().toString());
             }
         }
         form.sendTo(
-            *player,
+            player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player& pl, int chosen) {
+             callback{script::Global(args[4].asFunction())}](Player* pl, int chosen) {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
                 try {
-                    callback.get().call(
-                        {},
-                        PlayerClass::newPlayer(&pl),
-                        chosen >= 0 ? Number::newNumber(chosen) : Local<Value>()
-                    );
+                    callback.get()
+                        .call({}, PlayerClass::newPlayer(pl), chosen >= 0 ? Number::newNumber(chosen) : Local<Value>());
                 }
                 CATCH_IN_CALLBACK("sendSimpleForm")
             }
@@ -2269,23 +2266,23 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        ll::form::ModalForm form(
+        lse::form::ModalForm form(
             args[0].asString().toString(),
             args[1].asString().toString(),
             args[2].asString().toString(),
             args[3].asString().toString()
         );
         form.sendTo(
-            *player,
+            player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player& pl, bool chosen) {
+             callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen) {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
                 try {
                     callback.get()
-                        .call({}, PlayerClass::newPlayer(&pl), chosen ? Boolean::newBoolean(chosen) : Local<Value>());
+                        .call({}, PlayerClass::newPlayer(pl), chosen ? Boolean::newBoolean(chosen) : Local<Value>());
                 }
                 CATCH_IN_CALLBACK("sendModalForm")
             }
@@ -2305,36 +2302,36 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         // Todo
-        // std::string data = ordered_json::parse(args[0].toStr()).dump();
+        std::string data = ordered_json::parse(args[0].toStr()).dump();
 
-        // player->sendCustomFormPacket(
-        //     data, [id{player->getOrCreateUniqueID()},
-        //            engine{EngineScope::currentEngine()},
-        //            callback{script::Global(args[1].asFunction())}](string result)
-        //            {
-        //       if ((ll::getServerStatus() != ll::ServerStatus::Running))
-        //         return;
-        //       if (!EngineManager::isValid(engine))
-        //         return;
+        unsigned               formId = lse::form::NewFormId();
+        ModalFormRequestPacket packet(formId, data);
+        player->sendNetworkPacket(packet);
+        lse::form::SetCustomFormPacketCallback(
+            formId,
+            [id{player->getOrCreateUniqueID()},
+             engine{EngineScope::currentEngine()},
+             callback{script::Global(args[1].asFunction())}](Player* player, string result) {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if (!EngineManager::isValid(engine)) return;
 
-        //       Player *pl = ll::service::getLevel()->getPlayer(id);
-        //       if (!pl)
-        //         return;
-
-        //       EngineScope scope(engine);
-        //       try {
-        //         callback.get().call({}, PlayerClass::newPlayer(pl),
-        //                             result != "null" ? JsonToValue(result)
-        //                                              : Local<Value>());
-        //       }
-        //       CATCH_IN_CALLBACK("sendCustomForm")
-        //     });
+                EngineScope scope(engine);
+                try {
+                    callback.get().call(
+                        {},
+                        PlayerClass::newPlayer(player),
+                        result != "null" ? JsonToValue(result) : Local<Value>()
+                    );
+                }
+                CATCH_IN_CALLBACK("sendCustomForm")
+            }
+        );
         return Number::newNumber(3);
     } catch (const ordered_json::exception& e) {
         lse::getSelfPluginInstance().getLogger().error("Fail to parse Json string in sendCustomForm!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
         PrintScriptStackTrace();
-        return Local<Value>();
+        return {};
     }
     CATCH("Fail in sendCustomForm!");
 }
@@ -2347,7 +2344,7 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        ll::form::SimpleForm* form = SimpleFormClass::extract(args[0]);
+        lse::form::SimpleForm* form = SimpleFormClass::extract(args[0]);
         if (IsInstanceOf<SimpleFormClass>(args[0])) {
             Local<Function> callback = args[1].asFunction();
             SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player, callback);

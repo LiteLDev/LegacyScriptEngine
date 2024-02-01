@@ -1,23 +1,21 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "ll/api/form/CustomForm.h"
-#include "ll/api/form/FormBase.h"
-#include "ll/api/form/SimpleForm.h"
+#include "legacyapi/form/FormUI.h"
 
 //////////////////// Classes ////////////////////
 
 class SimpleFormClass : public ScriptClass {
 private:
-    ll::form::SimpleForm form;
+    lse::form::SimpleForm form;
 
 public:
     SimpleFormClass();
 
-    ll::form::SimpleForm* get() { return &form; }
+    lse::form::SimpleForm* get() { return &form; }
 
-    static Local<Object>         newForm();
-    static ll::form::SimpleForm* extract(Local<Value> v);
-    static void sendForm(ll::form::SimpleForm* form, Player* player, script::Local<Function>& callback);
+    static Local<Object>          newForm();
+    static lse::form::SimpleForm* extract(Local<Value> v);
+    static void sendForm(lse::form::SimpleForm* form, Player* player, script::Local<Function>& callback);
 
     Local<Value> setTitle(const Arguments& args);
     Local<Value> setContent(const Arguments& args);
@@ -27,16 +25,16 @@ extern ClassDefine<SimpleFormClass> SimpleFormClassBuilder;
 
 class CustomFormClass : public ScriptClass {
 private:
-    ll::form::CustomForm form;
+    lse::form::CustomForm form;
 
 public:
     CustomFormClass();
 
-    ll::form::CustomForm* get() { return &form; }
+    lse::form::CustomForm* get() { return &form; }
 
-    static Local<Object>         newForm();
-    static ll::form::CustomForm* extract(Local<Value> v);
-    static void sendForm(ll::form::CustomForm* form, Player* player, script::Local<Function>& callback);
+    static Local<Object>          newForm();
+    static lse::form::CustomForm* extract(Local<Value> v);
+    static void sendForm(lse::form::CustomForm* form, Player* player, script::Local<Function>& callback);
 
     Local<Value> setTitle(const Arguments& args);
     Local<Value> addLabel(const Arguments& args);

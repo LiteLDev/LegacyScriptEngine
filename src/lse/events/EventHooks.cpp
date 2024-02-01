@@ -23,11 +23,13 @@
 #include <mc/world/item/registry/ItemStack.h>
 #include <mc/world/level/BlockEventCoordinator.h>
 #include <mc/world/level/BlockSource.h>
+#include <mc/world/level/Level.h>
 #include <mc/world/level/Spawner.h>
 #include <mc/world/level/block/BasePressurePlateBlock.h>
 #include <mc/world/level/block/Block.h>
 #include <mc/world/level/block/FarmBlock.h>
 #include <mc/world/level/block/ItemFrameBlock.h>
+#include <mc/world/level/block/RespawnAnchorBlock.h>
 #include <mc/world/level/block/actor/BarrelBlockActor.h>
 #include <mc/world/level/block/actor/BlockActor.h>
 #include <mc/world/level/block/actor/ChestBlockActor.h>
@@ -483,6 +485,116 @@ LL_TYPE_INSTANCE_HOOK(
     origin(instance);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ExplodeHook,
+    HookPriority::Normal,
+    Level,
+    "?explode@Level@@UEAAXAEAVBlockSource@@PEAVActor@@AEBVVec3@@M_N3M3@Z",
+    void,
+    BlockSource& region,
+    Actor*       source,
+    Vec3 const&  pos,
+    float        explosionRadius,
+    bool         fire,
+    bool         breaksBlocks,
+    float        maxResistance,
+    bool         allowUnderwater
+) {
+    IF_LISTENED(EVENT_TYPES::onEntityExplode) {
+        if (source) {
+            CallEventVoid(
+                EVENT_TYPES::onEntityExplode,
+                EntityClass::newEntity(source),
+                FloatPos::newPos(pos, region.getDimensionId()),
+                Number::newNumber(explosionRadius),
+                Number::newNumber(maxResistance),
+                Boolean::newBoolean(breaksBlocks),
+                Boolean::newBoolean(fire)
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
+
+    IF_LISTENED(EVENT_TYPES::onBedExplode) {
+        if (region.getBlock(pos).getTypeName() == "minecraft:bed") {
+            CallEventVoid(EVENT_TYPES::onBedExplode, IntPos::newPos(pos, region.getDimensionId()));
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBedExplode);
+
+    IF_LISTENED(EVENT_TYPES::onExplode) {
+        if (source) {
+            CallEventVoid(
+                EVENT_TYPES::onExplode,
+                EntityClass::newEntity(source),
+                FloatPos::newPos(pos, region.getDimensionId()),
+                Number::newNumber(explosionRadius),
+                Number::newNumber(maxResistance),
+                Boolean::newBoolean(breaksBlocks),
+                Boolean::newBoolean(fire)
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onExplode);
+
+    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
+        CallEventVoid(
+            EVENT_TYPES::onBlockExplode,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            IntPos::newPos(pos, region.getDimensionId()),
+            Number::newNumber(explosionRadius),
+            Number::newNumber(maxResistance),
+            Boolean::newBoolean(breaksBlocks),
+            Boolean::newBoolean(fire)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
+    origin(region, source, pos, explosionRadius, fire, breaksBlocks, maxResistance, allowUnderwater);
+}
+
+LL_TYPE_STATIC_HOOK(
+    RespawnAnchorExplodeHook,
+    HookPriority::Normal,
+    RespawnAnchorBlock,
+    &RespawnAnchorBlock::_explode,
+    void,
+    Player&         player,
+    BlockPos const& pos,
+    BlockSource&    region,
+    Level&          level
+) {
+    IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
+        CallEventVoid(
+            EVENT_TYPES::onRespawnAnchorExplode,
+            IntPos::newPos(pos, region.getDimensionId()),
+            PlayerClass::newPlayer(&player)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
+    origin(player, pos, region, level);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    BlockExplodedHook,
+    HookPriority::Normal,
+    Block,
+    &Block::onExploded,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    Actor*          entitySource
+) {
+    IF_LISTENED(EVENT_TYPES::onBlockExploded) {
+        CallEventVoid(
+            EVENT_TYPES::onBlockExploded,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            EntityClass::newEntity(entitySource)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
+    origin(region, pos, entitySource);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -509,6 +621,9 @@ void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
 void PlayerEatEvent() { PlayerEatHook::hook(); }
+void ExplodeEvent() { ExplodeHook::hook(); }
+void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
+void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

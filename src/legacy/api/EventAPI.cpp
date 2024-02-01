@@ -554,63 +554,21 @@ void EnableEventListener(int eventId) {
         lse::events::ActorRideEvent();
         break;
 
-        // case EVENT_TYPES::onEntityExplode:
-        //   Event::EntityExplodeEvent::subscribe([](const EntityExplodeEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-        //       CallEvent(
-        //           EVENT_TYPES::onEntityExplode,
-        //           ev.mActor ? EntityClass::newEntity(ev.mActor) : Local<Value>(),
-        //           FloatPos::newPos(ev.mPos, ev.mDimension->getDimensionId()),
-        //           Number::newNumber(ev.mRadius),
-        //           Number::newNumber(ev.mMaxResistance),
-        //           Boolean::newBoolean(ev.mBreaking),
-        //           Boolean::newBoolean(ev.mFire));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
-        //   });
-        //   break;
+    case EVENT_TYPES::onEntityExplode:
+        lse::events::ExplodeEvent();
+        break;
 
-        // case EVENT_TYPES::onBlockExplode:
-        //   Event::BlockExplodeEvent::subscribe([](const BlockExplodeEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-        //       BlockInstance bl(ev.mBlockInstance);
-        //       CallEvent(
-        //           EVENT_TYPES::onBlockExplode, BlockClass::newBlock(bl),
-        //           IntPos::newPos(bl.getPosition(), bl.getDimensionId()),
-        //           Number::newNumber(ev.mRadius),
-        //           Number::newNumber(ev.mMaxResistance),
-        //           Boolean::newBoolean(ev.mBreaking),
-        //           Boolean::newBoolean(ev.mFire));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
-        //   });
-        //   break;
+    case EVENT_TYPES::onBlockExplode:
+        lse::events::ExplodeEvent();
+        break;
 
-        // case EVENT_TYPES::onRespawnAnchorExplode:
-        //   Event::BlockExplodeEvent::subscribe([](const BlockExplodeEvent &ev) {
-        //     BlockInstance bl(ev.mBlockInstance);
-        //     if (bl.getBlock()->getName() == "minecraft:respawn_anchor") {
-        //       IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        //         CallEvent(EVENT_TYPES::onRespawnAnchorExplode,
-        //                   IntPos::newPos(bl.getPosition(), bl.getDimensionId()),
-        //                   Local<Value>());
-        //       }
-        //       IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
-        //     }
-        //     return true;
-        //   });
-        //   break;
+    case EVENT_TYPES::onRespawnAnchorExplode:
+        lse::events::RespawnAnchorExplodeEvent();
+        break;
 
-        // case EVENT_TYPES::onBlockExploded:
-        //   Event::BlockExplodedEvent::subscribe([](const BlockExplodedEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        //       CallEvent(EVENT_TYPES::onBlockExploded,
-        //                 BlockClass::newBlock(ev.mBlockInstance),
-        //                 EntityClass::newEntity(ev.mExplodeSource));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
-        //   });
-        //   break;
+    case EVENT_TYPES::onBlockExploded:
+        lse::events::BlockExplodedEvent();
+        break;
 
         // case EVENT_TYPES::onCmdBlockExecute:
         //   Event::CmdBlockExecuteEvent::subscribe([](const CmdBlockExecuteEvent
@@ -964,35 +922,13 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onExplode:
-        //   Event::EntityExplodeEvent::subscribe([](const EntityExplodeEvent &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onExplode) {
-        //       CallEvent(
-        //           EVENT_TYPES::onExplode,
-        //           ev.mActor ? EntityClass::newEntity(ev.mActor) : Local<Value>(),
-        //           FloatPos::newPos(ev.mPos, ev.mDimension->getDimensionId()),
-        //           Number::newNumber(ev.mRadius),
-        //           Number::newNumber(ev.mMaxResistance),
-        //           Boolean::newBoolean(ev.mBreaking),
-        //           Boolean::newBoolean(ev.mFire));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onExplode);
-        //   });
-        //   break;
+    case EVENT_TYPES::onExplode:
+        lse::events::ExplodeEvent();
+        break;
 
-        // case EVENT_TYPES::onBedExplode:
-        //   Event::BlockExplodeEvent::subscribe([](const BlockExplodeEvent &ev) {
-        //     BlockInstance bl(ev.mBlockInstance);
-        //     if (bl.getBlock()->getName() == "minecraft:bed") {
-        //       IF_LISTENED(EVENT_TYPES::onBedExplode) {
-        //         CallEvent(EVENT_TYPES::onBedExplode,
-        //                   IntPos::newPos(bl.getPosition(), bl.getDimensionId()));
-        //       }
-        //       IF_LISTENED_END(EVENT_TYPES::onBedExplode);
-        //     }
-        //     return true;
-        //   });
-        //   break;
+    case EVENT_TYPES::onBedExplode:
+        lse::events::ExplodeEvent();
+        break;
 
         // case EVENT_TYPES::onPlayerPullFishingHook:
         //   Event::PlayerPullFishingHookEvent::subscribe(

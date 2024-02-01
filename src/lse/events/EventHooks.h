@@ -19,5 +19,8 @@ void ProjectileCreatedEvent();
 void ProjectileSpawnEvent();
 void WitherDestroyEvent();
 void PlayerEatEvent();
+void ExplodeEvent();
+void RespawnAnchorExplodeEvent();
+void BlockExplodedEvent();
 
 } // namespace lse::events

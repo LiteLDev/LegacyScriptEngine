@@ -1,6 +1,7 @@
 #include "EventHooks.h"
 
 #include "api/BlockAPI.h"
+#include "api/EntityAPI.h"
 #include "api/EventAPI.h"
 #include "api/ItemAPI.h"
 #include "api/PlayerAPI.h"
@@ -9,6 +10,7 @@
 #include "mc/entity/WeakEntityRef.h"
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
+#include "mc/world/actor/ArmorStand.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/EventResult.h"
@@ -208,6 +210,28 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, pos);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ArmorStandSwapItemHook,
+    HookPriority::Normal,
+    ArmorStand,
+    &ArmorStand::_trySwapItem,
+    bool,
+    Player&                    player,
+    Puv::Legacy::EquipmentSlot slot
+) {
+    IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
+        CallEventRtnValue(
+            EVENT_TYPES::onChangeArmorStand,
+            false,
+            EntityClass::newEntity(this),
+            PlayerClass::newPlayer(&player),
+            Number::newNumber((int)slot)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onChangeArmorStand);
+    return origin(player, slot);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -218,5 +242,6 @@ void PlayerCloseContainerEvent() {
 void PlayerChangeSlotEvent() { PlayerChangeSlotHook::hook(); }
 void ContainerChangeEvent() { ContainerChangeHook::hook(); }
 void PlayerAttackBlockEvent() { PlayerAttackBlockHook::hook(); }
+void ArmorStandSwapItemEvent() { ArmorStandSwapItemHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

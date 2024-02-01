@@ -398,18 +398,9 @@ void EnableEventListener(int eventId) {
         lse::EventHooks::ContainerChangeEvent();
         break;
 
-        // case EVENT_TYPES::onChangeArmorStand:
-        //   Event::ArmorStandChangeEvent::subscribe(
-        //       [](const ArmorStandChangeEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
-        //           CallEvent(EVENT_TYPES::onChangeArmorStand,
-        //                     EntityClass::newEntity((Actor *)ev.mArmorStand),
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     Number::newNumber(ev.mSlot));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onChangeArmorStand);
-        //       });
-        //   break;
+    case EVENT_TYPES::onChangeArmorStand:
+        lse::EventHooks::ArmorStandSwapItemEvent();
+        break;
 
     case EVENT_TYPES::onChangeSprinting:
         bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {

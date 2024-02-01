@@ -9,5 +9,6 @@ void PlayerCloseContainerEvent();
 void PlayerChangeSlotEvent();
 void ContainerChangeEvent();
 void PlayerAttackBlockEvent();
+void ArmorStandSwapItemEvent();
 } // namespace EventHooks
 } // namespace lse

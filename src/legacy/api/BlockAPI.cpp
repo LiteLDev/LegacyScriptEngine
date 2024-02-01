@@ -440,7 +440,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         short minHeight = dimPtr->getMinHeight();
         if (pos.y < minHeight || pos.y > dimPtr->getHeight()) return {};
         ChunkBlockPos cbpos = ChunkBlockPos(pos.getBlockPos(), minHeight);
-        auto          block = const_cast<Block*>(&lc->getBlock(cbpos));
+        auto          block = &const_cast<Block&>(lc->getBlock(cbpos));
         if (!block) {
             // LOG_WRONG_ARG_TYPE();
             return {};

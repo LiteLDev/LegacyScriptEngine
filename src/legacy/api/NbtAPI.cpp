@@ -1872,7 +1872,7 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
                                        true); // share ptr
             break;
         case Tag::Type::String:
-            res = NbtStringClass::pack(const_cast<StringTag*>(&nbt->at(key).get<StringTag>()),
+            res = NbtStringClass::pack(&const_cast<StringTag&>(nbt->at(key).get<StringTag>()),
                                        true); // share ptr
             break;
         case Tag::Type::ByteArray:

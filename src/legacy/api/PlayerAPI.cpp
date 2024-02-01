@@ -1558,7 +1558,7 @@ Local<Value> PlayerClass::getHand(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ItemClass::newItem(const_cast<ItemStack*>(&player->getSelectedItem()));
+        return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()));
     }
     CATCH("Fail in getHand!");
 }
@@ -2937,7 +2937,7 @@ Local<Value> PlayerClass::getAttributes(const Arguments& args) {
         try {
             Local<Array> arr = Array::newArray();
             tag.at("Attributes").get<ListTag>().forEachCompoundTag([&](const CompoundTag& tag) {
-                arr.add(Tag2Value(const_cast<CompoundTag*>(&tag), true));
+                arr.add(Tag2Value(&const_cast<CompoundTag&>(tag), true));
             });
             return arr;
         } catch (...) {
@@ -3136,10 +3136,10 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Local<Object> result = Object::newObject();
 
         // hand
-        result.set("hand", ItemClass::newItem(const_cast<ItemStack*>(&hand)));
+        result.set("hand", ItemClass::newItem(&const_cast<ItemStack&>(hand)));
 
         // offHand
-        result.set("offHand", ItemClass::newItem(const_cast<ItemStack*>(&offHand)));
+        result.set("offHand", ItemClass::newItem(&const_cast<ItemStack&>(offHand)));
 
         // inventory
         Local<Array> inventoryArr = Array::newArray();

@@ -127,7 +127,7 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
     case DynamicCommand::ParameterType::Block:
         return BlockClass::newBlock(
             const_cast<Block*>(result.getRaw<CommandBlockName>().resolveBlock(0).getBlock()),
-            const_cast<BlockPos*>(&BlockPos::MIN),
+            &const_cast<BlockPos&>(BlockPos::MIN),
             -1
         );
     case DynamicCommand::ParameterType::Effect:

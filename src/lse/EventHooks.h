@@ -10,5 +10,6 @@ void PlayerChangeSlotEvent();
 void ContainerChangeEvent();
 void PlayerAttackBlockEvent();
 void ArmorStandSwapItemEvent();
+void PlayerUseFrameEvent();
 } // namespace EventHooks
 } // namespace lse

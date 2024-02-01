@@ -796,17 +796,9 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onUseFrameBlock:
-        //   Event::PlayerUseFrameBlockEvent::subscribe(
-        //       [](const PlayerUseFrameBlockEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        //           CallEvent(EVENT_TYPES::onUseFrameBlock,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     BlockClass::newBlock(ev.mBlockInstance));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
-        //       });
-        //   break;
+    case EVENT_TYPES::onUseFrameBlock:
+        lse::EventHooks::PlayerUseFrameEvent();
+        break;
 
     case EVENT_TYPES::onBlockInteracted:
 

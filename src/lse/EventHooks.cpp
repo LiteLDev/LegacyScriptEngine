@@ -17,6 +17,7 @@
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/BlockEventCoordinator.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
@@ -232,6 +233,49 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, slot);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerUseFrameHook1,
+    HookPriority::Normal,
+    ItemFrameBlock,
+    "?use@ItemFrameBlock@@UEBA_NAEAVPlayer@@AEBVBlockPos@@E@Z",
+    bool,
+    Player&         player,
+    BlockPos const& pos,
+    uchar           face
+) {
+    IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseFrameBlock,
+            false,
+            PlayerClass::newPlayer(&player),
+            BlockClass::newBlock(pos, player.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
+    return origin(player, pos, face);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    PlayerUseFrameHook2,
+    HookPriority::Normal,
+    ItemFrameBlock,
+    "?attack@ItemFrameBlock@@UEBA_NPEAVPlayer@@AEBVBlockPos@@@Z",
+    bool,
+    Player*         player,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseFrameBlock,
+            false,
+            PlayerClass::newPlayer(player),
+            BlockClass::newBlock(pos, player->getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
+    return origin(player, pos);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -243,5 +287,9 @@ void PlayerChangeSlotEvent() { PlayerChangeSlotHook::hook(); }
 void ContainerChangeEvent() { ContainerChangeHook::hook(); }
 void PlayerAttackBlockEvent() { PlayerAttackBlockHook::hook(); }
 void ArmorStandSwapItemEvent() { ArmorStandSwapItemHook::hook(); }
+void PlayerUseFrameEvent() {
+    PlayerUseFrameHook1::hook();
+    PlayerUseFrameHook2::hook();
+}
 } // namespace EventHooks
 } // namespace lse

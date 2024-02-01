@@ -483,6 +483,6 @@ void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
-void PistionPushEvent() { PistonPushHook::hook(); }
+void PistonPushEvent() { PistonPushHook::hook(); }
 } // namespace EventHooks
 } // namespace lse

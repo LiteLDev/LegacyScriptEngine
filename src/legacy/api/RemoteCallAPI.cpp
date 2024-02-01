@@ -61,13 +61,7 @@ bool LLSEExportFunc(
 }
 
 bool LLSERemoveAllExportedFuncs(ScriptEngine* engine) {
-    // enter scope to prevent crash in script::Global::~Global()
-    EngineScope                                      enter(engine);
-    std::vector<std::pair<std::string, std::string>> funcs;
-    for (auto& [key, data] : ENGINE_GET_DATA(engine)->exportFuncs) {
-        funcs.emplace_back(data.nameSpace, data.funcName);
-    }
-    ENGINE_GET_DATA(engine)->exportFuncs.clear();
+    globalShareData->exportedFuncs.clear();
     return true;
 }
 
@@ -137,7 +131,7 @@ Local<Value> LlClass::hasFuncExported(const Arguments& args) {
         }
 
         return Boolean::newBoolean(
-            EngineOwnData().exportFuncs.find(nameSpace + ":" + funcName) != EngineOwnData().exportFuncs.end()
+            globalShareData->exportedFuncs.find(nameSpace + ":" + funcName) != globalShareData->exportedFuncs.end()
         );
     }
     CATCH("Fail in LLSEHasExported!")

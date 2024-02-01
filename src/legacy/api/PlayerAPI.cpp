@@ -23,6 +23,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
+#include "lse/api/NetworkPacket.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
@@ -1558,7 +1559,7 @@ Local<Value> PlayerClass::getHand(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()),false);
+        return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()), false);
     }
     CATCH("Fail in getHand!");
 }
@@ -1568,7 +1569,7 @@ Local<Value> PlayerClass::getOffHand(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ItemClass::newItem((ItemStack*)&player->getOffhandSlot(),false);
+        return ItemClass::newItem((ItemStack*)&player->getOffhandSlot(), false);
     }
     CATCH("Fail in getOffHand!");
 }
@@ -2085,7 +2086,7 @@ Local<Value> PlayerClass::removeSidebar(const Arguments& args) {
     CATCH("Fail in removeSidebar!")
 }
 
-Local<Value> PlayerClass::setBossBar(const Arguments& args) { // Todo
+Local<Value> PlayerClass::setBossBar(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     if (args[0].getKind() == ValueKind::kNumber) {
         CHECK_ARGS_COUNT(args, 4);
@@ -2114,29 +2115,27 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) { // Todo
             bs.writeUnsignedVarInt64(uid);
             bs.writeString("minecraft:player");
             bs.writeFloat(player->getPosition().x);
-            bs.writeFloat(player->getPosition().y);
+            bs.writeFloat(-60.0f);
             bs.writeFloat(player->getPosition().z);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
-            bs.writeFloat(0.0);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
+            bs.writeFloat(0.0f);
             // Atrribute
             bs.writeUnsignedVarInt(0);
-
             // DataItem
             bs.writeUnsignedVarInt(0);
             // PropertySyncIntEntry
             bs.writeUnsignedVarInt(0);
             // PropertySyncFloatEntry
             bs.writeUnsignedVarInt(0);
-
             // Links
             bs.writeUnsignedVarInt(0);
-            auto addPkt = MinecraftPackets::createPacket(MinecraftPacketIds::AddEntity);
-            addPkt->read(bs);
+            auto addPkt = NetworkPacket<(int)MinecraftPacketIds::AddActor>(bs.getAndReleaseData());
+            addPkt.read(bs);
 
             BossBarColor    color = (BossBarColor)args[3].toInt();
             BossEventPacket pkt;
@@ -2145,7 +2144,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) { // Todo
             pkt.mName          = args[1].asString().toString();
             pkt.mHealthPercent = value;
             pkt.mColor         = color;
-            player->sendNetworkPacket(*addPkt);
+            player->sendNetworkPacket(addPkt);
             player->sendNetworkPacket(pkt);
             return Boolean::newBoolean(true);
         }
@@ -3136,29 +3135,29 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Local<Object> result = Object::newObject();
 
         // hand
-        result.set("hand", ItemClass::newItem(&const_cast<ItemStack&>(hand),false));
+        result.set("hand", ItemClass::newItem(&const_cast<ItemStack&>(hand), false));
 
         // offHand
-        result.set("offHand", ItemClass::newItem(&const_cast<ItemStack&>(offHand),false));
+        result.set("offHand", ItemClass::newItem(&const_cast<ItemStack&>(offHand), false));
 
         // inventory
         Local<Array> inventoryArr = Array::newArray();
         for (const ItemStack* item : inventory) {
-            inventoryArr.add(ItemClass::newItem((ItemStack*)item,false));
+            inventoryArr.add(ItemClass::newItem((ItemStack*)item, false));
         }
         result.set("inventory", inventoryArr);
 
         // armor
         Local<Array> armorArr = Array::newArray();
         for (const ItemStack* item : armor) {
-            armorArr.add(ItemClass::newItem((ItemStack*)item,false));
+            armorArr.add(ItemClass::newItem((ItemStack*)item, false));
         }
         result.set("armor", armorArr);
 
         // endChest
         Local<Array> endChestArr = Array::newArray();
         for (const ItemStack* item : endChest) {
-            endChestArr.add(ItemClass::newItem((ItemStack*)item,false));
+            endChestArr.add(ItemClass::newItem((ItemStack*)item, false));
         }
         result.set("endChest", endChestArr);
 

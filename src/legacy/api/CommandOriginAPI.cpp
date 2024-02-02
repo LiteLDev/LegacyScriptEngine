@@ -21,7 +21,7 @@
 #include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Class Definition ////////////////////
-ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("CommandOriginType");
+ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("OriginType");
 
 ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
     defineClass<CommandOriginClass>("LLSE_CommandOrigin")

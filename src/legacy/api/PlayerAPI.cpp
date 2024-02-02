@@ -327,25 +327,19 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto        uuid = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag tag;
-        Player*     pl = ll::service::getLevel()->getPlayer(uuid);
-        if (pl) {
-            pl->save(tag);
+        auto         uuid   = mce::UUID::fromString(args[0].asString().toString());
+        CompoundTag* tag    = new CompoundTag();
+        Player*      player = ll::service::getLevel()->getPlayer(uuid);
+        if (player) {
+            player->save(*tag);
+        } else {
+            if (auto tagptr = MoreGlobal::getDBStorage()->loadPlayerDataFromTag(uuid.asString()); tagptr) {
+                tag = std::move(*tagptr);
+            }
         }
-        // else {
-        //   std::string serverId = pl->getServerId();
-        //   if (!serverId.empty()) {
-        //     if (MoreGlobal::getDBStorage()->hasKey(serverId,
-        //                                            DBHelpers::Category::Player))
-        //                                            {
-        //       tag = MoreGlobal::getDBStorage()->getCompoundTag(
-        //           serverId, DBHelpers::Category::Player);
-        //     }
-        //   }
-        // }
-        if (!tag.isEmpty()) {
-            return NbtCompoundClass::pack(&tag);
+
+        if (!tag->isEmpty()) {
+            return NbtCompoundClass::pack(tag);
         } else {
             return Local<Value>();
         }

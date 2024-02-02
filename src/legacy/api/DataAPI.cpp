@@ -10,10 +10,12 @@
 // #include <llapi/PlayerInfoAPI.h>
 #include "legacyapi/Base64.h"
 #include "legacyapi/utils/FileHelper.h"
+#include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/CryptoUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/EconomicSystem.h"
+#include "mc/world/actor/player/Player.h"
 #include "utils/JsonHelper.h"
 
 //////////////////// Class Definition ////////////////////
@@ -23,7 +25,7 @@ ClassDefine<void> DataClassBuilder = defineClass("data")
                                          .function("name2xuid", &DataClass::name2xuid)
                                          .function("xuid2uuid", &DataClass::xuid2uuid)
                                          .function("name2uuid", &DataClass::name2uuid)
-                                         // .function("getAllPlayerInfo", &DataClass::getAllPlayerInfo)
+                                         .function("getAllPlayerInfo", &DataClass::getAllPlayerInfo)
                                          .function("parseJson", &DataClass::parseJson)
                                          .function("toJson", &DataClass::toJson)
                                          .function("toMD5", &DataClass::toMD5)
@@ -737,23 +739,24 @@ Local<Value> DataClass::xuid2uuid(const Arguments& args) {
 }
 
 // Unsupported
-// Local<Value> DataClass::getAllPlayerInfo(const Arguments &args) {
-//   CHECK_ARGS_COUNT(args, 0);
+Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 0);
 
-//   try {
-//     auto info = PlayerInfo::getAllPlayerInfo();
-//     auto arr = Array::newArray();
-//     for (const auto &it : info) {
-//       auto obj = Object::newObject();
-//       obj.set("name", String::newString(it.name));
-//       obj.set("xuid", String::newString(it.xuid));
-//       obj.set("uuid", String::newString(it.uuid));
-//       arr.add(obj);
-//     }
-//     return arr;
-//   }
-//   CATCH("Fail in getAllPlayerInfo!");
-// }
+    try {
+        auto arr = Array::newArray();
+        auto obj = Object::newObject();
+        ll::service::getLevel()->forEachPlayer([&obj, &arr](Player& player) {
+            obj.set("name", String::newString(player.getRealName()));
+            obj.set("xuid", String::newString(player.getXuid()));
+            obj.set("uuid", String::newString(player.getUuid().asString()));
+            arr.add(obj);
+            return true;
+        });
+
+        return arr;
+    }
+    CATCH("Fail in getAllPlayerInfo!");
+}
 
 Local<Value> DataClass::toJson(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);

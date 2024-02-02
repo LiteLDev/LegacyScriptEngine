@@ -16,13 +16,16 @@
 inline void PrintException(const script::Exception& e) {
     std::ostringstream sout;
     sout << "script::Exception: ";
-    sout << e.stacktrace();
+    sout << e;
     lse::getSelfPluginInstance().getLogger().error(sout.str());
 }
 
 inline void PrintScriptStackTrace(std::string const& msg = "") {
-    if (!msg.empty()) PrintException(script::Exception(msg));
-    else lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).stacktrace());
+    if (!msg.empty()) {
+        PrintException(script::Exception(msg));
+    } else {
+        lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).message());
+    }
 }
 
 // 方便提取类型
@@ -71,6 +74,7 @@ std::string ValueKindToString(const ValueKind& kind);
 // 截获引擎异常
 #define CATCH(LOG)                                                                                                     \
     catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
         return Local<Value>();                                                                                         \

@@ -62,10 +62,10 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
 
             EngineScope scope(engine);
             try {
-                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl), Local<Value>());
+                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl));
                 else callback.get().call({}, PlayerClass::newPlayer(pl), Number::newNumber(chosen));
             }
-            CATCH_WITHOUT_RETURN("Fail in form callback!")
+            CATCH_IN_CALLBACK("sendForm")
         }
     );
 }
@@ -137,7 +137,7 @@ void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, scri
             try {
                 callback.get().call({}, PlayerClass::newPlayer(player), JsonToValue(data));
             }
-            CATCH_WITHOUT_RETURN("Fail in form callback!")
+            CATCH_IN_CALLBACK("sendForm")
         }
     );
 }

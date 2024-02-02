@@ -66,7 +66,6 @@ void NewTimeout_s(
         EngineScope enter(engine);
         for (auto& para : paras) tmp.emplace_back(std::move(para));
     }
-    ll::schedule::ServerTimeScheduler scheduler;
     scheduler.add<ll::schedule::DelayTask>(
         ll::chrono::ticks(timeout / 50),
         [engine, func = std::move(func), paras = std::move(tmp)]() {

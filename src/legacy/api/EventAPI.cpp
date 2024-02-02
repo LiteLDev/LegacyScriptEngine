@@ -329,7 +329,7 @@ void EnableEventListener(int eventId) {
                     EVENT_TYPES::onTakeItem,
                     PlayerClass::newPlayer(&ev.self()),
                     EntityClass::newEntity(&ev.itemActor()),
-                    ItemClass::newItem(&ev.itemActor().item(),false)
+                    ItemClass::newItem(&ev.itemActor().item(), false)
                 );
             }
             IF_LISTENED_END(EVENT_TYPES::onTakeItem);
@@ -351,7 +351,11 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItem:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItem) {
-                CallEvent(EVENT_TYPES::onUseItem, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item(),false));
+                CallEvent(
+                    EVENT_TYPES::onUseItem,
+                    PlayerClass::newPlayer(&ev.self()),
+                    ItemClass::newItem(&ev.item(), false)
+                );
             }
             IF_LISTENED_END(EVENT_TYPES::onUseItem);
         });
@@ -363,7 +367,7 @@ void EnableEventListener(int eventId) {
                 CallEvent(
                     EVENT_TYPES::onUseItemOn,
                     PlayerClass::newPlayer(&ev.self()),
-                    ItemClass::newItem(&ev.item(),false),
+                    ItemClass::newItem(&ev.item(), false),
                     BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
                     Number::newNumber(ev.face()),
                     FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
@@ -493,7 +497,11 @@ void EnableEventListener(int eventId) {
                 if ((ev.item().getItem()->isFood() || ev.item().isPotionItem()
                      || ev.item().getTypeName() == VanillaItemNames::MilkBucket.c_str())
                     && (ev.self().isHungry() || ev.self().forceAllowEating())) {
-                    CallEvent(EVENT_TYPES::onEat, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item(),false));
+                    CallEvent(
+                        EVENT_TYPES::onEat,
+                        PlayerClass::newPlayer(&ev.self()),
+                        ItemClass::newItem(&ev.item(), false)
+                    );
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onEat);
@@ -1135,7 +1143,7 @@ void InitBasicEventListeners() {
         }
 #endif
         // Call tick event
-        IF_LISTENED(EVENT_TYPES::onTick) { CallEventVoid(EVENT_TYPES::onTick); }
+        IF_LISTENED(EVENT_TYPES::onTick) { CallEventUncancelable(EVENT_TYPES::onTick); }
         IF_LISTENED_END(EVENT_TYPES::onTick);
     });
 }

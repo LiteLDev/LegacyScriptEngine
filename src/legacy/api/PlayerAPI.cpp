@@ -334,7 +334,7 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
             player->save(*tag);
         } else {
             if (auto tagptr = MoreGlobal::getDBStorage()->loadPlayerDataFromTag(uuid.asString()); tagptr) {
-                tag = std::move(*tagptr);
+                tag = std::move(tagptr.get());
             }
         }
 

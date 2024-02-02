@@ -1,12 +1,15 @@
-// From https://github.com/GroupMountain/GMLIB
+// This file includes code from GMLIB, which is licensed under the GNU Lesser General Public License
+// version 3.0 (LGPL-3.0). The source code for GMLIB can be obtained at https://github.com/GroupMountain/GMLIB.
+// Modifications to the original code are licensed under the GNU General Public License version 3.0 (GPL-3.0).
+
 #pragma once
-#include "mc/network/packet/Packet.h"
+
+#include <mc/network/packet/Packet.h>
+
+namespace lse::api {
 
 template <int packetId, bool batching = true, bool compress = true>
 class NetworkPacket : public Packet {
-public:
-    std::string_view mData;
-
 public:
     NetworkPacket() { mCompressible = compress ? Compressibility::Incompressible : Compressibility::Compressible; }
 
@@ -14,7 +17,6 @@ public:
         mCompressible = compress ? Compressibility::Incompressible : Compressibility::Compressible;
     }
 
-public:
     virtual ~NetworkPacket() {}
 
     virtual ::MinecraftPacketIds getId() const { return (MinecraftPacketIds)packetId; }
@@ -28,4 +30,9 @@ public:
     virtual void dummyread() {}
 
     virtual bool disallowBatching() const { return !batching; }
+
+private:
+    std::string_view mData;
 };
+
+} // namespace lse::api

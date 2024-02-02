@@ -2134,7 +2134,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeUnsignedVarInt(0);
             // Links
             bs.writeUnsignedVarInt(0);
-            auto addPkt = NetworkPacket<(int)MinecraftPacketIds::AddActor>(bs.getAndReleaseData());
+            auto addPkt = lse::api::NetworkPacket<(int)MinecraftPacketIds::AddActor>(bs.getAndReleaseData());
             addPkt.read(bs);
 
             BossBarColor    color = (BossBarColor)args[3].toInt();

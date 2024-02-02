@@ -115,8 +115,7 @@ plugins:
           name: 中文
           nav_translations:
             Home: 主页
-            Install: 安装
-            APIs: API
+            APIs: 接口
 
 
 

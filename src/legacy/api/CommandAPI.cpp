@@ -46,7 +46,7 @@
 
 //////////////////// Class Definition ////////////////////
 
-ClassDefine<void> PermissionStaticBuilder  = EnumDefineBuilder<CommandPermissionLevel>::build("PermType");
+ClassDefine<void> PermissionStaticBuilder  = EnumDefineBuilder<OldCommandPermissionLevel>::build("PermType");
 ClassDefine<void> ParamTypeStaticBuilder   = EnumDefineBuilder<DynamicCommand::ParameterType>::build("ParamType");
 ClassDefine<void> ParamOptionStaticBuilder = EnumDefineBuilder<CommandParameterOption>::build("ParamOption");
 
@@ -231,7 +231,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
         CommandFlag            flag       = {(CommandFlagValue)0x80};
         std::string            alias;
         if (args.size() > 2) {
-            permission = parseEnum<CommandPermissionLevel>(args[2]);
+            permission = (CommandPermissionLevel)parseEnum<OldCommandPermissionLevel>(args[2]);
             if (args.size() > 3) {
                 CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
                 flag = {(CommandFlagValue)args[3].toInt()};

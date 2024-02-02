@@ -8,6 +8,15 @@ extern ClassDefine<void> ParamOptionStaticBuilder;
 
 bool LLSERemoveCmdCallback(script::ScriptEngine* engine);
 
+enum class OldCommandPermissionLevel : schar {
+    Any         = 0x0,
+    GameMasters = 0x1,
+    Admin       = 0x2,
+    HostPlayer  = 0x3,
+    Console     = 0x4,
+    Internal    = 0x5,
+};
+
 class CommandClass : public ScriptClass {
     std::unique_ptr<DynamicCommandInstance> uptr;
     DynamicCommandInstance*                 ptr;

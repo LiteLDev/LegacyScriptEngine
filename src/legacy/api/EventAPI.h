@@ -221,7 +221,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
         try {                                                                                                          \
-            NewTimeout(listener.func.get(), {__VA_ARGS__}, 5);                                                         \
+            NewTimeoutNoLock(listener.func.get(), {__VA_ARGS__}, 5);                                                   \
         }                                                                                                              \
         LISTENER_CATCH(TYPE)                                                                                           \
     }

@@ -56,7 +56,7 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 
 //////////////////// API ////////////////////
 
-void NewTimeout_s(
+void NewTimeoutNoLock(
     script::Global<Function>     func,
     vector<script::Local<Value>> paras,
     int                          timeout,
@@ -72,18 +72,23 @@ void NewTimeout_s(
         [engine, func = std::move(func), paras = std::move(tmp)]() {
             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
-            EngineScope enter(engine);
-            if (paras.empty()) {
-                func.get().call();
-            } else {
-                vector<Local<Value>> args;
-                for (auto& para : paras)
-                    if (para.isEmpty()) return;
-                    else args.emplace_back(para.get());
-                func.get().call({}, args);
-            }
+            EngineScope          enter(engine);
+            vector<Local<Value>> args;
+            for (auto& para : paras)
+                if (para.isEmpty()) return;
+                else args.emplace_back(para.get());
+            func.get().call({}, args);
         }
     );
+}
+
+void NewTimeoutNoLock(script::Global<Function> func, int timeout, ScriptEngine* engine) {
+    scheduler.add<ll::schedule::DelayTask>(std::chrono::milliseconds(timeout), [engine, func = std::move(func)]() {
+        if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+        if (!EngineManager::isValid(engine)) return;
+        EngineScope enter(engine);
+        func.get().call();
+    });
 }
 
 int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {

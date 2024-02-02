@@ -1429,57 +1429,58 @@ Local<Value> NbtListClass::getTag(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        auto& list  = nbt->mList;
-        auto  index = args[0].toInt();
+        auto index = args[0].toInt();
 
-        if (index >= list.size() || index < 0) {
+        if (index >= nbt->size() || index < 0) {
             return Local<Value>();
         }
 
         Local<Value> res;
-        switch (list[index]->getId()) {
-        case Tag::Type::End:
-            res = NbtEndClass::pack(list[index]->as_ptr<EndTag>(), true); // share ptr
-            break;
+        // lse::getSelfPluginInstance().getLogger().info(
+        //     "getListTag Type {}",
+        //     magic_enum::enum_name(nbt->at(index)->getId())
+        // );
+        switch (nbt->at(index)->getId()) {
         case Tag::Type::Byte:
-            res = NbtByteClass::pack(list[index]->as_ptr<ByteTag>(),
+            res = NbtByteClass::pack(nbt->at(index)->as_ptr<ByteTag>(),
                                      true); // share ptr
             break;
         case Tag::Type::Short:
-            res = NbtShortClass::pack(list[index]->as_ptr<ShortTag>(),
+            res = NbtShortClass::pack(nbt->at(index)->as_ptr<ShortTag>(),
                                       true); // share ptr
             break;
         case Tag::Type::Int:
-            res = NbtIntClass::pack(list[index]->as_ptr<IntTag>(),
+            res = NbtIntClass::pack(nbt->at(index)->as_ptr<IntTag>(),
                                     true); // share ptr
             break;
         case Tag::Type::Int64:
-            res = NbtLongClass::pack(list[index]->as_ptr<Int64Tag>(),
+            res = NbtLongClass::pack(nbt->at(index)->as_ptr<Int64Tag>(),
                                      true); // share ptr
             break;
         case Tag::Type::Float:
-            res = NbtFloatClass::pack(list[index]->as_ptr<FloatTag>(),
+            res = NbtFloatClass::pack(nbt->at(index)->as_ptr<FloatTag>(),
                                       true); // share ptr
             break;
         case Tag::Type::Double:
-            res = NbtDoubleClass::pack(list[index]->as_ptr<DoubleTag>(), true);
+            res = NbtDoubleClass::pack(nbt->at(index)->as_ptr<DoubleTag>(), true);
             // share ptr
             break;
         case Tag::Type::String:
-            res = NbtStringClass::pack(list[index]->as_ptr<StringTag>(),
+            res = NbtStringClass::pack(nbt->at(index)->as_ptr<StringTag>(),
                                        true); // share ptr
             break;
         case Tag::Type::ByteArray:
-            res = NbtByteArrayClass::pack(list[index]->as_ptr<ByteArrayTag>(),
+            res = NbtByteArrayClass::pack(nbt->at(index)->as_ptr<ByteArrayTag>(),
                                           true); // share ptr
             break;
         case Tag::Type::List:
-            res = NbtListClass::pack(list[index]->as_ptr<ListTag>(), true); // share ptr
+            res = NbtListClass::pack(nbt->at(index)->as_ptr<ListTag>(), true); // share ptr
             break;
         case Tag::Type::Compound:
-            res = NbtCompoundClass::pack(list[index]->as_ptr<CompoundTag>(),
+            res = NbtCompoundClass::pack(nbt->at(index)->as_ptr<CompoundTag>(),
                                          true); // share ptr
             break;
+        case Tag::Type::End:
         default:
             res = Local<Value>();
             break;
@@ -1843,52 +1844,53 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
         auto key = args[0].toStr();
 
         Local<Value> res;
+        // lse::getSelfPluginInstance().getLogger().info(
+        //     "getCompoundTag Type {}",
+        //     magic_enum::enum_name(nbt->at(key).getId())
+        // );
         switch (nbt->at(key).getId()) {
-        case Tag::Type::End:
-            res = NbtEndClass::pack(nbt->at(key).toUnique()->as_ptr<EndTag>(), true);
-            // share ptr
-            break;
         case Tag::Type::Byte:
-            res = NbtByteClass::pack(&nbt->at(key).get<ByteTag>(),
+            res = NbtByteClass::pack(nbt->at(key).get<ByteTag>().as_ptr<ByteTag>(),
                                      true); // share ptr
             break;
         case Tag::Type::Short:
-            res = NbtShortClass::pack(&nbt->at(key).get<ShortTag>(),
+            res = NbtShortClass::pack(nbt->at(key).get<ShortTag>().as_ptr<ShortTag>(),
                                       true); // share ptr
             break;
         case Tag::Type::Int:
-            res = NbtIntClass::pack(&nbt->at(key).get<IntTag>(),
+            res = NbtIntClass::pack(nbt->at(key).get<IntTag>().as_ptr<IntTag>(),
                                     true); // share ptr
             break;
         case Tag::Type::Int64:
-            res = NbtLongClass::pack(&nbt->at(key).get<Int64Tag>(),
+            res = NbtLongClass::pack(nbt->at(key).get<Int64Tag>().as_ptr<Int64Tag>(),
                                      true); // share ptr
             break;
         case Tag::Type::Float:
-            res = NbtFloatClass::pack(&nbt->at(key).get<FloatTag>(),
+            res = NbtFloatClass::pack(nbt->at(key).get<FloatTag>().as_ptr<FloatTag>(),
                                       true); // share ptr
             break;
         case Tag::Type::Double:
-            res = NbtDoubleClass::pack(&nbt->at(key).get<DoubleTag>(),
+            res = NbtDoubleClass::pack(nbt->at(key).get<DoubleTag>().as_ptr<DoubleTag>(),
                                        true); // share ptr
             break;
         case Tag::Type::String:
-            res = NbtStringClass::pack(&const_cast<StringTag&>(nbt->at(key).get<StringTag>()),
+            res = NbtStringClass::pack(nbt->at(key).get<StringTag>().as_ptr<StringTag>(),
                                        true); // share ptr
             break;
         case Tag::Type::ByteArray:
-            res = NbtByteArrayClass::pack(&nbt->at(key).get<ByteArrayTag>(),
+            res = NbtByteArrayClass::pack(nbt->at(key).get<ByteArrayTag>().as_ptr<ByteArrayTag>(),
                                           true); // share ptr
             break;
 
         case Tag::Type::List:
-            res = NbtListClass::pack(&nbt->at(key).get<ListTag>(),
+            res = NbtListClass::pack(nbt->at(key).get<ListTag>().as_ptr<ListTag>(),
                                      true); // share ptr
             break;
         case Tag::Type::Compound:
-            res = NbtCompoundClass::pack(&nbt->at(key).get<CompoundTag>(),
+            res = NbtCompoundClass::pack(nbt->at(key).get<CompoundTag>().as_ptr<CompoundTag>(),
                                          true); // share ptr
             break;
+        case Tag::Type::End:
         default:
             res = Local<Value>();
             break;

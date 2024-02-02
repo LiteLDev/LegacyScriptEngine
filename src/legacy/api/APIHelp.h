@@ -16,7 +16,7 @@
 inline void PrintException(const script::Exception& e) {
     std::ostringstream sout;
     sout << "script::Exception: ";
-    sout << e;
+    sout << e.stacktrace();
     lse::getSelfPluginInstance().getLogger().error(sout.str());
 }
 
@@ -100,14 +100,16 @@ std::string ValueKindToString(const ValueKind& kind);
 // 截获引擎异常_Constructor
 #define CATCH_C(LOG)                                                                                                   \
     catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
-        return nullptr;                                                                                                \
-    }
+        return nullptr;
+}
 
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                                                                   \
     catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
         return;                                                                                                        \
@@ -116,9 +118,10 @@ std::string ValueKindToString(const ValueKind& kind);
 // 截获引擎异常_Constructor
 #define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
     catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
-    }
+        LOG_ERROR_WITH_SCRIPT_INFO();
+}
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \

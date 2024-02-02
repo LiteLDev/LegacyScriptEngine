@@ -351,11 +351,11 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto    uuid = mce::UUID::fromString(args[0].asString().toString());
-        auto    tag  = NbtCompoundClass::extract(args[1]);
-        Player* pl   = ll::service::getLevel()->getPlayer(uuid);
-        if (pl) {
-            pl->load(*tag, ll::defaultDataLoadHelper);
+        auto    uuid   = mce::UUID::fromString(args[0].asString().toString());
+        auto    tag    = NbtCompoundClass::extract(args[1]);
+        Player* player = ll::service::getLevel()->getPlayer(uuid);
+        if (player) {
+            player->load(*tag);
         }
         return Boolean::newBoolean(true);
     }
@@ -372,7 +372,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
         auto         arr    = args[2].asArray();
         Player*      player = ll::service::getLevel()->getPlayer(uuid);
         CompoundTag  playerNbt;
-        player->save(playerNbt); // Todo
+        player->save(playerNbt);
         if (player) {
             for (int i = 0; i < arr.size(); ++i) {
                 auto value = arr.get(i);

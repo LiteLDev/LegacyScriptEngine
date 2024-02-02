@@ -744,8 +744,8 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
 
     try {
         auto arr = Array::newArray();
-        auto obj = Object::newObject();
-        ll::service::getLevel()->forEachPlayer([&obj, &arr](Player& player) {
+        ll::service::getLevel()->forEachPlayer([&arr](Player& player) {
+            auto obj = Object::newObject();
             obj.set("name", String::newString(player.getRealName()));
             obj.set("xuid", String::newString(player.getXuid()));
             obj.set("uuid", String::newString(player.getUuid().asString()));

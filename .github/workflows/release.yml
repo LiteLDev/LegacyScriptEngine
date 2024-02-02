@@ -58,7 +58,7 @@ jobs:
           cp -r assets/${{ matrix.backend }}/* release/legacy-script-engine-${{ matrix.backend }}/
 
       - run: |
-          cp LICENSE README.md release/
+          cp COPYING README.md release/
 
       - name: Archive release
         run: |

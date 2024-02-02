@@ -1,4 +1,4 @@
-## 👜 Container Object API
+# 👜 Container Object API
 
 In LLSE, "container objects" are used to manipulate information about containers that have grids and can store and place items.
 The **container** here is a broad concept. In addition to the traditional containers such as boxes and barrels, such as player inventory, boxes carried by alpaca, etc. can also be handled as "containers", obtained and used. Container APIs  corresponding to the container
@@ -29,10 +29,10 @@ See [Block Object API](/LLSEPluginDevelopment/GameAPI/Block.md)
 
 Each container information object contains some fixed object properties. for a specific container object `ct`, has the following properties:
 
-| Attributes| Meaning               | Data Types      |
-| ------- | ------------------ | --------- |
-| ct.size | The total number of spaces the container has | `Integer` |
-| ct.type | The type of container       | `String`  |
+| Attributes | Meaning                                      | Data Types |
+| ---------- | -------------------------------------------- | ---------- |
+| ct.size    | The total number of spaces the container has | `Integer`  |
+| ct.type    | The type of container                        | `String`   |
 
 <br>
 

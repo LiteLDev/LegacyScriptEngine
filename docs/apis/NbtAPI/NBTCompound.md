@@ -1,4 +1,4 @@
-## 📒 NbtCompound - Tag Type
+# 📒 NbtCompound - Tag Type
 
 A `NbtCompound` represents a complete tag, which stores a series of key-value pairs, similar to a data structure such as an object/table.  
 pass `NbtCompound` Only the interface of the object can perform some operations unique to the NBT tag.

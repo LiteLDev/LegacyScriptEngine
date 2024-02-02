@@ -1,4 +1,4 @@
-## 📚 NbtList - List type
+# 📚 NbtList - List type
 
 A `NbtList` represents a list that stores a list of NBT objects, similar to a data structure like a list/array.
 The interface of the object can perform some operations unique to the NBT list.

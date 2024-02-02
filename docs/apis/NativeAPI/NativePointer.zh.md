@@ -1,4 +1,4 @@
-## NativePointer原生指针
+# NativePointer原生指针
 
 此API旨在帮助开发者操作原生指针
 
@@ -100,22 +100,22 @@
 
 `NativePointer.type`
 
-|访问名|大小|特殊说明|
-|:--|:--:|:--|
-|byte|1|此属性读写通过十六进制字符串完成|
-|int8|1||
-|uint8|1||
-|int16|2||
-|uint16|2||
-|int32|3||
-|uint32|4||
-|long|4||
-|ulong|4||
-|int64|8||
-|uint64|8||
-|float|4||
-|double|8||
-|string|32|此属性表示std::string*|
-|bool|1||
+| 访问名 | 大小  | 特殊说明                         |
+| :----- | :---: | :------------------------------- |
+| byte   |   1   | 此属性读写通过十六进制字符串完成 |
+| int8   |   1   |                                  |
+| uint8  |   1   |                                  |
+| int16  |   2   |                                  |
+| uint16 |   2   |                                  |
+| int32  |   3   |                                  |
+| uint32 |   4   |                                  |
+| long   |   4   |                                  |
+| ulong  |   4   |                                  |
+| int64  |   8   |                                  |
+| uint64 |   8   |                                  |
+| float  |   4   |                                  |
+| double |   8   |                                  |
+| string |  32   | 此属性表示std::string*           |
+| bool   |   1   |                                  |
 
 <br>

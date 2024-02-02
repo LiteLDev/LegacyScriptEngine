@@ -1,4 +1,4 @@
-## 🎯 Command Related API
+# 🎯 Command Related API
 
 The following APIs provide interfaces for registering and listening to custom commands in the game:
 

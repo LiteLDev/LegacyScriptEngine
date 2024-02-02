@@ -1,4 +1,4 @@
-## 📃 Normal Form Builder API
+# 📃 Normal Form Builder API
 
 > These APIs can assist developers to easily construct a common form.
 

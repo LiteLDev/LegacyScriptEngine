@@ -1,5 +1,5 @@
 
-## ✨ ParticleSpawner Object
+# ✨ ParticleSpawner Object
 
    For a `ParticleSpawner` type variable ps, there are the following members:
 
@@ -9,7 +9,7 @@
    | ps.highDetial    | `Boolean` |
    | ps.doubleSide    | `Boolean` |
 
-### Particle Spawner Object
+## Particle Spawner Object
 
 `mc.newParticleSpawner(displayRadius = 4294967295, highDetial = true, doubleSide = true)`
 

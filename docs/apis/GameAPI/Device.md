@@ -1,4 +1,4 @@
-##  📱 Device Information Object API
+#  📱 Device Information Object API
 
 In LLSE, the "device information object" is used to manipulate and obtain information about the game device used by a player.
 

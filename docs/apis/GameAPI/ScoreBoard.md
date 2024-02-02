@@ -1,4 +1,4 @@
-## 📝 Scoreboard API
+# 📝 Scoreboard API
 
 In LLSE, use the "score object" to operate and obtain a specific scoring variable, and provide many other common interfaces for manipulating the scoreboard.
 
@@ -67,10 +67,10 @@ This interface acts like a command  `/scoreboard objectives list`
 
 Each scoring item object contains some fixed object properties. for a specific scoring item object `ob`, has the following properties:
 
-| Attributes     | Meaning          | Data Type |
-| -------------- | ---------------- | -------- |
-| ob.name        | Scoring item name| `String` |
-| ob.displayName | Display name of the scoring item | `String` |
+| Attributes     | Meaning                          | Data Type |
+| -------------- | -------------------------------- | --------- |
+| ob.name        | Scoring item name                | `String`  |
+| ob.displayName | Display name of the scoring item | `String`  |
 
 These object properties are read-only and cannot be modified.
 

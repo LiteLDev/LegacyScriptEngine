@@ -1,13 +1,4 @@
-## 📜 Listen Event List
-
-Here is a list of the various events that LLSE supports listening for.
-
-Tip: You can obtain relevant information about the game objects obtained by listening, such as the coordinates of the block, the name of the entity, and so on.  
-At the same time, the member functions of these objects can also be called.
-
-> Notice! Some of the callback parameters passed in may sometimes be Null, which requires a good judgment check when writing code.
-
-## 🏃‍♂️ Player Related Events
+# 🏃‍♂️ Player Related Events
 
 #### `"onPreJoin"` - Player Connection Event
 

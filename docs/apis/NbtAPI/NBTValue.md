@@ -1,4 +1,4 @@
-## 📋 NBT - Normal Data Type
+# 📋 NBT - Normal Data Type
 
 We refer to other NBT objects other than `NbtList` and `NbtCompound` types collectively as **normal data** types. These objects only store simple data and contain no other complex structures inside.
 

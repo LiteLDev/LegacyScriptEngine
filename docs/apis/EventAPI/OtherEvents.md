@@ -1,4 +1,4 @@
-## 🔊 Other Events 
+# 🔊 Other Events 
 
 #### `"onScoreChanged"` - Player Scoreboard Change Event
 

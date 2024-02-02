@@ -1,4 +1,4 @@
-##  🎓 数据包 API
+#  🎓 数据包 API
 
 下面这些对象与API为脚本提供了基本的BDS数据包接口。 
 
@@ -83,22 +83,22 @@
 - 返回值：是否成功
 - 返回值类型： `Boolean`
 
-| 可用函数                    | 参数类型          |
-|-------------------------|---------------|
-| writeBool               | `Boolean`     | 
-| writeByte               | `Integer`     | 
-| writeDouble             | `Number`      | 
-| writeFloat              | `Float`       | 
-| writeSignedBigEndianInt | `Number`      | 
-| writeSignedInt          | `Number`      | 
-| writeSignedInt64        | `Number`      | 
-| writeSignedShort        | `Integer`     | 
-| writeString             | `String`      | 
-| writeUnsignedChar       | `Integer`     | 
-| writeUnsignedInt        | `Number`      | 
-| writeUnsignedInt64      | `Number`      | 
-| writeUnsignedShort      | `Integer`     | 
-| writeUnsignedVarInt     | `Number`      | 
+| 可用函数                | 参数类型      |
+| ----------------------- | ------------- |
+| writeBool               | `Boolean`     |
+| writeByte               | `Integer`     |
+| writeDouble             | `Number`      |
+| writeFloat              | `Float`       |
+| writeSignedBigEndianInt | `Number`      |
+| writeSignedInt          | `Number`      |
+| writeSignedInt64        | `Number`      |
+| writeSignedShort        | `Integer`     |
+| writeString             | `String`      |
+| writeUnsignedChar       | `Integer`     |
+| writeUnsignedInt        | `Number`      |
+| writeUnsignedInt64      | `Number`      |
+| writeUnsignedShort      | `Integer`     |
+| writeUnsignedVarInt     | `Number`      |
 | writeUnsignedVarInt64   | `Number`      |
 | writeVarInt             | `Number`      |
 | writeVarInt64           | `Number`      |

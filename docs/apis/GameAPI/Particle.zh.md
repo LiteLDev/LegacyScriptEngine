@@ -1,14 +1,14 @@
-## ✨ ParticleSpawner 对象
+# ✨ ParticleSpawner 对象
 
    对于某个 `ParticleSpawner` 类型变量 ps, 有如下这些成员:
 
    | 成员             | 含义           | 类型      |
-   | ---------------- | ------------- | --------- |
+   | ---------------- | -------------- | --------- |
    | ps.displayRadius | 粒子显示半径   | `Integer` |
    | ps.highDetial    | 需要高细节线条 | `Boolean` |
    | ps.doubleSide    | 需要双面粒子   | `Boolean` |
 
-### 生成一个粒子生成器对象
+## 生成一个粒子生成器对象
 
 `mc.newParticleSpawner(displayRadius = 4294967295, highDetial = true, doubleSide = true)`
 
@@ -17,7 +17,7 @@
 
 ## 粒子颜色枚举
 
-| 粒子颜色枚举              |
+| 粒子颜色枚举             |
 | ------------------------ |
 | `ParticleColor.Black`    |
 | `ParticleColor.Indigo`   |
@@ -38,7 +38,7 @@
 
 ## 方向枚举
 
-| 方向枚举           |
+| 方向枚举          |
 | ----------------- |
 | `Direction.NEG_Y` |
 | `Direction.POS_Y` |

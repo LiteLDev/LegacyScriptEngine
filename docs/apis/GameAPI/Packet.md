@@ -1,4 +1,4 @@
-##  🎓 Packet API
+#  🎓 Packet API
 
 The following objects and APIs provide the basic BDS packet interface for scripts. 
 
@@ -83,27 +83,27 @@ Every binary stream object contains some member functions (member methods) that 
 - Return value：success or not
 - Return value type： `Boolean`
 
-| Available functions     |  Parameter Type                 |
-| -------- | ------------------------ |
-| writeBool | `Boolean`                 | 
-| writeByte  |  `Integer`          | 
-| writeDouble    |`Number`    | 
-| writeFloat | `Float`     | 
-| writeSignedBigEndianInt   |  `Number` | 
-| writeSignedInt   |  `Number` | 
-| writeSignedInt64   |  `Number` | 
-| writeSignedShort   | `Integer` | 
-| writeString   | `String`  | 
-| writeUnsignedChar   |  `Integer` | 
-| writeUnsignedInt   |  `Number` | 
-| writeUnsignedInt64   |  `Number` | 
-| writeUnsignedShort   |  `Integer` | 
-| writeUnsignedVarInt   |  `Number` | 
-| writeUnsignedVarInt64   |  `Number` |
-| writeVarInt   |  `Number` |
-| writeVarInt64   |  `Number`  |
-| writeVec3   |  `FloatPos`  |
-| writeCompountTag   |  `NbtCompound`  |
+| Available functions     | Parameter Type |
+| ----------------------- | -------------- |
+| writeBool               | `Boolean`      |
+| writeByte               | `Integer`      |
+| writeDouble             | `Number`       |
+| writeFloat              | `Float`        |
+| writeSignedBigEndianInt | `Number`       |
+| writeSignedInt          | `Number`       |
+| writeSignedInt64        | `Number`       |
+| writeSignedShort        | `Integer`      |
+| writeString             | `String`       |
+| writeUnsignedChar       | `Integer`      |
+| writeUnsignedInt        | `Number`       |
+| writeUnsignedInt64      | `Number`       |
+| writeUnsignedShort      | `Integer`      |
+| writeUnsignedVarInt     | `Number`       |
+| writeUnsignedVarInt64   | `Number`       |
+| writeVarInt             | `Number`       |
+| writeVarInt64           | `Number`       |
+| writeVec3               | `FloatPos`     |
+| writeCompountTag        | `NbtCompound`  |
 
 <br>
 

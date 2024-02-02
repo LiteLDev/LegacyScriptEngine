@@ -38,3 +38,12 @@ That is to say, intercepting an event does not affect other LLSE scripts that ha
 
 Sometimes, calling a specific API inside some event listeners will cause an infinite loop to collapse. Please avoid these situations.  
 Example: If you use the `onConsoleCmd` event listener, and you call `mc.runcmd(Ex)`, it will trigger another `onConsoleCmd` event, which will lead to an infinite loop.
+
+## 📜 Listen Event List
+
+There is a list of the various events in sidebar that LLSE supports listening for.
+
+Tip: You can obtain relevant information about the game objects obtained by listening, such as the coordinates of the block, the name of the entity, and so on.  
+At the same time, the member functions of these objects can also be called.
+
+> Notice! Some of the callback parameters passed in may sometimes be Null, which requires a good judgment check when writing code.

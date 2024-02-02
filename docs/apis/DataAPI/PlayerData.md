@@ -1,4 +1,4 @@
-## 🏃‍♂️ Player Binding Data
+# 🏃‍♂️ Player Binding Data
 
 In actual development, there is often a need to associate certain data with a player in the server, and to maintain these data continuously during the work cycle of the plugin.  
 

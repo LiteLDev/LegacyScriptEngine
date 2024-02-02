@@ -13,13 +13,12 @@ nav:
           - apis/DataAPI/DataBase.md
           - apis/DataAPI/Economy.md
           - apis/DataAPI/OtherData.md
-          - apis/DataAPI/PermAPI.md
           - apis/DataAPI/PlayerData.md
       - EventAPI:
+          - apis/EventAPI/Listen.md
           - apis/EventAPI/BlockEvents.md
           - apis/EventAPI/EconomicEvents.md
           - apis/EventAPI/EntityEvents.md
-          - apis/EventAPI/Listen.md
           - apis/EventAPI/OtherEvents.md
           - apis/EventAPI/PlayerEvents.md
       - GameAPI:
@@ -51,10 +50,10 @@ nav:
           - apis/NbtAPI/NBTList.md
           - apis/NbtAPI/NBTValue.md
       - ScriptAPI:
-          - apis/ScriptAPI/i18n.md
-          - apis/ScriptAPI/Ll.md
           - apis/ScriptAPI/Logger.md
           - apis/ScriptAPI/ScriptHelp.md
+          - apis/ScriptAPI/i18n.md
+          - apis/ScriptAPI/Ll.md
       - SystemAPI:
           - apis/SystemAPI/File.md
           - apis/SystemAPI/FileSystem.md

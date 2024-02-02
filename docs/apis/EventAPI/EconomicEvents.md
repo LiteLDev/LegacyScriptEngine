@@ -1,4 +1,4 @@
-## 💰 Economic System Events
+# 💰 Economic System Events
 
 Here are the economic change events related to the LLSE built-in economic system:
 

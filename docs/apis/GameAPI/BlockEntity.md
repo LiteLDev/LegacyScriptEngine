@@ -1,4 +1,4 @@
-## 📮 Block Entity Object API
+# 📮 Block Entity Object API
 
 In LLSE, "block entity objects" are used to manipulate and obtain additional data associated with a particular block.
 Note: **Block Entity Object** is not a **Entity**! There is no special relationship between them.
@@ -26,11 +26,11 @@ For an existing block object `bl`, there are:
 
 Each block entity object contains some fixed object properties. For a particular block entity object `be`, there are the following properties:
 
-| Attributes | Meaning                 | Data Type |
-| ------- | -------------------------- | --------- |
-| be.name  | The block entity name (example: `container.chest`) | `String`  |
-| be.pos  | The coordinates where the block entity is located. | `IntPos`  |
-| be.type | The Type ID of the block entity object.       | `Integer` |
+| Attributes | Meaning                                            | Data Type |
+| ---------- | -------------------------------------------------- | --------- |
+| be.name    | The block entity name (example: `container.chest`) | `String`  |
+| be.pos     | The coordinates where the block entity is located. | `IntPos`  |
+| be.type    | The Type ID of the block entity object.            | `Integer` |
 
 These object properties are read-only and cannot be modified.
 

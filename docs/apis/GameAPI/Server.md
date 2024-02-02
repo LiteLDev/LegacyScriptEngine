@@ -1,4 +1,4 @@
-## 💻 Server Settings API
+# 💻 Server Settings API
 
 The following APIs provide interfaces for customizing some server settings:
 

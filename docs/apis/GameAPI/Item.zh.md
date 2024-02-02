@@ -1,4 +1,4 @@
-## 🧰 物品对象 API
+# 🧰 物品对象 API
 
 在脚本引擎中，使用「物品对象」来操作和获取某一个物品栏物品的相关信息。
 
@@ -60,33 +60,33 @@
 
 每一个物品对象都包含一些固定的对象属性。对于某个特定的物品对象`it`，有以下这些属性
 
-| 属性     | 含义                     | 类型      |
-| -------- | ------------------------ | --------- |
-| it.name  | 游戏内显示的物品名称     | `String`  |
-| it.type  | 物品标准类型名           | `String`  |
-| it.id    | 物品的游戏内id           | `Integer` |
-| it.count | 这个物品对象堆叠的个数   | `Integer` |
-| it.aux   | 物品附加值（如羊毛颜色） | `Integer` |
-| it.damage   | 物品当前耐久 | `Integer` |
-| it.attackDamage   | 物品攻击伤害 | `Integer` |
-| it.maxDamage   | 物品最大耐久 | `Integer` |
-| it.lore   | 物品Lore | `Array<String, String...>` |
-| it.isArmorItem   | 物品是否为盔甲 | `Boolean` |
-| it.isBlock   | 物品是否为方块 | `Boolean` |
-| it.isDamageableItem   | 物品是否可被破坏 | `Boolean` |
-| it.isDamaged   | 物品耐久是否被消耗 | `Boolean` |
-| it.isEnchanted   | 物品是否已被附魔 | `Boolean` |
-| it.isEnchantingBook   | 物品是否为附魔书 | `Boolean` |
-| it.isFireResistant   | 物品是否防火 | `Boolean` |
-| it.isFullStack   | 物品是否已堆叠到最大堆叠数 | `Boolean` |
-| it.isGlint   | 物品是否闪烁 | `Boolean` |
-| it.isHorseArmorItem   | 物品是否为马铠 | `Boolean` |
-| it.isLiquidClipItem   | Whether the item is liquid clip | `Boolean` |
-| it.isMusicDiscItem   | 物品是否为唱片 | `Boolean` |
-| it.isOffhandItem   | 物品是否可设置到副手 | `Boolean` |
-| it.isPotionItem   | 物品是否为药水 | `Boolean` |
-| it.isStackable   | 物品是否可堆叠 | `Boolean` |
-| it.isWearableItem   | 物品是否可穿戴 | `Boolean` |
+| 属性                | 含义                            | 类型                       |
+| ------------------- | ------------------------------- | -------------------------- |
+| it.name             | 游戏内显示的物品名称            | `String`                   |
+| it.type             | 物品标准类型名                  | `String`                   |
+| it.id               | 物品的游戏内id                  | `Integer`                  |
+| it.count            | 这个物品对象堆叠的个数          | `Integer`                  |
+| it.aux              | 物品附加值（如羊毛颜色）        | `Integer`                  |
+| it.damage           | 物品当前耐久                    | `Integer`                  |
+| it.attackDamage     | 物品攻击伤害                    | `Integer`                  |
+| it.maxDamage        | 物品最大耐久                    | `Integer`                  |
+| it.lore             | 物品Lore                        | `Array<String, String...>` |
+| it.isArmorItem      | 物品是否为盔甲                  | `Boolean`                  |
+| it.isBlock          | 物品是否为方块                  | `Boolean`                  |
+| it.isDamageableItem | 物品是否可被破坏                | `Boolean`                  |
+| it.isDamaged        | 物品耐久是否被消耗              | `Boolean`                  |
+| it.isEnchanted      | 物品是否已被附魔                | `Boolean`                  |
+| it.isEnchantingBook | 物品是否为附魔书                | `Boolean`                  |
+| it.isFireResistant  | 物品是否防火                    | `Boolean`                  |
+| it.isFullStack      | 物品是否已堆叠到最大堆叠数      | `Boolean`                  |
+| it.isGlint          | 物品是否闪烁                    | `Boolean`                  |
+| it.isHorseArmorItem | 物品是否为马铠                  | `Boolean`                  |
+| it.isLiquidClipItem | Whether the item is liquid clip | `Boolean`                  |
+| it.isMusicDiscItem  | 物品是否为唱片                  | `Boolean`                  |
+| it.isOffhandItem    | 物品是否可设置到副手            | `Boolean`                  |
+| it.isPotionItem     | 物品是否为药水                  | `Boolean`                  |
+| it.isStackable      | 物品是否可堆叠                  | `Boolean`                  |
+| it.isWearableItem   | 物品是否可穿戴                  | `Boolean`                  |
 
 这些对象属性都是只读的，无法被修改
 

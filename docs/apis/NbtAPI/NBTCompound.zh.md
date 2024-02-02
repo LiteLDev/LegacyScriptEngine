@@ -1,4 +1,4 @@
-## 📒 NbtCompound - 标签类型
+# 📒 NbtCompound - 标签类型
 
 一个`NbtCompound `代表一个完整的标签，里面储存了一系列键值对，类似于对象 / 表这样的数据结构。  
 通过`NbtCompound`对象的接口，才可以进行 NBT 标签所独有的一些操作。

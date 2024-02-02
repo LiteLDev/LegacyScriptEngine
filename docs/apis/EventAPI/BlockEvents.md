@@ -1,4 +1,4 @@
-## 📦 Block Related Events
+# 📦 Block Related Events
 
 #### `"onBlockInteracted"` - Block Player Interaction Event
 

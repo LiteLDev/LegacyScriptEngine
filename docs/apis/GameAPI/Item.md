@@ -1,4 +1,4 @@
-## 🧰 Item Object API
+# 🧰 Item Object API
 
 In LLSE, use "item objects" to manipulate and get information about an item in the inventory.
 
@@ -59,33 +59,33 @@ Through this function, a new item object is generated using NBT.
 
 Every item object contains some fixed object properties. For a specific item object `it`, there are the following attributes:
 
-| Attributes| Meaning                | Data Type |
-| -------- | ------------------------ | --------- |
-| it.name  | Item's in-game name      | `String`  |
-| it.type  | Item Standard Type Name           | `String`  |
-| it.id    | Item's in-game ID           | `Integer` |
-| it.count | Item's count   | `Integer` |
-| it.aux   | Item's data value (for example, wool color or wood type) | `Integer` |
-| it.lore   | Item Lore | `Array<String, String...>` |
-| it.damage   | Item Current Damage | `Integer` |
-| it.attackDamage   | Item Attack Damage | `Integer` |
-| it.maxDamage   | Item Max Damage | `Integer` |
-| it.isArmorItem   | Whether the item is armor item | `Boolean` |
-| it.isBlock   | Whether the item is block | `Boolean` |
-| it.isDamageableItem   | Whether the item is damageable | `Boolean` |
-| it.isDamaged   | Whether the item is damaged | `Boolean` |
-| it.isEnchanted   | Whether the item is enchanted | `Boolean` |
-| it.isEnchantingBook   | Whether the item is Enchanting Book | `Boolean` |
-| it.isFireResistant   | Whether the item is fire resistant | `Boolean` |
-| it.isFullStack   | Whether the item have full stack | `Boolean` |
-| it.isGlint   | Whether the item is glint | `Boolean` |
-| it.isHorseArmorItem   | Whether the item is armor item for horse | `Boolean` |
-| it.isLiquidClipItem   | Whether the item is liquid clip | `Boolean` |
-| it.isMusicDiscItem   | Whether the item is music disc | `Boolean` |
-| it.isOffhandItem   | Whether the item can be on second hand | `Boolean` |
-| it.isPotionItem   | Whether the item is potion | `Boolean` |
-| it.isStackable   | Whether the item can be stackable | `Boolean` |
-| it.isWearableItem   | Whether the item can wearable | `Boolean` |
+| Attributes          | Meaning                                                  | Data Type                  |
+| ------------------- | -------------------------------------------------------- | -------------------------- |
+| it.name             | Item's in-game name                                      | `String`                   |
+| it.type             | Item Standard Type Name                                  | `String`                   |
+| it.id               | Item's in-game ID                                        | `Integer`                  |
+| it.count            | Item's count                                             | `Integer`                  |
+| it.aux              | Item's data value (for example, wool color or wood type) | `Integer`                  |
+| it.lore             | Item Lore                                                | `Array<String, String...>` |
+| it.damage           | Item Current Damage                                      | `Integer`                  |
+| it.attackDamage     | Item Attack Damage                                       | `Integer`                  |
+| it.maxDamage        | Item Max Damage                                          | `Integer`                  |
+| it.isArmorItem      | Whether the item is armor item                           | `Boolean`                  |
+| it.isBlock          | Whether the item is block                                | `Boolean`                  |
+| it.isDamageableItem | Whether the item is damageable                           | `Boolean`                  |
+| it.isDamaged        | Whether the item is damaged                              | `Boolean`                  |
+| it.isEnchanted      | Whether the item is enchanted                            | `Boolean`                  |
+| it.isEnchantingBook | Whether the item is Enchanting Book                      | `Boolean`                  |
+| it.isFireResistant  | Whether the item is fire resistant                       | `Boolean`                  |
+| it.isFullStack      | Whether the item have full stack                         | `Boolean`                  |
+| it.isGlint          | Whether the item is glint                                | `Boolean`                  |
+| it.isHorseArmorItem | Whether the item is armor item for horse                 | `Boolean`                  |
+| it.isLiquidClipItem | Whether the item is liquid clip                          | `Boolean`                  |
+| it.isMusicDiscItem  | Whether the item is music disc                           | `Boolean`                  |
+| it.isOffhandItem    | Whether the item can be on second hand                   | `Boolean`                  |
+| it.isPotionItem     | Whether the item is potion                               | `Boolean`                  |
+| it.isStackable      | Whether the item can be stackable                        | `Boolean`                  |
+| it.isWearableItem   | Whether the item can wearable                            | `Boolean`                  |
 
 These object properties are read-only and cannot be modified.
 

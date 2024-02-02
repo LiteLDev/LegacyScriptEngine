@@ -1,4 +1,4 @@
-## 📜 Get System Information API
+# 📜 Get System Information API
 
 The following APIs provide interfaces to obtain necessary system information:
 
@@ -22,15 +22,15 @@ The following APIs provide interfaces to obtain necessary system information:
 
   -     For the returned time object tm, there are the following members:
 
-  | Field | Meaning              | Data Type |
-  | ----- | -------------------- | --------- |
-  | tm.Y  | Year value (4 digits)| `Integer` |
-  | tm.M  | Month value          | `Integer` |
-  | tm.D  | Day value            | `Integer` |
-  | tm.h  | Hour value (24-hour clock)|`Integer` |
-  | tm.m  | Minute value         | `Integer` |
-  | tm.s  | Seconds value        | `Integer` |
-  | tm.ms | Millisecond value    | `Integer` |
+  | Field | Meaning                    | Data Type |
+  | ----- | -------------------------- | --------- |
+  | tm.Y  | Year value (4 digits)      | `Integer` |
+  | tm.M  | Month value                | `Integer` |
+  | tm.D  | Day value                  | `Integer` |
+  | tm.h  | Hour value (24-hour clock) | `Integer` |
+  | tm.m  | Minute value               | `Integer` |
+  | tm.s  | Seconds value              | `Integer` |
+  | tm.ms | Millisecond value          | `Integer` |
 
 <br>
 

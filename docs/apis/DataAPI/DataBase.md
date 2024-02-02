@@ -1,4 +1,4 @@
-## 📦 Database API
+# 📦 Database API
 
 Database, generally used for plugins to persistently store data generated and processed by certain plugins.  
 Unlike configuration files, databases generally have no readability requirements, but have considerable considerations for performance and stability.  

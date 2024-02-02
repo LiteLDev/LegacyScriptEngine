@@ -1,4 +1,4 @@
-## 🌏 Web Interface API
+# 🌏 Web Interface API
 
 The following APIs provide the basic network interface for scripts.
 If there are more complex needs, the network library of the respective language platform can be used to complete the task.
@@ -71,9 +71,9 @@ In LLSE, use "WebSocket objects" to manipulate the connection and work of a WebS
 
 Every WS client object contains some fixed object properties. for a specific file object `wsc`, has the following properties:
 
-| Attributes | Meaning        | Data Type   |
-| ---------- | -------------- | ------ |
-| wsc.status | Current Connection Status | `Enum` |
+| Attributes | Meaning                   | Data Type |
+| ---------- | ------------------------- | --------- |
+| wsc.status | Current Connection Status | `Enum`    |
 
 These object properties are read-only and cannot be modified.
 

@@ -1,4 +1,4 @@
-## 🎈 Entity Object API
+# 🎈 Entity Object API
 
 In LLSE, "entity objects" are used to manipulate and obtain information about an entity.
 
@@ -173,38 +173,38 @@ Each entity object contains some member functions (member methods) that can be e
 
 Note that the damage dealt here is real damage and cannot be reduced by protective equipment such as armor.
 
-| ActorDamageCause ENUM    |
-| ------------------------ |
-| `ActorDamageCause.Override`|
-| `ActorDamageCause.Contact `   |
-| `ActorDamageCause.EntityAttack` |
-| `ActorDamageCause.Projectile`     |
-| `ActorDamageCause.Suffocation`    |
-| `ActorDamageCause.All`     |
-| `ActorDamageCause.Fire`  |
-| `ActorDamageCause.FireTick`    |
-| `ActorDamageCause.Lava`      |
-| `ActorDamageCause.Drowning `  |
-| `ActorDamageCause.BlockExplosion`   |
-| `ActorDamageCause.EntityExplosion`    |
-| `ActorDamageCause.Void`  |
-| `ActorDamageCause.Suicide`    |
-| `ActorDamageCause.Magic`     |
-| `ActorDamageCause.Wither`     |
-| `ActorDamageCause.Starve`   |
-| `ActorDamageCause.Anvil`    |
-| `ActorDamageCause.Thorns`  |
+| ActorDamageCause ENUM              |
+| ---------------------------------- |
+| `ActorDamageCause.Override`        |
+| `ActorDamageCause.Contact `        |
+| `ActorDamageCause.EntityAttack`    |
+| `ActorDamageCause.Projectile`      |
+| `ActorDamageCause.Suffocation`     |
+| `ActorDamageCause.All`             |
+| `ActorDamageCause.Fire`            |
+| `ActorDamageCause.FireTick`        |
+| `ActorDamageCause.Lava`            |
+| `ActorDamageCause.Drowning `       |
+| `ActorDamageCause.BlockExplosion`  |
+| `ActorDamageCause.EntityExplosion` |
+| `ActorDamageCause.Void`            |
+| `ActorDamageCause.Suicide`         |
+| `ActorDamageCause.Magic`           |
+| `ActorDamageCause.Wither`          |
+| `ActorDamageCause.Starve`          |
+| `ActorDamageCause.Anvil`           |
+| `ActorDamageCause.Thorns`          |
 | `ActorDamageCause.FallingBlock`    |
-| `ActorDamageCause.Piston`     |
+| `ActorDamageCause.Piston`          |
 | `ActorDamageCause.FlyIntoWall`     |
-| `ActorDamageCause.Magma`    |
-| `ActorDamageCause.Fireworks`  |
-| `ActorDamageCause.Lightning`    |
-| `ActorDamageCause.Charging`     |
+| `ActorDamageCause.Magma`           |
+| `ActorDamageCause.Fireworks`       |
+| `ActorDamageCause.Lightning`       |
+| `ActorDamageCause.Charging`        |
 | `ActorDamageCause.Temperature`     |
-| `ActorDamageCause.Freezing`  |
-| `ActorDamageCause.Stalactite`    |
-| `ActorDamageCause.Stalagmite`     |
+| `ActorDamageCause.Freezing`        |
+| `ActorDamageCause.Stalactite`      |
+| `ActorDamageCause.Stalagmite`      |
 
 <br>
 
@@ -616,38 +616,38 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](/LL
 - Return value: Whether succeed
 - Return type: `Boolean`
 
-| Name            | ID |
-| --------------- | ------ |
-| speed           | 1      |
-| slowness        | 2      |
-| haste           | 3      |
-| mining_fatigue  | 4      |
-| strength        | 5      |
-| instant_health  | 6      |
-| instant_damage  | 7      |
-| jump_boost      | 8      |
-| nausea          | 9      |
-| regeneration    | 10     |
-| resistance      | 11     |
-| fire_resistance | 12     |
-| water_breathing | 13     |
-| invisibility    | 14     |
-| blindness       | 15     |
-| night_vision    | 16     |
-| hunger          | 17     |
-| weakness        | 18     |
-| poison          | 19     |
-| wither          | 20     |
-| health_boost    | 21     |
-| absorption      | 22     |
-| saturation      | 23     |
-| levitation      | 24     |
-| fatal_poison    | 25     |
-| conduit_power   | 26     |
-| slow_falling    | 27     |
-| bad_omen        | 28     |
-| village_hero    | 29     |
-| darkness        | 30     |
+| Name            | ID  |
+| --------------- | --- |
+| speed           | 1   |
+| slowness        | 2   |
+| haste           | 3   |
+| mining_fatigue  | 4   |
+| strength        | 5   |
+| instant_health  | 6   |
+| instant_damage  | 7   |
+| jump_boost      | 8   |
+| nausea          | 9   |
+| regeneration    | 10  |
+| resistance      | 11  |
+| fire_resistance | 12  |
+| water_breathing | 13  |
+| invisibility    | 14  |
+| blindness       | 15  |
+| night_vision    | 16  |
+| hunger          | 17  |
+| weakness        | 18  |
+| poison          | 19  |
+| wither          | 20  |
+| health_boost    | 21  |
+| absorption      | 22  |
+| saturation      | 23  |
+| levitation      | 24  |
+| fatal_poison    | 25  |
+| conduit_power   | 26  |
+| slow_falling    | 27  |
+| bad_omen        | 28  |
+| village_hero    | 29  |
+| darkness        | 30  |
 
 <br>
 

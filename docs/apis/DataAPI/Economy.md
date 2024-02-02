@@ -1,4 +1,4 @@
-## 💰 Economic System API
+# 💰 Economic System API
 
 In many servers, the economic system is a very critical part.  
 In order to solve various problems of traditional use of the scoreboard economic system, LLSE provides an interface to connect to the LLMoney economic system, which can communicate with other series of plugins. 
@@ -111,13 +111,13 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 
 Where the result is an array of record objects. for each `record` object record, with the following keys and corresponding values:
 
-| Key             | Meaning of Value         | Data Type  |
-| -------------- | -------------------------- | --------- |
-| `record.from`  | XUID of money sender   | `String`  |
-| `record.to`    | XUID of money receiver   | `String`  |
-| `record.money` | Amount of money             | `Integer` |
-| `record.time`  | Time when this transaction occurred | `String`  |
-| `record.note`  | Additional notes for this transaction.       | `String`  |
+| Key            | Meaning of Value                       | Data Type |
+| -------------- | -------------------------------------- | --------- |
+| `record.from`  | XUID of money sender                   | `String`  |
+| `record.to`    | XUID of money receiver                 | `String`  |
+| `record.money` | Amount of money                        | `Integer` |
+| `record.time`  | Time when this transaction occurred    | `String`  |
+| `record.note`  | Additional notes for this transaction. | `String`  |
 
 The format of the time string is: YYYY-mm-dd hh:mm:ss
 

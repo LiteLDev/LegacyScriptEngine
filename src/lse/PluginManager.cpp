@@ -107,7 +107,10 @@ auto PluginManager::unload(std::string_view name) -> bool {
     if (!plugin->onUnload()) {
         throw std::runtime_error(fmt::format("failed to unload plugin {}", name));
     }
-    erasePlugin(name);
+
+    if (!erasePlugin(name)) {
+        throw std::runtime_error(fmt::format("failed to unregister plugin {}", name));
+    }
 
     return false;
 }

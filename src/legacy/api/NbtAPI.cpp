@@ -1848,16 +1848,19 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
         switch (nbt->at(key).getId()) {
         case Tag::Type::End:
             res = NbtEndClass::pack(nbt->at(key).toUnique()->as_ptr<EndTag>(), true);
-            // share ptr break; case Tag::Type::Byte: res =
-            NbtByteClass::pack(&nbt->at(key).get<ByteTag>(),
-                               true); // share ptr break;
+            // share ptr
+            break;
+        case Tag::Type::Byte:
+            res = NbtByteClass::pack(&nbt->at(key).get<ByteTag>(),
+                                     true); // share ptr
+            break;
         case Tag::Type::Short:
-            res = NbtShortClass::pack(
-                &nbt->at(key).get<ShortTag>(),
-                true
-            ); // share ptr break; case Tag::Type::Int: res =
-            NbtIntClass::pack(&nbt->at(key).get<IntTag>(),
-                              true); // share ptr
+            res = NbtShortClass::pack(&nbt->at(key).get<ShortTag>(),
+                                      true); // share ptr
+            break;
+        case Tag::Type::Int:
+            res = NbtIntClass::pack(&nbt->at(key).get<IntTag>(),
+                                    true); // share ptr
             break;
         case Tag::Type::Int64:
             res = NbtLongClass::pack(&nbt->at(key).get<Int64Tag>(),
@@ -1882,7 +1885,8 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
 
         case Tag::Type::List:
             res = NbtListClass::pack(&nbt->at(key).get<ListTag>(),
-                                     true); // share ptr break;
+                                     true); // share ptr
+            break;
         case Tag::Type::Compound:
             res = NbtCompoundClass::pack(&nbt->at(key).get<CompoundTag>(),
                                          true); // share ptr

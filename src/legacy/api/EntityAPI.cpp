@@ -921,7 +921,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
 
         auto it = (ItemActor*)entity;
         if (!it) return Local<Value>();
-        else return ItemClass::newItem(&it->item(),false);
+        else return ItemClass::newItem(&it->item(), false);
     }
     CATCH("Fail in toItem!");
 }
@@ -1358,10 +1358,9 @@ Local<Value> EntityClass::getAllTags(const Arguments& args) {
         Local<Array> arr = Array::newArray();
         CompoundTag  tag = CompoundTag();
         entity->save(tag);
-        // TODO
-        // tag.getList("tags")->forEachCompoundTag([&arr](const CompoundTag& tag) {
-        //     arr.add(String::newString(tag.toString()));
-        // });
+        tag.at("tags").get<ListTag>().forEachCompoundTag([&arr](const CompoundTag& tag) {
+            arr.add(String::newString(tag.toString()));
+        });
         return arr;
     }
     CATCH("Fail in getAllTags!");

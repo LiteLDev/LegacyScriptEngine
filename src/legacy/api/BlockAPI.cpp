@@ -325,7 +325,6 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
 
 Local<Value> BlockClass::getBlockState(const Arguments& args) {
     return Local<Value>();
-    // TODO
     try {
         auto list = block->getSerializationId();
         try {

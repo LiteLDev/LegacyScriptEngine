@@ -367,19 +367,24 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kArray);
     try {
-        auto                     uuid = mce::UUID::fromString(args[0].asString().toString());
-        auto                     nbt  = NbtCompoundClass::extract(args[1]);
-        auto                     arr  = args[2].asArray();
-        std::vector<std::string> tags;
-        for (int i = 0; i < arr.size(); ++i) {
-            auto value = arr.get(i);
-            if (value.getKind() == ValueKind::kString) {
-                tags.push_back(value.asString().toString());
-            }
-        }
-        Player* player = ll::service::getLevel()->getPlayer(uuid);
+        auto         uuid   = mce::UUID::fromString(args[0].asString().toString());
+        CompoundTag* nbt    = NbtCompoundClass::extract(args[1]);
+        auto         arr    = args[2].asArray();
+        Player*      player = ll::service::getLevel()->getPlayer(uuid);
+        CompoundTag  playerNbt;
+        player->save(playerNbt); // Todo
         if (player) {
-            player->load(*nbt);
+            for (int i = 0; i < arr.size(); ++i) {
+                auto value = arr.get(i);
+                if (value.getKind() == ValueKind::kString) {
+                    std::string tagName = value.asString().toString();
+                    if (!nbt->at(tagName).is_null()) {
+                        playerNbt.at(tagName).push_back(nbt->at(tagName));
+                    }
+                }
+            }
+
+            player->load(playerNbt);
             player->refreshInventory();
             return Boolean::newBoolean(true);
         }
@@ -2829,9 +2834,9 @@ Local<Value> PlayerClass::getNbt(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        CompoundTag tag = CompoundTag();
-        player->save(tag);
-        return NbtCompoundClass::pack(&tag);
+        CompoundTag* tag = new CompoundTag();
+        player->save(*tag);
+        return NbtCompoundClass::pack(tag);
     }
     CATCH("Fail in getNbt!")
 }

@@ -982,6 +982,8 @@ void EnableEventListener(int eventId) {
     }
 }
 
+ll::schedule::GameTickScheduler scheduler;
+
 void InitBasicEventListeners() {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();
@@ -1121,8 +1123,9 @@ void InitBasicEventListeners() {
     });
 
     // 植入tick
-    ll::schedule::ServerTimeScheduler scheduler;
-    scheduler.add<ll::schedule::RepeatTask>(ll::chrono::ticks(1), []() {
+    using namespace ll::chrono_literals;
+
+    scheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
 #ifndef LLSE_BACKEND_NODEJS
         try {
             std::list<ScriptEngine*> tmpList;

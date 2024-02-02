@@ -377,8 +377,13 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
                 tags.push_back(value.asString().toString());
             }
         }
-        ll::service::getLevel()->getPlayer(uuid)->load(*nbt);
-        return Boolean::newBoolean(true);
+        Player* player = ll::service::getLevel()->getPlayer(uuid);
+        if (player) {
+            player->load(*nbt);
+            player->refreshInventory();
+            return Boolean::newBoolean(true);
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setPlayerNbtTags!")
 }

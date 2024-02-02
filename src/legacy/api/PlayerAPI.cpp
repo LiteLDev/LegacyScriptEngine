@@ -379,7 +379,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
                 if (value.getKind() == ValueKind::kString) {
                     std::string tagName = value.asString().toString();
                     if (!nbt->at(tagName).is_null()) {
-                        playerNbt.at(tagName).push_back(nbt->at(tagName));
+                        playerNbt.at(tagName) = nbt->at(tagName);
                     }
                 }
             }

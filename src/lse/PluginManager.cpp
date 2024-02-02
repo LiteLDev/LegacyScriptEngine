@@ -73,7 +73,6 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         if (!::PluginManager::loadPlugin(entryPath.string(), false, true)) {
             throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
         }
-
         return true;
     });
 
@@ -93,6 +92,10 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
     }
 
+    if (!addPlugin(manifest.name, plugin)) {
+        throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
+    }
+
     return true;
 }
 
@@ -104,6 +107,7 @@ auto PluginManager::unload(std::string_view name) -> bool {
     if (!plugin->onUnload()) {
         throw std::runtime_error(fmt::format("failed to unload plugin {}", name));
     }
+    erasePlugin(name);
 
     return false;
 }

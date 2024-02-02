@@ -110,7 +110,7 @@ Reduce score: `ob.reduceScore(target,score)`
 
 [!warning]
 If the score doesn't exist, will try creating a score, then return `0`(If *target* is `String`) or `null`(If *target* is `Player`)  
-Reason: [#971](https://github.com/LiteLDev/LiteLoaderBDSv2/issues/971#issuecomment-1385047649)
+Reason: [#971](https://github.com/LiteLDev/LeviLamina/issues/971#issuecomment-1385047649)
 <br>
 
 #### Stop Tracking a Target 

@@ -129,11 +129,11 @@
 「标头」为日志输出条目开头的文字，用来直观地区分日志的输出源。  
 默认情况下，消息标头默认为空，即输出时没有标头。
 
-例如：设置自定义标头为`logger.setTitle("LiteLoader")`  
+例如：设置自定义标头为`logger.setTitle("LeviLamina")`  
 则在接下来的日志输出将变为形如：  
 
 ```log
-20:05:26 ERROR [LiteLoader] Fail to transport the player
+20:05:26 ERROR [LeviLamina] Fail to transport the player
 ```
 
 如果在设置之后想要关闭标头，请执行`logger.setTitle("")`

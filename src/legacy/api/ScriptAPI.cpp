@@ -30,7 +30,7 @@ Local<Value> Log(const Arguments& args) {
     CATCH("Fail in Log!");
 }
 
-// #include <LiteLoader/Main/Config.h>
+// #include <LeviLamina/Main/Config.h>
 Local<Value> ColorLog(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 

@@ -6,19 +6,19 @@ Some interfaces related to loader operations are provided here.
 
 | Property                 | Type      | Description                                                |
 | ------------------------ | --------- | ---------------------------------------------------------- |
-| `ll.language`            | `String`  | The language LiteLoader used.(such as `zh`, `en`, `ru_RU`) |
+| `ll.language`            | `String`  | The language LeviLamina used.(such as `zh`, `en`, `ru_RU`) |
 | `ll.major`               | `Integer` | Major Version Number (ex:  the **2** in **2**.7.1)         |
 | `ll.minor`               | `Integer` | Minor Version Number (ex: the **7** in 2.**7**.1)          |
 | `ll.revision`            | `Integer` | Revision Number: (ex: the **1** in 2.7.**1**)              |
 | `ll.status`              | `Integer` | Status (`0` is Dev, `1` is Beta, `2` is Release)           |
-| `ll.scriptEngineVersion` | `String`  | LiteLoaderBDS Script Engine Version                        |
-| `ll.isWine`              | `Boolean` | Whether the LiteLoaderBDS started from Wine                |
-| `ll.isDebugMode`         | `Boolean` | Whether the LiteLoaderBDS in debug mode                    |
+| `ll.scriptEngineVersion` | `String`  | LeviLamina Script Engine Version                        |
+| `ll.isWine`              | `Boolean` | Whether the LeviLamina started from Wine                |
+| `ll.isDebugMode`         | `Boolean` | Whether the LeviLamina in debug mode                    |
 | `ll.isBeta`              | `Boolean` | Whether the current version is a beta version              |
 | `ll.isDev`               | `Boolean` | Whether the current version is a dev version               |
 | `ll.isRelease`           | `Boolean` | Whether the current version is a release version           |
 
-### Get LiteLoader loader version string
+### Get LeviLamina loader version string
 
 `ll.versionString()`
 
@@ -27,7 +27,7 @@ Some interfaces related to loader operations are provided here.
 
 <br>
 
-### Check LiteLoader loader version
+### Check LeviLamina version
 
 `ll.requireVersion(major[,minor,revision])`
 
@@ -42,7 +42,7 @@ Some interfaces related to loader operations are provided here.
 - Return value type:  `Boolean`
 
 If the detection finds that the currently installed version of LLSE is lower than the value passed in, it will return `false`. 
-You can choose to judge based on the results and report an error to remind users to upgrade their LiteLoaderBDS version.
+You can choose to judge based on the results and report an error to remind users to upgrade their LeviLamina version.
 
 <br>
 

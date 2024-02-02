@@ -1,5 +1,3 @@
-> [!WARNING]
-> ParticleAPI is disabled by default, you need to change `ParticleAPI` to `true` in `plugins/LiteLoader/LiteLoader.json`
 
 ## ✨ ParticleSpawner Object
 

@@ -14,13 +14,13 @@ using namespace nlohmann;
 inline ordered_json CreateJson(const std::string& path, const std::string& defContent, bool allowComment = true) {
     ordered_json jsonConf;
     if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
-        if (path.find('/') != std::string::npos) { // e.g. plugins/LiteLoader/LiteLoader.json
+        if (path.find('/') != std::string::npos) { // e.g. plugins/LeviLamina/LeviLamina.json
             std::size_t pos = path.find_last_of('/');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);
                 CreateDirs(dirPath);
             }
-        } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LiteLoader\\LiteLoader.json
+        } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LeviLamina\\LeviLamina.json
             std::size_t pos = path.find_last_of('\\');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);

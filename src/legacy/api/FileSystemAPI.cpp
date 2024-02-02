@@ -70,12 +70,12 @@ ClassDefine<FileClass> FileClassBuilder =
 
 std::optional<std::string> getDirectoryPath(const std::string& path) {
     std::string dirPath;                       // Directory path
-    if (path.find('/') != std::string::npos) { // e.g. plugins/LiteLoader/LiteLoader.json
+    if (path.find('/') != std::string::npos) { // e.g. plugins/LeviLamina/LeviLamina.json
         std::size_t pos = path.find_last_of('/');
         if (pos != std::string::npos) {
             dirPath = path.substr(0, pos);
         }
-    } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LiteLoader\\LiteLoader.json
+    } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LeviLamina\\LeviLamina.json
         std::size_t pos = path.find_last_of('\\');
         if (pos != std::string::npos) {
             dirPath = path.substr(0, pos);

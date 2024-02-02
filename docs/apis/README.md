@@ -2,7 +2,7 @@
 
 ## ⛳ Start
 
-`LiteLoader ScriptEngine` hereinafter referred to as **LLSE** is an official server for Bedrock Edition  `Bedrock Dedicated Server` hereinafter referred to as **BDS** plugin framework, providing powerful cross-language script plug-in support and stable development API support.  
+`LeviLamina ScriptEngine` hereinafter referred to as **LLSE** is an official server for Bedrock Edition  `Bedrock Dedicated Server` hereinafter referred to as **BDS** plugin framework, providing powerful cross-language script plug-in support and stable development API support.  
 
 > Welcome to LLSE's plug-in development!
 

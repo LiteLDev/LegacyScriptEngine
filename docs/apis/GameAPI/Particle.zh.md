@@ -1,6 +1,3 @@
-> [!WARNING]
-> 注意: ParticleAPI是默认关闭的，你需要启用`plugins/LiteLoader/LiteLoader.json`中的`ParticleAPI`
-
 ## ✨ ParticleSpawner 对象
 
    对于某个 `ParticleSpawner` 类型变量 ps, 有如下这些成员:

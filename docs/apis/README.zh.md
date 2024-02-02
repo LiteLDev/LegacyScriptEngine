@@ -2,7 +2,7 @@
 
 ##  🔔 放在前面
 
-`LiteLoader ScriptEngine`（以下简称**LLSE**/**脚本引擎**）是一个基岩版官方服务端 `Bedrock Dedicated Server`（以下简称**BDS**）的插件框架，提供强大的跨语言脚本插件支持能力和稳定的开发API支持。  
+`LeviLamina ScriptEngine`（以下简称**LLSE**/**脚本引擎**）是一个基岩版官方服务端 `Bedrock Dedicated Server`（以下简称**BDS**）的插件框架，提供强大的跨语言脚本插件支持能力和稳定的开发API支持。  
 
 > 欢迎参与到脚本引擎的插件开发中来！
 

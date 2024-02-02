@@ -20,7 +20,7 @@
 
 // Plugin package information
 #define LLSE_PLUGIN_PACKAGE_EXTENSION          ".llplugin"
-#define LLSE_PLUGIN_PACKAGE_TEMP_DIR           "./plugins/LiteLoader/temp"
+#define LLSE_PLUGIN_PACKAGE_TEMP_DIR           "./plugins/LeviLamina/temp"
 #define LLSE_PLUGIN_PACKAGE_UNCOMPRESS_TIMEOUT 30000
 
 // Current language information
@@ -72,16 +72,16 @@
 // Loader information
 #if defined(LLSE_BACKEND_NODEJS)
 #define LLSE_LOADER_NAME        "ScriptEngine-NodeJs"
-#define LLSE_LOADER_DESCRIPTION "Node.js ScriptEngine for LiteLoaderBDS"
+#define LLSE_LOADER_DESCRIPTION "Node.js ScriptEngine for LeviLamina"
 #elif defined(LLSE_BACKEND_QUICKJS)
 #define LLSE_LOADER_NAME        "ScriptEngine-QuickJs"
-#define LLSE_LOADER_DESCRIPTION "Javascript ScriptEngine for LiteLoaderBDS"
+#define LLSE_LOADER_DESCRIPTION "Javascript ScriptEngine for LeviLamina"
 #elif defined(LLSE_BACKEND_LUA)
 #define LLSE_LOADER_NAME        "ScriptEngine-Lua"
-#define LLSE_LOADER_DESCRIPTION "Lua ScriptEngine for LiteLoaderBDS"
+#define LLSE_LOADER_DESCRIPTION "Lua ScriptEngine for LeviLamina"
 #elif defined(LLSE_BACKEND_PYTHON)
 #define LLSE_LOADER_NAME        "ScriptEngine-Python"
-#define LLSE_LOADER_DESCRIPTION "Python ScriptEngine for LiteLoaderBDS"
+#define LLSE_LOADER_DESCRIPTION "Python ScriptEngine for LeviLamina"
 #endif
 
 // Debug engine information
@@ -109,4 +109,4 @@
 #define LLSE_POOL_THREAD_COUNT 4
 
 // Others
-#define LLSE_7Z_PATH "./plugins/LiteLoader/7z/7za.exe"
+#define LLSE_7Z_PATH "./plugins/LeviLamina/bin/7za.exe"

@@ -6,12 +6,12 @@
 
 | 属性                     | 类型      | 描述                                                    |
 | ------------------------ | --------- | ------------------------------------------------------- |
-| `ll.language`            | `String`  | LiteLoaderBDS使用的语言。(例如`zh_Hans`、`en`和`ru_RU`) |
+| `ll.language`            | `String`  | LeviLamina使用的语言。(例如`zh_Hans`、`en`和`ru_RU`) |
 | `ll.major`               | `Integer` | 主版本号（如 **2**.1.0 里的 **2**）                     |
 | `ll.minor`               | `Integer` | 次版本号（如 2.**1**.0 里的 **1**）                     |
 | `ll.revision`            | `Integer` | 修订版本号（如 2.1.**0** 里的 **0**）                   |
 | `ll.status`              | `Integer` | 版本状态 (`0`为Dev, `1`为Beta, `2`为Release)            |
-| `ll.scriptEngineVersion` | `String`  | LiteLoaderBDS Script Engine版本                         |
+| `ll.scriptEngineVersion` | `String`  | LeviLamina Script Engine版本                         |
 | `ll.isWine`              | `Boolean` | 是否处于Wine环境下                                      |
 | `ll.isDebugMode`         | `Boolean` | 是否处于debug模式                                       |
 | `ll.isBeta`              | `Boolean` | 当前版本是否为测试版                                    |
@@ -19,7 +19,7 @@
 | `ll.isRelease`           | `Boolean` | 当前版本是否为发布版本                                  |
 <br>
 
-### 获取 LiteLoaderBDS 版本字符串
+### 获取 LeviLamina 版本字符串
 
 `ll.versionString()`
 
@@ -28,22 +28,22 @@
 
 <br>
 
-### 检查 LiteLoaderBDS 版本
+### 检查 LeviLamina 版本
 
 `ll.requireVersion(major[,minor,revision])`
 
 - 参数：
   - major: `Integer`  
-    检查当前已安装LiteLoaderBDS的主版本号是否 >= 此值
+    检查当前已安装LeviLamina的主版本号是否 >= 此值
   - minor: `Integer`（可选参数）  
-    检查当前已安装LiteLoaderBDS的次版本号是否 >= 此值
+    检查当前已安装LeviLamina的次版本号是否 >= 此值
   - revision: `Integer`（可选参数）  
-    检查当前已安装LiteLoaderBDS的修订版本号是否 >= 此值
+    检查当前已安装LeviLamina的修订版本号是否 >= 此值
 - 返回值：检查结果
 - 返回值类型： `Boolean`
 
 如果检测发现当前安装的脚本引擎版本低于传入的数值，将返回`false`。  
-你可以选择根据结果判断并报错，提醒用户升级自己的LiteLoaderBDS版本
+你可以选择根据结果判断并报错，提醒用户升级自己的LeviLamina版本
 
 <br>
 

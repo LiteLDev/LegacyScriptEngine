@@ -129,11 +129,11 @@ In addition, there are other settings to change the format of the output log
 "Header" is the text at the beginning of the log output entry, which is used to visually distinguish the output source of the log. 
 By default, message headers are empty by default, i.e. output without headers. 
 
-For example: set a custom header as `logger.setTitle("LiteLoader")`  
+For example: set a custom header as `logger.setTitle("LeviLamina")`  
 Then the following log output will become like: 
 
 ```log
-20:05:26 ERROR [LiteLoader] Fail to transport the player
+20:05:26 ERROR [LeviLamina] Fail to transport the player
 ```
 
 If you want to turn off the header after setting it, do `logger.setTitle("")`

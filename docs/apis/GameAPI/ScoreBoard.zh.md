@@ -110,7 +110,7 @@ MC使用 **计分项** 作为计分板系统的核心，每一个计分项拥有
 
 [!warning]
 若计分项不存在，则会尝试创建计分项，此时会返回`0`(当*target*为`String`时)或`null`(当*target*为`Player`时)  
-原因参见: [#971](https://github.com/LiteLDev/LiteLoaderBDSv2/issues/971#issuecomment-1385047649)
+原因参见: [#971](https://github.com/LiteLDev/LeviLamina/issues/971#issuecomment-1385047649)
 <br>
 
 #### 停止跟踪某个目标

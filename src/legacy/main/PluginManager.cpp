@@ -110,7 +110,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
     // Single file plugin
     // Check duplicated
     // if (PluginManager::getPlugin(pluginFileName)) {
-    //     // lse::getSelfPluginInstance().getLogger().error("This plugin has been loaded by LiteLoader. You cannot load
+    //     // lse::getSelfPluginInstance().getLogger().error("This plugin has been loaded by LeviLamina. You cannot load
     //     // it twice.");
     //     return false;
     // }

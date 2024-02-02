@@ -6,13 +6,13 @@
 
 ///////////////////////// API /////////////////////////
 
-void NewTimeoutNoLock(
-    script::Global<Function>     func,
-    vector<script::Local<Value>> paras,
-    int                          timeout,
-    ScriptEngine*                engine = EngineScope::currentEngine()
-);
-void NewTimeoutNoLock(script::Global<Function> func, int timeout, ScriptEngine* engine = EngineScope::currentEngine());
+// void NewTimeout_s(
+//     script::Global<Function>     func,
+//     vector<script::Local<Value>> paras,
+//     int                          timeout,
+//     ScriptEngine*                engine = EngineScope::currentEngine()
+// );
+void NewTimeoutNoLock(Local<Function> func, vector<Local<Value>> paras, int timeout);
 
 int  NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout);
 int  NewTimeout(Local<String> func, int timeout);

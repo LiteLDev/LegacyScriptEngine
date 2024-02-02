@@ -56,28 +56,54 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 
 //////////////////// API ////////////////////
 
-void NewTimeoutNoLock(
-    script::Global<Function>     func,
-    vector<script::Local<Value>> paras,
-    int                          timeout,
-    ScriptEngine*                engine
-) {
-    std::vector<script::Global<Value>> tmp;
-    if (paras.size() > 0) {
-        EngineScope enter(engine);
-        for (auto& para : paras) tmp.emplace_back(std::move(para));
-    }
+// void NewTimeout_s(
+//     script::Global<Function>     func,
+//     vector<script::Local<Value>> paras,
+//     int                          timeout,
+//     ScriptEngine*                engine
+// ) {
+//     std::vector<script::Global<Value>> tmp;
+//     if (paras.size() > 0) {
+//         EngineScope enter(engine);
+//         for (auto& para : paras) tmp.emplace_back(std::move(para));
+//     }
+//     scheduler.add<ll::schedule::DelayTask>(
+//         std::chrono::milliseconds(timeout),
+//         [engine, func = std::move(func), paras = std::move(tmp)]() {
+//             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+//             if (!EngineManager::isValid(engine)) return;
+//             EngineScope enter(engine);
+//             if (paras.empty()) {
+//                 func.get().call();
+//             } else {
+//                 vector<Local<Value>> args;
+//                 for (auto& para : paras)
+//                     if (para.isEmpty()) return;
+//                     else args.emplace_back(para.get());
+//                 func.get().call({}, args);
+//             }
+//         }
+//     );
+// }
+
+void NewTimeoutNoLock(Local<Function> func, vector<Local<Value>> paras, int timeout) {
     scheduler.add<ll::schedule::DelayTask>(
         std::chrono::milliseconds(timeout),
-        [engine, func = std::move(func), paras = std::move(tmp)]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
-            if (!EngineManager::isValid(engine)) return;
-            EngineScope          enter(engine);
-            vector<Local<Value>> args;
-            for (auto& para : paras)
-                if (para.isEmpty()) return;
-                else args.emplace_back(para.get());
-            func.get().call({}, args);
+        [engine{EngineScope::currentEngine()}, func, paras]() {
+            try {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if (!EngineManager::isValid(engine)) return;
+                // lock after enter EngineScope to prevent deadlock
+                EngineScope scope(engine);
+                if (paras.empty()) {
+                    func.call();
+                } else {
+                    vector<Local<Value>> args;
+                    for (auto& para : paras) args.emplace_back(para);
+                    func.call({}, args);
+                }
+            }
+            TIMETASK_CATCH("setTimeout-Function");
         }
     );
 }

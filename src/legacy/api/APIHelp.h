@@ -103,8 +103,8 @@ std::string ValueKindToString(const ValueKind& kind);
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
-        return nullptr;
-}
+        return nullptr;                                                                                                \
+    }
 
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                                                                   \
@@ -120,8 +120,8 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();
-}
+        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+    }
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \

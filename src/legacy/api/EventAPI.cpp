@@ -1111,10 +1111,7 @@ void InitBasicEventListeners() {
 
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent& ev) {
-        IF_LISTENED(EVENT_TYPES::onServerStarted) {
-            // CallEventDelayed(EVENT_TYPES::onServerStarted);
-            CallEventVoid(EVENT_TYPES::onServerStarted);
-        }
+        IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventDelayed(EVENT_TYPES::onServerStarted); }
         IF_LISTENED_END(EVENT_TYPES::onServerStarted);
         isCmdRegisterEnabled = true;
 

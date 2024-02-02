@@ -7,6 +7,7 @@
 #include "legacyapi/utils/STLHelper.h"
 #include "ll/api/schedule/Scheduler.h"
 
+#include <chrono>
 #include <ll/api/chrono/GameChrono.h>
 #include <ll/api/schedule/Task.h>
 #include <ll/api/service/ServerInfo.h>
@@ -67,7 +68,7 @@ void NewTimeout_s(
         for (auto& para : paras) tmp.emplace_back(std::move(para));
     }
     scheduler.add<ll::schedule::DelayTask>(
-        ll::chrono::ticks(timeout / 50),
+        std::chrono::milliseconds(timeout),
         [engine, func = std::move(func), paras = std::move(tmp)]() {
             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -93,7 +94,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
     data.engine = EngineScope::currentEngine();
     for (auto& para : paras) data.paras.emplace_back(std::move(para));
     data.task = scheduler.add<ll::schedule::DelayTask>(
-        ll::chrono::ticks(timeout / 50),
+        std::chrono::milliseconds(timeout),
         [engine{EngineScope::currentEngine()}, id{tid}]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -138,7 +139,7 @@ int NewTimeout(Local<String> func, int timeout) {
     data.engine = EngineScope::currentEngine();
 
     data.task = scheduler.add<ll::schedule::DelayTask>(
-        ll::chrono::ticks(timeout / 50),
+        std::chrono::milliseconds(timeout),
         [engine{EngineScope::currentEngine()}, id{tid}]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -176,7 +177,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
     for (auto& para : paras) data.paras.emplace_back(std::move(para));
 
     data.task = scheduler.add<ll::schedule::RepeatTask>(
-        ll::chrono::ticks(timeout / 50),
+        std::chrono::milliseconds(timeout),
         [engine{EngineScope::currentEngine()}, id{tid}]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -225,7 +226,7 @@ int NewInterval(Local<String> func, int timeout) {
     data.engine = EngineScope::currentEngine();
 
     data.task = scheduler.add<ll::schedule::RepeatTask>(
-        ll::chrono::ticks(timeout / 50),
+        std::chrono::milliseconds(timeout),
         [engine{EngineScope::currentEngine()}, id{tid}]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;

@@ -1413,14 +1413,13 @@ Local<Value> NbtListClass::getData(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        auto& list  = nbt->mList;
-        auto  index = args[0].toInt();
+        auto index = args[0].toInt();
 
-        if (index >= list.size() || index < 0) {
+        if (index >= nbt->size() || index < 0) {
             return Local<Value>();
         }
 
-        return Tag2Value(list[index].get());
+        return Tag2Value(nbt->at(index).get());
     }
     CATCH("Fail in NBTgetData!")
 }
@@ -1827,10 +1826,9 @@ Local<Value> NbtCompoundClass::getData(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto& list = nbt;
-        auto  key  = args[0].toStr();
+        auto key = args[0].toStr();
 
-        return Tag2Value(list->at(key).toUnique().get());
+        return Tag2Value(nbt->at(key).get().as_ptr<Tag>());
     } catch (const std::out_of_range& e) {
         return Local<Value>();
     }

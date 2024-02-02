@@ -7,60 +7,60 @@ nav:
   - faq.md
 
   - APIs:
-    - README: apis/README.md
-    - DataAPI:
-      - apis/DataAPI/ConfigFile.md
-      - apis/DataAPI/DataBase.md
-      - apis/DataAPI/Economy.md
-      - apis/DataAPI/OtherData.md
-      - apis/DataAPI/PermAPI.md
-      - apis/DataAPI/PlayerData.md
-    - EventAPI:
-      - apis/EventAPI/BlockEvents.md
-      - apis/EventAPI/EconomicEvents.md
-      - apis/EventAPI/EntityEvents.md
-      - apis/EventAPI/Listen.md
-      - apis/EventAPI/OtherEvents.md
-      - apis/EventAPI/PlayerEvents.md
-    - GameAPI:
-      - apis/GameAPI/Basic.md
-      - apis/GameAPI/Block.md
-      - apis/GameAPI/BlockEntity.md
-      - apis/GameAPI/Command.md
-      - apis/GameAPI/Container.md
-      - apis/GameAPI/Device.md
-      - apis/GameAPI/Entity.md
-      - apis/GameAPI/GameUtils.md
-      - apis/GameAPI/Item.md
-      - apis/GameAPI/Packet.md
-      - apis/GameAPI/Particle.md
-      - apis/GameAPI/Player.md
-      - apis/GameAPI/ScoreBoard.md
-      - apis/GameAPI/Server.md
-    - GuiAPI:
-      - apis/GuiAPI/Form.md
-      - apis/GuiAPI/FormBuilder.md
-    - NativeAPI:
-      - apis/NativeAPI/NativeFunction.md
-      - apis/NativeAPI/NativePatch.md
-      - apis/NativeAPI/NativePointer.md
-      - apis/NativeAPI/Summary.md
-    - NbtAPI:
-      - apis/NbtAPI/NBT.md
-      - apis/NbtAPI/NBTCompound.md
-      - apis/NbtAPI/NBTList.md
-      - apis/NbtAPI/NBTValue.md
-    - ScriptAPI:
-      - apis/ScriptAPI/i18n.md
-      - apis/ScriptAPI/Ll.md
-      - apis/ScriptAPI/Logger.md
-      - apis/ScriptAPI/ScriptHelp.md
-    - SystemAPI:
-      - apis/SystemAPI/File.md
-      - apis/SystemAPI/FileSystem.md
-      - apis/SystemAPI/Network.md
-      - apis/SystemAPI/SystemCall.md
-      - apis/SystemAPI/SystemInfo.md
+      - README: apis/README.md
+      - DataAPI:
+          - apis/DataAPI/ConfigFile.md
+          - apis/DataAPI/DataBase.md
+          - apis/DataAPI/Economy.md
+          - apis/DataAPI/OtherData.md
+          - apis/DataAPI/PermAPI.md
+          - apis/DataAPI/PlayerData.md
+      - EventAPI:
+          - apis/EventAPI/BlockEvents.md
+          - apis/EventAPI/EconomicEvents.md
+          - apis/EventAPI/EntityEvents.md
+          - apis/EventAPI/Listen.md
+          - apis/EventAPI/OtherEvents.md
+          - apis/EventAPI/PlayerEvents.md
+      - GameAPI:
+          - apis/GameAPI/Basic.md
+          - apis/GameAPI/Block.md
+          - apis/GameAPI/BlockEntity.md
+          - apis/GameAPI/Command.md
+          - apis/GameAPI/Container.md
+          - apis/GameAPI/Device.md
+          - apis/GameAPI/Entity.md
+          - apis/GameAPI/GameUtils.md
+          - apis/GameAPI/Item.md
+          - apis/GameAPI/Packet.md
+          - apis/GameAPI/Particle.md
+          - apis/GameAPI/Player.md
+          - apis/GameAPI/ScoreBoard.md
+          - apis/GameAPI/Server.md
+      - GuiAPI:
+          - apis/GuiAPI/Form.md
+          - apis/GuiAPI/FormBuilder.md
+      - NativeAPI:
+          - apis/NativeAPI/NativeFunction.md
+          - apis/NativeAPI/NativePatch.md
+          - apis/NativeAPI/NativePointer.md
+          - apis/NativeAPI/Summary.md
+      - NbtAPI:
+          - apis/NbtAPI/NBT.md
+          - apis/NbtAPI/NBTCompound.md
+          - apis/NbtAPI/NBTList.md
+          - apis/NbtAPI/NBTValue.md
+      - ScriptAPI:
+          - apis/ScriptAPI/i18n.md
+          - apis/ScriptAPI/Ll.md
+          - apis/ScriptAPI/Logger.md
+          - apis/ScriptAPI/ScriptHelp.md
+      - SystemAPI:
+          - apis/SystemAPI/File.md
+          - apis/SystemAPI/FileSystem.md
+          - apis/SystemAPI/Network.md
+          - apis/SystemAPI/SystemCall.md
+          - apis/SystemAPI/SystemInfo.md
 
 exclude_docs: |
   api/native/
@@ -110,12 +110,10 @@ plugins:
         - locale: en
           default: true
           name: English
-          
+
         - locale: zh
           name: 中文
           nav_translations:
             Home: 主页
             APIs: 接口
-
-
-
+  - search

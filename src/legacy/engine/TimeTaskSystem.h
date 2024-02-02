@@ -12,7 +12,6 @@
 //     int                          timeout,
 //     ScriptEngine*                engine = EngineScope::currentEngine()
 // );
-void NewTimeoutNoLock(Local<Function> func, vector<Local<Value>> paras, int timeout);
 
 int  NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout);
 int  NewTimeout(Local<String> func, int timeout);

@@ -15,6 +15,7 @@
 #include "legacyapi/utils/STLHelper.h"
 #include "ll/api/command/CommandRegistrar.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/ServerInfo.h"
 #include "magic_enum.hpp"
 #include "main/Configs.h"
 #include "mc/_HeaderOutputPredefine.h"
@@ -252,6 +253,9 @@ Local<Value> McClass::newCommand(const Arguments& args) {
             }
             return Boolean::newBoolean(false);
         }
+        lse::getSelfPluginInstance().getLogger().warn(
+            "Server have not started yet, please don't use mc.newCommand() before server started."
+        );
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in newCommand!")

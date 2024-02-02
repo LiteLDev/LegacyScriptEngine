@@ -86,37 +86,6 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 //     );
 // }
 
-void NewTimeoutNoLock(Local<Function> func, vector<Local<Value>> paras, int timeout) {
-    scheduler.add<ll::schedule::DelayTask>(
-        std::chrono::milliseconds(timeout),
-        [engine{EngineScope::currentEngine()}, func, paras]() {
-            try {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
-                if (!EngineManager::isValid(engine)) return;
-                // lock after enter EngineScope to prevent deadlock
-                EngineScope scope(engine);
-                if (paras.empty()) {
-                    func.call();
-                } else {
-                    vector<Local<Value>> args;
-                    for (auto& para : paras) args.emplace_back(para);
-                    func.call({}, args);
-                }
-            }
-            TIMETASK_CATCH("setTimeout-Function");
-        }
-    );
-}
-
-void NewTimeoutNoLock(script::Global<Function> func, int timeout, ScriptEngine* engine) {
-    scheduler.add<ll::schedule::DelayTask>(std::chrono::milliseconds(timeout), [engine, func = std::move(func)]() {
-        if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
-        if (!EngineManager::isValid(engine)) return;
-        EngineScope enter(engine);
-        func.get().call();
-    });
-}
-
 int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;

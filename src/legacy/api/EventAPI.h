@@ -215,17 +215,6 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         }                                                                                                              \
     }
 
-// 延迟调用事件
-#define CallEventDelayed(TYPE, ...)                                                                                    \
-    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            NewTimeoutNoLock(listener.func.get(), {__VA_ARGS__}, 5);                                                   \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
-    }
-
 // 异常检查
 #define IF_LISTENED(TYPE)                                                                                              \
     if (!listenerList[int(TYPE)].empty()) {                                                                            \

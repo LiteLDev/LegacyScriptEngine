@@ -1111,12 +1111,15 @@ void InitBasicEventListeners() {
 
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent& ev) {
-        IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventDelayed(EVENT_TYPES::onServerStarted); }
-        IF_LISTENED_END(EVENT_TYPES::onServerStarted);
-        isCmdRegisterEnabled = true;
+        using namespace ll::chrono_literals;
+        scheduler.add<ll::schedule::DelayTask>(1_tick, [] {
+            IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventUncancelable(EVENT_TYPES::onServerStarted); }
+            IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+            isCmdRegisterEnabled = true;
 
-        // 处理延迟注册
-        ProcessRegCmdQueue();
+            // 处理延迟注册
+            ProcessRegCmdQueue();
+        });
     });
 
     // 植入tick

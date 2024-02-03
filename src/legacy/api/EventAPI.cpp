@@ -782,37 +782,37 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onMobSpawn:
-        //     lse::getSelfPluginInstance().getLogger().warn(
-        //         "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
-        //     );
-        //     bus.emplaceListener<SpawnMobEvent>([](SpawnMobEvent& ev) {
-        //         IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-        //             CallEventVoid(
-        //                 EVENT_TYPES::onMobSpawn,
-        //                 String::newString(ev.identifier().getFullName()),
-        //                 FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-        //             );
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
-        //     });
-        //     break;
+    case EVENT_TYPES::onMobSpawn:
+        lse::getSelfPluginInstance().getLogger().warn(
+            "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
+        );
+        bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobSpawn) {
+                CallEventVoid(
+                    EVENT_TYPES::onMobSpawn,
+                    String::newString(ev.identifier().getFullName()),
+                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
+        });
+        break;
 
-        // case EVENT_TYPES::onMobTrySpawn:
-        //     bus.emplaceListener<SpawnMobEvent>([](SpawnMobEvent& ev) {
-        //         IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-        //             CallEventVoid(
-        //                 EVENT_TYPES::onMobTrySpawn,
-        //                 String::newString(ev.identifier().getFullName()),
-        //                 FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-        //             );
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
-        //     });
-        //     break;
+    case EVENT_TYPES::onMobTrySpawn:
+        bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
+                CallEventVoid(
+                    EVENT_TYPES::onMobTrySpawn,
+                    String::newString(ev.identifier().getFullName()),
+                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
+        });
+        break;
 
     case EVENT_TYPES::onMobSpawned:
-        bus.emplaceListener<SpawnMobEvent>([](SpawnMobEvent& ev) {
+        bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
                 CallEventVoid(
                     EVENT_TYPES::onMobSpawned,

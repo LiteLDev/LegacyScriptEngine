@@ -81,9 +81,9 @@ Local<Value> BlockEntityClass::getType() {
 
 Local<Value> BlockEntityClass::getNbt(const Arguments& args) {
     try {
-        CompoundTag tag;
-        blockEntity->save(tag);
-        return NbtCompoundClass::pack(&tag); // Not sure is that will get right value
+        CompoundTag* tag = new CompoundTag();
+        blockEntity->save(*tag);
+        return NbtCompoundClass::pack(std::move(tag)); // Not sure is that will get right value
     }
     CATCH("Fail in getNbt!")
 }

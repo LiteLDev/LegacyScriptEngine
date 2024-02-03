@@ -1286,9 +1286,9 @@ Local<Value> EntityClass::getNbt(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        CompoundTag tag = CompoundTag();
-        entity->save(tag);
-        return NbtCompoundClass::pack(&tag);
+        CompoundTag* tag = new CompoundTag();
+        entity->save(*tag);
+        return NbtCompoundClass::pack(std::move(tag));
     }
     CATCH("Fail in getNbt!")
 }

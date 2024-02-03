@@ -622,18 +622,9 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onRedStoneUpdate:
-        //   Event::RedStoneUpdateEvent::subscribe([](const RedStoneUpdateEvent &ev)
-        //   {
-        //     IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
-        //       CallEvent(EVENT_TYPES::onRedStoneUpdate,
-        //                 BlockClass::newBlock(ev.mBlockInstance),
-        //                 Number::newNumber(ev.mRedStonePower),
-        //                 Boolean::newBoolean(ev.mIsActivated));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
-        //   });
-        //   break;
+    case EVENT_TYPES::onRedStoneUpdate:
+        void RedstoneupdateEvent();
+        break;
 
     case EVENT_TYPES::onWitherBossDestroy:
         lse::events::WitherDestroyEvent();

@@ -27,8 +27,12 @@
 #include <mc/world/level/Spawner.h>
 #include <mc/world/level/block/BasePressurePlateBlock.h>
 #include <mc/world/level/block/Block.h>
+#include <mc/world/level/block/ComparatorBlock.h>
+#include <mc/world/level/block/DiodeBlock.h>
 #include <mc/world/level/block/FarmBlock.h>
 #include <mc/world/level/block/ItemFrameBlock.h>
+#include <mc/world/level/block/RedStoneWireBlock.h>
+#include <mc/world/level/block/RedstoneTorchBlock.h>
 #include <mc/world/level/block/RespawnAnchorBlock.h>
 #include <mc/world/level/block/actor/BarrelBlockActor.h>
 #include <mc/world/level/block/actor/BlockActor.h>
@@ -596,6 +600,77 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, entitySource);
 }
 
+#define RedstoneUpdateMacro()                                                                                          \
+    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                       \
+        CallEventVoid(                                                                                                 \
+            EVENT_TYPES::onRedStoneUpdate,                                                                             \
+            BlockClass::newBlock(pos, region.getDimensionId()),                                                        \
+            Number::newNumber(strength),                                                                               \
+            Boolean::newBoolean(isFirstTime)                                                                           \
+        );                                                                                                             \
+    }                                                                                                                  \
+    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook1,
+    HookPriority::Normal,
+    RedStoneWireBlock,
+    "?onRedstoneUpdate@RedStoneWireBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    RedstoneUpdateMacro();
+    origin(region, pos, strength, isFirstTime);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook2,
+    HookPriority::Normal,
+    DiodeBlock,
+    "?onRedstoneUpdate@DiodeBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    RedstoneUpdateMacro();
+    origin(region, pos, strength, isFirstTime);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook3,
+    HookPriority::Normal,
+    RedstoneTorchBlock,
+    "?onRedstoneUpdate@RedstoneTorchBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    RedstoneUpdateMacro();
+    origin(region, pos, strength, isFirstTime);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook4,
+    HookPriority::Normal,
+    ComparatorBlock,
+    "?onRedstoneUpdate@ComparatorBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    RedstoneUpdateMacro();
+    origin(region, pos, strength, isFirstTime);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -625,6 +700,12 @@ void PlayerEatEvent() { PlayerEatHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
 void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
+void RedstoneupdateEvent() {
+    RedstoneUpdateHook1::hook();
+    RedstoneUpdateHook2::hook();
+    RedstoneUpdateHook3::hook();
+    RedstoneUpdateHook4::hook();
+}
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

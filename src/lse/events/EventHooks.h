@@ -22,5 +22,6 @@ void PlayerEatEvent();
 void ExplodeEvent();
 void RespawnAnchorExplodeEvent();
 void BlockExplodedEvent();
+void RedstoneupdateEvent();
 
 } // namespace lse::events

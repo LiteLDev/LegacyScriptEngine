@@ -841,72 +841,9 @@ void EnableEventListener(int eventId) {
         lse::events::PlayerSleepEvent();
         break;
 
-        // case EVENT_TYPES::onOpenInventory:
-        //   Event::PlayerOpenInventoryEvent::subscribe(
-        //       [](const PlayerOpenInventoryEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onOpenInventory) {
-        //           CallEvent(EVENT_TYPES::onOpenInventory,
-        //                     PlayerClass::newPlayer(ev.mPlayer));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onOpenInventory);
-        //       });
-        //   break;
-
-        //   /* DEPRECATED AND RECENTLY REMOVED - START */
-
-    case EVENT_TYPES::onAttack:
-        bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onAttack) {
-                CallEvent(
-                    EVENT_TYPES::onAttack,
-                    PlayerClass::newPlayer(&ev.self()),
-                    EntityClass::newEntity(&ev.target())
-                );
-            }
-            IF_LISTENED_END(EVENT_TYPES::onAttack);
-        });
+    case EVENT_TYPES::onOpenInventory:
+        lse::events::PlayerOpenInventoryEvent();
         break;
-
-        // case EVENT_TYPES::onContainerChangeSlot:
-        //   Event::ContainerChangeEvent::subscribe([](const ContainerChangeEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        //       CallEvent(EVENT_TYPES::onContainerChange,
-        //                 PlayerClass::newPlayer(ev.mPlayer),
-        //                 BlockClass::newBlock(ev.mBlockInstance),
-        //                 Number::newNumber(ev.mSlot),
-        //                 ItemClass::newItem(ev.mPreviousItemStack),
-        //                 ItemClass::newItem(ev.mNewItemStack));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onContainerChange);
-        //   });
-        //   break;
-
-    case EVENT_TYPES::onExplode:
-        lse::events::ExplodeEvent();
-        break;
-
-    case EVENT_TYPES::onBedExplode:
-        lse::events::ExplodeEvent();
-        break;
-
-        // case EVENT_TYPES::onPlayerPullFishingHook:
-        //   Event::PlayerPullFishingHookEvent::subscribe(
-        //       [](const PlayerPullFishingHookEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onPlayerPullFishingHook) {
-        //           CallEvent(EVENT_TYPES::onPlayerPullFishingHook,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     ev.mActor ? EntityClass::newEntity(ev.mActor)
-        //                               : Local<Value>(),
-        //                     ev.mItemStack ? ItemClass::newItem(ev.mItemStack)
-        //                                   : Local<Value>());
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onPlayerPullFishingHook);
-        //         return true;
-        //       });
-        //   break;
-
-        /* DEPRECATED AND RECENTLY REMOVED - END */
 
     default:
         break;

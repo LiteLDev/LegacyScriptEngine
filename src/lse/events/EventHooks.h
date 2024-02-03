@@ -29,5 +29,6 @@ void PlayerOpenContainerScreenEvent();
 void CommandBlockExecuteEvent();
 void PlayerUseRespawnAnchorEvent();
 void PlayerSleepEvent();
+void PlayerOpenInventoryEvent();
 
 } // namespace lse::events

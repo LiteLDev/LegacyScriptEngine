@@ -6,6 +6,7 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 
@@ -525,28 +526,6 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
 
-    IF_LISTENED(EVENT_TYPES::onBedExplode) {
-        if (region.getBlock(pos).getTypeName() == "minecraft:bed") {
-            CallEventVoid(EVENT_TYPES::onBedExplode, IntPos::newPos(pos, region.getDimensionId()));
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onBedExplode);
-
-    IF_LISTENED(EVENT_TYPES::onExplode) {
-        if (source) {
-            CallEventVoid(
-                EVENT_TYPES::onExplode,
-                EntityClass::newEntity(source),
-                FloatPos::newPos(pos, region.getDimensionId()),
-                Number::newNumber(explosionRadius),
-                Number::newNumber(maxResistance),
-                Boolean::newBoolean(breaksBlocks),
-                Boolean::newBoolean(fire)
-            );
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onExplode);
-
     IF_LISTENED(EVENT_TYPES::onBlockExplode) {
         CallEventVoid(
             EVENT_TYPES::onBlockExplode,
@@ -786,6 +765,19 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onBedEnter);
     return origin(pos);
 }
+LL_TYPE_INSTANCE_HOOK(
+    PlayerOpenInventoryHook,
+    HookPriority::Normal,
+    ServerPlayer,
+    "?openInventory@ServerPlayer@@UEAAXXZ",
+    void,
+) {
+    IF_LISTENED(EVENT_TYPES::onOpenInventory) {
+        CallEventVoid(EVENT_TYPES::onOpenInventory, PlayerClass::newPlayer(this));
+    }
+    IF_LISTENED_END(EVENT_TYPES::onOpenInventory);
+    origin();
+}
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
@@ -828,6 +820,7 @@ void PlayerOpenContainerScreenEvent() { PlayerOpenContainerScreenHook::hook(); }
 void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
 void PlayerUseRespawnAnchorEvent() { PlayerUseRespawnAnchorHook::hook(); }
 void PlayerSleepEvent() { PlayerSleepHook::hook(); }
+void PlayerOpenInventoryEvent() { PlayerOpenInventoryHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

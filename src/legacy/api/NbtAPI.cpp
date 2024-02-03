@@ -176,9 +176,6 @@ void TagToJson_List_Helper(ordered_json& res, ListTag* nbt) {
     auto& list = nbt->mList;
     for (auto& tag : list) {
         switch (tag->getId()) {
-        case Tag::Type::End:
-            res.push_back(nullptr);
-            break;
         case Tag::Type::Byte:
             tag->as<ByteTag>() = 4;
             res.push_back(tag->as<ByteTag>().data);
@@ -218,6 +215,7 @@ void TagToJson_List_Helper(ordered_json& res, ListTag* nbt) {
             res.push_back(arrObj);
             break;
         }
+        case Tag::Type::End:
         default:
             res.push_back(nullptr);
             break;
@@ -230,9 +228,6 @@ void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt) {
     for (auto& [key, tmp] : list) {
         auto& tag = tmp.get();
         switch (tag.getId()) {
-        case Tag::Type::End:
-            res.push_back({key, nullptr});
-            break;
         case Tag::Type::Byte:
             res.push_back({key, tag.as<ByteTag>().data});
             break;
@@ -271,6 +266,7 @@ void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt) {
             res.push_back({key, arrObj});
             break;
         }
+        case Tag::Type::End:
         default:
             res.push_back({key, nullptr});
             break;
@@ -1954,14 +1950,6 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
 
         Local<Value> res;
         switch (type) {
-        case Tag::Type::End: {
-            auto tag = EndTag();
-            // if (args.size() >= 2 && args[1].isNumber()) {
-            //   tag->set();
-            // }
-            res = NbtEndClass::pack(std::move(&tag));
-            break;
-        }
         case Tag::Type::Byte: {
             ByteTag tag(0);
             if (args.size() >= 2 && args[1].isNumber()) {
@@ -2049,6 +2037,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
             res = NbtCompoundClass::pack(std::move(&tag));
             break;
         }
+        case Tag::Type::End:
         default:
             res = Local<Value>();
             break;
@@ -2103,9 +2092,6 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
     auto& list = nbt->as_ptr<ListTag>()->mList;
     for (auto& tag : list) {
         switch (tag->getId()) {
-        case Tag::Type::End:
-            res.add(Local<Value>());
-            break;
         case Tag::Type::Byte:
             res.add(Number::newNumber(tag->as_ptr<ByteTag>()->data));
             break;
@@ -2139,6 +2125,7 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
         case Tag::Type::Compound:
             if (!autoExpansion) res.add(NbtCompoundClass::pack(tag->as_ptr<CompoundTag>()));
             else res.add(Tag2Value_CompoundHelper(tag->as_ptr<CompoundTag>(), autoExpansion));
+        case Tag::Type::End:
         default:
             res.add(Local<Value>());
             break;
@@ -2153,9 +2140,6 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
     auto& list = nbt->as_ptr<CompoundTag>()->mTags;
     for (auto& [key, tag] : list) {
         switch (tag.getId()) {
-        case Tag::Type::End:
-            res.set(key, Local<Value>());
-            break;
         case Tag::Type::Byte:
             res.set(key, Number::newNumber(tag.toUnique()->as_ptr<ByteTag>()->data));
             break;
@@ -2189,6 +2173,7 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
         case Tag::Type::Compound:
             if (!autoExpansion) res.set(key, NbtCompoundClass::pack(tag.toUnique()->as_ptr<CompoundTag>()));
             else res.set(key, Tag2Value_CompoundHelper(tag.toUnique()->as_ptr<CompoundTag>(), autoExpansion));
+        case Tag::Type::End:
         default:
             res.set(key, Local<Value>());
             break;
@@ -2201,9 +2186,6 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
     Local<Value> value;
 
     switch (nbt->getId()) {
-    case Tag::Type::End:
-        value = Number::newNumber(0);
-        break;
     case Tag::Type::Byte:
         value = Number::newNumber(nbt->as_ptr<ByteTag>()->data);
         break;
@@ -2238,6 +2220,7 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
         if (!autoExpansion) value = NbtCompoundClass::pack(nbt->as_ptr<CompoundTag>());
         else value = Tag2Value_CompoundHelper(nbt->as_ptr<CompoundTag>(), autoExpansion);
         break;
+    case Tag::Type::End:
     default:
         value = Local<Value>();
         break;

@@ -5,7 +5,6 @@
 #include "mc/nbt/Tag.h"
 
 #include <mc/nbt/CompoundTag.h>
-#include <mc/nbt/EndTag.h>
 #include <mc/nbt/FloatTag.h>
 #include <mc/nbt/Int64Tag.h>
 #include <mc/nbt/IntTag.h>
@@ -26,31 +25,6 @@ public:
     }
 };
 extern ClassDefine<void> NbtStaticBuilder;
-
-// NBT End
-class EndTag;
-class NbtEndClass : public ScriptClass {
-public:
-    std::unique_ptr<EndTag> nbt;
-    bool                    canDelete = true;
-
-    explicit NbtEndClass(const Local<Object>& scriptObj, std::unique_ptr<EndTag> p);
-    explicit NbtEndClass(std::unique_ptr<EndTag> p);
-    ~NbtEndClass() {
-        if (!canDelete) nbt.release();
-    }
-
-    static NbtEndClass* constructor(const Arguments& args);
-    static EndTag*      extract(Local<Value> v);
-    static Local<Value> pack(EndTag* tag, bool noDelete = false);
-    static Local<Value> pack(std::unique_ptr<EndTag> tag);
-
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
-};
-extern ClassDefine<NbtEndClass> NbtEndClassBuilder;
 
 // NBT Byte
 class NbtByteClass : public ScriptClass {

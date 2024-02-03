@@ -13,7 +13,6 @@ See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [Nbt
 #### Create a New NBT Data Object
 
 [JavaScript]  
-`new NbtEnd()`  
 `new NbtByte([data])`  
 `new NbtShort([data])`  
 `new NbtInt([data])`  
@@ -23,7 +22,6 @@ See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [Nbt
 `new NbtByteArray([data])`  
 `new NbtString([data])`  
 [Lua]  
-`NbtEnd()`  
 `NbtByte([data])`  
 `NbtShort([data])`  
 `NbtInt([data])`  
@@ -37,7 +35,7 @@ See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [Nbt
   - data: `Number` / `Float` / `Double` / `ByteBuffer` / `String` (Optional parameter)  
     Set the initial data according to the type of object you want to create. The incoming data type needs to be able to initialize the corresponding type of data.  
 - Return value: The generated NBT object.
-- Return value type: `NbtEnd` / `NbtByte` / `NbtShort` / `NbtInt` / `NbtLong` / `NbtFloat` / `NbtDouble` / `NbtByteBuffer` / `NbtString` , depending on the type of the data.
+- Return value type:`NbtByte` / `NbtShort` / `NbtInt` / `NbtLong` / `NbtFloat` / `NbtDouble` / `NbtByteBuffer` / `NbtString` , depending on the type of the data.
   - If the creation fails, an exception will be thrown.
 
 <br>

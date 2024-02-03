@@ -94,7 +94,6 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass<PlayerClass>(PlayerClassBuilder);
     engine->registerNativeClass<ObjectiveClass>(ObjectiveClassBuilder);
     engine->registerNativeClass<PacketClass>(PacketClassBuilder);
-    engine->registerNativeClass<NbtEndClass>(NbtEndClassBuilder);
     engine->registerNativeClass<NbtByteClass>(NbtByteClassBuilder);
     engine->registerNativeClass<NbtShortClass>(NbtShortClassBuilder);
     engine->registerNativeClass<NbtIntClass>(NbtIntClassBuilder);

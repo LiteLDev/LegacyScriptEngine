@@ -48,14 +48,6 @@ ClassDefine<void> NbtStaticBuilder = defineClass("NBT")
                                          .function("newTag", &NbtStatic::newTag)
                                          .build();
 
-ClassDefine<NbtEndClass> NbtEndClassBuilder = defineClass<NbtEndClass>("NbtEnd")
-                                                  .constructor(&NbtEndClass::constructor)
-                                                  .instanceFunction("getType", &NbtEndClass::getType)
-                                                  .instanceFunction("toString", &NbtEndClass::toString)
-                                                  .instanceFunction("set", &NbtEndClass::set)
-                                                  .instanceFunction("get", &NbtEndClass::get)
-                                                  .build();
-
 ClassDefine<NbtByteClass> NbtByteClassBuilder = defineClass<NbtByteClass>("NbtByte")
                                                     .constructor(&NbtByteClass::constructor)
                                                     .instanceFunction("getType", &NbtByteClass::getType)
@@ -323,76 +315,6 @@ std::string TagToJson(Tag* nbt, int formatIndent) {
         break;
     }
     return result;
-}
-
-//////////////////// Classes NbtEnd ////////////////////
-
-NbtEndClass::NbtEndClass(const Local<Object>& scriptObj, std::unique_ptr<EndTag> p) : ScriptClass(scriptObj) {
-    this->nbt = std::move(p);
-}
-
-NbtEndClass::NbtEndClass(std::unique_ptr<EndTag> p) : ScriptClass(ScriptClass::ConstructFromCpp<NbtEndClass>{}) {
-    this->nbt = std::move(p);
-}
-
-NbtEndClass* NbtEndClass::constructor(const Arguments& args) {
-    try {
-        return new NbtEndClass(args.thiz(), std::make_unique<EndTag>());
-    }
-    CATCH_C("Fail in Create EndTag!");
-}
-
-EndTag* NbtEndClass::extract(Local<Value> v) {
-    if (EngineScope::currentEngine()->isInstanceOf<NbtEndClass>(v))
-        return EngineScope::currentEngine()->getNativeInstance<NbtEndClass>(v)->nbt.get();
-    else return nullptr;
-}
-
-Local<Value> NbtEndClass::pack(EndTag* tag, bool noDelete) {
-    try {
-        if (noDelete) // unique_ptr 共享指针 + noDelete
-        {
-            std::unique_ptr<EndTag> nbt(tag);
-            auto*                   nbtObj = new NbtEndClass(std::move(nbt));
-            nbtObj->canDelete              = false;
-            return nbtObj->getScriptObject();
-        } else return (new NbtEndClass(std::unique_ptr<EndTag>(tag)))->getScriptObject();
-    }
-    CATCH("Fail in construct NbtEnd!");
-}
-
-Local<Value> NbtEndClass::pack(std::unique_ptr<EndTag> tag) {
-    try {
-        return (new NbtEndClass(std::move(tag)))->getScriptObject();
-    }
-    CATCH("Fail in construct NbtEnd!");
-}
-
-Local<Value> NbtEndClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::End); }
-
-Local<Value> NbtEndClass::get(const Arguments& args) {
-    try {
-        return Local<Value>();
-    }
-    CATCH("Fail in NbtValueGet!")
-}
-
-Local<Value> NbtEndClass::toString(const Arguments& args) {
-    if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
-
-    try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
-    }
-    CATCH("Fail in NBTtoJson!");
-}
-
-Local<Value> NbtEndClass::set(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 1)
-
-    try {
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in NbtValueSet!")
 }
 
 //////////////////// Classes NbtByte ////////////////////
@@ -1005,9 +927,7 @@ NbtListClass::NbtListClass(std::unique_ptr<ListTag> p) : ScriptClass(ScriptClass
 void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
     if (arr.size() > 0) {
         Local<Value> t = arr.get(0);
-        if (IsInstanceOf<NbtEndClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtEndClass::extract(arr.get(i)));
-        else if (IsInstanceOf<NbtByteClass>(t))
+        if (IsInstanceOf<NbtByteClass>(t))
             for (int i = 0; i < arr.size(); ++i) tag->add(*NbtByteClass::extract(arr.get(i)));
         else if (IsInstanceOf<NbtShortClass>(t))
             for (int i = 0; i < arr.size(); ++i) tag->add(*NbtShortClass::extract(arr.get(i)));
@@ -1319,9 +1239,7 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (IsInstanceOf<NbtEndClass>(args[1])) {
-            list[index] = std::unique_ptr<EndTag>(NbtEndClass::extract(args[1]));
-        } else if (IsInstanceOf<NbtByteClass>(args[1])) {
+        if (IsInstanceOf<NbtByteClass>(args[1])) {
             list[index] = std::unique_ptr<ByteTag>(NbtByteClass::extract(args[1]));
         } else if (IsInstanceOf<NbtShortClass>(args[1])) {
             list[index] = std::unique_ptr<ShortTag>(NbtShortClass::extract(args[1]));
@@ -1354,9 +1272,7 @@ Local<Value> NbtListClass::addTag(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        if (IsInstanceOf<NbtEndClass>(args[0])) {
-            nbt->add(*NbtEndClass::extract(args[0]));
-        } else if (IsInstanceOf<NbtByteClass>(args[0])) {
+        if (IsInstanceOf<NbtByteClass>(args[0])) {
             nbt->add(*NbtByteClass::extract(args[0]));
         } else if (IsInstanceOf<NbtShortClass>(args[0])) {
             nbt->add(*NbtShortClass::extract(args[0]));
@@ -1526,8 +1442,7 @@ void NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj) {
     if (keys.size() > 0) {
         for (int i = 0; i < keys.size(); ++i) {
             Local<Value> t = obj.get(keys[i]);
-            if (IsInstanceOf<NbtEndClass>(t)) tag->at(keys[1]) = *NbtEndClass::extract(obj.get(keys[i]));
-            else if (IsInstanceOf<NbtByteClass>(t)) tag->at(keys[i]) = *NbtByteClass::extract(obj.get(keys[i]));
+            if (IsInstanceOf<NbtByteClass>(t)) tag->at(keys[i]) = *NbtByteClass::extract(obj.get(keys[i]));
             else if (IsInstanceOf<NbtShortClass>(t)) tag->at(keys[i]) = *NbtShortClass::extract(obj.get(keys[i]));
             else if (IsInstanceOf<NbtIntClass>(t)) tag->at(keys[i]) = *NbtIntClass::extract(obj.get(keys[i]));
             else if (IsInstanceOf<NbtLongClass>(t)) tag->at(keys[i]) = *NbtLongClass::extract(obj.get(keys[i]));
@@ -1770,9 +1685,7 @@ Local<Value> NbtCompoundClass::setTag(const Arguments& args) {
     try {
         auto key = args[0].toStr();
 
-        if (IsInstanceOf<NbtEndClass>(args[1])) {
-            nbt->at(key) = *NbtEndClass::extract(args[1]);
-        } else if (IsInstanceOf<NbtByteClass>(args[1])) {
+        if (IsInstanceOf<NbtByteClass>(args[1])) {
             nbt->at(key) = *NbtByteClass::extract(args[1]);
         } else if (IsInstanceOf<NbtShortClass>(args[1])) {
             nbt->at(key) = *NbtShortClass::extract(args[1]);
@@ -2075,8 +1988,8 @@ Local<Value> NbtStatic::parseBinaryNBT(const Arguments& args) {
 //////////////////// Helper ////////////////////
 
 bool IsNbtClass(Local<Value> value) {
-    return IsInstanceOf<NbtEndClass>(value) || IsInstanceOf<NbtByteClass>(value) || IsInstanceOf<NbtShortClass>(value)
-        || IsInstanceOf<NbtIntClass>(value) || IsInstanceOf<NbtLongClass>(value) || IsInstanceOf<NbtFloatClass>(value)
+    return IsInstanceOf<NbtByteClass>(value) || IsInstanceOf<NbtShortClass>(value) || IsInstanceOf<NbtIntClass>(value)
+        || IsInstanceOf<NbtLongClass>(value) || IsInstanceOf<NbtFloatClass>(value)
         || IsInstanceOf<NbtDoubleClass>(value) || IsInstanceOf<NbtStringClass>(value)
         || IsInstanceOf<NbtByteArrayClass>(value) || IsInstanceOf<NbtListClass>(value)
         || IsInstanceOf<NbtCompoundClass>(value);

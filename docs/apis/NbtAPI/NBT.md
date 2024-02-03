@@ -12,19 +12,18 @@ In the game, a node called **NBT tag** is used to identify an item of NBT data. 
 In LeviLamina ScriptEngine, each NBT data type has its corresponding data type, and we collectively call them "NBT objects".
 The comparison of the LLSE type with the NBT data type is as follows:
 
-| NBT Data Type | Corresponding NBT Object Type | Type Description Wiki)        |
-| ----------- | ----------------- | ----------------------------- |
-| `End`       | `NbtEnd`          | Used to mark the end of a tag.            |
-| `Byte`      | `NbtByte`         | Signed byte or boolean (8 bits)   |
-| `Short`     | `NbtShort`        | Signed Short (16-bit)          |
-| `Int`       | `NbtInt`          | Signed Integer (32-bit)             |
-| `Long`      | `NbtLong`         | Signed Long (64-bit)           |
-| `Float`     | `NbtFloat`        | Single precision floating point number   |
-| `Double`    | `NbtDouble`       | Double precision floating point number   |
-| `ByteArray` | `NbtByteBuffer`   | Byte Array                      |
-| `String`    | `NbtString`       | UTF-8 string                  |
-| `List`      | `NbtList`         | NBT List (similar to array)       |
-| `Compound`  | `NbtCompound`     | NBT Tags (Similar to a list of Key-Value pairs)|
+| NBT Data Type | Corresponding NBT Object Type | Type Description (Wiki)                         |
+| ------------- | ----------------------------- | ----------------------------------------------- |
+| `Byte`        | `NbtByte`                     | Signed byte or boolean (8 bits)                 |
+| `Short`       | `NbtShort`                    | Signed Short (16-bit)                           |
+| `Int`         | `NbtInt`                      | Signed Integer (32-bit)                         |
+| `Long`        | `NbtLong`                     | Signed Long (64-bit)                            |
+| `Float`       | `NbtFloat`                    | Single precision floating point number          |
+| `Double`      | `NbtDouble`                   | Double precision floating point number          |
+| `ByteArray`   | `NbtByteBuffer`               | Byte Array                                      |
+| `String`      | `NbtString`                   | UTF-8 string                                    |
+| `List`        | `NbtList`                     | NBT List (similar to array)                     |
+| `Compound`    | `NbtCompound`                 | NBT Tags (Similar to a list of Key-Value pairs) |
 
 Each data type may have a slightly different usage interface. They are introduced separately below:
 

@@ -2213,11 +2213,11 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
         break;
     }
     case Tag::Type::List:
-        if (!autoExpansion) value = NbtListClass::pack(nbt->as_ptr<ListTag>());
+        if (!autoExpansion) value = NbtListClass::pack(nbt->as_ptr<ListTag>(), true);
         else value = Tag2Value_ListHelper(nbt->as_ptr<ListTag>(), autoExpansion);
         break;
     case Tag::Type::Compound:
-        if (!autoExpansion) value = NbtCompoundClass::pack(nbt->as_ptr<CompoundTag>());
+        if (!autoExpansion) value = NbtCompoundClass::pack(nbt->as_ptr<CompoundTag>(), true);
         else value = Tag2Value_CompoundHelper(nbt->as_ptr<CompoundTag>(), autoExpansion);
         break;
     case Tag::Type::End:

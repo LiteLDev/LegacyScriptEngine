@@ -23,5 +23,6 @@ void ExplodeEvent();
 void RespawnAnchorExplodeEvent();
 void BlockExplodedEvent();
 void RedstoneupdateEvent();
+void LiquidFlowEvent();
 
 } // namespace lse::events

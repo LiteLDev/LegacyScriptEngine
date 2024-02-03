@@ -31,6 +31,7 @@
 #include <mc/world/level/block/DiodeBlock.h>
 #include <mc/world/level/block/FarmBlock.h>
 #include <mc/world/level/block/ItemFrameBlock.h>
+#include <mc/world/level/block/LiquidBlockDynamic.h>
 #include <mc/world/level/block/RedStoneWireBlock.h>
 #include <mc/world/level/block/RedstoneTorchBlock.h>
 #include <mc/world/level/block/RespawnAnchorBlock.h>
@@ -671,6 +672,29 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, strength, isFirstTime);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    LiquidFlowHook,
+    HookPriority::Normal,
+    LiquidBlockDynamic,
+    &LiquidBlockDynamic::_canSpreadTo,
+    bool,
+    BlockSource&    region,
+    BlockPos const& pos,
+    BlockPos const& flowFromPos,
+    uchar           flowFromDirection
+) {
+    IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
+        CallEventRtnValue(
+            EVENT_TYPES::onLiquidFlow,
+            false,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            IntPos::newPos(pos, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
+    return origin(region, pos, flowFromPos, flowFromDirection);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -706,6 +730,7 @@ void RedstoneupdateEvent() {
     RedstoneUpdateHook3::hook();
     RedstoneUpdateHook4::hook();
 }
+void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

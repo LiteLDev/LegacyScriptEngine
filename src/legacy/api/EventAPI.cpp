@@ -837,18 +837,9 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onBedEnter:
-        //   Event::PlayerBedEnterEvent::subscribe([](const PlayerBedEnterEvent &ev)
-        //   {
-        //     IF_LISTENED(EVENT_TYPES::onBedEnter) {
-        //       BlockInstance bl(*ev.mBlockInstance);
-        //       CallEvent(EVENT_TYPES::onBedEnter,
-        //       PlayerClass::newPlayer(ev.mPlayer),
-        //                 IntPos::newPos(bl.getPosition(), bl.getDimensionId()));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onBedEnter);
-        //   });
-        //   break;
+    case EVENT_TYPES::onBedEnter:
+        lse::events::PlayerSleepEvent();
+        break;
 
         // case EVENT_TYPES::onOpenInventory:
         //   Event::PlayerOpenInventoryEvent::subscribe(

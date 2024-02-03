@@ -28,5 +28,6 @@ void PlayerChangeDimensionEvent();
 void PlayerOpenContainerScreenEvent();
 void CommandBlockExecuteEvent();
 void PlayerUseRespawnAnchorEvent();
+void PlayerSleepEvent();
 
 } // namespace lse::events

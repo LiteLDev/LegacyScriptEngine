@@ -767,6 +767,26 @@ LL_TYPE_STATIC_HOOK(
     return origin(player, pos, region, level);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerSleepHook,
+    HookPriority::Normal,
+    Player,
+    "?startSleepInBed@Player@@UEAA?AW4BedSleepingResult@@AEBVBlockPos@@@Z",
+    BedSleepingResult,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onBedEnter) {
+        CallEventRtnValue(
+            EVENT_TYPES::onBedEnter,
+            (BedSleepingResult)0,
+            PlayerClass::newPlayer(this),
+            IntPos::newPos(pos, this->getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBedEnter);
+    return origin(pos);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -807,6 +827,7 @@ void PlayerChangeDimensionEvent() { PlayerChangeDimensionHook::hook(); };
 void PlayerOpenContainerScreenEvent() { PlayerOpenContainerScreenHook::hook(); }
 void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
 void PlayerUseRespawnAnchorEvent() { PlayerUseRespawnAnchorHook::hook(); }
+void PlayerSleepEvent() { PlayerSleepHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

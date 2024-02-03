@@ -25,5 +25,6 @@ void BlockExplodedEvent();
 void RedstoneupdateEvent();
 void LiquidFlowEvent();
 void PlayerChangeDimensionEvent();
+void PlayerOpenContainerScreenEvent();
 
 } // namespace lse::events

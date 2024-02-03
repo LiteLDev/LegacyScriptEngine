@@ -291,7 +291,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
         });
         break;
-
+        // Deprecated
         /*case EVENT_TYPES::onMove:
             Event::PlayerMoveEvent::subscribe([](const PlayerMoveEvent& ev) {
                 IF_LISTENED(EVENT_TYPES::onMove) {
@@ -459,16 +459,9 @@ void EnableEventListener(int eventId) {
         });
         break;
 
-        // case EVENT_TYPES::onOpenContainerScreen:
-        //   Event::PlayerOpenContainerScreenEvent::subscribe(
-        //       [](const PlayerOpenContainerScreenEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        //           CallEvent(EVENT_TYPES::onOpenContainerScreen,
-        //                     PlayerClass::newPlayer(ev.mPlayer));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
-        //       });
-        //   break;
+    case EVENT_TYPES::onOpenContainerScreen:
+        lse::events::PlayerOpenContainerScreenEvent();
+        break;
 
         // case EVENT_TYPES::onSetArmor:
         //   Event::PlayerSetArmorEvent::subscribe([](const PlayerSetArmorEvent &ev)

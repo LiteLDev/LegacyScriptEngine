@@ -694,6 +694,20 @@ LL_TYPE_INSTANCE_HOOK(
     origin(player, std::move(changeRequest));
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerOpenContainerScreenHook,
+    HookPriority::Normal,
+    Player,
+    &Player::canOpenContainerScreen,
+    bool
+) {
+    IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
+        CallEventRtnValue(EVENT_TYPES::onOpenContainerScreen, false, PlayerClass::newPlayer(this));
+    }
+    IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
+    origin();
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -731,6 +745,7 @@ void RedstoneupdateEvent() {
 }
 void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 void PlayerChangeDimensionEvent() { PlayerChangeDimensionHook::hook(); };
+void PlayerOpenContainerScreenEvent() { PlayerOpenContainerScreenHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

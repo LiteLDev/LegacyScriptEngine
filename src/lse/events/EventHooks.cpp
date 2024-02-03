@@ -601,76 +601,53 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, entitySource);
 }
 
-#define RedstoneUpdateMacro()                                                                                          \
-    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                       \
-        CallEventVoid(                                                                                                 \
-            EVENT_TYPES::onRedStoneUpdate,                                                                             \
-            BlockClass::newBlock(pos, region.getDimensionId()),                                                        \
-            Number::newNumber(strength),                                                                               \
-            Boolean::newBoolean(isFirstTime)                                                                           \
-        );                                                                                                             \
-    }                                                                                                                  \
-    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+#define RedstoneUpdateHookMacro(NAME, TYPE, SYMBOL)                                                                    \
+    LL_TYPE_INSTANCE_HOOK(                                                                                             \
+        NAME,                                                                                                          \
+        HookPriority::Normal,                                                                                          \
+        TYPE,                                                                                                          \
+        SYMBOL,                                                                                                        \
+        void,                                                                                                          \
+        BlockSource&    region,                                                                                        \
+        BlockPos const& pos,                                                                                           \
+        int             strength,                                                                                      \
+        bool            isFirstTime                                                                                    \
+    ) {                                                                                                                \
+        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
+            CallEventVoid(                                                                                             \
+                EVENT_TYPES::onRedStoneUpdate,                                                                         \
+                BlockClass::newBlock(pos, region.getDimensionId()),                                                    \
+                Number::newNumber(strength),                                                                           \
+                Boolean::newBoolean(isFirstTime)                                                                       \
+            );                                                                                                         \
+        }                                                                                                              \
+        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
+        origin(region, pos, strength, isFirstTime);                                                                    \
+    }
 
-LL_TYPE_INSTANCE_HOOK(
+RedstoneUpdateHookMacro(
     RedstoneUpdateHook1,
-    HookPriority::Normal,
     RedStoneWireBlock,
-    "?onRedstoneUpdate@RedStoneWireBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    RedstoneUpdateMacro();
-    origin(region, pos, strength, isFirstTime);
-}
+    "?onRedstoneUpdate@RedStoneWireBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
+);
 
-LL_TYPE_INSTANCE_HOOK(
+RedstoneUpdateHookMacro(
     RedstoneUpdateHook2,
-    HookPriority::Normal,
     DiodeBlock,
-    "?onRedstoneUpdate@DiodeBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    RedstoneUpdateMacro();
-    origin(region, pos, strength, isFirstTime);
-}
+    "?onRedstoneUpdate@DiodeBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
+);
 
-LL_TYPE_INSTANCE_HOOK(
+RedstoneUpdateHookMacro(
     RedstoneUpdateHook3,
-    HookPriority::Normal,
     RedstoneTorchBlock,
-    "?onRedstoneUpdate@RedstoneTorchBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    RedstoneUpdateMacro();
-    origin(region, pos, strength, isFirstTime);
-}
+    "?onRedstoneUpdate@RedstoneTorchBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
+);
 
-LL_TYPE_INSTANCE_HOOK(
+RedstoneUpdateHookMacro(
     RedstoneUpdateHook4,
-    HookPriority::Normal,
     ComparatorBlock,
-    "?onRedstoneUpdate@ComparatorBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z",
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    RedstoneUpdateMacro();
-    origin(region, pos, strength, isFirstTime);
-}
+    "?onRedstoneUpdate@ComparatorBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
+);
 
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,

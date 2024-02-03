@@ -550,19 +550,9 @@ void EnableEventListener(int eventId) {
         //   });
         //   break;
 
-        // case EVENT_TYPES::onUseRespawnAnchor:
-        //   Event::PlayerUseRespawnAnchorEvent::subscribe(
-        //       [](const PlayerUseRespawnAnchorEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
-        //           BlockInstance bl(ev.mBlockInstance);
-        //           CallEvent(EVENT_TYPES::onUseRespawnAnchor,
-        //                     PlayerClass::newPlayer(ev.mPlayer),
-        //                     IntPos::newPos(bl.getPosition(),
-        //                     bl.getDimensionId()));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onUseRespawnAnchor);
-        //       });
-        //   break;
+    case EVENT_TYPES::onUseRespawnAnchor:
+        lse::events::PlayerUseRespawnAnchorEvent();
+        break;
 
     case EVENT_TYPES::onRide:
         lse::events::ActorRideEvent();

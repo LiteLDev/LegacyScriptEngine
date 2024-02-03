@@ -744,6 +744,29 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, commandOrigin, markForSaving);
 }
 
+LL_TYPE_STATIC_HOOK(
+    PlayerUseRespawnAnchorHook,
+    HookPriority::Normal,
+    RespawnAnchorBlock,
+    &RespawnAnchorBlock::_trySetSpawn,
+    bool,
+    Player&         player,
+    BlockPos const& pos,
+    BlockSource&    region,
+    class Level&    level
+) {
+    IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseRespawnAnchor,
+            false,
+            PlayerClass::newPlayer(&player),
+            IntPos::newPos(pos, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseRespawnAnchor);
+    return origin(player, pos, region, level);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -783,6 +806,7 @@ void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 void PlayerChangeDimensionEvent() { PlayerChangeDimensionHook::hook(); };
 void PlayerOpenContainerScreenEvent() { PlayerOpenContainerScreenHook::hook(); }
 void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
+void PlayerUseRespawnAnchorEvent() { PlayerUseRespawnAnchorHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

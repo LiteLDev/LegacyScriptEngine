@@ -27,5 +27,6 @@ void LiquidFlowEvent();
 void PlayerChangeDimensionEvent();
 void PlayerOpenContainerScreenEvent();
 void CommandBlockExecuteEvent();
+void PlayerUseRespawnAnchorEvent();
 
 } // namespace lse::events

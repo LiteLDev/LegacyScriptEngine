@@ -139,7 +139,7 @@ ClassDefine<NbtListClass> NbtListClassBuilder = defineClass<NbtListClass>("NbtLi
                                                     .instanceFunction("setTag", &NbtListClass::setTag)
                                                     .instanceFunction("addTag", &NbtListClass::addTag)
                                                     .instanceFunction("removeTag", &NbtListClass::removeTag)
-                                                    .instanceFunction("getData", &NbtListClass::getData)
+                                                    .instanceFunction("getData", &NbtListClass::getTag)
                                                     .instanceFunction("getTag", &NbtListClass::getTag)
                                                     .instanceFunction("toArray", &NbtListClass::toArray)
                                                     .build();
@@ -162,7 +162,7 @@ ClassDefine<NbtCompoundClass> NbtCompoundClassBuilder =
         .instanceFunction("setByteArray", &NbtCompoundClass::setByteArray)
         .instanceFunction("setTag", &NbtCompoundClass::setTag)
         .instanceFunction("removeTag", &NbtCompoundClass::removeTag)
-        .instanceFunction("getData", &NbtCompoundClass::getData)
+        .instanceFunction("getData", &NbtCompoundClass::getTag)
         .instanceFunction("getTag", &NbtCompoundClass::getTag)
         .instanceFunction("toObject", &NbtCompoundClass::toObject)
         .instanceFunction("toSNBT", &NbtCompoundClass::toSNBT)
@@ -1404,22 +1404,6 @@ Local<Value> NbtListClass::removeTag(const Arguments& args) {
     CATCH("Fail in NBT SetTag!");
 }
 
-Local<Value> NbtListClass::getData(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
-
-    try {
-        auto index = args[0].toInt();
-
-        if (index >= nbt->size() || index < 0) {
-            return Local<Value>();
-        }
-
-        return Tag2Value(nbt->at(index).get());
-    }
-    CATCH("Fail in NBTgetData!")
-}
-
 Local<Value> NbtListClass::getTag(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1816,20 +1800,6 @@ Local<Value> NbtCompoundClass::removeTag(const Arguments& args) {
         return Local<Value>();
     }
     CATCH("Fail in NBT RemoveTag!");
-}
-
-Local<Value> NbtCompoundClass::getData(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
-
-    try {
-        auto key = args[0].toStr();
-
-        return Tag2Value(nbt->at(key).get().as_ptr<Tag>());
-    } catch (const std::out_of_range& e) {
-        return Local<Value>();
-    }
-    CATCH("Fail in NBT GetData!")
 }
 
 Local<Value> NbtCompoundClass::getTag(const Arguments& args) {

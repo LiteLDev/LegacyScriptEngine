@@ -23,6 +23,7 @@
 #include <mc/world/item/registry/ItemStack.h>
 #include <mc/world/level/BlockEventCoordinator.h>
 #include <mc/world/level/BlockSource.h>
+#include <mc/world/level/ChangeDimensionRequest.h>
 #include <mc/world/level/Level.h>
 #include <mc/world/level/Spawner.h>
 #include <mc/world/level/block/BasePressurePlateBlock.h>
@@ -672,6 +673,27 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, pos, flowFromPos, flowFromDirection);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerChangeDimensionHook,
+    HookPriority::Normal,
+    Level,
+    "?requestPlayerChangeDimension@Level@@UEAAXAEAVPlayer@@V?$unique_ptr@VChangeDimensionRequest@@U?$default_delete@"
+    "VChangeDimensionRequest@@@std@@@std@@@Z",
+    void,
+    Player&                                 player,
+    std::unique_ptr<ChangeDimensionRequest> changeRequest
+) {
+    IF_LISTENED(EVENT_TYPES::onChangeDim) {
+        CallEventVoid(
+            EVENT_TYPES::onChangeDim,
+            PlayerClass::newPlayer(&player),
+            Number::newNumber(changeRequest->mToDimensionId)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onChangeDim);
+    origin(player, std::move(changeRequest));
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -708,6 +730,7 @@ void RedstoneupdateEvent() {
     RedstoneUpdateHook4::hook();
 }
 void LiquidFlowEvent() { LiquidFlowHook::hook(); }
+void PlayerChangeDimensionEvent() { PlayerChangeDimensionHook::hook(); };
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

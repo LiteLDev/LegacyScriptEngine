@@ -172,17 +172,9 @@ void EnableEventListener(int eventId) {
             IF_LISTENED_END(EVENT_TYPES::onChat);
         });
 
-        // case EVENT_TYPES::onChangeDim:
-        //   Event::PlayerChangeDimEvent::subscribe([](const PlayerChangeDimEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onChangeDim) {
-        //       CallEvent(EVENT_TYPES::onChangeDim,
-        //       PlayerClass::newPlayer(ev.mPlayer),
-        //                 Number::newNumber(ev.mToDimensionId)); //======???
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onChangeDim);
-        //   });
-        //   break;
+    case EVENT_TYPES::onChangeDim:
+        lse::events::PlayerChangeDimensionEvent();
+        break;
 
     case EVENT_TYPES::onPlayerSwing:
         bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {

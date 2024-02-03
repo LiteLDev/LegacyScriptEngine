@@ -6,6 +6,8 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "mc/server/commands/CommandOrigin.h"
+#include "mc/server/commands/CommandOriginType.h"
 
 #include <ll/api/memory/Hook.h>
 #include <ll/api/memory/Memory.h>
@@ -37,6 +39,7 @@
 #include <mc/world/level/block/RedstoneTorchBlock.h>
 #include <mc/world/level/block/RespawnAnchorBlock.h>
 #include <mc/world/level/block/actor/BarrelBlockActor.h>
+#include <mc/world/level/block/actor/BaseCommandBlock.h>
 #include <mc/world/level/block/actor/BlockActor.h>
 #include <mc/world/level/block/actor/ChestBlockActor.h>
 #include <mc/world/level/block/actor/PistonBlockActor.h>
@@ -708,6 +711,39 @@ LL_TYPE_INSTANCE_HOOK(
     origin();
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    CommandBlockExecuteHook,
+    HookPriority::Normal,
+    BaseCommandBlock,
+    &BaseCommandBlock::_performCommand,
+    bool,
+    BlockSource&         region,
+    CommandOrigin const& commandOrigin,
+    bool&                markForSaving
+) {
+    IF_LISTENED(EVENT_TYPES::onCmdBlockExecute) {
+        if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
+            CallEventRtnValue(
+                EVENT_TYPES::onCmdBlockExecute,
+                false,
+                String::newString(this->getCommand()),
+                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), commandOrigin.getEntity()->getDimensionId()),
+                Boolean::newBoolean(true)
+            );
+        } else {
+            CallEventRtnValue(
+                EVENT_TYPES::onCmdBlockExecute,
+                false,
+                String::newString(this->getCommand()),
+                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), commandOrigin.getEntity()->getDimensionId()),
+                Boolean::newBoolean(false)
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onCmdBlockExecute);
+    return origin(region, commandOrigin, markForSaving);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -746,6 +782,7 @@ void RedstoneupdateEvent() {
 void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 void PlayerChangeDimensionEvent() { PlayerChangeDimensionHook::hook(); };
 void PlayerOpenContainerScreenEvent() { PlayerOpenContainerScreenHook::hook(); }
+void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

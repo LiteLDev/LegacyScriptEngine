@@ -26,5 +26,6 @@ void RedstoneupdateEvent();
 void LiquidFlowEvent();
 void PlayerChangeDimensionEvent();
 void PlayerOpenContainerScreenEvent();
+void CommandBlockExecuteEvent();
 
 } // namespace lse::events

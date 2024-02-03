@@ -584,28 +584,9 @@ void EnableEventListener(int eventId) {
         lse::events::BlockExplodedEvent();
         break;
 
-        // case EVENT_TYPES::onCmdBlockExecute:
-        //   Event::CmdBlockExecuteEvent::subscribe([](const CmdBlockExecuteEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onCmdBlockExecute) {
-        //       if (ev.mIsMinecart) {
-        //         CallEvent(EVENT_TYPES::onCmdBlockExecute,
-        //                   String::newString(ev.mCommand),
-        //                   FloatPos::newPos(ev.mMinecart->getPosition(),
-        //                                    ev.mMinecart->getDimensionId()),
-        //                   Boolean::newBoolean(ev.mIsMinecart));
-        //       } else {
-        //         BlockInstance bl = ev.mBlockInstance;
-        //         CallEvent(
-        //             EVENT_TYPES::onCmdBlockExecute,
-        //             String::newString(ev.mCommand),
-        //             FloatPos::newPos(bl.getPosition().toVec3(),
-        //             bl.getDimensionId()), Boolean::newBoolean(ev.mIsMinecart));
-        //       }
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onCmdBlockExecute);
-        //   });
-        //   break;
+    case EVENT_TYPES::onCmdBlockExecute:
+        lse::events::CommandBlockExecuteEvent();
+        break;
 
     case EVENT_TYPES::onRedStoneUpdate:
         lse::events::RedstoneupdateEvent();

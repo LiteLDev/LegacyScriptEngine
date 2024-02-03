@@ -723,7 +723,7 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onLiquidFlow:
-        void LiquidFlowEvent();
+        lse::events::LiquidFlowEvent();
         break;
 
     case EVENT_TYPES::onUseFrameBlock:

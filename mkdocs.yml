@@ -7,7 +7,9 @@ nav:
   - faq.md
 
   - APIs:
-      - README: apis/README.md
+      - apis/README.md
+      - apis/LLSEJSPlugin.md
+      - apis/LanguageSupport.md
       - DataAPI:
           - apis/DataAPI/ConfigFile.md
           - apis/DataAPI/DataBase.md
@@ -72,7 +74,18 @@ theme:
   favicon: img/logo.png
   logo: img/logo.png
   palette:
-    primary: white
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
 markdown_extensions:
   - abbr

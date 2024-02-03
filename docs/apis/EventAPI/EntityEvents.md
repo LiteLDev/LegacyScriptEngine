@@ -1,4 +1,4 @@
-#=# 🎈 Entity Related Events
+# 🎈 Entity Related Events
 
 #### `"onMobDie"` - Mob/Player Death Event
 

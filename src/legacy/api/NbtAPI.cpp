@@ -1904,7 +1904,7 @@ Local<Value> NbtCompoundClass::toObject(const Arguments& args) {
         Local<Object> obj  = Object::newObject();
 
         for (auto& [k, v] : comp) {
-            obj.set(k, Tag2Value(v.toUnique().get(), true));
+            obj.set(k, Tag2Value(v.get().as_ptr<CompoundTag>(), true));
         }
         return obj;
     }
@@ -2141,38 +2141,38 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
     for (auto& [key, tag] : list) {
         switch (tag.getId()) {
         case Tag::Type::Byte:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<ByteTag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<ByteTag>()->data));
             break;
         case Tag::Type::Short:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<ShortTag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<ShortTag>()->data));
             break;
         case Tag::Type::Int:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<IntTag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<IntTag>()->data));
             break;
         case Tag::Type::Int64:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<Int64Tag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<Int64Tag>()->data));
             break;
         case Tag::Type::Float:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<FloatTag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<FloatTag>()->data));
             break;
         case Tag::Type::Double:
-            res.set(key, Number::newNumber(tag.toUnique()->as_ptr<DoubleTag>()->data));
+            res.set(key, Number::newNumber(tag.get().as_ptr<DoubleTag>()->data));
             break;
         case Tag::Type::String:
-            res.set(key, String::newString(tag.toUnique()->as_ptr<StringTag>()->data));
+            res.set(key, String::newString(tag.get().as_ptr<StringTag>()->data));
             break;
         case Tag::Type::ByteArray: {
-            auto& data = tag.toUnique()->as_ptr<ByteArrayTag>()->data;
+            auto& data = tag.get().as_ptr<ByteArrayTag>()->data;
             res.set(key, ByteBuffer::newByteBuffer(data.mBuffer.get(), data.mSize));
             break;
         }
         case Tag::Type::List:
-            if (!autoExpansion) res.set(key, NbtListClass::pack(tag.toUnique()->as_ptr<ListTag>()));
-            else res.set(key, Tag2Value_ListHelper(tag.toUnique()->as_ptr<ListTag>(), autoExpansion));
+            if (!autoExpansion) res.set(key, NbtListClass::pack(tag.get().as_ptr<ListTag>()));
+            else res.set(key, Tag2Value_ListHelper(tag.get().as_ptr<ListTag>(), autoExpansion));
             break;
         case Tag::Type::Compound:
-            if (!autoExpansion) res.set(key, NbtCompoundClass::pack(tag.toUnique()->as_ptr<CompoundTag>()));
-            else res.set(key, Tag2Value_CompoundHelper(tag.toUnique()->as_ptr<CompoundTag>(), autoExpansion));
+            if (!autoExpansion) res.set(key, NbtCompoundClass::pack(tag.get().as_ptr<CompoundTag>()));
+            else res.set(key, Tag2Value_CompoundHelper(tag.get().as_ptr<CompoundTag>(), autoExpansion));
         case Tag::Type::End:
         default:
             res.set(key, Local<Value>());

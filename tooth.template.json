@@ -1,9 +1,9 @@
 {
     "format_version": 2,
-    "tooth": "github.com/LiteLDev/LegacyScriptEngine",
+    "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-${engine}",
     "version": "0.1.0",
     "info": {
-        "name": "LegacyScriptEngine",
+        "name": "LegacyScriptEngine-${engine}",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
         "author": "LiteLDev",
         "tags": [
@@ -11,15 +11,14 @@
             "type:plugin-engine"
         ]
     },
-    "asset_url": "https://github.com/LiteLDev/LegacyScriptEngine/releases/download/v0.1.0/legacy-script-engine-lua-windows-x64.zip",
     "prerequisites": {
         "github.com/LiteLDev/LeviLamina": "0.6.x >=0.6.3"
     },
     "files": {
         "place": [
             {
-                "src": "legacy-script-engine-lua/*",
-                "dest": "plugins/legacy-script-engine-lua/"
+                "src": "legacy-script-engine-${engine}/*",
+                "dest": "plugins/legacy-script-engine-${engine}/"
             }
         ]
     }

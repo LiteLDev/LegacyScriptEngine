@@ -11,13 +11,14 @@
 #include "api/PlayerAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
-#include "legacyapi/remotecall/RemoteCallAPI.h"
 #include "ll/api/service/ServerInfo.h"
 
+#include <RemoteCallAPI.h>
 #include <map>
 #include <process.h>
 #include <sstream>
 #include <string>
+
 
 #define DEFAULT_REMOTE_CALL_NAME_SPACE "LLSEGlobal"
 #define logger                         lse::getSelfPluginInstance().getLogger()

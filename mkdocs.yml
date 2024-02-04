@@ -4,11 +4,13 @@ repo_url: https://github.com/LiteLDev/LegacyScriptEngine
 nav:
   - Home: index.md
 
+  - Tutorials:
+    - tutorials/create_your_first_plugin.md
+
   - faq.md
 
   - APIs:
       - apis/README.md
-      - apis/LLSEJSPlugin.md
       - apis/LanguageSupport.md
       - DataAPI:
           - apis/DataAPI/ConfigFile.md
@@ -127,5 +129,6 @@ plugins:
           name: 中文
           nav_translations:
             Home: 主页
+            Tutorials: 教程
             APIs: 接口
   - search

@@ -4,8 +4,16 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Install
 
+### Lua Engine
+
 ```sh
-lip install github.com/LiteLDev/LegacyScriptEngine
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
+```
+
+### QuickJs Engine
+
+```sh
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 ```
 
 ## Usage

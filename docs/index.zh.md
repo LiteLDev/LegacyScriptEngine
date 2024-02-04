@@ -6,8 +6,16 @@
 
 在安装之前，您需要安装合适版本的LeviLamina服务器。
 
+### Lua引擎
+
 ```sh
-lip install github.com/LiteLDev/LegacyScriptEngine
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
+```
+
+### QuickJs引擎
+
+```sh
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 ```
 
 ## 用法

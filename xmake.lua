@@ -15,7 +15,7 @@ add_requires(
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
     "toml++ v3.4.0",
-    "legacyremotecall 0.1.0"
+    "legacyremotecall 0.1.1"
 )
 add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
 add_requires("scriptx", {configs={backend=get_config("backend")}})

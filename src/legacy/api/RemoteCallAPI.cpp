@@ -19,7 +19,6 @@
 #include <sstream>
 #include <string>
 
-
 #define DEFAULT_REMOTE_CALL_NAME_SPACE "LLSEGlobal"
 #define logger                         lse::getSelfPluginInstance().getLogger()
 
@@ -241,7 +240,7 @@ bool LLSERemoveAllExportedFuncs(ScriptEngine* engine) {
     for (auto& [key, data] : ENGINE_GET_DATA(engine)->exportFuncs) {
         funcs.emplace_back(data.nameSpace, data.funcName);
     }
-    int count = RemoteCall::removeFuncs(std::move(funcs));
+    int count = RemoteCall::removeFuncs(funcs);
     ENGINE_GET_DATA(engine)->exportFuncs.clear();
     return count;
 }

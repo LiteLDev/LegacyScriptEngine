@@ -11,7 +11,7 @@ namespace RemoteCall {
 CallbackFn const                                              EMPTY_FUNC{};
 std::unordered_map<std::string, RemoteCall::ExportedFuncData> exportedFuncs;
 
-bool exportFunc(std::string const& nameSpace, std::string const& funcName, CallbackFn&& callback, HMODULE handle) {
+bool exportFunc(std::string const& nameSpace, std::string const& funcName, CallbackFn&& callback, void* handle) {
     if (nameSpace.find("::") != nameSpace.npos) {
         logger.error("Namespace can't includes \"::\"");
         return false;

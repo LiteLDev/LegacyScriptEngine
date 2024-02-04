@@ -392,7 +392,7 @@ ValueType pack(T const& val) {
 using CallbackFn = std::function<ValueType(std::vector<ValueType>)>;
 
 struct ExportedFuncData {
-    HMODULE    handle;
+    void*      handle;
     CallbackFn callback;
 };
 

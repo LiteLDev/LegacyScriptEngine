@@ -108,7 +108,7 @@ jobs:
           mv ../release/legacy-script-engine-${{ matrix.backend }} .
           cp ../tooth.template.json tooth.json
           sed -i "s/\${engine}/${{ matrix.backend }}/g" tooth.json
-          sed -i "s/\${version}/${{ github.event.release.tag_name }}/g" tooth.json
+          sed -i "s/\${version}/$(echo ${{ github.event.release.tag_name }}|sed 's/v//')/g" tooth.json
           git add .
           git commit -m "Release ${{ github.event.release.tag_name }}"
           git tag ${{ github.event.release.tag_name }}

@@ -16,7 +16,7 @@
 
 > [!INFO]
 >
-> 如果需要使用 C++、Go、.NET 等编译式语言编写插件，请移步 [主页](zh_CN/) 查看其他语言文档
+> 如果需要使用 C++、Go、Rust 等原生语言编写插件，请移步 [主页](https://levilamina.liteldev.com) 查看其他语言文档
 
 ## JavaScript 语言支持说明
 

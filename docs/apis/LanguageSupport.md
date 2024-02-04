@@ -16,7 +16,7 @@ Currently, LLSE supports writing plugins in the following languages：
 
 > [!INFO]
 >
-> If you need to write plugins in compiled languages such as C++, Go, .NET, etc., please go to [Home](../zh-Hans) for other language documentation
+> If you need to write plugins in native languages such as C++, Go, Rust, etc., please go to [Home](https://levilamina.liteldev.com) for other language documentation
 
 ## JavaScript language support description
 

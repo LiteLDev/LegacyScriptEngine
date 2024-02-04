@@ -151,8 +151,8 @@
 
 - 参数：
 
-  - pos1 : `IntPos` 对角坐标1，填写方式与 [fill命令](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E4%BB%A4/fill?so=search#%E5%8F%82%E6%95%B0 "在维基百科中查看") 的 `from` 参数类似
-  - pos2 : `IntPos` 对角坐标2，填写方式与 [fill命令](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E4%BB%A4/fill?so=search#%E5%8F%82%E6%95%B0 "在维基百科中查看") 的 `to` 参数类似
+  - pos1 : `IntPos` 对角坐标1，填写方式与 [fill命令](https://zh.minecraft.wiki/w/命令/fill#参数 "在维基百科中查看") 的 `from` 参数类似
+  - pos2 : `IntPos` 对角坐标2，填写方式与 [fill命令](https://zh.minecraft.wiki/w/命令/fill#参数 "在维基百科中查看") 的 `to` 参数类似
   - ignoreBlocks : `Boolean` 忽略方块
   - ignoreEntities : `Boolean` 忽略实体
 - 返回值类型：`NbtCompound`

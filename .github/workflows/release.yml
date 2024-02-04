@@ -8,9 +8,9 @@ jobs:
     strategy:
       matrix:
         backend:
-          - libnode
+          # - libnode
           - lua
-          - python310
+          # - python310
           - quickjs
     runs-on: windows-latest
     steps:

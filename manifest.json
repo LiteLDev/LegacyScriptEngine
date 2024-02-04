@@ -8,6 +8,9 @@
         },
         {
             "name": "LegacyParticleAPI"
+        },
+        {
+            "name": "LegacyRemoteCall"
         }
     ]
 }

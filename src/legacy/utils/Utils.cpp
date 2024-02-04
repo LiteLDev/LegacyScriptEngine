@@ -92,7 +92,7 @@ std::string Raw_GetDateTimeStr() {
 
 std::string Raw_RandomGuid() {
     GUID guid;
-    // CoCreateGuid(&guid); // TODO
+    CoCreateGuid(&guid);
 
     char dst[36] = {0};
     snprintf(
@@ -116,7 +116,7 @@ std::string Raw_RandomGuid() {
 
 std::wstring Raw_RandomGuidW() {
     GUID guid;
-    // CoCreateGuid(&guid); // TODO
+    CoCreateGuid(&guid);
 
     wchar_t dst[36] = {0};
     _snwprintf_s(

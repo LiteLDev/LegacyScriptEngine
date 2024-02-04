@@ -7,8 +7,8 @@
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
         "author": "LiteLDev",
         "tags": [
-            "platform:levilamina",
-            "type:plugin-engine"
+            "levilamina",
+            "plugin-engine"
         ],
         "source": "github.com/LiteLDev/LegacyScriptEngine"
     },

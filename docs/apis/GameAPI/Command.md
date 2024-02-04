@@ -85,7 +85,7 @@ An interface for registering custom commands is provided here. By docking with t
 
 !!! tip
     Top-level commands, i.e. something like `list` `gamerule`, the first input after the `/` character.
-
+    
     After registering the top-level command, this function returns a command object. Next, the function expansion of this command needs to be carried out in this command object.
 
 ### Command Object - Function
@@ -333,7 +333,7 @@ The fake command API here is reserved for **downward compatibility**. It is reco
 
 !!! warning
     Although it looks relatively simple, fake commands have some important disadvantages, including that they can only be executed by the player or console, other objects (such as command blocks, NPCs, etc.) cannot be executed, all parameter data needs to be parsed by themselves, etc.
-
+    
     Please try to use the real command API.
 
 ### Register a New Player Command (Fake Command)  
@@ -405,7 +405,7 @@ mc.regConsoleCmd("backup","Start the backup",function(args){
     LLSE will automatically split the command arguments into arrays for you before calling them.  
     
     Take the JavaScript language as an example:
-
+    
     Execute command
     `mc.regPlayerCmd("land buy", "land buy", function(pl,args){ .... }, 0 );`
     after that,

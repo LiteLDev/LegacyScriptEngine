@@ -342,7 +342,7 @@ mc.listen("onServerStarted", () => {
 
 !!! warning
     尽管看起来比较简单，但是假命令有一些很重要的缺点，包括只能由玩家或控制台执行，其他对象（如命令方块、NPC等）都无法执行、所有参数数据都需要自行解析等等。
-
+    
     请尽量使用 真命令API
 
 ### 注册一个新的玩家命令（假命令）  
@@ -412,9 +412,9 @@ mc.regConsoleCmd("backup","Start the backup",function(args){
 !!! tip "假命令注册相关说明"
     设置了回调函数之后，在你注册的这个假命令被执行的时候，回调函数就会被调用。  
     在调用之前，脚本引擎会自动帮你把命令参数分割成数组。  
-
+    
     以JavaScript语言为例：
-
+    
     执行命令  
     `mc.regPlayerCmd("land buy", "购买领地", function(pl,args){ .... }, 0 );`   
     之后，  

@@ -5,6 +5,7 @@
 ## 先决条件
 
 在开发你的第一个插件之前，我们需要设置你的开发环境。你用来编程的软件由你自己选择，但建议使用可信和可靠的软件。
+
 - [Atom](https://atom.io/) 是轻量级的编辑器，在本教程中很好用。
 - [VSCode](https://code.visualstudio.com/) 也是一个广泛使用的编辑器，具有很多强大的功能。
 
@@ -26,16 +27,16 @@
 
 现在我们已经创建了我们的.js文件，并注册了插件，我们要做的就是创建一个事件监听器。我们通过使用`mc`来实现。
 
-
 ```js
 mc.listen("onJoin", (player) => log(`${player.name}已经加入服务器。`));
 ```
-> 参考资料: https://docs.litebds.com/zh-Hans/#/LLSEPluginDevelopment/EventAPI/Listen
+
+> 参考资料: <https://docs.litebds.com/zh-Hans/#/LLSEPluginDevelopment/EventAPI/Listen>
 
 为了测试你的插件，只需启动服务器，服务器应该能够识别你的插件并成功加载它。LeviLamina控制台将记录您创建的任何日志，以及您的插件或API失败时的任何错误。开发时的迭代很重要。经常测试，每一步都要确保当问题出现时，你清楚地知道你改变了什么，并能想出解决方案来解决它。
 
 你可以引用`mc`类，以及其他特殊的类和构造函数。`mc`类是你的插件的面包和黄油，将允许你做很多很酷的事情。游戏内容接口有所有的方法和属性供你使用。
->参考：https://docs.litebds.com/en/#/LLSEPluginDevelopment/GameAPI/Basic
+>参考：<https://docs.litebds.com/en/#/LLSEPluginDevelopment/GameAPI/Basic>
 
 例如，我们可以使用玩家对象并直接对其采取行动，以发送信息/操纵玩家。
 

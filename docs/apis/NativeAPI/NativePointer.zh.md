@@ -2,7 +2,7 @@
 
 此API旨在帮助开发者操作原生指针
 
-> 由于x64调用约定，任何对象(size>8)均以引用方式传递，欲要了解更多相关细节，请参考[msdoc: x64 calling convention](https://docs.microsoft.com/en-us/cpp/build/x64-calling-convention)
+> 由于x64调用约定，任何对象(size>8)均以引用方式传递，欲要了解更多相关细节，请参考[msdoc: x64 calling convention](https://docs.microsoft.com/cpp/build/x64-calling-convention)
 
 ### 内存申请
 

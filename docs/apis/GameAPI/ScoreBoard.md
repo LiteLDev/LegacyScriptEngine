@@ -108,9 +108,9 @@ Reduce score: `ob.reduceScore(target,score)`
 - Return value type: `Integer`
   - If `Null` is returned, the operation failed.
 
-[!warning]
-If the score doesn't exist, will try creating a score, then return `0`(If *target* is `String`) or `null`(If *target* is `Player`)  
-Reason: [#971](https://github.com/LiteLDev/LeviLamina/issues/971#issuecomment-1385047649)
+!!! warning
+    If the score doesn't exist, will try creating a score, then return `0`(If *target* is `String`) or `null`(If *target* is `Player`)  
+    Reason: [#971](https://github.com/LiteLDev/LeviLamina/issues/971#issuecomment-1385047649)
 <br>
 
 #### Stop Tracking a Target 

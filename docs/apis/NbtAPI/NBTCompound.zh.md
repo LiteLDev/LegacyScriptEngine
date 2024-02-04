@@ -211,7 +211,7 @@ local nbt = NbtCompound({
 - 返回值：对应的SNBT字符串
 - 返回值类型：`String`
 
-> 除了普通的二进制NBT之外，另一种玩家更熟悉的NBT是纯文本形式的，通常在[命令](https://minecraft.fandom.com/zh/wiki/命令)里使用。这种格式常被称为**SNBT**（**字符串化的二进制命名标签**，**S**tringified **NBT**）
+> 除了普通的二进制NBT之外，另一种玩家更熟悉的NBT是纯文本形式的，通常在[命令](https://zh.minecraft.wiki/w/命令)里使用。这种格式常被称为**SNBT**（**字符串化的二进制命名标签**，**S**tringified **NBT**）
 >
 > --- Minecraft Wiki
 

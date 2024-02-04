@@ -689,5 +689,5 @@ The following APIs provide APIs for interacting with entities at specified locat
 - Return value: The result of the Molang expression.
 - Return value type:  `Float`
 
-For detailed usage of Molang, refer to [MOLANG Doc bedrock.dev](https://bedrock.dev/zh/docs/stable/Molang)
+For detailed usage of Molang, refer to [MOLANG Doc bedrock.dev](https://bedrock.dev/docs/stable/Molang)
 <br>

@@ -14,9 +14,8 @@ Currently, LLSE supports writing plugins in the following languages：
 | `Node.js`         | Modify Node.js to work with embedding, with support for npm package management |
 | `Python`  | Using CPython engine, with support for pip package management |
 
-> [!INFO]
->
-> If you need to write plugins in compiled languages such as C++, Go, .NET, etc., please go to [Home](../zh-Hans) for other language documentation
+!!! tip
+    If you need to write plugins in native languages such as C++, Go, Rust, etc., please go to [Home](https://levilamina.liteldev.com) for other language documentation
 
 ## JavaScript language support description
 

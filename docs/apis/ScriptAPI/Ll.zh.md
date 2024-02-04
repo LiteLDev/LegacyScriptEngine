@@ -131,23 +131,23 @@
 
 #### 远程调用参数类型对照，其中Type可以为其他受支持的类型
 
-| C++层类型                                     | 脚本引擎类型  | .NET引擎类型                            | 内部类型（备注）                       |
+| C++层类型                                     | 脚本引擎类型  | .NET托管类型                            | 内部类型（备注）                       |
 | --------------------------------------------- | ------------- | --------------------------------------- | -------------------------------------- |
-| `std::nullptr_t`                              | `Null`        | `null` / `Nothing` / `nullptr`          | `std::nullptr_t`                       |
-| `bool`                                        | `Boolean`     | `Boolean`                               | `bool`                                 |
-| `__int64`, `double`...                        | `Number`      | `Int64`, `Double`...                    | `RemoteCall::NumberType`               |
-| `std::string`                                 | `String`      | `String`                                | `std::string`                          |
-| `std::vector<Type>`                           | `Array`       | `List<Type>`                            | `std::vector<Type>`                    |
-| `std::unordered_map<std::string,Type>`        | `Object`      | `Dictionary<String,Type>`               | `std::unordered_map<std::string,Type>` |
-| `Actor*`                                      | `Entity`      | `MC.Actor`                              | `Actor*`                               |
-| `Player*`                                     | `Player`      | `MC.Player`                             | `Player*`                              |
-| `ItemStack*`, `std::unique_ptr<ItemStack>`    | `Item`        | `RemoteCall.ItemType`                   | `RemoteCall::ItemType`                 |
-| `Block*`, `BlockInstance`                     | `Block`       | `RemoteCall.BlockType`                  | `RemoteCall::BlockType`                |
-| `BlockActor*`                                 | `BlockActor`  | `MC.BlockActor`                         | `BlockActor*`                          |
-| `Container*`                                  | `Container`   | `MC.Container`                          | `Container*`                           |
-| `Vec3`,`std::pair<Vec3,int>`                  | `FloatPos`    | `MC.Vec3`,`RemoteCall.WorldPosType`     | `RemoteCall::WorldPosType`             |
-| `BlockPos`,`std::pair<BlockPos, int>`         | `IntPos`      | `MC.BlockPos`,`RemoteCall.BlockPosType` | `RemoteCall::BlockPosType`             |
-| `CompoundTag*`,`std::unique_ptr<CompoundTag>` | `NBTCompound` | `RemoteCall.NbtType`                    | `RemoteCall::NbtType`                  |
+| `std::nullptr_t`                              | `Null`        | `null` / `Nothing` / `nullptr`           | `std::nullptr_t`                       |
+| `bool`                                        | `Boolean`     | `Boolean`                                | `bool`                                 |
+| `__int64`, `double`...                        | `Number`      | `Int64`, `Double`...                     | `RemoteCall::NumberType`               |
+| `std::string`                                 | `String`      | `String`                                 | `std::string`                          |
+| `std::vector<Type>`                           | `Array`       | `List<Type>`                             | `std::vector<Type>`                    |
+| `std::unordered_map<std::string,Type>`        | `Object`      | `Dictionary<String,Type>`                | `std::unordered_map<std::string,Type>` |
+| `Actor*`                                      | `Entity`      | `MC.Actor`                               | `Actor*`                               |
+| `Player*`                                     | `Player`      | `MC.Player`                              | `Player*`                              |
+| `ItemStack*`, `std::unique_ptr<ItemStack>`    | `Item`        | `RemoteCall.ItemType`                    | `RemoteCall::ItemType`                 |
+| `Block*`, `BlockInstance`                     | `Block`       | `RemoteCall.BlockType`                   | `RemoteCall::BlockType`                |
+| `BlockActor*`                                 | `BlockActor`  | `MC.BlockActor`                          | `BlockActor*`                          |
+| `Container*`                                  | `Container`   | `MC.Container`                           | `Container*`                           |
+| `Vec3`,`std::pair<Vec3,int>`                  | `FloatPos`    | `MC.Vec3`, `RemoteCall.WorldPosType`     | `RemoteCall::WorldPosType`             |
+| `BlockPos`,`std::pair<BlockPos, int>`         | `IntPos`      | `MC.BlockPos`, `RemoteCall.BlockPosType` | `RemoteCall::BlockPosType`             |
+| `CompoundTag*`,`std::unique_ptr<CompoundTag>` | `NBTCompound` | `RemoteCall.NbtType`                     | `RemoteCall::NbtType`                  |
 
 #### 远程调用函数举例说明
 

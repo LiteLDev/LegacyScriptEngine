@@ -14,9 +14,8 @@
 | `Node.js`          | 改造 Node.js 使其适合嵌入工作，支持 npm 包管理       |
 | `Python`   | 使用 CPython 引擎运行插件，支持 pip 包管理          |
 
-> [!INFO]
->
-> 如果需要使用 C++、Go、Rust 等原生语言编写插件，请移步 [主页](https://levilamina.liteldev.com) 查看其他语言文档
+!!! tip
+    如果需要使用 C++、Go、Rust 等原生语言编写插件，请移步 [主页](https://levilamina.liteldev.com) 查看其他语言文档
 
 ## JavaScript 语言支持说明
 

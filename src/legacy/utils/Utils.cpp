@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#pragma comment(lib, "Ole32.lib")
 
 std::vector<std::string> SplitCmdLine(const std::string& paras) {
     if (paras.empty()) return std::vector<std::string>();

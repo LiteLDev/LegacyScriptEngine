@@ -98,7 +98,7 @@ std::string Raw_RandomGuid() {
     snprintf(
         dst,
         36,
-        "%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
+        "%08lx%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
         guid.Data1,
         guid.Data2,
         guid.Data3,

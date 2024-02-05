@@ -39,7 +39,7 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
     const auto& pluginBaseName = path.stem();
     const auto& pluginDir      = ll::plugin::getPluginsRoot() / pluginBaseName;
 
-    if (std::filesystem::exists(pluginDir)) {
+    if (std::filesystem::exists(pluginDir / path.filename())) {
         throw std::runtime_error(
             fmt::format("failed to migrate legacy plugin at {}: {} already exists", path.string(), pluginDir.string())
         );

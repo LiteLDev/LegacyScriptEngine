@@ -1,0 +1,14 @@
+---
+Checks: '
+bugprone-*,
+clang-analyzer-*,
+concurrency-*,
+cppcoreguidelines-*,
+llvm-*,
+misc-*,
+modernize-*,
+performance-*,
+portability-*,
+readability-*
+'
+...

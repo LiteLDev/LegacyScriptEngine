@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "Dunia Awal",
+      "1": "Dunia Neraka",
+      "2": "Dunia Akhir",
+      "unknown": "Dimensi Lain"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "LLMoney.dll tidak ditemukan, Sistem Ekonomi ScriptEngine tidak akan berfungsi"
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - Plugin membutuhkan berhasil dimuat. Sarat: ",
+          "fail": " - Plugin membutuhkan beban gagal",
+          "download": {
+            "success": " - Berhasil diunduh membutuhkan! Jalur: ",
+            "fail": " - Persyaratan unduhan plugin gagal! Kode: "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "Kesalahan Parsing API"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "Ketergantungan {} telah di muat.",
+        "fail": "Gagak memuat ketergantungan {}"
+      },
+      "loadMain": {
+        "start": "Memuat {type} plugin...",
+        "done": "{count} {type} plugin telah (s) dimuat.",
+        "nodejs": {
+          "installPack": {
+            "fail": "Gagal memasang paket plugin {}, mohon periksa terlebihdahulu file package.json Anda!",
+            "start": "Ditemukan paket plugin Node.js \"{path}\"! Mencoba instal..."
+          },
+          "ignored": "Tidak ada file package.json yang ditemukan di direktori {path}, diabaikan."
+        },
+        "loadedPlugin": "{type} plugin <{name}> telah dimuat.",
+        "installPluginPack": {
+          "done": "{type} {count} paket plugin terpasang."
+        },
+        "python": {
+          "ignored": "Tidak ada file pyproject.toml yang ditemukan di direktori {path}, diabaikan.",
+          "installPack": {
+            "start": "Menemukan paket plugin Python \"{path}\"! Sedang mencoba install...",
+            "fail": "Gagal menginstal paket plugin {}, silakan periksa sumber filenya!"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Npm selesai dengan sukses.",
+          "start": "Menjalankan \"npm install\" untuk plugin {name}...",
+          "fail": "Terjadi kesalahan. Kode keluar: {code}"
+        },
+        "register": {
+          "fail": "Gagal membantu plugin {name} terdaftar!"
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "Menjalankan perintah \"pip install\" untuk plugin {name}...",
+          "success": "Pip selesai secara sukses.",
+          "fail": "Sepertinya ada kesalahan. Kode Exit: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "Plugin yang diperlukan oleh {0} tidak ditemukan.",
+      "success": "Plugin bernama {0} yang diperlukan oleh {1} dimuat.",
+      "network": {
+        "fail": "Terjadi kesalahan saat mengunduh plugin yang diperlukan oleh {0}, kode http: {1}"
+      },
+      "download": {
+        "success": "Unduh plugin yang diperlukan oleh {0} berhasil, jalur {1}."
+      }
+    }
+  }
+}

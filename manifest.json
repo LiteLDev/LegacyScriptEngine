@@ -1,0 +1,16 @@
+{
+    "name": "${pluginName}",
+    "entry": "${pluginFile}",
+    "type": "native",
+    "dependencies": [
+        {
+            "name": "LegacyMoney"
+        },
+        {
+            "name": "LegacyParticleAPI"
+        },
+        {
+            "name": "LegacyRemoteCall"
+        }
+    ]
+}

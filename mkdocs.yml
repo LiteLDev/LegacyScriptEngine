@@ -1,0 +1,134 @@
+site_name: LegacyScriptEngine
+repo_url: https://github.com/LiteLDev/LegacyScriptEngine
+
+nav:
+  - Home: index.md
+
+  - Tutorials:
+    - tutorials/create_your_first_plugin.md
+
+  - faq.md
+
+  - APIs:
+      - apis/README.md
+      - apis/LanguageSupport.md
+      - DataAPI:
+          - apis/DataAPI/ConfigFile.md
+          - apis/DataAPI/DataBase.md
+          - apis/DataAPI/Economy.md
+          - apis/DataAPI/OtherData.md
+          - apis/DataAPI/PlayerData.md
+      - EventAPI:
+          - apis/EventAPI/Listen.md
+          - apis/EventAPI/BlockEvents.md
+          - apis/EventAPI/EconomicEvents.md
+          - apis/EventAPI/EntityEvents.md
+          - apis/EventAPI/OtherEvents.md
+          - apis/EventAPI/PlayerEvents.md
+      - GameAPI:
+          - apis/GameAPI/Basic.md
+          - apis/GameAPI/Block.md
+          - apis/GameAPI/BlockEntity.md
+          - apis/GameAPI/Command.md
+          - apis/GameAPI/Container.md
+          - apis/GameAPI/Device.md
+          - apis/GameAPI/Entity.md
+          - apis/GameAPI/GameUtils.md
+          - apis/GameAPI/Item.md
+          - apis/GameAPI/Packet.md
+          - apis/GameAPI/Particle.md
+          - apis/GameAPI/Player.md
+          - apis/GameAPI/ScoreBoard.md
+          - apis/GameAPI/Server.md
+      - GuiAPI:
+          - apis/GuiAPI/Form.md
+          - apis/GuiAPI/FormBuilder.md
+      - NativeAPI:
+          - apis/NativeAPI/NativeFunction.md
+          - apis/NativeAPI/NativePatch.md
+          - apis/NativeAPI/NativePointer.md
+          - apis/NativeAPI/Summary.md
+      - NbtAPI:
+          - apis/NbtAPI/NBT.md
+          - apis/NbtAPI/NBTCompound.md
+          - apis/NbtAPI/NBTList.md
+          - apis/NbtAPI/NBTValue.md
+      - ScriptAPI:
+          - apis/ScriptAPI/Logger.md
+          - apis/ScriptAPI/ScriptHelp.md
+          - apis/ScriptAPI/i18n.md
+          - apis/ScriptAPI/Ll.md
+      - SystemAPI:
+          - apis/SystemAPI/File.md
+          - apis/SystemAPI/FileSystem.md
+          - apis/SystemAPI/Network.md
+          - apis/SystemAPI/SystemCall.md
+          - apis/SystemAPI/SystemInfo.md
+
+exclude_docs: |
+  api/native/
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+  favicon: img/logo.png
+  logo: img/logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc
+  - tables
+  - pymdownx.arithmatex
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.highlight:
+      auto_title: true
+      linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist
+
+plugins:
+  - i18n:
+      languages:
+        - locale: en
+          default: true
+          name: English
+
+        - locale: zh
+          name: 中文
+          nav_translations:
+            Home: 主页
+            Tutorials: 教程
+            APIs: 接口
+  - search

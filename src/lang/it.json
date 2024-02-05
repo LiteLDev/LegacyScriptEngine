@@ -1,0 +1,91 @@
+{
+  "base": {
+    "getDimName": {
+      "0": "Overworld",
+      "1": "Nether",
+      "2": "Fine",
+      "unknown": "Dimensione sconosciuta"
+    }
+  },
+  "llse": {
+    "init": {
+      "llMoney": {
+        "notFound": "LLMoney.dll non è stato trovato, il sistema di economia dello ScriptEngine non funzionerà"
+      }
+    },
+    "api": {
+      "ll": {
+        "require": {
+          "success": " - Requisiti necessari del plugin caricati con successo. Caricato: ",
+          "fail": " - Caricamento dei requisiti necessari del plugin fallito",
+          "download": {
+            "success": " - Requisiti necessari scaricati con successo! Percorso: ",
+            "fail": " - Download dei requisiti necessari del plugin fallito! Codice: "
+          }
+        }
+      }
+    },
+    "apiHelp": {
+      "parseJson": {
+        "fail": "Errore di analisi JSON"
+      }
+    },
+    "loader": {
+      "loadDepends": {
+        "success": "Libreria {} caricata.",
+        "fail": "Impossibile caricare la libreria {}"
+      },
+      "loadMain": {
+        "start": "Caricamento dei plugin {type} in corso...",
+        "done": "{count} plugin {type} caricati.",
+        "nodejs": {
+          "installPack": {
+            "fail": "Impossibile installare il pacchetto plugin {}, si prega di controllare il file package.json!",
+            "start": "Trovato pacchetto plugin Node.js \"{path}\"! Installazione in corso..."
+          },
+          "ignored": "Nessun file package.json trovato nella cartella {path}, ignorato."
+        },
+        "loadedPlugin": "Plugin {type} <{name}> caricato.",
+        "installPluginPack": {
+          "done": "{count} pacchetti plugin {type} installati."
+        },
+        "python": {
+          "ignored": "Nessun file pyproject.toml trovato nella directory {path}, ignorato.",
+          "installPack": {
+            "start": "Trovato pacchetto plugin Python\"{path}\"! Prova l'installazione...",
+            "fail": "Impossibile installare il pacchetto plugin {}, si prega di controllare i file sorgente!"
+          }
+        }
+      },
+      "nodejs": {
+        "executeNpmInstall": {
+          "success": "Esecuzione di \"npm install\" completata con successo.",
+          "start": "Esecuzione di \"npm install\" per il plugin {name}...",
+          "fail": "Si è verificato un errore. Codice di uscita: {code}"
+        },
+        "register": {
+          "fail": "Impossibile aiutare il plugin {name} a registrarsi!"
+        }
+      },
+      "python": {
+        "executePipInstall": {
+          "start": "Esecuzione di \"pip install\" per il plugin {name}...",
+          "success": "Pip finito con successo.",
+          "fail": "Si è verificato un errore. Codice di uscita: {code}"
+        }
+      }
+    }
+  },
+  "llseapi": {
+    "require": {
+      "fail": "Plugin richiesto da {0} non trovato.",
+      "success": "Plugin chiamato {0} che è richiesto da {1} caricato.",
+      "network": {
+        "fail": "Errore durante il download del plugin richiesto da {0}, codice http: {1}"
+      },
+      "download": {
+        "success": "Plugin di download richiesto da {0} con successo, percorso {1}."
+      }
+    }
+  }
+}

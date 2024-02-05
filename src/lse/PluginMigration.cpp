@@ -45,7 +45,7 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
         );
     }
 
-    if (!std::filesystem::create_directory(pluginDir)) {
+    if (!std::filesystem::create_directory(pluginDir) && !std::filesystem::exists(pluginDir)) {
         throw std::runtime_error(fmt::format("failed to create directory {}", pluginDir.string()));
     }
 

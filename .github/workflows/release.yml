@@ -33,45 +33,30 @@ jobs:
           path: |
             bin/
 
-  upload-to-release:
-    needs:
-      - build
+  update-release-notes:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        backend:
-          # - libnode
-          - lua
-          # - python310
-          - quickjs
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
-          path: release/
-
-      - run: |
-          cp COPYING README.md release/
-
-      - name: Archive release
+      - name: Validate release stuff (tooth.json, CHANGELOG.md, etc.)
         run: |
-          cd release
-          zip -r ../legacy-script-engine-${{ matrix.backend }}-windows-x64.zip *
-          cd ..
+          npm i -g keep-a-changelog
+          python scripts/validate_release.py --tag ${{ github.event.release.tag_name }}
+
+      - id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1
 
       - uses: softprops/action-gh-release@v1
         with:
-          append_body: true
-          files: |
-            legacy-script-engine-${{ matrix.backend }}-windows-x64.zip
+          body: |
+            ${{ steps.extract-release-notes.outputs.release_notes }}
 
   upload-to-gitea:
     needs:
       - build
+      - update-release-notes
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -108,9 +93,44 @@ jobs:
           mv ../release/legacy-script-engine-${{ matrix.backend }} .
           cp ../tooth.template.json tooth.json
           sed -i "s/\${engine}/${{ matrix.backend }}/g" tooth.json
-          sed -i "s/\${version}/$(echo ${{ github.event.release.tag_name }}|sed 's/v//')/g" tooth.json
           git add .
           git commit -m "Release ${{ github.event.release.tag_name }}"
           git tag ${{ github.event.release.tag_name }}
           git push
           git push --tags
+
+  upload-to-release:
+    needs:
+      - build
+      - update-release-notes
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend:
+          # - libnode
+          - lua
+          # - python310
+          - quickjs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          path: release/
+
+      - run: |
+          cp CHANGELOG.md COPYING README.md release/
+
+      - name: Archive release
+        run: |
+          cd release
+          zip -r ../legacy-script-engine-${{ matrix.backend }}-windows-x64.zip *
+          cd ..
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            legacy-script-engine-${{ matrix.backend }}-windows-x64.zip

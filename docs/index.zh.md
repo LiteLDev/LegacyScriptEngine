@@ -4,14 +4,6 @@
 
 ## 安装
 
-在安装 LegacyScriptEngine 之前，您需要先安装依赖项：
-
-```sh
-lip install github.com/LiteLDev/LegacyMoney
-lip install github.com/LiteLDev/LegacyRemoteCall
-lip install github.com/LiteLDev/LegacyParticleAPI
-```
-
 要一次性安装所有引擎，您可以使用以下命令：
 
 ```sh

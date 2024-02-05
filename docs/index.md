@@ -4,14 +4,6 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Install
 
-Before you install LegacyScriptEgnine, you need to install dependencies firstly:
-
-```sh
-lip install github.com/LiteLDev/LegacyMoney
-lip install github.com/LiteLDev/LegacyRemoteCall
-lip install github.com/LiteLDev/LegacyParticleAPI
-```
-
 To install all engines as a whole, you can use the following command:
 
 ```sh

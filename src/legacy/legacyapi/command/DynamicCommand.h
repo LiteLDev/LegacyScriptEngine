@@ -569,9 +569,6 @@ public:
         CommandFlag                                                 flag       = CommandFlagValue::NotCheat
     );
 
-    // Experiment
-    static bool unregisterCommand(CommandRegistry& registry, std::string const& name);
-
     static void updateAvailableCommands(CommandRegistry& registry);
 
     DynamicCommandInstance const* getInstance() const;

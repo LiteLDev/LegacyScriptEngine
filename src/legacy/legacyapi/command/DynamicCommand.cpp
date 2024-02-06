@@ -45,6 +45,15 @@
 #include <utility>
 #include <vector>
 
+template <>
+bool CommandRegistry::parse<std::pair<
+    std::string,
+    int>>(void* p, CommandRegistry::ParseToken const& token, CommandOrigin const&, int, std::string&, std::vector<std::string>&)
+    const {
+    *(std::pair<std::string, int>*)p = std::pair<std::string, int>{token.toString(), (int)getEnumData(token)};
+    return true;
+}
+
 #define logger lse::getSelfPluginInstance().getLogger()
 
 #define ForEachParameterType(func)                                                                                     \
@@ -457,7 +466,15 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
                 if (commandInstance->enumRanges.count(param.description) == 0) {
                     if (!ll::command::CommandRegistrar::getInstance().hasEnum(param.description))
                         throw std::runtime_error("Enum " + param.description + "not found in command and BDS");
-                    commandInstance->setEnum(param.description, registry.getEnumValues(*iter));
+                    std::vector<std::string> results;
+                    auto&                    enums = registry.mEnums;
+                    auto iter = std::find_if(enums.begin(), enums.end(), [&](CommandRegistry::Enum const& r) {
+                        return r.name == name;
+                    });
+                    if (iter != enums.end())
+                        for (auto& i : iter->values) results.push_back(registry.mEnumValues.at(i.second));
+
+                    commandInstance->setEnum(param.description, results);
                 }
             } else if (param.type == ParameterType::SoftEnum) {
                 // add empty Soft Enum if not found in command and BDS
@@ -498,12 +515,8 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
                 values.emplace_back(*iter, index);
                 ++index;
             }
-            registry._addEnumValuesInternal(
-                fixedView.data(),
-                values,
-                ++Bedrock::typeid_t<CommandRegistry>::_getCounter(),
-                &CommandRegistry::parseEnumStringAndInt
-            );
+            registry
+                ._addEnumValuesInternal(fixedView.data(), values, ++Bedrock::typeid_t<CommandRegistry>::_getCounter(), &CommandRegistry::parse<std::pair<std::string, int>>);
         }
         commandInstance->enumRanges.swap(convertedEnumRanges);
 
@@ -522,7 +535,9 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
         if (!commandInstance->alias_.empty()) registry.registerAlias(commandInstance->name_, commandInstance->alias_);
         auto builder = commandInstance->builder->get();
         for (auto& overload : commandInstance->overloads) {
-            registry.registerOverload(commandInstance->name_, builder, commandInstance->buildOverload(overload));
+            auto& si                                                    = *registry.findCommand(commandInstance->name_);
+            si.overloads.emplace_back(CommandVersion{}, builder).params = commandInstance->buildOverload(overload);
+            registry.registerOverloadInternal(si, si.overloads.back());
         }
         // commandInstance->overloads.clear();
         auto res = dynamicCommandInstances.emplace(commandInstance->name_, std::move(commandInstance));
@@ -624,15 +639,6 @@ std::unique_ptr<class DynamicCommandInstance> DynamicCommand::createCommand(
     }
     command->setCallback(std::move(callback));
     return std::move(command);
-}
-
-bool DynamicCommand::unregisterCommand(CommandRegistry& registry, std::string const& name) {
-    if (registry.unregisterCommand(name)) {
-        dynamicCommandInstances.erase(name);
-        updateAvailableCommands(registry);
-        return true;
-    }
-    return false;
 }
 
 void DynamicCommand::updateAvailableCommands(CommandRegistry& registry) {

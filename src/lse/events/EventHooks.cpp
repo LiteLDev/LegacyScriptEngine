@@ -687,7 +687,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventRtnValue(EVENT_TYPES::onOpenContainerScreen, false, PlayerClass::newPlayer(this));
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
-    origin();
+   return origin();
 }
 
 LL_TYPE_INSTANCE_HOOK(

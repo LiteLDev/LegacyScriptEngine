@@ -4,40 +4,6 @@
 
 They make it easier and more natural for you to develop scripts and avoid a lot of unnecessary details.
 
-## 🎯 Plugin Registration API 
-
-Before you start writing code for your plugin, you first need to provide the loader with some plugin-related information.
-
-`ll.registerPlugin(name, introduction, version, otherInformation)`
-
-- Parameters: 
-
-  - name : `String`  
-    Plugin Name
-    
-  - introduction : `String`  
-    A short description of the plugin.
-    
-  - version : `Array<Integer,Integer,Integer[,VersionStatus]>`  
-    Plugin version information.
-    
-    For `VersionStatus`, the following enumeration can be used
-    | Enum      | Description                        |
-    | --------- | ---------------------------------- |
-    | `Release` | Official release version (default) |
-    | `Beta`    | Test version                       |
-    | `Dev`     | Development Version                |
-    
-  - other : `Object<string,string>`  
-    Other additional information you are willing to provide (such as license, open source address, etc.)
-
-Among them, version version information is an array of version number numbers, such as `[2,0,1]` indicates that the version number is 2.0.1  
-If you do not pass in valid version information, the version number of the plugin will be set to the default value `1.0.0`
-
-For plugin additional information, you can pass in any information you need to inform the user in the same format as `Object` key-value pair. The specific data of the key-value pair needs to be `String` format.
-
-<br>
-
 ## 💼 Script Assist API
 
 The following APIs add necessary auxiliary interfaces to scripts.

@@ -7,16 +7,15 @@
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
         "author": "LiteLDev",
         "tags": [
+            "bds",
             "levilamina",
             "plugin-engine"
         ]
     },
     "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": ">=0.1.1",
-        "github.com/LiteLDev/LegacyParticleAPI": ">=0.1.1",
-        "github.com/LiteLDev/LegacyMoney": ">=0.1.6"
-    },
-    "prerequisites": {
+        "github.com/LiteLDev/LegacyRemoteCall": "0.1.x >=0.1.1",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.1.x >=0.1.1",
+        "github.com/LiteLDev/LegacyMoney": "0.1.x >=0.1.6",
         "github.com/LiteLDev/LeviLamina": "0.6.x >=0.6.3"
     },
     "files": {

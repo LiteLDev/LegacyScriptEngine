@@ -2,6 +2,7 @@
 
 #include "fmt/core.h"
 #include "ll/api/Logger.h"
+#include "ll/api/command/CommandRegistrar.h"
 #include "ll/api/memory/Closure.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -34,6 +35,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ll/api/command/CommandRegistrar.h>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -453,30 +455,24 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
             if (param.type == ParameterType::Enum) {
                 // clone BDS's enum
                 if (commandInstance->enumRanges.count(param.description) == 0) {
-                    auto namesInBds = registry.getEnumNames();
-                    auto iter       = std::find(namesInBds.begin(), namesInBds.end(), param.description);
-                    if (iter == namesInBds.end())
-                        throw std::runtime_error(
-                            "Enum " + std::string(param.description) + "not found in command and BDS"
-                        );
-                    commandInstance->setEnum(*iter, registry.getEnumValues(*iter));
+                    if (!ll::command::CommandRegistrar::getInstance().hasEnum(param.description))
+                        throw std::runtime_error("Enum " + param.description + "not found in command and BDS");
+                    commandInstance->setEnum(param.description, registry.getEnumValues(*iter));
                 }
             } else if (param.type == ParameterType::SoftEnum) {
                 // add empty Soft Enum if not found in command and BDS
                 if (commandInstance->softEnums.count(param.description) == 0) {
-                    auto namesInBds = registry.getSoftEnumNames();
-                    auto iter       = std::find(namesInBds.begin(), namesInBds.end(), param.description);
-                    if (iter == namesInBds.end()) commandInstance->setSoftEnum(param.description, {});
+                    if (!ll::command::CommandRegistrar::getInstance().hasSoftEnum(param.description))
+                        commandInstance->setSoftEnum(param.description, {});
                 }
             }
         }
 
         // fix enum name with prefix '_...' if Enum name is exists in BDS
-        auto                                                            namesInBds = registry.getEnumNames();
         std::unordered_map<std::string_view, std::pair<size_t, size_t>> convertedEnumRanges;
         for (auto& [desc, range] : commandInstance->enumRanges) {
             std::string fixedName = desc.data();
-            while (std::find(namesInBds.begin(), namesInBds.end(), fixedName) != namesInBds.end()) {
+            while (!ll::command::CommandRegistrar::getInstance().hasEnum(fixedName)) {
                 fixedName.append("_");
             }
             std::string_view fixedView = desc;
@@ -881,8 +877,7 @@ std::string DynamicCommandInstance::setSoftEnum(std::string const& name, std::ve
     if (!hasRegistered()) {
         softEnums.emplace(name, values);
     } else {
-        auto names = registry.getSoftEnumNames();
-        if (std::find(names.begin(), names.end(), name) == names.end()) {
+        if (!ll::command::CommandRegistrar::getInstance().hasSoftEnum(name)) {
             registry.addSoftEnum(name, values);
             return name;
         }
@@ -900,8 +895,7 @@ bool DynamicCommandInstance::addSoftEnumValues(std::string const& name, std::vec
             setSoftEnum(name, values);
         }
     } else {
-        auto names = registry.getSoftEnumNames();
-        if (std::find(names.begin(), names.end(), name) == names.end()) {
+        if (!ll::command::CommandRegistrar::getInstance().hasSoftEnum(name)) {
             registry.addSoftEnum(name, values);
             return true;
         }

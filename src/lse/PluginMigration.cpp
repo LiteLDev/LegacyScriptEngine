@@ -8,7 +8,9 @@
 #include <ll/api/plugin/Manifest.h>
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/reflection/Serialization.h>
+#include <nlohmann/json.hpp>
 #include <unordered_set>
+
 
 #if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 

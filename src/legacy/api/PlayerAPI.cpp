@@ -3026,7 +3026,7 @@ Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
     try {
         Player* actor = get();
         if (!actor) return Local<Value>();
-        return Number::newNumber(actor->quickEvalMolangScript(args[0].toStr()));
+        return Number::newNumber(actor->evalMolang(args[0].toStr()));
     }
     CATCH("Fail in quickEvalMolangScript!");
 }

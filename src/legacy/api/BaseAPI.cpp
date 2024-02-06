@@ -128,16 +128,16 @@ Local<Value> FloatPos::getDim() {
     string name;
     switch (dim) {
     case 0:
-        name = tr("base.getDimName.0");
+        name = "base.getDimName.0"_tr();
         break;
     case 1:
-        name = tr("base.getDimName.1");
+        name = "base.getDimName.1"_tr();
         break;
     case 2:
-        name = tr("base.getDimName.2");
+        name = "base.getDimName.2"_tr();
         break;
     default:
-        name = tr("base.getDimName.unknown");
+        name = "base.getDimName.unknown"_tr();
         break;
     }
     return String::newString(name);

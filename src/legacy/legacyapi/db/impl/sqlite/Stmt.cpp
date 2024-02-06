@@ -2,7 +2,9 @@
 
 #include "legacyapi/db/impl/sqlite/Session.h"
 #include "ll/api/Logger.h"
+#include "ll/api/utils/StringUtils.h"
 #include "sqlite3.h"
+
 
 namespace DB {
 

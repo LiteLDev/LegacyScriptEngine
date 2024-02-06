@@ -7,7 +7,7 @@ add_requires(
     "fmt 10.1.1",
     "legacymoney 0.1.5",
     "legacyparticleapi 0.1.1",
-    "levilamina 0.6.3",
+    "levilamina 0.7.1",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
     "nlohmann_json 3.11.2",

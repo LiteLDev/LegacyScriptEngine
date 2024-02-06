@@ -54,7 +54,7 @@ Local<Value> DeviceClass::getIP() {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
 
-        return String::newString(player->getNetworkIdentifier().getAddress());
+        return String::newString(player->getNetworkIdentifier().getIPAndPort());
     }
     CATCH("Fail in GetIP!")
 }

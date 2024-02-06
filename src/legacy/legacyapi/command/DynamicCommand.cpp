@@ -489,7 +489,7 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
         std::unordered_map<std::string_view, std::pair<size_t, size_t>> convertedEnumRanges;
         for (auto& [desc, range] : commandInstance->enumRanges) {
             std::string fixedName = desc.data();
-            while (!ll::command::CommandRegistrar::getInstance().hasEnum(fixedName)) {
+            while (ll::command::CommandRegistrar::getInstance().hasEnum(fixedName)) {
                 fixedName.append("_");
             }
             std::string_view fixedView = desc;

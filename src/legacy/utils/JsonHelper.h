@@ -13,7 +13,7 @@ using namespace nlohmann;
 
 inline ordered_json CreateJson(const std::string& path, const std::string& defContent, bool allowComment = true) {
     ordered_json jsonConf;
-    if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
+    if (!std::filesystem::exists(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP))) {
         if (path.find('/') != std::string::npos) { // e.g. plugins/LeviLamina/LeviLamina.json
             std::size_t pos = path.find_last_of('/');
             if (pos != std::string::npos) {

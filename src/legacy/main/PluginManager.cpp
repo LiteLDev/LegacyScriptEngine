@@ -48,7 +48,7 @@ using ll::string_utils::str2wstr;
 bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad, bool mustBeCurrentModule) {
     if (fileOrDirPath == LLSE_DEBUG_ENGINE_NAME) return true;
 
-    if (!std::filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath))) {
+    if (!std::filesystem::exists(ll::string_utils::str2u8str(fileOrDirPath))) {
         lse::getSelfPluginInstance().getLogger().error("Plugin not found! Check the path you input again.");
         return false;
     }

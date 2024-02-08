@@ -19,10 +19,6 @@
 
 开发一个脚本插件，首先要创建你的插件文件。这个文件应该命名为 "LLMyPlugin.js"，将 "MyPlugin" 替换为你想要的插件名称。它应该被放在你的服务器安装的插件文件夹中。有些开发环境会允许你创建一个新文件并选择一个位置，而其他开发环境则允许你在点击 "另存为" 后才选择。
 
-你在该文件中需要的第一行是下面这行。关于这个方法的参数信息，以及关于Script Assist API的信息，你可以去[这里](https://lse.liteldev.com/zh/apis/ScriptAPI/ScriptHelp/)。
-
-`ll.registerPlugin(name, introduction, version, otherInformation)`。
-
 这可能会使一些开发者感到困惑，因为`ll`应该是未定义的。然而，这个文件将被LeviLamina ScriptX引擎所利用。`ll`将在脚本运行时自动包含。这与你看到的任何其他没有定义的变量/类的引用是一样的。
 
 现在我们已经创建了我们的.js文件，并注册了插件，我们要做的就是创建一个事件监听器。我们通过使用`mc`来实现。

@@ -43,7 +43,6 @@
 #include <utility>
 #include <vector>
 
-
 namespace ll::memory {
 template <class Ret, class... Args>
 class NativeClosure;
@@ -276,7 +275,7 @@ public:
         std::string                   toDebugString() const;
         DynamicCommandInstance const* getInstance() const;
 
-        template <ll::concepts::ConceptFor<valid_type> T>
+        template <ll::concepts::Require<valid_type> T>
         T const& getRaw() const {
 
             if (type == ParameterType::Enum) {
@@ -295,7 +294,7 @@ public:
             ));
         }
 
-        template <ll::concepts::ConceptFor<valid_type> T>
+        template <ll::concepts::Require<valid_type> T>
         T const& value_or(T const& defaultValue) {
             if (isSet) return getRaw<T>();
             return defaultValue;
@@ -569,9 +568,6 @@ public:
         CommandPermissionLevel                                      permission = CommandPermissionLevel::GameDirectors,
         CommandFlag                                                 flag       = CommandFlagValue::NotCheat
     );
-
-    // Experiment
-    static bool unregisterCommand(CommandRegistry& registry, std::string const& name);
 
     static void updateAvailableCommands(CommandRegistry& registry);
 

@@ -14,10 +14,6 @@ With your IDE in hand, and the server installation complete, you are ready to be
 
 Developing a LLSE Plugin begins with creating your plugin's file. This file should be named "LLMyPlugin.js", replacing "MyPlugin" with what you would like to call your plugin. It should be placed in the plugins folder of your server installation. Some IDEs will allow you to create a new file and choose a location, while others will allow you to choose only after hitting "Save As".
 
-The first line you will need in that file is the one below. For information on parameters for this method, and information on the Script Assist API, you can go [here](https://lse.liteldev.com/apis/ScriptAPI/ScriptHelp/).
-
-`ll.registerPlugin(name, introduction, version, otherInformation)`
-
 This might confuse some developers, as `ll` should be undefined. However, this file is going to be utilized by the LeviLamina ScriptX Engine. `ll` will be automatically included during the script's runtime. This is the same with any other variables/classes you see referenced without a definition.
 
 Now that we have created our .js file, and registered the plugin, all we have to do from here is create an event listener. We do that by utilizing `mc`.

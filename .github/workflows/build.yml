@@ -1,6 +1,14 @@
 on:
   pull_request:
+    paths:
+      - .github/workflows/build.yml
+      - src/**
+      - xmake.lua
   push:
+    paths:
+      - .github/workflows/build.yml
+      - src/**
+      - xmake.lua
   workflow_dispatch:
 
 jobs:

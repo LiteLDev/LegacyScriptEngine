@@ -355,7 +355,7 @@ Local<Value> JsonToValue(std::string jsonStr) {
     } catch (const ordered_json::exception& e) {
         lse::getSelfPluginInstance().getLogger().warn(
             "{}{}",
-            tr("llse.apiHelp.parseJson.fail"),
+            "llse.apiHelp.parseJson.fail"_tr(),
             ll::string_utils::tou8str(e.what())
         );
         return String::newString(jsonStr);

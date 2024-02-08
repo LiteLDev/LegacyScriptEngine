@@ -8,7 +8,9 @@
 #include <ll/api/plugin/Manifest.h>
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/reflection/Serialization.h>
+#include <nlohmann/json.hpp>
 #include <unordered_set>
+
 
 #if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
@@ -35,26 +37,28 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
 
     const auto& pluginType = pluginManager.getType();
 
-    const auto& pluginName     = path.filename();
-    const auto& pluginBaseName = path.stem();
-    const auto& pluginDir      = ll::plugin::getPluginsRoot() / pluginBaseName;
+    const auto& pluginFileName     = path.filename();
+    const auto& pluginFileBaseName = path.stem();
+    const auto& pluginDir          = ll::plugin::getPluginsRoot() / pluginFileBaseName;
 
-    if (std::filesystem::exists(pluginDir / path.filename())) {
+    if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(
             fmt::format("failed to migrate legacy plugin at {}: {} already exists", path.string(), pluginDir.string())
         );
     }
 
-    if (!std::filesystem::create_directory(pluginDir) && !std::filesystem::exists(pluginDir)) {
-        throw std::runtime_error(fmt::format("failed to create directory {}", pluginDir.string()));
+    if (!std::filesystem::exists(pluginDir)) {
+        if (!std::filesystem::create_directory(pluginDir)) {
+            throw std::runtime_error(fmt::format("failed to create directory {}", pluginDir.string()));
+        }
     }
 
     // Move plugin file.
-    std::filesystem::rename(path, pluginDir / pluginName);
+    std::filesystem::rename(path, pluginDir / pluginFileName);
 
     ll::plugin::Manifest manifest{
-        .entry = pluginName.string(),
-        .name  = pluginBaseName.string(),
+        .entry = pluginFileName.string(),
+        .name  = pluginFileBaseName.string(),
         .type  = pluginType,
         .dependencies =
             std::unordered_set<ll::plugin::Dependency>{

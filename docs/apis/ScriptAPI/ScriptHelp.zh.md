@@ -4,41 +4,6 @@
 
 他们让你开发脚本变得更加容易而自然，避免了很多无谓的细节问题的纠缠。
 
-## 🎯 插件注册 API
-
-在开始为你的插件编写代码之前，你首先需要向加载器提供一些插件相关的信息
-
-`ll.registerPlugin(name, introduction, version, otherInformation)`
-
-- 参数：
-
-  - name : `String`  
-    插件名字
-    
-  - introduction : `String`  
-    对插件的简短介绍
-    
-  - version : `Array<Integer,Integer,Integer[, VersionStatus]>`  
-    插件的版本信息
-    
-    对于 `VersionStatus`，可以使用以下枚举
-    
-    | Enum              | Description            |
-    | ----------------- | ---------------------- |
-    | `Version.Release` | 正式发布版本（默认值） |
-    | `Version.Beta`    | 测试版本               |
-    | `Version.Dev`     | 开发版本               |
-    
-  - other : `Object<string,string>`  
-    其他你愿意提供的的附加信息（如许可证、开源地址等）
-
-其中，version 版本信息为版本号数字构成的数组，如`[2,0,1]`表示版本号为2.0.1  
-如果你没有传入有效的版本信息，插件的版本号将被设置为默认值`1.0.0`
-
-对于插件附加信息，你可以传入任意你需要告知用户的信息，格式同样为`Object`键值对。键值对的具体数据需要为`String`格式
-
-<br>
-
 ## 💼 脚本辅助 API
 
 下面这些API为脚本增加了必要的辅助接口

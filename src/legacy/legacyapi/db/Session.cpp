@@ -2,6 +2,7 @@
 
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/db/impl/sqlite/Session.h"
+#include "ll/api/utils/StringUtils.h"
 
 namespace DB {
 

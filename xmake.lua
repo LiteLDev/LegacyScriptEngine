@@ -5,9 +5,9 @@ add_requires(
     "demangler v2.0.0",
     "dyncall 1.4",
     "fmt 10.1.1",
-    "legacymoney 0.1.5",
-    "legacyparticleapi 0.1.1",
-    "levilamina 0.6.3",
+    "legacymoney 0.2.0",
+    "legacyparticleapi 0.2.0",
+    "levilamina 0.7.2",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
     "nlohmann_json 3.11.2",
@@ -15,7 +15,7 @@ add_requires(
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
     "toml++ v3.4.0",
-    "legacyremotecall 0.1.1"
+    "legacyremotecall 0.2.0"
 )
 add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
 add_requires("scriptx", {configs={backend=get_config("backend")}})

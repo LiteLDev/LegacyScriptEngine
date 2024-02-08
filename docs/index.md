@@ -4,17 +4,17 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Install
 
-Before installing, you need to install a suitable version of LeviLamina server.
+To install all engines as a whole, you can use the following command:
 
-### Lua Engine
+```sh
+lip install github.com/LiteLDev/LegacyScriptEngine
+```
+
+To install a specific engine, you can use the following command:
 
 ```sh
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-```
 
-### QuickJs Engine
-
-```sh
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 ```
 

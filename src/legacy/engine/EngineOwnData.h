@@ -2,7 +2,7 @@
 
 #include "dyncall/dyncall.h"
 #include "ll/api/Logger.h"
-#include "ll/api/i18n/I18nAPI.h"
+#include "ll/api/i18n/I18n.h"
 #include "main/Configs.h"
 #include "utils/UsingScriptX.h"
 

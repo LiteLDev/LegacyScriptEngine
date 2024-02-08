@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ll/api/i18n/I18nAPI.h"
+#include "ll/api/i18n/I18n.h"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -56,23 +56,22 @@ public:
     }
 };
 
-using ll::i18n::detail::tr;
 using ll::i18n_literals::operator""_tr;
 
 inline std::string DimId2Name(int dimid) {
     std::string name;
     switch (dimid) {
     case 0:
-        name = tr("base.getDimName.0");
+        name = "base.getDimName.0"_tr();
         break;
     case 1:
-        name = tr("base.getDimName.1");
+        name = "base.getDimName.1"_tr();
         break;
     case 2:
-        name = tr("base.getDimName.2");
+        name = "base.getDimName.2"_tr();
         break;
     default:
-        name = tr("base.getDimName.unknown");
+        name = "base.getDimName.unknown"_tr();
         break;
     }
     return name;

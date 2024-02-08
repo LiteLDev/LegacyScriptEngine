@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    runs-on: windows-latest
     strategy:
       matrix:
         backend:
@@ -12,11 +13,18 @@ jobs:
           - lua
           # - python310
           - quickjs
-    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: xmake-io/github-action-setup-xmake@v1
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/AppData/Local/.xmake
+          key: xmake-${{ hashFiles('xmake.lua') }}
+          restore-keys: |
+            xmake-
       
       - run: |
           xmake repo -u
@@ -27,7 +35,7 @@ jobs:
       - run: |
           xmake -w -y
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |
@@ -68,7 +76,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: release/
@@ -87,6 +95,7 @@ jobs:
           chmod 400 ~/.ssh/id_rsa
           git config --global user.name "Actions"
           git config --global user.email "shrbox@liteldev.com"
+          rm release/legacy-script-engine-${{ matrix.backend }}/*.pdb
           git clone git@gitea.litebds.com:LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
           cd legacy-script-engine-${{ matrix.backend }}
           rm -rf legacy-script-engine-${{ matrix.backend }}
@@ -116,7 +125,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: release/

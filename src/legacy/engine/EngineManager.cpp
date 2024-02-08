@@ -85,7 +85,7 @@ ScriptEngine* EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
         auto ownerData = ENGINE_GET_DATA(engine);
         auto filename  = ll::string_utils::u8str2str(
-            std::filesystem::path(ll::string_utils::str2wstr(ownerData->pluginFileOrDirPath)).filename().u8string()
+            std::filesystem::path(ll::string_utils::str2wstr(ownerData->pluginFileOrDirPath, ll::string_utils::CodePage::DefaultACP)).filename().u8string()
         );
         if (ownerData->pluginName == name || filename == name) return engine;
     }

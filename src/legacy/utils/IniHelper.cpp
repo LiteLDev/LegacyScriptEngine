@@ -7,10 +7,10 @@
 #include <filesystem>
 
 SimpleIni* SimpleIni::create(const std::string& path, const std::string& defContent) {
-    if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
+    if (!std::filesystem::exists(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP))) {
         // 创建新的
         std::filesystem::create_directories(
-            std::filesystem::path(ll::string_utils::str2wstr(path)).remove_filename().u8string()
+            std::filesystem::path(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP)).remove_filename().u8string()
         );
 
         std::ofstream iniFile(path);

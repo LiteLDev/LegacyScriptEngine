@@ -1,19 +1,18 @@
 {
     "format_version": 2,
     "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "info": {
         "name": "LegacyScriptEngine",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
         "author": "LiteLDev",
         "tags": [
-            "bds",
             "levilamina",
             "plugin-engine"
         ]
     },
     "dependencies": {
-        "gitea.litebds.com/LiteLDev/legacy-script-engine-lua": "0.2.2",
-        "gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs": "0.2.2"
+        "gitea.litebds.com/LiteLDev/legacy-script-engine-lua": "0.2.3",
+        "gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs": "0.2.3"
     }
 }

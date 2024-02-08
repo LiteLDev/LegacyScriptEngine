@@ -121,7 +121,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
         FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
         // Auto Create
         if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
-            std::fstream tmp(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP), std::ios_base::app);
+            std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
             tmp.flush();
             tmp.close();
         }
@@ -141,7 +141,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
             mode     |= std::ios_base::binary;
         }
 
-        std::fstream fs(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP), mode);
+        std::fstream fs(ll::string_utils::str2wstr(path), mode);
         if (!fs.is_open()) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
             return nullptr;
@@ -164,7 +164,7 @@ Local<Value> FileClass::getPath() {
 
 Local<Value> FileClass::getAbsolutePath() {
     try {
-        return String::newString(canonical(std::filesystem::path(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP))).u8string());
+        return String::newString(canonical(std::filesystem::path(ll::string_utils::str2wstr(path))).u8string());
     }
     CATCH("Fail in getAbsolutePath!");
 }
@@ -533,7 +533,7 @@ Local<Value> PathDelete(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(remove_all(ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP)) > 0);
+        return Boolean::newBoolean(remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Delete " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -546,7 +546,7 @@ Local<Value> PathExists(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(std::filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP)));
+        return Boolean::newBoolean(std::filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString())));
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Check " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -561,8 +561,8 @@ Local<Value> PathCopy(const Arguments& args) {
 
     try {
         copy(
-            ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP),
-            ll::string_utils::str2wstr(args[1].asString().toString(), ll::string_utils::CodePage::DefaultACP)
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
@@ -579,8 +579,8 @@ Local<Value> PathRename(const Arguments& args) {
 
     try {
         rename(
-            ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP),
-            ll::string_utils::str2wstr(args[1].asString().toString(), ll::string_utils::CodePage::DefaultACP)
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
@@ -597,10 +597,10 @@ Local<Value> PathMove(const Arguments& args) {
 
     try {
         copy(
-            ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP),
-            ll::string_utils::str2wstr(args[1].asString().toString(), ll::string_utils::CodePage::DefaultACP)
+            ll::string_utils::str2wstr(args[0].asString().toString()),
+            ll::string_utils::str2wstr(args[1].asString().toString())
         );
-        remove_all(ll::string_utils::str2wstr(args[0].asString().toString(), ll::string_utils::CodePage::DefaultACP));
+        remove_all(ll::string_utils::str2wstr(args[0].asString().toString()));
         return Boolean::newBoolean(true);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Move " + args[0].asString().toString() + "!\n");
@@ -614,7 +614,7 @@ Local<Value> CheckIsDir(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(ll::string_utils::str2wstr(args[0].toStr(), ll::string_utils::CodePage::DefaultACP));
+        path p(ll::string_utils::str2wstr(args[0].toStr()));
         if (!exists(p)) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(directory_entry(p).is_directory());
@@ -630,7 +630,7 @@ Local<Value> GetFileSize(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(ll::string_utils::str2wstr(args[0].toStr(), ll::string_utils::CodePage::DefaultACP));
+        path p(ll::string_utils::str2wstr(args[0].toStr()));
         if (!exists(p)) return Number::newNumber(0);
         if (directory_entry(p).is_directory()) return Number::newNumber(0);
 
@@ -732,7 +732,7 @@ Local<Value> OpenFile(const Arguments& args) {
         FileOpenMode            fMode = (FileOpenMode)(args[1].toInt());
         std::ios_base::openmode mode  = std::ios_base::in;
         if (fMode == FileOpenMode::WriteMode) {
-            std::fstream tmp(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP), std::ios_base::app);
+            std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
             tmp.flush();
             tmp.close();
             mode |= std::ios_base::out;
@@ -744,7 +744,7 @@ Local<Value> OpenFile(const Arguments& args) {
             mode     |= std::ios_base::binary;
         }
 
-        std::fstream fs(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP), mode);
+        std::fstream fs(ll::string_utils::str2wstr(path), mode);
         if (!fs.is_open()) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
             return {};

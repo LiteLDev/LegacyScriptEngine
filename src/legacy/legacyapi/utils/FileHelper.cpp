@@ -13,7 +13,7 @@ std::optional<std::string> ReadAllFile(const std::string& filePath, bool isBinar
     std::ios_base::openmode mode = std::ios_base::in;
     if (isBinary) mode |= std::ios_base::binary;
 
-    fRead.open(ll::string_utils::str2wstr(filePath, ll::string_utils::CodePage::DefaultACP), mode);
+    fRead.open(ll::string_utils::str2wstr(filePath), mode);
     if (!fRead.is_open()) {
         return std::nullopt;
     }
@@ -28,7 +28,7 @@ bool WriteAllFile(const std::string& filePath, const std::string& content, bool 
     std::ios_base::openmode mode = std::ios_base::out;
     if (isBinary) mode |= std::ios_base::binary;
 
-    fWrite.open(ll::string_utils::str2wstr(filePath, ll::string_utils::CodePage::DefaultACP), mode);
+    fWrite.open(ll::string_utils::str2wstr(filePath), mode);
     if (!fWrite.is_open()) {
         return false;
     }
@@ -51,7 +51,7 @@ std::vector<std::string> GetFileNameList(const std::string& dir) {
 
 bool CreateDirs(const std::string path) {
     std::error_code ec;
-    auto ret = std::filesystem::create_directories(std::filesystem::path(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP)), ec);
+    auto ret = std::filesystem::create_directories(std::filesystem::path(ll::string_utils::str2wstr(path)), ec);
     if (ec.value() != 0) {
         lse::getSelfPluginInstance().getLogger().error("Fail to create dir, err code: {}", ec.value());
         lse::getSelfPluginInstance().getLogger().error(ec.message());

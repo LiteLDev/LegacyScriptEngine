@@ -48,7 +48,7 @@ using ll::string_utils::str2wstr;
 bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad, bool mustBeCurrentModule) {
     if (fileOrDirPath == LLSE_DEBUG_ENGINE_NAME) return true;
 
-    if (!std::filesystem::exists(ll::string_utils::str2wstr(fileOrDirPath, ll::string_utils::CodePage::DefaultACP))) {
+    if (!std::filesystem::exists(ll::string_utils::str2u8str(fileOrDirPath))) {
         lse::getSelfPluginInstance().getLogger().error("Plugin not found! Check the path you input again.");
         return false;
     }
@@ -60,7 +60,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
         lse::getSelfPluginInstance().getLogger().error(fileOrDirPath + " is not a valid plugin path!");
         return false;
     }
-    std::filesystem::path p(ll::string_utils::str2wstr(fileOrDirPath, ll::string_utils::CodePage::DefaultACP));
+    std::filesystem::path p(ll::string_utils::str2wstr(fileOrDirPath));
     string pluginFileName = RemoveRealAllExtension(ll::string_utils::u8str2str(p.filename().stem().u8string()));
 
     // Uncompress plugin package if needed
@@ -351,7 +351,7 @@ bool PluginManager::unRegisterPlugin(std::string name) {
 // Get plugin backend type from its file path (single file plugin)
 // or its unpressed dir path (plugin package)
 std::string PluginManager::getPluginBackendType(const std::string& path) {
-    std::filesystem::path filePath(ll::string_utils::str2wstr(path, ll::string_utils::CodePage::DefaultACP));
+    std::filesystem::path filePath(ll::string_utils::str2wstr(path));
     if (!std::filesystem::exists(filePath)) return "";
 
     if (std::filesystem::is_directory(filePath)) {

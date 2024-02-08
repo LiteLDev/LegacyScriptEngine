@@ -687,7 +687,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventRtnValue(EVENT_TYPES::onOpenContainerScreen, false, PlayerClass::newPlayer(this));
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
-   return origin();
+    return origin();
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -706,7 +706,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onCmdBlockExecute,
                 false,
                 String::newString(this->getCommand()),
-                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), commandOrigin.getEntity()->getDimensionId()),
+                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
                 Boolean::newBoolean(true)
             );
         } else {
@@ -714,7 +714,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onCmdBlockExecute,
                 false,
                 String::newString(this->getCommand()),
-                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), commandOrigin.getEntity()->getDimensionId()),
+                FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
                 Boolean::newBoolean(false)
             );
         }

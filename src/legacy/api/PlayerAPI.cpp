@@ -1522,13 +1522,13 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket();
-        pkt.createChat(
+        TextPacket pkt = TextPacket::createChat(
             player->getRealName(),
             args[0].asString().toString(),
             player->getXuid(),
             player->getPlatformOnlineId()
         );
+        ;
         ll::service::getServerNetworkHandler()->handle(player->getNetworkIdentifier(), pkt);
         return Boolean::newBoolean(true);
     }

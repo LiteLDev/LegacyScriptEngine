@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
+
 add_requires(
     "demangler v2.0.0",
     "dyncall 1.4",
@@ -35,6 +36,19 @@ option("backend")
     set_default("lua")
     set_values("lua", "quickjs")
 
+package("moreevents")
+    add_urls("https://github.com/LiteLDev/MoreEvents.git")
+
+    add_deps("levilamina 0.7.2")
+
+    on_install(function (package)
+        import("package.tools.xmake").install(package)
+    end)
+
+package_end()
+
+add_requires("moreevents")
+
 target("legacy-script-engine")
     add_cxflags(
         "/EHa",
@@ -68,7 +82,8 @@ target("legacy-script-engine")
         "simpleini",
         "sqlite3",
         "toml++",
-        "legacyremotecall"
+        "legacyremotecall",
+        "moreevents"
     )
     add_shflags(
         "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.
@@ -102,3 +117,4 @@ target("legacy-script-engine")
         
         plugin_packer.pack_plugin(target,plugin_define)
     end)
+

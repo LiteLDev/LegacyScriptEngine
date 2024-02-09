@@ -24,11 +24,8 @@ if is_config("backend", "lua") then
 
 elseif is_config("backend", "quickjs") then
     add_requires("scriptx 3.2.0", {configs={backend="QuickJs"}})
-    
-end
+    set_runtimes("MD") -- Prebuilt QuickJS binaries are built with /MD.
 
-if not has_config("vs_runtime") then
-    set_runtimes("MD")
 end
 
 option("backend")

@@ -22,33 +22,6 @@ constexpr auto PluginManagerName = "lse-quickjs";
 
 #endif
 
-// temporary fix
-// struct ll::plugin::PluginManager::Impl {
-//     std::string                                 type;    // NOLINT
-//     std::recursive_mutex                        mutex;   // NOLINT
-//     UnorderedStringMap<std::shared_ptr<Plugin>> plugins; // NOLINT
-//     explicit Impl(std::string type) : type(std::move(type)) {}
-// };
-// ll::plugin::PluginManager::~PluginManager() = default;
-// auto ll::plugin::PluginManager::enable(std::string_view name) -> bool {
-//     auto lockInstance(lock());
-//     auto plugin = getPlugin(name);
-//     if (!plugin) {
-//         return false;
-//     }
-//     return plugin->onEnable();
-// }
-// auto ll::plugin::PluginManager::disable(std::string_view name) -> bool {
-//     auto lockInstance(lock());
-//     auto plugin = getPlugin(name);
-//     if (!plugin) {
-//         return false;
-//     }
-//     return plugin->onDisable();
-// }
-// auto ll::plugin::PluginManager::load(ll::plugin::Manifest /*manifest*/) -> bool { return true; } // NOLINT
-// auto ll::plugin::PluginManager::unload(std::string_view /*name*/) -> bool { return true; }
-
 namespace lse {
 
 PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}

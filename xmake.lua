@@ -18,54 +18,22 @@ add_requires(
     "legacyremotecall 0.2.0"
 )
 add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
-add_requires("scriptx", {configs={backend=get_config("backend")}})
 
-set_runtimes("MD") -- For compatibility with the /MD build configuration of ScriptX.
+if is_config("backend", "lua") then
+    add_requires("scriptx 3.2.0", {configs={backend="Lua"}})
+
+elseif is_config("backend", "quickjs") then
+    add_requires("scriptx 3.2.0", {configs={backend="QuickJs"}})
+    
+end
+
+if not has_config("vs_runtime") then
+    set_runtimes("MD")
+end
 
 option("backend")
     set_default("lua")
     set_values("lua", "quickjs")
-
-package("quickjs")
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/quickjs.zip")
-    add_versions("latest", "af0c38b0cf80aa1deb58e727e408477fffcc6f5f57da537dffc335861d652ed0")
-
-    on_install(function (package)
-        os.cp("*", package:installdir())
-    end)
-
-package("scriptx")
-    add_configs("backend", {default = "lua", values = {"lua", "quickjs"}})
-    add_includedirs(
-        "src/include/"
-    )
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/scriptx.zip")
-    add_versions("latest", "dd5fb21370a59f38e4c33f48f4a6eecb25692283e4d49bbee983453e05b128ab")
-
-    on_install(function (package)
-        os.cp("*", package:installdir())
-    end)
-
-    on_load(function (package)
-        local backend = package:config("backend")
-
-        local deps = {
-            lua = "lua v5.4.6",
-            quickjs = "quickjs",
-        }
-
-        local scriptx_backends = {
-            lua = "Lua",
-            quickjs = "QuickJs",
-        }
-
-        print("Using ScriptX config: backend=" .. backend .. ", scriptx_backend=" .. scriptx_backends[backend])
-        
-        package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backends[backend])
-        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backends[backend] .. "/trait/Trait")
-        package:add("deps", deps[backend])
-        package:add("links", "scriptx_" .. scriptx_backends[backend])
-    end)
 
 target("legacy-script-engine")
     add_cxflags(

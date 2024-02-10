@@ -8,17 +8,18 @@ add_requires(
     "fmt 10.1.1",
     "legacymoney 0.2.0",
     "legacyparticleapi 0.2.0",
+    "legacyremotecall 0.2.0",
     "levilamina 0.7.2",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
+    "more-events develop",
     "nlohmann_json 3.11.2",
     "openssl 1.1.1-w",
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
-    "toml++ v3.4.0",
-    "legacyremotecall 0.2.0"
+    "toml++ v3.4.0"
 )
-add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
+add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
     add_requires("scriptx 3.2.0", {configs={backend="Lua"}})
@@ -36,7 +37,7 @@ option("backend")
     set_default("lua")
     set_values("lua", "quickjs")
 
-package("moreevents")
+package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
 
     add_deps("levilamina 0.7.2")
@@ -44,10 +45,6 @@ package("moreevents")
     on_install(function (package)
         import("package.tools.xmake").install(package)
     end)
-
-package_end()
-
-add_requires("moreevents")
 
 target("legacy-script-engine")
     add_cxflags(
@@ -74,16 +71,16 @@ target("legacy-script-engine")
         "fmt",
         "legacymoney",
         "legacyparticleapi",
+        "legacyremotecall",
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
+        "moreevents",
         "nlohmann_json",
         "scriptx",
         "simpleini",
         "sqlite3",
-        "toml++",
-        "legacyremotecall",
-        "moreevents"
+        "toml++"
     )
     add_shflags(
         "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.

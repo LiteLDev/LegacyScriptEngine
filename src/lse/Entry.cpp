@@ -150,10 +150,10 @@ auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
     auto content = ll::file_utils::readFile(path);
 
     if (!content) {
-        throw std::runtime_error(fmt::format("failed to read {}", path.string()));
+        throw std::runtime_error(fmt::format("failed to read {}", ll::string_utils::u8str2str(path.u8string())));
     }
 
-    depends.emplace(path.string(), *content);
+    depends.emplace(ll::string_utils::u8str2str(path.u8string()), *content);
 
     return true;
 }

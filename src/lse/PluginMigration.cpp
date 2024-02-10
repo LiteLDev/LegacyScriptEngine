@@ -31,7 +31,7 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
 
     auto& logger = self.getLogger();
 
-    logger.info("migrating legacy plugin at {}", path.string());
+    logger.info("migrating legacy plugin at {}", ll::string_utils::u8str2str(path.u8string()));
 
     auto& pluginManager = getPluginManager();
 
@@ -43,13 +43,13 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(
-            fmt::format("failed to migrate legacy plugin at {}: {} already exists", path.string(), pluginDir.string())
+            fmt::format("failed to migrate legacy plugin at {}: {} already exists", ll::string_utils::u8str2str(path.u8string()), ll::string_utils::u8str2str(pluginDir.u8string()))
         );
     }
 
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
-            throw std::runtime_error(fmt::format("failed to create directory {}", pluginDir.string()));
+            throw std::runtime_error(fmt::format("failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string())));
         }
     }
 
@@ -57,8 +57,8 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
     std::filesystem::rename(path, pluginDir / pluginFileName);
 
     ll::plugin::Manifest manifest{
-        .entry = pluginFileName.string(),
-        .name  = pluginFileBaseName.string(),
+        .entry = ll::string_utils::u8str2str(pluginFileName.u8string()),
+        .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
         .type  = pluginType,
         .dependencies =
             std::unordered_set<ll::plugin::Dependency>{

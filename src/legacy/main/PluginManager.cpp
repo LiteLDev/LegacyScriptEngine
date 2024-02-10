@@ -54,7 +54,7 @@ bool PluginManager::loadPlugin(const std::string& fileOrDirPath, bool isHotLoad,
     }
 
     // Get bacis information
-    bool   isPluginPackage = std::filesystem::is_directory(fileOrDirPath);
+    bool isPluginPackage = std::filesystem::is_directory(ll::string_utils::str2wstr(fileOrDirPath));
     string backendType     = getPluginBackendType(fileOrDirPath);
     if (backendType.empty()) {
         lse::getSelfPluginInstance().getLogger().error(fileOrDirPath + " is not a valid plugin path!");

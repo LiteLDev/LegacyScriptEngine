@@ -19,7 +19,7 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value type: `String`
   - If the return value is `Null`, it means that the conversion failed.
 
-<br>
+
 
 ### JSON String Parsed as Variable
 
@@ -32,7 +32,7 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value type: `Any type`, depending on the data type contained in JSON.
   - If the return value is `Null`, it means that the conversion failed .
 
-<br>
+
 
 ### MD5 Calculation
 
@@ -44,7 +44,7 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value: MD5 digest string of original data.
 - Return value type: `String`
 
-<br>
+
 
 ### SHA1 Calculation
 
@@ -56,7 +56,7 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value: SHA1 digest string of original data.
 - Return value type: `String`
 
-<br>
+
 
 ### Data to Base64
 
@@ -68,7 +68,7 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value: Base64 result.
 - Return value type: `String`
 
-<br>
+
 
 ### Base64 decode to data
 
@@ -82,4 +82,4 @@ Provides some other common data processing interfaces. You can use and expand by
 - Return value: Decoded data.
 - Return value type: `String` or `ByteBuffer`
 
-<br>
+

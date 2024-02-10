@@ -15,7 +15,7 @@
     The display name of the scoreboard item.
 - Intercept event: cannot be intercepted.
 
-<br>
+
 
 #### `"onTick"` - Tick Event
 
@@ -25,7 +25,7 @@
   - None
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onServerStarted"` - Server Start Event
 
@@ -35,7 +35,7 @@
   - None
 - Intercept event: cannot be intercepted.
 
-<br>
+
 
 #### `"onConsoleCmd"` - Server Command Event
 
@@ -47,7 +47,7 @@
 
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onConsoleOutput"` - Console Output Event
 

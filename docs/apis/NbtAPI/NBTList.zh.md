@@ -9,7 +9,7 @@
 
 详见 [NbtList - 列表类型](LLSEPluginDevelopment/NbtAPI/NBTList.md) 和 [NbtCompound - 标签类型](LLSEPluginDevelopment/NbtAPI/NBTCompound.md) 文档
 
-<br>
+
 
 #### 创建新的NBT列表对象
 
@@ -23,7 +23,7 @@
 - 返回值类型：`NbtList`
   - 如果创建失败，将抛出异常
 
-<br>
+
 
 对于某个一个`NbtList`类型的对象`list`，有如下这些接口
 
@@ -34,7 +34,7 @@
 - 返回值：此列表的长度
 - 返回值类型：`Integer`
 
-<br>
+
 
 #### 获取某个下标位置储存的数据类型
 
@@ -51,7 +51,7 @@
 `NBT.Float` `NBT.Double` `NBT.ByteArray` `NBT.String`  
 `NBT.List` `NBT.Compound`
 
-<br>
+
 
 #### 设置某个下标位置的NBT对象
 
@@ -66,7 +66,7 @@
 - 返回值：写入完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
-<br>
+
 
 #### 读取某个下标位置的NBT对象
 
@@ -79,7 +79,7 @@
 - 返回值类型：`NBT对象`
   - 如果要读取的NBT不存在，将返回`Null`
 
-<br>
+
 
 #### 往列表末尾追加一个NBT对象
 
@@ -91,7 +91,7 @@
 - 返回值：追加完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
-<br>
+
 
 #### 删除某个下标位置的NBT对象
 
@@ -104,7 +104,7 @@
 - 返回值：处理完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
-<br>
+
 
 ## 一些协助 NBT 对象操作的方便函数
 
@@ -132,7 +132,7 @@
 - 返回值：写入完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
-<br>
+
 
 #### 读取某个下标位置的具体数据
 
@@ -146,7 +146,7 @@
   - 如果目标位置储存的是`List`类型 NBT，将返回一个`NbtList`对象；如果目标位置储存的是`Compound`类型 NBT，将返回一个`NbtCompound`对象
   - 如果要读取的NBT不存在，将返回`Null`
 
-<br>
+
 
 #### 将List类型转换为Array
 
@@ -158,4 +158,4 @@
 将List的内容转换为脚本引擎数组 / 列表，把数据项都转换为脚本引擎数据类型储存于数组 / 列表的对应下标中，方便读取和处理  
 如果List某一项储存的是`List`或者`Compound`类型的 NBT，将在对应位置递归展开为`Array`或`Object`
 
-<br>
+

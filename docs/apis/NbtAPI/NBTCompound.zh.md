@@ -9,7 +9,7 @@
 
 详见 [NbtList - 列表类型](LLSEPluginDevelopment/NbtAPI/NBTList.md) 和 [NbtCompound - 标签类型](LLSEPluginDevelopment/NbtAPI/NBTCompound.md) 文档
 
-<br>
+
 
 #### 创建新的 NBT 标签对象
 
@@ -63,7 +63,7 @@ local nbt = NbtCompound({
 
 > SNBT字符串中必须包含一个完整的Compound
 
-<br>
+
 
 #### 从二进制 NBT 数据生成 NBT 标签对象
 
@@ -78,7 +78,7 @@ local nbt = NbtCompound({
 
 > 二进制 NBT 数据中必须包含一个完整的Compound
 
-<br>对于某个一个`NbtCompound`类型的对象`comp`，有如下这些接口
+对于某个一个`NbtCompound`类型的对象`comp`，有如下这些接口
 
 #### 获取所有的键
 
@@ -87,7 +87,7 @@ local nbt = NbtCompound({
 - 返回值：Compound 中所有的键
 - 返回值类型：`Array<String,String,...>`
 
-<br>
+
 
 #### 获取键对应的值的数据类型
 
@@ -104,7 +104,7 @@ local nbt = NbtCompound({
 `NBT.Float` `NBT.Double` `NBT.ByteArray` `NBT.String`  
 `NBT.List` `NBT.Compound`
 
-<br>
+
 
 #### 设置键对应的 NBT 对象
 
@@ -119,7 +119,7 @@ local nbt = NbtCompound({
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-<br>
+
 
 #### 读取键对应的 NBT 对象
 
@@ -132,7 +132,7 @@ local nbt = NbtCompound({
 - 返回值类型： `NBT对象`
   - 如果要读取的NBT不存在，将返回`Null`
 
-<br>
+
 
 #### 删除键对应的 NBT 对象
 
@@ -144,7 +144,7 @@ local nbt = NbtCompound({
 - 返回值：处理完毕的NBT对象（便于连锁进行其他操作）
 - 返回值类型：`NbtCompound`
 
-<br>
+
 
 ## 一些协助 NBT 对象操作的方便函数
 
@@ -172,7 +172,7 @@ local nbt = NbtCompound({
 - 返回值：写入完毕的NBT对象（便于连锁进行其他操作）
 - 返回值类型：`NbtCompound`
 
-<br>
+
 
 #### 读取键对应的值的具体数据
 
@@ -186,7 +186,7 @@ local nbt = NbtCompound({
   - 如果目标位置储存的是`List`类型 NBT，将返回一个`NbtList`对象；如果目标位置储存的是`Compound`类型 NBT，将返回一个`NbtCompound`对象
   - 如果要读取的NBT不存在，将返回`Null`
 
-<br>
+
 
 #### 将 NBT 标签对象 转换为Object
 
@@ -198,7 +198,7 @@ local nbt = NbtCompound({
 将Compound的内容转换为脚本引擎对象，把数据项都转换为脚本引擎数据类型储存于对象的对应key中，方便读取和处理  
 如果Compound某一项储存的是`List`或者`Compound`类型的 NBT，将在对应位置递归展开为`Array`或`Object`
 
-<br>
+
 
 #### 将 NBT 标签对象 序列化为SNBT
 `nbt.toSNBT([space])`
@@ -215,7 +215,7 @@ local nbt = NbtCompound({
 >
 > --- Minecraft Wiki
 
-<br>
+
 
 #### 将 NBT 标签对象 序列化为二进制NBT
 
@@ -225,7 +225,7 @@ local nbt = NbtCompound({
 - 返回值类型：`ByteBuffer`
 > 只有完整的顶层Compound标签可以被转换为二进制NBT
 
-<br>
+
 
 #### 销毁此 NBT 标签对象
 `comp.destroy()`

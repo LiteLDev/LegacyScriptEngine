@@ -11,7 +11,7 @@ The documentation does not list the packet ID and its structure, please check it
 - 🔉 [Packet Object API](#🔉-Packet-Object-api)
 - 🔌 [Binary stream object API](#🔌-Binary-stream-object-api)
 
-<br>
+
 
 ## 🔉 Packet Object API
 
@@ -24,7 +24,7 @@ In LLSE, 「Packet Object」 is used to get information about packets.
 Call some **return packet object** function to get to the packet object given by BDS    
 See [Binary Stream Objects](#🔌-binary-stream-object-api) for details 
 
-<br>
+
 
 ### Packet Objects - Functions
 
@@ -37,7 +37,7 @@ Every packet object contains some member functions (member methods) that can be 
 - Return value：packet name
 -  Return value type： `String`
 
-<br>
+
 
 #### Get packet ID
 
@@ -46,7 +46,7 @@ Every packet object contains some member functions (member methods) that can be 
 - Return value：packet id
 - Return value type： `Integer`
 
-<br>
+
 
 ## 🔌 Binary Stream Object API
 
@@ -70,7 +70,7 @@ Every binary stream object contains some member functions (member methods) that 
 - Return value: success or not
 - Return value type： `Boolean`
 
-<br>
+
 
 #### Write to binary stream
 
@@ -105,7 +105,7 @@ Every binary stream object contains some member functions (member methods) that 
 | writeVec3               | `FloatPos`     |
 | writeCompountTag        | `NbtCompound`  |
 
-<br>
+
 
 #### Building packet from binary stream
 
@@ -118,7 +118,7 @@ Every binary stream object contains some member functions (member methods) that 
 - Return value：Packet object
 - Return value type： `Packet`
 
-<br>
+
 
 ### Dome Code
 

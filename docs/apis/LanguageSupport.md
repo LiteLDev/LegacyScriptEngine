@@ -7,12 +7,12 @@ At the same time, the API remains consistent, allowing various languages to shar
 
 Currently, LLSE supports writing plugins in the following languages：
 
-| Language backend | Remarks                                                      |
-| ---------------- | ------------------------------------------------------------ |
-| `JavaScript`     | Using QuickJS engine, with support for ES Modules            |
-| `Lua`            | Using CLua engine                                            |
-| `Node.js`         | Modify Node.js to work with embedding, with support for npm package management |
-| `Python`  | Using CPython engine, with support for pip package management |
+| Language backend | Remarks                                                                        |
+| ---------------- | ------------------------------------------------------------------------------ |
+| `JavaScript`     | Using QuickJS engine, with support for ES Modules                              |
+| `Lua`            | Using CLua engine                                                              |
+| `Node.js`        | Modify Node.js to work with embedding, with support for npm package management |
+| `Python`         | Using CPython engine, with support for pip package management                  |
 
 !!! tip
     If you need to write plugins in native languages such as C++, Go, Rust, etc., please go to [Home](https://levilamina.liteldev.com) for other language documentation
@@ -24,7 +24,7 @@ Currently, LLSE supports writing plugins in the following languages：
 - Package management is not supported. If needed, you can use Node.js for plugin development and use npm for package management
 - Use `jsdebug` command in the BDS console to enter and exit the QuickJs interactive command line environment. This feature facilitates some simple testing when writing plugins
 
-<br>
+
 
 ## Lua language support description
 
@@ -32,7 +32,7 @@ Currently, LLSE supports writing plugins in the following languages：
 - Since the Rocks package management mechanism requires the introduction of a compiler, the implementation is not available at this time. If you need to depend on extensions, you can compile them manually and introduce them into your project (e.g. SQLite)
 - Use `luadebug` command in the BDS console to enter and exit the Lua interactive command line environment. This feature facilitates some simple testing when writing plugins
 
-<br>
+
 
 ## Node.js support description
 
@@ -53,7 +53,7 @@ Currently, LLSE supports writing plugins in the following languages：
 - Distribute the **.llplugin** file as a plugin. When installing the plugin, just place this file directly into the plugins directory
 - LLSE will automatically recognize the **.llplugin** file when BDS launch, extract it to the `plugins/nodejs/<PluginName>` directory, and automatically execute `npm install` in the directory to install the dependency packages. No manual intervention is needed for the whole process
 
-<br>
+
 
 ## Python language support description
 

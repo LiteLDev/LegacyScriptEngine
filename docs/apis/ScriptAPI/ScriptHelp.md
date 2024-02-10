@@ -17,7 +17,7 @@ The following APIs add necessary auxiliary interfaces to scripts.
     Can be of any type, and the number of parameters can be any number.
 - Return value: none
 
-<br>
+
 
 ### Output Color Text
 
@@ -37,7 +37,7 @@ This is an upgraded version of the above function; it supports color output.
 
 ![ColorLogExample](../../../assets/ColorLog.png)
 
-<br>
+
 
 ### Asynchronous Output
 
@@ -52,7 +52,7 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
     Can be of any type, and the number of parameters can be any number 
 - Return value: none 
 
-<br>
+
 
 ### Delay the execution of a function for a period of time 
 
@@ -69,7 +69,7 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
 - Return value type: `Integer`
   - If it returns `Null`, the task failed.
 
-<br>
+
 
 ### Delay the execution of a code segment for a period of time (eval)
 
@@ -86,7 +86,7 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
 - Return value type: `Integer`
   - If it returns `Null`, the task creation failed.
 
-<br>
+
 
 ### Set period execution function
 
@@ -101,7 +101,7 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
 - Return value: this task id
 - Return value type:  `Integer`
 
-<br>
+
 
 ### Set period execution code segment (eval)
 
@@ -117,7 +117,7 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
 - Return value type:  `Integer`
   - If it returns `Null`, the task creation failed.
 
-<br>
+
 
 ### Cancel Delay/Period Execution Item 
 
@@ -130,4 +130,4 @@ The bottom layer has lock protection, different `fastLog` There will be no strin
 - Return value type:  `Boolean`
   - If it returns `Null`, the cancellation of the task failed.
 
-<br>
+

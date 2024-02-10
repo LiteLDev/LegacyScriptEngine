@@ -13,7 +13,7 @@ Therefore, the content and format of the configuration file generally need to be
 LLSE provides the ConfigFile configuration file interface to accomplish this task. 
 Of course, you can also manually read and write files to assist in the operation of related configuration files.
 
-<br>
+
 
 ### Description: Selection of Configuration File Type
 
@@ -24,7 +24,7 @@ The choice of configuration file format will affect the type of configuration da
 
 Please make your choice as needed.
 
-<br>
+
 
 ### 📰 JSON Format Configuration File
 
@@ -47,7 +47,7 @@ Please make your choice as needed.
 
 We recommend that you create a directory named `BDS_Root_Directory/plugins/plugin_name/` with a config file named `config.json` to keep the configuration of each plugin uniform.
 
-<br>
+
 
 For a JSON profile object `conf`, you have these read and write interfaces available.
 
@@ -67,7 +67,7 @@ Here is an easy way to initialize the configuration file, avoiding the trouble o
 
 If the accessed configuration item does not exist, then the engine will automatically create the item `init` in the configuration file and write the given default value.
 If the accessed configuration item `init` already exists, the engine will read and return the existing value in the configuration file.
-<br>
+
 
 #### Write Configuration Item
 
@@ -85,7 +85,7 @@ If the accessed configuration item `init` already exists, the engine will read a
 
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Read Configuration Items
 
@@ -100,7 +100,7 @@ If the accessed configuration item `init` already exists, the engine will read a
 - Return value: The data of the specified configuration item.
 - Return value type: `Any type`, subject to the specific type of data stored.
 
-<br>
+
 
 #### Delete Configuration Item
 
@@ -114,7 +114,7 @@ If the accessed configuration item `init` already exists, the engine will read a
 
 If you don't need this configuration item, in order to avoid confusion when others modify the configuration file, you can choose to delete it.
 
-<br>
+
 
 ### 📄 Ini Format Configuration File
 
@@ -137,7 +137,7 @@ If you don't need this configuration item, in order to avoid confusion when othe
 
 We recommend that you create a directory named `BDS_Root_Directory/plugins/plugin_name/` with a config file named `config.json` to keep the configuration of each plugin uniform.
 
-<br>
+
 
 For an ini profile object `conf`, you have these read and write interfaces available:
 
@@ -161,7 +161,7 @@ Here is an easy way to initialize the configuration file, avoiding the trouble o
 If the accessed configuration item does not exist, then the engine will automatically create the item `init` in the configuration file and write the given default value.
 If the accessed configuration item `init` already exists, the engine will read and return the existing value in the configuration file.
 
-<br>
+
 
 #### Write Configuration Item
 
@@ -182,7 +182,7 @@ If the accessed configuration item `init` already exists, the engine will read a
 
 If the configuration item does not exist, the interface will be created automatically.
 
-<br>
+
 
 #### Read Configuration Items
 
@@ -202,7 +202,7 @@ Read boolean `conf.getBool(section,name[,default])`
 - Return value: The data of the specified configuration item.
 - Return value type: `String`/ `Integer`/ `Float`/ `Boolean`
 
-<br>
+
 
 #### Delete Configuration Item
 
@@ -218,7 +218,7 @@ Read boolean `conf.getBool(section,name[,default])`
 
 If you don't need this configuration item, in order to avoid confusion when others modify the configuration file, you can choose to delete it.
 
-<br>
+
 
 ### 💼 Other Common Interface Functions
 
@@ -232,7 +232,7 @@ For a profile object `conf`, you can use these generic interfaces for auxiliary 
 
 For performance reasons, the configuration file interface caches read operations, each read operation is read from direct memory, and writes are written directly to disk files. Considering that the configuration file may be modified by the user, after you confirm that the user has modified the configuration file, you need to use this function to refresh the memory cache data of the configuration file.
 
-<br>
+
 
 #### Close Config File
 
@@ -242,7 +242,7 @@ For performance reasons, the configuration file interface caches read operations
 
 After the profile is closed, do not continue to use it!
 
-<br>
+
 
 #### Get Configuration File Path
 
@@ -251,7 +251,7 @@ After the profile is closed, do not continue to use it!
 - Return value: The file path of the current configuration file.
 - Return value type: `String`
 
-<br>
+
 
 #### Read the Content of the Entire Configuration File
 
@@ -260,7 +260,7 @@ After the profile is closed, do not continue to use it!
 - Return value: All contents of the current configuration file.
 - Return value type: `String`
 
-<br>
+
 
 #### Write the Contents of the Entire Configuration File
 
@@ -272,4 +272,3 @@ After the profile is closed, do not continue to use it!
 - Return value: Whether the write is successful.
 - Return value type: `Boolean`
 
-<br>

@@ -12,7 +12,7 @@ See [Player Object API](/LLSEPluginDevelopment/GameAPI/Player.md)
 > Note: Do not save a device information object **long-term.**
 > When the player corresponding to the device exits the game, the corresponding object will become invalid. Therefore, if there is a need to operate an object for a long time, please obtain the real-time device information object through the above methods.
 
-<br>
+
 
 
 ### Device Information Object - Properties

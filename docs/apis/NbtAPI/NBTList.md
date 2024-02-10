@@ -9,7 +9,7 @@ The interface of the object can perform some operations unique to the NBT list.
 
 See [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [NbtCompound - Tag Type](/LLSEPluginDevelopment/NbtAPI/NBTCompound.md) documentation.
 
-<br>
+
 
 #### Create a New NBT List Object
 
@@ -23,7 +23,7 @@ See [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [NbtComp
 - Return value type: `NbtList`
   - If the creation fails, an exception will be thrown.
 
-<br>
+
 
 For a certain `NbtList` type of object `list`, there are the following interfaces.
 
@@ -34,7 +34,7 @@ For a certain `NbtList` type of object `list`, there are the following interface
 - Return value: The length of the list.
 - Return value type: `Integer`
 
-<br>
+
 
 #### Get the Data Type of an Element Stored in a List at the Index Position Given
 
@@ -51,7 +51,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 `NBT.Float` `NBT.Double` `NBT.ByteArray` `NBT.String`  
 `NBT.List` `NBT.Compound`
 
-<br>
+
 
 #### Set a NBT Object in a List at the Index Position Given
 
@@ -66,7 +66,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 - Return value: The NBT list that has been written (for other operations in the chain).
 - Return value type: `NbtList`
 
-<br>
+
 
 #### Read NBT Object in a List at the Index Position Given
 
@@ -79,7 +79,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 - Return value type: `NBT object`
   - If the NBT being read does not exist, it will return `Null`
 
-<br>
+
 
 #### Append an NBT Object to the End of the List
 
@@ -91,7 +91,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 - Return value: The NBT list with the NBT object added (for chaining operations).
 - Return value type: `NbtList`
 
-<br>
+
 
 #### Delete an NBT Object at the Given Index Position
 
@@ -104,7 +104,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 - Return value: Processed NBT list (easy for chaining to perform other operations).
 - Return value type: `NbtList`
 
-<br>
+
 
 ## Some Convenience Functions to Assist in the Manipulation of NBT Objects
 
@@ -132,7 +132,7 @@ Therefore, some convenient functions for simplifying object operations are also 
 - Return value: NBT list that has been written (for other operations in the chain).
 - Return value type: `NbtList`
 
-<br>
+
 
 #### Read the Specific Data of a Subscript Position 
 
@@ -146,7 +146,7 @@ Therefore, some convenient functions for simplifying object operations are also 
   - If the target location stores the `List` type NBT, it will return a `NbtList` object; if the target location stores a `Compound` type NBT, it will return a `NbtCompound` object.
   - If the NBT being read does not exist, it will return `Null`
 
-<br>
+
 
 #### Convert List Type to Array
 
@@ -158,4 +158,4 @@ Therefore, some convenient functions for simplifying object operations are also 
 Convert the contents of List to LLSE array/list, convert all data items to LLSE data type and store them in the corresponding subscript of the array/list for easy reading and processing.
 If an item in the List stores a `List` or `Compound` type which will recursively expand at the corresponding position as `Array` or `Object`.
 
-<br>
+

@@ -25,7 +25,7 @@ Some interfaces related to loader operations are provided here.
 - Return value: loader version
 - Return value type:  `String`
 
-<br>
+
 
 ### Check LeviLamina version
 
@@ -44,7 +44,7 @@ Some interfaces related to loader operations are provided here.
 If the detection finds that the currently installed version of LLSE is lower than the value passed in, it will return `false`. 
 You can choose to judge based on the results and report an error to remind users to upgrade their LeviLamina version.
 
-<br>
+
 
 ### Get information about Plugin
 
@@ -67,7 +67,7 @@ You can choose to judge based on the results and report an error to remind users
   | plugin.others     | Other information       | `Object`                         |
 
 
-<br>
+
 
 ### List all loaded plugins
 
@@ -76,7 +76,7 @@ You can choose to judge based on the results and report an error to remind users
 - Return value: A list containing the names of all loaded plugin
 - Return value type:  `Array<String,String,...>`
 
-<br>
+
 
 ### List all loaded plugins with information
 
@@ -85,7 +85,7 @@ You can choose to judge based on the results and report an error to remind users
 - Return value: A list containing the plugin objects of all loaded plugin
 - Return value type:  `Array<Plugin,Plugin,...>`
 
-<br>
+
 
 ### Remote Function Call
 
@@ -109,7 +109,7 @@ In order to allow the pre-plug-ins developed by developers to provide interfaces
 
 Note: If the namespace and name of the exported function are exactly the same as another already exported function, the export will fail. Please select the namespace and export name appropriately when exporting.
 
-<br>
+
 
 #### Import Function
 
@@ -128,7 +128,7 @@ LLSE provides the interface import to import functions already exported by other
 
 The return value of `ll.import` is a function. When you call this function, the cross-plugin call process will be done automatically in the background. The parameters of the calling function will be wrapped and passed to the remote function, and the return value of this function is the return value returned by the remote function after it has been executed.
 
-<br>
+
 
 #### Example of Remote Calling Function 
 
@@ -141,7 +141,7 @@ The parameters of the function will be automatically forwarded to the correspond
 
 Notice! When calling a function, you need to ensure that the number and types of parameters you pass in and the parameters accepted by the target function are correct and in one-to-one correspondence. Otherwise, an error will occur. 
 
-<br>
+
 
 ### Determine if a remote function has been exported
 
@@ -155,7 +155,7 @@ Notice! When calling a function, you need to ensure that the number and types of
 - Return value：Whether the function has been exported
 - Return value type： `Boolean`
 
-<br>
+
 
 ### Set Plugin Dependencies 
 
@@ -184,11 +184,11 @@ For execution, use `ll.require`, then LLSE will perform the following series of 
 - Use the HTTP(s) protocol remotePath to request the download address corresponding to the remotePath parameter, and download the dependent library files to the `plugins/lib` directory. If the download fails, return failure.
 - Load the successfully downloaded dependent library file and return the loading result.
 
-<br>
+
 
 Authors of dependent libraries can host relevant code on stable large websites such as GitHub or Gitee, and provide external links to other developers for remote download.
 
-<br>
+
 
 ### Execute a String as a Script
 

@@ -423,7 +423,7 @@ mc.regConsoleCmd("backup","Start the backup",function(args){
     正如所见，`args` 中包含的值是被 **按顺序分割好的** 命令参数。  
     如果你的命令中有引号（比如说为了处理含有空格的玩家名字），脚本引擎在分割时也会做处理。
 
-<br>
+
 
 ## 其他与命令系统有关的 API
 

@@ -13,7 +13,7 @@ Before using these APIs, you need to use this function to create a blank normal 
 - Return value: Newly created blank form object.
 - Return value type: `SimpleForm`
 
-<br>
+
 
 ### Add Form Elements
 
@@ -30,7 +30,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `SimpleForm`
 
-<br>
+
 
 #### Set the Content of the Form
 
@@ -42,7 +42,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `SimpleForm`
 
-<br>
+
 
 #### Add a Row of Buttons to the Form 
 
@@ -56,7 +56,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `SimpleForm`
 
-<br>
+
 
 Use the texture pack path or URL `image` to identify the icon corresponding to the button.  
 For each button on the form, set the corresponding icon as follows:
@@ -65,7 +65,7 @@ For each button on the form, set the corresponding icon as follows:
 2. If you use a URL path, you can put the full URL here, like `https://www.baidu.com/img/flexible/logo/pc/result.png`
 3. If you don't need to display an image for this button, just don't pass in this parameter.
 
-<br>
+
 
 ### Send Form
 
@@ -93,7 +93,7 @@ Parameter `callback` The callback function prototype: `function(player,id)`
   The serial number of the form button that the player clicked, starting from 0.  
   If id is `Null`, the player canceled the form.
 
-<br>
+
 
 ## 📰 Custom Form Builder API
 
@@ -110,7 +110,7 @@ Before using these APIs, you need to use this function to create a blank custom 
 - Return value: Newly created blank form object.
 - Return value type: `CustomForm`
 
-<br>
+
 
 ### Add Form Elements
 
@@ -127,7 +127,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Line of Text to the Form  
 
@@ -139,7 +139,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Row of Input Boxes to the Form  
 
@@ -156,7 +156,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Row of Switch Options to the Form  
 
@@ -170,7 +170,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Drop-Down Menu to the Form  
 
@@ -190,7 +190,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Row of Cursor Sliders to the Form  
 
@@ -211,7 +211,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 #### Add a Row of Step Sliders to the Form  
 
@@ -230,7 +230,7 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
-<br>
+
 
 ### Send Form
 
@@ -259,4 +259,4 @@ Parameter `callback` The callback function prototype: `function(player,data)`
   The contents of each control are stored in the array in the order of the controls on the form.  
   if data is `Null`, the player cancels the form.
 
-<br>
+

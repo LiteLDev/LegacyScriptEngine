@@ -23,7 +23,7 @@ Obtain a scoring item object through the following interface and perform related
 
 This interface acts like a command  `/scoreboard objectives add <name> <displayName> dummy`
 
-<br>
+
 
 #### Get an Existing Scoring Item
 
@@ -36,7 +36,7 @@ This interface acts like a command  `/scoreboard objectives add <name> <displayN
 - Return value type: `Objective`
   - If `Null` is returned, it means the scoring item does not exist.
 
-<br>
+
 
 #### Get All Scoring Items
 
@@ -47,7 +47,7 @@ This interface acts like a command  `/scoreboard objectives add <name> <displayN
 
 This interface acts like a command  `/scoreboard objectives list`
 
-<br>
+
 
 #### Get a Scoring Item That Is Displayed
 
@@ -60,7 +60,7 @@ This interface acts like a command  `/scoreboard objectives list`
 - Return value type: `Objective`
   - If it returns `Null`, it means that the corresponding slot does not display the scoring item.
 
-<br>
+
 
 
 ### Scoring Object - Properties
@@ -74,7 +74,7 @@ Each scoring item object contains some fixed object properties. for a specific s
 
 These object properties are read-only and cannot be modified.
 
-<br>
+
 
 ### Scoring Item Object - Function
 
@@ -91,7 +91,7 @@ Each scoring item object contains some member functions (member methods) that ca
 - Return value type: `Integer`
 
 **Make sure the score is existing before using this API**
-<br>
+
 
 #### Modify the Score of a Goal
 
@@ -111,7 +111,7 @@ Reduce score: `ob.reduceScore(target,score)`
 !!! warning
     If the score doesn't exist, will try creating a score, then return `0`(If *target* is `String`) or `null`(If *target* is `Player`)  
     Reason: [#971](https://github.com/LiteLDev/LeviLamina/issues/971#issuecomment-1385047649)
-<br>
+
 
 #### Stop Tracking a Target 
 
@@ -125,7 +125,7 @@ Reduce score: `ob.reduceScore(target,score)`
 
 Stop tracking will directly delete the value of the goal's scoring item. You need to create it again if you need to access it again.
 
-<br>
+
 
 #### Set the Display State of the Scoring Item
 
@@ -139,7 +139,7 @@ Stop tracking will directly delete the value of the goal's scoring item. You nee
 - Return type: Whether setting the display was successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 ### Other Scoreboard APIs
 
@@ -243,7 +243,7 @@ pl.deleteScore("what");
 
 This interface acts like a command `/scoreboard objectives remove <name>`
 
-<br>
+
 
 #### Stop Scoring Items From Showing
 
@@ -255,4 +255,4 @@ This interface acts like a command `/scoreboard objectives remove <name>`
 - Return type: Whether the display objective was cleared successfully.
 - Return value type: `Boolean`
 
-<br>
+

@@ -15,7 +15,7 @@
 
 Note that when the player dies, in addition to triggering `onPlayerDie` event, this event will also be triggered once.
 
-<br>
+
 
 #### `"onMobHurt"` - Mob/Player Hurt Event
 
@@ -33,7 +33,7 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
 
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onEntityExplode"` - Entity Explosion Event
 
@@ -55,7 +55,7 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
   
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onTryMobSpawn"` - Mob try Naturally Spawn Event
 
@@ -69,7 +69,7 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
   
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onMobSpawned"` - Mob Naturally Spawn Finished Event
 
@@ -85,7 +85,7 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
 
 You can use entity.despawn() or entity.remove() to intercept this event.
 
-<br>
+
 
 #### `"onProjectileHitEntity"` - Entity Hit by Projectile Event
 
@@ -98,7 +98,7 @@ You can use entity.despawn() or entity.remove() to intercept this event.
     The projecticle entity (like arrows).
 - Intercept event: cannot be intercepted.
 
-<br>
+
 
 #### `"onWitherBossDestroy"` - Block Broken by Wither Event
 
@@ -116,7 +116,7 @@ You can use entity.despawn() or entity.remove() to intercept this event.
 
 Note that this event does not include wither explosion damage.
 
-<br>
+
 
 #### `"onRide"` - Mob Ride Event
 
@@ -131,7 +131,7 @@ Note that this event does not include wither explosion damage.
 
 Note: Riding includes minecart, boat, horse, pig, etc.
 
-<br>
+
 
 #### `"onStepOnPressurePlate"` - Pressure Plate Step Event
 
@@ -146,7 +146,7 @@ Note: Riding includes minecart, boat, horse, pig, etc.
 
 Note: When a creature steps on a pressure plate, this event will be triggered repeatedly.
 
-<br>
+
 
 #### `"onSpawnProjectile"` - Projectile Spawn Event
 
@@ -162,7 +162,7 @@ Note: When a creature steps on a pressure plate, this event will be triggered re
 
 Note: Projectiles known to be intercepted are eggs, ender pearls, snowballs, tridents, arrows, and fishing rods (fish hooks).
 
-<br>
+
 
 #### `"onProjectileCreated"` - Projectile Created Event
 
@@ -176,7 +176,7 @@ Note: Projectiles known to be intercepted are eggs, ender pearls, snowballs, tri
 
 - Intercept event: cannot be intercepted.
 
-<br>
+
 
 #### `"onNpcCmd"` - NPC Command Execution Event
 
@@ -191,7 +191,7 @@ Note: Projectiles known to be intercepted are eggs, ender pearls, snowballs, tri
     The command being executed by NPCs.
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onChangeArmorStand"` - Armor Stand Change Event
 
@@ -209,7 +209,7 @@ Note: Projectiles known to be intercepted are eggs, ender pearls, snowballs, tri
 
 - Intercept events: function returns `false`
 
-<br>
+
 
 #### `"onEntityTransformation"` - Entity Transformation Event
 

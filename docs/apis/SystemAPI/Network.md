@@ -24,7 +24,7 @@ Note: The prototype of the callback function of the parameter callback: `functio
 
 If the request fails, the status value will be `-1`. 
 
-<br>
+
 
 ### Send an Asynchronous HTTP(s) Post Request  
 
@@ -51,7 +51,7 @@ Note: The prototype of the callback function of the parameter callback: `functio
 
 If the request fails, the status value will be `-1`.
 
-<br>
+
 
 ## 🔌 WebSocket Client Object API
 
@@ -65,7 +65,7 @@ In LLSE, use "WebSocket objects" to manipulate the connection and work of a WebS
 - Return value: A new WebSocket client object.
 - Return value type: `WSClient`
 
-<br>
+
 
 ### WebSocket Client Object - Properties
 
@@ -83,7 +83,7 @@ Among them, the wsc.status enumeration has the following situations:
 `wsc.Closing` - Disconnecting.  
 `wsc.Closed` - Not connected.
 
-<br>
+
 
 ### WebSocket Client Object - Function
 
@@ -99,7 +99,7 @@ Every WS client object contains some member functions (member methods) that can 
 - Return value: Whether the connection is successful.
 - Return value type: `Boolean` 
 
-<br>
+
 
 #### Create a Connection Asynchronously
 
@@ -118,7 +118,7 @@ Note: The prototype of the callback function of the parameter callback: `functio
 - success : `Boolean`    
   Whether the WebSocket connection is successful 
 
-<br>
+
 
 #### Send Text/Binary Messages
 
@@ -132,7 +132,7 @@ Note: The prototype of the callback function of the parameter callback: `functio
 
 If the parameter type passed in is `String`, will be sent as text, if it is `ByteBuffer` will be sent as binary data.
 
-<br>
+
 
 #### Listen for WebSocket Events 
 
@@ -151,7 +151,7 @@ In the process of WS working, when a message is received or an error occurs, the
 - Return value: Whether the event was successfully monitored.
 - Return value type: `Boolean` 
 
-<br>
+
 
 #### List of Listening Events
 
@@ -187,7 +187,7 @@ In the process of WS working, when a message is received or an error occurs, the
   - code : `Integer`  
     Error code.
 
-<br>
+
 
 #### Close the Connection
 
@@ -198,7 +198,7 @@ In the process of WS working, when a message is received or an error occurs, the
 
 Do not continue to use this client object while it is closed!
 
-<br>
+
 
 #### Force Disconnect
 
@@ -209,7 +209,7 @@ Do not continue to use this client object while it is closed!
 
 Do not continue to use this client object while it is disconnected!
 
-<br>
+
 
 #### Get Error Code
 

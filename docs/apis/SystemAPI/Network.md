@@ -155,7 +155,7 @@ In the process of WS working, when a message is received or an error occurs, the
 
 #### List of Listening Events
 
-##### `"onTextReceived"` - Listen for string messages.
+**`"onTextReceived"` - Listen for string messages.**
 
 - Listener function prototype
   `function(msg)`
@@ -163,7 +163,7 @@ In the process of WS working, when a message is received or an error occurs, the
   - msg : `String`  
     Received string message.
 
-##### `"onBinaryReceived"` - Listen for binary messages.
+**`"onBinaryReceived"` - Listen for binary messages.**
 
 - Listener function prototype 
   `function(data)`
@@ -171,7 +171,7 @@ In the process of WS working, when a message is received or an error occurs, the
   - data : `ByteBuffer`  
     Received binary message.
 
-##### `"onError"` - Listen for errors.
+**`"onError"` - Listen for errors.**
 
 - Listener function prototype 
   `function(msg)`
@@ -179,7 +179,7 @@ In the process of WS working, when a message is received or an error occurs, the
   - msg : `String`  
     Error message.
 
-##### `"onLostConnection"` - Listen for lost connections.
+**`"onLostConnection"` - Listen for lost connections.**
 
 - Listener function prototype 
   `function(code)`

@@ -165,7 +165,7 @@
 
 #### 监听事件列表
 
-##### `"onTextReceived"` - 收到文本消息
+**`"onTextReceived"` - 收到文本消息**
 
 - 监听函数原型
   `function(msg)`
@@ -173,7 +173,7 @@
   - msg : `String`  
     收到的文本消息
 
-##### `"onBinaryReceived"` - 收到二进制消息
+**`"onBinaryReceived"` - 收到二进制消息**
 
 - 监听函数原型
   `function(data)`
@@ -181,7 +181,7 @@
   - data : `ByteBuffer`  
     收到的二进制消息
 
-##### `"onError"` - 发生错误
+**`"onError"` - 发生错误**
 
 - 监听函数原型
   `function(msg)`
@@ -189,7 +189,7 @@
   - msg : `String`  
     错误的提示信息
 
-##### `"onLostConnection"` - 连接丢失
+**`"onLostConnection"` - 连接丢失**
 
 - 监听函数原型
   `function(code)`

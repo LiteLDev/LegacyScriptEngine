@@ -67,10 +67,10 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
         logger.info("loading plugin {}", manifest.name);
 
-        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-        auto entryPath = pluginDir / manifest.entry;
+        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / ll::string_utils::str2wstr(manifest.name));
+        auto entryPath = pluginDir / ll::string_utils::str2wstr(manifest.entry);
 
-        if (!::PluginManager::loadPlugin(entryPath.string(), false, true)) {
+        if (!::PluginManager::loadPlugin(ll::string_utils::u8str2str(entryPath.u8string()), false, true)) {
             throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
         }
         return true;

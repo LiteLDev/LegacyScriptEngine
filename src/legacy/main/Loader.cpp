@@ -42,16 +42,16 @@ void LoadDepends() {
                 if (!content) throw("Fail to open plugin file!");
                 depends.emplace(path, *content);
                 lse::getSelfPluginInstance().getLogger().info(
-                    "llse.loader.loadDepends.success"_tr(i.path().filename().string())
+                    "llse.loader.loadDepends.success"_tr(ll::string_utils::u8str2str(i.path().filename().u8string()))
                 );
             } catch (std::exception e) {
                 lse::getSelfPluginInstance().getLogger().warn(
-                    "llse.loader.loadDepends.fail"_tr(i.path().filename().string())
+                    "llse.loader.loadDepends.fail"_tr(ll::string_utils::u8str2str(i.path().filename().u8string()))
                 );
                 lse::getSelfPluginInstance().getLogger().warn(ll::string_utils::tou8str(e.what()));
             } catch (...) {
                 lse::getSelfPluginInstance().getLogger().warn(
-                    "llse.loader.loadDepends.fail"_tr(i.path().filename().string())
+                    "llse.loader.loadDepends.fail"_tr(ll::string_utils::u8str2str(i.path().filename().u8string()))
                 );
             }
         }

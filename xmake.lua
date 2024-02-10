@@ -1,70 +1,49 @@
 add_rules("mode.debug", "mode.release")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
+
 add_requires(
     "demangler v2.0.0",
     "dyncall 1.4",
     "fmt 10.1.1",
     "legacymoney 0.2.0",
     "legacyparticleapi 0.2.0",
+    "legacyremotecall 0.2.0",
     "levilamina 0.7.2",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
+    "more-events develop",
     "nlohmann_json 3.11.2",
     "openssl 1.1.1-w",
     "simpleini v4.19",
     "sqlite3 3.43.0+200",
-    "toml++ v3.4.0",
-    "legacyremotecall 0.2.0"
+    "toml++ v3.4.0"
 )
-add_requires("cpp-httplib v0.14.0", {configs={shared=false, ssl=true, zlib=true}})
-add_requires("scriptx", {configs={backend=get_config("backend")}})
+add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
-set_runtimes("MD") -- For compatibility with the /MD build configuration of ScriptX.
+if is_config("backend", "lua") then
+    add_requires("scriptx 3.2.0", {configs={backend="Lua"}})
+
+elseif is_config("backend", "quickjs") then
+    add_requires("scriptx 3.2.0", {configs={backend="QuickJs"}})
+
+end
+
+if not has_config("vs_runtime") then
+    set_runtimes("MD")
+end
 
 option("backend")
     set_default("lua")
     set_values("lua", "quickjs")
 
-package("quickjs")
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/quickjs.zip")
-    add_versions("latest", "af0c38b0cf80aa1deb58e727e408477fffcc6f5f57da537dffc335861d652ed0")
+package("more-events")
+    add_urls("https://github.com/LiteLDev/MoreEvents.git")
+
+    add_deps("levilamina 0.7.2")
 
     on_install(function (package)
-        os.cp("*", package:installdir())
-    end)
-
-package("scriptx")
-    add_configs("backend", {default = "lua", values = {"lua", "quickjs"}})
-    add_includedirs(
-        "src/include/"
-    )
-    add_urls("https://github.com/LiteLDev/ScriptX/releases/download/prebuilt/scriptx.zip")
-    add_versions("latest", "dd5fb21370a59f38e4c33f48f4a6eecb25692283e4d49bbee983453e05b128ab")
-
-    on_install(function (package)
-        os.cp("*", package:installdir())
-    end)
-
-    on_load(function (package)
-        local backend = package:config("backend")
-
-        local deps = {
-            lua = "lua v5.4.6",
-            quickjs = "quickjs",
-        }
-
-        local scriptx_backends = {
-            lua = "Lua",
-            quickjs = "QuickJs",
-        }
-
-        print("Using ScriptX config: backend=" .. backend .. ", scriptx_backend=" .. scriptx_backends[backend])
-        
-        package:add("defines", "SCRIPTX_BACKEND=" .. scriptx_backends[backend])
-        package:add("defines", "SCRIPTX_BACKEND_TRAIT_PREFIX=../backend/" .. scriptx_backends[backend] .. "/trait/Trait")
-        package:add("deps", deps[backend])
-        package:add("links", "scriptx_" .. scriptx_backends[backend])
+        import("package.tools.xmake").install(package)
     end)
 
 target("legacy-script-engine")
@@ -92,15 +71,16 @@ target("legacy-script-engine")
         "fmt",
         "legacymoney",
         "legacyparticleapi",
+        "legacyremotecall",
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
+        "moreevents",
         "nlohmann_json",
         "scriptx",
         "simpleini",
         "sqlite3",
-        "toml++",
-        "legacyremotecall"
+        "toml++"
     )
     add_shflags(
         "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.

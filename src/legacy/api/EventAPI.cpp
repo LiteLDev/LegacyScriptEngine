@@ -816,7 +816,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
                 CallEventVoid(
                     EVENT_TYPES::onMobSpawned,
-                    EntityClass::newEntity(ev.mob()),
+                    EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
                 );
             }

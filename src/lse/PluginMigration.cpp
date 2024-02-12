@@ -11,7 +11,6 @@
 #include <nlohmann/json.hpp>
 #include <unordered_set>
 
-
 #if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto PluginExtName = ".lua";
@@ -25,6 +24,8 @@ constexpr auto PluginExtName = ".js";
 #endif
 
 namespace lse {
+
+namespace {
 
 auto migratePlugin(const std::filesystem::path& path) -> void {
     auto& self = getSelfPluginInstance();
@@ -72,6 +73,8 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
     std::ofstream manifestFile{pluginDir / "manifest.json"};
     manifestFile << manifestJson.dump(4);
 }
+
+} // namespace
 
 auto migratePlugins() -> void {
     auto& self = getSelfPluginInstance();

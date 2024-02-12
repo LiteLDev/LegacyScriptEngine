@@ -52,19 +52,7 @@ std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-
 std::unique_ptr<std::reference_wrapper<ll::plugin::NativePlugin>>
     selfPluginInstance; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-} // namespace
-
-auto enable(ll::plugin::NativePlugin& self) -> bool;
-auto load(ll::plugin::NativePlugin& self) -> bool;
 auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool;
-
-extern "C" {
-_declspec(dllexport) auto ll_plugin_load(ll::plugin::NativePlugin& self) -> bool { return load(self); }
-
-_declspec(dllexport) auto ll_plugin_enable(ll::plugin::NativePlugin& self) -> bool { return enable(self); }
-
-// LegacyScriptEngine should not be disabled or unloaded.
-}
 
 auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
@@ -78,30 +66,14 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     return true;
 }
 
-auto getConfig() -> const Config& { return config; }
-
-auto getPluginManager() -> PluginManager& {
-    if (!pluginManager) {
-        throw std::runtime_error("pluginManager is null");
-    }
-
-    return *pluginManager;
-}
-
-auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
-    if (!selfPluginInstance) {
-        throw std::runtime_error("selfPluginInstance is null");
-    }
-
-    return *selfPluginInstance;
-}
-
 auto load(ll::plugin::NativePlugin& self) -> bool {
     auto& logger = self.getLogger();
 
     logger.info("loading...");
 
     selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
+
+    ll::i18n::load(self.getLangDir());
 
     // Load configuration.
     const auto& configFilePath = self.getConfigDir() / "config.json";
@@ -115,8 +87,6 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     }
 
     // Initialize LLSE stuff.
-    ll::i18n::load(self.getLangDir());
-
     InitLocalShareData();
     InitGlobalShareData();
     InitSafeGuardRecord();
@@ -162,6 +132,34 @@ auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
     depends.emplace(path.string(), *content);
 
     return true;
+}
+
+} // namespace
+
+extern "C" {
+_declspec(dllexport) auto ll_plugin_load(ll::plugin::NativePlugin& self) -> bool { return load(self); }
+
+_declspec(dllexport) auto ll_plugin_enable(ll::plugin::NativePlugin& self) -> bool { return enable(self); }
+
+// LegacyScriptEngine should not be disabled or unloaded.
+}
+
+auto getConfig() -> const Config& { return config; }
+
+auto getPluginManager() -> PluginManager& {
+    if (!pluginManager) {
+        throw std::runtime_error("pluginManager is null");
+    }
+
+    return *pluginManager;
+}
+
+auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
+    if (!selfPluginInstance) {
+        throw std::runtime_error("selfPluginInstance is null");
+    }
+
+    return *selfPluginInstance;
 }
 
 } // namespace lse

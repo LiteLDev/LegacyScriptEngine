@@ -25,41 +25,12 @@ constexpr auto PluginManagerName = "lse-quickjs";
 
 namespace lse {
 
-namespace {
-
-auto loadPlugin(ll::plugin::Plugin& plugin, ll::Logger& logger) -> bool {
-    const auto& manifest = plugin.getManifest();
-
-    logger.info("loading plugin {}", manifest.name);
-
-    auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-    auto entryPath = pluginDir / manifest.entry;
-
-    if (!::PluginManager::loadPlugin(entryPath.string(), false, true)) {
-        throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
-    }
-
-    return true;
-}
-
-auto unloadPlugin(ll::plugin::Plugin& plugin, ll::Logger& logger) -> bool {
-    auto pluginName = plugin.getManifest().name;
-
-    logger.info("unloading plugin {}", pluginName);
-
-    if (!::PluginManager::unloadPlugin(pluginName)) {
-        throw std::runtime_error(fmt::format("failed to unload plugin {}", pluginName));
-    }
-
-    return true;
-}
-
-} // namespace
-
 PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
 
 auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
+
+    logger.info("loading plugin {}", manifest.name);
 
     if (hasPlugin(manifest.name)) {
         throw std::runtime_error("plugin already loaded");
@@ -67,11 +38,10 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
     auto plugin = std::make_shared<Plugin>(manifest);
 
-    // Register callbacks.
-    plugin->onLoad([&logger](ll::plugin::Plugin& plugin) -> bool { return loadPlugin(plugin, logger); });
-    plugin->onUnload([&logger](ll::plugin::Plugin& plugin) -> bool { return unloadPlugin(plugin, logger); });
+    auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
+    auto entryPath = pluginDir / manifest.entry;
 
-    if (!plugin->onLoad()) {
+    if (!::PluginManager::loadPlugin(entryPath.string(), false, true)) {
         throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
     }
 
@@ -87,7 +57,9 @@ auto PluginManager::unload(std::string_view name) -> bool {
 
     auto plugin = std::static_pointer_cast<Plugin>(getPlugin(name));
 
-    if (!plugin->onUnload()) {
+    logger.info("unloading plugin {}", name);
+
+    if (!::PluginManager::unloadPlugin(std::string(name))) {
         throw std::runtime_error(fmt::format("failed to unload plugin {}", name));
     }
 

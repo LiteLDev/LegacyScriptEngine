@@ -98,19 +98,19 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerOpenContainerHook,
     HookPriority::Normal,
     VanillaServerGameplayEventListener,
-    "?onEvent@VanillaServerGameplayEventListener@@UEAA?AW4EventResult@@AEBUPlayerOpenContainerEvent@@@Z",
+    &VanillaServerGameplayEventListener::onEvent,
     EventResult,
-    void* playerOpenContainerEvent
+    struct PlayerOpenContainerEvent const& playerOpenContainerEvent
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainer) {
-        Actor* actor = static_cast<WeakEntityRef*>(playerOpenContainerEvent)->tryUnwrap<Actor>();
+        Actor* actor = static_cast<WeakEntityRef*>((void*)&playerOpenContainerEvent)->tryUnwrap<Actor>();
         if (actor->isType(ActorType::Player)) {
             CallEventRtnValue(
                 EVENT_TYPES::onOpenContainer,
                 EventResult::StopProcessing,
                 PlayerClass::newPlayer(static_cast<Player*>(actor)),
                 BlockClass::newBlock(
-                    ll::memory::dAccess<BlockPos>(playerOpenContainerEvent, 28),
+                    ll::memory::dAccess<BlockPos>(&playerOpenContainerEvent, 28),
                     actor->getDimensionId()
                 )
             );
@@ -124,9 +124,9 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook1,
     HookPriority::Normal,
     ChestBlockActor,
-    "?stopOpen@ChestBlockActor@@UEAAXAEAVPlayer@@@Z",
+    &ChestBlockActor::stopOpen,
     void,
-    Player const& player
+    Player& player
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
         CallEventVoid(
@@ -146,9 +146,9 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook2,
     HookPriority::Normal,
     BarrelBlockActor,
-    "?stopOpen@BarrelBlockActor@@UEAAXAEAVPlayer@@@Z",
+    &BarrelBlockActor::stopOpen,
     void,
-    Player const& player
+    Player& player
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
         CallEventVoid(
@@ -477,14 +477,7 @@ LL_TYPE_INSTANCE_HOOK(
     return shouldPush;
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    PlayerEatHook,
-    HookPriority::Normal,
-    Player,
-    "?eat@Player@@QEAAXAEBVItemStack@@@Z",
-    void,
-    ItemStack const& instance
-) {
+LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat, void, ItemStack const& instance) {
     IF_LISTENED(EVENT_TYPES::onAte) {
         CallEventVoid(
             EVENT_TYPES::onAte,
@@ -500,8 +493,8 @@ LL_TYPE_INSTANCE_HOOK(
     ExplodeHook,
     HookPriority::Normal,
     Level,
-    "?explode@Level@@UEAAXAEAVBlockSource@@PEAVActor@@AEBVVec3@@M_N3M3@Z",
-    void,
+    &Level::explode,
+    bool,
     BlockSource& region,
     Actor*       source,
     Vec3 const&  pos,
@@ -513,8 +506,9 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
         if (source) {
-            CallEventVoid(
+            CallEventRtnValue(
                 EVENT_TYPES::onEntityExplode,
+                false,
                 EntityClass::newEntity(source),
                 FloatPos::newPos(pos, region.getDimensionId()),
                 Number::newNumber(explosionRadius),
@@ -527,8 +521,9 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
 
     IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-        CallEventVoid(
+        CallEventRtnValue(
             EVENT_TYPES::onBlockExplode,
+            false,
             BlockClass::newBlock(pos, region.getDimensionId()),
             IntPos::newPos(pos, region.getDimensionId()),
             Number::newNumber(explosionRadius),
@@ -659,17 +654,16 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerChangeDimensionHook,
     HookPriority::Normal,
     Level,
-    "?requestPlayerChangeDimension@Level@@UEAAXAEAVPlayer@@V?$unique_ptr@VChangeDimensionRequest@@U?$default_delete@"
-    "VChangeDimensionRequest@@@std@@@std@@@Z",
+    &Level::requestPlayerChangeDimension,
     void,
-    Player&                                 player,
-    std::unique_ptr<ChangeDimensionRequest> changeRequest
+    Player&                  player,
+    ChangeDimensionRequest&& changeRequest
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeDim) {
         CallEventVoid(
             EVENT_TYPES::onChangeDim,
             PlayerClass::newPlayer(&player),
-            Number::newNumber(changeRequest->mToDimensionId)
+            Number::newNumber(changeRequest.mToDimensionId)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onChangeDim);

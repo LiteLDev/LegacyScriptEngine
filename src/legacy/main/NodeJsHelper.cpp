@@ -354,7 +354,7 @@
 //             LLSERemoveAllExportedFuncs(engine);
 
 //             engine->getData().reset();
-//             EngineManager::unRegisterEngine(engine);
+//             EngineManager::unregisterEngine(engine);
 //         }
 //         if (engine) {
 //             NodeJsHelper::stopEngine(engine);

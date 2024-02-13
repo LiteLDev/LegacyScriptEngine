@@ -27,14 +27,12 @@ namespace lse {
 
 namespace {
 
-auto migratePlugin(const std::filesystem::path& path) -> void {
+auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::path& path) -> void {
     auto& self = getSelfPluginInstance();
 
     auto& logger = self.getLogger();
 
     logger.info("migrating legacy plugin at {}", path.string());
-
-    auto& pluginManager = getPluginManager();
 
     const auto& pluginType = pluginManager.getType();
 
@@ -76,7 +74,7 @@ auto migratePlugin(const std::filesystem::path& path) -> void {
 
 } // namespace
 
-auto migratePlugins() -> void {
+auto migratePlugins(const PluginManager& pluginManager) -> void {
     auto& self = getSelfPluginInstance();
 
     auto& logger = self.getLogger();
@@ -106,7 +104,7 @@ auto migratePlugins() -> void {
     logger.info("migrating legacy plugins...");
 
     for (const auto& path : pluginPaths) {
-        migratePlugin(path);
+        migratePlugin(pluginManager, path);
     }
 
     logger.warn("legacy plugins have been migrated, please restart the server to load them!");

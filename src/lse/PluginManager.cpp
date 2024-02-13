@@ -2,10 +2,14 @@
 
 #include "Entry.h"
 #include "Plugin.h"
+#include "legacy/engine/EngineManager.h"
 #include "legacy/main/PluginManager.h"
 
+#include <ScriptX/ScriptX.h>
+#include <exception>
 #include <fmt/format.h>
 #include <ll/api/Logger.h>
+#include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/plugin/PluginManager.h>
 #include <memory>
@@ -13,15 +17,25 @@
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
+constexpr auto BaseLibFileName   = "BaseLib.lua";
 constexpr auto PluginManagerName = "lse-lua";
 
 #endif
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
+constexpr auto BaseLibFileName   = "BaseLib.js";
 constexpr auto PluginManagerName = "lse-quickjs";
 
 #endif
+
+// Do not use legacy headers directly, otherwise there will be tons of errors.
+void BindAPIs(script::ScriptEngine* engine);
+void LLSERemoveTimeTaskData(script::ScriptEngine* engine);
+auto LLSERemoveAllEventListeners(script::ScriptEngine* engine) -> bool;
+auto LLSERemoveCmdRegister(script::ScriptEngine* engine) -> bool;
+auto LLSERemoveCmdCallback(script::ScriptEngine* engine) -> bool;
+auto LLSERemoveAllExportedFuncs(script::ScriptEngine* engine) -> bool;
 
 namespace lse {
 
@@ -36,15 +50,47 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         throw std::runtime_error("plugin already loaded");
     }
 
-    auto plugin = std::make_shared<Plugin>(manifest);
+    auto& scriptEngine = *EngineManager::newEngine(manifest.name);
 
-    auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-    auto entryPath = pluginDir / manifest.entry;
+    try {
+        script::EngineScope engineScope(scriptEngine);
 
-    if (!::PluginManager::loadPlugin(entryPath.string(), false, true)) {
-        throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
+        BindAPIs(&scriptEngine);
+
+        auto& self = getSelfPluginInstance();
+
+        // Load BaseLib.
+        auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
+        auto baseLibContent = ll::file_utils::readFile(baseLibPath);
+        if (!baseLibContent) {
+            throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+        }
+        scriptEngine.eval(baseLibContent.value());
+
+        // Load the plugin entry.
+        auto pluginDir          = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
+        auto entryPath          = pluginDir / manifest.entry;
+        auto pluginEntryContent = ll::file_utils::readFile(entryPath);
+        if (!pluginEntryContent) {
+            throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
+        }
+        scriptEngine.eval(pluginEntryContent.value());
+
+    } catch (const std::exception& e) {
+        LLSERemoveTimeTaskData(&scriptEngine);
+        LLSERemoveAllEventListeners(&scriptEngine);
+        LLSERemoveCmdRegister(&scriptEngine);
+        LLSERemoveCmdCallback(&scriptEngine);
+        LLSERemoveAllExportedFuncs(&scriptEngine);
+
+        scriptEngine.getData().reset();
+
+        EngineManager::unregisterEngine(&scriptEngine);
+
+        throw;
     }
 
+    auto plugin = std::make_shared<Plugin>(manifest);
     if (!addPlugin(manifest.name, plugin)) {
         throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
     }

@@ -4,6 +4,7 @@
 #include "PluginManager.h"
 #include "PluginMigration.h"
 #include "legacy/api/MoreGlobal.h"
+#include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
 
 #include <fmt/format.h>
@@ -15,8 +16,6 @@
 #include <ll/api/plugin/PluginManagerRegistry.h>
 #include <memory>
 #include <stdexcept>
-#include <string>
-#include <unordered_map>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
@@ -31,15 +30,15 @@ constexpr auto BaseLibFileName = "BaseLib.js";
 #endif
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
-void InitBasicEventListeners();
-void InitGlobalShareData();
-void InitLocalShareData();
-void InitMessageSystem();
-void InitSafeGuardRecord();
-void LoadDebugEngine();
-void RegisterDebugCommand();
-extern std::unordered_map<std::string, std::string>
-    depends; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables
+void                  BindAPIs(script::ScriptEngine* engine);
+void                  InitBasicEventListeners();
+void                  InitGlobalShareData();
+void                  InitLocalShareData();
+void                  InitMessageSystem();
+void                  InitSafeGuardRecord();
+void                  RegisterDebugCommand();
+bool                  isInConsoleDebugMode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+script::ScriptEngine* debugEngine;          // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 namespace lse {
 
@@ -52,7 +51,9 @@ std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-
 std::unique_ptr<std::reference_wrapper<ll::plugin::NativePlugin>>
     selfPluginInstance; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool;
+void loadConfig(const ll::plugin::NativePlugin& self, Config& config);
+void loadDebugEngine(const ll::plugin::NativePlugin& self);
+void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 
 auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
@@ -66,83 +67,80 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     return true;
 }
 
-auto load(ll::plugin::NativePlugin& self) -> bool {
-    auto& logger = self.getLogger();
-
-    logger.info("loading...");
-
-    selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
-
-    ll::i18n::load(self.getLangDir());
-
-    // Load configuration.
-    const auto& configFilePath = self.getConfigDir() / "config.json";
-    if (!ll::config::loadConfig(config, configFilePath)) {
-        logger.warn("cannot load configurations from {}", configFilePath);
-        logger.info("saving default configurations to {}", configFilePath);
-
-        if (!ll::config::saveConfig(config, configFilePath)) {
-            throw std::runtime_error(fmt::format("cannot save default configurations to {}", configFilePath));
-        }
-    }
-
-    // Initialize LLSE stuff.
+void initializeLegacyStuff() {
     InitLocalShareData();
     InitGlobalShareData();
     InitSafeGuardRecord();
     EconomySystem::init();
 
-    loadBaseLib(self);
-
-    LoadDebugEngine();
-
     InitBasicEventListeners();
     InitMessageSystem();
     MoreGlobal::Init();
+}
 
-    // Register plugin manager.
-    pluginManager = std::make_shared<PluginManager>();
+auto load(ll::plugin::NativePlugin& self) -> bool {
+    // Translations should be loaded before any possible log and error messages.
+    ll::i18n::load(self.getLangDir());
 
-    auto& pluginManagerRegistry = ll::plugin::PluginManagerRegistry::getInstance();
+    auto& logger = self.getLogger();
 
-    if (!pluginManagerRegistry.addManager(pluginManager)) {
-        throw std::runtime_error("failed to register plugin manager");
-    }
+    logger.info("loading...");
 
-    // Migrate plugins if needed.
-    // Must execute after plugin manager is registered.
+    config             = Config();
+    pluginManager      = std::make_shared<PluginManager>();
+    selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
+
+    loadConfig(self, config);
+
     if (config.migratePlugins) {
-        migratePlugins();
+        migratePlugins(*pluginManager);
     }
+
+    registerPluginManager(pluginManager);
+
+    loadDebugEngine(self);
+
+    initializeLegacyStuff();
 
     logger.info("loaded");
 
     return true;
 }
 
-auto loadBaseLib(ll::plugin::NativePlugin& self) -> bool {
-    auto path = self.getPluginDir() / "baselib" / BaseLibFileName;
-
-    auto content = ll::file_utils::readFile(path);
-
-    if (!content) {
-        throw std::runtime_error(fmt::format("failed to read {}", path.string()));
+void loadConfig(const ll::plugin::NativePlugin& self, Config& config) {
+    const auto& configFilePath = self.getConfigDir() / "config.json";
+    if (!ll::config::loadConfig(config, configFilePath) && !ll::config::saveConfig(config, configFilePath)) {
+        throw std::runtime_error(fmt::format("cannot save default configurations to {}", configFilePath));
     }
+}
 
-    depends.emplace(path.string(), *content);
+void loadDebugEngine(const ll::plugin::NativePlugin& self) {
+    auto& scriptEngine = *EngineManager::newEngine();
 
-    return true;
+    script::EngineScope engineScope(scriptEngine);
+
+    BindAPIs(&scriptEngine);
+
+    // Load BaseLib.
+    auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
+    auto baseLibContent = ll::file_utils::readFile(baseLibPath);
+    if (!baseLibContent) {
+        throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+    }
+    scriptEngine.eval(baseLibContent.value());
+
+    debugEngine = &scriptEngine;
+}
+
+void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) {
+    auto& pluginManagerRegistry = ll::plugin::PluginManagerRegistry::getInstance();
+
+    if (!pluginManagerRegistry.addManager(pluginManager)) {
+        throw std::runtime_error("failed to register plugin manager");
+    }
 }
 
 } // namespace
-
-extern "C" {
-_declspec(dllexport) auto ll_plugin_load(ll::plugin::NativePlugin& self) -> bool { return load(self); }
-
-_declspec(dllexport) auto ll_plugin_enable(ll::plugin::NativePlugin& self) -> bool { return enable(self); }
-
-// LegacyScriptEngine should not be disabled or unloaded.
-}
 
 auto getConfig() -> const Config& { return config; }
 
@@ -163,3 +161,11 @@ auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
 }
 
 } // namespace lse
+
+extern "C" {
+_declspec(dllexport) auto ll_plugin_load(ll::plugin::NativePlugin& self) -> bool { return lse::load(self); }
+
+_declspec(dllexport) auto ll_plugin_enable(ll::plugin::NativePlugin& self) -> bool { return lse::enable(self); }
+
+// LegacyScriptEngine  should not be disabled or unloaded currently.
+}

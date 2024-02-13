@@ -14,7 +14,7 @@ using namespace script;
 
 ///////////////////////////////// API /////////////////////////////////
 
-bool EngineManager::unRegisterEngine(ScriptEngine* toDelete) {
+bool EngineManager::unregisterEngine(ScriptEngine* toDelete) {
     std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     for (auto engine = globalShareData->globalEngineList.begin(); engine != globalShareData->globalEngineList.end();
          ++engine)

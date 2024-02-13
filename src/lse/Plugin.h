@@ -7,9 +7,7 @@ namespace lse {
 
 class Plugin : public ll::plugin::Plugin {
 public:
-    Plugin(ll::plugin::Manifest manifest);
-
-private:
+    Plugin(const ll::plugin::Manifest& manifest);
 };
 
 } // namespace lse

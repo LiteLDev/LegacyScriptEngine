@@ -16,7 +16,6 @@
 #include "mc/nbt/ListTag.h"
 #include "mc/nbt/ShortTag.h"
 #include "mc/nbt/StringTag.h"
-#include "mc/nbt/TagMemoryChunk.h"
 
 #include <magic_enum.hpp>
 #include <mc/nbt/CompoundTag.h>
@@ -192,7 +191,11 @@ void TagToJson_List_Helper(ordered_json& res, ListTag* nbt) {
             break;
         case Tag::Type::ByteArray: {
             auto& bytes = tag->as<ByteArrayTag>().data;
-            res.push_back(Base64::Encode(string((char*)bytes.mBuffer.get(), bytes.mSize)));
+            char* tmpData;
+            for (unsigned int i = 0; i < bytes.size(); ++i) {
+                tmpData[i] = bytes[i];
+            }
+            res.push_back(Base64::Encode(tmpData));
             break;
         }
         case Tag::Type::List: {
@@ -243,7 +246,11 @@ void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt) {
             break;
         case Tag::Type::ByteArray: {
             auto& bytes = tag.as<ByteArrayTag>().data;
-            res.push_back(Base64::Encode(string((char*)bytes.mBuffer.get(), bytes.mSize)));
+            char* tmpData;
+            for (unsigned int i = 0; i < bytes.size(); ++i) {
+                tmpData[i] = bytes[i];
+            }
+            res.push_back(Base64::Encode(tmpData));
             break;
         }
         case Tag::Type::List: {
@@ -294,8 +301,12 @@ std::string TagToJson(Tag* nbt, int formatIndent) {
         result = nbt->as<StringTag>().data;
         break;
     case Tag::Type::ByteArray: {
-        auto& bytes = nbt->as<ByteArrayTag>().data;
-        result      = Base64::Encode(string((char*)bytes.mBuffer.get(), bytes.mSize));
+        auto&       bytes = nbt->as<ByteArrayTag>().data;
+        std::string tmpData;
+        for (uchar data : bytes) {
+            tmpData.push_back(data);
+        }
+        result = Base64::Encode(tmpData);
         break;
     }
     case Tag::Type::List: {
@@ -839,15 +850,12 @@ NbtByteArrayClass::NbtByteArrayClass(std::unique_ptr<ByteArrayTag> p)
 
 NbtByteArrayClass* NbtByteArrayClass::constructor(const Arguments& args) {
     try {
-        auto               buf = args[0].asByteBuffer();
-        std::vector<schar> array;
+        auto buf = args[0].asByteBuffer();
 
-        TagMemoryChunk tag = TagMemoryChunk();
-        tag.mBuffer        = std::unique_ptr<uchar[]>(new uchar[buf.byteLength()]);
-        memcpy(tag.mBuffer.get(), buf.getRawBytes(), buf.byteLength());
         std::unique_ptr<ByteArrayTag> arrayTag = std::make_unique<ByteArrayTag>(ByteArrayTag());
-        arrayTag->data                         = std::move(tag);
-        arrayTag->data.mSize                   = arrayTag->data.mCapacity;
+        for (char c : buf.describeUtf8()) {
+            arrayTag->data.push_back(c);
+        }
         return new NbtByteArrayClass(args.thiz(), std::move(arrayTag));
     }
     CATCH_C("Fail in Create ByteArrayTag!");
@@ -885,7 +893,11 @@ Local<Value> NbtByteArrayClass::getType(const Arguments& args) { return Number::
 Local<Value> NbtByteArrayClass::get(const Arguments& args) {
     try {
         auto& data = nbt->data;
-        return ByteBuffer::newByteBuffer((char*)data.mBuffer.get(), data.mSize);
+        char* buf;
+        for (unsigned int i = 0; i < data.size(); ++i) {
+            buf[i] = data[i];
+        }
+        return ByteBuffer::newByteBuffer(buf, data.size());
     }
     CATCH("Fail in NbtValueGet!")
 }
@@ -904,10 +916,9 @@ Local<Value> NbtByteArrayClass::set(const Arguments& args) {
 
     try {
         Local<ByteBuffer> buf = args[0].asByteBuffer();
-        TagMemoryChunk    tag = TagMemoryChunk();
-        tag.mBuffer           = std::unique_ptr<uchar[]>(new uchar[buf.byteLength()]);
-        memcpy(tag.mBuffer.get(), buf.getRawBytes(), buf.byteLength());
-        nbt->data = tag;
+        for (char c : buf.describeUtf8()) {
+            nbt->data.push_back(c);
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in NbtValueSet!")
@@ -1215,11 +1226,10 @@ Local<Value> NbtListClass::setByteArray(const Arguments& args) {
         } else if (list[0].getId() != Tag::Type::ByteArray) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            auto           data = args[1].asByteBuffer();
-            TagMemoryChunk tag  = TagMemoryChunk();
-            tag.mBuffer         = std::unique_ptr<uchar[]>(new uchar[data.byteLength()]);
-            memcpy(tag.mBuffer.get(), data.getRawBytes(), data.byteLength());
-            list[index].as_ptr<ByteArrayTag>()->data = tag;
+            auto data = args[1].asByteBuffer();
+            for (char c : data.describeUtf8()) {
+                list[index].as_ptr<ByteArrayTag>()->data.push_back(c);
+            }
         }
         return this->getScriptObject();
     }
@@ -1665,13 +1675,12 @@ Local<Value> NbtCompoundClass::setByteArray(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kByteBuffer);
 
     try {
-        auto           key  = args[0].toStr();
-        auto           data = args[1].asByteBuffer();
-        TagMemoryChunk tag  = TagMemoryChunk();
-        tag.mBuffer         = std::unique_ptr<uchar[]>(new uchar[data.byteLength()]);
-        memcpy(tag.mBuffer.get(), data.getRawBytes(), data.byteLength());
+        auto         key  = args[0].toStr();
+        auto         data = args[1].asByteBuffer();
         ByteArrayTag baTag;
-        baTag.data   = tag;
+        for (char c : data.describeUtf8()) {
+            baTag.data.push_back(c);
+        }
         nbt->at(key) = baTag;
         return this->getScriptObject();
     }
@@ -1922,12 +1931,10 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
         case Tag::Type::ByteArray: {
             ByteArrayTag tag;
             if (args.size() >= 2 && args[1].isByteBuffer()) {
-                Local<ByteBuffer> buf   = args[1].asByteBuffer();
-                TagMemoryChunk    chunk = TagMemoryChunk();
-                chunk.mBuffer           = std::unique_ptr<uchar[]>(new uchar[buf.byteLength()]);
-                memcpy(chunk.mBuffer.get(), buf.getRawBytes(), buf.byteLength());
-                tag.data       = tag;
-                tag.data.mSize = tag.data.mCapacity;
+                Local<ByteBuffer> buf = args[1].asByteBuffer();
+                for (char data : buf.describeUtf8()) {
+                    tag.data.push_back(data);
+                }
             }
             res = NbtByteArrayClass::pack(std::move(&tag));
             break;
@@ -2028,7 +2035,11 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
             break;
         case Tag::Type::ByteArray: {
             auto& data = tag->as_ptr<ByteArrayTag>()->data;
-            res.add(ByteBuffer::newByteBuffer(data.mBuffer.get(), data.mSize));
+            char* buf;
+            for (unsigned int i = 0; i < data.size(); ++i) {
+                buf[i] = data[i];
+            }
+            res.add(ByteBuffer::newByteBuffer(buf, data.size()));
             break;
         }
         case Tag::Type::List:
@@ -2076,7 +2087,11 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
             break;
         case Tag::Type::ByteArray: {
             auto& data = tag.get().as_ptr<ByteArrayTag>()->data;
-            res.set(key, ByteBuffer::newByteBuffer(data.mBuffer.get(), data.mSize));
+            char* buf;
+            for (unsigned int i = 0; i < data.size(); ++i) {
+                buf[i] = data[i];
+            }
+            res.set(key, ByteBuffer::newByteBuffer(buf, data.size()));
             break;
         }
         case Tag::Type::List:
@@ -2122,7 +2137,11 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
         break;
     case Tag::Type::ByteArray: {
         auto& data = nbt->as_ptr<ByteArrayTag>()->data;
-        value      = ByteBuffer::newByteBuffer(data.mBuffer.get(), data.mSize);
+        char* buf;
+        for (unsigned int i = 0; i < data.size(); ++i) {
+            buf[i] = data[i];
+        }
+        value = ByteBuffer::newByteBuffer(buf, data.size());
         break;
     }
     case Tag::Type::List:

@@ -1467,7 +1467,7 @@ Local<Value> EntityClass::getBiomeName() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return String::newString(bio.getName());
+        return String::newString(bio.getName().getString());
     }
     CATCH("Fail in getBiomeName!");
 }

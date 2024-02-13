@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lse/PluginManager.h"
+#include "PluginManager.h"
+
 namespace lse {
 
 auto migratePlugins(const PluginManager& pluginManager) -> void;

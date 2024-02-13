@@ -3,7 +3,6 @@
 #include "Entry.h"
 #include "Plugin.h"
 #include "legacy/engine/EngineManager.h"
-#include "legacy/main/PluginManager.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -105,9 +104,19 @@ auto PluginManager::unload(std::string_view name) -> bool {
 
     logger.info("unloading plugin {}", name);
 
-    if (!::PluginManager::unloadPlugin(std::string(name))) {
-        throw std::runtime_error(fmt::format("failed to unload plugin {}", name));
-    }
+    auto& scriptEngine = *EngineManager::getEngine(std::string(name));
+
+    LLSERemoveTimeTaskData(&scriptEngine);
+    LLSERemoveAllEventListeners(&scriptEngine);
+    LLSERemoveCmdRegister(&scriptEngine);
+    LLSERemoveCmdCallback(&scriptEngine);
+    LLSERemoveAllExportedFuncs(&scriptEngine);
+
+    scriptEngine.getData().reset();
+
+    EngineManager::unregisterEngine(&scriptEngine);
+
+    scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
 
     if (!erasePlugin(name)) {
         throw std::runtime_error(fmt::format("failed to unregister plugin {}", name));

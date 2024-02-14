@@ -7,6 +7,7 @@
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
 
+#include <ScriptX/ScriptX.h>
 #include <fmt/format.h>
 #include <functional>
 #include <ll/api/Config.h>

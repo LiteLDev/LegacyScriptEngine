@@ -9,7 +9,7 @@ add_requires(
     "legacymoney 0.2.0",
     "legacyparticleapi 0.2.0",
     "legacyremotecall 0.2.0",
-    "levilamina 0.7.2",
+    "levilamina 0.8.1",
     "lightwebsocketclient 1.0.0",
     "magic_enum v0.9.0",
     "more-events develop",
@@ -40,7 +40,7 @@ option("backend")
 package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
 
-    add_deps("levilamina 0.7.2")
+    add_deps("levilamina 0.8.1")
 
     on_install(function (package)
         import("package.tools.xmake").install(package)

@@ -16,7 +16,7 @@
 
 注意，当玩家死亡时，除了触发`onPlayerDie`事件，这个事件同样也会被触发一次
 
-<br>
+
 
 #### `"onMobHurt"` - 生物受伤（包括玩家）
 
@@ -70,7 +70,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
  | Stalagmite      | 0x1D   | 掉落到石笋上                                                            |
  | All             | 0x1F   | 所有                                                                    |
 
-<br>
+
 
 #### `"onEntityExplode"` - 发生由实体引起的爆炸
 
@@ -92,7 +92,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
   
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMobTrySpawn"` - 发生于实体尝试自然生成
 
@@ -106,7 +106,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
   
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMobSpawned"` - 发生于实体自然生成完成
 
@@ -122,7 +122,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 此事件为实体成功生成后触发，不可直接拦截，如需拦截请使用entity.despawn()或entity.remove()
 
-<br>
+
 
 #### `"onProjectileHitEntity"` - 实体被弹射物击中
 
@@ -135,7 +135,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
     发射的弹射物实体（如箭）
 - 拦截事件：不可以拦截
 
-<br>
+
 
 #### `"onWitherBossDestroy"` - 凋灵破坏方块
 
@@ -157,7 +157,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 注意，此事件不包括凋灵爆炸的破坏。
 
-<br>
+
 
 #### `"onRide"` - 生物骑乘
 
@@ -172,7 +172,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 注：骑乘包括坐矿车、坐船、骑马、骑猪等。
 
-<br>
+
 
 #### `"onStepOnPressurePlate"` - 生物踩压力板
 
@@ -187,7 +187,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 注：生物踩压力板时，将会反复多次触发此事件。
 
-<br>
+
 
 #### `"onSpawnProjectile"` - 弹射物创建
 
@@ -205,7 +205,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 注：已知可拦截的弹射物有鸡蛋、末影珍珠、雪球、三叉戟、箭、钓竿（鱼钩）。
 
-<br>
+
 
 #### `"onProjectileCreated"` - 弹射物创建完毕
 
@@ -221,7 +221,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 - 拦截事件：不可以拦截
 
-<br>
+
 
 #### `"onNpcCmd"` - NPC执行命令
 
@@ -236,7 +236,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
     NPC执行的命令
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onChangeArmorStand"` - 操作盔甲架
 
@@ -257,7 +257,7 @@ DamageCause 为伤害原因枚举，枚举值如下，有问号的待验证，�
 
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onEntityTransformation"` - 实体转变
 

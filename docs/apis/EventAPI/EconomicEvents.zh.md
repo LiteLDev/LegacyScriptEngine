@@ -13,7 +13,7 @@
     增加的金额
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMoneyAdd"` - 玩家金额增加事件
 
@@ -25,7 +25,7 @@
   - money : `Integer`  
     增加的金额
 
-<br>
+
 
 #### `"beforeMoneyReduce"` - 玩家金额减少前事件
 
@@ -38,7 +38,7 @@
     减少的金额
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMoneyReduce"` - 玩家金额减少事件
 
@@ -50,7 +50,7 @@
   - money : `Integer`  
     减少的金额
 
-<br>
+
 
 #### `"beforeMoneyTrans"` - 玩家转账前事件
 
@@ -65,7 +65,7 @@
     转账的金额
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMoneyTrans"` - 玩家转账事件
 
@@ -80,7 +80,7 @@
     转账的金额
 
 **注意: 当 `onMoneyReduce` 或 `onMoneyAdd` 被触发时，该事件也会被触发**
-<br>
+
 
 #### `"beforeMoneySet"` - 设置玩家金额前事件
 
@@ -93,7 +93,7 @@
     被设置的金额
 - 拦截事件：函数返回`false`
 
-<br>
+
 
 #### `"onMoneySet"` - 直接设置玩家金额事件
 
@@ -105,4 +105,4 @@
   - money : `Integer`  
     被设置的金额
 
-<br>
+

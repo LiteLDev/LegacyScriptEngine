@@ -41,7 +41,6 @@
 #include "mc/network/MinecraftPackets.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
-#include "mc/network/packet/AddEntityPacket.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
 #include "mc/network/packet/ModalFormRequestPacket.h"
@@ -1522,13 +1521,13 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket();
-        pkt.createChat(
+        TextPacket pkt = TextPacket::createChat(
             player->getRealName(),
             args[0].asString().toString(),
             player->getXuid(),
             player->getPlatformOnlineId()
         );
+        ;
         ll::service::getServerNetworkHandler()->handle(player->getNetworkIdentifier(), pkt);
         return Boolean::newBoolean(true);
     }
@@ -3390,7 +3389,7 @@ Local<Value> PlayerClass::getBiomeName() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return String::newString(bio.getName());
+        return String::newString(bio.getName().getString());
     }
     CATCH("Fail in getBiomeName!");
 }

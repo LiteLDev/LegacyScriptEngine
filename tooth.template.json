@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-${engine}",
-    "version": "0.2.4",
+    "version": "0.3.0",
     "info": {
         "name": "LegacyScriptEngine with ${engine} backend",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -12,10 +12,10 @@
         ]
     },
     "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.2.x",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.2.x",
-        "github.com/LiteLDev/LegacyMoney": "0.2.x",
-        "github.com/LiteLDev/LeviLamina": "0.7.x"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.3.x",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.3.x",
+        "github.com/LiteLDev/LegacyMoney": "0.3.x",
+        "github.com/LiteLDev/LeviLamina": "0.8.x"
     },
     "files": {
         "place": [

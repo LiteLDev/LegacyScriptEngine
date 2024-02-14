@@ -27,7 +27,7 @@ The comparison of the LLSE type with the NBT data type is as follows:
 
 Each data type may have a slightly different usage interface. They are introduced separately below:
 
-<br>
+
 
 ## 🎈 NBT Object Generic Interface 
 
@@ -45,7 +45,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 `NBT.Float` `NBT.Double` `NBT.ByteArray` `NBT.String`  
 `NBT.List` `NBT.Compound`
 
-<br>
+
 
 #### Convert NBT Object to JSON String 
 
@@ -65,4 +65,4 @@ If this NBT object stores the `ByteArray` Type, the output byte string will be b
 > The string output by the above function conforms to the JSON standard format, but cannot be deserialized.
 > If there is a need for deserialization, please use the **SNBT** interface provided by the NBT tag class.
 
-<br>
+

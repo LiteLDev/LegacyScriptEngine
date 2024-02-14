@@ -11,7 +11,7 @@
 在接触开发之前，你需要对脚本引擎有一个成体系的认识。这里的文档，首先将帮助你建立一个大概的知识框架。  
 首先熟悉他们，这将是你学习开发的过程中非常重要的一环。
 
-<br>
+
 
 ## 💊 数据类型
 
@@ -23,17 +23,17 @@
 
 虽然脚本语言通常是弱类型的，不需要关注具体的数据类型，但由于脚本引擎支持多种不同的脚本语言，为了方便对接API，下面定义一些通用的数据类型，以及到对应脚本语言类型的映射关系。
 
-| 引擎数据类型 | JavaScript 数据类型        | Lua 数据类型 | 数据类型说明           |
-| --------------- | ------------------ | ------------ | ---------------------- |
-| `Null`          | `null`/`undefined` | `nil`        | 空，未定义，不存在等等 |
-| `Integer`       | `Number`           | `number`     | 整数                   |
-| `Float`         | `Number`           | `number`     | 浮点数（小数，实数）   |
-| `String`        | `String`           | `string`     | 字符串                 |
-| `Boolean`       | `Boolean`          | `boolean`    | 布尔型                 |
-| `Function`      | `Function`         | `function`   | 函数（方法）           |
-| `Array`         | `Array`            | `table`      | 数组（列表）           |
-| `Object`        | `Object`           | `table`      | 对象（映射，字典，表） |
-| `ByteBuffer`    | `ArrayBuffer`      | `table`      | 字节数组               |
+| 引擎数据类型 | JavaScript 数据类型 | Lua 数据类型 | 数据类型说明           |
+| ------------ | ------------------- | ------------ | ---------------------- |
+| `Null`       | `null`/`undefined`  | `nil`        | 空，未定义，不存在等等 |
+| `Integer`    | `Number`            | `number`     | 整数                   |
+| `Float`      | `Number`            | `number`     | 浮点数（小数，实数）   |
+| `String`     | `String`            | `string`     | 字符串                 |
+| `Boolean`    | `Boolean`           | `boolean`    | 布尔型                 |
+| `Function`   | `Function`          | `function`   | 函数（方法）           |
+| `Array`      | `Array`             | `table`      | 数组（列表）           |
+| `Object`     | `Object`            | `table`      | 对象（映射，字典，表） |
+| `ByteBuffer` | `ArrayBuffer`       | `table`      | 字节数组               |
 
 除了上述了标准类型之外，还存在一些引擎自定义的对象类型。
 
@@ -56,7 +56,7 @@
 - `WSClient` - WebSocket 客户端对象（详见 网络）
 - `Enum` - 枚举类型，通常储存于某些类型中，提供一些限定范围的可选项
 
-<br>
+
 
 ## 📌 API文档描述约定
 
@@ -76,12 +76,12 @@
    在API接口参数中，可选参数会被[ ]框起来。  
    形如：`pl.tell(msg[,type])`，这里的`type`就属于可选参数
 
-<br>
+
 
 在熟悉上面这些基础设施之后，你可以开始逐步阅读其他各特定内容的文档了。  
 如果碰到遗忘了的东西，可以多翻回来看看。
 
-<br>
+
 
 ## 📜 插件开发小贴士
 

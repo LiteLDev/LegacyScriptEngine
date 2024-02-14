@@ -20,7 +20,7 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 - Return value: Whether the setting is successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 ### Get the Player’s Deposit Amount
 
@@ -34,7 +34,7 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 - Return value: Player's bank value.
 - Return value type: `Integer`
 
-<br>
+
 
 ### Increase Player’s Deposit
 
@@ -50,7 +50,7 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 - Return value: Whether the setting is successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 ### Decrease the Player’s Deposit
 
@@ -66,7 +66,7 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 - Return value: Whether the setting is successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 ### Make a Transfer
 
@@ -93,7 +93,7 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 
 - Return value type: `Boolean`
 
-<br>
+
 
 ### Query Historical Payments
 
@@ -121,7 +121,7 @@ Where the result is an array of record objects. for each `record` object record,
 
 The format of the time string is: YYYY-mm-dd hh:mm:ss
 
-<br>
+
 
 ### Delete Billing History
 
@@ -133,4 +133,4 @@ The format of the time string is: YYYY-mm-dd hh:mm:ss
 - Return value: Whether the deletion is successful.
 - Return value type: `Boolean`
 
-<br>
+

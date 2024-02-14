@@ -15,21 +15,21 @@ In order to rank the priority and importance of logs, we introduce the concept o
 The higher the log output level, the more detailed the content of the log, but the larger the amount of logs output at the same time. 
 See the table below for details: 
 
-| Log Output Level | Log Severity | Log Description                         |
-| ------------ | ------------ | ------------------------------------------- |
-| 0            | Slient       | No log output.                              |
-| 1            | Fatal        | Only critical error messages.               |
-| 2            | Error        | Only error and critical error messages.     |
-| 3            | Warn         | Output arnings, errors, critical errors.    |
-| 4            | Info         | Output everythng except debug info.         |
-| 5            | Debug        | Output everything. |
+| Log Output Level | Log Severity | Log Description                          |
+| ---------------- | ------------ | ---------------------------------------- |
+| 0                | Slient       | No log output.                           |
+| 1                | Fatal        | Only critical error messages.            |
+| 2                | Error        | Only error and critical error messages.  |
+| 3                | Warn         | Output arnings, errors, critical errors. |
+| 4                | Info         | Output everythng except debug info.      |
+| 5                | Debug        | Output everything.                       |
 
 With the **Log output level** setting, you can easily filter out some unnecessary information in the production environment.
 
 The default value of the log output level is `4`, that is, all kinds of logs other than debug information will be output. 
 With some APIs given below, you can adjust the log output level to your own desired value. 
 
-<br>
+
 
 ### Set Output Configuration
 
@@ -51,7 +51,7 @@ If you don't change any settings, by **default** the log will only be output to 
     (optional parameter) the log output level of the console, the default is `4` 
 - Return value: none 
 
-<br>
+
 
 #### Set whether the log is output to a file
 
@@ -68,7 +68,7 @@ If you don't change any settings, by **default** the log will only be output to 
 
 If you want to output to a file, we recommend that you output the log uniformly to `BDS_Root_Directory/logs/` folder for easy organization and inspection.
 
-<br>
+
 
 #### Set whether the log is output to a certain player
 
@@ -85,7 +85,7 @@ If you want to output to a file, we recommend that you output the log uniformly 
 
 This is a function designed to facilitate in-game debugging. The log output to the player will be treated as a chat message and displayed on the target player's screen.
 
-<br>
+
 
  ### Output Log Function
 
@@ -111,7 +111,7 @@ The result of the log output is:
 [2021-05-21 19:41:03 Error] Fail to transport the player
 ```
 
-<br>
+
 
 ### Other Settings
 
@@ -138,7 +138,7 @@ Then the following log output will become like:
 
 If you want to turn off the header after setting it, do `logger.setTitle("")`
 
-<br>
+
 
 #### Unified modification log output level
 
@@ -151,4 +151,3 @@ If you want to turn off the header after setting it, do `logger.setTitle("")`
 
 Unified reset of log output levels for various output directions 
 
-<br>

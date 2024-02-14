@@ -11,11 +11,12 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "main/SafeGuardRecord.h"
-#include "mc/scripting/modules/minecraft/ScriptNavigationResult.h"
 #include "mc/server/SimulatedPlayer.h"
 
 #include <algorithm>
+#include <mc/external/scripting/gametest/ScriptNavigationResult.h>
 #include <mc/nbt/CompoundTag.h>
+#include <mc/server/sim/LookDuration.h>
 #include <mc/world/Container.h>
 #include <mc/world/SimpleContainer.h>
 #include <mc/world/actor/Actor.h>
@@ -372,7 +373,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
             speed = args[index].asNumber().toFloat();
         }
 
-        sp->simulateMoveToLocation(target, speed);
+        sp->simulateMoveToLocation(target, speed, true);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -418,7 +419,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
             if (!*actor) return Local<Value>();
-            sp->simulateLookAt(**actor);
+            sp->simulateLookAt(**actor, (sim::LookDuration)0);
             return Boolean::newBoolean(true);
         }
         LOG_WRONG_ARG_TYPE();
@@ -443,7 +444,7 @@ Local<Value> PlayerClass::simulateSetBodyRotation(const Arguments& args) {
 // void simulateWorldMove(class Vec3 const&, float);
 // void simulateMoveToLocation(class Vec3 const&, float);
 
-inline Local<Value> NavigateResultToObject(ScriptModuleMinecraft::ScriptNavigationResult const& res) {
+inline Local<Value> NavigateResultToObject(ScriptModuleGameTest::ScriptNavigationResult const& res) {
     auto obj = Object::newObject();
     obj.set(String::newString("isFullPath"), Boolean::newBoolean(res.mIsFullPath));
     auto path = Array::newArray();

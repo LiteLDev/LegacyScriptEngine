@@ -8,7 +8,7 @@ All data will be destroyed uniformly only when the server is shut down.
 
 As such, LLSE gives developers the ability to track data about a particular player throughout the plugin's lifecycle.  
 
-<br>
+
 
 For a specific player object `pl`, with the following interfaces:
 
@@ -25,7 +25,7 @@ For a specific player object `pl`, with the following interfaces:
 - Return value: Whether the save was successful or not.
 - Return value type: `Boolean` 
 
-<br>
+
 
 #### Get Player Binding Data
 
@@ -38,7 +38,7 @@ For a specific player object `pl`, with the following interfaces:
 - Return value type: `Any type`, depending on the type of data stored.
   -  If the return value is `Null`, it means that the specified binding data is not obtained, or the data is empty.
 
-<br>
+
 
 #### Delete Player Binding Data
 
@@ -50,7 +50,7 @@ For a specific player object `pl`, with the following interfaces:
 - Return value: Whether the deletion is successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 ## 👨‍💻 XUID Database
 
@@ -68,7 +68,7 @@ When a player enters the server for the first time, his name and XUID are automa
 - Return value type: `String`
   - If the return value is `Null`, it means the query failed.
 
-<br>
+
 
 #### Query Player Name Based on XUID
 
@@ -81,7 +81,7 @@ When a player enters the server for the first time, his name and XUID are automa
 - Return value type: `String`
   - If the return value is `Null`, it means the query failed.
 
-<br>
+
 
 #### Query UUID by Player Name
 
@@ -94,7 +94,7 @@ When a player enters the server for the first time, his name and XUID are automa
 - Return value type: `String`
   - If the return value is `Null`, it means the query failed.
 
-<br>
+
 
 #### Query UUID Based on XUID
 
@@ -107,7 +107,7 @@ When a player enters the server for the first time, his name and XUID are automa
 - Return value type: `String`
   - If the return value is `Null`, it means the query failed.
 
-<br>
+
 
 #### Get all player information
 
@@ -120,6 +120,6 @@ When a player enters the server for the first time, his name and XUID are automa
     - `xuid`: Player's XUID.
     - `uuid`: Player's UUID.
 
-<br>
+
 
 Tip: The player name stored in the XUID database is named corresponding to the player object. `realName` field.

@@ -8,7 +8,7 @@ We refer to other NBT objects other than `NbtList` and `NbtCompound` types colle
 
 See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [NbtCompound - Tag Type](/LLSEPluginDevelopment/NbtAPI/NBTCompound.md) documentation.
 
-<br>
+
 
 #### Create a New NBT Data Object
 
@@ -38,7 +38,7 @@ See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [Nbt
 - Return value type:`NbtByte` / `NbtShort` / `NbtInt` / `NbtLong` / `NbtFloat` / `NbtDouble` / `NbtByteBuffer` / `NbtString` , depending on the type of the data.
   - If the creation fails, an exception will be thrown.
 
-<br>
+
 
 For an NBT object that stores common data types `value`, with the following member functions.
 
@@ -53,7 +53,7 @@ For an NBT object that stores common data types `value`, with the following memb
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Read Object Data.
 
@@ -62,4 +62,4 @@ For an NBT object that stores common data types `value`, with the following memb
 - Return value: The data stored in the object.
 - Return value type: ``Number` / `Float` / `Double` / `ByteBuffer` / `String`, depending on the type of the data stored.
 
-<br>
+

@@ -22,7 +22,7 @@ When a certain event in the game occurs, the corresponding listener function you
 - Return value: Whether the event was successfully monitored.
 - Return value type: `Boolean` 
 
-<br>
+
 
 ### Intercept Event
 
@@ -32,7 +32,7 @@ For example: intercepting a chat event will cause everyone to not see the chat m
 However, intercepting events is only valid for BDS.  
 That is to say, intercepting an event does not affect other LLSE scripts that have corresponding listeners to process this event, but BDS can no longer receive it.
 
-<br>
+
 
 ### Avoid Mistakes
 

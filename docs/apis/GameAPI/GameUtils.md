@@ -31,7 +31,7 @@ Note: The interface here will only have an effect when passed to the BDS and dis
 | `Format.White`        | The following text is white        | §f                        |
 | `Format.MinecoinGold` | The following text is coin gold    | §g                        |
 
-<br>
+
 
 #### Format Code Table
 
@@ -44,7 +44,7 @@ Note: The interface here will only have an effect when passed to the BDS and dis
 | `Format.Random`        | The following text is randomly flashed garbled characters | §k                       |
 | `Format.Clear`         | The following text clears all formatting                  | §r                       |
 
-<br>
+
 
 The method used by the above code is a connection string, similar to:
 

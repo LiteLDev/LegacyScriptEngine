@@ -19,7 +19,7 @@ For an existing block object `bl`, there are:
 > Note: Do not save a block entity object.
 > When the block corresponding to the block object is destroyed, the corresponding block entity object will become invalid. Therefore, if there is a need to operate a certain block entity for a long time, please obtain the real-time block entity object through the above method.
 
-<br>
+
 
 
 ### Block Entity Object - Properties
@@ -34,7 +34,7 @@ Each block entity object contains some fixed object properties. For a particular
 
 These object properties are read-only and cannot be modified.
 
-<br>
+
 
 ### Block Entity Object - Function
 
@@ -47,7 +47,7 @@ Each block entity object contains some member functions (member methods) that ca
 - Return type: NBT object of the block entity.
 - Return value type: `NbtCompound`
 
-<br>
+
 
 #### Write to the Block Entity's NBT object 
 
@@ -61,7 +61,7 @@ Each block entity object contains some member functions (member methods) that ca
 
 For more usage of NBT objects, please refer to [NBT Interface Documentation](/LLSEPluginDevelopment/NbtAPI/NBT.md)
 
-<br>
+
 
 #### Get the Block Entity's Block Object
 
@@ -70,4 +70,4 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](/LL
 - Return type: The block entity's block object.
 - Return value type: `Block`
 
-<br>
+

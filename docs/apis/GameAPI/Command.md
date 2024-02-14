@@ -414,7 +414,7 @@ mc.regConsoleCmd("backup","Start the backup",function(args){
     As you can see, the values contained in `args` are **sequentially split** command arguments.
     If you have quotes in your command (for example to handle player names with spaces in them), LLSE will also do this when splitting.
 
-<br>
+
 
 ## Other APIs Related to the Command System
 

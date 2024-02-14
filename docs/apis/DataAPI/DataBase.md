@@ -5,7 +5,7 @@ Unlike configuration files, databases generally have no readability requirements
 LLSE provides a consolidated database interface to accomplish this task.    
 In terms of specific implementation, the engine provides two different database formats: NoSQL database in key-value pair format, and SQL database in tabular format. You can use either as needed.
 
-<br>
+
 
 ### 🔑 Key-Value NoSQL Database 
 
@@ -33,7 +33,7 @@ When the given directory does not exist, it will try to automatically create the
 After successfully opening the database, you can use the following interfaces to perform related operations.  
 For a database object `db`, with the following functions:
 
-<br>
+
 
 #### Write Data Item
 
@@ -49,7 +49,7 @@ For a database object `db`, with the following functions:
 - Return value: Whether the write is successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Read Data Item
 
@@ -62,7 +62,7 @@ For a database object `db`, with the following functions:
 - Return value type: `Any type`, depending on the specific type of data stored.
   - If the return value is `Null` it means that the data does not exist.
 
-<br>
+
 
 #### Delete Data Item
 
@@ -74,7 +74,7 @@ For a database object `db`, with the following functions:
 - Return value: Whether the deletion was successfu.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Get All Data Item Names 
 
@@ -83,7 +83,7 @@ For a database object `db`, with the following functions:
 - Return value: An array of all data item names.
 - Return value type: `Array`
 
-<br>
+
 
 #### Close the Database
 
@@ -94,7 +94,7 @@ For a database object `db`, with the following functions:
 
 After the database is closed, do not continue to use it!
 
-<br>
+
 
 ------
 
@@ -102,4 +102,4 @@ After the database is closed, do not continue to use it!
 
 SQL databases are suitable for processing large amounts of relational data using SQL statements. The bottom layer of the interface is implemented using a cross-database operation framework, which can connect to most of the commonly used SQL databases in the market.
 
-<br>
+

@@ -23,7 +23,7 @@ See [Block Object API](/LLSEPluginDevelopment/GameAPI/Block.md)
 > Note: Do not save a container object long-term.
 > When the entity/block corresponding to the container object is destroyed, the corresponding container object will become invalid. Therefore, if there is a need to operate a certain container for a long time, please obtain the real-time container object through the above methods.
 
-<br>
+
 
 ### Container Info Object - Properties
 
@@ -34,7 +34,7 @@ Each container information object contains some fixed object properties. for a s
 | ct.size    | The total number of spaces the container has | `Integer`  |
 | ct.type    | The type of container                        | `String`   |
 
-<br>
+
 
 ### Container Object - Function
 
@@ -56,7 +56,7 @@ Each container object contains some member functions (member methods) that can b
 - Return type: Whether the item was added successfully or not.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Put the Item Object Into the First Empty Space of the Container
 
@@ -70,7 +70,7 @@ Each container object contains some member functions (member methods) that can b
 
 Unlike the above function, this function will not stack to the existing item stack in the container.
 
-<br>
+
 
 #### Check to See if (There Is Room) In the Container for This Item 
 
@@ -82,7 +82,7 @@ Unlike the above function, this function will not stack to the existing item sta
 - Return type: Whether the item can be placed in the container.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Reduce an Item Object in a Container
 
@@ -96,7 +96,7 @@ Unlike the above function, this function will not stack to the existing item sta
 - Return type: Whether the item removal was successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Get the Item Object of a Grid in the Container
 
@@ -110,7 +110,7 @@ Unlike the above function, this function will not stack to the existing item sta
 
 The item object obtained here is a reference. That is to say, modifying the item object returned here, or using its API, is equivalent to directly manipulating the corresponding item in the container.
 
-<br>
+
 
 #### Set the Item Object of a Grid in the Container
 
@@ -124,7 +124,7 @@ The item object obtained here is a reference. That is to say, modifying the item
 - Return type: Whether placing the item in the container was successful.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Get the List of Item Objects in All Grids of the Container
 
@@ -135,7 +135,7 @@ The item object obtained here is a reference. That is to say, modifying the item
 
 The item objects obtained here are all references. That is to say, modifying the item object returned here, or using its API, is equivalent to directly manipulating the corresponding item in the container.
 
-<br>
+
 
 #### Empty The Container
 
@@ -144,7 +144,7 @@ The item objects obtained here are all references. That is to say, modifying the
 - Return type: Whether the container was successfully cleared.
 - Return value type: `Boolean`
 
-<br>
+
 
 #### Check if the Container Is Empty
 

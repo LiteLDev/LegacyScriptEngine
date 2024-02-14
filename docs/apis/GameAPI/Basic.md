@@ -12,24 +12,24 @@ You can think of it as a unique identifier for a game element.
 
 Currently, LLSE has the following game element objects:
 
-| Object Type Name | Object Name     | Purpose of Object                  |
-| ---------------- | --------------- | ------------------------------------------ |
-| `IntPos`         | Integer Coordinate Object  | Identifies integer location (like block coordinates)             |
+| Object Type Name | Object Name                      | Purpose of Object                                                       |
+| ---------------- | -------------------------------- | ----------------------------------------------------------------------- |
+| `IntPos`         | Integer Coordinate Object        | Identifies integer location (like block coordinates)                    |
 | `FloatPos`       | Floating Point Coordinate Object | Identifies a floating point position (like entity coordinates)          |
-| `DirectionAngle` | Direction Object| Identifies angle information (such as the direction a player is facing)       |
-| `Player`         | Player Object | Identify player or access player attributes       |
-| `Entity`         | Entity Object | Identify entity or access entity attributes      |
-| `Block`          | Block Object  | Identify Block or access block attributes |
-| `Item`           | Item Object  | Identifies an item in an inventory |
-| `Container`      | Container Object | Identifies a container that can store items|
-| `BlockEntity`    | Block Entity Object| Identifies a block entity |
-| `Objective`      | Scoring Item Objective | Identifies the scoring items of a scoreboard system|
+| `DirectionAngle` | Direction Object                 | Identifies angle information (such as the direction a player is facing) |
+| `Player`         | Player Object                    | Identify player or access player attributes                             |
+| `Entity`         | Entity Object                    | Identify entity or access entity attributes                             |
+| `Block`          | Block Object                     | Identify Block or access block attributes                               |
+| `Item`           | Item Object                      | Identifies an item in an inventory                                      |
+| `Container`      | Container Object                 | Identifies a container that can store items                             |
+| `BlockEntity`    | Block Entity Object              | Identifies a block entity                                               |
+| `Objective`      | Scoring Item Objective           | Identifies the scoring items of a scoreboard system                     |
 
 You will come across them frequently in subsequent documentation.
 
-<br>
 
-<br>
+
+
 
 ## 🎯 Coordinate Object
 
@@ -41,13 +41,13 @@ Each member of the coordinate object is **readable and writable**.
     Its members are all **integers**, which are mostly used to represent **block coordinates** and other positions represented by integers.
     For a variable pos of type `IntPos`, there are the following members: 
 
-   | Member    | Meaning    | Data Type       |
-   | --------- | ---------- | --------- |
-   | pos.x     | x coordinate     | `Integer` |
-   | pos.y     | y coordinate     | `Integer` |
-   | pos.z     | z coordinate     | `Integer` |
-   | pos.dim   | Dimension name   | `String`  |
-   | pos.dimid | Dimension ID     | `Integer` |
+   | Member    | Meaning        | Data Type |
+   | --------- | -------------- | --------- |
+   | pos.x     | x coordinate   | `Integer` |
+   | pos.y     | y coordinate   | `Integer` |
+   | pos.z     | z coordinate   | `Integer` |
+   | pos.dim   | Dimension name | `String`  |
+   | pos.dimid | Dimension ID   | `Integer` |
 
     Among them, the value of the **dimension ID** attribute is: `0` represents the Main World, `1` represents The Nether, and `2` represents The End.
    
@@ -55,19 +55,19 @@ Each member of the coordinate object is **readable and writable**.
 
    If in some cases the dimension is invalid, or cannot be obtained, you will find that the value of `dimid` is `-1`.
 
-   <br>
+   
 
 2. `FloatPos`object
     Its members are all **floating point numbers**, which are mostly used to represent **entity coordinates** and other positions that cannot be represented by integers  
     For a variable pos of type `FloatPos`, there are the following members:  
 
-   | Member    | Meaning    | Data Type       |
-   | --------- | ---------- | --------- |
-   | pos.x     | x coordinate     | `Float`   |
-   | pos.y     | y coordinate     | `Float`   |
-   | pos.z     | z coordinate     | `Float`   |
-   | pos.dim   | Dimension Name   | `String`  |
-   | pos.dimid | Dimension ID     | `Integer` |
+   | Member    | Meaning        | Data Type |
+   | --------- | -------------- | --------- |
+   | pos.x     | x coordinate   | `Float`   |
+   | pos.y     | y coordinate   | `Float`   |
+   | pos.z     | z coordinate   | `Float`   |
+   | pos.dim   | Dimension Name | `String`  |
+   | pos.dimid | Dimension ID   | `Integer` |
 
    Among them, the value of the **dimension ID** attribute is: `0` represents The Main World, `1` represents The Nether, and `2` represents The End.
    
@@ -75,7 +75,7 @@ Each member of the coordinate object is **readable and writable**.
 
    If in some case the dimension is invalid, or cannot be obtained, you will find that the value of `dimid` is `-1`.
 
-<br>
+
 
 ### Coordinate Object Auxiliary Interface
 
@@ -116,7 +116,7 @@ For some languages ​​that support general object orientation, LLSE also prov
 - Return value: A floating point coordinate object.
 - Return value type: `FloatPos`
 
-<br>
+
 
 ## 📐 Bearing Angle Object
 
@@ -126,14 +126,14 @@ Each member of the direction angle object is **readable and writable**.
 
 For a `DirectionAngle` type variable ang, there are the following members:  
 
-| Member    | Meaning       | Data Type      |
-| --------- | ---------- | --------- |
-| ang.pitch | Pitch angle (-90° ~ 90°)  | `Float` |
+| Member    | Meaning                    | Data Type |
+| --------- | -------------------------- | --------- |
+| ang.pitch | Pitch angle (-90° ~ 90°)   | `Float`   |
 | ang.yaw   | Yaw angle (rotation angle) | `Float`   |
 
 Since there is no concept of rotation in the entity system of MC, there is no data related to the rollover angle.
 
-<br>
+
 
 ##### Create Direction Angle
 
@@ -148,7 +148,7 @@ Since there is no concept of rotation in the entity system of MC, there is no da
 - Return value: A floating point coordinate object.
 - Return value type: `FloatPos`
 
-<br>
+
 
 ##### Convert Direction Angle to Base Heading
 

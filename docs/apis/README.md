@@ -11,7 +11,7 @@ From here, you will gradually become familiar with the basic elements and proces
 Before engaging with development, you need to have a systematic understanding of LLSE. The documentation here, first of all, will help you establish a general knowledge framework. 
 Familiarize yourself with them first, this will be a very important part of your learning development process. 
 
-<br>
+
 
 ## 💊 Data Types
 
@@ -23,17 +23,17 @@ The nouns of these data types appear frequently in the development documentation
 
 Although scripting languages ​​are usually weakly typed, there is no need to pay attention to specific data types, but since LLSE supports a variety of different scripting languages, in order to facilitate the docking of the API, some general data types and the mapping relationship to the corresponding scripting language types are defined below.
 
-| Engine Data Type | JS Data Type        | Lua Data Type | Data Type Description           |
-| --------------- | ------------------ | ------------ | ---------------------- |
-| `Null`          | `null` `undefined` | `nil`        | Empty, undefined, does not exist, etc. |
-| `Integer`       | `Number`           | `number`     | Integer                |
-| `Float`         | `Number`           | `number`     | Float (Decimal, Real)   |
-| `String`        | `String`           | `string`     | String                 |
-| `Boolean`       | `Boolean`          | `boolean`    | Boolean                |
-| `Function`      | `Function`         | `function`   | Function (Method)      |
-| `Array`         | `Array`            | `table`      | Array (List)           |
-| `Object`        | `Object`           | `table`      | Objects (Maps, Dictionaries, Tables)  |
-| `ByteBuffer`    | `ArrayBuffer`      | `table`      | Byte Array             |
+| Engine Data Type | JS Data Type       | Lua Data Type | Data Type Description                  |
+| ---------------- | ------------------ | ------------- | -------------------------------------- |
+| `Null`           | `null` `undefined` | `nil`         | Empty, undefined, does not exist, etc. |
+| `Integer`        | `Number`           | `number`      | Integer                                |
+| `Float`          | `Number`           | `number`      | Float (Decimal, Real)                  |
+| `String`         | `String`           | `string`      | String                                 |
+| `Boolean`        | `Boolean`          | `boolean`     | Boolean                                |
+| `Function`       | `Function`         | `function`    | Function (Method)                      |
+| `Array`          | `Array`            | `table`       | Array (List)                           |
+| `Object`         | `Object`           | `table`       | Objects (Maps, Dictionaries, Tables)   |
+| `ByteBuffer`     | `ArrayBuffer`      | `table`       | Byte Array                             |
 
 In addition to the above standard types, there are also some engine-defined object types. 
 
@@ -56,7 +56,7 @@ In addition to the above standard types, there are also some engine-defined obje
 - `WSClient` - WebSocket client object (see Network for details)
 - `Enum` - Enumeration type, usually stored in some type, providing some limited range of options.
 
-<br>
+
 
 ## 📌 API Documentation Description Conventions
 
@@ -79,12 +79,12 @@ If Array<...> appears in the parameter type, it means an array/list containing t
    When you do not pass this parameter, the engine will use the default value given in the description.
    For example: `pl.tell(msg[,type])`, where `type` is an optional parameter.
 
-<br>
+
 
 After you are familiar with the above infrastructure, you can start to read the documentation for each other specific content step by step. 
 If you come across something you forgot, you can look it up more. 
 
-<br>
+
 
 ## 📜 Plugin Development Tips
 

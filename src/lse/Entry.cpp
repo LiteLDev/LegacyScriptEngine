@@ -99,9 +99,10 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
     registerPluginManager(pluginManager);
 
-    loadDebugEngine(self);
-
+    // Legacy stuff should be initialized before any possible call to legacy code.
     initializeLegacyStuff();
+
+    loadDebugEngine(self);
 
     logger.info("loaded");
 

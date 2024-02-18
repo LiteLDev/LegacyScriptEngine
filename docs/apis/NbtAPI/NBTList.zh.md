@@ -7,7 +7,7 @@
 
 #### 从现有的NBT对象中解析获取
 
-详见 [NbtList - 列表类型](LLSEPluginDevelopment/NbtAPI/NBTList.md) 和 [NbtCompound - 标签类型](LLSEPluginDevelopment/NbtAPI/NBTCompound.md) 文档
+详见 [NbtList - 列表类型](./NBTList.zh.md) 和 [NbtCompound - 标签类型](./NBTCompound.zh.md) 文档
 
 
 

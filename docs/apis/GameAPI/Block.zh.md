@@ -7,7 +7,7 @@
 #### 从事件或API获取
 
 通过注册**事件监听**函数，或者调用某些**返回方块对象**的函数，获取到BDS给出的与相关事件有关的方块对象  
-详见 [事件监听文档 - EventAPI](LLSEPluginDevelopment/EventAPI/Listen.md)  
+详见 [事件监听文档 - EventAPI](../EventAPI/Listen.zh.md)  
 
 #### 通过方块坐标获取
 
@@ -96,7 +96,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](LLSEPluginDevelopment/NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.zh.md)
 注意：慎重使用此api，请考虑使用 `mc.setBlock()` 代替
 
 
@@ -131,7 +131,7 @@
 - 返回值：这个方块所拥有的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 
 
@@ -160,7 +160,7 @@
 - 返回值：是否成功删除
 - 返回值类型：`Boolean`
 
-关于方块实体对象的更多使用，请参考 [方块实体对象 API文档](LLSEPluginDevelopment/GameAPI/BlockEntity.md)
+关于方块实体对象的更多使用，请参考 [方块实体对象 API文档](../GameAPI/BlockEntity.zh.md)
 
 
 

@@ -7,7 +7,7 @@ The interface of the object can perform some operations unique to the NBT list.
 
 #### Parse From an Existing NBT Object
 
-See [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [NbtCompound - Tag Type](/LLSEPluginDevelopment/NbtAPI/NBTCompound.md) documentation.
+See [NbtList - List Type](./NBTList.md) and [NbtCompound - Tag Type](./NBTCompound.md) documentation.
 
 
 

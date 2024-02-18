@@ -59,7 +59,7 @@ Each block entity object contains some member functions (member methods) that ca
 - Return type: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-For more usage of NBT objects, please refer to [NBT Interface Documentation](/LLSEPluginDevelopment/NbtAPI/NBT.md)
+For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI/NBT.md)
 
 
 

@@ -6,7 +6,7 @@ We refer to other NBT objects other than `NbtList` and `NbtCompound` types colle
 
 #### Parse From an Existing NBT Object
 
-See the [NbtList - List Type](/LLSEPluginDevelopment/NbtAPI/NBTList.md) and [NbtCompound - Tag Type](/LLSEPluginDevelopment/NbtAPI/NBTCompound.md) documentation.
+See the [NbtList - List Type](./NBTList.md) and [NbtCompound - Tag Type](./NBTCompound.md) documentation.
 
 
 

@@ -8,17 +8,17 @@ The **container** here is a broad concept. In addition to the traditional contai
 #### Get From Event or API
 
 Obtain the container object given by BDS by registering the **event listener** function, or calling some **returning container object** functions.
-For details, see [Event listener documentation - EventAPI](/LLSEPluginDevelopment/EventAPI/Listen.md)      
+For details, see [Event listener documentation - EventAPI](../EventAPI/Listen.md)      
 
 #### Get By Entity 
 
 Obtain a **container object** corresponding to a player's item bar, armor bar, and ender box through each member function of the player object
-See [Player Object API](/LLSEPluginDevelopment/GameAPI/Player.md)      
+See [Player Object API](./Player.md)      
 
 #### Obtained From Blocks
 
 For a block that can hold items, the corresponding **container object** is obtained through the member function of the block object.
-See [Block Object API](/LLSEPluginDevelopment/GameAPI/Block.md)      
+See [Block Object API](./Block.md)      
 
 > Note: Do not save a container object long-term.
 > When the entity/block corresponding to the container object is destroyed, the corresponding container object will become invalid. Therefore, if there is a need to operate a certain container for a long time, please obtain the real-time container object through the above methods.

@@ -7,7 +7,7 @@ In LLSE, use "item objects" to manipulate and get information about an item in t
 #### Get From Event or API
 
 Obtain the item object given by BDS by registering the **event listener** function, or calling some **returning item object** functions.
-For details, see [Event listener documentation - EventAPI](/LLSEPluginDevelopment/EventAPI/Listen.md)   
+For details, see [Event listener documentation - EventAPI](../EventAPI/Listen.md)   
 
 #### Generate New Item Object
 
@@ -190,7 +190,7 @@ Through this function, according to the item object, a drop entity with the same
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-For more usage of NBT objects, please refer to [NBT Interface Documentation](/LLSEPluginDevelopment/NbtAPI/NBT.md)
+For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI//NBT.md)
 
 
 

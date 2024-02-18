@@ -7,7 +7,7 @@
 #### 从事件或API获取
 
 通过注册**事件监听**函数，或者调用某些**返回实体对象**的函数，来获取到BDS给出的实体对象    
-详见 [事件监听文档 - EventAPI](LLSEPluginDevelopment/EventAPI/Listen.md)      
+详见 [事件监听文档 - EventAPI](../EventAPI/Listen.zh.md)      
 
 #### 获取当前所有已加载的实体
 
@@ -108,7 +108,7 @@
 
 这些对象属性都是只读的，无法被修改
 
-- **实体当前朝向** 属性的详细解释见  [基础游戏接口文档](LLSEPluginDevelopment/GameAPI/Basic.md)
+- **实体当前朝向** 属性的详细解释见  [基础游戏接口文档](./Basic.zh.md)
 - **坐标** 和 **腿部坐标**：如果这个实体为两格高，则`pos`与`feetPos`不同，`pos`为实体视角高度的坐标，`feetPos`为腿部所在格子的方块坐标
 
 
@@ -464,7 +464,7 @@
 - 返回值：此实体盔甲栏对应的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 
 
@@ -486,7 +486,7 @@
 - 返回值：这个生物实体所拥有的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 
 
@@ -565,7 +565,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](LLSEPluginDevelopment/NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.md)
 
 
 

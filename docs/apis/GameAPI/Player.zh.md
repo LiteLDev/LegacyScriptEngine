@@ -7,7 +7,7 @@
 #### 从事件或API获取
 
 通过注册**事件监听**函数，获取到BDS给出的与相关事件有关的玩家对象  
-详见 [事件监听文档 - EventAPI](LLSEPluginDevelopment/EventAPI/Listen.md)
+详见 [事件监听文档 - EventAPI](../EventAPI/Listen.zh.md)
 
 #### 从现有玩家获取
 
@@ -105,7 +105,7 @@
 - **玩家游戏模式** 属性的取值为：`0` 代表生存模式，`1` 代表创造模式，`2` 代表冒险模式，`3` 代表旁观者模式 
 - **玩家真实名字** 属性储存的字符串可以被认为是可靠的，他们不会被改名而变动  
 - **玩家设备IP地址** 属性储存了玩家的设备IP以及端口号，格式类似`12.34.567.89:1111`  
-- **玩家当前朝向** 属性的详细解释见  [基础游戏接口文档](LLSEPluginDevelopment/GameAPI/Basic.md)
+- **玩家当前朝向** 属性的详细解释见  [基础游戏接口文档](./Basic.zh.md)
 - **操作权限等级** 属性的对照表如下：
 
 | 操作权限等级 | 对应操作权限    |
@@ -696,7 +696,7 @@
 - 返回值类型：`Device`
 
 设备信息对象储存了与玩家设备有关的某些信息，如设备IP地址、设备类型、网络延迟等信息。  
-关于设备信息对象的其他信息请参考 [设备信息对象 API](LLSEPluginDevelopment/GameAPI/Device.md)
+关于设备信息对象的其他信息请参考 [设备信息对象 API](./Device.zh.md)
 
 - 示例：  
   - JavaScript
@@ -759,7 +759,7 @@
 - 返回值：玩家物品栏对应的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 - 示例：  
   - JavaScript
@@ -780,7 +780,7 @@
 - 返回值：玩家盔甲栏对应的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 - 示例：  
   - JavaScript
@@ -801,7 +801,7 @@
 - 返回值：玩家末影箱对应的容器对象
 - 返回值类型：`Container`
 
-关于容器对象的更多使用，请参考 [容器对象 API文档](LLSEPluginDevelopment/GameAPI/Container.md)
+关于容器对象的更多使用，请参考 [容器对象 API文档](./Container.zh.md)
 
 - 示例：  
   - JavaScript
@@ -1429,7 +1429,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](LLSEPluginDevelopment/NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.zh.md)
 
 
 

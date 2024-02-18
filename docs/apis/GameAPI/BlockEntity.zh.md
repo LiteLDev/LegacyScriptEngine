@@ -59,7 +59,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](LLSEPluginDevelopment/NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.zh.md)
 
 
 

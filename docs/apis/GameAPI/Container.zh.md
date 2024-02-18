@@ -8,17 +8,17 @@
 #### 从事件或API获取
 
 通过注册**事件监听**函数，或者调用某些**返回容器对象**的函数，来获取到BDS给出的容器对象    
-详见 [事件监听文档 - EventAPI](LLSEPluginDevelopment/EventAPI/Listen.md)      
+详见 [事件监听文档 - EventAPI](../EventAPI/Listen.zh.md)      
 
 #### 通过实体获取
 
 通过玩家对象的各个成员函数，来获取一个玩家物品栏、盔甲栏、末影箱对应的**容器对象**    
-详见 [玩家对象 API](LLSEPluginDevelopment/GameAPI/Player.md)      
+详见 [玩家对象 API](./Player.zh.md)      
 
 #### 通过方块获取
 
 对于可以容纳物品的方块，通过方块对象的成员函数，来他所对应的对应的**容器对象**    
-详见 [方块对象 API](LLSEPluginDevelopment/GameAPI/Block.md)      
+详见 [方块对象 API](./Block.zh.md)      
 
 >  注意：不要**长期保存**一个容器对象  
 > 当容器对象对应的实体 / 方块被销毁时，对应的容器对象将同时释放。因此，如果有长期操作某个容器的需要，请通过上述途径获取实时的容器对象

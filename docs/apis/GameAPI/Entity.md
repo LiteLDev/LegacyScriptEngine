@@ -7,7 +7,7 @@ In LLSE, "entity objects" are used to manipulate and obtain information about an
 #### Get From Event or API
 
 Obtain the entity object given by BDS by registering the **event listener** function, or calling some **returning entity object** functions.
-For details, see [Event listener documentation - EventAPI](/LLSEPluginDevelopment/EventAPI/Listen.md)      
+For details, see [Event listener documentation - EventAPI](../EventAPI/Listen.md)      
 
 #### Get All Currently Loaded Entities
 
@@ -106,7 +106,7 @@ Every entity object contains some fixed object properties. for a specific entity
 
 These object properties are read-only and cannot be modified.
 
-- For a detailed explanation of the **entity's current orientation** attribute, see the [Basic Game Interface Documentation](/LLSEPluginDevelopment/GameAPI/Basic.md)
+- For a detailed explanation of the **entity's current orientation** attribute, see the [Basic Game Interface Documentation](./Basic.md)
 - **coordinates** and **leg coordinates**: if this entity is two blocks high, `pos` is different from `feetPos`, `pos` is the coordinate of the entity's view's height and `feetPos` is the coordinate of the block where the leg is located
 
 
@@ -458,7 +458,7 @@ If the current entity object is a drop entity, you can use this function to get 
 - Return value: The container object corresponding to the armor bar of this entity.
 - Return value type:  `Container`
 
-For more usage of container objects, please refer to [Container Object API Documentation](/LLSEPluginDevelopment/GameAPI/Container.md)
+For more usage of container objects, please refer to [Container Object API Documentation](./Command.md)
 
 
 
@@ -480,7 +480,7 @@ Such as the boxes on the alpaca, they each have their own container object.
 - Return value: The container object owned by this biological entity.
 - Return value type:  `Container`
 
-For more usage of container objects, please refer to [Container Object API Documentation](/LLSEPluginDevelopment/GameAPI/Container.md)
+For more usage of container objects, please refer to [Container Object API Documentation](./Container.md)
 
 
 
@@ -559,7 +559,7 @@ After modifying the creature's items, in order to make the client take effect, i
 - Return value: Whether the write was successful or not.
 - Return value type:  `Boolean`
 
-For more usage of NBT objects, please refer to [NBT Interface Documentation](/LLSEPluginDevelopment/NbtAPI/NBT.md)
+For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI//NBT.md)
 
 
 

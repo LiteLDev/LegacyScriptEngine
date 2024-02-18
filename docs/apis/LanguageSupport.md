@@ -1,11 +1,11 @@
-# 📋 LLSE - Multi development Language Support
+# 📋 LSE - Multi development Language Support
 
 ## 🌏 Current Status
 
-With the support of the [ScriptX](https://github.com/Tencent/ScriptX) project, LLSE adapts to multiple development languages using the same set of source code.    
+With the support of the [ScriptX](https://github.com/Tencent/ScriptX) project, LSE adapts to multiple development languages using the same set of source code.    
 At the same time, the API remains consistent, allowing various languages to share the same development document. It greatly reducing maintenance difficulties.
 
-Currently, LLSE supports writing plugins in the following languages：
+Currently, LSE supports writing plugins in the following languages：
 
 | Language backend | Remarks                                                                        |
 | ---------------- | ------------------------------------------------------------------------------ |
@@ -36,7 +36,7 @@ Currently, LLSE supports writing plugins in the following languages：
 
 ## Node.js support description
 
-- LLSE makes it possible to work in embedded mode by implementing the Node.js starter code itself, and isolates the execution environment for different plugins
+- LSE makes it possible to work in embedded mode by implementing the Node.js starter code itself, and isolates the execution environment for different plugins
 - Created interface to implement programmic support for npm. Support installing third-party extension dependencies via package.json
 
 #### ⭐ **Node.js Plugin Development**
@@ -51,7 +51,7 @@ Currently, LLSE supports writing plugins in the following languages：
 - After the plugin is finish, package `package.json` and all the plugin source code into a zip archive and **change the file name suffix to .llplugin**
 - The `node_modules` directory should not be packed in the archive
 - Distribute the **.llplugin** file as a plugin. When installing the plugin, just place this file directly into the plugins directory
-- LLSE will automatically recognize the **.llplugin** file when BDS launch, extract it to the `plugins/nodejs/<PluginName>` directory, and automatically execute `npm install` in the directory to install the dependency packages. No manual intervention is needed for the whole process
+- LSE will automatically recognize the **.llplugin** file when BDS launch, extract it to the `plugins/nodejs/<PluginName>` directory, and automatically execute `npm install` in the directory to install the dependency packages. No manual intervention is needed for the whole process
 
 
 
@@ -69,7 +69,7 @@ Currently, LLSE supports writing plugins in the following languages：
 #### ⭐ **Python Multi-File Plugin Development**
 
 - For formal Python plugins, this method is highly recommended. Multi-file plugins support all full Python features.
-- LLSE uses the `pyproject.toml` project file for metadata storage (similar to `package.json` in Node.Js). This project file is recommended to be automatically generated using PDM package manager ([pdm-project/pdm](https://github.com/pdm-project/pdm)), which supports modern project features to facilitate plugin project creation and maintenance.
+- LSE uses the `pyproject.toml` project file for metadata storage (similar to `package.json` in Node.Js). This project file is recommended to be automatically generated using PDM package manager ([pdm-project/pdm](https://github.com/pdm-project/pdm)), which supports modern project features to facilitate plugin project creation and maintenance.
 
 ##### **The turtorial for Python plugins development: **
 1. First, install Python 3.10.9
@@ -94,9 +94,9 @@ Currently, LLSE supports writing plugins in the following languages：
 To be fair, the quality and maintenance of CPython's code is in a somewhat worrisome state. Given below are some problems to be aware of when developing Python plugins, many of which are caused by bugs in CPython itself:
 
 1. Do not use `threading`, `asyncio` and other features for the time being
-   - LLSE uses CPython's sub-interpreter as the core unit of engine scheduling, but CPython itself has long had bad support for the sub-interpreter, and there are many bugs that are hard to explain. The GIL api that is currently used for these mechanisms does not take into account the existence of sub-interpreters, so deadlocks and crashes will occur once they are used.
+   - LSE uses CPython's sub-interpreter as the core unit of engine scheduling, but CPython itself has long had bad support for the sub-interpreter, and there are many bugs that are hard to explain. The GIL api that is currently used for these mechanisms does not take into account the existence of sub-interpreters, so deadlocks and crashes will occur once they are used.
    - Developers with parallel computing needs can temporarily use `multiprocess` to parallelize multiple processes.
-   - Python 3.12 is scheduled to have targeted fixes for sub-interpreter and GIL-related bugs, and LLSE will adapt CPython 3.12 to address this issue after its release.
+   - Python 3.12 is scheduled to have targeted fixes for sub-interpreter and GIL-related bugs, and LSE will adapt CPython 3.12 to address this issue after its release.
 2. `sys.stdin` is disabled for all Python engines
    - This is another CPython bug, see https://github.com/python/cpython/issues/83526 for details
    - In addition, even if the CPython engine is not loaded in the above case, there will be a problem of stdin grabbing, causing some tools that use the input redirection to fail

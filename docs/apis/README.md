@@ -1,14 +1,14 @@
-# Overview of LLSE Plugin Development
+# Overview of LSE Plugin Development
 
 ## ⛳ Start
 
-`LeviLamina ScriptEngine` hereinafter referred to as **LLSE** is an official server for Bedrock Edition  `Bedrock Dedicated Server` hereinafter referred to as **BDS** plugin framework, providing powerful cross-language script plug-in support and stable development API support.  
+`LegacyScriptEngine` hereinafter referred to as **LSE** is an official server for Bedrock Edition  `Bedrock Dedicated Server` hereinafter referred to as **BDS** plugin framework, providing powerful cross-language script plug-in support and stable development API support.  
 
-> Welcome to LLSE's plug-in development!
+> Welcome to LSE's plug-in development!
 
-From here, you will gradually become familiar with the basic elements and processes of LLSE plug-in development. 
+From here, you will gradually become familiar with the basic elements and processes of LSE plug-in development. 
 
-Before engaging with development, you need to have a systematic understanding of LLSE. The documentation here, first of all, will help you establish a general knowledge framework. 
+Before engaging with development, you need to have a systematic understanding of LSE. The documentation here, first of all, will help you establish a general knowledge framework. 
 Familiarize yourself with them first, this will be a very important part of your learning development process. 
 
 

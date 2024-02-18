@@ -2,6 +2,8 @@
 
 Provides some other common data processing interfaces. You can use and expand by yourself.
 
+Note that data is an empty class and the functions are all static functions.
+
 ### Convert Variable to JSON String
 
 `data.toJson(var[,space])`

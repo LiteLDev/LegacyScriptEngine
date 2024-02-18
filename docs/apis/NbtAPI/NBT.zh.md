@@ -9,7 +9,7 @@
 
 游戏中，使用被称为 **NBT标签 **的节点来标识一项NBT数据。NBT标签中可以储存普通数据、List、Compound 等多种数据类型。   
 
-在LeviLamina ScriptEngine中，每种NBT数据类型都有其对应的数据类型，我们统称他们为「NBT对象」。  
+在LegacyScriptEngine中，每种NBT数据类型都有其对应的数据类型，我们统称他们为「NBT对象」。  
 脚本引擎类型与NBT数据类型的对照如下：
 
 | NBT数据类型 | 对应的NBT对象类型 | 类型说明（来自MC Wiki）       |

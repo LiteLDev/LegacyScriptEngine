@@ -3,6 +3,7 @@
 #include "Entry.h"
 #include "Plugin.h"
 #include "legacy/engine/EngineManager.h"
+#include "legacy/engine/EngineOwnData.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -53,6 +54,10 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
     try {
         script::EngineScope engineScope(scriptEngine);
+
+        // Set plugins's logger title
+        ENGINE_OWN_DATA()->logger.title = manifest.name;
+        ENGINE_OWN_DATA()->pluginName   = manifest.name;
 
         BindAPIs(&scriptEngine);
 

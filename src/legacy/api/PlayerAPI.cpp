@@ -1930,7 +1930,7 @@ Local<Value> PlayerClass::getScore(const Arguments& args) {
         if (!obj) {
             throw std::invalid_argument("Objective " + args[0].asString().toString() + " not found");
         }
-        const ScoreboardId& id = scoreboard.getScoreboardId(player->getOrCreateUniqueID());
+        const ScoreboardId& id = scoreboard.getScoreboardId(*player);
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
@@ -1951,9 +1951,13 @@ Local<Value> PlayerClass::setScore(const Arguments& args) {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  obj        = scoreboard.getObjective(args[0].asString().toString());
         if (!obj) {
-            return Boolean::newBoolean(false);
+            obj = scoreboard.addObjective(
+                args[0].asString().toString(),
+                args[0].asString().toString(),
+                scoreboard.getDefaultCriteria()
+            );
         }
-        const ScoreboardId& id = scoreboard.getScoreboardId(player->getOrCreateUniqueID());
+        const ScoreboardId& id = scoreboard.getScoreboardId(*player);
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
@@ -1978,7 +1982,7 @@ Local<Value> PlayerClass::addScore(const Arguments& args) {
         if (!obj) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id = scoreboard.getScoreboardId(player->getOrCreateUniqueID());
+        const ScoreboardId& id = scoreboard.getScoreboardId(*player);
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
@@ -2003,7 +2007,7 @@ Local<Value> PlayerClass::reduceScore(const Arguments& args) {
         if (!obj) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id = scoreboard.getScoreboardId(player->getOrCreateUniqueID());
+        const ScoreboardId& id = scoreboard.getScoreboardId(*player);
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
@@ -2028,7 +2032,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
         if (!obj) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id = scoreboard.getScoreboardId(player->getOrCreateUniqueID());
+        const ScoreboardId& id = scoreboard.getScoreboardId(*player);
         if (!id.isValid()) {
             return Boolean::newBoolean(true);
         }

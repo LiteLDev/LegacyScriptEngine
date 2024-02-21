@@ -2,23 +2,17 @@
 
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
-#include "api/BlockAPI.h"
-#include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
-#include "api/ItemAPI.h"
-#include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
 #include "magic_enum.hpp"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandOriginType.h"
-#include "mc/world/SimpleContainer.h"
-#include "mc/world/actor/Actor.h"
-#include "mc/world/actor/Mob.h"
-#include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/level/Command.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/dimension/Dimension.h"
+
+#include <magic_enum.hpp>
 
 //////////////////// Class Definition ////////////////////
 ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("OriginType");
@@ -59,7 +53,7 @@ Local<Value> CommandOriginClass::getOriginType() {
 
 Local<Value> CommandOriginClass::getOriginTypeName() {
     try {
-        return String::newString(magic_enum::enum_name((CommandOriginType)get()->getOriginType()));
+        return String::newString(magic_enum::enum_name(get()->getOriginType()));
     }
     CATCH("Fail in getOriginTypeName!");
 }

@@ -3,20 +3,21 @@ add_rules("mode.debug", "mode.release")
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
 
 add_requires(
-    "demangler v2.0.0",
-    "dyncall 1.4",
-    "fmt 10.1.1",
+    "demangler",
+    "dyncall",
+    "fmt",
     "legacymoney 0.3.0",
     "legacyparticleapi 0.3.0",
     "legacyremotecall 0.3.0",
     "levilamina 0.8.3",
-    "lightwebsocketclient 1.0.0",
-    "magic_enum v0.9.0",
-    "nlohmann_json 3.11.2",
+    "lightwebsocketclient",
+    "magic_enum",
+    "more-events develop",
+    "nlohmann_json",
     "openssl 1.1.1-w",
-    "simpleini v4.19",
-    "sqlite3 3.43.0+200",
-    "toml++ v3.4.0"
+    "simpleini",
+    "sqlite3",
+    "toml++"
 )
 add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
@@ -74,6 +75,7 @@ target("legacy-script-engine")
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
+        "more-events",
         "nlohmann_json",
         "scriptx",
         "simpleini",

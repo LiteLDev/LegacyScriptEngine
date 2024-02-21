@@ -14,7 +14,9 @@
     "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.3.x",
         "github.com/LiteLDev/LegacyParticleAPI": "0.3.x",
-        "github.com/LiteLDev/LegacyMoney": "0.3.x",
+        "github.com/LiteLDev/LegacyMoney": "0.3.x"
+    },
+    "prerequisites": {
         "github.com/LiteLDev/LeviLamina": "0.8.x"
     },
     "files": {

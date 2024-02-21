@@ -273,9 +273,9 @@ NativeFunction NativeFunction::getOrParse(const std::string& symbol) {
     result.mFunction = ll::memory::resolveSymbol(symbol.c_str());
     result.mSymbol   = symbol;
 
-    Demangler   demangler;
-    StringView  symbolView{symbol.c_str()};
-    SymbolNode* AST = demangler.parse(symbolView);
+    Demangler        demangler;
+    std::string_view symbolView{symbol};
+    SymbolNode*      AST = demangler.parse(symbolView);
     if (demangler.Error) throw std::runtime_error("failed to demangle symbol");
     if (AST->kind() != NodeKind::FunctionSymbol) throw std::runtime_error("mangled name is not a function");
     auto funcAST      = static_cast<FunctionSymbolNode*>(AST);

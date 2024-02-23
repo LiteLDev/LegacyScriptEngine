@@ -74,14 +74,21 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         scriptEngine.eval(baseLibContent.value());
 
         // Load the plugin entry.
-        auto pluginDir          = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-        auto entryPath          = pluginDir / manifest.entry;
-        auto pluginEntryContent = ll::file_utils::readFile(entryPath);
-        if (!pluginEntryContent) {
-            logger.error("failed to read plugin entry at {}", entryPath.string());
-            return false;
+        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
+        auto entryPath = pluginDir / manifest.entry;
+
+        // Try loadFile
+        try {
+            scriptEngine.loadFile(entryPath.u8string());
+        } catch (const script::Exception& e) {
+            // loadFile failed, try eval
+            auto pluginEntryContent = ll::file_utils::readFile(entryPath);
+            if (!pluginEntryContent) {
+                logger.error("failed to read plugin entry at {}", entryPath.string());
+                return false;
+            }
+            scriptEngine.eval(pluginEntryContent.value());
         }
-        scriptEngine.eval(pluginEntryContent.value());
         plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
         plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
         plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });

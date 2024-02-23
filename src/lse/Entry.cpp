@@ -60,9 +60,9 @@ void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 
-    logger.info("enabling...");
-
     try {
+        logger.info("enabling...");
+
         RegisterDebugCommand();
 
         logger.info("enabled");
@@ -71,7 +71,6 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
 
     } catch (const std::exception& error) {
         logger.error(fmt::format("failed to enable: {}", error.what()));
-
         return false;
     }
 }
@@ -90,9 +89,9 @@ void initializeLegacyStuff() {
 auto load(ll::plugin::NativePlugin& self) -> bool {
     auto& logger = self.getLogger();
 
-    logger.info("loading...");
-
     try {
+        logger.info("loading...");
+
         ll::i18n::load(self.getLangDir());
 
         config             = Config();
@@ -118,7 +117,6 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
     } catch (const std::exception& error) {
         logger.error(fmt::format("failed to load: {}", error.what()));
-
         return false;
     }
 }

@@ -47,7 +47,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     logger.info("loading plugin {}", manifest.name);
 
     if (hasPlugin(manifest.name)) {
-        throw std::runtime_error("plugin already loaded");
+        logger.error("plugin already loaded");
+        return false;
     }
 
     auto& scriptEngine = *EngineManager::newEngine(manifest.name);
@@ -67,7 +68,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
         if (!baseLibContent) {
-            throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+            logger.error("failed to read BaseLib at {}", baseLibPath.string());
+            return false;
         }
         scriptEngine.eval(baseLibContent.value());
 
@@ -76,7 +78,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         auto entryPath          = pluginDir / manifest.entry;
         auto pluginEntryContent = ll::file_utils::readFile(entryPath);
         if (!pluginEntryContent) {
-            throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
+            logger.error("failed to read plugin entry at {}", entryPath.string());
+            return false;
         }
         scriptEngine.eval(pluginEntryContent.value());
 
@@ -91,12 +94,13 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
         EngineManager::unregisterEngine(&scriptEngine);
 
-        throw;
+        // throw;
     }
 
     auto plugin = std::make_shared<Plugin>(manifest);
     if (!addPlugin(manifest.name, plugin)) {
-        throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
+        logger.error("failed to register plugin {}", manifest.name);
+        return false;
     }
 
     return true;
@@ -124,7 +128,8 @@ auto PluginManager::unload(std::string_view name) -> bool {
     scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
 
     if (!erasePlugin(name)) {
-        throw std::runtime_error(fmt::format("failed to unregister plugin {}", name));
+        logger.error("failed to unregister plugin {}", name);
+        return false;
     }
 
     return false;

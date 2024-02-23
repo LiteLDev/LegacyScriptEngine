@@ -247,7 +247,7 @@ bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool 
             LLSERemoveAllExportedFuncs(engine);
 
             engine->getData().reset();
-            EngineManager::unRegisterEngine(engine);
+            EngineManager::unregisterEngine(engine);
         }
         if (engine) {
             engine->destroy();

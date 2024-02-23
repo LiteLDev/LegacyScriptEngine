@@ -1,35 +1,44 @@
-// This file includes code from GMLIB, which is licensed under the GNU Lesser General Public License
-// version 3.0 (LGPL-3.0). The source code for GMLIB can be obtained at https://github.com/GroupMountain/GMLIB.
-// Modifications to the original code are licensed under the GNU General Public License version 3.0 (GPL-3.0).
-
 #pragma once
 
+#include <ll/api/memory/Memory.h>
+#include <mc/deps/core/common/bedrock/Result.h>
+#include <mc/enums/MinecraftPacketIds.h>
 #include <mc/network/packet/Packet.h>
+#include <string>
+#include <string_view>
 
 namespace lse::api {
 
-template <int packetId, bool batching = true, bool compress = true>
-class NetworkPacket : public Packet {
-public:
-    NetworkPacket() { mCompressible = compress ? Compressibility::Incompressible : Compressibility::Compressible; }
+constexpr auto PacketName  = "NetworkPacket";
+constexpr auto WriteOffset = 96;
 
-    NetworkPacket(std::string_view binaryStreamData) : mData(binaryStreamData) {
-        mCompressible = compress ? Compressibility::Incompressible : Compressibility::Compressible;
+template <int packetId, bool batching = true, bool compress = true>
+class NetworkPacket final : public Packet {
+public:
+    NetworkPacket(std::string_view data) : mData(data) {}
+
+    NetworkPacket()                                   = default;
+    NetworkPacket(NetworkPacket&&)                    = default;
+    auto operator=(NetworkPacket&&) -> NetworkPacket& = default;
+    ~NetworkPacket()                                  = default;
+
+    NetworkPacket(const NetworkPacket&)                    = delete;
+    auto operator=(const NetworkPacket&) -> NetworkPacket& = delete;
+
+    [[nodiscard]] auto getId() const -> MinecraftPacketIds override {
+        return static_cast<MinecraftPacketIds>(packetId);
     }
 
-    virtual ~NetworkPacket() {}
+    [[nodiscard]] auto getName() const -> std::string override { return PacketName; }
 
-    virtual ::MinecraftPacketIds getId() const { return (MinecraftPacketIds)packetId; }
+    void write(BinaryStream& stream) const override {
+        auto& target = *ll::memory::dAccess<std::string*>(&stream, WriteOffset);
+        target.append(mData);
+    }
 
-    virtual std::string getName() const { return "NetworkPacket"; }
-
-    virtual void write(BinaryStream& bs) const { (*ll::memory::dAccess<std::string*>(&bs, 96)).append(mData); }
-
-    virtual Bedrock::Result<void> _read(class ReadOnlyBinaryStream&) override { return {}; }
-
-    virtual void dummyread() {}
-
-    virtual bool disallowBatching() const { return !batching; }
+    auto _read(class ReadOnlyBinaryStream& /*stream*/) -> Bedrock::Result<void> override {
+        return Bedrock::Result<void>{};
+    }
 
 private:
     std::string_view mData;

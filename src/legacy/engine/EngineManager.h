@@ -1,6 +1,5 @@
 #pragma once
 #include "ScriptX/ScriptX.h"
-#include "main/PluginManager.h"
 
 #include <map>
 #include <string>
@@ -10,7 +9,7 @@ class EngineManager {
 public:
     static script::ScriptEngine* newEngine(std::string pluginName = "", bool isHotLoad = false);
     static bool                  registerEngine(script::ScriptEngine* engine);
-    static bool                  unRegisterEngine(script::ScriptEngine* engine);
+    static bool                  unregisterEngine(script::ScriptEngine* engine);
     static bool                  isValid(script::ScriptEngine* engine, bool onlyCheckLocal = false);
 
     static std::vector<script::ScriptEngine*> getLocalEngines();

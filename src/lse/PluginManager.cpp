@@ -53,6 +53,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         }
 
         auto& scriptEngine = *EngineManager::newEngine(manifest.name);
+        auto  plugin       = std::make_shared<Plugin>(manifest);
 
         try {
             script::EngineScope engineScope(scriptEngine);
@@ -74,14 +75,24 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             scriptEngine.eval(baseLibContent.value());
 
             // Load the plugin entry.
-            auto pluginDir          = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-            auto entryPath          = pluginDir / manifest.entry;
-            auto pluginEntryContent = ll::file_utils::readFile(entryPath);
-            if (!pluginEntryContent) {
-                throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
-            }
-            scriptEngine.eval(pluginEntryContent.value());
+            auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
+            auto entryPath = pluginDir / manifest.entry;
 
+            // Try loadFile
+            try {
+                scriptEngine.loadFile(entryPath.u8string());
+            } catch (const script::Exception& e) {
+                // loadFile failed, try eval
+                auto pluginEntryContent = ll::file_utils::readFile(entryPath);
+                if (!pluginEntryContent) {
+                    throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
+                }
+                scriptEngine.eval(pluginEntryContent.value());
+            }
+            plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
+            plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
+            plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
+            plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
         } catch (const std::exception& e) {
             LLSERemoveTimeTaskData(&scriptEngine);
             LLSERemoveAllEventListeners(&scriptEngine);
@@ -96,7 +107,6 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             throw;
         }
 
-        auto plugin = std::make_shared<Plugin>(manifest);
         if (!addPlugin(manifest.name, plugin)) {
             throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
         }
@@ -107,6 +117,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         logger.error("failed to load plugin {}: {}", manifest.name, e.what());
         return false;
     }
+
+    return true;
 }
 
 auto PluginManager::unload(std::string_view name) -> bool {

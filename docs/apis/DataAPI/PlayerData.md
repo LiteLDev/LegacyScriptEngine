@@ -108,7 +108,8 @@ When a player enters the server for the first time, his name and XUID are automa
   - If the return value is `Null`, it means the query failed.
 
 
-
+!!! tip
+    getAllPlayerInfo has been deprecated, it will only return online players's data
 #### Get all player information
 
 `data.getAllPlayerInfo()`

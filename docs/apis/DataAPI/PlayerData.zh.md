@@ -108,7 +108,8 @@ XUID数据库让你可以即使在玩家离线的时候，也可以查询玩家�
   - 如果返回值为`Null`，则代表查询失败
 
 
-
+!!!tip
+    getAllPlayerInfo已被弃用，它现在只会返回在线玩家的信息
 #### 获取所有的玩家信息
 
 `data.getAllPlayerInfo()`

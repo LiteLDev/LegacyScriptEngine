@@ -743,15 +743,18 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 0);
 
     try {
-        auto arr = Array::newArray();
-        ll::service::getLevel()->forEachPlayer([&arr](Player& player) {
-            auto obj = Object::newObject();
-            obj.set("name", String::newString(player.getRealName()));
-            obj.set("xuid", String::newString(player.getXuid()));
-            obj.set("uuid", String::newString(player.getUuid().asString()));
-            arr.add(obj);
-            return true;
-        });
+        auto arr   = Array::newArray();
+        auto level = ll::service::getLevel();
+        if (level.has_value()) {
+            level->forEachPlayer([&arr](Player& player) {
+                auto obj = Object::newObject();
+                obj.set("name", String::newString(player.getRealName()));
+                obj.set("xuid", String::newString(player.getXuid()));
+                obj.set("uuid", String::newString(player.getUuid().asString()));
+                arr.add(obj);
+                return true;
+            });
+        }
 
         return arr;
     }

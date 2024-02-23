@@ -579,11 +579,14 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
 
 Local<Value> McClass::getOnlinePlayers(const Arguments& args) {
     try {
-        Local<Array> list = Array::newArray();
-        ll::service::getLevel()->forEachPlayer([&](Player& player) {
-            list.add(PlayerClass::newPlayer(&player));
-            return true;
-        });
+        Local<Array> list  = Array::newArray();
+        auto         level = ll::service::getLevel();
+        if (level.has_value()) {
+            level->forEachPlayer([&](Player& player) {
+                list.add(PlayerClass::newPlayer(&player));
+                return true;
+            });
+        }
         return list;
     }
     CATCH("Fail in GetOnlinePlayers!")

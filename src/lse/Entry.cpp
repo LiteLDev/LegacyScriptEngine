@@ -8,6 +8,7 @@
 #include "legacy/main/EconomicSystem.h"
 
 #include <ScriptX/ScriptX.h>
+#include <exception>
 #include <fmt/format.h>
 #include <functional>
 #include <ll/api/Config.h>
@@ -61,11 +62,18 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
 
     logger.info("enabling...");
 
-    RegisterDebugCommand();
+    try {
+        RegisterDebugCommand();
 
-    logger.info("enabled");
+        logger.info("enabled");
 
-    return true;
+        return true;
+
+    } catch (const std::exception& error) {
+        logger.error(fmt::format("failed to enable: {}", error.what()));
+
+        return false;
+    }
 }
 
 void initializeLegacyStuff() {
@@ -80,33 +88,39 @@ void initializeLegacyStuff() {
 }
 
 auto load(ll::plugin::NativePlugin& self) -> bool {
-    // Translations should be loaded before any possible log and error messages.
-    ll::i18n::load(self.getLangDir());
-
     auto& logger = self.getLogger();
 
     logger.info("loading...");
 
-    config             = Config();
-    pluginManager      = std::make_shared<PluginManager>();
-    selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
+    try {
+        ll::i18n::load(self.getLangDir());
 
-    loadConfig(self, config);
+        config             = Config();
+        pluginManager      = std::make_shared<PluginManager>();
+        selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
 
-    if (config.migratePlugins) {
-        migratePlugins(*pluginManager);
+        loadConfig(self, config);
+
+        if (config.migratePlugins) {
+            migratePlugins(*pluginManager);
+        }
+
+        registerPluginManager(pluginManager);
+
+        // Legacy stuff should be initialized before any possible call to legacy code.
+        initializeLegacyStuff();
+
+        loadDebugEngine(self);
+
+        logger.info("loaded");
+
+        return true;
+
+    } catch (const std::exception& error) {
+        logger.error(fmt::format("failed to load: {}", error.what()));
+
+        return false;
     }
-
-    registerPluginManager(pluginManager);
-
-    // Legacy stuff should be initialized before any possible call to legacy code.
-    initializeLegacyStuff();
-
-    loadDebugEngine(self);
-
-    logger.info("loaded");
-
-    return true;
 }
 
 void loadConfig(const ll::plugin::NativePlugin& self, Config& config) {

@@ -8,7 +8,6 @@
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/plugin/PluginManager.h>
 #include <memory>
-#include <stdexcept>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
@@ -57,7 +56,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 
     if (hasPlugin(manifest.name)) {
-        throw std::runtime_error("plugin already loaded");
+        logger.error("plugin already loaded");
+        return false;
     }
 
     auto plugin = std::make_shared<Plugin>(manifest);
@@ -67,11 +67,13 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
         logger.info("loading plugin {}", manifest.name);
 
-        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / ll::string_utils::str2wstr(manifest.name));
+        auto pluginDir =
+            std::filesystem::canonical(ll::plugin::getPluginsRoot() / ll::string_utils::str2wstr(manifest.name));
         auto entryPath = pluginDir / ll::string_utils::str2wstr(manifest.entry);
 
         if (!::PluginManager::loadPlugin(ll::string_utils::u8str2str(entryPath.u8string()), false, true)) {
-            throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
+            logger.error("failed to load plugin {}", manifest.name);
+            return false;
         }
         return true;
     });
@@ -82,18 +84,24 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         logger.info("unloading plugin {}", pluginName);
 
         if (!::PluginManager::unloadPlugin(pluginName)) {
-            throw std::runtime_error(fmt::format("failed to unload plugin {}", pluginName));
+            logger.error("failed to unload plugin {}", pluginName);
+            return false;
         }
 
         return true;
     });
 
+    plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
+    plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
+
     if (!plugin->onLoad()) {
-        throw std::runtime_error(fmt::format("failed to load plugin {}", manifest.name));
+        logger.error("failed to load plugin {}", manifest.name);
+        return false;
     }
 
     if (!addPlugin(manifest.name, plugin)) {
-        throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
+        logger.error("failed to register plugin {}", manifest.name);
+        return false;
     }
 
     return true;
@@ -105,14 +113,16 @@ auto PluginManager::unload(std::string_view name) -> bool {
     auto plugin = std::static_pointer_cast<Plugin>(getPlugin(name));
 
     if (!plugin->onUnload()) {
-        throw std::runtime_error(fmt::format("failed to unload plugin {}", name));
+        logger.error("failed to unload plugin {}", name);
+        return false;
     }
 
     if (!erasePlugin(name)) {
-        throw std::runtime_error(fmt::format("failed to unregister plugin {}", name));
+        logger.error("failed to unregister plugin {}", name);
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 } // namespace lse

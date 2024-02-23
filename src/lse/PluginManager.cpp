@@ -51,6 +51,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     }
 
     auto& scriptEngine = *EngineManager::newEngine(manifest.name);
+    auto  plugin       = std::make_shared<Plugin>(manifest);
 
     try {
         script::EngineScope engineScope(scriptEngine);
@@ -81,7 +82,10 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             return false;
         }
         scriptEngine.eval(pluginEntryContent.value());
-
+        plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
+        plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
+        plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
+        plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
     } catch (const std::exception& e) {
         LLSERemoveTimeTaskData(&scriptEngine);
         LLSERemoveAllEventListeners(&scriptEngine);
@@ -93,10 +97,9 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
         EngineManager::unregisterEngine(&scriptEngine);
 
-        // throw;
+        return false;
     }
 
-    auto plugin = std::make_shared<Plugin>(manifest);
     if (!addPlugin(manifest.name, plugin)) {
         logger.error("failed to register plugin {}", manifest.name);
         return false;

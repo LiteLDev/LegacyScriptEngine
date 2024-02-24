@@ -1,7 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
 
-
 //////////////////// System Static ////////////////////
 
 class SystemClass {

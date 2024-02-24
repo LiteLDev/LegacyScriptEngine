@@ -31,7 +31,6 @@ extern ClassDefine<void> DataClassBuilder;
 
 Local<Array> objectificationMoneyHistory(const string& res);
 
-
 //////////////////// Money Static ////////////////////
 
 class MoneyClass {
@@ -45,7 +44,6 @@ public:
     static Local<Value> clearHistory(const Arguments& args);
 };
 extern ClassDefine<void> MoneyClassBuilder;
-
 
 //////////////////// Classes ////////////////////
 
@@ -65,7 +63,6 @@ public:
     Local<Value>         read(const Arguments& args);
     virtual Local<Value> write(const Arguments& args) = 0;
 };
-
 
 class ConfJsonClass : public ScriptClass, public ConfBaseClass {
 private:
@@ -92,7 +89,6 @@ public:
     static Local<Value> newConf(const string& path, const string& defContent = "");
 };
 extern ClassDefine<ConfJsonClass> ConfJsonClassBuilder;
-
 
 class ConfIniClass : public ScriptClass, public ConfBaseClass {
 private:

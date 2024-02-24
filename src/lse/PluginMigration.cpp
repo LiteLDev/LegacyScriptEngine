@@ -41,14 +41,18 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     const auto& pluginDir          = ll::plugin::getPluginsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
-        throw std::runtime_error(
-            fmt::format("failed to migrate legacy plugin at {}: {} already exists", ll::string_utils::u8str2str(path.u8string()), ll::string_utils::u8str2str(pluginDir.u8string()))
-        );
+        throw std::runtime_error(fmt::format(
+            "failed to migrate legacy plugin at {}: {} already exists",
+            ll::string_utils::u8str2str(path.u8string()),
+            ll::string_utils::u8str2str(pluginDir.u8string())
+        ));
     }
 
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
-            throw std::runtime_error(fmt::format("failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string())));
+            throw std::runtime_error(
+                fmt::format("failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string()))
+            );
         }
     }
 

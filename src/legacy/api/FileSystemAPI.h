@@ -23,7 +23,6 @@ Local<Value> CheckIsDir(const Arguments& args);
 Local<Value> GetFileSize(const Arguments& args);
 Local<Value> GetFilesList(const Arguments& args);
 
-
 //////////////////// Classes ////////////////////
 class FileClass : public ScriptClass {
 private:

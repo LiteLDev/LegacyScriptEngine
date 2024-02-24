@@ -3,7 +3,6 @@
 
 #include <string>
 
-
 class McClass {
 public:
     static Local<Value> getBDSVersion(const Arguments& args);

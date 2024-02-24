@@ -1,7 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
 
-
 //////////////////// APIs ////////////////////
 
 Local<Value> Log(const Arguments& args);

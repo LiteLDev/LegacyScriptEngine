@@ -52,7 +52,6 @@ public:
     Local<Value> getDimId() { return Number::newNumber(dim); }
     Local<Value> toString();
 
-
     void setX(const Local<Value>& value) { x = value.asNumber().toInt64(); }
     void setY(const Local<Value>& value) { y = value.asNumber().toInt64(); }
     void setZ(const Local<Value>& value) { z = value.asNumber().toInt64(); }

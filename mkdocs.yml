@@ -5,7 +5,7 @@ nav:
   - Home: index.md
 
   - Tutorials:
-    - tutorials/create_your_first_plugin.md
+      - tutorials/create_your_first_plugin.md
 
   - faq.md
 

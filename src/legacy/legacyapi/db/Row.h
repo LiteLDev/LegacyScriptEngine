@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 
-
 namespace DB {
 
 class Row;

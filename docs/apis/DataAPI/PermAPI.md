@@ -72,21 +72,21 @@ By static method:
 
 ### Properties
 
- Name            | Type            | Description
------------------|-----------------|-----------------------
-`name`           | `String`        | The role name
-`displayName`    | `String`        | The role display name
-`priority`       | `Number`        | The role priority
-`permissions`    | `Array<Object>` | The role permissions
-`members`        | `Array<String>` | The role members(XUID)
+ | Name          | Type            | Description            |
+ | ------------- | --------------- | ---------------------- |
+ | `name`        | `String`        | The role name          |
+ | `displayName` | `String`        | The role display name  |
+ | `priority`    | `Number`        | The role priority      |
+ | `permissions` | `Array<Object>` | The role permissions   |
+ | `members`     | `Array<String>` | The role members(XUID) |
 
 The `permissions` property is an array of objects, each object contains the following properties:
 
- Name            | Type            | Description
------------------|-----------------|-----------------------
-`name`           | `String`        | The permission name
-`enabled`        | `Boolean`       | Whether the permission is enabled
-`extra`          | `Object`        | The extra data of the permission
+ | Name      | Type      | Description                       |
+ | --------- | --------- | --------------------------------- |
+ | `name`    | `String`  | The permission name               |
+ | `enabled` | `Boolean` | Whether the permission is enabled |
+ | `extra`   | `Object`  | The extra data of the permission  |
 
 <br/>
 

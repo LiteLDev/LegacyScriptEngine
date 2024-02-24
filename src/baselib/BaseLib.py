@@ -10,7 +10,7 @@ def _llse_python_base_lib_command_handle(self, func=None):
     def wrapper(func):
         self.setCallback(func)
         return func
-    
+
     if func:
         return wrapper(func)
     return wrapper

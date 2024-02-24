@@ -72,21 +72,21 @@
 
 ### 属性
 
- 名称             | 类型             | 描述
------------------|-----------------|-----------------------
-`name`           | `String`        | 身份组名称
-`displayName`    | `String`        | 身份组显示名称
-`priority`       | `Number`        | 身份组优先级，越大越优先
-`permissions`    | `Array<Object>` | 身份组拥有的权限
-`members`        | `Array<String>` | 身份组成员的XUID
+ | 名称          | 类型            | 描述                     |
+ | ------------- | --------------- | ------------------------ |
+ | `name`        | `String`        | 身份组名称               |
+ | `displayName` | `String`        | 身份组显示名称           |
+ | `priority`    | `Number`        | 身份组优先级，越大越优先 |
+ | `permissions` | `Array<Object>` | 身份组拥有的权限         |
+ | `members`     | `Array<String>` | 身份组成员的XUID         |
 
 `permissions` 属性是一个对象的数组，每个对象都含有以下属性：
 
- 名称             | 类型             | 描述
------------------|-----------------|-----------------------
-`name`           | `String`        | 权限名称
-`enabled`        | `Boolean`       | 权限是否开启
-`extra`          | `Object`        | 权限的额外数据
+ | 名称      | 类型      | 描述           |
+ | --------- | --------- | -------------- |
+ | `name`    | `String`  | 权限名称       |
+ | `enabled` | `Boolean` | 权限是否开启   |
+ | `extra`   | `Object`  | 权限的额外数据 |
 
 <br/>
 

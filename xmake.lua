@@ -6,17 +6,17 @@ add_requires(
     "demangler",
     "dyncall",
     "fmt",
-    "legacymoney 0.3.0",
-    "legacyparticleapi 0.3.0",
-    "legacyremotecall 0.3.0",
-    "levilamina 0.8.4",
+    "legacymoney 0.4.0",
+    "legacyparticleapi 0.4.0",
+    "legacyremotecall 0.4.0",
+    "levilamina 0.9.0",
     "lightwebsocketclient",
     "magic_enum",
     "more-events develop",
     "nlohmann_json",
     "openssl 1.1.1-w",
     "simpleini",
-    "sqlite3",
+    "sqlite3 3.43.0+200",
     "toml++"
 )
 add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
@@ -40,7 +40,7 @@ option("backend")
 package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
 
-    add_deps("levilamina 0.8.3")
+    add_deps("levilamina 0.9.0")
 
     on_install(function (package)
         import("package.tools.xmake").install(package)

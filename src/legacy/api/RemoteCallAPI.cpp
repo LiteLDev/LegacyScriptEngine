@@ -203,7 +203,7 @@ bool LLSEExportFunc(
     RemoteCall::CallbackFn cb         = [engine, identifier /*, scriptCallback = std::move(callback)*/](
                                     std::vector<RemoteCall::ValueType> params
                                 ) -> RemoteCall::ValueType {
-        if (ll::getServerStatus() != ll::ServerStatus::Stopping || !EngineManager::isValid(engine)
+        if (ll::getServerStatus() == ll::ServerStatus::Stopping || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return "";
         EngineScope enter(engine);

@@ -1425,18 +1425,15 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         }
         HitResult res = actor->traceRay(maxDistance, false, true);
 
-        return Local<Value>(); // Temporary solution
-        // TODO: Fix this, block cannot be constructed.
-        // Block     bl;
-        // BlockPos  bp;
-        // if (includeLiquid && res.mIsHitLiquid) {
-        //     bp = res.mLiquidPos;
-        // } else {
-        //     bp = res.mBlockPos;
-        // }
-        // actor->getDimensionBlockSource().getBlock(bp);
-        // if (bl.isEmpty()) return Local<Value>();
-        // return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
+        BlockPos bp;
+        if (includeLiquid && res.mIsHitLiquid) {
+            bp = res.mLiquidPos;
+        } else {
+            bp = res.mBlockPos;
+        }
+        Block const& bl = actor->getDimensionBlockSource().getBlock(bp);
+        if (bl.isEmpty()) return Local<Value>();
+        return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

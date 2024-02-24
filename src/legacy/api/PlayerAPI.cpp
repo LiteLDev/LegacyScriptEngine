@@ -2966,7 +2966,7 @@ Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             maxDistance = args[0].asNumber().toFloat();
         }
-        HitResult result = player->traceRay(maxDistance);
+        HitResult result = player->traceRay(maxDistance, true, false);
         Actor*    entity = result.getEntity();
         if (entity) return EntityClass::newEntity(entity);
         return Local<Value>();
@@ -3002,17 +3002,15 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         HitResult res = player->traceRay(maxDistance, false, true);
 
         return Local<Value>();
-        // TODO
-        // Block     bl;
-        // BlockPos  bp;
-        // if (includeLiquid && res.mIsHitLiquid) {
-        //     bp = res.mLiquidPos;
-        // } else {
-        //     bp = res.mBlockPos;
-        // }
-        // player->getDimensionBlockSource().getBlock(bp);
-        // if (bl.isEmpty()) return Local<Value>();
-        // return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
+        BlockPos bp;
+        if (includeLiquid && res.mIsHitLiquid) {
+            bp = res.mLiquidPos;
+        } else {
+            bp = res.mBlockPos;
+        }
+        Block const& bl = player->getDimensionBlockSource().getBlock(bp);
+        if (bl.isEmpty()) return Local<Value>();
+        return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

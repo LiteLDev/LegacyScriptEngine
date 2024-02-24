@@ -160,11 +160,7 @@ Local<Value> ContainerClass::setItem(const Arguments& args) {
             return Local<Value>();
         }
 
-        ItemStack* itemOld = (ItemStack*)&container->getItem(args[0].toInt());
-        if (!itemOld) return Boolean::newBoolean(false);
-
-        auto tag = itemOld->save();
-        item->fromTag(*tag);
+        container->setItem(args[0].asNumber().toInt32(), *item);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in getItem!");

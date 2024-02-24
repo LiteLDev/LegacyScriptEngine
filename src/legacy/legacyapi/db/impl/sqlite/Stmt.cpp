@@ -5,7 +5,6 @@
 #include "ll/api/utils/StringUtils.h"
 #include "sqlite3.h"
 
-
 namespace DB {
 
 SQLiteStmt::SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute)

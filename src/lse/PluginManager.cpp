@@ -2,6 +2,7 @@
 
 #include "Entry.h"
 #include "Plugin.h"
+#include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 
@@ -12,6 +13,7 @@
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/plugin/PluginManager.h>
+#include <ll/api/service/ServerInfo.h>
 #include <memory>
 #include <stdexcept>
 
@@ -88,6 +90,9 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
                     throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
                 }
                 scriptEngine.eval(pluginEntryContent.value());
+            }
+            if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
+                LLSECallEventsOnHotLoad(&scriptEngine);
             }
             plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });

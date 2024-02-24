@@ -1766,6 +1766,14 @@
 ### 模拟玩家 - 函数
 每一个模拟玩家对象都包含一些可以执行的成员函数（成员方法）。对于某个特定的模拟玩家对象`sp`，可以通过以下这些函数对这个模拟玩家进行一些操作
 
+#### 模拟重生
+
+`sp.simulateRespawn()`
+
+- 返回值：是否成功模拟操作
+- 返回值类型：`Boolean`
+
+参考：[mojang-gametest docs](https://learn.microsoft.com/zh-cn/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#respawn)
 
 #### 模拟攻击
 

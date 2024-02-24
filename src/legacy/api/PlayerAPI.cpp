@@ -3001,18 +3001,14 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         }
         HitResult res = player->traceRay(maxDistance, false, true);
 
-        return Local<Value>();
-        // TODO
-        // Block     bl;
-        // BlockPos  bp;
-        // if (includeLiquid && res.mIsHitLiquid) {
-        //     bp = res.mLiquidPos;
-        // } else {
-        //     bp = res.mBlockPos;
-        // }
-        // player->getDimensionBlockSource().getBlock(bp);
-        // if (bl.isEmpty()) return Local<Value>();
-        // return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
+        BlockPos bp;
+        if (includeLiquid && res.mIsHitLiquid) {
+            bp = res.mLiquidPos;
+        } else {
+            bp = res.mBlockPos;
+        }
+        player->getDimensionBlockSource().getBlock(bp);
+        return BlockClass::newBlock(&bp, player->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

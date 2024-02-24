@@ -673,7 +673,7 @@ Local<Value> PlayerClass::getLastDeathPos() {
         }
         auto pos = player->getLastDeathPos();
         auto dim = player->getLastDeathDimension();
-        if (dim == -1) {
+        if (!pos.has_value() && !dim.has_value() && dim == -1) {
             return Local<Value>();
         }
         return IntPos::newPos(pos.value(), dim->id);

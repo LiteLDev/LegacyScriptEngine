@@ -90,6 +90,7 @@
 #include <mc/world/level/Command.h>
 #include <mc/world/level/IConstBlockSource.h>
 #include <mc/world/level/biome/Biome.h>
+#include <mc/world/level/material/Material.h>
 #include <mc/world/scores/Objective.h>
 #include <memory>
 #include <string>
@@ -673,7 +674,7 @@ Local<Value> PlayerClass::getLastDeathPos() {
         }
         auto pos = player->getLastDeathPos();
         auto dim = player->getLastDeathDimension();
-        if (!pos.has_value() && !dim.has_value() && dim == -1) {
+        if (!pos.has_value() || !dim.has_value() || dim == -1) {
             return Local<Value>();
         }
         return IntPos::newPos(pos.value(), dim->id);
@@ -2999,7 +3000,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
             fullOnly = args[3].asBoolean().value();
         }
-        HitResult res = actor->traceRay(
+        HitResult res = player->traceRay(
             maxDistance,
             false,
             true,

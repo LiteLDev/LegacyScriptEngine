@@ -312,10 +312,13 @@ Local<Value> ItemClass::set(const Arguments& args) {
         auto itemNew = ItemClass::extract(args[0]);
         if (!itemNew) return Local<Value>(); // Null
 
+        auto tag = itemNew->save();
         if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
-            std::get<std::unique_ptr<ItemStack>>(item).reset();
+            std::get<std::unique_ptr<ItemStack>>(item)->load(*tag);
+        } else {
+            std::get<ItemStack*>(item)->load(*tag);
         }
-        (item = itemNew);
+
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in set!");

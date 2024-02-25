@@ -24,12 +24,12 @@ mc.listen("onJoin", (player) => {
     log(`${player.name} has joined the server.`);
 });
 ```
-> Reference: https://lse.liteldev.com/apis/EventAPI/Listen/
+> Reference: [Event Listening Documentation](../apis/EventAPI/Listen.md)
 
 In order to test your plugin, simply start the server and the server should be able to identify your plugin and successfully load it. LeviLamina console will log any logs you create, as well as any errors if your plugin, or the API fails. Iteration while developing is important. Test frequently and each step of the way to ensure that when an issue does pop up, you know exactly what you changed and can come up with a solution to fix it.
 
 You can reference the `mc` class as well as other special classes and constructors. The `mc` class is the bread and butter of your plugin and will allow you to do a lot of cool things. The Game Content interface has all the methods and properties available to you.
-> Reference: https://lse.liteldev.com/apis/GameAPI/Basic/
+> Reference: [Game Element Interface Documentation](../apis/GameAPI/Basic.md)
 
 For example, we can use the player object and directly act on it to send information/manipulate a Player.
 

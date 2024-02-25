@@ -27,12 +27,12 @@
 mc.listen("onJoin", (player) => log(`${player.name}已经加入服务器。`));
 ```
 
-> 参考资料: <https://lse.liteldev.com/zh/apis/EventAPI/Listen/>
+> 参考资料: [事件监听文档](../apis/EventAPI/Listen.zh.md)
 
 为了测试你的插件，只需启动服务器，服务器应该能够识别你的插件并成功加载它。LeviLamina控制台将记录您创建的任何日志，以及您的插件或API失败时的任何错误。开发时的迭代很重要。经常测试，每一步都要确保当问题出现时，你清楚地知道你改变了什么，并能想出解决方案来解决它。
 
 你可以引用`mc`类，以及其他特殊的类和构造函数。`mc`类是你的插件的面包和黄油，将允许你做很多很酷的事情。游戏内容接口有所有的方法和属性供你使用。
-> 参考：<https://lse.liteldev.com/zh/apis/GameAPI/Basic/>
+> 参考：[游戏元素接口文档](../apis/GameAPI/Basic.zh.md)
 
 例如，我们可以使用玩家对象并直接对其采取行动，以发送信息/操纵玩家。
 

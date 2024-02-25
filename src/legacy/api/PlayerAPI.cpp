@@ -3035,7 +3035,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         }
         Block const& bl = player->getDimensionBlockSource().getBlock(bp);
         if (bl.isEmpty()) return Local<Value>();
-        return BlockClass::newBlock(std::move(&bl), &bp, player->getDimensionId().id);
+        return BlockClass::newBlock(std::move(&bl), std::move(&bp), &player->getDimensionBlockSource());
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

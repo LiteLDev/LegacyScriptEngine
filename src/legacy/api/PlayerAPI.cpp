@@ -1,5 +1,6 @@
 #include "api/PlayerAPI.h"
 
+#include "EventAPI.h"
 #include "MoreGlobal.h"
 #include "ScriptX/ScriptX.h"
 #include "api/APIHelp.h"
@@ -171,6 +172,7 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceFunction("disconnect", &PlayerClass::kick)
         .instanceFunction("tell", &PlayerClass::tell)
         .instanceFunction("talkAs", &PlayerClass::talkAs)
+        .instanceFunction("talkTo", &PlayerClass::talkTo)
         .instanceFunction("sendText", &PlayerClass::tell)
         .instanceFunction("setTitle", &PlayerClass::setTitle)
         .instanceFunction("rename", &PlayerClass::rename)
@@ -1525,14 +1527,25 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket::createChat(
-            player->getRealName(),
-            args[0].asString().toString(),
-            player->getXuid(),
-            player->getPlatformOnlineId()
-        );
-        ;
-        ll::service::getServerNetworkHandler()->handle(player->getNetworkIdentifier(), pkt);
+        TextPacket pkt =
+            TextPacket::createChat(player->getName(), args[0].asString().toString(), player->getXuid(), "");
+        if (ll::service::getLevel().has_value()) {
+            IF_LISTENED(EVENT_TYPES::onChat) {
+                CallEventRtnValue(
+                    EVENT_TYPES::onChat,
+                    Boolean::newBoolean(false),
+                    PlayerClass::newPlayer(player),
+                    String::newString(args[0].asString().toString())
+                );
+            }
+            IF_LISTENED_END(EVENT_TYPES::onChat);
+            ll::service::getLevel()->forEachPlayer([&pkt](Player& player) {
+                player.sendNetworkPacket(pkt);
+                return true;
+            });
+        } else {
+            Boolean::newBoolean(false);
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in talkAs!");
@@ -1548,13 +1561,8 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket();
-        pkt.createChat(
-            player->getRealName(),
-            args[0].asString().toString(),
-            player->getXuid(),
-            player->getPlatformOnlineId()
-        );
+        TextPacket pkt =
+            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), player->getXuid(), "");
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }

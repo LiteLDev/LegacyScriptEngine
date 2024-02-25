@@ -2132,7 +2132,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             BinaryStream bs;
             bs.writeVarInt64(uid);
             bs.writeUnsignedVarInt64(uid);
-            bs.writeString("minecraft:player");
+            bs.writeString("player");
             bs.writeFloat(player->getPosition().x);
             bs.writeFloat(-60.0f);
             bs.writeFloat(player->getPosition().z);

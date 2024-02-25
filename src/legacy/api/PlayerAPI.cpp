@@ -2999,7 +2999,23 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
             fullOnly = args[3].asBoolean().value();
         }
-        HitResult res = player->traceRay(maxDistance, false, true);
+        HitResult res = actor->traceRay(
+            maxDistance,
+            false,
+            true,
+            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const& source, Block const& block, bool idk) {
+                if (solidOnly && !block.isSolid()) {
+                    return false;
+                }
+                if (fullOnly && !block.isSlabBlock()) {
+                    return false;
+                }
+                if (!includeLiquid && block.getMaterial().isLiquid()) {
+                    return false;
+                }
+                return true;
+            }
+        );
 
         return Local<Value>();
         BlockPos bp;

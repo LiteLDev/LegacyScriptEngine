@@ -38,6 +38,7 @@
 #include <mc/world/level/IConstBlockSource.h>
 #include <mc/world/level/Level.h>
 #include <mc/world/level/biome/Biome.h>
+#include <mc/world/level/material/Material.h>
 #include <mc/world/phys/AABB.h>
 
 using magic_enum::enum_integer;
@@ -1376,23 +1377,9 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             maxDistance = args[0].asNumber().toFloat();
         }
-        Vec3   cameraPos = actor->getHeadPos();
-        float  distance  = 1.0f;
-        Actor* result    = nullptr;
-        Vec3   resultVec3{};
-        HitDetection::searchActors(
-            actor->getViewVector(1.0f),
-            maxDistance,
-            cameraPos,
-            actor->getAABB(),
-            actor,
-            (Player*)actor,
-            distance,
-            result,
-            resultVec3,
-            actor->isType(ActorType::Player) ? true : false
-        );
-        if (result) return EntityClass::newEntity(result);
+        HitResult result = actor->traceRay(maxDistance, true, false);
+        Actor*    entity = result.getEntity();
+        if (entity) return EntityClass::newEntity(entity);
         return Local<Value>();
     }
     CATCH("Fail in getEntityFromViewVector!");
@@ -1402,11 +1389,10 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
     try {
         Actor* actor = get();
         if (!actor) return Local<Value>();
-        bool  includeLiquid      = false;
-        bool  solidOnly          = false; // not used
-        float maxDistance        = 5.25f;
-        bool  ignoreBorderBlocks = true;  // not used
-        bool  fullOnly           = false; // not used
+        bool  includeLiquid = false;
+        bool  solidOnly     = false;
+        float maxDistance   = 5.25f;
+        bool  fullOnly      = false;
         if (args.size() > 0) {
             CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
             includeLiquid = args[0].asBoolean().value();
@@ -1423,7 +1409,23 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
             fullOnly = args[3].asBoolean().value();
         }
-        HitResult res = actor->traceRay(maxDistance, false, true);
+        HitResult res = actor->traceRay(
+            maxDistance,
+            false,
+            true,
+            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const& source, Block const& block, bool idk) {
+                if (solidOnly && !block.isSolid()) {
+                    return false;
+                }
+                if (fullOnly && !block.isSlabBlock()) {
+                    return false;
+                }
+                if (!includeLiquid && block.getMaterial().isLiquid()) {
+                    return false;
+                }
+                return true;
+            }
+        );
 
         BlockPos bp;
         if (includeLiquid && res.mIsHitLiquid) {

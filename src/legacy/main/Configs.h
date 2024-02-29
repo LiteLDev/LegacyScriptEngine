@@ -12,6 +12,12 @@
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+
+#define LLSE_BACKEND_PYTHON
+
+#endif
+
 ///////////////////////// Configs /////////////////////////
 
 // Plugins & Base libs path

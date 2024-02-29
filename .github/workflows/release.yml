@@ -11,7 +11,7 @@ jobs:
         backend:
           # - libnode
           - lua
-          # - python310
+          - python
           - quickjs
     steps:
       - uses: actions/checkout@v4

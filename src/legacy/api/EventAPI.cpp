@@ -14,6 +14,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/events/EventHooks.h"
+#include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
@@ -873,7 +874,7 @@ void InitBasicEventListeners() {
                 return;
             }
 #elif defined(LLSE_BACKEND_PYTHON)
-            if (!PythonHelper::processConsolePipCmd(ev.mCommand)) {
+            if (!PythonHelper::processConsolePipCmd(ev.commandContext().mCommand)) {
                 ev.cancel();
                 return;
             }

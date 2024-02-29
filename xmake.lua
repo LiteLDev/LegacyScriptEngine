@@ -22,10 +22,14 @@ add_requires(
 add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
-    add_requires("scriptx 3.2.0", {configs={backend="Lua"}})
+    add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
-    add_requires("scriptx 3.2.0", {configs={backend="QuickJs"}})
+    add_requires("scriptx main", {configs={backend="QuickJs"}})
+
+elseif is_config("backend", "python") then
+    add_requires("scriptx main", {configs={backend="Python"}})
+    add_requires("microsoft-detours")
 
 end
 
@@ -35,7 +39,7 @@ end
 
 option("backend")
     set_default("lua")
-    set_values("lua", "quickjs")
+    set_values("lua", "quickjs", "python")
 
 package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
@@ -101,6 +105,13 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
         )
         set_basename("legacy-script-engine-quickjs")
+
+    elseif is_config("backend", "python") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
+        )
+        set_basename("legacy-script-engine-python")
+        add_packages("microsoft-detours")
 
     end
 

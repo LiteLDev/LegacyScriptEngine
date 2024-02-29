@@ -31,6 +31,12 @@ constexpr auto BaseLibFileName = "BaseLib.js";
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+
+constexpr auto BaseLibFileName = "BaseLib.py";
+
+#endif
+
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void                  BindAPIs(script::ScriptEngine* engine);
 void                  InitBasicEventListeners();

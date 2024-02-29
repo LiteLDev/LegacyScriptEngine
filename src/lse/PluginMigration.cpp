@@ -23,6 +23,12 @@ constexpr auto PluginExtName = ".js";
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+
+constexpr auto PluginExtName = ".py";
+
+#endif
+
 namespace lse {
 
 namespace {

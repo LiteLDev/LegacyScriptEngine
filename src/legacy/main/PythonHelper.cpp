@@ -43,12 +43,12 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(L".\\plugins\\legacy-script-engine-python\\python-env");
+        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getPluginDir() / "python-env");
         script::py_interop::setModuleSearchPaths({
-            L".\\plugins\\legacy-script-engine-python\\python-env\\python310.zip",
-            L".\\plugins\\legacy-script-engine-python\\python-env\\DLLs",
-            L".\\plugins\\legacy-script-engine-python\\python-env\\Lib",
-            L".\\plugins\\legacy-script-engine-python\\python-env\\Lib\\site-packages",
+            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "python310.zip",
+            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "DLLs",
+            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "Lib",
+            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "site-packages",
         });
         pythonInited = true;
     }

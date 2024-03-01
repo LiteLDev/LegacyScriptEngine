@@ -15,6 +15,7 @@
 #include <ll/api/plugin/Plugin.h>
 #include <ll/api/plugin/PluginManager.h>
 #include <ll/api/service/ServerInfo.h>
+#include <ll/api/utils/StringUtils.h>
 #include <memory>
 #include <stdexcept>
 
@@ -108,6 +109,31 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             // Set plugins's logger title
             ENGINE_OWN_DATA()->logger.title = manifest.name;
             ENGINE_OWN_DATA()->pluginName   = manifest.name;
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+            scriptEngine.eval("import sys as _llse_py_sys_module");
+            std::error_code ec;
+
+            // add plugin-own site-packages to sys.path
+            string pluginSitePackageFormatted = ll::string_utils::u8str2str(
+                std::filesystem::canonical(realPackageInstallDir.make_preferred(), ec).u8string()
+            );
+            if (!ec) {
+                scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
+            }
+            // add plugin source dir to sys.path
+            string sourceDirFormatted = ll::string_utils::u8str2str(
+                std::filesystem::canonical(std::filesystem::path(dirPath).make_preferred()).u8string()
+            );
+            scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
+
+            // set __file__ and __name__
+            string entryPathFormatted = ll::string_utils::u8str2str(
+                std::filesystem::canonical(std::filesystem::path(entryPath).make_preferred()).u8string()
+            );
+            scriptEngine.set("__file__", entryPathFormatted);
+            // engine->set("__name__", String::newString("__main__"));
+#endif
 
             BindAPIs(&scriptEngine);
 

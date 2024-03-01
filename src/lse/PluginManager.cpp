@@ -138,7 +138,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             BindAPIs(&scriptEngine);
 
             auto& self = getSelfPluginInstance();
-
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
             // Load BaseLib.
             auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
             auto baseLibContent = ll::file_utils::readFile(baseLibPath);
@@ -146,7 +146,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
                 throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
             }
             scriptEngine.eval(baseLibContent.value());
-
+#endif
             // Load the plugin entry.
             auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
             auto entryPath = pluginDir / manifest.entry;

@@ -73,9 +73,9 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
 
     try {
         logger.info("enabling...");
-
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         RegisterDebugCommand();
-
+#endif
         logger.info("enabled");
 
         return true;
@@ -151,6 +151,7 @@ void loadConfig(const ll::plugin::NativePlugin& self, Config& config) {
 }
 
 void loadDebugEngine(const ll::plugin::NativePlugin& self) {
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto& scriptEngine = *EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);
@@ -166,6 +167,7 @@ void loadDebugEngine(const ll::plugin::NativePlugin& self) {
     scriptEngine.eval(baseLibContent.value());
 
     debugEngine = &scriptEngine;
+#endif
 }
 
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) {

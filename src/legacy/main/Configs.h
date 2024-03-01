@@ -26,7 +26,6 @@
 
 // Plugin package information
 #define LLSE_PLUGIN_PACKAGE_EXTENSION          ".llplugin"
-#define LLSE_PLUGIN_PACKAGE_TEMP_DIR           "./plugins/LeviLamina/temp"
 #define LLSE_PLUGIN_PACKAGE_UNCOMPRESS_TIMEOUT 30000
 
 // Current language information

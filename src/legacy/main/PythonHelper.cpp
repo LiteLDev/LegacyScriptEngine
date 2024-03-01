@@ -1,6 +1,6 @@
 #pragma warning(disable : 4251)
 #include "Configs.h"
-#if defined(LLSE_BACKEND_PYTHON)
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
 #include "Global.h"
 #include "PythonHelper.h"
 #include "engine/EngineManager.h"
@@ -43,12 +43,12 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(L".\\plugins\\legacy-script-engine-python\\lib\\python-env");
+        script::py_interop::setPythonHomePath(L".\\plugins\\legacy-script-engine-python\\python-env");
         script::py_interop::setModuleSearchPaths({
-            L".\\plugins\\legacy-script-engine-python\\lib\\python-env\\python310.zip",
-            L".\\plugins\\legacy-script-engine-python\\lib\\python-env\\DLLs",
-            L".\\plugins\\legacy-script-engine-python\\lib\\python-env\\Lib",
-            L".\\plugins\\legacy-script-engine-python\\lib\\python-env\\Lib\\site-packages",
+            L".\\plugins\\legacy-script-engine-python\\python-env\\python310.zip",
+            L".\\plugins\\legacy-script-engine-python\\python-env\\DLLs",
+            L".\\plugins\\legacy-script-engine-python\\python-env\\Lib",
+            L".\\plugins\\legacy-script-engine-python\\python-env\\Lib\\site-packages",
         });
         pythonInited = true;
     }
@@ -216,7 +216,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
 }
 
 bool processConsolePipCmd(const std::string& cmd) {
-#ifdef LLSE_BACKEND_PYTHON
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     if (ll::string_utils::splitByPattern(cmd, " ")[0] == "pip") {
         PythonHelper::executePipCommand(cmd);
         return false;

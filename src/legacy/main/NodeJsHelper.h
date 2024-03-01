@@ -1,5 +1,5 @@
 #pragma once
-#if defined(LLSE_BACKEND_NODEJS)
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #pragma warning(disable : 4251)
 #include "main/Configs.h"
 

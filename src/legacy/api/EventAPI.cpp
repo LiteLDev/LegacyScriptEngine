@@ -868,12 +868,12 @@ void InitBasicEventListeners() {
                 ev.cancel();
                 return;
             }
-#ifdef LLSE_BACKEND_NODEJS
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) {
                 ev.cancel();
                 return;
             }
-#elif defined(LLSE_BACKEND_PYTHON)
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
             if (!PythonHelper::processConsolePipCmd(ev.commandContext().mCommand)) {
                 ev.cancel();
                 return;
@@ -995,7 +995,7 @@ void InitBasicEventListeners() {
     using namespace ll::chrono_literals;
 
     scheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
-#ifndef LLSE_BACKEND_NODEJS
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         try {
             std::list<ScriptEngine*> tmpList;
             {

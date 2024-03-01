@@ -1,6 +1,6 @@
 // #pragma warning(disable : 4251)
 // #include "main/Configs.h"
-// #if defined(LLSE_BACKEND_NODEJS)
+// #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 // #include "api/CommandAPI.h"
 // #include "api/CommandCompatibleAPI.h"
 // #include "api/EventAPI.h"
@@ -430,7 +430,7 @@
 // }
 
 // bool processConsoleNpmCmd(const std::string& cmd) {
-// #ifdef LLSE_BACKEND_NODEJS
+// #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
 //     if (StartsWith(cmd, "npm ")) {
 //         executeNpmCommand(cmd);
 //         return false;

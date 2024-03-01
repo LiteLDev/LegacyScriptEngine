@@ -59,7 +59,8 @@ target("legacy-script-engine")
         "_HAS_CXX23=1", -- To enable C++23 features.
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
         "NOMINMAX", -- To avoid conflicts with std::min and std::max.
-        "UNICODE" -- To enable Unicode support.
+        "UNICODE", -- To enable Unicode support.
+        "_AMD64_"
     )
     add_files(
         "src/**.cpp"

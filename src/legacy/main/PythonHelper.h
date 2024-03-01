@@ -1,5 +1,5 @@
 #pragma once
-#if defined(LLSE_BACKEND_PYTHON)
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
 #include "Configs.h"
 
 #include <ScriptX/ScriptX.h>

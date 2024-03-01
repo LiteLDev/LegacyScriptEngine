@@ -8,6 +8,7 @@
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
+#include <filesystem>
 #include <fmt/format.h>
 #include <ll/api/Logger.h>
 #include <ll/api/io/FileUtils.h>
@@ -57,67 +58,37 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     // "dirPath" is public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR) or normal
     // plugin dir "packagePath" will point to plugin package path if
     // isUncompressedFirstTime == true
-    // if (dirPath == LLSE_PLUGIN_PACKAGE_TEMP_DIR) {
-    //     // Need to copy from temp dir to installed dir
-    //     if (std::filesystem::exists(LLSE_PLUGIN_PACKAGE_TEMP_DIR "/pyproject.toml")) {
-    //         auto pluginName = PythonHelper::getPluginPackageName(LLSE_PLUGIN_PACKAGE_TEMP_DIR);
-    //         if (pluginName.empty()) {
-    //             pluginName = ll::string_utils::u8str2str(
-    //                 std::filesystem::path(packagePath).filename().replace_extension("").u8string()
-    //             );
-    //         }
-    //         auto dest = std::filesystem::path(LLSE_PLUGINS_ROOT_DIR).append(pluginName);
+    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;
+    std::string           entryPath = PythonHelper::findEntryScript(dirPath.string());
+    if (entryPath.empty()) return false;
+    std::string pluginName = PythonHelper::getPluginPackageName(dirPath.string());
 
-    //         // copy files
-    //         std::error_code ec;
-    //         // if (filesystem::exists(dest))
-    //         //     filesystem::remove_all(dest, ec);
-    //         std::filesystem::copy(
-    //             LLSE_PLUGIN_PACKAGE_TEMP_DIR "/",
-    //             dest,
-    //             std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive,
-    //             ec
-    //         );
+    // Run "pip install" if needed
+    auto realPackageInstallDir = (std::filesystem::path(dirPath) / "site-packages").make_preferred();
+    if (!std::filesystem::exists(realPackageInstallDir)) {
+        std::string dependTmpFilePath = PythonHelper::getPluginPackDependencyFilePath(dirPath.string());
+        if (!dependTmpFilePath.empty()) {
+            int exitCode = 0;
+            lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.start"_tr(
+                fmt::arg("name", ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string()))
+            ));
 
-    //         // reset dirPath
-    //         dirPath = ll::string_utils::u8str2str(dest.u8string());
-    //     }
-    //     // remove temp dir
-    //     std::error_code ec;
-    //     std::filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
-    // }
+            if ((exitCode = PythonHelper::executePipCommand(
+                     "pip install -r \"" + dependTmpFilePath + "\" -t \""
+                     + ll::string_utils::u8str2str(realPackageInstallDir.u8string()) + "\" --disable-pip-version-check "
+                 ))
+                == 0) {
+                lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.success"_tr());
+            } else
+                lse::getSelfPluginInstance().getLogger().error(
+                    "llse.loader.python.executePipInstall.fail"_tr(fmt::arg("code", exitCode))
+                );
 
-    // std::string entryPath = PythonHelper::findEntryScript(dirPath);
-    // if (entryPath.empty()) return false;
-    // std::string pluginName = PythonHelper::getPluginPackageName(dirPath);
-
-    // // Run "pip install" if needed
-    // auto realPackageInstallDir = (std::filesystem::path(dirPath) / "site-packages").make_preferred();
-    // if (!std::filesystem::exists(realPackageInstallDir)) {
-    //     std::string dependTmpFilePath = PythonHelper::getPluginPackDependencyFilePath(dirPath);
-    //     if (!dependTmpFilePath.empty()) {
-    //         int exitCode = 0;
-    //         lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.start"_tr(
-    //             fmt::arg("name", ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string()))
-    //         ));
-
-    //         if ((exitCode = PythonHelper::executePipCommand(
-    //                  "pip install -r \"" + dependTmpFilePath + "\" -t \""
-    //                  + ll::string_utils::u8str2str(realPackageInstallDir.u8string()) + "\"
-    //                  --disable-pip-version-check"
-    //              ))
-    //             == 0) {
-    //             lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.success"_tr());
-    //         } else
-    //             lse::getSelfPluginInstance().getLogger().error(
-    //                 "llse.loader.python.executePipInstall.fail"_tr(fmt::arg("code", exitCode))
-    //             );
-
-    //         // remove temp dependency file after installation
-    //         std::error_code ec;
-    //         std::filesystem::remove(std::filesystem::path(dependTmpFilePath), ec);
-    //     }
-    // }
+            // remove temp dependency file after installation
+            std::error_code ec;
+            std::filesystem::remove(std::filesystem::path(dependTmpFilePath), ec);
+        }
+    }
 #endif
 
     try {

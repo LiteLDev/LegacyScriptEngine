@@ -6,17 +6,21 @@
 #include "legacy/api/MoreGlobal.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
+#include "legacy/main/PythonHelper.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <fmt/format.h>
 #include <functional>
 #include <ll/api/Config.h>
+#include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/NativePlugin.h>
 #include <ll/api/plugin/PluginManagerRegistry.h>
+#include <ll/api/utils/StringUtils.h>
 #include <memory>
+#include <processenv.h>
 #include <stdexcept>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
@@ -33,6 +37,7 @@ constexpr auto BaseLibFileName = "BaseLib.js";
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
 
+#include "legacy/main/PythonHelper.h"
 constexpr auto BaseLibFileName = "BaseLib.py";
 
 #endif
@@ -86,6 +91,17 @@ void initializeLegacyStuff() {
     InitGlobalShareData();
     InitSafeGuardRecord();
     EconomySystem::init();
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+    // This fix is used for Python3.10's bug:
+    // The thread will freeze when creating a new engine while another thread is blocking to read stdin
+    // Side effects: sys.stdin cannot be used after this patch.
+    // More info to see: https://github.com/python/cpython/issues/83526
+    //
+    // Attention! When CPython is upgraded, this fix must be re-adapted or removed!!
+    //
+    PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
+    PythonHelper::initPythonRuntime();
+#endif
 
     InitBasicEventListeners();
     InitMessageSystem();

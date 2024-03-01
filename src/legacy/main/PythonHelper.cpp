@@ -43,12 +43,12 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getPluginDir() / "python-env");
+        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getPluginDir());
         script::py_interop::setModuleSearchPaths({
-            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "python310.zip",
-            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "DLLs",
-            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "Lib",
-            lse::getSelfPluginInstance().getPluginDir() / "python-env" / "site-packages",
+            lse::getSelfPluginInstance().getPluginDir() / "python310.zip",
+            lse::getSelfPluginInstance().getPluginDir() / "DLLs",
+            lse::getSelfPluginInstance().getPluginDir() / "Lib",
+            lse::getSelfPluginInstance().getPluginDir() / "site-packages",
         });
         pythonInited = true;
     }
@@ -231,7 +231,7 @@ bool processConsolePipCmd(const std::string& cmd) {
 // (./plugins/legacy-script-engine/lib/python-env/Lib/site-packages)
 int executePipCommand(std::string cmd) {
     if (cmd.find("--disable-pip-version-check") == std::string::npos) cmd += " --disable-pip-version-check";
-    cmd = ".\\plugins\\legacy-script-engine-python\\lib\\python-env\\python.exe -m " + cmd;
+    cmd = (lse::getSelfPluginInstance().getPluginDir() / "python.exe").string() + " -m" + cmd;
 
     SECURITY_ATTRIBUTES sa;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);

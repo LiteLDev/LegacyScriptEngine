@@ -4,6 +4,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"
+#include "mc/enums/InputMode.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/world/actor/player/Player.h"
@@ -13,6 +14,7 @@
 #include <string>
 
 //////////////////// Class Definition ////////////////////
+ClassDefine<void> InputModeStaticBuilder = EnumDefineBuilder<InputMode>::build("InputMode");
 
 ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Device")
                                                   .constructor(nullptr)
@@ -22,8 +24,8 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
                                                   .instanceProperty("lastPing", &DeviceClass::getLastPing)
                                                   .instanceProperty("lastPacketLoss", &DeviceClass::getLastPacketLoss)
                                                   .instanceProperty("os", &DeviceClass::getOs)
-                                                  //.instanceProperty("inputMode", &DeviceClass::getInputMode)
-                                                  //.instanceProperty("playMode", &DeviceClass::getPlayMode)
+                                                  .instanceProperty("inputMode", &DeviceClass::getInputMode)
+                                                  //   .instanceProperty("playMode", &DeviceClass::getPlayMode)
                                                   .instanceProperty("serverAddress", &DeviceClass::getServerAddress)
                                                   .instanceProperty("clientId", &DeviceClass::getClientId)
                                                   .build();
@@ -121,9 +123,9 @@ Local<Value> DeviceClass::getServerAddress() {
             return Local<Value>();
         }
         if (player->isSimulatedPlayer()) String::newString("unknown");
-        Json::Value requestJson = ll::service::getServerNetworkHandler()
-                                      ->fetchConnectionRequest(player->getNetworkIdentifier())
-                                      .mRawToken->mDataInfo;
+        Json::Value& requestJson = ll::service::getServerNetworkHandler()
+                                       ->fetchConnectionRequest(player->getNetworkIdentifier())
+                                       .mRawToken->mDataInfo;
         return String::newString(requestJson.get("ServerAddress", "unknown").asString("unknown"));
     }
     CATCH("Fail in getServerAddress!")
@@ -136,29 +138,30 @@ Local<Value> DeviceClass::getClientId() {
 
         return String::newString(
             ll::service::getServerNetworkHandler()->fetchConnectionRequest(player->getNetworkIdentifier()).getDeviceId()
-        ); //=============???
+        );
     }
     CATCH("Fail in getClientId!")
 }
 
-// Local<Value> DeviceClass::getInputMode() {
-//     try {
-//         Player* player = getPlayer();
-//         if (!player)
-//             return Local<Value>();
-//
-//         return Number::newNumber((int)player->getInputMode());
-//     }
-//     CATCH("Fail in getInputMode!")
-// }
-//
+Local<Value> DeviceClass::getInputMode() {
+    try {
+        Player* player = getPlayer();
+        if (!player) return Local<Value>();
+
+        Json::Value& requestJson = ll::service::getServerNetworkHandler()
+                                       ->fetchConnectionRequest(player->getNetworkIdentifier())
+                                       .mRawToken->mDataInfo;
+        return Number::newNumber(requestJson.get("CurrentInputMode", 0).asInt(0));
+    }
+    CATCH("Fail in getInputMode!")
+}
+
 // Local<Value> DeviceClass::getPlayMode() {
 //     try {
 //         Player* player = getPlayer();
-//         if (!player)
-//             return Local<Value>();
-//
-//         return Number::newNumber((int)player->getPlayMode());
+//         if (!player) return Local<Value>();
+
+//         return Number::newNumber(0);
 //     }
 //     CATCH("Fail in getPlayMode!")
 // }

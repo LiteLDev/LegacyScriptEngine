@@ -27,6 +27,7 @@
 | dv.lastPing       | 玩家的网络延迟时间（ms）     | `Integer` |
 | dv.lastPacketLoss | 玩家的网络丢包率（%）        | `Float`   |
 | dv.os             | 玩家设备的操作系统类型       | `String`  |
+| dv.inputMode      | 玩家的操作模式               | `Integer` |
 | dv.serverAddress  | 玩家连接的地址               | `String`  |
 | dv.clientId       | 玩家客户端的识别码ID         | `String`  |
 
@@ -50,3 +51,10 @@
 | `Xbox`          | 主机微软Xbox              |
 | `WindowsPhone`  | 手机微软Windows Mobile    |
 | `Unknown`       | 未知系统                  |
+
+| Input mode ENUM              | 备注       |
+| ---------------------------- | ---------- |
+| `InputMode.Mouse`            | 鼠标       |
+| `InputMode.Touch`            | 触屏       |
+| `InputMode.GamePad`          | 手柄       |
+| `InputMode.MotionController` | 运动控制器 |

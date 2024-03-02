@@ -23,7 +23,7 @@ public:
     Local<Value> getLastPing();
     Local<Value> getLastPacketLoss();
     Local<Value> getOs();
-    // Local<Value> getInputMode();
+    Local<Value> getInputMode();
     // Local<Value> getPlayMode();
     Local<Value> getServerAddress();
     Local<Value> getClientId();

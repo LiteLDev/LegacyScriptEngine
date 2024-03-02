@@ -27,6 +27,7 @@ Each device information object contains some fixed object properties. for a spec
 | dv.lastPing       | Network latency for players (ms)              | `Integer`  |
 | dv.lastPacketLoss | Player's network packet loss rate (%)         | `Float`    |
 | dv.os             | The OS type of the player's device            | `String`   |
+| dv.inputMode      | Player's input mode                           | `Integer`  |
 | dv.serverAddress  | The player's connection address               | `String`   |
 | dv.clientId       | ID of the player client                       | `String`   |
 
@@ -51,3 +52,10 @@ Among them, the operating system type attribute returns a string that records th
 | `WindowsPhone` | Windows Mobile                                  |
 | `Dedicated`    | Dedicated server (Device os spoofer)            |
 | `Unknown`      | Unknown System                                  |
+
+| Input mode ENUM              |
+| ---------------------------- |
+| `InputMode.Mouse`            |
+| `InputMode.Touch`            |
+| `InputMode.GamePad`          |
+| `InputMode.MotionController` |

@@ -9,6 +9,7 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/Level.h"
 
+#include <mc/deps/json/Value.h>
 #include <string>
 
 //////////////////// Class Definition ////////////////////
@@ -120,18 +121,10 @@ Local<Value> DeviceClass::getServerAddress() {
             return Local<Value>();
         }
         if (player->isSimulatedPlayer()) String::newString("unknown");
-        auto map = ll::service::getServerNetworkHandler()
-                       ->fetchConnectionRequest(player->getNetworkIdentifier())
-                       .mRawToken.get()
-                       ->mDataInfo.value_.map_;
-        for (auto iter = map->begin(); iter != map->end(); ++iter) {
-            string s(iter->first.c_str());
-            if (s.find("ServerAddress") != s.npos) {
-                auto ServerAddress = iter->second.value_.string_;
-                return String::newString(ServerAddress);
-            }
-        }
-        return String::newString("unknown");
+        Json::Value requestJson = ll::service::getServerNetworkHandler()
+                                      ->fetchConnectionRequest(player->getNetworkIdentifier())
+                                      .mRawToken->mDataInfo;
+        return String::newString(requestJson.get("ServerAddress", "unknown").asString("unknown"));
     }
     CATCH("Fail in getServerAddress!")
 }

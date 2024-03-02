@@ -2917,11 +2917,9 @@ Local<Value> PlayerClass::getAllTags(const Arguments& args) {
         if (!player) return Local<Value>();
 
         Local<Array> arr = Array::newArray();
-        CompoundTag  tag = CompoundTag();
-        player->save(tag);
-        tag.at("Tags").get<ListTag>().forEachCompoundTag([&arr](const CompoundTag& tag) {
-            arr.add(String::newString(tag.toString()));
-        });
+        for (auto tag : player->getTags()) {
+            arr.add(String::newString(tag));
+        }
         return arr;
     }
     CATCH("Fail in getAllTags!");

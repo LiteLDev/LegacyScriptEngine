@@ -190,6 +190,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
     );
     CommandOutput output(CommandOutputType::AllOutput);
     std::string   outputStr;
+    Local<Object> resObj = Object::newObject();
     try {
         if (command) {
             command->run(origin, output);
@@ -199,12 +200,12 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
             if (output.getMessages().size()) {
                 outputStr.pop_back();
             }
-            Local<Object> resObj = Object::newObject();
             resObj.set("success", output.getSuccessCount() ? true : false);
             resObj.set("output", outputStr);
             return resObj;
         }
-        return {};
+        resObj.set("success", false);
+        return resObj;
     }
     CATCH("Fail in RunCmdEx!")
 }

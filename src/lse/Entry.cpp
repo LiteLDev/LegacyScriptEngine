@@ -18,6 +18,7 @@
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/NativePlugin.h>
 #include <ll/api/plugin/PluginManagerRegistry.h>
+#include <ll/api/utils/ErrorUtils.h>
 #include <ll/api/utils/StringUtils.h>
 #include <memory>
 #include <processenv.h>
@@ -110,6 +111,9 @@ void initializeLegacyStuff() {
 
 auto load(ll::plugin::NativePlugin& self) -> bool {
     auto& logger = self.getLogger();
+#ifdef NDEBUG
+    ll::error_utils::setSehTranslator();
+#endif
 
     try {
         logger.info("loading...");

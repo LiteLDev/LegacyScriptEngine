@@ -2788,31 +2788,41 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             clearCount = args[1].asNumber().toInt32();
         }
-        int result = 0;
-        for (std::reference_wrapper<ItemStack> item : player->getInventory().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        int   result         = 0;
+        auto& inventorySlots = player->getInventory().getSlots();
+        for (unsigned short slot = 0; slot < inventorySlots.size(); ++slot) {
+            if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (inventorySlots[slot]->mCount < clearCount) {
+                    result += inventorySlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
-        for (std::reference_wrapper<ItemStack> item : player->getHandContainer().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        auto& handSlots = player->getHandContainer().getSlots();
+        for (unsigned short slot = 0; slot < handSlots.size(); ++slot) {
+            if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (handSlots[slot]->mCount < clearCount) {
+                    result += handSlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
-        for (std::reference_wrapper<ItemStack> item : player->getArmorContainer().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        auto& armorSlots = player->getArmorContainer().getSlots();
+        for (unsigned short slot = 0; slot < armorSlots.size(); ++slot) {
+            if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (armorSlots[slot]->mCount < clearCount) {
+                    result += armorSlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
+        player->refreshInventory();
         return Number::newNumber(result);
     }
     CATCH("Fail in clearItem!");
@@ -2917,11 +2927,9 @@ Local<Value> PlayerClass::getAllTags(const Arguments& args) {
         if (!player) return Local<Value>();
 
         Local<Array> arr = Array::newArray();
-        CompoundTag  tag = CompoundTag();
-        player->save(tag);
-        tag.at("Tags").get<ListTag>().forEachCompoundTag([&arr](const CompoundTag& tag) {
-            arr.add(String::newString(tag.toString()));
-        });
+        for (auto tag : player->getTags()) {
+            arr.add(String::newString(tag));
+        }
         return arr;
     }
     CATCH("Fail in getAllTags!");
@@ -3159,11 +3167,11 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        const ItemStack&         hand      = player->getCarriedItem();
-        const ItemStack&         offHand   = player->getOffhandSlot();
-        vector<const ItemStack*> inventory = player->getInventory().getSlots();
-        vector<const ItemStack*> armor     = player->getArmorContainer().getSlots();
-        vector<const ItemStack*> endChest  = player->getEnderChestContainer()->getSlots();
+        const ItemStack&              hand      = player->getCarriedItem();
+        const ItemStack&              offHand   = player->getOffhandSlot();
+        std::vector<const ItemStack*> inventory = player->getInventory().getSlots();
+        std::vector<const ItemStack*> armor     = player->getArmorContainer().getSlots();
+        std::vector<const ItemStack*> endChest  = player->getEnderChestContainer()->getSlots();
 
         Local<Object> result = Object::newObject();
 
@@ -3176,21 +3184,27 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         // inventory
         Local<Array> inventoryArr = Array::newArray();
         for (const ItemStack* item : inventory) {
-            inventoryArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                inventoryArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("inventory", inventoryArr);
 
         // armor
         Local<Array> armorArr = Array::newArray();
         for (const ItemStack* item : armor) {
-            armorArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                armorArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("armor", armorArr);
 
         // endChest
         Local<Array> endChestArr = Array::newArray();
         for (const ItemStack* item : endChest) {
-            endChestArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                endChestArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("endChest", endChestArr);
 

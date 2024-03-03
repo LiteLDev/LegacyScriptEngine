@@ -14,17 +14,14 @@
 
 // 输出异常信息
 inline void PrintException(const script::Exception& e) {
-    std::ostringstream sout;
-    sout << "script::Exception: ";
-    sout << e;
-    lse::getSelfPluginInstance().getLogger().error(sout.str());
+    lse::getSelfPluginInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());
 }
 
 inline void PrintScriptStackTrace(std::string const& msg = "") {
     if (!msg.empty()) {
         PrintException(script::Exception(msg));
     } else {
-        lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).message());
+        lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).stacktrace());
     }
 }
 
@@ -76,7 +73,6 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
@@ -112,7 +108,6 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
         return nullptr;                                                                                                \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
@@ -127,7 +122,7 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
@@ -141,12 +136,10 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-                                                                                                                       \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
     }
 

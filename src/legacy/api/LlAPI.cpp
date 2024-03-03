@@ -38,7 +38,6 @@ ClassDefine<void> LlClassBuilder = defineClass("ll")
 
                                        // For Compatibility
                                        .function("version", &LlClass::version)
-                                       .function("isDebugMode", &LlClass::isDebugModeFunction)
                                        .function("versionStatus", &LlClass::getVersionStatusFunction)
                                        .function("scriptEngineVersion", &LlClass::getScriptEngineVersionFunction)
 

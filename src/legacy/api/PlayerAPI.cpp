@@ -2788,31 +2788,41 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             clearCount = args[1].asNumber().toInt32();
         }
-        int result = 0;
-        for (std::reference_wrapper<ItemStack> item : player->getInventory().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        int   result         = 0;
+        auto& inventorySlots = player->getInventory().getSlots();
+        for (unsigned short slot = 0; slot < inventorySlots.size(); ++slot) {
+            if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (inventorySlots[slot]->mCount < clearCount) {
+                    result += inventorySlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
-        for (std::reference_wrapper<ItemStack> item : player->getHandContainer().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        auto& handSlots = player->getHandContainer().getSlots();
+        for (unsigned short slot = 0; slot < handSlots.size(); ++slot) {
+            if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (handSlots[slot]->mCount < clearCount) {
+                    result += handSlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
-        for (std::reference_wrapper<ItemStack> item : player->getArmorContainer().getSlotCopies()) {
-            if (item.get().getTypeName() == args[0].asString().toString()) {
-                if (item.get().mCount < clearCount) {
-                    result += item.get().mCount;
+        auto& armorSlots = player->getArmorContainer().getSlots();
+        for (unsigned short slot = 0; slot < armorSlots.size(); ++slot) {
+            if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
+                if (armorSlots[slot]->mCount < clearCount) {
+                    result += armorSlots[slot]->mCount;
+                } else {
+                    result += clearCount;
                 }
-                item.get().remove(clearCount);
+                player->getInventory().removeItem(slot, clearCount);
             }
         }
+        player->refreshInventory();
         return Number::newNumber(result);
     }
     CATCH("Fail in clearItem!");

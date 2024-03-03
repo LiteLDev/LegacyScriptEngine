@@ -6,10 +6,25 @@
 #include "ll/api/service/ServerInfo.h"
 #include "main/SafeGuardRecord.h"
 
+#include <ll/api/utils/ErrorUtils.h>
 #include <string>
 #include <vector>
 
 using namespace cyanray;
+
+// Some script::Exception have a problem which can crash the server, and I have no idea, so not output message &
+// stacktrace
+#define CATCH_CALLBACK(LOG)                                                                                            \
+    catch (const Exception& e) {                                                                                       \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
+        return;                                                                                                        \
+    }                                                                                                                  \
+    catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        return;                                                                                                        \
+    }
 
 //////////////////// Classes ////////////////////
 
@@ -153,14 +168,17 @@ void WSClientClass::initListeners_s() {
             || engine->isDestroying())
             return;
         std::thread([nowList, engine, msg = std::move(msg)]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                || engine->isDestroying())
-                return;
-            EngineScope enter(engine);
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    listener.func.get().call({}, {String::newString(msg)});
-                }
+            try {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    return;
+                EngineScope enter(engine);
+                if (!nowList->empty())
+                    for (auto& listener : *nowList) {
+                        listener.func.get().call({}, {String::newString(msg)});
+                    }
+            }
+            CATCH_CALLBACK("Fail in OnTextReceived")
         }).detach();
     });
 
@@ -170,14 +188,17 @@ void WSClientClass::initListeners_s() {
             || engine->isDestroying())
             return;
         std::thread([nowList, engine, data = std::move(data)]() mutable {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                || engine->isDestroying())
-                return;
-            EngineScope enter(engine);
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
-                }
+            try {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    return;
+                EngineScope enter(engine);
+                if (!nowList->empty())
+                    for (auto& listener : *nowList) {
+                        listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
+                    }
+            }
+            CATCH_CALLBACK("Fail in OnBinaryReceived")
         }).detach();
     });
 
@@ -187,14 +208,17 @@ void WSClientClass::initListeners_s() {
             || engine->isDestroying())
             return;
         std::thread([nowList, engine, msg = std::move(msg)]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                || engine->isDestroying())
-                return;
-            EngineScope enter(engine);
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    listener.func.get().call({}, {String::newString(msg)});
-                }
+            try {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    return;
+                EngineScope enter(engine);
+                if (!nowList->empty())
+                    for (auto& listener : *nowList) {
+                        listener.func.get().call({}, {String::newString(msg)});
+                    }
+            }
+            CATCH_CALLBACK("Fail in OnError")
         }).detach();
     });
 
@@ -204,14 +228,17 @@ void WSClientClass::initListeners_s() {
             || engine->isDestroying())
             return;
         std::thread([nowList, engine, code]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                || engine->isDestroying())
-                return;
-            EngineScope enter(engine);
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    listener.func.get().call({}, {Number::newNumber(code)});
-                }
+            try {
+                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    return;
+                EngineScope enter(engine);
+                if (!nowList->empty())
+                    for (auto& listener : *nowList) {
+                        listener.func.get().call({}, {Number::newNumber(code)});
+                    }
+            }
+            CATCH_CALLBACK("Fail in OnLostConnection")
         }).detach();
     });
 }
@@ -289,6 +316,10 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                      callback{std::move(callbackFunc)},
                      engine{EngineScope::currentEngine()},
                      pluginName{ENGINE_OWN_DATA()->pluginName}]() mutable {
+
+#ifdef NDEBUG
+            ll::error_utils::setSehTranslator();
+#endif
             try {
                 bool result = false;
                 try {
@@ -397,24 +428,27 @@ using namespace httplib;
             || engine->isDestroying())                                                                                 \
             return;                                                                                                    \
         std::thread([this, engine, req, &resp] {                                                                       \
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)                \
-                || engine->isDestroying())                                                                             \
-                return;                                                                                                \
-            EngineScope enter(engine);                                                                                 \
-            for (auto& [k, v] : this->callbacks) {                                                                     \
-                if (v.type != HttpRequestType::method) return;                                                         \
-                std::regex  rgx(k);                                                                                    \
-                std::smatch matches;                                                                                   \
-                if (std::regex_match(req.path, matches, rgx)) {                                                        \
-                    if (matches == req.matches) {                                                                      \
-                        auto reqObj  = new HttpRequestClass(req);                                                      \
-                        auto respObj = new HttpResponseClass(resp);                                                    \
-                        v.func.get().call({}, reqObj, respObj);                                                        \
-                        resp = *respObj->get();                                                                        \
-                        break;                                                                                         \
+            try {                                                                                                      \
+                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)            \
+                    || engine->isDestroying())                                                                         \
+                    return;                                                                                            \
+                EngineScope enter(engine);                                                                             \
+                for (auto& [k, v] : this->callbacks) {                                                                 \
+                    if (v.type != HttpRequestType::method) return;                                                     \
+                    std::regex  rgx(k);                                                                                \
+                    std::smatch matches;                                                                               \
+                    if (std::regex_match(req.path, matches, rgx)) {                                                    \
+                        if (matches == req.matches) {                                                                  \
+                            auto reqObj  = new HttpRequestClass(req);                                                  \
+                            auto respObj = new HttpResponseClass(resp);                                                \
+                            v.func.get().call({}, reqObj, respObj);                                                    \
+                            resp = *respObj->get();                                                                    \
+                            break;                                                                                     \
+                        }                                                                                              \
                     }                                                                                                  \
                 }                                                                                                      \
             }                                                                                                          \
+            CATCH_CALLBACK("Fail in NetworkAPI callback")                                                              \
         }).join();                                                                                                     \
     });
 
@@ -521,17 +555,20 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
             std::thread([this, engine, req, &resp, &handled] {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                    || engine->isDestroying())
-                    return;
-                EngineScope enter(engine);
-                auto        reqObj  = new HttpRequestClass(req);
-                auto        respObj = new HttpResponseClass(resp);
-                auto        res     = this->preRoutingCallback.func.get().call({}, reqObj, respObj);
-                if (res.isBoolean() && res.asBoolean().value() == false) {
-                    handled = true;
+                try {
+                    if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                        || engine->isDestroying())
+                        return;
+                    EngineScope enter(engine);
+                    auto        reqObj  = new HttpRequestClass(req);
+                    auto        respObj = new HttpResponseClass(resp);
+                    auto        res     = this->preRoutingCallback.func.get().call({}, reqObj, respObj);
+                    if (res.isBoolean() && res.asBoolean().value() == false) {
+                        handled = true;
+                    }
+                    resp = *respObj->get();
                 }
-                resp = *respObj->get();
+                CATCH_CALLBACK("Fail in onPreRouting");
             }).join();
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
         });

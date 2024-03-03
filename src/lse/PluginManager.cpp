@@ -79,6 +79,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             // Load the plugin entry.
             auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
             auto entryPath = pluginDir / manifest.entry;
+            ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
 
             // Try loadFile
             try {
@@ -98,7 +99,11 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
-        } catch (const std::exception& e) {
+            ExitEngineScope exit;
+        } catch (const Exception& e) {
+            EngineScope engineScope(scriptEngine);
+            logger.error("Failed to load plugin {0}: {1}\n{2}", manifest.name, e.message(), e.stacktrace());
+            ExitEngineScope exit;
             LLSERemoveTimeTaskData(&scriptEngine);
             LLSERemoveAllEventListeners(&scriptEngine);
             LLSERemoveCmdRegister(&scriptEngine);
@@ -109,18 +114,17 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
             EngineManager::unregisterEngine(&scriptEngine);
 
-            throw;
+            return false;
         }
 
         if (!addPlugin(manifest.name, plugin)) {
-            throw std::runtime_error(fmt::format("failed to register plugin {}", manifest.name));
+            throw std::runtime_error("Failed to register plugin {}"_tr(manifest.name));
         }
 
         return true;
 
     } catch (const std::exception& e) {
-        logger.error("failed to load plugin {}: {}", manifest.name, e.what());
-        return false;
+        logger.error("Failed to load plugin {0}: {1}", manifest.name, e.what());
     }
 
     return true;

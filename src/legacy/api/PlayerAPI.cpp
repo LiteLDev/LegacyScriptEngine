@@ -3157,11 +3157,11 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        const ItemStack&         hand      = player->getCarriedItem();
-        const ItemStack&         offHand   = player->getOffhandSlot();
-        vector<const ItemStack*> inventory = player->getInventory().getSlots();
-        vector<const ItemStack*> armor     = player->getArmorContainer().getSlots();
-        vector<const ItemStack*> endChest  = player->getEnderChestContainer()->getSlots();
+        const ItemStack&              hand      = player->getCarriedItem();
+        const ItemStack&              offHand   = player->getOffhandSlot();
+        std::vector<const ItemStack*> inventory = player->getInventory().getSlots();
+        std::vector<const ItemStack*> armor     = player->getArmorContainer().getSlots();
+        std::vector<const ItemStack*> endChest  = player->getEnderChestContainer()->getSlots();
 
         Local<Object> result = Object::newObject();
 
@@ -3174,21 +3174,27 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         // inventory
         Local<Array> inventoryArr = Array::newArray();
         for (const ItemStack* item : inventory) {
-            inventoryArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                inventoryArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("inventory", inventoryArr);
 
         // armor
         Local<Array> armorArr = Array::newArray();
         for (const ItemStack* item : armor) {
-            armorArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                armorArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("armor", armorArr);
 
         // endChest
         Local<Array> endChestArr = Array::newArray();
         for (const ItemStack* item : endChest) {
-            endChestArr.add(ItemClass::newItem((ItemStack*)item, false));
+            if (item) {
+                endChestArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            }
         }
         result.set("endChest", endChestArr);
 

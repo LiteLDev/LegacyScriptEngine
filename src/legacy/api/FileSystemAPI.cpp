@@ -254,7 +254,7 @@ Local<Value> FileClass::read(const Arguments& args) {
         int                      cnt = args[0].toInt();
         script::Global<Function> callbackFunc{args[1].asFunction()};
 
-        pool.enqueue(
+        pool.addTask(
             [cnt,
              fp{&file},
              isBinary{isBinary},
@@ -293,7 +293,7 @@ Local<Value> FileClass::readLine(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.enqueue([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
+        pool.addTask([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
                      ) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -321,7 +321,7 @@ Local<Value> FileClass::readAll(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.enqueue([fp{&file},
+        pool.addTask([fp{&file},
                       isBinary{isBinary},
                       lock{&lock},
                       callback{std::move(callbackFunc)},
@@ -366,7 +366,7 @@ Local<Value> FileClass::write(const Arguments& args) {
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
 
-        pool.enqueue([fp{&file},
+        pool.addTask([fp{&file},
                       lock{&lock},
                       data{std::move(data)},
                       isString,
@@ -405,7 +405,7 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
 
-        pool.enqueue([fp{&file},
+        pool.addTask([fp{&file},
                       lock{&lock},
                       data{std::move(data)},
                       callback{std::move(callbackFunc)},
@@ -487,7 +487,7 @@ Local<Value> FileClass::isEOF(const Arguments& args) {
 
 Local<Value> FileClass::flush(const Arguments& args) {
     try {
-        pool.enqueue([fp{&file}, lock{&lock}]() {
+        pool.addTask([fp{&file}, lock{&lock}]() {
             lock->lock();
             fp->flush();
             lock->unlock();

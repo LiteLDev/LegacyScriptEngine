@@ -1,7 +1,7 @@
 #pragma once
-#include "ThreadPool.h"
 #include "api/APIHelp.h"
 
+#include <ll/api/thread/ThreadPool.h>
 #include <map>
 #include <mutex>
 #include <string>
@@ -54,7 +54,7 @@ extern LocalDataType* localShareData;
 extern std::vector<RegCmdQueue> toRegCmdQueue;
 
 // 线程池
-extern ThreadPool pool;
+extern ll::thread::ThreadPool pool;
 
 extern std::mutex messageLoopLock;
 

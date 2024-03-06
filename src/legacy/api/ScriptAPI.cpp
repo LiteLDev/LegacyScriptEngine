@@ -103,7 +103,7 @@ Local<Value> FastLog(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
 
-        pool.enqueue([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
+        pool.addTask([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
             ll::Logger fastLogger(pluginName);
             fastLogger.info(str);
         });

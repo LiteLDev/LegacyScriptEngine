@@ -179,7 +179,17 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
             auto entryPath = pluginDir / manifest.entry;
             ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
-
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+            if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+                throw std::runtime_error(fmt::format("Failed to load plugin {0}", manifest.name));
+            }
+#endif
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+            if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+                throw std::runtime_error(fmt::format("Failed to load plugin {0}", manifest.name));
+            }
+#endif
+#if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
             // Try loadFile
             try {
                 scriptEngine.loadFile(entryPath.u8string());
@@ -187,13 +197,14 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
                 // loadFile failed, try eval
                 auto pluginEntryContent = ll::file_utils::readFile(entryPath);
                 if (!pluginEntryContent) {
-                    throw std::runtime_error(fmt::format("failed to read plugin entry at {}", entryPath.string()));
+                    throw std::runtime_error(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
                 }
                 scriptEngine.eval(pluginEntryContent.value());
             }
             if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
                 LLSECallEventsOnHotLoad(&scriptEngine);
             }
+#endif
             plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
@@ -236,7 +247,7 @@ auto PluginManager::unload(std::string_view name) -> bool {
 
         auto plugin = std::static_pointer_cast<Plugin>(getPlugin(name));
 
-        logger.info("unloading plugin {}", name);
+        logger.info("Unloading plugin {}", name);
 
         auto& scriptEngine = *EngineManager::getEngine(std::string(name));
 
@@ -253,14 +264,14 @@ auto PluginManager::unload(std::string_view name) -> bool {
         scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
 
         if (!erasePlugin(name)) {
-            throw std::runtime_error(fmt::format("failed to unregister plugin {}", name));
+            throw std::runtime_error(fmt::format("Failed to unregister plugin {}", name));
             return false;
         }
 
         return true;
 
     } catch (const std::exception& e) {
-        logger.error("failed to unload plugin {}: {}", name, e.what());
+        logger.error("Failed to unload plugin {}: {}", name, e.what());
         return false;
     }
 }

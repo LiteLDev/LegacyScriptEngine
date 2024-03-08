@@ -298,7 +298,7 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
         auto   res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
         if (!res) return Local<Value>();
-        return ObjectiveClass::newObjective((Objective*)res);
+        return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
     }
     CATCH("Fail in GetDisplayObjective");
 }

@@ -90,9 +90,9 @@ script::ScriptEngine* newEngine() {
     v8::Isolate*       isolate = setup->isolate();
     node::Environment* env     = setup->env();
 
-    v8::Locker         locker(v8::Isolate);
-    v8::Isolate::Scope isolate_scope(v8::Isolate);
-    v8::HandleScope    handle_scope(v8::Isolate);
+    v8::Locker         locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope    handle_scope(isolate);
     v8::Context::Scope context_scope(setup->context());
 
     script::ScriptEngine* engine = new script::ScriptEngineImpl({}, isolate, setup->context(), false);

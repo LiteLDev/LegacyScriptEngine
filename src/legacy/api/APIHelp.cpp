@@ -17,6 +17,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <ll/api/utils/StringUtils.h>
 #include <string>
 #include <vector>
 
@@ -458,7 +459,7 @@ std::string ValueToJson(Local<Value> v, int formatIndent) {
     switch (v.getKind()) {
     case ValueKind::kString:
         result = "\"" + v.asString().toString() + "\"";
-        ReplaceStr(result, "\n", "\\n");
+        result = ll::string_utils::replaceAll(result, "\n", "\\n");
         break;
     case ValueKind::kNumber:
         if (CheckIsFloat(v)) {

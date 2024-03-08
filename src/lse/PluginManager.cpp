@@ -41,6 +41,14 @@ constexpr auto PluginManagerName = "lse-python";
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
+#include "legacy/main/NodeJsHelper.h"
+constexpr auto BaseLibFileName   = "BaseLib.js";
+constexpr auto PluginManagerName = "lse-nodejs";
+
+#endif
+
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void BindAPIs(script::ScriptEngine* engine);
 void LLSERemoveTimeTaskData(script::ScriptEngine* engine);

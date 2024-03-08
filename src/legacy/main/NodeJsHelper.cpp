@@ -1,4 +1,5 @@
 #include <ll/api/chrono/GameChrono.h>
+#include <ll/api/service/ServerInfo.h>
 #pragma warning(disable : 4251)
 #include "main/Configs.h"
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
@@ -17,6 +18,9 @@
 #include <uv/uv.h>
 #include <v8/v8.h>
 
+ll::schedule::Scheduler<ll::chrono::ServerClock> scheduler;
+using ll::chrono_literals::operator""_tick;
+
 // pre-declare
 extern void BindAPIs(ScriptEngine* engine);
 
@@ -30,8 +34,8 @@ std::unique_ptr<node::MultiIsolatePlatform>                                     
 std::unordered_map<script::ScriptEngine*, node::Environment*>                             environments;
 std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
     new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
-std::unordered_map<node::Environment*, bool>                                        isRunning;
-std::unordered_map<node::Environment*, ll::schedule::Task<ll::chrono::ServerClock>> uvLoopTask;
+std::unordered_map<node::Environment*, bool>                                                         isRunning;
+std::unordered_map<node::Environment*, std::shared_ptr<ll::schedule::Task<ll::chrono::ServerClock>>> uvLoopTask;
 
 bool initNodeJs() {
     // Init NodeJs
@@ -79,8 +83,9 @@ script::ScriptEngine* newEngine() {
     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
     if (!setup) {
-        for (const std::string& err : errors) lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup
-        Error: {}", err.c_str()); return nullptr;
+        for (const std::string& err : errors)
+            lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
+        return nullptr;
     }
     v8::Isolate*       isolate = setup->isolate();
     node::Environment* env     = setup->env();
@@ -117,8 +122,8 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
 
     // Process requireDir
     if (!pluginDirPath.ends_with('/')) pluginDirPath += "/";
-    pluginDirPath   = ReplaceStr(pluginDirPath, "\\", "/");
-    entryScriptPath = ReplaceStr(entryScriptPath, "\\", "/");
+    pluginDirPath   = ll::string_utils::replaceAll(pluginDirPath, "\\", "/");
+    entryScriptPath = ll::string_utils::replaceAll(entryScriptPath, "\\", "/");
 
     // Find setup
     auto it = setups->find(engine);
@@ -156,7 +161,8 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         }
 
         // Start libuv event loop
-        uvLoopTask[env] = Schedule::repeat(
+        uvLoopTask[env] = scheduler.add<ll::schedule::RepeatTask>(
+            2_tick,
             [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() {
                 if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
                     EngineScope enter(engine);
@@ -166,8 +172,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                     uv_stop(eventLoop);
                     lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
                 }
-            },
-            2
+            }
         );
 
         return true;
@@ -200,7 +205,7 @@ bool stopEngine(node::Environment* env) {
         // Stop libuv event loop
         auto it = uvLoopTask.find(env);
         if (it != uvLoopTask.end()) {
-            it->second.cancel();
+            it->second->cancel();
         }
 
         return true;
@@ -224,154 +229,155 @@ script::ScriptEngine* getEngine(node::Environment* env) {
 
 // Load NodeJs plugin
 // This function must be called in correct backend
-bool loadNodeJsPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad) {
-    // "dirPath" is always public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR)
-    if (dirPath == LLSE_PLUGIN_PACKAGE_TEMP_DIR) {
-        // Need to copy from temp dir to installed dir
-        if (std::filesystem::exists(LLSE_PLUGIN_PACKAGE_TEMP_DIR "/package.json")) {
-            auto pluginName = NodeJsHelper::getPluginPackageName(LLSE_PLUGIN_PACKAGE_TEMP_DIR);
-            if (pluginName.empty()) {
-                pluginName = UTF82String(filesystem::path(packagePath).filename().replace_extension("").u8string());
-            }
-            auto dest = std::filesystem::path(LLSE_PLUGINS_ROOT_DIR).append(pluginName);
+// bool loadNodeJsPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad) {
+//     // "dirPath" is always public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR)
+//     if (dirPath == LLSE_PLUGIN_PACKAGE_TEMP_DIR) {
+//         // Need to copy from temp dir to installed dir
+//         if (std::filesystem::exists(LLSE_PLUGIN_PACKAGE_TEMP_DIR "/package.json")) {
+//             auto pluginName = NodeJsHelper::getPluginPackageName(LLSE_PLUGIN_PACKAGE_TEMP_DIR);
+//             if (pluginName.empty()) {
+//                 pluginName =
+//                 ll::string_utils::u8str2str(filesystem::path(packagePath).filename().replace_extension("").u8string());
+//             }
+//             auto dest = std::filesystem::path(LLSE_PLUGINS_ROOT_DIR).append(pluginName);
 
-            // copy files
-            std::error_code ec;
-            // if (filesystem::exists(dest))
-            //     filesystem::remove_all(dest, ec);
-            std::filesystem::copy(
-                LLSE_PLUGIN_PACKAGE_TEMP_DIR "/",
-                dest,
-                filesystem::copy_options::overwrite_existing | filesystem::copy_options::recursive,
-                ec
-            );
+//             // copy files
+//             std::error_code ec;
+//             // if (filesystem::exists(dest))
+//             //     filesystem::remove_all(dest, ec);
+//             std::filesystem::copy(
+//                 LLSE_PLUGIN_PACKAGE_TEMP_DIR "/",
+//                 dest,
+//                 filesystem::copy_options::overwrite_existing | filesystem::copy_options::recursive,
+//                 ec
+//             );
 
-            // reset dirPath
-            dirPath = UTF82String(dest.u8string());
-        }
-        // remove temp dir
-        std::error_code ec;
-        std::filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
-    }
+//             // reset dirPath
+//             dirPath = ll::string_utils::u8str2str(dest.u8string());
+//         }
+//         // remove temp dir
+//         std::error_code ec;
+//         std::filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
+//     }
 
-    std::string entryPath = NodeJsHelper::findEntryScript(dirPath);
-    if (entryPath.empty()) return false;
-    std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath);
+//     std::string entryPath = NodeJsHelper::findEntryScript(dirPath);
+//     if (entryPath.empty()) return false;
+//     std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath);
 
-    // Run "npm install" if needed
-    if (NodeJsHelper::doesPluginPackHasDependency(dirPath)
-        && !filesystem::exists(filesystem::path(dirPath) / "node_modules")) {
-        int exitCode = 0;
-        lse::getSelfPluginInstance().getLogger().info(
-            tr("llse.loader.nodejs.executeNpmInstall.start",
-               fmt::arg("name", UTF82String(filesystem::path(dirPath).filename().u8string())))
-        );
-        if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath)) == 0)
-            lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.nodejs.executeNpmInstall.success"));
-        else
-            lse::getSelfPluginInstance().getLogger().error(
-                tr("llse.loader.nodejs.executeNpmInstall.fail", fmt::arg("code", exitCode))
-            );
-    }
+//     // Run "npm install" if needed
+//     if (NodeJsHelper::doesPluginPackHasDependency(dirPath)
+//         && !filesystem::exists(filesystem::path(dirPath) / "node_modules")) {
+//         int exitCode = 0;
+//         lse::getSelfPluginInstance().getLogger().info(
+//             tr("llse.loader.nodejs.executeNpmInstall.start",
+//                fmt::arg("name", ll::string_utils::u8str2str(filesystem::path(dirPath).filename().u8string())))
+//         );
+//         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath)) == 0)
+//             lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.nodejs.executeNpmInstall.success"));
+//         else
+//             lse::getSelfPluginInstance().getLogger().error(
+//                 tr("llse.loader.nodejs.executeNpmInstall.fail", fmt::arg("code", exitCode))
+//             );
+//     }
 
-    // Create engine & Load plugin
-    ScriptEngine*      engine = nullptr;
-    node::Environment* env    = nullptr;
-    try {
-        engine = EngineManager::newEngine();
-        {
-            EngineScope enter(engine);
-            // setData
-            ENGINE_OWN_DATA()->pluginName                                     = pluginName;
-            ENGINE_OWN_DATA()->pluginFileOrDirPath                            = dirPath;
-            ENGINE_OWN_DATA()->lse::getSelfPluginInstance().getLogger().title = pluginName;
-            // bindAPIs
-            BindAPIs(engine);
-        }
-        if (!NodeJsHelper::loadPluginCode(engine, entryPath, dirPath)) throw "Uncaught exception thrown in code";
+//     // Create engine & Load plugin
+//     ScriptEngine*      engine = nullptr;
+//     node::Environment* env    = nullptr;
+//     try {
+//         engine = EngineManager::newEngine();
+//         {
+//             EngineScope enter(engine);
+//             // setData
+//             ENGINE_OWN_DATA()->pluginName                                     = pluginName;
+//             ENGINE_OWN_DATA()->pluginFileOrDirPath                            = dirPath;
+//             ENGINE_OWN_DATA()->lse::getSelfPluginInstance().getLogger().title = pluginName;
+//             // bindAPIs
+//             BindAPIs(engine);
+//         }
+//         if (!NodeJsHelper::loadPluginCode(engine, entryPath, dirPath)) throw "Uncaught exception thrown in code";
 
-        if (!PluginManager::getPlugin(pluginName)) {
-            // Plugin did't register itself. Help to register it
-            string                   description = pluginName;
-            ll::data::Version        ver(1, 0, 0);
-            std::map<string, string> others = {};
+//         if (!PluginManager::getPlugin(pluginName)) {
+//             // Plugin did't register itself. Help to register it
+//             string                   description = pluginName;
+//             ll::data::Version        ver(1, 0, 0);
+//             std::map<string, string> others = {};
 
-            // Read information from package.json
-            try {
-                std::filesystem::path packageFilePath = std::filesystem::path(dirPath) / "package.json";
-                std::ifstream         file(UTF82String(packageFilePath.make_preferred().u8string()));
-                nlohmann::json        j;
-                file >> j;
-                file.close();
+//             // Read information from package.json
+//             try {
+//                 std::filesystem::path packageFilePath = std::filesystem::path(dirPath) / "package.json";
+//                 std::ifstream         file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
+//                 nlohmann::json        j;
+//                 file >> j;
+//                 file.close();
 
-                // description
-                if (j.contains("description")) {
-                    description = j["description"].get<std::string>();
-                }
-                // version
-                if (j.contains("version") && j["version"].is_string()) {
-                    ver = ll::data::Version::parse(j["version"].get<std::string>());
-                }
-                // license
-                if (j.contains("license") && j["license"].is_string()) {
-                    others["License"] = j["license"].get<std::string>();
-                } else if (j["license"].is_object() && j["license"].contains("url")) {
-                    others["License"] = j["license"]["url"].get<std::string>();
-                }
-                // repository
-                if (j.contains("repository") && j["repository"].is_string()) {
-                    others["Repository"] = j["repository"].get<std::string>();
-                } else if (j["repository"].is_object() && j["repository"].contains("url")) {
-                    others["Repository"] = j["repository"]["url"].get<std::string>();
-                }
-            } catch (...) {
-                lse::getSelfPluginInstance().getLogger().warn(
-                    tr("llse.loader.nodejs.register.fail", fmt::arg("name", pluginName))
-                );
-            }
+//                 // description
+//                 if (j.contains("description")) {
+//                     description = j["description"].get<std::string>();
+//                 }
+//                 // version
+//                 if (j.contains("version") && j["version"].is_string()) {
+//                     ver = ll::data::Version::parse(j["version"].get<std::string>());
+//                 }
+//                 // license
+//                 if (j.contains("license") && j["license"].is_string()) {
+//                     others["License"] = j["license"].get<std::string>();
+//                 } else if (j["license"].is_object() && j["license"].contains("url")) {
+//                     others["License"] = j["license"]["url"].get<std::string>();
+//                 }
+//                 // repository
+//                 if (j.contains("repository") && j["repository"].is_string()) {
+//                     others["Repository"] = j["repository"].get<std::string>();
+//                 } else if (j["repository"].is_object() && j["repository"].contains("url")) {
+//                     others["Repository"] = j["repository"]["url"].get<std::string>();
+//                 }
+//             } catch (...) {
+//                 lse::getSelfPluginInstance().getLogger().warn(
+//                     tr("llse.loader.nodejs.register.fail", fmt::arg("name", pluginName))
+//                 );
+//             }
 
-            // register
-            PluginManager::registerPlugin(dirPath, pluginName, description, ver, others);
-        }
+//             // register
+//             PluginManager::registerPlugin(dirPath, pluginName, description, ver, others);
+//         }
 
-        // Call necessary events when at hot load
-        if (isHotLoad) LLSECallEventsOnHotLoad(engine);
+//         // Call necessary events when at hot load
+//         if (isHotLoad) LLSECallEventsOnHotLoad(engine);
 
-        // Success
-        lse::getSelfPluginInstance().getLogger().info(
-            tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Node.js"), fmt::arg("name", pluginName))
-        );
-        return true;
-    } catch (const Exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-        if (engine) {
-            EngineScope enter(engine);
-            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
-            PrintException(e);
-            ExitEngineScope exit;
+//         // Success
+//         lse::getSelfPluginInstance().getLogger().info(
+//             tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Node.js"), fmt::arg("name", pluginName))
+//         );
+//         return true;
+//     } catch (const Exception& e) {
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
+//         if (engine) {
+//             EngineScope enter(engine);
+//             lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+//             PrintException(e);
+//             ExitEngineScope exit;
 
-            // NodeJs use his own setTimeout, so no need to remove
-            // LLSERemoveTimeTaskData(engine);
+//             // NodeJs use his own setTimeout, so no need to remove
+//             // LLSERemoveTimeTaskData(engine);
 
-            LLSERemoveAllEventListeners(engine);
-            LLSERemoveCmdRegister(engine);
-            LLSERemoveCmdCallback(engine);
-            LLSERemoveAllExportedFuncs(engine);
+//             LLSERemoveAllEventListeners(engine);
+//             LLSERemoveCmdRegister(engine);
+//             LLSERemoveCmdCallback(engine);
+//             LLSERemoveAllExportedFuncs(engine);
 
-            engine->getData().reset();
-            EngineManager::unregisterEngine(engine);
-        }
-        if (engine) {
-            NodeJsHelper::stopEngine(engine);
-        }
-    } catch (const std::exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
-    } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-    }
-    return false;
-}
+//             engine->getData().reset();
+//             EngineManager::unregisterEngine(engine);
+//         }
+//         if (engine) {
+//             NodeJsHelper::stopEngine(engine);
+//         }
+//     } catch (const std::exception& e) {
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
+//         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
+//     } catch (...) {
+//         lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
+//     }
+//     return false;
+// }
 
 std::string findEntryScript(const std::string& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
@@ -380,7 +386,7 @@ std::string findEntryScript(const std::string& dirPath) {
     if (!std::filesystem::exists(packageFilePath)) return "";
 
     try {
-        std::ifstream  file(UTF82String(packageFilePath.make_preferred().u8string()));
+        std::ifstream  file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
         nlohmann::json j;
         file >> j;
         std::string entryFile = "index.js";
@@ -389,7 +395,7 @@ std::string findEntryScript(const std::string& dirPath) {
         }
         auto entryPath = std::filesystem::canonical(dirPath_obj / std::filesystem::path(entryFile));
         if (!std::filesystem::exists(entryPath)) return "";
-        else return UTF82String(entryPath.u8string());
+        else return ll::string_utils::u8str2str(entryPath.u8string());
     } catch (...) {
         return "";
     }
@@ -402,7 +408,7 @@ std::string getPluginPackageName(const std::string& dirPath) {
     if (!std::filesystem::exists(packageFilePath)) return "";
 
     try {
-        std::ifstream  file(UTF82String(packageFilePath.make_preferred().u8string()));
+        std::ifstream  file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
         nlohmann::json j;
         file >> j;
         std::string packageName = "";
@@ -422,7 +428,7 @@ bool doesPluginPackHasDependency(const std::string& dirPath) {
     if (!std::filesystem::exists(packageFilePath)) return false;
 
     try {
-        std::ifstream  file(UTF82String(packageFilePath.make_preferred().u8string()));
+        std::ifstream  file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
         nlohmann::json j;
         file >> j;
         if (j.contains("dependencies")) {
@@ -436,7 +442,7 @@ bool doesPluginPackHasDependency(const std::string& dirPath) {
 
 bool processConsoleNpmCmd(const std::string& cmd) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    if (StartsWith(cmd, "npm ")) {
+    if (cmd.starts_with("npm ")) {
         executeNpmCommand(cmd);
         return false;
     } else return true;
@@ -461,15 +467,16 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
     if (!setup) {
-        for (const std::string& err : errors) lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup
-        Error: {}", err.c_str()); return -1;
+        for (const std::string& err : errors)
+            lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
+        return -1;
     }
     v8::Isolate*       isolate   = setup->isolate();
     node::Environment* env       = setup->env();
     int                exit_code = 0;
 
     // Process workingDir
-    workingDir = ReplaceStr(workingDir, "\\", "/");
+    workingDir = ll::string_utils::replaceAll(workingDir, "\\", "/");
 
     {
         using namespace v8;

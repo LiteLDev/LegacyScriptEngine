@@ -311,8 +311,8 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
         string slot = args[0].toStr();
         auto   res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
 
-        if (!res) return Local<Value>();
-        return ObjectiveClass::newObjective(res);
+        if (!res) return Boolean::newBoolean(false);
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in ClearDisplayObjective");
 }

@@ -44,7 +44,6 @@ constexpr auto PluginManagerName = "lse-python";
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
 
 #include "legacy/main/NodeJsHelper.h"
-constexpr auto BaseLibFileName   = "BaseLib.js";
 constexpr auto PluginManagerName = "lse-nodejs";
 
 #endif
@@ -97,6 +96,27 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             std::error_code ec;
             std::filesystem::remove(std::filesystem::path(dependTmpFilePath), ec);
         }
+    }
+#endif
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;
+    std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string());
+    if (entryPath.empty()) return false;
+    std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string());
+
+    // Run "npm install" if needed
+    if (NodeJsHelper::doesPluginPackHasDependency(dirPath.string())
+        && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
+        int exitCode = 0;
+        lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.start"_tr(
+            fmt::arg("name", ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string()))
+        ));
+        if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath.string())) == 0)
+            lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.success"_tr());
+        else
+            lse::getSelfPluginInstance().getLogger().error(
+                "llse.loader.nodejs.executeNpmInstall.fail"_tr(fmt::arg("code", exitCode))
+            );
     }
 #endif
 

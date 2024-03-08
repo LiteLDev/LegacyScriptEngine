@@ -43,6 +43,12 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
+#include "legacy/main/NodeJsHelper.h"
+
+#endif
+
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void                  BindAPIs(script::ScriptEngine* engine);
 void                  InitBasicEventListeners();
@@ -126,9 +132,11 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
         loadConfig(self, config);
 
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         if (config.migratePlugins) {
             migratePlugins(*pluginManager);
         }
+#endif
 
         registerPluginManager(pluginManager);
 

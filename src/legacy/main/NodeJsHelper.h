@@ -20,7 +20,6 @@ script::ScriptEngine* getEngine(node::Environment* env);
 
 bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath,
                     std::string pluginDirPath); // raw
-bool loadNodeJsPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad = false);
 
 std::string findEntryScript(const std::string& dirPath);
 std::string getPluginPackageName(const std::string& dirPath);

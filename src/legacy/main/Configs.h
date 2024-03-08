@@ -18,6 +18,12 @@
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
+#define LLSE_BACKEND_NODEJS
+
+#endif
+
 ///////////////////////// Configs /////////////////////////
 
 // Plugins & Base libs path

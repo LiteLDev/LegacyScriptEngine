@@ -14,6 +14,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/events/EventHooks.h"
+#include "legacy/main/NodeJsHelper.h"
 #include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
@@ -869,7 +870,7 @@ void InitBasicEventListeners() {
                 return;
             }
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-            if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) {
+            if (!NodeJsHelper::processConsoleNpmCmd(ev.commandContext().mCommand)) {
                 ev.cancel();
                 return;
             }

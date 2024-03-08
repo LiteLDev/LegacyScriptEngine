@@ -1,3 +1,4 @@
+#include <ll/api/chrono/GameChrono.h>
 #pragma warning(disable : 4251)
 #include "main/Configs.h"
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
@@ -10,9 +11,9 @@
 #include "main/Global.h"
 #include "main/NodeJsHelper.h"
 
-#include <llapi/LLAPI.h>
-#include <llapi/ScheduleAPI.h>
-#include <llapi/utils/StringHelper.h>
+#include <ll/api/schedule/Scheduler.h>
+#include <ll/api/schedule/Task.h>
+#include <ll/api/utils/StringUtils.h>
 #include <uv/uv.h>
 #include <v8/v8.h>
 
@@ -29,14 +30,14 @@ std::unique_ptr<node::MultiIsolatePlatform>                                     
 std::unordered_map<script::ScriptEngine*, node::Environment*>                             environments;
 std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
     new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
-std::unordered_map<node::Environment*, bool>         isRunning;
-std::unordered_map<node::Environment*, ScheduleTask> uvLoopTask;
+std::unordered_map<node::Environment*, bool>                                        isRunning;
+std::unordered_map<node::Environment*, ll::schedule::Task<ll::chrono::ServerClock>> uvLoopTask;
 
 bool initNodeJs() {
     // Init NodeJs
     WCHAR buf[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, buf);
-    auto  path  = wstr2str(buf) + "\\bedrock_server_mod.exe";
+    auto  path  = ll::string_utils::wstr2str(buf) + "\\bedrock_server_mod.exe";
     char* cPath = (char*)path.c_str();
     uv_setup_args(1, &cPath);
     args = {path};
@@ -84,9 +85,9 @@ script::ScriptEngine* newEngine() {
     v8::Isolate*       isolate = setup->isolate();
     node::Environment* env     = setup->env();
 
-    v8::Locker         locker(isolate);
-    v8::Isolate::Scope isolate_scope(isolate);
-    v8::HandleScope    handle_scope(isolate);
+    v8::Locker         locker(v8::Isolate);
+    v8::Isolate::Scope isolate_scope(v8::Isolate);
+    v8::HandleScope    handle_scope(v8::Isolate);
     v8::Context::Scope context_scope(setup->context());
 
     script::ScriptEngine* engine = new script::ScriptEngineImpl({}, isolate, setup->context(), false);

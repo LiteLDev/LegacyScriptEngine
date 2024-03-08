@@ -31,6 +31,9 @@ elseif is_config("backend", "python") then
     add_requires("scriptx main", {configs={backend="Python"}})
     add_requires("microsoft-detours")
 
+elseif is_config("backend", "nodejs") then
+    add_requires("scriptx main", {configs={backend="V8"}})
+
 end
 
 if not has_config("vs_runtime") then
@@ -39,7 +42,7 @@ end
 
 option("backend")
     set_default("lua")
-    set_values("lua", "quickjs", "python")
+    set_values("lua", "quickjs", "python", "nodejs")
 
 package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
@@ -113,6 +116,12 @@ target("legacy-script-engine")
         )
         set_basename("legacy-script-engine-python")
         add_packages("microsoft-detours")
+
+    elseif is_config("backend", "nodejs") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
+        )
+        set_basename("legacy-script-engine-nodejs")
 
     end
 

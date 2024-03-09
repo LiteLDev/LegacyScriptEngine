@@ -63,8 +63,8 @@ PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
 auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
-    // std::string           entryPath = PythonHelper::findEntryScript(dirPath.string()); // Plugin entry
+    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;    // Plugin path
+    std::string           entryPath = PythonHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;
     // std::string pluginName = PythonHelper::getPluginPackageName(dirPath.string()); // Plugin name
 
@@ -147,9 +147,8 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
                 scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
             }
             // add plugin source dir to sys.path
-            string sourceDirFormatted = ll::string_utils::u8str2str(
-                std::filesystem::canonical(std::filesystem::path(dirPath).make_preferred()).u8string()
-            );
+            string sourceDirFormatted =
+                ll::string_utils::u8str2str(std::filesystem::canonical(dirPath.make_preferred()).u8string());
             scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
 
             // set __file__ and __name__

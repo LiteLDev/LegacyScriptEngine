@@ -34,7 +34,7 @@ bool EngineManager::registerEngine(ScriptEngine* engine) {
 ScriptEngine* EngineManager::newEngine(string pluginName, bool isHotLoad) {
     ScriptEngine* engine = nullptr;
 
-#if defined(LLSE_BACKEND_NODEJS)
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
     engine = NodeJsHelper::newEngine();
 #elif !defined(SCRIPTX_BACKEND_WEBASSEMBLY)
     engine = new ScriptEngineImpl();

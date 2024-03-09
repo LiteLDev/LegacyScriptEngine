@@ -12,7 +12,7 @@
 
 #include <string>
 
-#ifdef LLSE_BACKEND_PYTHON
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
 #include "PythonHelper.h"
 #endif
 
@@ -22,7 +22,7 @@ extern ScriptEngine* debugEngine;
 #define OUTPUT_DEBUG_SIGN() std::cout << "> " << std::flush
 
 bool ProcessDebugEngine(const std::string& cmd) {
-#ifdef LLSE_BACKEND_PYTHON
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     // process python debug seperately
     return PythonHelper::processPythonDebugEngine(cmd);
 #endif

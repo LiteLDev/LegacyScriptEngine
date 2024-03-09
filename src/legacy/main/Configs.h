@@ -12,6 +12,18 @@
 
 #endif
 
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+
+#define LLSE_BACKEND_PYTHON
+
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
+#define LLSE_BACKEND_NODEJS
+
+#endif
+
 ///////////////////////// Configs /////////////////////////
 
 // Plugins & Base libs path
@@ -20,7 +32,6 @@
 
 // Plugin package information
 #define LLSE_PLUGIN_PACKAGE_EXTENSION          ".llplugin"
-#define LLSE_PLUGIN_PACKAGE_TEMP_DIR           "./plugins/LeviLamina/temp"
 #define LLSE_PLUGIN_PACKAGE_UNCOMPRESS_TIMEOUT 30000
 
 // Current language information

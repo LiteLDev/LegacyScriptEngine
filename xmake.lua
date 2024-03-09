@@ -22,10 +22,17 @@ add_requires(
 add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
-    add_requires("scriptx 3.2.0", {configs={backend="Lua"}})
+    add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
-    add_requires("scriptx 3.2.0", {configs={backend="QuickJs"}})
+    add_requires("scriptx main", {configs={backend="QuickJs"}})
+
+elseif is_config("backend", "python") then
+    add_requires("scriptx main", {configs={backend="Python"}})
+    add_requires("microsoft-detours")
+
+elseif is_config("backend", "nodejs") then
+    add_requires("scriptx main", {configs={backend="V8"}})
 
 end
 
@@ -35,7 +42,7 @@ end
 
 option("backend")
     set_default("lua")
-    set_values("lua", "quickjs")
+    set_values("lua", "quickjs", "python", "nodejs")
 
 package("more-events")
     add_urls("https://github.com/LiteLDev/MoreEvents.git")
@@ -55,7 +62,8 @@ target("legacy-script-engine")
         "_HAS_CXX23=1", -- To enable C++23 features.
         "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
         "NOMINMAX", -- To avoid conflicts with std::min and std::max.
-        "UNICODE" -- To enable Unicode support.
+        "UNICODE", -- To enable Unicode support.
+        "_AMD64_"
     )
     add_files(
         "src/**.cpp"
@@ -101,6 +109,19 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
         )
         set_basename("legacy-script-engine-quickjs")
+
+    elseif is_config("backend", "python") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
+        )
+        set_basename("legacy-script-engine-python")
+        add_packages("microsoft-detours")
+
+    elseif is_config("backend", "nodejs") then
+        add_defines(
+            "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
+        )
+        set_basename("legacy-script-engine-nodejs")
 
     end
 

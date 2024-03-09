@@ -1,26 +1,23 @@
 #pragma warning(disable : 4251)
 #include "Configs.h"
-#if defined(LLSE_BACKEND_PYTHON)
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
 #include "Global.h"
-#include "Loader.h"
 #include "PythonHelper.h"
-#include "api/CommandAPI.h"
-#include "api/CommandCompatibleAPI.h"
-#include "api/EventAPI.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
+#include "legacy/api/CommandAPI.h"
+#include "legacy/api/CommandCompatibleAPI.h"
+#include "legacy/api/EventAPI.h"
+#include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
 #include "utils/Utils.h"
 
 #include <Python.h>
-#include <detours/detours.h>
+#include <detours.h>
 #include <engine/TimeTaskSystem.h>
-#include <llapi/LLAPI.h>
-#include <llapi/ScheduleAPI.h>
-#include <llapi/utils/StringHelper.h>
-#include <llapi/utils/WinHelper.h>
-#include <tomlplusplus/toml.hpp>
+#include <filesystem>
+#include <toml.h>
 
 #define PIP_EXECUTE_TIMEOUT 1800 * 1000
 
@@ -46,12 +43,12 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(L".\\plugins\\lib\\python-env");
+        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getPluginDir());
         script::py_interop::setModuleSearchPaths({
-            L".\\plugins\\lib\\python-env\\python310.zip",
-            L".\\plugins\\lib\\python-env\\DLLs",
-            L".\\plugins\\lib\\python-env\\Lib",
-            L".\\plugins\\lib\\python-env\\Lib\\site-packages",
+            lse::getSelfPluginInstance().getPluginDir() / "python310.zip",
+            lse::getSelfPluginInstance().getPluginDir() / "DLLs",
+            lse::getSelfPluginInstance().getPluginDir() / "Lib",
+            lse::getSelfPluginInstance().getPluginDir() / "site-packages",
         });
         pythonInited = true;
     }
@@ -61,7 +58,7 @@ bool initPythonRuntime() {
 bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath) {
     // TODO: add import path to sys.path
     try {
-        engine->loadFile(entryScriptPath);
+        engine->loadFile(String::newString(entryScriptPath));
     } catch (const Exception& e1) {
         // Fail
         lse::getSelfPluginInstance().getLogger().error("Fail in Loading Script Plugin!\n");
@@ -70,214 +67,23 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
     return true;
 }
 
-// Load Python plugin
-// This function must be called in correct backend
-bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad) {
-    // "dirPath" is public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR) or normal
-    // plugin dir "packagePath" will point to plugin package path if
-    // isUncompressedFirstTime == true
-    if (dirPath == LLSE_PLUGIN_PACKAGE_TEMP_DIR) {
-        // Need to copy from temp dir to installed dir
-        if (std::filesystem::exists(LLSE_PLUGIN_PACKAGE_TEMP_DIR "/pyproject.toml")) {
-            auto pluginName = PythonHelper::getPluginPackageName(LLSE_PLUGIN_PACKAGE_TEMP_DIR);
-            if (pluginName.empty()) {
-                pluginName = UTF82String(filesystem::path(packagePath).filename().replace_extension("").u8string());
-            }
-            auto dest = std::filesystem::path(LLSE_PLUGINS_ROOT_DIR).append(pluginName);
-
-            // copy files
-            std::error_code ec;
-            // if (filesystem::exists(dest))
-            //     filesystem::remove_all(dest, ec);
-            std::filesystem::copy(
-                LLSE_PLUGIN_PACKAGE_TEMP_DIR "/",
-                dest,
-                filesystem::copy_options::overwrite_existing | filesystem::copy_options::recursive,
-                ec
-            );
-
-            // reset dirPath
-            dirPath = UTF82String(dest.u8string());
-        }
-        // remove temp dir
-        std::error_code ec;
-        std::filesystem::remove_all(LLSE_PLUGIN_PACKAGE_TEMP_DIR, ec);
-    }
-
-    std::string entryPath = PythonHelper::findEntryScript(dirPath);
-    if (entryPath.empty()) return false;
-    std::string pluginName = PythonHelper::getPluginPackageName(dirPath);
-
-    // Run "pip install" if needed
-    auto realPackageInstallDir = (filesystem::path(dirPath) / "site-packages").make_preferred();
-    if (!filesystem::exists(realPackageInstallDir)) {
-        std::string dependTmpFilePath = PythonHelper::getPluginPackDependencyFilePath(dirPath);
-        if (!dependTmpFilePath.empty()) {
-            int exitCode = 0;
-            lse::getSelfPluginInstance().getLogger().info(
-                tr("llse.loader.python.executePipInstall.start",
-                   fmt::arg("name", UTF82String(filesystem::path(dirPath).filename().u8string())))
-            );
-
-            if ((exitCode = PythonHelper::executePipCommand(
-                     "pip install -r \"" + dependTmpFilePath + "\" -t \""
-                     + UTF82String(realPackageInstallDir.u8string()) + "\" --disable-pip-version-check"
-                 ))
-                == 0) {
-                lse::getSelfPluginInstance().getLogger().info(tr("llse.loader.python.executePipInstall.success"));
-            } else
-                lse::getSelfPluginInstance().getLogger().error(
-                    tr("llse.loader.python.executePipInstall.fail", fmt::arg("code", exitCode))
-                );
-
-            // remove temp dependency file after installation
-            std::error_code ec;
-            std::filesystem::remove(std::filesystem::path(dependTmpFilePath), ec);
-        }
-    }
-
-    // Create engine & Load plugin
-    ScriptEngine* engine = nullptr;
-    try {
-        engine = EngineManager::newEngine();
-        EngineScope enter(engine);
-
-        // setData
-        ENGINE_OWN_DATA()->pluginName          = pluginName;
-        ENGINE_OWN_DATA()->pluginFileOrDirPath = dirPath;
-        ENGINE_OWN_DATA()->logger.title        = pluginName;
-
-        try {
-            engine->eval("import sys as _llse_py_sys_module");
-            std::error_code ec;
-
-            // add plugin-own site-packages to sys.path
-            string pluginSitePackageFormatted =
-                UTF82String(std::filesystem::canonical(realPackageInstallDir.make_preferred(), ec).u8string());
-            if (!ec) {
-                engine->eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
-            }
-            // add plugin source dir to sys.path
-            string sourceDirFormatted =
-                UTF82String(std::filesystem::canonical(filesystem::path(dirPath).make_preferred()).u8string());
-            engine->eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
-
-            // set __file__ and __name__
-            string entryPathFormatted =
-                UTF82String(std::filesystem::canonical(filesystem::path(entryPath).make_preferred()).u8string());
-            engine->set("__file__", entryPathFormatted);
-            // engine->set("__name__", String::newString("__main__"));
-        } catch (const Exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("Fail in setting sys.path!\n");
-            throw;
-        }
-
-        // bindAPIs
-        try {
-            BindAPIs(engine);
-        } catch (const Exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("Fail in Binding APIs!\n");
-            throw;
-        }
-
-        // Load depend libs
-        try {
-            for (auto& [path, content] : depends) {
-                if (!content.empty()) engine->eval(content, path);
-            }
-        } catch (const Exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("Fail in Loading Dependence Lib!\n");
-            throw;
-        }
-
-        // Load script
-        if (!PythonHelper::loadPluginCode(engine, entryPath, dirPath)) throw "Uncaught exception thrown in code";
-
-        if (!PluginManager::getPlugin(pluginName)) {
-            // Plugin did't register itself. Help to register it
-            string                   description = pluginName;
-            ll::data::Version        ver(1, 0, 0);
-            std::map<string, string> others = {};
-
-            // Read information from pyproject.toml
-            try {
-                std::filesystem::path packageFilePath    = std::filesystem::path(dirPath) / "pyproject.toml";
-                string                packageFilePathStr = UTF82String(packageFilePath.make_preferred().u8string());
-
-                toml::table configData  = toml::parse_file(packageFilePathStr);
-                auto        projectNode = configData["project"];
-
-                // description
-                if (projectNode["description"]) {
-                    description = *(projectNode["description"].value<std::string>());
-                }
-
-                // version
-                if (projectNode["version"]) {
-                    ver = ll::data::Version::parse(*(projectNode["version"].value<std::string>()));
-                }
-
-                // TODO: more information to read
-            } catch (...) {}
-
-            // register
-            PluginManager::registerPlugin(dirPath, pluginName, description, ver, others);
-        }
-
-        // Call necessary events when at hot load
-        if (isHotLoad) LLSECallEventsOnHotLoad(engine);
-
-        // Success
-        lse::getSelfPluginInstance().getLogger().info(
-            tr("llse.loader.loadMain.loadedPlugin", fmt::arg("type", "Python"), fmt::arg("name", pluginName))
-        );
-        return true;
-    } catch (const Exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-        if (engine) {
-            EngineScope enter(engine);
-            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);
-            PrintException(e);
-            ExitEngineScope exit;
-
-            LLSERemoveTimeTaskData(engine);
-            LLSERemoveAllEventListeners(engine);
-            LLSERemoveCmdRegister(engine);
-            LLSERemoveCmdCallback(engine);
-            LLSERemoveAllExportedFuncs(engine);
-
-            engine->getData().reset();
-            EngineManager::unregisterEngine(engine);
-        }
-        if (engine) {
-            engine->destroy();
-        }
-    } catch (const std::exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
-    } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to load " + dirPath + "!");
-    }
-    return false;
-}
-
 std::string findEntryScript(const std::string& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path entryFilePath = dirPath_obj / "__init__.py";
     if (!std::filesystem::exists(entryFilePath)) return "";
-    else return UTF82String(entryFilePath.u8string());
+    else return ll::string_utils::u8str2str(entryFilePath.u8string());
 }
 
 std::string getPluginPackageName(const std::string& dirPath) {
     auto        dirPath_obj       = std::filesystem::path(dirPath);
-    std::string defaultReturnName = UTF82String(filesystem::path(dirPath).filename().u8string());
+    std::string defaultReturnName = ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string());
 
     std::filesystem::path packageFilePath = dirPath_obj / std::filesystem::path("pyproject.toml");
     if (!std::filesystem::exists(packageFilePath)) return defaultReturnName;
 
     try {
-        string      packageFilePathStr = UTF82String(packageFilePath.make_preferred().u8string());
+        string      packageFilePathStr = ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string());
         toml::table configData         = toml::parse_file(packageFilePathStr);
         auto        projectNode        = configData["project"];
         if (!projectNode["name"]) return defaultReturnName;
@@ -305,7 +111,7 @@ std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
         // copy dependencies from pyproject.toml to _requirements_llse_temp.txt
         std::string dependsAdded = "";
         try {
-            string      packageFilePathStr = UTF82String(packageFilePath.make_preferred().u8string());
+            string      packageFilePathStr = ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string());
             toml::table configData         = toml::parse_file(packageFilePathStr);
             auto        projectNode        = configData["project"];
             if (projectNode["dependencies"]) {
@@ -318,14 +124,17 @@ std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
         } catch (...) {}
 
         if (!dependsAdded.empty()) {
-            std::ofstream fout(UTF82String(requirementsTmpFilePath.make_preferred().u8string()), std::ios::app);
+            std::ofstream fout(
+                ll::string_utils::u8str2str(requirementsTmpFilePath.make_preferred().u8string()),
+                std::ios::app
+            );
             fout << dependsAdded;
             fout.close();
         }
     }
 
     if (std::filesystem::exists(requirementsTmpFilePath))
-        return UTF82String(requirementsTmpFilePath.make_preferred().u8string());
+        return ll::string_utils::u8str2str(requirementsTmpFilePath.make_preferred().u8string());
     else return "";
 }
 
@@ -407,8 +216,8 @@ bool processPythonDebugEngine(const std::string& cmd) {
 }
 
 bool processConsolePipCmd(const std::string& cmd) {
-#ifdef LLSE_BACKEND_PYTHON
-    if (StartsWith(cmd, "pip ")) {
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+    if (ll::string_utils::splitByPattern(cmd, " ")[0] == "pip") {
         PythonHelper::executePipCommand(cmd);
         return false;
     } else return true;
@@ -419,10 +228,10 @@ bool processConsolePipCmd(const std::string& cmd) {
 
 // if no -t in cmd, packages will install to default global embedding
 // site-package dir
-// (./plugins/lib/python-env/Lib/site-packages)
+// (./plugins/legacy-script-engine/lib/python-env/Lib/site-packages)
 int executePipCommand(std::string cmd) {
     if (cmd.find("--disable-pip-version-check") == std::string::npos) cmd += " --disable-pip-version-check";
-    cmd = ".\\plugins\\lib\\python-env\\python.exe -m " + cmd;
+    cmd = (lse::getSelfPluginInstance().getPluginDir() / "python.exe").string() + " -m" + cmd;
 
     SECURITY_ATTRIBUTES sa;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);

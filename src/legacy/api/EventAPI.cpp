@@ -14,6 +14,8 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/events/EventHooks.h"
+#include "legacy/main/NodeJsHelper.h"
+#include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
@@ -867,13 +869,13 @@ void InitBasicEventListeners() {
                 ev.cancel();
                 return;
             }
-#ifdef LLSE_BACKEND_NODEJS
-            if (!NodeJsHelper::processConsoleNpmCmd(ev.mCommand)) {
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+            if (!NodeJsHelper::processConsoleNpmCmd(ev.commandContext().mCommand)) {
                 ev.cancel();
                 return;
             }
-#elif defined(LLSE_BACKEND_PYTHON)
-            if (!PythonHelper::processConsolePipCmd(ev.mCommand)) {
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
+            if (!PythonHelper::processConsolePipCmd(ev.commandContext().mCommand)) {
                 ev.cancel();
                 return;
             }
@@ -994,7 +996,7 @@ void InitBasicEventListeners() {
     using namespace ll::chrono_literals;
 
     scheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
-#ifndef LLSE_BACKEND_NODEJS
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         try {
             std::list<ScriptEngine*> tmpList;
             {

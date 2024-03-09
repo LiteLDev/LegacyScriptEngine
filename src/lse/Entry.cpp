@@ -6,18 +6,22 @@
 #include "legacy/api/MoreGlobal.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
+#include "legacy/main/PythonHelper.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <fmt/format.h>
 #include <functional>
 #include <ll/api/Config.h>
+#include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/plugin/NativePlugin.h>
 #include <ll/api/plugin/PluginManagerRegistry.h>
 #include <ll/api/utils/ErrorUtils.h>
+#include <ll/api/utils/StringUtils.h>
 #include <memory>
+#include <processenv.h>
 #include <stdexcept>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
@@ -29,6 +33,19 @@ constexpr auto BaseLibFileName = "BaseLib.lua";
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
 
 constexpr auto BaseLibFileName = "BaseLib.js";
+
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+
+#include "legacy/main/PythonHelper.h"
+constexpr auto BaseLibFileName = "BaseLib.py";
+
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
+#include "legacy/main/NodeJsHelper.h"
 
 #endif
 
@@ -63,9 +80,9 @@ auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
 
     try {
         logger.info("enabling...");
-
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         RegisterDebugCommand();
-
+#endif
         logger.info("enabled");
 
         return true;
@@ -81,6 +98,17 @@ void initializeLegacyStuff() {
     InitGlobalShareData();
     InitSafeGuardRecord();
     EconomySystem::init();
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+    // This fix is used for Python3.10's bug:
+    // The thread will freeze when creating a new engine while another thread is blocking to read stdin
+    // Side effects: sys.stdin cannot be used after this patch.
+    // More info to see: https://github.com/python/cpython/issues/83526
+    //
+    // Attention! When CPython is upgraded, this fix must be re-adapted or removed!!
+    //
+    PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
+    PythonHelper::initPythonRuntime();
+#endif
 
     InitBasicEventListeners();
     InitMessageSystem();
@@ -104,9 +132,11 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
         loadConfig(self, config);
 
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         if (config.migratePlugins) {
             migratePlugins(*pluginManager);
         }
+#endif
 
         registerPluginManager(pluginManager);
 
@@ -133,6 +163,7 @@ void loadConfig(const ll::plugin::NativePlugin& self, Config& config) {
 }
 
 void loadDebugEngine(const ll::plugin::NativePlugin& self) {
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto& scriptEngine = *EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);
@@ -148,6 +179,7 @@ void loadDebugEngine(const ll::plugin::NativePlugin& self) {
     scriptEngine.eval(baseLibContent.value());
 
     debugEngine = &scriptEngine;
+#endif
 }
 
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) {

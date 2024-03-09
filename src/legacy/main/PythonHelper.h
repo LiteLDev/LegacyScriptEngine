@@ -1,5 +1,5 @@
 #pragma once
-#if defined(LLSE_BACKEND_PYTHON)
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
 #include "Configs.h"
 
 #include <ScriptX/ScriptX.h>
@@ -13,7 +13,6 @@ bool initPythonRuntime();
 
 // raw, will throw exception if fail
 bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath);
-bool loadPythonPlugin(std::string dirPath, const std::string& packagePath, bool isHotLoad = false);
 
 std::string findEntryScript(const std::string& dirPath);
 std::string getPluginPackageName(const std::string& dirPath);

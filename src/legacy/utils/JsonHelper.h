@@ -2,6 +2,7 @@
 #include "legacyapi/utils/FileHelper.h"
 #include "ll/api/Logger.h"
 #include "ll/api/i18n/I18n.h"
+#include "ll/api/io/FileUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
 
@@ -18,13 +19,13 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             std::size_t pos = path.find_last_of('/');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);
-                CreateDirs(dirPath);
+                std::filesystem::create_directory(dirPath);
             }
         } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LeviLamina\\LeviLamina.json
             std::size_t pos = path.find_last_of('\\');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);
-                CreateDirs(dirPath);
+                std::filesystem::create_directory(dirPath);
             }
         } else {
             lse::getSelfPluginInstance().getLogger().error("Fail in create json file!");
@@ -49,7 +50,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
         jsonFile.close();
     } else {
         // 已存在
-        auto jsonTexts = ReadAllFile(path);
+        auto jsonTexts = ll::file_utils::readFile(path);
         if (!jsonTexts) {
             jsonConf = ordered_json::object();
         } else {

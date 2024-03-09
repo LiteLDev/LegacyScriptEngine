@@ -533,7 +533,7 @@ LL_TYPE_INSTANCE_HOOK(
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
-    origin(region, source, pos, explosionRadius, fire, breaksBlocks, maxResistance, allowUnderwater);
+    return origin(region, source, pos, explosionRadius, fire, breaksBlocks, maxResistance, allowUnderwater);
 }
 
 LL_TYPE_STATIC_HOOK(

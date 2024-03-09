@@ -132,11 +132,9 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
         loadConfig(self, config);
 
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         if (config.migratePlugins) {
             migratePlugins(*pluginManager);
         }
-#endif
 
         registerPluginManager(pluginManager);
 

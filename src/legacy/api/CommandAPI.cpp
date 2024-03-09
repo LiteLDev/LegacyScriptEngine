@@ -12,7 +12,6 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
-#include "legacyapi/utils/STLHelper.h"
 #include "ll/api/command/CommandRegistrar.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/ServerInfo.h"
@@ -76,7 +75,7 @@ ClassDefine<CommandClass> CommandClassBuilder =
 //////////////////// Helper ////////////////////
 
 bool LLSERemoveCmdCallback(script::ScriptEngine* engine) {
-    erase_if(localShareData->commandCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
+    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
     return true;
 }
 

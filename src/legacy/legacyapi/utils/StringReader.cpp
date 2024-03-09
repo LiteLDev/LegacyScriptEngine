@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+namespace lse::legacy {
+
 //////////////////////////////// CONSTRUCTOR ////////////////////////////////
 
 StringReader::StringReader(const std::string& str)
@@ -257,3 +259,4 @@ void StringReader::skipLettersAndDigits(const std::string& chars) {
 void StringReader::skipWhitespace() { skipUntilNot(" \t\r\n"); }
 
 void StringReader::skipLine() { skipUntil('\n'); }
+} // namespace lse::legacy

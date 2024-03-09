@@ -69,16 +69,10 @@
 #define LLSE_IS_PLUGIN_PACKAGE     1
 #endif
 
-// Language specific information
-#define LLSE_NODEJS_ROOT_DIR "plugins/nodejs"
-#define LLSE_PYTHON_ROOT_DIR "plugins/python"
-
 // All backends information
-#define LLSE_MODULE_TYPE                     LLSE_BACKEND_TYPE
-#define LLSE_VALID_BACKENDS                  std::vector<std::string>({"Js", "Lua", "NodeJs", "Python"})
-#define LLSE_VALID_PLUGIN_EXTENSIONS         std::vector<std::string>({".js", ".lua", "", ".py"})
-#define LLSE_VALID_PLUGIN_PACKAGE_IDENTIFIER std::vector<std::string>({"", "", "package.json", "pyproject.toml"})
-#define LLSE_VALID_BACKENDS_COUNT            LLSE_VALID_BACKENDS.size()
+#define LLSE_MODULE_TYPE          LLSE_BACKEND_TYPE
+#define LLSE_VALID_BACKENDS       std::vector<std::string>({"Js", "Lua", "NodeJs", "Python"})
+#define LLSE_VALID_BACKENDS_COUNT LLSE_VALID_BACKENDS.size()
 
 // Loader information
 #if defined(LLSE_BACKEND_NODEJS)

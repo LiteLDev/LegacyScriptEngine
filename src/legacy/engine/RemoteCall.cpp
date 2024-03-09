@@ -4,7 +4,6 @@
 #include "api/LlAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
-#include "legacyapi/utils/STLHelper.h"
 #include "main/Configs.h"
 
 #include <map>
@@ -146,7 +145,7 @@ bool LLSERemoveAllExportedFuncs(ScriptEngine* engine)
 {
     return LLSERemoveAllExportedFuncs_Debug(engine);
 #if 0
-    erase_if(globalShareData->exportedFuncs, [&engine](auto& data) {
+    std::erase_if(globalShareData->exportedFuncs, [&engine](auto& data) {
         return data.second.engine == engine;
     });
     return true;

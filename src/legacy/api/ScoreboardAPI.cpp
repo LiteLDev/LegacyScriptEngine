@@ -122,6 +122,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
+        return Local<Value>();
     }
     CATCH("Fail in setScore");
 }
@@ -167,6 +168,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
+        return Local<Value>();
     }
     CATCH("Fail in addScore");
 }
@@ -212,6 +214,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
+        return Local<Value>();
     }
     CATCH("Fail in removeScore");
 }

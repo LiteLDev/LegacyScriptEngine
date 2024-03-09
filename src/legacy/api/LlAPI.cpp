@@ -215,6 +215,7 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
             plugins.add(pluginObject);
             return true;
         });
+        return plugins;
     }
     CATCH("Fail in LLAPI");
 }

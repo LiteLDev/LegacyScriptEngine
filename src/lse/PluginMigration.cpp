@@ -1,6 +1,7 @@
 #include "PluginMigration.h"
 
 #include "Entry.h"
+#include "legacyapi/utils/FileHelper.h"
 
 #include <filesystem>
 #include <fmt/format.h>
@@ -31,7 +32,8 @@ constexpr auto PluginExtName = ".py";
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
 
-constexpr auto PluginExtName = ".js";
+#include "main/NodeJsHelper.h"
+constexpr auto PluginExtName = ".llplugin";
 
 #endif
 
@@ -44,7 +46,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
     auto& logger = self.getLogger();
 
-    logger.info("migrating legacy plugin at {}", ll::string_utils::u8str2str(path.u8string()));
+    logger.info("Migrating legacy plugin at {}", ll::string_utils::u8str2str(path.u8string()));
 
     const auto& pluginType = pluginManager.getType();
 
@@ -54,16 +56,16 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(fmt::format(
-            "failed to migrate legacy plugin at {}: {} already exists",
+            "Failed to migrate legacy plugin at {}: {} already exists",
             ll::string_utils::u8str2str(path.u8string()),
             ll::string_utils::u8str2str(pluginDir.u8string())
         ));
     }
-
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
             throw std::runtime_error(
-                fmt::format("failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string()))
+                fmt::format("Failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string()))
             );
         }
     }
@@ -81,6 +83,21 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
                     .name = self.getManifest().name,
                 }, },
     };
+#endif
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+    lse::legacy::UncompressFile(path.string(), pluginDir.string(), 30000);
+    ll::plugin::Manifest manifest{
+        .entry = NodeJsHelper::findEntryScript(path.string()),
+        .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
+        .type  = pluginType,
+        .dependencies =
+            std::unordered_set<ll::plugin::Dependency>{
+                                                       ll::plugin::Dependency{
+                    .name = self.getManifest().name,
+                }, },
+    };
+    std::filesystem::remove(path);
+#endif
 
     auto manifestJson = ll::reflection::serialize<nlohmann::ordered_json>(manifest);
 
@@ -98,7 +115,7 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     std::unordered_set<std::filesystem::path> pluginPaths;
 
     // Discover plugins.
-    logger.info("discovering legacy plugins...");
+    logger.info("Discovering legacy plugins...");
 
     const auto& pluginBaseDir = ll::plugin::getPluginsRoot();
 
@@ -111,19 +128,19 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     }
 
     if (pluginPaths.empty()) {
-        logger.info("no legacy plugin found, skipping migration");
+        logger.info("No legacy plugin found, skipping migration");
 
         return;
     }
 
     // Migrate plugins.
-    logger.info("migrating legacy plugins...");
+    logger.info("Migrating legacy plugins...");
 
     for (const auto& path : pluginPaths) {
         migratePlugin(pluginManager, path);
     }
 
-    logger.warn("legacy plugins have been migrated, please restart the server to load them!");
+    logger.warn("Legacy plugins have been migrated, please restart the server to load them!");
 }
 
 } // namespace lse

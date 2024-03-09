@@ -7,35 +7,7 @@
 #include <filesystem>
 #include <io.h>
 
-std::optional<std::string> ReadAllFile(const std::string& filePath, bool isBinary) {
-    std::ifstream fRead;
-
-    std::ios_base::openmode mode = std::ios_base::in;
-    if (isBinary) mode |= std::ios_base::binary;
-
-    fRead.open(ll::string_utils::str2wstr(filePath), mode);
-    if (!fRead.is_open()) {
-        return std::nullopt;
-    }
-    std::string data((std::istreambuf_iterator<char>(fRead)), std::istreambuf_iterator<char>());
-    fRead.close();
-    return data;
-}
-
-bool WriteAllFile(const std::string& filePath, const std::string& content, bool isBinary) {
-    std::ofstream fWrite;
-
-    std::ios_base::openmode mode = std::ios_base::out;
-    if (isBinary) mode |= std::ios_base::binary;
-
-    fWrite.open(ll::string_utils::str2wstr(filePath), mode);
-    if (!fWrite.is_open()) {
-        return false;
-    }
-    fWrite << content;
-    fWrite.close();
-    return true;
-}
+namespace lse::legacy {
 
 std::vector<std::string> GetFileNameList(const std::string& dir) {
     std::filesystem::directory_entry d(dir);
@@ -47,25 +19,6 @@ std::vector<std::string> GetFileNameList(const std::string& dir) {
         list.push_back(ll::string_utils::u8str2str(i.path().filename().u8string()));
     }
     return list;
-}
-
-bool CreateDirs(const std::string path) {
-    std::error_code ec;
-    auto ret = std::filesystem::create_directories(std::filesystem::path(ll::string_utils::str2wstr(path)), ec);
-    if (ec.value() != 0) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to create dir, err code: {}", ec.value());
-        lse::getSelfPluginInstance().getLogger().error(ec.message());
-    }
-    return ret;
-}
-
-// From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
-wchar_t* str2cwstr(const std::string& str) {
-    auto  len    = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
-    auto* buffer = new wchar_t[len + 1];
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, len + 1);
-    buffer[len] = L'\0';
-    return buffer;
 }
 
 std::pair<int, std::string> NewProcessSync(const std::string& process, int timeLimit = -1, bool noReadOutput = true) {
@@ -84,9 +37,19 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
     si.hStdOutput = si.hStdError = hWrite;
     si.dwFlags                   = STARTF_USESTDHANDLES;
 
-    auto wCmd = str2cwstr(process);
-    if (!CreateProcessW(nullptr, wCmd, nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
-        delete[] wCmd;
+    auto wCmd = ll::string_utils::str2wstr(process);
+    if (!CreateProcessW(
+            nullptr,
+            const_cast<wchar_t*>(wCmd.c_str()),
+            nullptr,
+            nullptr,
+            TRUE,
+            0,
+            nullptr,
+            nullptr,
+            &si,
+            &pi
+        )) {
         return {-1, ""};
     }
     CloseHandle(hWrite);
@@ -101,7 +64,6 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
     std::string strOutput;
     DWORD       bytesRead, exitCode;
 
-    delete[] wCmd;
     GetExitCodeProcess(pi.hProcess, &exitCode);
     if (!noReadOutput) {
         while (true) {
@@ -118,10 +80,9 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
 std::pair<int, std::string> UncompressFile(const std::string& filePath, const std::string& toDir, int processTimeout) {
     std::error_code ec;
     std::filesystem::create_directories(toDir, ec);
-    std::string realToDir     = toDir.ends_with('/') ? toDir : toDir + "/";
-    auto&& [exitCode, output] = NewProcessSync(
-        fmt::format(R"({} x "{}" -o"{}" -aoa)", "./plugins/LegacyScriptEngine/7z/7za.exe", filePath, realToDir),
-        processTimeout
-    );
+    std::string realToDir = toDir.ends_with('/') ? toDir : toDir + "/";
+    auto&& [exitCode, output] =
+        NewProcessSync(fmt::format(R"({} x "{}" -o"{}" -aoa)", "7za.exe", filePath, realToDir), processTimeout);
     return {exitCode, std::move(output)};
 }
+} // namespace lse::legacy

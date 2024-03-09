@@ -6,8 +6,7 @@
 #include <optional>
 #include <string>
 
-std::vector<std::string>   GetFileNameList(const std::string& dir);
-bool                       CreateDirs(const std::string path);
-std::optional<std::string> ReadAllFile(const std::string& filePath, bool isBinary = false);
-bool                       WriteAllFile(const std::string& filePath, const std::string& content, bool isBinary = false);
+namespace lse::legacy {
+std::vector<std::string>    GetFileNameList(const std::string& dir);
 std::pair<int, std::string> UncompressFile(const std::string& filePath, const std::string& toDir, int processTimeout);
+} // namespace lse::legacy

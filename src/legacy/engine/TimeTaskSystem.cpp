@@ -4,7 +4,6 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/MessageSystem.h"
-#include "legacyapi/utils/STLHelper.h"
 #include "ll/api/schedule/Scheduler.h"
 
 #include <chrono>

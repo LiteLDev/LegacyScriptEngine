@@ -113,7 +113,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            CreateDirs(dirPath.value());
+            std::filesystem::create_directory(dirPath.value());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return nullptr;
@@ -520,7 +520,7 @@ Local<Value> DirCreate(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(CreateDirs(args[0].toStr()));
+        return Boolean::newBoolean(std::filesystem::create_directory(args[0].toStr()));
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Create Dir " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -648,7 +648,7 @@ Local<Value> GetFilesList(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto fileList = GetFileNameList(args[0].toStr());
+        auto fileList = lse::legacy::GetFileNameList(args[0].toStr());
 
         Local<Array> arr = Array::newArray();
         for (auto& file : fileList) arr.add(String::newString(file));
@@ -662,9 +662,9 @@ Local<Value> FileReadFrom(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto content = ReadAllFile(args[0].toStr());
+        auto content = ll::file_utils::readFile(args[0].toStr());
         if (!content) return {}; // Null
-        return String::newString(*content);
+        return String::newString(content.value());
     }
     CATCH("Fail in FileReadAll!");
 }
@@ -678,12 +678,12 @@ Local<Value> FileWriteTo(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            CreateDirs(dirPath.value());
+            std::filesystem::create_directory(dirPath.value());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return Boolean::newBoolean(false);
         }
-        return Boolean::newBoolean(WriteAllFile(path, args[1].toStr(), false));
+        return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].toStr(), false));
     }
     CATCH("Fail in FileWriteAll!");
 }
@@ -697,7 +697,7 @@ Local<Value> FileWriteLine(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            CreateDirs(dirPath.value());
+            std::filesystem::create_directory(dirPath.value());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return Boolean::newBoolean(false);
@@ -723,7 +723,7 @@ Local<Value> OpenFile(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            CreateDirs(dirPath.value());
+            std::filesystem::create_directory(dirPath.value());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return {};

@@ -1,5 +1,8 @@
+#include "ll/api/io/FileUtils.h"
+
 #include <ll/api/chrono/GameChrono.h>
 #include <ll/api/service/ServerInfo.h>
+
 #pragma warning(disable : 4251)
 #include "main/Configs.h"
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
@@ -12,6 +15,7 @@
 #include "main/Global.h"
 #include "main/NodeJsHelper.h"
 
+#include <functional>
 #include <ll/api/schedule/Scheduler.h>
 #include <ll/api/schedule/Task.h>
 #include <ll/api/utils/StringUtils.h>
@@ -115,7 +119,7 @@ script::ScriptEngine* newEngine() {
 }
 
 bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath) {
-    auto mainScripts = ReadAllFile(entryScriptPath);
+    auto mainScripts = ll::file_utils::readFile(entryScriptPath);
     if (!mainScripts) {
         return false;
     }
@@ -143,7 +147,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                            "__LLSE_PublicModule.exports = {};"
                          + "ll.export = ll.exports; ll.import = ll.imports; "
 
-                         + "(function (exports, require, module, __filename, __dirname) { " + *mainScripts
+                         + "(function (exports, require, module, __filename, __dirname) { " + mainScripts.value()
                          + "\n})({}, __LLSE_PublicRequire, __LLSE_PublicModule, '" + entryScriptPath + "', '"
                          + pluginDirPath + "'); "; // TODO __filename & __dirname need to be reviewed
         // TODO: ESM Support

@@ -191,7 +191,7 @@ void TagToJson_List_Helper(ordered_json& res, ListTag* nbt) {
             break;
         case Tag::Type::ByteArray: {
             auto& bytes = tag->as<ByteArrayTag>().data;
-            char* tmpData;
+            char  tmpData[1024];
             for (unsigned int i = 0; i < bytes.size(); ++i) {
                 tmpData[i] = bytes[i];
             }
@@ -246,7 +246,7 @@ void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt) {
             break;
         case Tag::Type::ByteArray: {
             auto& bytes = tag.as<ByteArrayTag>().data;
-            char* tmpData;
+            char  tmpData[1024];
             for (unsigned int i = 0; i < bytes.size(); ++i) {
                 tmpData[i] = bytes[i];
             }
@@ -893,7 +893,7 @@ Local<Value> NbtByteArrayClass::getType(const Arguments& args) { return Number::
 Local<Value> NbtByteArrayClass::get(const Arguments& args) {
     try {
         auto& data = nbt->data;
-        char* buf;
+        char  buf[1024];
         for (unsigned int i = 0; i < data.size(); ++i) {
             buf[i] = data[i];
         }
@@ -2035,7 +2035,7 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
             break;
         case Tag::Type::ByteArray: {
             auto& data = tag->as_ptr<ByteArrayTag>()->data;
-            char* buf;
+            char  buf[1024];
             for (unsigned int i = 0; i < data.size(); ++i) {
                 buf[i] = data[i];
             }
@@ -2087,7 +2087,7 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
             break;
         case Tag::Type::ByteArray: {
             auto& data = tag.get().as_ptr<ByteArrayTag>()->data;
-            char* buf;
+            char  buf[1024];
             for (unsigned int i = 0; i < data.size(); ++i) {
                 buf[i] = data[i];
             }
@@ -2137,7 +2137,7 @@ Local<Value> Tag2Value(Tag* nbt, bool autoExpansion) {
         break;
     case Tag::Type::ByteArray: {
         auto& data = nbt->as_ptr<ByteArrayTag>()->data;
-        char* buf;
+        char  buf[1024];
         for (unsigned int i = 0; i < data.size(); ++i) {
             buf[i] = data[i];
         }

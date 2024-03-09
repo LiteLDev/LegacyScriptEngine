@@ -2,7 +2,6 @@
 
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "legacyapi/utils/STLHelper.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/NodeJsHelper.h"
 

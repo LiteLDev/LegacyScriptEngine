@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+namespace lse::legacy {
 class StringReader {
 
     const std::string           str;
@@ -68,3 +69,4 @@ public:
         return result;
     }
 };
+} // namespace lse::legacy

@@ -5,7 +5,6 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
-#include "legacyapi/utils/STLHelper.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/memory/Memory.h"
@@ -56,8 +55,12 @@ void LLSERegisterNewCmd(
 }
 
 bool LLSERemoveCmdRegister(ScriptEngine* engine) {
-    erase_if(localShareData->playerCmdCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
-    erase_if(localShareData->consoleCmdCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
+    std::erase_if(localShareData->playerCmdCallbacks, [&engine](auto& data) {
+        return data.second.fromEngine == engine;
+    });
+    std::erase_if(localShareData->consoleCmdCallbacks, [&engine](auto& data) {
+        return data.second.fromEngine == engine;
+    });
     return true;
 }
 // Helper

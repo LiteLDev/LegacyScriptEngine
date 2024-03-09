@@ -15,7 +15,10 @@ def main():
 
     validate_changelog(version)
     validate_tooth_json(version)
-    validate_tooth_template_json(version)
+    validate_tooth_template_json(version, "quickjs")
+    validate_tooth_template_json(version, "nodejs")
+    validate_tooth_template_json(version, "lua")
+    validate_tooth_template_json(version, "python")
 
 
 def get_args() -> Args:
@@ -60,7 +63,9 @@ def validate_tooth_json(version: str):
         ),
         content,
     ):
-        raise Exception("tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-lua")
+        raise Exception(
+            "tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-lua"
+        )
 
     if not re.search(
         r"\"gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs\": \"{}\"".format(
@@ -68,14 +73,18 @@ def validate_tooth_json(version: str):
         ),
         content,
     ):
-        raise Exception("tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs")
+        raise Exception(
+            "tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs"
+        )
 
-def validate_tooth_template_json(version: str):
-    with open("tooth.template.json", "r", encoding="utf-8") as f:
+
+def validate_tooth_template_json(version: str, engine: str):
+    with open("tooth." + engine + ".json", "r", encoding="utf-8") as f:
         content = f.read()
 
     if not re.search(r"\"version\": \"{}\"".format(version), content):
-        raise Exception("tooth.template.json has wrong version")
+        raise Exception("tooth." + engine + ".json has wrong version")
+
 
 if __name__ == "__main__":
     main()

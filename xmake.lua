@@ -22,13 +22,13 @@ add_requires(
 add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
-    add_requires("scriptx 76a68694c122bb7c5cc4c9ee743c278df3c7bff2", {configs={backend="Lua"}})
+    add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
-    add_requires("scriptx 76a68694c122bb7c5cc4c9ee743c278df3c7bff2", {configs={backend="QuickJs"}})
+    add_requires("scriptx main", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
-    add_requires("scriptx 76a68694c122bb7c5cc4c9ee743c278df3c7bff2", {configs={backend="Python"}})
+    add_requires("scriptx main", {configs={backend="Python"}})
     add_requires("microsoft-detours")
 
 elseif is_config("backend", "nodejs") then

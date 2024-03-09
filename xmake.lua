@@ -59,10 +59,10 @@ target("legacy-script-engine")
         "/utf-8"
     )
     add_defines(
-        "_HAS_CXX23=1", -- To enable C++23 features.
-        "CPPHTTPLIB_OPENSSL_SUPPORT", -- To enable SSL support for cpp-httplib.
-        "NOMINMAX", -- To avoid conflicts with std::min and std::max.
-        "UNICODE", -- To enable Unicode support.
+        "_HAS_CXX23=1",
+        "CPPHTTPLIB_OPENSSL_SUPPORT",
+        "NOMINMAX",
+        "UNICODE",
         "_AMD64_"
     )
     add_files(
@@ -91,9 +91,9 @@ target("legacy-script-engine")
         "toml++"
     )
     add_shflags(
-        "/DELAYLOAD:bedrock_server.dll" -- To use forged symbols of SymbolProvider.
+        "/DELAYLOAD:bedrock_server.dll"
     )
-    set_exceptions("none") -- To avoid conflicts with /EHa.
+    set_exceptions("none")
     set_kind("shared")
     set_languages("cxx20")
     set_symbols("debug")

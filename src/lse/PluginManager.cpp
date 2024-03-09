@@ -204,12 +204,12 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
                 LLSECallEventsOnHotLoad(&scriptEngine);
             }
+            ExitEngineScope exit;
 #endif
             plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
-            ExitEngineScope exit;
         } catch (const Exception& e) {
             EngineScope engineScope(scriptEngine);
             logger.error("Failed to load plugin {0}: {1}\n{2}", manifest.name, e.message(), e.stacktrace());

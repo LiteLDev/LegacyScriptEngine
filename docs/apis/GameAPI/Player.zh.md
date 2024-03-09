@@ -1773,7 +1773,7 @@
 - 返回值：是否成功模拟操作
 - 返回值类型：'Boolean'
 
-参考：[mojang-gametest docs]（https://learn.microsoft.com/zh-cn/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#respawn）
+参考：[mojang-gametest docs](https://learn.microsoft.com/zh-cn/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#respawn)
 
 #### 模拟攻击
 
@@ -1881,7 +1881,7 @@
 - 返回值：是否成功模拟操作
 - 返回值类型：`Boolean`
 
-参考：[mojang-gametest docs](https://docs.microsoft.com/zh-cn/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#lookatblock)
+参考：[mojang-gametest docs](https://learn.microsoft.com/zh-cn/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#rotatebody)
 
 
 #### 相对玩家坐标系移动

@@ -1358,3 +1358,343 @@ Each item in the array is a key-value pair list object `Object`, and the Attribu
 | bad_omen        | 28  |
 | village_hero    | 29  |
 | darkness        | 30  |
+
+### Determine whether it is a simulated player
+
+`pl.isSimulatedPlayer()`
+
+- Return value: Is player a simulated player
+- Return type: `Boolean`
+
+
+
+## Simulated player (due to too much overlap with the player API, no new simulated player class was generated)
+
+### Create a simulated player
+
+`mc.spawnSimulatedPlayer(name,pos)`  
+`mc.spawnSimulatedPlayer(name,x,y,z,dimid)`
+
+- Parameters:
+  - name : `String`  
+    Name of simulted player
+  - pos : `IntPos `/ `FloatPos`  
+    The coordinate object of the position of the spawned creature (or use x, y, z, dimid to determine the spawning position)
+- Return value: Generated (simulated) player object
+- Return type: `Player`
+  - If the return value is `Null`, it means the generation failed.
+
+### Simulated Player - Functions
+
+Each simulated player object contains some member functions (member methods) that can be executed. For a specific simulated player object `sp`, you can use the following functions to perform some operations on this simulated player.
+
+#### Simulate Respawn
+
+`sp.simulateRespawn()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#respawn)
+
+#### Simulate Attack
+
+`sp.simulateAttack([target])`
+
+- Parameters:
+
+  - target : `Entity`  
+    (Optional parameter) Attack target, default is the entity in the line of sight
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#attack)
+
+
+#### Simulate Destroy
+
+`sp.simulateDestroy([pos,face])`
+`sp.simulateDestroy([block,face])`
+- Parameters:
+
+  - pos :`IntPos`  
+    (Optional parameter) The coordinates of the block to be destroyed, default is the block in the line of sight
+  - block :`Block`  
+    (Optional parameter) The block to be destroyed, default is the block in the line of sight
+  - face :`Integer`  
+    (Optional parameter) Which face to destroy from
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#breakblock)
+
+
+#### Simulate Disconnect
+
+`sp.simulateDisconnect()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+#### Simulate Interact
+`sp.simulateInteract([target])`
+`sp.simulateInteract([pos,face])`
+`sp.simulateInteract([block,face])`
+
+- Parameters:
+
+  - target : `Entity`  
+    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+  - pos :`IntPos`  
+    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+  - block :`Block`  
+    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+  - face :`Number`  
+    (Optional parameter) Simulated interaction target block face
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#interact)
+
+
+#### Simulate Jump
+
+`sp.simulateJump()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#jump)
+
+
+#### Simulate Look At a Block or Entity
+
+`sp.simulateLookAt(pos)`
+`sp.simulateLookAt(entity)`
+`sp.simulateLookAt(block)`
+
+- Parameters:
+
+  - target : `Entity`  
+    The entity to look at
+  - pos :`IntPos` / `FloatPos`  
+    The coordinates to look at
+  - block :`Block`  
+    The block to look at
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#lookatblock)
+
+
+#### Simulate Set Body Rotation
+
+`sp.simulateSetBodyRotation(rot)`
+
+- Parameters:
+
+  - rot : `Number`  
+    The angle to set
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#rotatebody)
+
+
+#### Move Relative to Player Coordinate System
+
+`sp.simulateLocalMove()`
+
+- Parameters:
+  - pos : `IntPos` / `FloatPos`  
+    Move direction
+  - speed : `Number`  
+    (Optional parameter) Move speed, default is 1
+
+- Return value: Whether the move request was successful
+- Return type: `Boolean`
+
+
+#### Move Relative to World Coordinate System
+
+`sp.simulateWorldMove()`
+
+- Parameters:
+  - pos : `IntPos` / `FloatPos`  
+    Move direction
+  - speed : `Number`  
+    (Optional parameter) Move speed, default is 1
+
+- Return value: Whether the move request was successful
+- Return type: `Boolean`
+
+
+#### Move Straight to Coordinate
+
+`sp.simulateMoveTo()`
+
+- Parameters:
+  - pos : `IntPos` / `FloatPos`  
+    Target position
+  - speed : `Number`  
+    (Optional parameter) Move speed, default is 1
+
+- Return value: Whether the move request was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#movetolocation)  
+Note: If you need automatic pathfinding, consider using `Simulate Navigate Move`
+
+#### Simulate Navigate Move
+
+`sp.simulateNavigateTo(entity[,speed)`
+`sp.simulateNavigateTo(pos[,speed])`
+
+- Parameters:
+
+  - entity : `Entity`  
+    Navigation target
+  - pos : `IntPos` / `FloatPos`  
+    Navigation target
+  - speed : `Number`  
+    (Optional parameter) Move speed, default is 1
+
+- Return value: Whether the specified location can be reached and the navigation path, structure: {isFullPath:`Boolean`,path:`Number[3][]`}
+- Return type: `Object`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetoblock)  
+Return value example:
+```js
+{
+    isFullPath: false,
+    path: [
+        [
+            -8,
+            0,
+            -3
+        ],
+        [
+            -7,
+            0,
+            -2
+        ],
+        [
+            -6,
+            0,
+            -2
+        ],
+        [
+            -5,
+            0,
+            -2
+        ],
+        [
+            -4,
+            0,
+            -1
+        ],
+        [
+            -3,
+            0,
+            -1
+        ],
+        [
+            -2,
+            0,
+            -1
+        ],
+        [
+            -1,
+            0,
+            0
+        ]
+      ]
+}
+```
+This data has a target coordinate of (0,2,0), and the path endpoint is (-1,0,0), so isFullPath is false, but since the path is not empty, the simulated player will move to the (-1,0,0) coordinate.
+
+
+#### Simulate Navigate Move (Multiple Targets)
+
+`sp.simulateNavigateTo(posArray[,speed])`
+
+- Parameters:
+
+  - posArray : `IntPos[]` / `FloatPos[]`  
+    Navigation targets
+  - speed : `Number`  
+    (Optional parameter) Move speed, default is 1
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetolocations)
+
+
+#### Simulate Use Item
+
+`sp.simulateUseItem([slot,pos,face,relative])`
+`sp.simulateUseItem([item,pos,face,relative])`
+
+- Parameters:
+
+  - item : `Item`  
+    (Optional parameter) The item to use, default is the selected item
+  - slot : `Number`  
+    (Optional parameter) The slot where the item is located, default is the selected item
+  - pos : `IntPos`  
+    (Optional parameter) Target coordinate, default is the facing block coordinate
+  - face : `Number`  
+    (Optional parameter) Target block face, default is 0
+  - relative : `FloatPos`  
+    (Optional parameter) Relative block offset coordinate, default is {0.5,0.5,0.5}
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#useitem)
+
+
+#### Simulate Stop Destroying Block
+
+`sp.simulateStopDestroyingBlock()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopbreakingblock)
+
+
+#### Simulate Stop Interacting
+
+`sp.simulateStopInteracting()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopinteracting)
+
+
+#### Simulate Stop Moving
+
+`sp.simulateStopMoving()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopmoving)
+
+
+#### Simulate Stop Using Item
+
+`sp.simulateStopUsingItem()`
+
+- Return value: Whether the simulation operation was successful
+- Return type: `Boolean`
+
+Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopusingitem)

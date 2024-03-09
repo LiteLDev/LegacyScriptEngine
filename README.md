@@ -16,6 +16,10 @@ To install a specific engine, you can use the following command:
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
 
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
+
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
+
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python
 ```
 
 ## Usage

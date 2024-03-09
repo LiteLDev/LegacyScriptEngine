@@ -335,7 +335,7 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
 
         string executeJs = "const oldCwd = process.cwd();"
                            "const publicRequire = require('module').createRequire(oldCwd + "
-                           "'/plugins/lib/');"
+                           "'/plugins/legacy-script-engine-nodejs/');"
                            "require('process').chdir('"
                          + workingDir + "');" + "publicRequire('npm-js-interface')('" + cmd + "');"
                          + "require('process').chdir(oldCwd);";

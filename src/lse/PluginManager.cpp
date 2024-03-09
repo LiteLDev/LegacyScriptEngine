@@ -63,13 +63,10 @@ PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
 auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-    // "dirPath" is public temp dir (LLSE_PLUGIN_PACKAGE_TEMP_DIR) or normal
-    // plugin dir "packagePath" will point to plugin package path if
-    // isUncompressedFirstTime == true
-    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;
-    std::string           entryPath = PythonHelper::findEntryScript(dirPath.string());
-    if (entryPath.empty()) return false;
-    std::string pluginName = PythonHelper::getPluginPackageName(dirPath.string());
+    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
+    // std::string           entryPath = PythonHelper::findEntryScript(dirPath.string()); // Plugin entry
+    // if (entryPath.empty()) return false;
+    // std::string pluginName = PythonHelper::getPluginPackageName(dirPath.string()); // Plugin name
 
     // Run "pip install" if needed
     auto realPackageInstallDir = (std::filesystem::path(dirPath) / "site-packages").make_preferred();
@@ -78,7 +75,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
             lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.start"_tr(
-                fmt::arg("name", ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string()))
+                fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
             ));
 
             if ((exitCode = PythonHelper::executePipCommand(
@@ -99,17 +96,17 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
     }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;
-    std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string());
-    if (entryPath.empty()) return false;
-    std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string());
+    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
+    // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
+    // if (entryPath.empty()) return false;
+    // std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string()); // Plugin name
 
     // Run "npm install" if needed
     if (NodeJsHelper::doesPluginPackHasDependency(dirPath.string())
         && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
         int exitCode = 0;
         lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.start"_tr(
-            fmt::arg("name", ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string()))
+            fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
         ));
         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath.string())) == 0)
             lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.success"_tr());
@@ -181,12 +178,12 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
             if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-                throw std::runtime_error(fmt::format("Failed to load plugin {0}", manifest.name));
+                throw std::runtime_error(fmt::format("failed to load plugin code"));
             }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-                throw std::runtime_error(fmt::format("Failed to load plugin {0}", manifest.name));
+                throw std::runtime_error(fmt::format("failed to load plugin code"));
             }
 #endif
 #if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)

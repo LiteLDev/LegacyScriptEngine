@@ -6,9 +6,12 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "ll/api/service/Bedrock.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
+#include "mc/world/ActorUniqueID.h"
+#include "mc/world/scores/ScoreInfo.h"
 
 #include <ll/api/memory/Hook.h>
 #include <ll/api/memory/Memory.h>
@@ -47,6 +50,7 @@
 #include <mc/world/level/block/actor/ChestBlockActor.h>
 #include <mc/world/level/block/actor/PistonBlockActor.h>
 #include <mc/world/phys/AABB.h>
+#include <mc/world/scores/ServerScoreboard.h>
 
 namespace lse::events {
 
@@ -798,6 +802,32 @@ LL_TYPE_INSTANCE_HOOK(
     origin(inEntity, inSpeed);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ScoreChangedHook,
+    HookPriority::Normal,
+    ServerScoreboard,
+    "?onScoreChanged@ServerScoreboard@@UEAAXAEBUScoreboardId@@AEBVObjective@@@Z",
+    void,
+    ScoreboardId const& id,
+    Objective const&    obj
+) {
+    IF_LISTENED(EVENT_TYPES::onScoreChanged) {
+        if (id.getIdentityDef().isPlayerType()) {
+            CallEventVoid(
+                EVENT_TYPES::onScoreChanged,
+                PlayerClass::newPlayer(
+                    ll::service::getLevel()->getPlayer(ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId))
+                ),
+                Number::newNumber(obj.getPlayerScore(id).mScore),
+                String::newString(obj.getName()),
+                String::newString(obj.getDisplayName())
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onScoreChanged);
+    origin(id, obj);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -841,6 +871,7 @@ void PlayerUseRespawnAnchorEvent() { PlayerUseRespawnAnchorHook::hook(); }
 void PlayerSleepEvent() { PlayerSleepHook::hook(); }
 void PlayerOpenInventoryEvent() { PlayerOpenInventoryHook::hook(); }
 void PlayerPullFishingHookEvent() { PlayerPullFishingHook::hook(); }
+void ScoreChangedEvent() { ScoreChangedHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

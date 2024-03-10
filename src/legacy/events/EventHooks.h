@@ -31,5 +31,6 @@ void PlayerUseRespawnAnchorEvent();
 void PlayerSleepEvent();
 void PlayerOpenInventoryEvent();
 void PlayerPullFishingHookEvent();
+void ScoreChangedEvent();
 
 } // namespace lse::events

@@ -789,8 +789,9 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onPlayerPullFishingHook,
             PlayerClass::newPlayer(this->getPlayerOwner()),
             EntityClass::newEntity(&inEntity),
-            inEntity.isType(ActorType::ItemEntity) ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item(), true)
-                                                   : Local<Value>()
+            inEntity.isType(ActorType::ItemEntity)
+                ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item(), false)
+                : Local<Value>()
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onPlayerPullFishingHook);

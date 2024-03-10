@@ -97,20 +97,19 @@
 
 此Enum展示了所有可用于函数参数以及返回的类型
 
-|Void|
-|Bool|
-|Char|
-|UnsignedChar|
-|Short|
-|UnsignedShort|
-|Int|
-|UnsignedInt|
-|Long|
-|UnsignedLong|
-|LongLong|
-|UnsignedLongLong|
-|Float|
-|Double|
-|Pointer|
-
+- Void
+- Bool
+- Char
+- UnsignedChar
+- Short
+- UnsignedShort
+- Int
+- UnsignedInt
+- Long
+- UnsignedLong
+- LongLong
+- UnsignedLongLong
+- Float
+- Double
+- Pointer
 

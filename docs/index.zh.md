@@ -24,7 +24,7 @@ lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中。
 
-3. 要加载它们，您需要重新启动服务器。
+3. 重启服务器后，插件就会被加载。
 
 ## 贡献
 
@@ -35,9 +35,3 @@ lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 ## 许可
 
 GPL-3.0-only © LiteLDev
-
-源: 与必应的对话， 2024/2/5
-(1) Translate and convert Markdown files - GroupDocs. <https://products.groupdocs.app/translation/markdown>.
-(2) Is there a method for translating markdown formatted text?. <https://stackoverflow.com/questions/30585841/is-there-a-method-for-translating-markdown-formatted-text>.
-(3) Translate Markdown file from English to Chinese - GroupDocs. <https://products.groupdocs.app/translation/markdown/English-Chinese>.
-(4) undefined. <https://gt4t.net/>.

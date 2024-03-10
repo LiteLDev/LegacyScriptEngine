@@ -115,7 +115,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             "cmd /c" + cmd,
             [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                ll::schedule::DelayTask<ll::chrono::ServerClock>(
+                ll::schedule::DelayTask<ll::chrono::GameTickClock>(
                     ll::chrono::ticks(1),
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
                         if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -150,7 +150,7 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             process,
             [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                ll::schedule::DelayTask<ll::chrono::ServerClock>(
+                ll::schedule::DelayTask<ll::chrono::GameTickClock>(
                     ll::chrono::ticks(1),
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
                         if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;

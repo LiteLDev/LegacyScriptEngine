@@ -838,7 +838,7 @@ void EnableEventListener(int eventId) {
     }
 }
 
-ll::schedule::GameTickScheduler scheduler;
+ll::schedule::GameTickScheduler eventScheduler;
 
 void InitBasicEventListeners() {
     using namespace ll::event;
@@ -936,7 +936,7 @@ void InitBasicEventListeners() {
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent& ev) {
         using namespace ll::chrono_literals;
-        scheduler.add<ll::schedule::DelayTask>(1_tick, [] {
+        eventScheduler.add<ll::schedule::DelayTask>(1_tick, [] {
             IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventUncancelable(EVENT_TYPES::onServerStarted); }
             IF_LISTENED_END(EVENT_TYPES::onServerStarted);
             isCmdRegisterEnabled = true;
@@ -949,7 +949,7 @@ void InitBasicEventListeners() {
     // 植入tick
     using namespace ll::chrono_literals;
 
-    scheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
+    eventScheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         try {
             std::list<ScriptEngine*> tmpList;

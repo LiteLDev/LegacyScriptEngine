@@ -21,7 +21,7 @@
 #include <uv/uv.h>
 #include <v8/v8.h>
 
-ll::schedule::Scheduler<ll::chrono::ServerClock> scheduler;
+ll::schedule::Scheduler<ll::chrono::GameTickClock> nodeScheduler;
 using ll::chrono_literals::operator""_tick;
 
 // pre-declare
@@ -37,8 +37,8 @@ std::unique_ptr<node::MultiIsolatePlatform>                                     
 std::unordered_map<script::ScriptEngine*, node::Environment*>                             environments;
 std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
     new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
-std::unordered_map<node::Environment*, bool>                                                         isRunning;
-std::unordered_map<node::Environment*, std::shared_ptr<ll::schedule::Task<ll::chrono::ServerClock>>> uvLoopTask;
+std::unordered_map<node::Environment*, bool>   isRunning;
+std::unordered_map<node::Environment*, uint64> uvLoopTask;
 
 bool initNodeJs() {
     // Init NodeJs
@@ -164,19 +164,22 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         }
 
         // Start libuv event loop
-        uvLoopTask[env] = scheduler.add<ll::schedule::RepeatTask>(
-            2_tick,
-            [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() {
-                if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
-                    EngineScope enter(engine);
-                    uv_run(eventLoop, UV_RUN_NOWAIT);
-                }
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
-                    uv_stop(eventLoop);
-                    lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
-                }
-            }
-        );
+        uvLoopTask[env] =
+            nodeScheduler
+                .add<ll::schedule::RepeatTask>(
+                    2_tick,
+                    [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() {
+                        if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
+                            EngineScope enter(engine);
+                            uv_run(eventLoop, UV_RUN_NOWAIT);
+                        }
+                        if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
+                            uv_stop(eventLoop);
+                            lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
+                        }
+                    }
+                )
+                ->getId();
 
         return true;
     } catch (...) {
@@ -208,7 +211,7 @@ bool stopEngine(node::Environment* env) {
         // Stop libuv event loop
         auto it = uvLoopTask.find(env);
         if (it != uvLoopTask.end()) {
-            it->second->cancel();
+            nodeScheduler.remove(it->second);
         }
 
         return true;

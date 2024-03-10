@@ -56,4 +56,5 @@ mc.listen("onJoin", (player) => {
 
 这给我们带来了最后的考虑。在制作插件时，尽量想一些简单的、自我封闭的东西。每个开发者都想建立一个具有大量功能的大型插件，但这样的项目很容易被放弃，因为它们从未真正完成。做一系列有特定目的的小插件。为这些插件添加功能，以实现配置和定制。找到你希望游戏拥有的功能或事物，并使用LeviLamina中的方法来实现它们。使用LeviLamina的API确实有无限可能。
 
-如果您在开发过程中遇到任何问题，可以通过加入[Telegram](https://t.me/LiteLoader)/[Discord](https://discord.gg/v5R5P4vRZk)--或在LeviLamina Github 仓库上开立一个问题，来回答您的问题、意见或担忧。
+如果您在开发过程中遇到任何问题，可以通过加入[Telegram](https://t.me/LiteLoader)/[Discord](https://discord.gg/v5R5P4vRZk)--或在LeviLamina Github 仓库上开立一个问题，来提出您的问题、意见或担忧。
+

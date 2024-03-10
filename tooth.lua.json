@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-lua",
-    "version": "0.4.5",
+    "version": "0.4.6",
     "info": {
         "name": "LegacyScriptEngine with Lua backend",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -14,8 +14,7 @@
     "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.4.x",
         "github.com/LiteLDev/LegacyParticleAPI": "0.4.x",
-        "github.com/LiteLDev/LegacyMoney": "0.4.x",
-        "gitea.litebds.com/LiteLDev/lua-binaries": "3.10.11"
+        "github.com/LiteLDev/LegacyMoney": "0.4.x"
     },
     "prerequisites": {
         "github.com/LiteLDev/LeviLamina": "0.9.x"

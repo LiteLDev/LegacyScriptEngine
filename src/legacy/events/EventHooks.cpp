@@ -17,7 +17,9 @@
 #include <mc/server/module/VanillaServerGameplayEventListener.h>
 #include <mc/world/actor/ActorDefinitionIdentifier.h>
 #include <mc/world/actor/ArmorStand.h>
+#include <mc/world/actor/FishingHook.h>
 #include <mc/world/actor/boss/WitherBoss.h>
+#include <mc/world/actor/item/ItemActor.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/containers/models/LevelContainerModel.h>
 #include <mc/world/events/EventResult.h>
@@ -773,6 +775,28 @@ LL_TYPE_INSTANCE_HOOK(
     origin();
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerPullFishingHook,
+    HookPriority::Normal,
+    FishingHook,
+    &FishingHook::_pullCloser,
+    void,
+    Actor& inEntity,
+    float  inSpeed
+) {
+    IF_LISTENED(EVENT_TYPES::onPlayerPullFishingHook) {
+        CallEventVoid(
+            EVENT_TYPES::onPlayerPullFishingHook,
+            PlayerClass::newPlayer(this->getPlayerOwner()),
+            EntityClass::newEntity(&inEntity),
+            inEntity.isType(ActorType::ItemEntity) ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item(), true)
+                                                   : Local<Value>()
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPlayerPullFishingHook);
+    origin(inEntity, inSpeed);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -815,6 +839,7 @@ void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
 void PlayerUseRespawnAnchorEvent() { PlayerUseRespawnAnchorHook::hook(); }
 void PlayerSleepEvent() { PlayerSleepHook::hook(); }
 void PlayerOpenInventoryEvent() { PlayerOpenInventoryHook::hook(); }
+void PlayerPullFishingHookEvent() { PlayerPullFishingHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

@@ -30,5 +30,6 @@ void CommandBlockExecuteEvent();
 void PlayerUseRespawnAnchorEvent();
 void PlayerSleepEvent();
 void PlayerOpenInventoryEvent();
+void PlayerPullFishingHookEvent();
 
 } // namespace lse::events

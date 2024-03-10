@@ -850,7 +850,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onOpenInventory:
         lse::events::PlayerOpenInventoryEvent();
         break;
-
+    case EVENT_TYPES::onPlayerPullFishingHook:
+        lse::events::PlayerPullFishingHookEvent();
+        break;
     default:
         break;
     }

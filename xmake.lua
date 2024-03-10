@@ -12,7 +12,6 @@ add_requires(
     "levilamina 0.9.2",
     "lightwebsocketclient",
     "magic_enum",
-    "more-events develop",
     "nlohmann_json",
     "openssl 1.1.1-w",
     "simpleini",
@@ -44,15 +43,6 @@ option("backend")
     set_default("lua")
     set_values("lua", "quickjs", "python", "nodejs")
 
-package("more-events")
-    add_urls("https://github.com/LiteLDev/MoreEvents.git")
-
-    add_deps("levilamina 0.9.2")
-
-    on_install(function (package)
-        import("package.tools.xmake").install(package)
-    end)
-
 target("legacy-script-engine")
     add_cxflags(
         "/EHa",
@@ -83,7 +73,6 @@ target("legacy-script-engine")
         "levilamina",
         "lightwebsocketclient",
         "magic_enum",
-        "more-events",
         "nlohmann_json",
         "scriptx",
         "simpleini",

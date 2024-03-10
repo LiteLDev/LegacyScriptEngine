@@ -161,7 +161,9 @@ void EnableEventListener(int eventId) {
 
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerLeaveEvent>([](PlayerLeaveEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onLeft) { CallEventVoid(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); }
+            IF_LISTENED(EVENT_TYPES::onLeft) {
+                CallEventUncancelable(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self()));
+            }
             IF_LISTENED_END(EVENT_TYPES::onLeft);
         });
         break;
@@ -181,7 +183,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerSwing:
         bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
-                CallEventVoid(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self()));
+                CallEventUncancelable(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self()));
             }
             IF_LISTENED_END(EVENT_TYPES::onPlayerSwing);
         });
@@ -211,7 +213,7 @@ void EnableEventListener(int eventId) {
                 Actor* source = ll::service::getLevel()
                                     ->getDimension(ev.self().getDimensionId())
                                     ->fetchEntity(ev.source().getEntityUniqueID(), false);
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onPlayerDie,
                     PlayerClass::newPlayer(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>())
@@ -224,7 +226,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onRespawn:
         bus.emplaceListener<ll::event::PlayerRespawnEvent>([](ll::event::PlayerRespawnEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
-                CallEventVoid(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self()));
+                CallEventUncancelable(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self()));
             }
             IF_LISTENED_END(EVENT_TYPES::onRespawn)
         });
@@ -284,7 +286,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::afterPlaceBlock:
         bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::afterPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
                     BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
@@ -307,7 +309,9 @@ void EnableEventListener(int eventId) {
 
     case EVENT_TYPES::onJump:
         bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onJump) { CallEventVoid(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); }
+            IF_LISTENED(EVENT_TYPES::onJump) {
+                CallEventUncancelable(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self()));
+            }
             IF_LISTENED_END(EVENT_TYPES::onJump);
         });
         break;
@@ -426,7 +430,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChangeSprinting:
         bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onChangeSprinting,
                     PlayerClass::newPlayer(&ev.self()),
                     Boolean::newBoolean(true)
@@ -436,7 +440,7 @@ void EnableEventListener(int eventId) {
         });
         bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onChangeSprinting,
                     PlayerClass::newPlayer(&ev.self()),
                     Boolean::newBoolean(false)
@@ -625,7 +629,7 @@ void EnableEventListener(int eventId) {
                     if (ev.source().isChildEntitySource()) source = source->getOwner();
                 }
 
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onMobDie,
                     EntityClass::newEntity(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>()),
@@ -750,7 +754,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockChanged:
         bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onBlockChanged,
                     BlockClass::newBlock(&ev.previousBlock(), &ev.pos(), &ev.blockSource()),
                     BlockClass::newBlock(&ev.newBlock(), &ev.pos(), &ev.blockSource())
@@ -790,7 +794,7 @@ void EnableEventListener(int eventId) {
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onMobSpawn,
                     String::newString(ev.identifier().getFullName()),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
@@ -803,7 +807,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobTrySpawn:
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-                CallEventVoid(
+                CallEvent(
                     EVENT_TYPES::onMobTrySpawn,
                     String::newString(ev.identifier().getFullName()),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
@@ -816,7 +820,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobSpawned:
         bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
-                CallEventVoid(
+                CallEventUncancelable(
                     EVENT_TYPES::onMobSpawned,
                     EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())

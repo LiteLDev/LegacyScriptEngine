@@ -14,7 +14,7 @@ std::vector<RegCmdQueue> toRegCmdQueue;
 // 线程池
 ll::thread::ThreadPool pool(LLSE_POOL_THREAD_COUNT);
 
-std::mutex messageLoopLock;
+// std::mutex messageLoopLock;
 
 void InitLocalShareData() {
     srand(clock());

@@ -56,7 +56,7 @@ extern std::vector<RegCmdQueue> toRegCmdQueue;
 // 线程池
 extern ll::thread::ThreadPool pool;
 
-extern std::mutex messageLoopLock;
+// extern std::mutex messageLoopLock;
 
 //////////////////// APIs ////////////////////
 

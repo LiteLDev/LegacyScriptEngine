@@ -4,6 +4,7 @@
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
 #include "ll/api/chrono/GameChrono.h"
+#include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -26,6 +27,7 @@ ClassDefine<void> SystemClassBuilder = defineClass("system")
                                            .function("newProcess", &SystemClass::newProcess)
                                            .build();
 
+ll::schedule::Scheduler<ll::chrono::GameTickClock> systemScheduler;
 // From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
 bool NewProcess(
     const std::string&                    process,
@@ -115,7 +117,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             "cmd /c" + cmd,
             [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                ll::schedule::DelayTask<ll::chrono::GameTickClock>(
+                systemScheduler.add<ll::schedule::DelayTask>(
                     ll::chrono::ticks(1),
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
                         if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -150,7 +152,7 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             process,
             [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                ll::schedule::DelayTask<ll::chrono::GameTickClock>(
+                systemScheduler.add<ll::schedule::DelayTask>(
                     ll::chrono::ticks(1),
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
                         if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
@@ -162,7 +164,7 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
                         }
                         CATCH_IN_CALLBACK("newProcess")
                     }
-                ).call();
+                );
             },
             args.size() >= 3 ? args[2].toInt() : -1
         ));

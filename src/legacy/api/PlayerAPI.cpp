@@ -1016,18 +1016,11 @@ Local<Value> PlayerClass::getUniqueID() {
 
 Local<Value> PlayerClass::getLangCode() {
     try {
-        std::string result = "unknown";
-        auto        map    = ll::service::getServerNetworkHandler()
-                       ->fetchConnectionRequest(get()->getNetworkIdentifier())
-                       .mRawToken.get()
-                       ->mDataInfo.value_.map_;
-        for (auto& iter : *map) {
-            string s(iter.first.c_str());
-            if (s.find("LanguageCode") != std::string::npos) {
-                result = iter.second.value_.string_;
-            }
-        }
-        return String::newString(result);
+        Json::Value& requestJson = ll::service::getServerNetworkHandler()
+                                       ->fetchConnectionRequest(get()->getNetworkIdentifier())
+                                       .mRawToken->mDataInfo;
+
+        return String::newString(requestJson.get("LanguageCode", "unknown").asString("unknown"));
     }
     CATCH("Fail in getLangCode!");
 }
@@ -2633,10 +2626,18 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         if (!player) return Local<Value>();
 
         AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
-
-        movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (movementSpeedAttribute) {
+            movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+            return Boolean::newBoolean(true);
+        } else {
+            player->_registerPlayerAttributes();
+            movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED); // Check again
+            if (movementSpeedAttribute) {
+                movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+                return Boolean::newBoolean(true);
+            }
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
 }

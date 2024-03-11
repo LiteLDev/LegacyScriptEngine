@@ -1160,10 +1160,12 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         AttributeInstance* movementSpeedAttribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
+        if (movementSpeedAttribute) {
+            movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+            return Boolean::newBoolean(true);
+        }
 
-        movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
 }

@@ -15,9 +15,10 @@
 #include <shared_mutex>
 #include <vector>
 
-std::atomic_uint                timeTaskId = 0;
-std::shared_mutex               locker;
-ll::schedule::GameTickScheduler taskScheduler;
+std::atomic_uint timeTaskId = 0;
+std::mutex       locker;
+ll::schedule::GameTickAsyncScheduler
+    taskScheduler; // This should be GameTickScheduler or ServerTimeScheduler after fix dead lock problem
 struct TimeTaskData {
     uint64                        task;
     script::Global<Function>      func;
@@ -103,7 +104,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                                 EngineScope  scope(engine);
                                 TimeTaskData taskData;
                                 {
-                                    std::unique_lock<std::shared_mutex> lock(locker);
+                                    std::lock_guard lock(locker);
 
                                     auto t = timeTaskMap.find(id);
                                     if (t == timeTaskMap.end()) return;
@@ -127,7 +128,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                         }
                     )
                     ->getId();
-    std::unique_lock<std::shared_mutex> lock(locker);
+    std::lock_guard lock(locker);
     data.swap(timeTaskMap[tid]);
     return tid;
 }
@@ -149,7 +150,7 @@ int NewTimeout(Local<String> func, int timeout) {
                                 EngineScope  scope(engine);
                                 TimeTaskData taskData;
                                 {
-                                    std::unique_lock<std::shared_mutex> lock(locker);
+                                    std::lock_guard lock(locker);
 
                                     auto t = timeTaskMap.find(id);
                                     if (t == timeTaskMap.end()) return;
@@ -166,7 +167,7 @@ int NewTimeout(Local<String> func, int timeout) {
                     )
                     ->getId();
 
-    std::unique_lock<std::shared_mutex> lock(locker);
+    std::lock_guard lock(locker);
     data.swap(timeTaskMap[tid]);
     return tid;
 }
@@ -193,7 +194,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                                 Local<Value>         func = Local<Value>();
                                 vector<Local<Value>> args;
                                 {
-                                    std::unique_lock<std::shared_mutex> lock(locker);
+                                    std::lock_guard lock(locker);
 
                                     auto t = timeTaskMap.find(id);
                                     if (t == timeTaskMap.end()) return;
@@ -218,7 +219,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                     )
                     ->getId();
 
-    std::unique_lock<std::shared_mutex> lock(locker);
+    std::lock_guard lock(locker);
     data.swap(timeTaskMap[tid]);
     return tid;
 }
@@ -243,7 +244,7 @@ int NewInterval(Local<String> func, int timeout) {
                                 EngineScope scope(engine);
                                 std::string code;
                                 {
-                                    std::unique_lock<std::shared_mutex> lock(locker);
+                                    std::lock_guard lock(locker);
 
                                     auto t = timeTaskMap.find(id);
                                     if (t == timeTaskMap.end()) return;
@@ -259,7 +260,7 @@ int NewInterval(Local<String> func, int timeout) {
                     )
                     ->getId();
 
-    std::unique_lock<std::shared_mutex> lock(locker);
+    std::lock_guard lock(locker);
     data.swap(timeTaskMap[tid]);
     return tid;
 }
@@ -267,8 +268,8 @@ int NewInterval(Local<String> func, int timeout) {
 bool ClearTimeTask(int id) {
     assert(EngineScope::currentEngine() != nullptr);
     try {
-        std::unique_lock<std::shared_mutex> lock(locker);
-        auto                                it = timeTaskMap.find(id);
+        std::lock_guard lock(locker);
+        auto            it = timeTaskMap.find(id);
         if (it != timeTaskMap.end()) {
             taskScheduler.remove(timeTaskMap[id].task);
             timeTaskMap.erase(id);
@@ -285,7 +286,7 @@ void LLSERemoveTimeTaskData(ScriptEngine* engine) {
     // enter scope to prevent script::Global::~Global() from crashing
     EngineScope enter(engine);
     try {
-        std::unique_lock<std::shared_mutex> lock(locker);
+        std::lock_guard lock(locker);
         for (auto it = timeTaskMap.begin(); it != timeTaskMap.end();) {
             if (it->second.engine == engine) {
                 taskScheduler.remove(it->second.task);

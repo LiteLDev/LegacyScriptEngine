@@ -21,7 +21,7 @@
 #include <uv/uv.h>
 #include <v8/v8.h>
 
-ll::schedule::GameTickScheduler nodeScheduler;
+ll::schedule::GameTickAsyncScheduler nodeScheduler;
 using ll::chrono_literals::operator""_tick;
 
 // pre-declare

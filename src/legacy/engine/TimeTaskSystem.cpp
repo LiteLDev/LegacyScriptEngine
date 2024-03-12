@@ -17,7 +17,7 @@
 
 std::atomic_uint timeTaskId = 0;
 std::mutex       locker;
-ll::schedule::GameTickAsyncScheduler
+ll::schedule::GameTickScheduler
     taskScheduler; // This should be GameTickScheduler or ServerTimeScheduler after fix dead lock problem
 struct TimeTaskData {
     uint64                        task;

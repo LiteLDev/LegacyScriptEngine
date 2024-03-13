@@ -1379,7 +1379,9 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments& args) {
         }
         HitResult result = actor->traceRay(maxDistance, true, false);
         Actor*    entity = result.getEntity();
-        if (entity) return EntityClass::newEntity(entity);
+        if (entity) {
+            return EntityClass::newEntity(entity);
+        }
         return Local<Value>();
     }
     CATCH("Fail in getEntityFromViewVector!");
@@ -1434,7 +1436,9 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             bp = res.mBlockPos;
         }
         Block const& bl = actor->getDimensionBlockSource().getBlock(bp);
-        if (bl.isEmpty()) return Local<Value>();
+        if (bl.isEmpty()) {
+            return Local<Value>();
+        }
         return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
     }
     CATCH("Fail in getBlockFromViewVector!");

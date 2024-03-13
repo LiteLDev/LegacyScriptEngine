@@ -13,7 +13,7 @@
 #include <thread>
 #include <windows.h>
 
-#define H ll::hash_utils::do_hash
+using ll::hash_utils::doHash;
 
 //////////////////// APIs ////////////////////
 
@@ -36,50 +36,50 @@ Local<Value> ColorLog(const Arguments& args) {
 
     try {
         std::string prefix = "";
-        switch (H(args[0].asString().toString())) {
-        case H("dk_blue"):
+        switch (doHash(args[0].asString().toString())) {
+        case doHash("dk_blue"):
             prefix = "\x1b[34m";
             break;
-        case H("dk_green"):
+        case doHash("dk_green"):
             prefix = "\x1b[32m";
             break;
-        case H("bt_blue"):
+        case doHash("bt_blue"):
             prefix = "\x1b[36m";
             break;
-        case H("dk_red"):
+        case doHash("dk_red"):
             prefix = "\x1b[31m";
             break;
-        case H("purple"):
+        case doHash("purple"):
             prefix = "\x1b[35m";
             break;
-        case H("dk_yellow"):
+        case doHash("dk_yellow"):
             prefix = "\x1b[33m";
             break;
-        case H("grey"):
+        case doHash("grey"):
             prefix = "\x1b[37m";
             break;
-        case H("sky_blue"):
+        case doHash("sky_blue"):
             prefix = "\x1b[94m";
             break;
-        case H("blue"):
+        case doHash("blue"):
             prefix = "\x1b[94m";
             break;
-        case H("green"):
+        case doHash("green"):
             prefix = "\x1b[92m";
             break;
-        case H("cyan"):
+        case doHash("cyan"):
             prefix = "\x1b[36m";
             break;
-        case H("red"):
+        case doHash("red"):
             prefix = "\x1b[91m";
             break;
-        case H("pink"):
+        case doHash("pink"):
             prefix = "\x1b[95m";
             break;
-        case H("yellow"):
+        case doHash("yellow"):
             prefix = "\x1b[93m";
             break;
-        case H("white"):
+        case doHash("white"):
             prefix = "\x1b[97m";
             break;
         default:

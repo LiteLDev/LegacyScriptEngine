@@ -2981,7 +2981,6 @@ Local<Value> PlayerClass::getAttributes(const Arguments& args) {
 }
 
 Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
-
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2992,7 +2991,9 @@ Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
         }
         HitResult result = player->traceRay(maxDistance, true, false);
         Actor*    entity = result.getEntity();
-        if (entity) return EntityClass::newEntity(entity);
+        if (entity) {
+            return EntityClass::newEntity(entity);
+        }
         return Local<Value>();
     }
     CATCH("Fail in getEntityFromViewVector!");
@@ -3003,10 +3004,10 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         bool  includeLiquid      = false;
-        bool  solidOnly          = false; // not used
+        bool  solidOnly          = false;
         float maxDistance        = 5.25f;
-        bool  ignoreBorderBlocks = true;  // not used
-        bool  fullOnly           = false; // not used
+        bool  ignoreBorderBlocks = true;
+        bool  fullOnly           = false;
         if (args.size() > 0) {
             CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
             includeLiquid = args[0].asBoolean().value();
@@ -3041,7 +3042,6 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             }
         );
 
-        return Local<Value>();
         BlockPos bp;
         if (includeLiquid && res.mIsHitLiquid) {
             bp = res.mLiquidPos;
@@ -3049,7 +3049,9 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             bp = res.mBlockPos;
         }
         Block const& bl = player->getDimensionBlockSource().getBlock(bp);
-        if (bl.isEmpty()) return Local<Value>();
+        if (bl.isEmpty()) {
+            return Local<Value>();
+        }
         return BlockClass::newBlock(std::move(&bl), std::move(&bp), &player->getDimensionBlockSource());
     }
     CATCH("Fail in getBlockFromViewVector!");

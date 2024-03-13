@@ -15,10 +15,9 @@
 #include <shared_mutex>
 #include <vector>
 
-std::atomic_uint timeTaskId = 0;
-std::mutex       locker;
-ll::schedule::GameTickScheduler
-    taskScheduler; // This should be GameTickScheduler or ServerTimeScheduler after fix dead lock problem
+std::atomic_uint                timeTaskId = 0;
+std::mutex                      locker;
+ll::schedule::GameTickScheduler taskScheduler;
 struct TimeTaskData {
     uint64                        task;
     script::Global<Function>      func;

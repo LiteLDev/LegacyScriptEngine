@@ -12,16 +12,16 @@ RowHeader::~RowHeader() {}
 
 size_t RowHeader::add(const std::string& name) {
     push_back(name);
-    hashes.push_back(ll::hash_utils::do_hash2(name));
+    hashes.push_back(ll::hash_utils::doHash2(name));
     return size() - 1;
 }
 
 bool RowHeader::contains(const std::string& name) {
-    return std::find(hashes.begin(), hashes.end(), ll::hash_utils::do_hash2(name)) != hashes.end();
+    return std::find(hashes.begin(), hashes.end(), ll::hash_utils::doHash2(name)) != hashes.end();
 }
 
 void RowHeader::remove(const std::string& name) {
-    auto hs = ll::hash_utils::do_hash2(name);
+    auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) {
             erase(begin() + i);
@@ -33,7 +33,7 @@ void RowHeader::remove(const std::string& name) {
 }
 
 size_t RowHeader::at(const std::string& name) {
-    auto hs = ll::hash_utils::do_hash2(name);
+    auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) return i;
     }
@@ -63,7 +63,7 @@ bool RowHeader::check(const Row& row) const {
 }
 
 size_t RowHeader::operator[](const std::string& name) {
-    auto hs = ll::hash_utils::do_hash2(name);
+    auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) return i;
     }

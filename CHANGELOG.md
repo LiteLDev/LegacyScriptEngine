@@ -172,6 +172,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#53]: https://github.com/LiteLDev/LegacyScriptEngine/issues/53
 [#54]: https://github.com/LiteLDev/LegacyScriptEngine/issues/54
 
+[0.4.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.10...v0.4.11
 [0.4.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.8...v0.4.10
 [0.4.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.6...v0.4.7

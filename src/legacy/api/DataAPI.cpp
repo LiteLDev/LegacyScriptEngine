@@ -291,7 +291,7 @@ ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
         if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].toStr());
         else return new ConfIniClass(args.thiz(), path, "");
     }
-    CATCH_C("Fail in Open JsonConfigFile!");
+    CATCH_C("Fail in Open IniConfigFile!");
 }
 
 bool ConfIniClass::flush() { return iniConf->SaveFile(iniConf->filePath.c_str(), true); }

@@ -19,13 +19,13 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             std::size_t pos = path.find_last_of('/');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);
-                std::filesystem::create_directory(dirPath);
+                std::filesystem::create_directories(dirPath);
             }
         } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LeviLamina\\LeviLamina.json
             std::size_t pos = path.find_last_of('\\');
             if (pos != std::string::npos) {
                 std::string dirPath = path.substr(0, pos);
-                std::filesystem::create_directory(dirPath);
+                std::filesystem::create_directories(dirPath);
             }
         } else {
             lse::getSelfPluginInstance().getLogger().error("Fail in create json file!");

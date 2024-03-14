@@ -11,6 +11,7 @@
 #include <fstream>
 #include <ll/api/io/FileUtils.h>
 #include <string>
+#include <system_error>
 
 using namespace std::filesystem;
 
@@ -113,7 +114,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            std::filesystem::create_directory(dirPath.value());
+            std::filesystem::create_directories(dirPath.value());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return nullptr;
@@ -520,7 +521,7 @@ Local<Value> DirCreate(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(std::filesystem::create_directory(args[0].toStr()));
+        return Boolean::newBoolean(std::filesystem::create_directories(args[0].toStr()));
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Create Dir " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -678,7 +679,12 @@ Local<Value> FileWriteTo(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            std::filesystem::create_directory(dirPath.value());
+            std::error_code code;
+            std::filesystem::create_directories(dirPath.value(), code);
+            if (code) {
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                return Boolean::newBoolean(false);
+            }
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return Boolean::newBoolean(false);
@@ -697,7 +703,12 @@ Local<Value> FileWriteLine(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            std::filesystem::create_directory(dirPath.value());
+            std::error_code code;
+            std::filesystem::create_directories(dirPath.value(), code);
+            if (code) {
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                return Boolean::newBoolean(false);
+            }
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return Boolean::newBoolean(false);
@@ -723,7 +734,12 @@ Local<Value> OpenFile(const Arguments& args) {
         string                     path    = args[0].toStr();
         std::optional<std::string> dirPath = getDirectoryPath(path);
         if (dirPath.has_value()) {
-            std::filesystem::create_directory(dirPath.value());
+            std::error_code code;
+            std::filesystem::create_directories(dirPath.value(), code);
+            if (code) {
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                return Boolean::newBoolean(false);
+            }
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
             return {};

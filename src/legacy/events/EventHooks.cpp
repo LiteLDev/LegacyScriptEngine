@@ -15,6 +15,7 @@
 
 #include <ll/api/memory/Hook.h>
 #include <ll/api/memory/Memory.h>
+#include <mc/common/wrapper/InteractionResult.h>
 #include <mc/entity/WeakEntityRef.h>
 #include <mc/entity/utilities/ActorType.h>
 #include <mc/server/module/VanillaServerGameplayEventListener.h>
@@ -906,6 +907,33 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
     return origin(item, entity, pos);
 }
+
+// LL_TYPE_INSTANCE_HOOK(
+//     PlayerUseBucketTakeHook3,
+//     HookPriority::Normal,
+//     BucketItem,
+//     &BucketItem::_useOn,
+//     InteractionResult,
+//     ItemStack&  instance,
+//     Actor&      entity,
+//     BlockPos    pos,
+//     uchar       face,
+//     Vec3 const& clickPos
+// ) {
+//     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
+//         CallEventRtnValue(
+//             EVENT_TYPES::onUseBucketTake,
+//             InteractionResult{InteractionResult::Result::Fail},
+//             PlayerClass::newPlayer(),
+//             ItemClass::newItem(&instance, false),
+//             EntityClass::newEntity(&entity),
+//             Number::newNumber(face),
+//             FloatPos::newPos(pos, entity.getDimensionId())
+//         );
+//     }
+//     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
+//     return origin(instance, entity, pos, face, clickPos);
+// }
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }

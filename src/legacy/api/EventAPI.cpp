@@ -380,21 +380,6 @@ void EnableEventListener(int eventId) {
         break;
     case EVENT_TYPES::onUseBucketTake:
         lse::events::PlayerUseBucketTakeEvent();
-        bus.emplaceListener<PlayerUseItemOnEvent>([](PlayerUseItemOnEvent& ev) {
-            if (ev.item().isItem() && ev.item().getTypeName().contains("bucket")) {
-                IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-                    CallEvent(
-                        EVENT_TYPES::onUseBucketTake,
-                        PlayerClass::newPlayer(&ev.self()),
-                        ItemClass::newItem(&ev.item(), false),
-                        BlockClass::newBlock(&ev.blockPos(), ev.self().getDimensionId()),
-                        Number::newNumber(ev.face()),
-                        FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
-                    );
-                }
-                IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-            }
-        });
         break;
 
     case EVENT_TYPES::onContainerChange:

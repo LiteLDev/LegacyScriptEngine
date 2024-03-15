@@ -27,7 +27,7 @@ ClassDefine<void> SystemClassBuilder = defineClass("system")
                                            .function("newProcess", &SystemClass::newProcess)
                                            .build();
 
-ll::schedule::GameTickScheduler systemScheduler;
+ll::schedule::ServerTimeScheduler systemScheduler;
 // From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
 bool NewProcess(
     const std::string&                    process,

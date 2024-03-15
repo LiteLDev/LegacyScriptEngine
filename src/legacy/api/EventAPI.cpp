@@ -838,7 +838,7 @@ void EnableEventListener(int eventId) {
     }
 }
 
-ll::schedule::GameTickScheduler eventScheduler;
+ll::schedule::ServerTimeScheduler eventScheduler;
 
 void InitBasicEventListeners() {
     using namespace ll::event;

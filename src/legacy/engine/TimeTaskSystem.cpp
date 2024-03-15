@@ -4,6 +4,7 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/MessageSystem.h"
+#include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/scheduler.h"
 
 #include <chrono>
@@ -15,9 +16,9 @@
 #include <shared_mutex>
 #include <vector>
 
-std::atomic_uint                timeTaskId = 0;
-std::mutex                      locker;
-ll::schedule::GameTickScheduler taskScheduler;
+std::atomic_uint                  timeTaskId = 0;
+std::mutex                        locker;
+ll::schedule::ServerTimeScheduler taskScheduler;
 struct TimeTaskData {
     uint64                        task;
     script::Global<Function>      func;
@@ -69,7 +70,7 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 //     taskScheduler.add<ll::schedule::DelayTask>(
 //         std::chrono::milliseconds(timeout),
 //         [engine, func = std::move(func), paras = std::move(tmp)]() {
-//             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+//             if ((ll::getServerStatus() == ll::ServerStatus::Stopping)) return;
 //             if (!EngineManager::isValid(engine)) return;
 //             EngineScope enter(engine);
 //             if (paras.empty()) {
@@ -97,7 +98,7 @@ int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                         std::chrono::milliseconds(timeout),
                         [engine{EngineScope::currentEngine()}, id{tid}]() {
                             try {
-                                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                                if ((ll::getServerStatus() == ll::ServerStatus::Stopping)) return;
                                 if (!EngineManager::isValid(engine)) return;
                                 // lock after enter EngineScope to prevent deadlock
                                 EngineScope  scope(engine);
@@ -144,7 +145,7 @@ int NewTimeout(Local<String> func, int timeout) {
                         std::chrono::milliseconds(timeout),
                         [engine{EngineScope::currentEngine()}, id{tid}]() {
                             try {
-                                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                                if ((ll::getServerStatus() == ll::ServerStatus::Stopping)) return;
                                 if (!EngineManager::isValid(engine)) return;
                                 EngineScope  scope(engine);
                                 TimeTaskData taskData;
@@ -184,7 +185,7 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                         std::chrono::milliseconds(timeout),
                         [engine{EngineScope::currentEngine()}, id{tid}]() {
                             try {
-                                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                                if ((ll::getServerStatus() == ll::ServerStatus::Stopping)) return;
                                 if (!EngineManager::isValid(engine)) {
                                     ClearTimeTask(id);
                                     return;
@@ -235,7 +236,7 @@ int NewInterval(Local<String> func, int timeout) {
                         std::chrono::milliseconds(timeout),
                         [engine{EngineScope::currentEngine()}, id{tid}]() {
                             try {
-                                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                                if ((ll::getServerStatus() == ll::ServerStatus::Stopping)) return;
                                 if (!EngineManager::isValid(engine)) {
                                     ClearTimeTask(id);
                                     return;

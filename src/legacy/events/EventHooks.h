@@ -32,5 +32,7 @@ void PlayerSleepEvent();
 void PlayerOpenInventoryEvent();
 void PlayerPullFishingHookEvent();
 void ScoreChangedEvent();
+void PlayerUseBucketPlaceEvent();
+void PlayerUseBucketTakeEvent();
 
 } // namespace lse::events

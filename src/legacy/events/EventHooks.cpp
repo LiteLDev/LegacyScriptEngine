@@ -26,6 +26,7 @@
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/containers/models/LevelContainerModel.h>
 #include <mc/world/events/EventResult.h>
+#include <mc/world/item/BucketItem.h>
 #include <mc/world/item/CrossbowItem.h>
 #include <mc/world/item/ItemInstance.h>
 #include <mc/world/item/registry/ItemStack.h>
@@ -828,6 +829,84 @@ LL_TYPE_INSTANCE_HOOK(
     origin(id, obj);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerUseBucketPlaceHook,
+    HookPriority::Normal,
+    BucketItem,
+    &BucketItem::_emptyBucket,
+    bool,
+    BlockSource&     region,
+    Block const&     contents,
+    BlockPos const&  pos,
+    Actor*           placer,
+    ItemStack const& instance,
+    uchar            face
+) {
+    IF_LISTENED(EVENT_TYPES::onUseBucketPlace) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseBucketPlace,
+            false,
+            PlayerClass::newPlayer(static_cast<Player*>(placer)),
+            ItemClass::newItem(&const_cast<ItemStack&>(instance), false),
+            BlockClass::newBlock(&contents, &pos, &region),
+            Number::newNumber(face),
+            FloatPos::newPos(pos, region.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseBucketPlace);
+    return origin(region, contents, pos, placer, instance, face);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    PlayerUseBucketTakeHook1,
+    HookPriority::Normal,
+    BucketItem,
+    &BucketItem::_takeLiquid,
+    bool,
+    ItemStack&      item,
+    Actor&          entity,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseBucketTake,
+            false,
+            PlayerClass::newPlayer(&static_cast<Player&>(entity)),
+            ItemClass::newItem(&item, false),
+            BlockClass::newBlock(&pos, entity.getDimensionId()),
+            Number::newNumber(-1),
+            FloatPos::newPos(pos, entity.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
+    return origin(item, entity, pos);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    PlayerUseBucketTakeHook2,
+    HookPriority::Normal,
+    BucketItem,
+    &BucketItem::_takePowderSnow,
+    bool,
+    ItemStack&      item,
+    Actor&          entity,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
+        CallEventRtnValue(
+            EVENT_TYPES::onUseBucketTake,
+            false,
+            PlayerClass::newPlayer(&static_cast<Player&>(entity)),
+            ItemClass::newItem(&item, false),
+            BlockClass::newBlock(&pos, entity.getDimensionId()),
+            Number::newNumber(-1),
+            FloatPos::newPos(pos, entity.getDimensionId())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
+    return origin(item, entity, pos);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -872,6 +951,11 @@ void PlayerSleepEvent() { PlayerSleepHook::hook(); }
 void PlayerOpenInventoryEvent() { PlayerOpenInventoryHook::hook(); }
 void PlayerPullFishingHookEvent() { PlayerPullFishingHook::hook(); }
 void ScoreChangedEvent() { ScoreChangedHook::hook(); }
+void PlayerUseBucketPlaceEvent() { PlayerUseBucketPlaceHook::hook(); }
+void PlayerUseBucketTakeEvent() {
+    PlayerUseBucketTakeHook1::hook();
+    PlayerUseBucketTakeHook2::hook();
+}
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

@@ -4,19 +4,15 @@
 #include <string>
 
 using std::string;
-
-typedef long long   money_t;
-typedef std::string xuid_t;
-
 class EconomySystem {
 public:
     static bool init();
 
-    static money_t     getMoney(xuid_t player);
-    static bool        setMoney(xuid_t player, money_t money);
-    static bool        addMoney(xuid_t player, money_t money);
-    static bool        reduceMoney(xuid_t player, money_t money);
-    static bool        transMoney(xuid_t player1, xuid_t player2, money_t money, string const& notes);
-    static std::string getMoneyHist(xuid_t player, int time);
+    static long long   getMoney(std::string player);
+    static bool        setMoney(std::string player, long long money);
+    static bool        addMoney(std::string player, long long money);
+    static bool        reduceMoney(std::string player, long long money);
+    static bool        transMoney(std::string player1, std::string player2, long long money, string const& notes);
+    static std::string getMoneyHist(std::string player, int time);
     static void        clearMoneyHist(int time);
 };

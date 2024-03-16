@@ -14,7 +14,7 @@
     "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.4.x",
         "github.com/LiteLDev/LegacyParticleAPI": "0.4.x",
-        "github.com/LiteLDev/LegacyMoney": "0.4.x",
+        "github.com/LiteLDev/LegacyMoney": ">=0.4.1 <0.5.0",
         "gitea.litebds.com/LiteLDev/python-binaries": "3.10.11"
     },
     "prerequisites": {

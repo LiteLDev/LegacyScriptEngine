@@ -938,7 +938,7 @@ void InitBasicEventListeners() {
     });
 }
 
-bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value) {
+bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyAdd) {
@@ -980,7 +980,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t
     return true;
 }
 
-bool MoneyEventCallback(LLMoneyEvent type, xuid_t from, xuid_t to, money_t value) {
+bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::onMoneyAdd) {

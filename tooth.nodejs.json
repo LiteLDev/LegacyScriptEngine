@@ -14,7 +14,7 @@
     "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.4.x",
         "github.com/LiteLDev/LegacyParticleAPI": "0.4.x",
-        "github.com/LiteLDev/LegacyMoney": "0.4.x",
+        "github.com/LiteLDev/LegacyMoney": ">=0.4.1 <0.5.0",
         "gitea.litebds.com/ShrBox/7-zip": "23.x",
         "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
     },

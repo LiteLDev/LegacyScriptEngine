@@ -6,7 +6,7 @@ add_requires(
     "demangler",
     "dyncall",
     "fmt",
-    "legacymoney 0.4.0",
+    "legacymoney 0.4.1",
     "legacyparticleapi 0.4.0",
     "legacyremotecall 0.4.0",
     "levilamina 0.9.4",

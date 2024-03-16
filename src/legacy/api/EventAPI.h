@@ -166,13 +166,15 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
 
 // 调用事件监听函数，拦截返回RETURN_VALUE
 #define CallEventRtnValue(TYPE, RETURN_VALUE, ...)                                                                     \
-    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
-    bool                         isCancelled;                                                                          \
+    std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
+    bool                         isCancelled = false;                                                                  \
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
         try {                                                                                                          \
             auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) isCancelled = true;                         \
+            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
+                isCancelled = true;                                                                                    \
+            }                                                                                                          \
         }                                                                                                              \
         LISTENER_CATCH(TYPE)                                                                                           \
     }                                                                                                                  \
@@ -182,13 +184,15 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
 
 // 调用事件监听函数，拦截返回
 #define CallEventVoid(TYPE, ...)                                                                                       \
-    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
-    bool                         isCancelled;                                                                          \
+    std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
+    bool                         isCancelled = false;                                                                  \
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
         try {                                                                                                          \
             auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) isCancelled = true;                         \
+            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
+                isCancelled = true;                                                                                    \
+            }                                                                                                          \
         }                                                                                                              \
         LISTENER_CATCH(TYPE)                                                                                           \
     }                                                                                                                  \

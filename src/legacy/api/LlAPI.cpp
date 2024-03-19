@@ -157,12 +157,14 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
             result.set("version", ver);
             result.set("versionStr", plugin->getManifest().version->to_string());
             result.set("filePath", plugin->getManifest().entry);
-
-            auto others = Object::newObject();
-            for (const auto& [k, v] : *plugin->getManifest().extraInfo) {
-                others.set(k, v);
+            if (plugin->getManifest().extraInfo.has_value()) {
+                auto others = Object::newObject();
+                for (const auto& [k, v] : plugin->getManifest().extraInfo.value()) {
+                    others.set(k, v);
+                }
+                result.set("others", others);
             }
-            result.set("others", others);
+
             return result;
         }
         return {};

@@ -207,11 +207,13 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
             pluginObject.set("versionStr", plugin.getManifest().version->to_string());
             pluginObject.set("filePath", plugin.getManifest().entry);
 
-            auto others = Object::newObject();
-            for (const auto& [k, v] : *plugin.getManifest().extraInfo) {
-                others.set(k, v);
+            if (plugin.getManifest().extraInfo.has_value()) {
+                auto others = Object::newObject();
+                for (const auto& [k, v] : plugin.getManifest().extraInfo.value()) {
+                    others.set(k, v);
+                }
+                pluginObject.set("others", others);
             }
-            pluginObject.set("others", others);
 
             // Add plugin object to list
             plugins.add(pluginObject);

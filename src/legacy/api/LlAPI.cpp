@@ -2,6 +2,8 @@
 
 #include "api/APIHelp.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/plugin/PluginManager.h"
+#include "ll/api/plugin/PluginManagerRegistry.h"
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/utils/WinUtils.h"
 #include "lse/PluginManager.h"
@@ -227,7 +229,8 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
 Local<Value> LlClass::listPlugins(const Arguments& args) {
     try {
         Local<Array> plugins = Array::newArray();
-        lse::getPluginManager().forEachPlugin([&](std::string_view name, ll::plugin::Plugin&) {
+        ll::plugin::PluginManagerRegistry::getInstance().forEachManager([&](std::string_view name,
+                                                                            ll::plugin::PluginManager&) {
             plugins.add(String::newString(name));
             return true;
         });

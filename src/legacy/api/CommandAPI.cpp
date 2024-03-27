@@ -19,6 +19,7 @@
 #include "main/Configs.h"
 #include "mc/_HeaderOutputPredefine.h"
 #include "mc/codebuilder/MCRESULT.h"
+#include "mc/common/wrapper/GenerateMessageResult.h"
 #include "mc/deps/json/JsonHelpers.h"
 #include "mc/enums/CurrentCmdVersion.h"
 #include "mc/locale/I18n.h"
@@ -113,7 +114,9 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
         return FloatPos::newPos(result.get<Vec3>(), dim ? (int)dim->getDimensionId() : -1);
     }
     case DynamicCommand::ParameterType::Message:
-        return String::newString(result.getRaw<CommandMessage>().getMessage(*result.origin));
+        return String::newString(
+            result.getRaw<CommandMessage>().generateMessage(*result.origin, CommandVersion::CurrentVersion).string
+        );
     case DynamicCommand::ParameterType::RawText:
         return String::newString(result.getRaw<std::string>());
     case DynamicCommand::ParameterType::JsonValue:
@@ -470,7 +473,10 @@ void onExecute(
         auto          cmd  = CommandClass::newCommand(const_cast<DynamicCommandInstance*>(instance));
         auto          ori  = CommandOriginClass::newCommandOrigin(&origin);
         auto          outp = CommandOutputClass::newCommandOutput(&output);
-        for (auto& [name, param] : results) args.set(name, convertResult(param));
+        for (auto& [name, param] : results) {
+            lse::getSelfPluginInstance().getLogger().info(param.toDebugString());
+            args.set(name, convertResult(param));
+        }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);
     }
     CATCH_WITHOUT_RETURN("Fail in executing command \"" + commandName + "\"!")

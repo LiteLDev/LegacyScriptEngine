@@ -8,6 +8,7 @@
 #include "ll/api/utils/ErrorUtils.h"
 #include "lse/Entry.h"
 #include "magic_enum.hpp"
+#include "mc/common/wrapper/GenerateMessageResult.h"
 #include "mc/deps/core/common/bedrock/typeid_t.h"
 #include "mc/enums/SoftEnumUpdateType.h"
 #include "mc/network/packet/AvailableCommandsPacket.h"
@@ -25,6 +26,7 @@
 #include "mc/server/commands/CommandSelector.h"
 #include "mc/server/commands/CommandSoftEnumRegistry.h"
 #include "mc/server/commands/CommandUtils.h"
+#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/WildcardCommandSelector.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/effect/MobEffect.h"
@@ -350,7 +352,7 @@ std::string DynamicCommand::Result::toDebugString() const {
             name,
             typeName,
             isSet,
-            getRaw<CommandMessage>().getMessage(*origin)
+            getRaw<CommandMessage>().generateMessage(*origin, CommandVersion::CurrentVersion).string
         );
     case ParameterType::JsonValue:
         return fmt::format(

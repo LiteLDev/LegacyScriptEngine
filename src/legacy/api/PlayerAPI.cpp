@@ -1612,8 +1612,11 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-
-        return ContainerClass::newContainer(player->getEnderChestContainer());
+        if (player->getEnderChestContainer().has_value()) {
+            return ContainerClass::newContainer(player->getEnderChestContainer());
+        } else {
+            return {};
+        }
     }
     CATCH("Fail in getEnderChest!");
 }

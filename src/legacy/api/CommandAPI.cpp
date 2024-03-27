@@ -474,7 +474,6 @@ void onExecute(
         auto          ori  = CommandOriginClass::newCommandOrigin(&origin);
         auto          outp = CommandOutputClass::newCommandOutput(&output);
         for (auto& [name, param] : results) {
-            lse::getSelfPluginInstance().getLogger().info(param.toDebugString());
             args.set(name, convertResult(param));
         }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);

@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs",
-    "version": "0.4.15",
+    "version": "0.5.0",
     "info": {
         "name": "LegacyScriptEngine with NodeJs backend",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -19,7 +19,7 @@
         "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
     },
     "prerequisites": {
-        "github.com/LiteLDev/LeviLamina": ">=0.9.3 <0.10.0"
+        "github.com/LiteLDev/LeviLamina": "0.10.x"
     },
     "files": {
         "place": [

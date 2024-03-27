@@ -229,11 +229,12 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
 Local<Value> LlClass::listPlugins(const Arguments& args) {
     try {
         Local<Array> plugins = Array::newArray();
-        ll::plugin::PluginManagerRegistry::getInstance().forEachManager([&](std::string_view name,
-                                                                            ll::plugin::PluginManager&) {
-            plugins.add(String::newString(name));
-            return true;
-        });
+        ll::plugin::PluginManagerRegistry::getInstance().forEachPluginWithType(
+            [&](std::string_view type, std::string_view name, ll::plugin::Plugin&) {
+                plugins.add(String::newString(name));
+                return true;
+            }
+        );
         return plugins;
     }
     CATCH("Fail in LLAPI");

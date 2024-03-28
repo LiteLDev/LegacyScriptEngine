@@ -4,7 +4,7 @@
     "type": "native",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
     "author": "LiteLDev",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "dependencies": [
         {
             "name": "LegacyMoney"

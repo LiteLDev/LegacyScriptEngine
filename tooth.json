@@ -13,6 +13,8 @@
     },
     "dependencies": {
         "gitea.litebds.com/LiteLDev/legacy-script-engine-lua": "0.5.2",
-        "gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs": "0.5.2"
+        "gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs": "0.5.2",
+        "gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs": "0.5.2",
+        "gitea.litebds.com/LiteLDev/legacy-script-engine-python": "0.5.2"
     }
 }

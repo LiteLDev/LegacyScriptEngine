@@ -13,12 +13,11 @@ add_requires(
     "lightwebsocketclient",
     "magic_enum",
     "nlohmann_json",
-    "openssl 1.1.1-w",
     "simpleini",
     "sqlite3 3.43.0+200",
-    "toml++"
+    "toml++",
+    "cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}}
 )
-add_requires("cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
     add_requires("scriptx main", {configs={backend="Lua"}})
@@ -50,7 +49,6 @@ target("legacy-script-engine")
     )
     add_defines(
         "_HAS_CXX23=1",
-        "CPPHTTPLIB_OPENSSL_SUPPORT",
         "NOMINMAX",
         "UNICODE",
         "_AMD64_"

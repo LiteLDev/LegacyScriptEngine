@@ -746,9 +746,6 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
     try {
         auto arr   = Array::newArray();
         auto level = ll::service::getLevel();
-        ll::service::PlayerInfo::getInstance().forEach([](ll::service::PlayerInfo::PlayerInfoEntry& info) {
-            return true;
-        });
         if (level.has_value()) {
             level->forEachPlayer([&arr](Player& player) {
                 auto obj = Object::newObject();

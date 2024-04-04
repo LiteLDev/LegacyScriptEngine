@@ -68,14 +68,11 @@ Local<Value> LlClass::isWine() {
 }
 
 auto LlClass::isDebugMode() -> Local<Value> {
-    try {
 #ifdef NDEBUG
-        return Boolean::newBoolean(false);
+    return Boolean::newBoolean(false);
 #else
-        return Boolean::newBoolean(true);
+    return Boolean::newBoolean(true);
 #endif
-    }
-    CATCH("Fail in LLSEIsDebugMode")
 }
 
 Local<Value> LlClass::isRelease() {
@@ -92,12 +89,7 @@ Local<Value> LlClass::isBeta() {
     CATCH("Fail in LLSEIsBeta")
 }
 
-Local<Value> LlClass::isDev() {
-    try {
-        return Boolean::newBoolean(false);
-    }
-    CATCH("Fail in LLSEIsDev")
-}
+Local<Value> LlClass::isDev() { return Boolean::newBoolean(false); }
 
 Local<Value> LlClass::getMajorVersion() {
     try {
@@ -127,19 +119,9 @@ Local<Value> LlClass::getScriptEngineVersion() {
     CATCH("Fail in LLSEGetScriptEngineVerison")
 }
 
-Local<Value> LlClass::getVersionStatus() {
-    try {
-        return Number::newNumber(0);
-    }
-    CATCH("Fail in LLSEGetVersionStatus")
-}
+Local<Value> LlClass::getVersionStatus() { return Number::newNumber(0); }
 
-Local<Value> LlClass::registerPlugin(const Arguments& args) {
-    try {
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in LLAPI");
-}
+Local<Value> LlClass::registerPlugin(const Arguments& args) { return Boolean::newBoolean(true); }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
         auto plugin = lse::getPluginManager().getPlugin(args[0].asString().toString());
@@ -180,13 +162,7 @@ Local<Value> LlClass::versionString(const Arguments& args) {
     CATCH("Fail in LLSEGetVersionString!")
 }
 
-Local<Value> LlClass::requireVersion(const Arguments& args) {
-
-    try {
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in LLSERequireVersion!")
-}
+Local<Value> LlClass::requireVersion(const Arguments& args) { return Boolean::newBoolean(true); }
 
 Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     try {
@@ -240,12 +216,8 @@ Local<Value> LlClass::listPlugins(const Arguments& args) {
     CATCH("Fail in LLAPI");
 }
 
-Local<Value> LlClass::require(const Arguments& args) {
-    try {
-        return {};
-    }
-    CATCH("Fail in LLAPI");
-}
+Local<Value> LlClass::require(const Arguments& args) { return Boolean::newBoolean(true); }
+
 Local<Value> LlClass::eval(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -275,14 +247,11 @@ Local<Value> LlClass::version(const Arguments& args) {
 
 // For Compatibility
 Local<Value> LlClass::isDebugModeFunction(const Arguments& args) {
-    try {
 #ifdef LEGACYSCRIPTENGINE_DEBUG
-        return Boolean::newBoolean(true);
+    return Boolean::newBoolean(true);
 #else
-        return Boolean::newBoolean(false);
+    return Boolean::newBoolean(false);
 #endif
-    }
-    CATCH("Fail in LLSEGetIsDebugModeFunction")
 }
 
 // For Compatibility

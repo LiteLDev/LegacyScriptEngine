@@ -25,27 +25,6 @@ Some interfaces related to loader operations are provided here.
 - Return value: loader version
 - Return value type:  `String`
 
-
-
-### Check LeviLamina version
-
-`ll.requireVersion(major[,minor,revision])`
-
-- Parameter: 
-  - major: `Integer`  
-    Check if the major version number of the currently installed LL is >= this value.
-  - minor: `Integer` (optional parameter)
-    Check if the minor version number of the currently installed LL is >= this value.
-  - revision: `Integer` (optional parameter)  
-    Check if the revision number of the currently installed LL is >= this value.
-- Return value: Test result
-- Return value type:  `Boolean`
-
-If the detection finds that the currently installed version of LLSE is lower than the value passed in, it will return `false`. 
-You can choose to judge based on the results and report an error to remind users to upgrade their LeviLamina version.
-
-
-
 ### Get information about Plugin
 
 `ll.getPluginInfo(name)`
@@ -66,9 +45,6 @@ You can choose to judge based on the results and report an error to remind users
   | plugin.filePath   | Path to plugin          | `String`                         |
   | plugin.others     | Other information       | `Object`                         |
 
-
-
-
 ### List all loaded plugins
 
 `ll.listPlugins()`
@@ -76,16 +52,12 @@ You can choose to judge based on the results and report an error to remind users
 - Return value: A list containing the names of all loaded plugin
 - Return value type:  `Array<String,String,...>`
 
-
-
 ### List all loaded plugins with information
 
 `ll.getAllPluginInfo()`
 
 - Return value: A list containing the plugin objects of all loaded plugin
 - Return value type:  `Array<Plugin,Plugin,...>`
-
-
 
 ### Remote Function Call
 
@@ -109,8 +81,6 @@ In order to allow the pre-plug-ins developed by developers to provide interfaces
 
 Note: If the namespace and name of the exported function are exactly the same as another already exported function, the export will fail. Please select the namespace and export name appropriately when exporting.
 
-
-
 #### Import Function
 
 After you have learned that there is a plug-in exporting function, in order to use the function exported by him, you first need to import this function into your own scripting system.
@@ -128,8 +98,6 @@ LLSE provides the interface import to import functions already exported by other
 
 The return value of `ll.import` is a function. When you call this function, the cross-plugin call process will be done automatically in the background. The parameters of the calling function will be wrapped and passed to the remote function, and the return value of this function is the return value returned by the remote function after it has been executed.
 
-
-
 #### Example of Remote Calling Function 
 
 For example, there is a plug-in that exports a function using the namespace AAA, and the name of the exported function is Welcome
@@ -140,8 +108,6 @@ You can execute `welcome = ll.import("AAA", "Welcome"); ` to import this functio
 The parameters of the function will be automatically forwarded to the corresponding target function for execution, and the return value of the corresponding target function will be returned after execution. The whole process is automatically completed. 
 
 Notice! When calling a function, you need to ensure that the number and types of parameters you pass in and the parameters accepted by the target function are correct and in one-to-one correspondence. Otherwise, an error will occur. 
-
-
 
 ### Determine if a remote function has been exported
 
@@ -155,41 +121,6 @@ Notice! When calling a function, you need to ensure that the number and types of
 - Return value：Whether the function has been exported
 - Return value type： `Boolean`
 
-
-
-### Set Plugin Dependencies 
-
-Sometimes, you need to make sure that certain plugins are loaded before your own plugins to use the frontend services provided by them. We call these frontend plugins **library dependencies**.
-
-When using the import function mentioned above, you need to pay attention: the premise of being able to import a function is that the pre-plugin to be called has been loaded by LLSE.
-Therefore, you may need to use the following function to set the dependent library, so that the pre-plugins you need are loaded first and the import is successful.
-
-LLSE provides the following interface to preload the dependent libraries required by the plugin, download the dependent library files you need from local files, or even from remote HTTP(s) addresses.
-
-`ll.require(path[,remotePath])`
-
-- Parameter: 
-  - path : `String`  
-    Library dependency filename (Example: `addplugin.js`)
-  - remotePath : `String`  
-    (Optional parameter) The path to find and load dependent libraries, see below for instructions.
-- Return value: Whether the dependent library is loaded successfully 
-- Return value type:  `Boolean`
-
-For execution, use `ll.require`, then LLSE will perform the following series of operations:
-
-- Search the list of loaded plugins. If the dependent library has been loaded, it will return success directly.
-- Search **plugins** and **plugins/lib** directories, if the corresponding dependent library file is found, load it and return the loading result.
-- If the corresponding dependent library file is not found after the search is completed, and the remotePath parameter is not passed in, it will return directly to failure.
-- Use the HTTP(s) protocol remotePath to request the download address corresponding to the remotePath parameter, and download the dependent library files to the `plugins/lib` directory. If the download fails, return failure.
-- Load the successfully downloaded dependent library file and return the loading result.
-
-
-
-Authors of dependent libraries can host relevant code on stable large websites such as GitHub or Gitee, and provide external links to other developers for remote download.
-
-
-
 ### Execute a String as a Script
 
 `ll.eval(str)`
@@ -199,5 +130,3 @@ Authors of dependent libraries can host relevant code on stable large websites s
     String to execute as a Script
 - Return value: Execution result
 - Return value type:  `Any Type`
-
-Different from the above mentioned `ll.require`, the script code executed here is directly executed in the engine corresponding to the current plugin, similar to the eval mechanism of each language.

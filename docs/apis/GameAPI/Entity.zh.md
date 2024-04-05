@@ -163,18 +163,19 @@
 
 #### 对实体造成伤害
 
-`en.hurt(damage,type)`
+`en.hurt(damage,type,source)`
 
 - 参数：
   - damage : `Float`  
     对实体造成的伤害数值
   - type : `Integer`  
     伤害类型
+  - source : `Entity`
+    伤害来源
 - 返回值：是否造成伤害
 - 返回值类型：`Boolean`
 
 注意，此处造成的伤害为真实伤害，无法被盔甲等保护装备减免
-
 
 | 伤害类型枚举                       |
 | ---------------------------------- |
@@ -209,8 +210,6 @@
 | `ActorDamageCause.Stalactite`      |
 | `ActorDamageCause.Stalagmite`      |
 | `ActorDamageCause.All`             |
-
-
 
 #### 治疗实体
 

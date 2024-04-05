@@ -161,13 +161,15 @@ Each entity object contains some member functions (member methods) that can be e
 
 #### Inflict Damage to Entities
 
-`en.hurt(damage,type)`
+`en.hurt(damage,type,source)`
 
 - Parameters: 
   - damage : `Float`  
     The amount of damage to deal to the entity.
- - type : `Integer`  
+  - type : `Integer`  
     Actor Damage Cause
+  - source: `Entity`  
+    Source of damage
 - Return value: Whether the damage was dealt.
 - Return value type:  `Boolean`
 
@@ -205,8 +207,6 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 | `ActorDamageCause.Freezing`        |
 | `ActorDamageCause.Stalactite`      |
 | `ActorDamageCause.Stalagmite`      |
-
-
 
 #### Heal the Entity
 

@@ -432,15 +432,51 @@
 
 #### 对玩家造成伤害
 
-`pl.hurt(damage)`
-
 - 参数：
-  - damage : `Integer`  
+  - damage : `Float`  
     对玩家造成的伤害数值
+  - type : `Integer`  
+    伤害类型
+  - source : `Entity`
+    伤害来源
 - 返回值：是否造成伤害
 - 返回值类型：`Boolean`
 
 注意，此处造成的伤害为真实伤害，无法被盔甲等保护装备减免
+
+| 伤害类型枚举                       |
+| ---------------------------------- |
+| `ActorDamageCause.Override`        |
+| `ActorDamageCause.Contact `        |
+| `ActorDamageCause.EntityAttack`    |
+| `ActorDamageCause.Projectile`      |
+| `ActorDamageCause.Suffocation`     |
+| `ActorDamageCause.All`             |
+| `ActorDamageCause.Fire`            |
+| `ActorDamageCause.FireTick`        |
+| `ActorDamageCause.Lava`            |
+| `ActorDamageCause.Drowning `       |
+| `ActorDamageCause.BlockExplosion`  |
+| `ActorDamageCause.EntityExplosion` |
+| `ActorDamageCause.Void`            |
+| `ActorDamageCause.Suicide`         |
+| `ActorDamageCause.Magic`           |
+| `ActorDamageCause.Wither`          |
+| `ActorDamageCause.Starve`          |
+| `ActorDamageCause.Anvil`           |
+| `ActorDamageCause.Thorns`          |
+| `ActorDamageCause.FallingBlock`    |
+| `ActorDamageCause.Piston`          |
+| `ActorDamageCause.FlyIntoWall`     |
+| `ActorDamageCause.Magma`           |
+| `ActorDamageCause.Fireworks`       |
+| `ActorDamageCause.Lightning`       |
+| `ActorDamageCause.Charging`        |
+| `ActorDamageCause.Temperature`     |
+| `ActorDamageCause.Freezing`        |
+| `ActorDamageCause.Stalactite`      |
+| `ActorDamageCause.Stalagmite`      |
+| `ActorDamageCause.All`             |
 
 - 示例：  
   - JavaScript

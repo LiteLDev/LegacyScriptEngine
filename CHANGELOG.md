@@ -5,11 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2024-04-05
+
+### Fixed
+
+- Add default value process into Entity::hurt [#91]
+- Fix setScale [#92]
+
 ## [0.5.2] - 2024-03-28
 
 ### Fixed
 
-- Fix #79 #80 #81 #82
+- Fix [#79] [#80] [#81] [#82]
 
 ## [0.5.1] - 2024-03-27
 
@@ -227,7 +234,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#73]: https://github.com/LiteLDev/LegacyScriptEngine/issues/73
 [#74]: https://github.com/LiteLDev/LegacyScriptEngine/issues/74
 [#76]: https://github.com/LiteLDev/LegacyScriptEngine/issues/76
+[#79]: https://github.com/LiteLDev/LegacyScriptEngine/issues/79
+[#80]: https://github.com/LiteLDev/LegacyScriptEngine/issues/80
+[#81]: https://github.com/LiteLDev/LegacyScriptEngine/issues/81
+[#82]: https://github.com/LiteLDev/LegacyScriptEngine/issues/82
+[#91]: https://github.com/LiteLDev/LegacyScriptEngine/issues/91
+[#92]: https://github.com/LiteLDev/LegacyScriptEngine/issues/92
 
+[0.5.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.15...v0.5.1
 [0.4.15]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.14...v0.4.15
 [0.4.14]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.13...v0.4.14

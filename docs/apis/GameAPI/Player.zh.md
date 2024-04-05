@@ -678,7 +678,7 @@
 `pl.setScale(scale)`
 
 - 参数: 
-  - scale : `Integer`  
+  - scale : `Float`  
     新的玩家体积
 - 返回值: 玩家是否成功地被缩放
 - 返回值类型: `Boolean`

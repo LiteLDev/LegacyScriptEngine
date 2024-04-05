@@ -383,7 +383,7 @@
 `en.setScale(scale)`
 
 - 参数: 
-  - scale : `Integer`  
+  - scale : `Float`  
     新的实体体积
 - 返回值: 实体是否成功地被缩放
 - 返回值类型: `Boolean`

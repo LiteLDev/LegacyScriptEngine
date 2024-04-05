@@ -599,7 +599,7 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 `pl.setScale(scale)`
 
 - Parameters: 
-  - scale : `Integer`  
+  - scale : `Float`  
     New player size
 - Return value: Whether the player was scaled.
 - Return value type: `Boolean`

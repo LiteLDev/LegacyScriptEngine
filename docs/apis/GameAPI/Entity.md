@@ -380,7 +380,7 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 `en.setScale(scale)`
 
 - Parameters: 
-  - scale : `Integer`  
+  - scale : `Float`  
     New entity size
 - Return value: Whether the entity was scaled.
 - Return value type: `Boolean`

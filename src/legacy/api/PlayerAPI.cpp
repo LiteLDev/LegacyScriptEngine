@@ -1762,6 +1762,7 @@ Local<Value> PlayerClass::setScale(const Arguments& args) {
         if (!player) return Local<Value>();
 
         player->getEntityData().set((ushort)ActorDataIDs::Scale, args[0].asNumber().toFloat());
+        player->_sendDirtyActorData();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setScale!");

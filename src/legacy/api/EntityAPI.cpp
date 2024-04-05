@@ -1279,6 +1279,7 @@ Local<Value> EntityClass::setScale(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         entity->getEntityData().set((ushort)ActorDataIDs::Scale, args[0].asNumber().toFloat());
+        entity->_sendDirtyActorData();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setScale!")

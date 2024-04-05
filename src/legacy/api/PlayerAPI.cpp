@@ -83,6 +83,7 @@
 #include <mc/world/actor/Actor.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
+#include <mc/world/actor/components/SynchedActorDataAccess.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>
@@ -1761,8 +1762,7 @@ Local<Value> PlayerClass::setScale(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getEntityData().set((ushort)ActorDataIDs::Scale, args[0].asNumber().toFloat());
-        player->_sendDirtyActorData();
+        SynchedActorDataAccess::setBoundingBoxScale(player->getEntityContext(), args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setScale!");

@@ -30,6 +30,7 @@
 #include <mc/world/actor/Mob.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
+#include <mc/world/actor/components/SynchedActorDataAccess.h>
 #include <mc/world/actor/item/ItemActor.h>
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>
@@ -1268,8 +1269,6 @@ Local<Value> EntityClass::stopFire(const Arguments& args) {
     CATCH("Fail in stopFire!")
 }
 
-#include "mc/entity/utilities/ActorDataIDs.h"
-
 Local<Value> EntityClass::setScale(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1278,8 +1277,7 @@ Local<Value> EntityClass::setScale(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        entity->getEntityData().set((ushort)ActorDataIDs::Scale, args[0].asNumber().toFloat());
-        entity->_sendDirtyActorData();
+        SynchedActorDataAccess::setBoundingBoxScale(entity->getEntityContext(), args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setScale!")

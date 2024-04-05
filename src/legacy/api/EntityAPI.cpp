@@ -1000,20 +1000,20 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
         }
         float damage = args[0].asNumber().toFloat();
         int   type   = 0;
-        if (args.size() == 2) {
+        if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            type                           = args[1].asNumber().toInt32();
-            ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
-            return Boolean::newBoolean(entity->hurt(damageSource, damage, true, false));
+            type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            auto source                           = EntityClass::extract(args[2]);
-            type                                  = args[1].asNumber().toInt32();
-            ActorDamageByActorSource damageSource = ActorDamageByActorSource(*source, (ActorDamageCause)type);
-            return Boolean::newBoolean(entity->hurt(damageSource, damage, true, false));
+            auto source = EntityClass::extract(args[2]);
+            if (!source) {
+                return Boolean::newBoolean(false);
+            }
+            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source, (ActorDamageCause)type);
+            return Boolean::newBoolean(entity->hurt(damageBySource, damage, true, false));
         }
-        return Boolean::newBoolean(false);
+        ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
+        return Boolean::newBoolean(entity->hurt(damageSource, damage, true, false));
     }
     CATCH("Fail in hurt!");
 }

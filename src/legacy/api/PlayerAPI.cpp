@@ -2461,18 +2461,18 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
         }
         float damage = args[0].asNumber().toFloat();
         int   type   = 0;
-        if (args.size() == 2) {
+        if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             type = args[1].asNumber().toInt32();
-            return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type));
         }
         if (args.size() == 3) {
-            CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             auto source = EntityClass::extract(args[2]);
-            type        = args[1].asNumber().toInt32();
+            if (!source) {
+                return Boolean::newBoolean(false);
+            }
             return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type, source));
         }
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type));
     }
     CATCH("Fail in hurt!");
 }

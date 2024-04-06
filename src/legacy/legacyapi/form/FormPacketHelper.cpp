@@ -85,6 +85,7 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
         if (form->callback) form->callback(player, chosen);
         // Button Callback
         if (chosen >= 0) {
+            if (chosen >= form->elements.size()) return;
             auto button = dynamic_pointer_cast<Button>(form->elements[chosen]);
             if (button->callback) button->callback(player);
         }

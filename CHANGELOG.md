@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] - 2024-04-08
+
+### Fixed
+
+- Fix getPlayerNbt [#94]
+- Fix offline setPlayerNbt
+
 ## [0.5.3] - 2024-04-05
 
 ### Fixed
@@ -240,7 +247,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#82]: https://github.com/LiteLDev/LegacyScriptEngine/issues/82
 [#91]: https://github.com/LiteLDev/LegacyScriptEngine/issues/91
 [#92]: https://github.com/LiteLDev/LegacyScriptEngine/issues/92
+[#94]: https://github.com/LiteLDev/LegacyScriptEngine/issues/94
 
+[0.5.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.4.15...v0.5.1

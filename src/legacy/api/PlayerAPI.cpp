@@ -330,28 +330,32 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto         uuid   = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag* tag    = new CompoundTag();
-        Player*      player = ll::service::getLevel()->getPlayer(uuid);
+        auto                         uuid   = mce::UUID::fromString(args[0].asString().toString());
+        std::unique_ptr<CompoundTag> tag    = std::make_unique<CompoundTag>();
+        Player*                      player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
             player->save(*tag);
         } else {
-            DBStorage* db = MoreGlobal::getDBStorage();
+            DBStorage* db = MoreGlobal::db;
             if (db) {
-                auto tagPtr = db->loadPlayerDataFromTag(uuid.asString());
-                if (tagPtr) {
-                    tag = std::move(tagPtr.get());
+                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                    std::unique_ptr<CompoundTag> playerTag =
+                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                    if (playerTag) {
+                        std::string serverId = playerTag->at("ServerId");
+                        if (!serverId.empty()) {
+                            if (db->hasKey(serverId, DBHelpers::Category::Player)) {
+                                tag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+                            }
+                        }
+                    }
                 }
-            } else {
-                return Local<Value>();
             }
         }
-
-        if (!tag->isEmpty()) {
-            return NbtCompoundClass::pack(tag);
-        } else {
-            return Local<Value>();
+        if (tag && !tag->isEmpty()) {
+            return NbtCompoundClass::pack(std::move(tag));
         }
+        return Local<Value>();
     }
     CATCH("Fail in getPlayerNbt!")
 }

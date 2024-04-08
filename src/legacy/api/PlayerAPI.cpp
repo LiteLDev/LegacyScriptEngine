@@ -37,6 +37,7 @@
 #include "mc/enums/MinecraftPacketIds.h"
 #include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
+#include "mc/enums/d_b_helpers/Category.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPackets.h"
@@ -330,28 +331,32 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto         uuid   = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag* tag    = new CompoundTag();
-        Player*      player = ll::service::getLevel()->getPlayer(uuid);
+        auto                         uuid   = mce::UUID::fromString(args[0].asString().toString());
+        std::unique_ptr<CompoundTag> tag    = std::make_unique<CompoundTag>();
+        Player*                      player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
             player->save(*tag);
         } else {
-            DBStorage* db = MoreGlobal::getDBStorage();
+            DBStorage* db = MoreGlobal::db;
             if (db) {
-                auto tagPtr = db->loadPlayerDataFromTag(uuid.asString());
-                if (tagPtr) {
-                    tag = std::move(tagPtr.get());
+                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                    std::unique_ptr<CompoundTag> playerTag =
+                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                    if (playerTag) {
+                        std::string serverId = playerTag->at("ServerId");
+                        if (!serverId.empty()) {
+                            if (db->hasKey(serverId, DBHelpers::Category::Player)) {
+                                tag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+                            }
+                        }
+                    }
                 }
-            } else {
-                return Local<Value>();
             }
         }
-
-        if (!tag->isEmpty()) {
-            return NbtCompoundClass::pack(tag);
-        } else {
-            return Local<Value>();
+        if (tag && !tag->isEmpty()) {
+            return NbtCompoundClass::pack(std::move(tag));
         }
+        return Local<Value>();
     }
     CATCH("Fail in getPlayerNbt!")
 }
@@ -365,8 +370,24 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         Player* player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
             player->load(*tag);
+            return Boolean::newBoolean(true);
+        } else {
+            DBStorage* db = MoreGlobal::db;
+            if (db) {
+                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                    std::unique_ptr<CompoundTag> playerTag =
+                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                    if (playerTag) {
+                        std::string serverId = playerTag->at("ServerId");
+                        if (!serverId.empty()) {
+                            db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
+                            return Boolean::newBoolean(true);
+                        }
+                    }
+                }
+            }
         }
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setPlayerNbt!")
 }

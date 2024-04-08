@@ -1,6 +1,8 @@
 #include "FormPacketHelper.h"
 
 #include "FormUI.h"
+#include "ll/api/form/FormBase.h"
+#include "ll/api/form/FormIdManager.h"
 #include "ll/api/memory/Hook.h"
 #include "mc/network/PacketHandlerDispatcherInstance.h"
 #include "mc/network/ServerNetworkHandler.h"
@@ -34,12 +36,10 @@ std::unordered_map<unsigned, std::shared_ptr<CustomForm>> customFormBuilders;
 
 //////////////////////////////// Functions ////////////////////////////////
 
-#define RAND_FORM_ID() (unsigned)((rand() << 16) + rand())
-
 unsigned NewFormId() {
     unsigned formId;
     do {
-        formId = RAND_FORM_ID();
+        formId = ll::form::FormIdManager::genFormId();
     } while (formTypes.find(formId) != formTypes.end());
     return formId;
 }

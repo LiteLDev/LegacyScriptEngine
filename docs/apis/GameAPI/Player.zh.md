@@ -1804,7 +1804,7 @@
 
 #### 模拟重生
 
-'sp.simulateRespawn（）'
+`sp.simulateRespawn()`
 
 - 返回值：是否成功模拟操作
 - 返回值类型：'Boolean'

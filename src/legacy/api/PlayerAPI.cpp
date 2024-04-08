@@ -37,6 +37,7 @@
 #include "mc/enums/MinecraftPacketIds.h"
 #include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
+#include "mc/enums/d_b_helpers/Category.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPackets.h"
@@ -369,8 +370,24 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         Player* player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
             player->load(*tag);
+            return Boolean::newBoolean(true);
+        } else {
+            DBStorage* db = MoreGlobal::db;
+            if (db) {
+                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                    std::unique_ptr<CompoundTag> playerTag =
+                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                    if (playerTag) {
+                        std::string serverId = playerTag->at("ServerId");
+                        if (!serverId.empty()) {
+                            db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
+                            return Boolean::newBoolean(true);
+                        }
+                    }
+                }
+            }
         }
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setPlayerNbt!")
 }

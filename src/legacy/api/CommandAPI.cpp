@@ -17,6 +17,7 @@
 #include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/ServerInfo.h"
+#include "lse/Plugin.h"
 #include "magic_enum.hpp"
 #include "main/Configs.h"
 #include "mc/_HeaderOutputPredefine.h"
@@ -42,8 +43,6 @@
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "utils/Utils.h"
-
-#include "lse/Plugin.h"
 
 #include <filesystem>
 #include <string>

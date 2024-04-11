@@ -48,11 +48,8 @@ bool ProcessDebugEngine(const std::string& cmd) {
 }
 
 void RegisterDebugCommand() {
-    auto command = DynamicCommand::createCommand(
-        LLSE_DEBUG_CMD,
-        "Debug LegacyScriptEngine",
-        CommandPermissionLevel::Owner
-    );
+    auto command =
+        DynamicCommand::createCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command->optional("eval", DynamicCommand::ParameterType::RawText);
     command->addOverload("eval");
     command->setCallback([](DynamicCommand const&,

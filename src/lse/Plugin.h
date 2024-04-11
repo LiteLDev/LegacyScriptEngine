@@ -8,10 +8,11 @@
 namespace lse {
 
 class Plugin : public ll::plugin::Plugin {
+    friend PluginManager;
+
 public:
     Plugin(const ll::plugin::Manifest& manifest);
 
-private:
-    friend PluginManager;
+    static std::shared_ptr<ll::plugin::Plugin> current();
 };
 } // namespace lse

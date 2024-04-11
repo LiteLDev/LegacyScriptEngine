@@ -49,7 +49,6 @@ bool ProcessDebugEngine(const std::string& cmd) {
 
 void RegisterDebugCommand() {
     auto command = DynamicCommand::createCommand(
-        ll::service::getCommandRegistry(),
         LLSE_DEBUG_CMD,
         "Debug LegacyScriptEngine",
         CommandPermissionLevel::Owner

@@ -595,13 +595,12 @@ void DynamicCommand::execute(CommandOrigin const& origin, CommandOutput& output)
 }
 
 std::unique_ptr<class DynamicCommandInstance> DynamicCommand::createCommand(
-    CommandRegistry&       registry,
     std::string const&     name,
     std::string const&     description,
     CommandPermissionLevel permission,
     CommandFlag            flag
 ) {
-    return DynamicCommandInstance::create(registry, name, description, permission, flag);
+    return DynamicCommandInstance::create(name, description, permission, flag);
 }
 
 DynamicCommandInstance const*
@@ -614,7 +613,6 @@ DynamicCommand::setup(CommandRegistry& registry, std::unique_ptr<class DynamicCo
 }
 
 std::unique_ptr<class DynamicCommandInstance> DynamicCommand::createCommand(
-    CommandRegistry&                                            registry,
     std::string const&                                          name,
     std::string const&                                          description,
     std::unordered_map<std::string, std::vector<std::string>>&& enums,
@@ -624,7 +622,7 @@ std::unique_ptr<class DynamicCommandInstance> DynamicCommand::createCommand(
     CommandPermissionLevel                                      permission,
     CommandFlag                                                 flag
 ) {
-    auto command = createCommand(registry, name, description, permission, flag);
+    auto command = createCommand(name, description, permission, flag);
     if (!command) return std::unique_ptr<class DynamicCommandInstance>();
     for (auto& [desc, values] : enums) {
         command->setEnum(desc, std::move(values));
@@ -647,9 +645,9 @@ void DynamicCommand::updateAvailableCommands(CommandRegistry& registry) {
     registry.serializeAvailableCommands().sendToClients();
 }
 
-DynamicCommandInstance const* DynamicCommand::getInstance() const { return getInstance(getCommandName()); }
+DynamicCommandInstance* DynamicCommand::getInstance() const { return getInstance(getCommandName()); }
 
-DynamicCommandInstance const* DynamicCommand::getInstance(std::string const& commandName) {
+DynamicCommandInstance* DynamicCommand::getInstance(std::string const& commandName) {
     auto iter = dynamicCommandInstances.find(commandName);
     if (iter == dynamicCommandInstances.end()) return nullptr;
     else return iter->second.get();
@@ -681,7 +679,6 @@ static std::unique_ptr<Command> commandBuilder(uintptr_t t) {
 }
 
 DynamicCommandInstance::DynamicCommandInstance(
-    CommandRegistry&       registry,
     std::string const&     name,
     std::string const&     description,
     CommandPermissionLevel permission,
@@ -691,25 +688,17 @@ DynamicCommandInstance::DynamicCommandInstance(
   description_(std::make_unique<std::string>(description)),
   permission_(permission),
   flag_(flag),
-  registry(registry),
   builder(std::make_unique<ll::memory::NativeClosure<std::unique_ptr<Command>>>(commandBuilder, (uintptr_t)this)) {}
 
 DynamicCommandInstance::~DynamicCommandInstance() = default;
 
 std::unique_ptr<DynamicCommandInstance> DynamicCommandInstance::create(
-    CommandRegistry&       registry,
     std::string const&     name,
     std::string const&     description,
     CommandPermissionLevel permission,
     CommandFlag            flag
 ) {
-    if (registry.findCommand(name)) {
-        logger.error("Command \"{}\" already exists", name);
-        return nullptr;
-    }
-    return std::unique_ptr<DynamicCommandInstance>(
-        new DynamicCommandInstance(registry, name, description, permission, flag)
-    );
+    return std::unique_ptr<DynamicCommandInstance>(new DynamicCommandInstance(name, description, permission, flag));
 }
 
 bool DynamicCommandInstance::addOverload(std::vector<DynamicCommand::ParameterData>&& params) {
@@ -886,10 +875,10 @@ std::string DynamicCommandInstance::setSoftEnum(std::string const& name, std::ve
         softEnums.emplace(name, values);
     } else {
         if (!ll::command::CommandRegistrar::getInstance().hasSoftEnum(name)) {
-            registry.addSoftEnum(name, values);
-            return name;
+            ll::command::CommandRegistrar::getInstance().tryRegisterSoftEnum(name, values);
+        } else {
+            ll::command::CommandRegistrar::getInstance().setSoftEnumValues(name, values);
         }
-        CommandSoftEnumRegistry(registry).updateSoftEnum(SoftEnumUpdateType::Replace, name, values);
     }
     return name;
 }
@@ -904,10 +893,10 @@ bool DynamicCommandInstance::addSoftEnumValues(std::string const& name, std::vec
         }
     } else {
         if (!ll::command::CommandRegistrar::getInstance().hasSoftEnum(name)) {
-            registry.addSoftEnum(name, values);
-            return true;
+            ll::command::CommandRegistrar::getInstance().tryRegisterSoftEnum(name, values);
+        } else {
+            ll::command::CommandRegistrar::getInstance().addSoftEnumValues(name, values);
         }
-        CommandSoftEnumRegistry(registry).updateSoftEnum(SoftEnumUpdateType::Add, name, values);
     }
     return true;
 }
@@ -924,7 +913,7 @@ bool DynamicCommandInstance::removeSoftEnumValues(std::string const& name, std::
         }
         return false;
     } else {
-        CommandSoftEnumRegistry(registry).updateSoftEnum(SoftEnumUpdateType::Remove, name, values);
+        ll::command::CommandRegistrar::getInstance().removeSoftEnumValues(name, values);
     }
     return true;
 }

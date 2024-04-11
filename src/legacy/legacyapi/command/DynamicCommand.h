@@ -522,14 +522,12 @@ public:
     /*1*/ virtual void execute(class CommandOrigin const& origin, class CommandOutput& output) const;
 
     static std::unique_ptr<class DynamicCommandInstance> createCommand(
-        CommandRegistry&       registry,
         std::string const&     name,
         std::string const&     description,
         CommandPermissionLevel permission = CommandPermissionLevel::GameDirectors,
         CommandFlag            flag       = CommandFlagValue::NotCheat
     );
     static std::unique_ptr<class DynamicCommandInstance> createCommand(
-        CommandRegistry&                                            registry,
         std::string const&                                          name,
         std::string const&                                          description,
         std::unordered_map<std::string, std::vector<std::string>>&& enums,
@@ -571,9 +569,9 @@ public:
 
     static void updateAvailableCommands(CommandRegistry& registry);
 
-    DynamicCommandInstance const* getInstance() const;
+    DynamicCommandInstance* getInstance() const;
 
-    static DynamicCommandInstance const* getInstance(std::string const& commandName);
+    static DynamicCommandInstance* getInstance(std::string const& commandName);
 };
 
 /**
@@ -600,7 +598,6 @@ private:
     std::unique_ptr<std::string> description_;
     CommandPermissionLevel       permission_;
     CommandFlag                  flag_;
-    CommandRegistry&             registry;
 
 public:
     std::unique_ptr<ll::memory::NativeClosure<std::unique_ptr<Command>>> builder;
@@ -626,7 +623,6 @@ private:
     friend class DynamicCommand;
 
     DynamicCommandInstance(
-        CommandRegistry&       registry,
         std::string const&     name,
         std::string const&     description,
         CommandPermissionLevel permission,
@@ -638,7 +634,6 @@ public:
     virtual ~DynamicCommandInstance();
 
     static std::unique_ptr<DynamicCommandInstance> create(
-        CommandRegistry&       registry,
         std::string const&     name,
         std::string const&     description,
         CommandPermissionLevel permission = CommandPermissionLevel::GameDirectors,
@@ -749,7 +744,6 @@ inline DynamicCommandInstance const* DynamicCommand::setup(
     return setup(
         registry,
         createCommand(
-            registry,
             name,
             description,
             std::move(enums),

@@ -13,6 +13,8 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "ll/api/command/CommandRegistrar.h"
+#include "ll/api/event/EventBus.h"
+#include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/ServerInfo.h"
 #include "magic_enum.hpp"
@@ -40,6 +42,8 @@
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "utils/Utils.h"
+
+#include "lse/Plugin.h"
 
 #include <filesystem>
 #include <string>
@@ -227,9 +231,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                 "applied except for setOverload!",
                 name
             );
-            return CommandClass::newCommand(
-                const_cast<std::add_pointer_t<std::remove_cv_t<std::remove_pointer_t<decltype(instance)>>>>(instance)
-            );
+            return CommandClass::newCommand(instance);
         }
 
         auto                   desc       = args[1].toStr();
@@ -247,20 +249,13 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                 }
             }
         }
-        if (ll::service::getCommandRegistry().has_value()) {
-            auto command =
-                DynamicCommand::createCommand(ll::service::getCommandRegistry().get(), name, desc, permission, flag);
-            if (command) {
-                if (!alias.empty()) {
-                    command->setAlias(alias);
-                }
-                return CommandClass::newCommand(std::move(command));
+        auto command = DynamicCommand::createCommand(name, desc, permission, flag);
+        if (command) {
+            if (!alias.empty()) {
+                command->setAlias(alias);
             }
-            return Boolean::newBoolean(false);
+            return CommandClass::newCommand(std::move(command));
         }
-        lse::getSelfPluginInstance().getLogger().warn(
-            "Server have not started yet, please don't use mc.newCommand() before server started."
-        );
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in newCommand!")
@@ -533,7 +528,19 @@ Local<Value> CommandClass::setup(const Arguments& args) {
             setCallback(args);
         }
         if (registered) return Boolean::newBoolean(true);
-        return Boolean::newBoolean(DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(uptr)));
+        if (ll::service::getCommandRegistry()) {
+            return Boolean::newBoolean(DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(uptr)));
+        } else {
+            ll::event::EventBus::getInstance().emplaceListener<ll::event::ServerStartedEvent>(
+                [pp = std::make_shared<decltype(uptr)>(std::move(uptr))](auto&&) mutable {
+                    DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(*pp));
+                },
+                ll::event::EventPriority::Normal,
+                lse::Plugin::current()
+            );
+        }
+
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in setup!")
 }

@@ -1644,7 +1644,7 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
                 3248
             ); // Todo: please remove it when LeviLamina 0.11.1 released
             if (enderChest) {
-                return ContainerClass::newContainer(chest);
+                return ContainerClass::newContainer(enderChest);
             }
         }
         return {};

@@ -1634,8 +1634,9 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        if (player->getEnderChestContainer().has_value()) {
-            return ContainerClass::newContainer(player->getEnderChestContainer());
+        auto chest = player->getEnderChestContainer();
+        if (chest) {
+            return ContainerClass::newContainer(chest);
         } else {
             return {};
         }

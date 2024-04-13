@@ -2841,7 +2841,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 } else {
                     result += clearCount;
                 }
-                player->getInventory().removeItem(slot, clearCount);
+                player->getHandContainer().removeItem(slot, clearCount);
             }
         }
         auto& armorSlots = player->getArmorContainer().getSlots();
@@ -2852,7 +2852,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 } else {
                     result += clearCount;
                 }
-                player->getInventory().removeItem(slot, clearCount);
+                player->getArmorContainer().removeItem(slot, clearCount);
             }
         }
         player->refreshInventory();

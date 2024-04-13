@@ -62,6 +62,7 @@
 #include "mc/world/ActorUniqueID.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
+#include "mc/world/actor/player/EnderChestContainer.h"
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/actor/player/PlayerUISlot.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -1638,8 +1639,15 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
         if (chest) {
             return ContainerClass::newContainer(chest);
         } else {
-            return {};
+            EnderChestContainer* enderChest = ll::memory::dAccess<EnderChestContainer*>(
+                player,
+                3248
+            ); // Todo: please remove it when LeviLamina 0.11.1 released
+            if (enderChest) {
+                return ContainerClass::newContainer(chest);
+            }
         }
+        return {};
     }
     CATCH("Fail in getEnderChest!");
 }

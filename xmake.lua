@@ -9,14 +9,15 @@ add_requires(
     "legacymoney 0.5.0",
     "legacyparticleapi 0.5.0",
     "legacyremotecall 0.5.0",
-    "levilamina 0.10.5",
+    "levilamina 0.11.0",
+    "bdslibrary 1.20.72.01",
     "lightwebsocketclient",
     "magic_enum",
     "nlohmann_json",
     "simpleini",
     "sqlite3 3.43.0+200",
     "toml++",
-    "cpp-httplib v0.14.0", {configs={ssl=true, zlib=true}}
+    "cpp-httplib 0.14.0", {configs={ssl=true, zlib=true}}
 )
 
 if is_config("backend", "lua") then
@@ -69,6 +70,7 @@ target("legacy-script-engine")
         "legacyparticleapi",
         "legacyremotecall",
         "levilamina",
+        "bdslibrary",
         "lightwebsocketclient",
         "magic_enum",
         "nlohmann_json",

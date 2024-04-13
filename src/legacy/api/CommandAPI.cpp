@@ -118,7 +118,7 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
     }
     case DynamicCommand::ParameterType::Message:
         return String::newString(
-            result.getRaw<CommandMessage>().generateMessage(*result.origin, CommandVersion::CurrentVersion).string
+            result.getRaw<CommandMessage>().generateMessage(*result.origin, CommandVersion::CurrentVersion).mString
         );
     case DynamicCommand::ParameterType::RawText:
         return String::newString(result.getRaw<std::string>());

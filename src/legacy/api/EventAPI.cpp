@@ -367,7 +367,7 @@ void EnableEventListener(int eventId) {
                     PlayerClass::newPlayer(&ev.self()),
                     ItemClass::newItem(&ev.item(), false),
                     BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
-                    Number::newNumber(ev.face()),
+                    Number::newNumber((schar)ev.face()),
                     FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
                 );
             }

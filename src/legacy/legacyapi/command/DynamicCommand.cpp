@@ -352,7 +352,7 @@ std::string DynamicCommand::Result::toDebugString() const {
             name,
             typeName,
             isSet,
-            getRaw<CommandMessage>().generateMessage(*origin, CommandVersion::CurrentVersion).string
+            getRaw<CommandMessage>().generateMessage(*origin, CommandVersion::CurrentVersion).mString
         );
     case ParameterType::JsonValue:
         return fmt::format(

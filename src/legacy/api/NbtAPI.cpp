@@ -21,6 +21,7 @@
 #include <mc/nbt/CompoundTag.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using magic_enum::enum_cast;
@@ -1973,7 +1974,7 @@ Local<Value> NbtStatic::parseSNBT(const Arguments& args) {
 
     try {
         auto tag = CompoundTag::fromSnbt(args[0].toStr());
-        if (tag.has_value()) return NbtCompoundClass::pack(std::move(&tag.value()));
+        if (tag.has_value()) return NbtCompoundClass::pack(std::move(tag->clone()));
         else return Local<Value>();
     }
     CATCH("Fail in parseSNBT!");
@@ -1985,8 +1986,8 @@ Local<Value> NbtStatic::parseBinaryNBT(const Arguments& args) {
 
     try {
         auto data = args[0].asByteBuffer();
-        auto tag  = CompoundTag::fromBinaryNbt(data.describeUtf8());
-        if (tag.has_value()) return NbtCompoundClass::pack(std::move(&tag.value()));
+        auto tag  = CompoundTag::fromBinaryNbt(std::string_view((char*)data.getRawBytes(), data.byteLength()));
+        if (tag.has_value()) return NbtCompoundClass::pack(std::move(tag->clone()));
         else return Local<Value>();
     }
     CATCH("Fail in parseBinaryNBT!");

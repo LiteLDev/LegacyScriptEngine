@@ -1837,7 +1837,7 @@ Local<Value> NbtCompoundClass::toObject(const Arguments& args) {
 Local<Value> NbtCompoundClass::toSNBT(const Arguments& args) {
     try {
         int indent = args.size() >= 1 ? args[0].toInt() : -1;
-        if (indent == -1) return String::newString(nbt->toSnbt(SnbtFormat::Minimize, 0));
+        if (indent == -1) return String::newString(nbt->toSnbt(SnbtFormat::ForceQuote, 0));
         else return String::newString(nbt->toSnbt(SnbtFormat::PartialLineFeed, indent));
     }
     CATCH("Fail in toSNBT!");

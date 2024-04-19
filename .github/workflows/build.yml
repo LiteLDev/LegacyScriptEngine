@@ -38,7 +38,7 @@ jobs:
           xmake repo -u
 
       - run: |
-          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
+          xmake f -a x64 -m debug -p windows -v -y --backend=${{ matrix.backend }}
 
       - run: |
           xmake -w -y

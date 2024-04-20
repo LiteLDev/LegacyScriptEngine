@@ -34,5 +34,6 @@ void PlayerPullFishingHookEvent();
 void ScoreChangedEvent();
 void PlayerUseBucketPlaceEvent();
 void PlayerUseBucketTakeEvent();
+void PlayerConsumeTotemEvent();
 
 } // namespace lse::events

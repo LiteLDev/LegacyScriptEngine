@@ -142,9 +142,6 @@
 
   - entity : `Entity` 
     被攻击的实体对象
-    
-  - damage : `float` 
-    攻击所造成的伤害
 
 - 拦截事件：函数返回`false`
 

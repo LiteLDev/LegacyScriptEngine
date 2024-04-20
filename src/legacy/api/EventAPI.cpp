@@ -467,16 +467,9 @@ void EnableEventListener(int eventId) {
         lse::events::PlayerEatEvent();
         break;
 
-        // case EVENT_TYPES::onConsumeTotem:
-        //   Event::PlayerConsumeTotemEvent::subscribe(
-        //       [](const PlayerConsumeTotemEvent &ev) {
-        //         IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
-        //           CallEvent(EVENT_TYPES::onConsumeTotem,
-        //                     PlayerClass::newPlayer(ev.mPlayer));
-        //         }
-        //         IF_LISTENED_END(EVENT_TYPES::onConsumeTotem);
-        //       });
-        //   break;
+    case EVENT_TYPES::onConsumeTotem:
+        lse::events::PlayerConsumeTotemEvent();
+        break;
 
         // case EVENT_TYPES::onEffectAdded:
         // case EVENT_TYPES::onEffectRemoved:

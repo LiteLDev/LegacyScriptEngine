@@ -935,6 +935,14 @@ LL_TYPE_INSTANCE_HOOK(
 //     return origin(instance, entity, pos, face, clickPos);
 // }
 
+LL_TYPE_INSTANCE_HOOK(PlayerConsumeTotemHook, HookPriority::Normal, Player, &Player::consumeTotem, bool) {
+    IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
+        CallEventRtnValue(EVENT_TYPES::onConsumeTotem, false, PlayerClass::newPlayer(this));
+    }
+    IF_LISTENED_END(EVENT_TYPES::onConsumeTotem);
+    return origin();
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -984,6 +992,7 @@ void PlayerUseBucketTakeEvent() {
     PlayerUseBucketTakeHook1::hook();
     PlayerUseBucketTakeHook2::hook();
 }
+void PlayerConsumeTotemEvent() { PlayerConsumeTotemHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

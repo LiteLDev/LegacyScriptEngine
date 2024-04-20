@@ -2,6 +2,7 @@
 
 #include <ll/api/memory/Memory.h>
 #include <mc/deps/core/common/bedrock/Result.h>
+#include <mc/deps/core/utility/BinaryStream.h>
 #include <mc/enums/MinecraftPacketIds.h>
 #include <mc/network/packet/Packet.h>
 #include <string>
@@ -9,13 +10,10 @@
 
 namespace lse::api {
 
-constexpr auto PacketName  = "NetworkPacket";
-constexpr auto WriteOffset = 96;
-
-template <int packetId, bool batching = true, bool compress = true>
+template <MinecraftPacketIds packetId>
 class NetworkPacket final : public Packet {
 public:
-    NetworkPacket(std::string_view data) : mData(data) {}
+    NetworkPacket(std::string data) : mData(std::move(data)) {}
 
     NetworkPacket()                                   = default;
     NetworkPacket(NetworkPacket&&)                    = default;
@@ -25,23 +23,18 @@ public:
     NetworkPacket(const NetworkPacket&)                    = delete;
     auto operator=(const NetworkPacket&) -> NetworkPacket& = delete;
 
-    [[nodiscard]] auto getId() const -> MinecraftPacketIds override {
-        return static_cast<MinecraftPacketIds>(packetId);
-    }
+    [[nodiscard]] auto getId() const -> MinecraftPacketIds override { return packetId; }
 
-    [[nodiscard]] auto getName() const -> std::string override { return PacketName; }
+    [[nodiscard]] auto getName() const -> std::string override { return "NetworkPacket"; }
 
-    void write(BinaryStream& stream) const override {
-        auto& target = *ll::memory::dAccess<std::string*>(&stream, WriteOffset);
-        target.append(mData);
-    }
+    void write(BinaryStream& stream) const override { stream.mBuffer->append(mData); }
 
     auto _read(class ReadOnlyBinaryStream& /*stream*/) -> Bedrock::Result<void> override {
         return Bedrock::Result<void>{};
     }
 
 private:
-    std::string_view mData;
+    std::string mData;
 };
 
 } // namespace lse::api

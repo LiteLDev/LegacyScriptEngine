@@ -432,18 +432,9 @@ void EnableEventListener(int eventId) {
         lse::events::PlayerOpenContainerScreenEvent();
         break;
 
-        // case EVENT_TYPES::onSetArmor:
-        //   Event::PlayerSetArmorEvent::subscribe([](const PlayerSetArmorEvent &ev)
-        //   {
-        //     IF_LISTENED(EVENT_TYPES::onSetArmor) {
-        //       CallEvent(EVENT_TYPES::onSetArmor,
-        //       PlayerClass::newPlayer(ev.mPlayer),
-        //                 Number::newNumber(ev.mSlot),
-        //                 ItemClass::newItem(ev.mArmorItem));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onSetArmor);
-        //   });
-        //   break;
+    case EVENT_TYPES::onSetArmor:
+        lse::events::PlayerSetArmorEvent();
+        break;
 
     case EVENT_TYPES::onEat:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {

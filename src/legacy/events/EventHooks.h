@@ -35,5 +35,6 @@ void ScoreChangedEvent();
 void PlayerUseBucketPlaceEvent();
 void PlayerUseBucketTakeEvent();
 void PlayerConsumeTotemEvent();
+void PlayerSetArmorEvent();
 
 } // namespace lse::events

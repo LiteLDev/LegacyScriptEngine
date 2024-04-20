@@ -36,5 +36,7 @@ void PlayerUseBucketPlaceEvent();
 void PlayerUseBucketTakeEvent();
 void PlayerConsumeTotemEvent();
 void PlayerSetArmorEvent();
+void ProjectileHitEntityEvent();
+void ProjectileHitBlockEvent();
 
 } // namespace lse::events

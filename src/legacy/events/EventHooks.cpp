@@ -17,6 +17,7 @@
 #include <ll/api/memory/Memory.h>
 #include <mc/common/wrapper/InteractionResult.h>
 #include <mc/entity/WeakEntityRef.h>
+#include <mc/entity/components/ProjectileComponent.h>
 #include <mc/entity/utilities/ActorType.h>
 #include <mc/server/module/VanillaServerGameplayEventListener.h>
 #include <mc/world/actor/ActorDefinitionIdentifier.h>
@@ -964,6 +965,47 @@ LL_TYPE_INSTANCE_HOOK(
     origin(std::move(armorSlot), item);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileHitEntityHook,
+    HookPriority::Normal,
+    ProjectileComponent,
+    &ProjectileComponent::onHit,
+    void,
+    Actor&           owner,
+    HitResult const& res
+) {
+    IF_LISTENED(EVENT_TYPES::onProjectileHitEntity) {
+        CallEventVoid(
+            EVENT_TYPES::onProjectileHitEntity,
+            EntityClass::newEntity(res.getEntity()),
+            EntityClass::newEntity(&owner)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onProjectileHitEntity);
+    origin(owner, res);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileHitBlockHook,
+    HookPriority::Normal,
+    Block,
+    &Block::onProjectileHit,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    Actor const&    projectile
+) {
+    IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
+        CallEventVoid(
+            EVENT_TYPES::onProjectileHitBlock,
+            BlockClass::newBlock(this, &pos, &region),
+            EntityClass::newEntity(&const_cast<Actor&>(projectile))
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
+    origin(region, pos, projectile);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() { PlayerDropItemHook::hook(); }
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
@@ -1015,6 +1057,8 @@ void PlayerUseBucketTakeEvent() {
 }
 void PlayerConsumeTotemEvent() { PlayerConsumeTotemHook::hook(); }
 void PlayerSetArmorEvent() { PlayerSetArmorHook::hook(); }
+void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
+void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

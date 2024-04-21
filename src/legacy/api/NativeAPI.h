@@ -104,8 +104,8 @@ public:
 
 class DynamicHookData : public ScriptNativeFunction {
 public:
-    script::ScriptEngine*    mEngine        = nullptr;
-    DCCallback*              mNativeCallack = nullptr;
+    script::ScriptEngine*    mEngine         = nullptr;
+    DCCallback*              mNativeCallback = nullptr;
     script::Global<Function> mScriptCallback;
     explicit DynamicHookData(const Local<Object>& scriptObj) : ScriptNativeFunction(scriptObj) {}
     explicit DynamicHookData(const Local<Object>& scriptObj, const NativeFunction& symbol)

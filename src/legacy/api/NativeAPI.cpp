@@ -2,6 +2,7 @@
 
 #include "demangler/MicrosoftDemangle.h"
 #include "ll/api/memory/Hook.h"
+#include "ll/api/memory/Memory.h"
 
 #include <magic_enum.hpp>
 
@@ -340,13 +341,13 @@ Local<Value> ScriptNativeFunction::fromScript(const Arguments& args) {
         );
     }
 
-    nativeScriptFunction->mEngine        = args.engine();
-    nativeScriptFunction->mNativeCallack = dcbNewCallback(
+    nativeScriptFunction->mEngine         = args.engine();
+    nativeScriptFunction->mNativeCallback = dcbNewCallback(
         nativeScriptFunction->buildDynCallbackSig().c_str(),
         &nativeCallbackHandler,
         nativeScriptFunction
     );
-    nativeScriptFunction->mFunction       = nativeScriptFunction->mNativeCallack;
+    nativeScriptFunction->mFunction       = nativeScriptFunction->mNativeCallback;
     nativeScriptFunction->mScriptCallback = args[args.size() - 1].asFunction();
 
     return scriptResult;
@@ -512,15 +513,15 @@ Local<Value> ScriptNativeFunction::hook(const Arguments& args) {
     DynamicHookData* hookSymbol   = args.engine()->getNativeInstance<DynamicHookData>(scriptResult);
     hookSymbol->cloneFrom(NativeFunction(*args.engine()->getNativeInstance<ScriptNativeFunction>(args.thiz())));
     hookSymbol->mEngine = args.engine();
-    hookSymbol->mNativeCallack =
+    hookSymbol->mNativeCallback =
         dcbNewCallback(hookSymbol->buildDynCallbackSig().c_str(), &nativeCallbackHandler, hookSymbol);
     hookSymbol->mScriptCallback = args[0].asFunction();
     void* hookOriginl           = nullptr;
     int   hookResult            = ll::memory::hook(
         hookSymbol->mFunction,
-        &hookOriginl,
-        (ll::memory::FuncPtr*)hookSymbol->mNativeCallack,
-        ll::memory::HookPriority::Low
+        hookSymbol->mNativeCallback,
+        reinterpret_cast<ll::memory::FuncPtr*>(hookOriginl),
+        ll::memory::HookPriority::Normal
     );
     hookSymbol->mFunction = hookOriginl;
     return scriptResult;

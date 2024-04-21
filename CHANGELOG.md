@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix NetworkAPI's callback
-- Enlarge NewProcess's buffer #48
+- Enlarge NewProcess's buffer [#48]
 
 ## [0.6.3] - 2024-04-20
 
@@ -275,6 +275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#44]: https://github.com/LiteLDev/LegacyScriptEngine/issues/44
 [#45]: https://github.com/LiteLDev/LegacyScriptEngine/issues/45
 [#47]: https://github.com/LiteLDev/LegacyScriptEngine/issues/47
+[#48]: https://github.com/LiteLDev/LegacyScriptEngine/issues/48
 [#49]: https://github.com/LiteLDev/LegacyScriptEngine/issues/49
 [#50]: https://github.com/LiteLDev/LegacyScriptEngine/issues/50
 [#52]: https://github.com/LiteLDev/LegacyScriptEngine/issues/52
@@ -302,6 +303,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#102]: https://github.com/LiteLDev/LegacyScriptEngine/issues/102
 [#104]: https://github.com/LiteLDev/LegacyScriptEngine/issues/104
 
+[0.6.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.0...v0.6.1

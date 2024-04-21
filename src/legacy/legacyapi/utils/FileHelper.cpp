@@ -60,15 +60,15 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
         WaitForSingleObject(pi.hProcess, timeLimit);
         TerminateProcess(pi.hProcess, -1);
     }
-    char        buffer[4096];
+    char        buffer[8192];
     std::string strOutput;
     DWORD       bytesRead, exitCode;
 
     GetExitCodeProcess(pi.hProcess, &exitCode);
     if (!noReadOutput) {
         while (true) {
-            ZeroMemory(buffer, 4096);
-            if (!ReadFile(hRead, buffer, 4096, &bytesRead, nullptr)) break;
+            ZeroMemory(buffer, 8192);
+            if (!ReadFile(hRead, buffer, 8192, &bytesRead, nullptr)) break;
             strOutput.append(buffer, bytesRead);
         }
     }

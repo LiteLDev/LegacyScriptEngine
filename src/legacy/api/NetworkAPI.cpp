@@ -3,6 +3,9 @@
 #include "api/APIHelp.h"
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
+#include "ll/api/chrono/GameChrono.h"
+#include "ll/api/schedule/Scheduler.h"
+#include "ll/api/schedule/Task.h"
 #include "ll/api/service/ServerInfo.h"
 #include "main/SafeGuardRecord.h"
 
@@ -11,6 +14,7 @@
 #include <vector>
 
 using namespace cyanray;
+ll::schedule::GameTickScheduler WSScheduler;
 
 // Some script::Exception have a problem which can crash the server, and I have no idea, so not output message &
 // stacktrace
@@ -167,7 +171,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
-        std::thread([nowList, engine, msg = std::move(msg)]() {
+        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, msg = std::move(msg)]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
@@ -179,7 +183,7 @@ void WSClientClass::initListeners_s() {
                     }
             }
             CATCH_CALLBACK("Fail in OnTextReceived")
-        }).detach();
+        });
     });
 
     ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]},
@@ -187,19 +191,22 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
-        std::thread([nowList, engine, data = std::move(data)]() mutable {
-            try {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                    || engine->isDestroying())
-                    return;
-                EngineScope enter(engine);
-                if (!nowList->empty())
-                    for (auto& listener : *nowList) {
-                        listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
-                    }
+        WSScheduler.add<ll::schedule::DelayTask>(
+            ll::chrono::ticks(1),
+            [nowList, engine, data = std::move(data)]() mutable {
+                try {
+                    if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                        || engine->isDestroying())
+                        return;
+                    EngineScope enter(engine);
+                    if (!nowList->empty())
+                        for (auto& listener : *nowList) {
+                            listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
+                        }
+                }
+                CATCH_CALLBACK("Fail in OnBinaryReceived")
             }
-            CATCH_CALLBACK("Fail in OnBinaryReceived")
-        }).detach();
+        );
     });
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]},
@@ -207,7 +214,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
-        std::thread([nowList, engine, msg = std::move(msg)]() {
+        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, msg = std::move(msg)]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
@@ -219,7 +226,7 @@ void WSClientClass::initListeners_s() {
                     }
             }
             CATCH_CALLBACK("Fail in OnError")
-        }).detach();
+        });
     });
 
     ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]},
@@ -227,7 +234,7 @@ void WSClientClass::initListeners_s() {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
-        std::thread([nowList, engine, code]() {
+        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, code]() {
             try {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
@@ -239,7 +246,7 @@ void WSClientClass::initListeners_s() {
                     }
             }
             CATCH_CALLBACK("Fail in OnLostConnection")
-        }).detach();
+        });
     });
 }
 
@@ -413,28 +420,28 @@ Local<Value> WSClientClass::errorCode(const Arguments& args) {
 
 using namespace httplib;
 
-#define ADD_CALLBACK(method, path, func)                                                                               \
+#define ADD_CALLBACK(METHOD, path, func)                                                                               \
     callbacks.emplace(make_pair(                                                                                       \
         path,                                                                                                          \
         HttpServerCallback{                                                                                            \
             EngineScope::currentEngine(),                                                                              \
             script::Global<Function>{func},                                                                            \
-            HttpRequestType::method,                                                                                   \
+            HttpRequestType::METHOD,                                                                                   \
             path                                                                                                       \
         }                                                                                                              \
     ));                                                                                                                \
-    svr->##method##(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {  \
+    svr->METHOD(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {      \
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)                    \
             || engine->isDestroying())                                                                                 \
             return;                                                                                                    \
-        std::thread([this, engine, req, &resp] {                                                                       \
+        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp] {                    \
             try {                                                                                                      \
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)            \
                     || engine->isDestroying())                                                                         \
                     return;                                                                                            \
                 EngineScope enter(engine);                                                                             \
                 for (auto& [k, v] : this->callbacks) {                                                                 \
-                    if (v.type != HttpRequestType::method) return;                                                     \
+                    if (v.type != HttpRequestType::METHOD) return;                                                     \
                     std::regex  rgx(k);                                                                                \
                     std::smatch matches;                                                                               \
                     if (std::regex_match(req.path, matches, rgx)) {                                                    \
@@ -449,7 +456,7 @@ using namespace httplib;
                 }                                                                                                      \
             }                                                                                                          \
             CATCH_CALLBACK("Fail in NetworkAPI callback")                                                              \
-        }).join();                                                                                                     \
+        });                                                                                                            \
     });
 
 HttpServerClass::HttpServerClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), svr(new Server) {}
@@ -554,7 +561,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                 || engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
-            std::thread([this, engine, req, &resp, &handled] {
+            WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp, &handled] {
                 try {
                     if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                         || engine->isDestroying())
@@ -569,7 +576,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                     resp = *respObj->get();
                 }
                 CATCH_CALLBACK("Fail in onPreRouting");
-            }).join();
+            });
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
         });
         return this->getScriptObject();
@@ -588,7 +595,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
-            std::thread([this, engine, req, &resp] {
+            WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp] {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     return;
@@ -597,7 +604,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
                 auto        respObj = new HttpResponseClass(resp);
                 this->postRoutingCallback.func.get().call({}, reqObj, respObj);
                 resp = *respObj->get();
-            }).join();
+            });
         });
         return this->getScriptObject();
     }
@@ -614,7 +621,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
-            std::thread([this, engine, req, &resp] {
+            WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp] {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     return;
@@ -623,7 +630,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
                 auto        respObj = new HttpResponseClass(resp);
                 this->errorCallback.func.get().call({}, reqObj, respObj);
                 resp = *respObj->get();
-            }).join();
+            });
         });
         return this->getScriptObject();
     }
@@ -641,7 +648,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     return;
-                std::thread([this, engine, req, &resp, e] {
+                WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp, e] {
                     if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
                         || engine->isDestroying())
                         return;
@@ -656,7 +663,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                         this->exceptionCallback.func.get().call({}, reqObj, respObj, String::newString(exp.what()));
                     }
                     resp = *respObj->get();
-                }).join();
+                });
             }
         );
         return this->getScriptObject();
@@ -983,7 +990,7 @@ Local<Value> HttpResponseClass::getVersion() {
     CATCH("Fail in getVersion!");
 }
 
-//////////////////// APIs ////////////////////
+//////////////////// Ported from LiteLoaderBDS ////////////////////
 
 void SplitHttpUrl(const std::string& url, string& host, string& path) {
     host = url;
@@ -1088,6 +1095,8 @@ bool HttpGetSync(const std::string& url, int* statusRtn, std::string* dataRtn, i
     }
     return true;
 }
+
+//////////////////// APIs ////////////////////
 
 Local<Value> NetworkClass::httpGet(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);

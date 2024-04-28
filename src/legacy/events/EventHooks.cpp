@@ -69,17 +69,18 @@ LL_TYPE_INSTANCE_HOOK(
     void,
     Player&         player,
     BlockPos const& blockPos,
+    Block const&    block,
     uchar           unk_char
 ) {
     IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
         CallEventVoid(
             EVENT_TYPES::onStartDestroyBlock,
             PlayerClass::newPlayer(&player),
-            BlockClass::newBlock(blockPos, player.getDimensionId())
+            BlockClass::newBlock(&block, &blockPos, player.getDimensionId())
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
-    origin(player, blockPos, unk_char);
+    origin(player, blockPos, block, unk_char);
 }
 
 LL_TYPE_INSTANCE_HOOK(

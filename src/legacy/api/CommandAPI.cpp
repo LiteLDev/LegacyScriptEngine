@@ -183,7 +183,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     CATCH("Fail in RunCmd!")
 }
 
-I18n* getI18n(); // Stupid Mojang
+I18n& getI18n(); // Stupid Mojang
 
 Local<Value> McClass::runcmdEx(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
@@ -204,7 +204,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
             command->run(origin, output);
             for (auto msg : output.getMessages()) {
                 std::string temp;
-                getI18n()->getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
+                getI18n().getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
                 outputStr += temp.append("\n");
             }
             if (output.getMessages().size()) {

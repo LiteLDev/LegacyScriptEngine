@@ -3,6 +3,7 @@
 #include "fmt/core.h"
 #include "ll/api/base/Concepts.h"
 #include "ll/api/base/Macro.h"
+#include "ll/api/memory/Closure.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
@@ -42,11 +43,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-namespace ll::memory {
-template <class Ret, class... Args>
-class NativeClosure;
-}
 
 class Actor;
 class DynamicCommandInstance;
@@ -600,7 +596,7 @@ private:
     CommandFlag                  flag_;
 
 public:
-    std::unique_ptr<ll::memory::NativeClosure<std::unique_ptr<Command>>> builder;
+    std::unique_ptr<ll::memory::NativeClosure<std::unique_ptr<Command>()>> builder;
     // Parameter Pointers to DynamicCommand Extra Part
     size_t                                                        commandSize   = sizeof(DynamicCommand);
     std::unordered_map<std::string, DynamicCommand::ParameterPtr> parameterPtrs = {};

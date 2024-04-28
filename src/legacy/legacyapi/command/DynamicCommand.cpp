@@ -688,7 +688,7 @@ DynamicCommandInstance::DynamicCommandInstance(
   description_(std::make_unique<std::string>(description)),
   permission_(permission),
   flag_(flag),
-  builder(std::make_unique<ll::memory::NativeClosure<std::unique_ptr<Command>>>(commandBuilder, (uintptr_t)this)) {}
+  builder(std::make_unique<ll::memory::NativeClosure<std::unique_ptr<Command>()>>(commandBuilder, (uintptr_t)this)) {}
 
 DynamicCommandInstance::~DynamicCommandInstance() = default;
 

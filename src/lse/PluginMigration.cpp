@@ -2,6 +2,7 @@
 
 #include "Entry.h"
 #include "legacyapi/utils/FileHelper.h"
+#include "ll/api/Expected.h"
 
 #include <filesystem>
 #include <fmt/format.h>
@@ -99,7 +100,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     std::filesystem::remove(path);
 #endif
 
-    auto manifestJson = ll::reflection::serialize<nlohmann::ordered_json>(manifest);
+    auto manifestJson = ll::reflection::serialize<nlohmann::ordered_json>(manifest).value();
 
     std::ofstream manifestFile{pluginDir / "manifest.json"};
     manifestFile << manifestJson.dump(4);

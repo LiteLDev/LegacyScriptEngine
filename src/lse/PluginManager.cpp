@@ -118,122 +118,114 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
     }
 #endif
 
+    logger.info("loading plugin {}", manifest.name);
+
+    if (hasPlugin(manifest.name)) {
+        throw std::runtime_error("plugin already loaded");
+    }
+
+    auto& scriptEngine = *EngineManager::newEngine(manifest.name);
+    auto  plugin       = std::make_shared<Plugin>(manifest);
+
     try {
+        script::EngineScope engineScope(scriptEngine);
 
-        logger.info("loading plugin {}", manifest.name);
+        // Set plugins's logger title
+        ENGINE_OWN_DATA()->logger.title = manifest.name;
+        ENGINE_OWN_DATA()->pluginName   = manifest.name;
 
-        if (hasPlugin(manifest.name)) {
-            throw std::runtime_error("plugin already loaded");
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+        scriptEngine.eval("import sys as _llse_py_sys_module");
+        std::error_code ec;
+
+        // add plugin-own site-packages to sys.path
+        string pluginSitePackageFormatted = ll::string_utils::u8str2str(
+            std::filesystem::canonical(realPackageInstallDir.make_preferred(), ec).u8string()
+        );
+        if (!ec) {
+            scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
         }
+        // add plugin source dir to sys.path
+        string sourceDirFormatted =
+            ll::string_utils::u8str2str(std::filesystem::canonical(dirPath.make_preferred()).u8string());
+        scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
 
-        auto& scriptEngine = *EngineManager::newEngine(manifest.name);
-        auto  plugin       = std::make_shared<Plugin>(manifest);
-
-        try {
-            script::EngineScope engineScope(scriptEngine);
-
-            // Set plugins's logger title
-            ENGINE_OWN_DATA()->logger.title = manifest.name;
-            ENGINE_OWN_DATA()->pluginName   = manifest.name;
-
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-            scriptEngine.eval("import sys as _llse_py_sys_module");
-            std::error_code ec;
-
-            // add plugin-own site-packages to sys.path
-            string pluginSitePackageFormatted = ll::string_utils::u8str2str(
-                std::filesystem::canonical(realPackageInstallDir.make_preferred(), ec).u8string()
-            );
-            if (!ec) {
-                scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
-            }
-            // add plugin source dir to sys.path
-            string sourceDirFormatted =
-                ll::string_utils::u8str2str(std::filesystem::canonical(dirPath.make_preferred()).u8string());
-            scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
-
-            // set __file__ and __name__
-            string entryPathFormatted = ll::string_utils::u8str2str(
-                std::filesystem::canonical(std::filesystem::path(entryPath).make_preferred()).u8string()
-            );
-            scriptEngine.set("__file__", entryPathFormatted);
-            // engine->set("__name__", String::newString("__main__"));
+        // set __file__ and __name__
+        string entryPathFormatted = ll::string_utils::u8str2str(
+            std::filesystem::canonical(std::filesystem::path(entryPath).make_preferred()).u8string()
+        );
+        scriptEngine.set("__file__", entryPathFormatted);
+        // engine->set("__name__", String::newString("__main__"));
 #endif
 
-            BindAPIs(&scriptEngine);
+        BindAPIs(&scriptEngine);
 
-            auto& self = getSelfPluginInstance();
+        auto& self = getSelfPluginInstance();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
-            // Load BaseLib.
-            auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
-            auto baseLibContent = ll::file_utils::readFile(baseLibPath);
-            if (!baseLibContent) {
-                throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
-            }
-            scriptEngine.eval(baseLibContent.value());
+        // Load BaseLib.
+        auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
+        auto baseLibContent = ll::file_utils::readFile(baseLibPath);
+        if (!baseLibContent) {
+            throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+        }
+        scriptEngine.eval(baseLibContent.value());
 #endif
-            // Load the plugin entry.
-            auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-            auto entryPath = pluginDir / manifest.entry;
-            ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
+        // Load the plugin entry.
+        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
+        auto entryPath = pluginDir / manifest.entry;
+        ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-            if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-                throw std::runtime_error(fmt::format("failed to load plugin code"));
-            }
+        if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+            throw std::runtime_error(fmt::format("failed to load plugin code"));
+        }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-            if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-                throw std::runtime_error(fmt::format("failed to load plugin code"));
-            }
+        if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+            throw std::runtime_error(fmt::format("failed to load plugin code"));
+        }
 #endif
 #if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
-            // Try loadFile
-            try {
-                scriptEngine.loadFile(entryPath.u8string());
-            } catch (const script::Exception& e) {
-                // loadFile failed, try eval
-                auto pluginEntryContent = ll::file_utils::readFile(entryPath);
-                if (!pluginEntryContent) {
-                    throw std::runtime_error(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
-                }
-                scriptEngine.eval(pluginEntryContent.value());
+        // Try loadFile
+        try {
+            scriptEngine.loadFile(entryPath.u8string());
+        } catch (const script::Exception& e) {
+            // loadFile failed, try eval
+            auto pluginEntryContent = ll::file_utils::readFile(entryPath);
+            if (!pluginEntryContent) {
+                throw std::runtime_error(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
             }
-            if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
-                LLSECallEventsOnHotLoad(&scriptEngine);
-            }
-            ExitEngineScope exit;
-#endif
-            plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-            plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
-#endif
-            plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
-            plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
-        } catch (const Exception& e) {
-            EngineScope     engineScope(scriptEngine);
-            ExitEngineScope exit;
-            LLSERemoveTimeTaskData(&scriptEngine);
-            LLSERemoveAllEventListeners(&scriptEngine);
-            LLSERemoveCmdRegister(&scriptEngine);
-            LLSERemoveCmdCallback(&scriptEngine);
-            LLSERemoveAllExportedFuncs(&scriptEngine);
-
-            scriptEngine.getData().reset();
-
-            EngineManager::unregisterEngine(&scriptEngine);
-
-            return ll::makeStringError(
-                "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
-            );
+            scriptEngine.eval(pluginEntryContent.value());
         }
+        if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
+            LLSECallEventsOnHotLoad(&scriptEngine);
+        }
+        ExitEngineScope exit;
+#endif
+        plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+        plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
+#endif
+        plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
+        plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
+    } catch (const Exception& e) {
+        EngineScope engineScope(scriptEngine);
+        auto        error =
+            ll::makeStringError("Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace()));
+        ExitEngineScope exit;
+        LLSERemoveTimeTaskData(&scriptEngine);
+        LLSERemoveAllEventListeners(&scriptEngine);
+        LLSERemoveCmdRegister(&scriptEngine);
+        LLSERemoveCmdCallback(&scriptEngine);
+        LLSERemoveAllExportedFuncs(&scriptEngine);
 
-        addPlugin(manifest.name, plugin);
+        scriptEngine.getData().reset();
 
-        return {};
+        EngineManager::unregisterEngine(&scriptEngine);
 
-    } catch (const std::exception& e) {
-        logger.error("Failed to load plugin {0}: {1}", manifest.name, e.what());
+        return error;
     }
+
+    addPlugin(manifest.name, plugin);
 
     return {};
 }

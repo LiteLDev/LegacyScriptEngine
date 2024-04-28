@@ -5,6 +5,7 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "ll/api/Expected.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -60,7 +61,7 @@ namespace lse {
 
 PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
 
-auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
+ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;    // Plugin path
@@ -207,8 +208,7 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
             plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
             plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
         } catch (const Exception& e) {
-            EngineScope engineScope(scriptEngine);
-            logger.error("Failed to load plugin {0}: {1}\n{2}", manifest.name, e.message(), e.stacktrace());
+            EngineScope     engineScope(scriptEngine);
             ExitEngineScope exit;
             LLSERemoveTimeTaskData(&scriptEngine);
             LLSERemoveAllEventListeners(&scriptEngine);
@@ -220,23 +220,23 @@ auto PluginManager::load(ll::plugin::Manifest manifest) -> bool {
 
             EngineManager::unregisterEngine(&scriptEngine);
 
-            return false;
+            return ll::makeStringError(
+                "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
+            );
         }
 
-        if (!addPlugin(manifest.name, plugin)) {
-            throw std::runtime_error("Failed to register plugin {}"_tr(manifest.name));
-        }
+        addPlugin(manifest.name, plugin);
 
-        return true;
+        return {};
 
     } catch (const std::exception& e) {
         logger.error("Failed to load plugin {0}: {1}", manifest.name, e.what());
     }
 
-    return true;
+    return {};
 }
 
-auto PluginManager::unload(std::string_view name) -> bool {
+ll::Expected<> PluginManager::unload(std::string_view name) {
     auto& logger = getSelfPluginInstance().getLogger();
 
     try {
@@ -254,21 +254,12 @@ auto PluginManager::unload(std::string_view name) -> bool {
         LLSERemoveAllExportedFuncs(&scriptEngine);
 
         scriptEngine.getData().reset();
-
         EngineManager::unregisterEngine(&scriptEngine);
-
         scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
-
-        if (!erasePlugin(name)) {
-            throw std::runtime_error(fmt::format("Failed to unregister plugin {}", name));
-            return false;
-        }
-
-        return true;
-
+        erasePlugin(name);
+        return {};
     } catch (const std::exception& e) {
-        logger.error("Failed to unload plugin {}: {}", name, e.what());
-        return false;
+        return ll::makeStringError("Failed to unload plugin {}: {}"_tr(name, e.what()));
     }
 }
 

@@ -41,7 +41,7 @@ Local<Value> GlobalNativePointer::getScoreboardPtr(const Arguments& args) {
 }
 
 Local<Value> GlobalNativePointer::getAllowListFilePtr(const Arguments& args) {
-    return NativePointer::newNativePointer(AllowListCommand::$mAllowListFile());
+    return NativePointer::newNativePointer(AllowListCommand::mAllowListFile);
 }
 
 Local<Value> GlobalNativePointer::getPropertiesSettingsPtr(const Arguments& args) {

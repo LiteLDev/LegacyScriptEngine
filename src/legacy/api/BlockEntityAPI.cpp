@@ -94,8 +94,8 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) return Local<Value>(); // Null
-        void* helper = LL_RESOLVE_SYMBOL("??_7DefaultDataLoadHelper@@6B@");
-        blockEntity->load(*ll::service::getLevel(), *nbt, (DataLoadHelper&)helper);
+        DefaultDataLoadHelper helper;
+        blockEntity->load(*ll::service::getLevel(), *nbt, helper);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setNbt!")

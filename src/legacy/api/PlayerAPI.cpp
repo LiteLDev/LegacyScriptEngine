@@ -62,6 +62,7 @@
 #include "mc/world/ActorUniqueID.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
+#include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/player/EnderChestContainer.h"
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/actor/player/PlayerUISlot.h"
@@ -79,6 +80,7 @@
 
 #include <algorithm>
 #include <mc/entity/EntityContext.h>
+#include <mc/entity/utilities/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/world/SimpleContainer.h>
@@ -370,7 +372,8 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         auto    tag    = NbtCompoundClass::extract(args[1]);
         Player* player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
-            player->load(*tag);
+            DefaultDataLoadHelper defaultDataLoadHelper;
+            player->load(*tag, defaultDataLoadHelper);
             return Boolean::newBoolean(true);
         } else {
             DBStorage* db = MoreGlobal::db;
@@ -414,8 +417,8 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
                     }
                 }
             }
-
-            player->load(playerNbt);
+            DefaultDataLoadHelper defaultDataLoadHelper;
+            player->load(playerNbt, defaultDataLoadHelper);
             player->refreshInventory();
             return Boolean::newBoolean(true);
         }
@@ -1626,7 +1629,7 @@ Local<Value> PlayerClass::getArmor(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ContainerClass::newContainer(&player->getArmorContainer());
+        return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(player->getEntityContext()));
     }
     CATCH("Fail in getArmor!");
 }
@@ -2840,7 +2843,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 player->getInventory().removeItem(slot, clearCount);
             }
         }
-        auto& handSlots = player->getHandContainer().getSlots();
+        auto& handSlots = ActorEquipment::getHandContainer(player->getEntityContext()).getSlots();
         for (unsigned short slot = 0; slot < handSlots.size(); ++slot) {
             if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (handSlots[slot]->mCount < clearCount) {
@@ -2848,10 +2851,10 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 } else {
                     result += clearCount;
                 }
-                player->getHandContainer().removeItem(slot, clearCount);
+                ActorEquipment::getHandContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
         }
-        auto& armorSlots = player->getArmorContainer().getSlots();
+        auto& armorSlots = ActorEquipment::getArmorContainer(player->getEntityContext()).getSlots();
         for (unsigned short slot = 0; slot < armorSlots.size(); ++slot) {
             if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (armorSlots[slot]->mCount < clearCount) {
@@ -2859,7 +2862,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 } else {
                     result += clearCount;
                 }
-                player->getArmorContainer().removeItem(slot, clearCount);
+                ActorEquipment::getArmorContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
         }
         player->refreshInventory();
@@ -3212,8 +3215,8 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         const ItemStack&              hand      = player->getCarriedItem();
         const ItemStack&              offHand   = player->getOffhandSlot();
         std::vector<const ItemStack*> inventory = player->getInventory().getSlots();
-        std::vector<const ItemStack*> armor     = player->getArmorContainer().getSlots();
-        std::vector<const ItemStack*> endChest  = player->getEnderChestContainer()->getSlots();
+        std::vector<const ItemStack*> armor = ActorEquipment::getArmorContainer(player->getEntityContext()).getSlots();
+        std::vector<const ItemStack*> endChest = player->getEnderChestContainer()->getSlots();
 
         Local<Object> result = Object::newObject();
 

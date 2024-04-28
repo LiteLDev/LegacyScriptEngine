@@ -26,6 +26,7 @@
 #include "mc/deps/json/JsonHelpers.h"
 #include "mc/enums/CurrentCmdVersion.h"
 #include "mc/locale/I18n.h"
+#include "mc/locale/Localization.h"
 #include "mc/server/ServerLevel.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -182,6 +183,8 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     CATCH("Fail in RunCmd!")
 }
 
+I18n* getI18n(); // Stupid Mojang
+
 Local<Value> McClass::runcmdEx(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
@@ -200,7 +203,9 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             command->run(origin, output);
             for (auto msg : output.getMessages()) {
-                outputStr = outputStr.append(I18n::get(msg.getMessageId(), msg.getParams())).append("\n");
+                std::string temp;
+                getI18n()->getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
+                outputStr += temp.append("\n");
             }
             if (output.getMessages().size()) {
                 outputStr.pop_back();

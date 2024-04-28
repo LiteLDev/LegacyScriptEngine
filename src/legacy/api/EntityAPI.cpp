@@ -10,12 +10,14 @@
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
 #include "ll/api/base/StdInt.h"
+#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/HitDetection.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/enums/FacingID.h"
+#include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/level/Spawner.h"
@@ -23,10 +25,10 @@
 
 #include <magic_enum.hpp>
 #include <mc/entity/EntityContext.h>
+#include <mc/entity/utilities/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/server/ServerPlayer.h>
-#include <mc/world/SimpleContainer.h>
 #include <mc/world/actor/Mob.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
@@ -943,7 +945,7 @@ Local<Value> EntityClass::getArmor(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return ContainerClass::newContainer(&entity->getArmorContainer());
+        return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(entity->getEntityContext()));
     }
     CATCH("Fail in getArmor!");
 }
@@ -968,9 +970,7 @@ Local<Value> EntityClass::hasContainer(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         Vec3 pos = entity->getPosition();
-        return Boolean::newBoolean(
-            entity->getDimension().getBlockSourceFromMainChunkSource().tryGetContainer(BlockPos(pos)) ? true : false
-        );
+        return Boolean::newBoolean(entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos)) ? true : false);
     }
     CATCH("Fail in hasContainer!");
 }
@@ -980,9 +980,8 @@ Local<Value> EntityClass::getContainer(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        Vec3       pos = entity->getPosition();
-        Container* container =
-            entity->getDimension().getBlockSourceFromMainChunkSource().tryGetContainer(BlockPos(pos));
+        Vec3       pos       = entity->getPosition();
+        Container* container = entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos));
         return container ? ContainerClass::newContainer(container) : Local<Value>();
     }
     CATCH("Fail in getContainer!");
@@ -1307,7 +1306,7 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) return Local<Value>(); // Null
 
-        DefaultDataLoadHelper helper = DefaultDataLoadHelper();
+        DefaultDataLoadHelper helper;
         return Boolean::newBoolean(entity->load(*nbt, helper));
     }
     CATCH("Fail in setNbt!")

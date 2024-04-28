@@ -3,6 +3,7 @@
 #include "api/APIHelp.h"
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
+#include "ll/api/Logger.h"
 #include "mc/world/actor/player/Player.h"
 #include "utils/Utils.h"
 
@@ -42,7 +43,7 @@ string& StrReplace(string& str, const string& to_replaced, const string& new_str
 }
 ////////////////// Helper //////////////////
 
-void inline LogDataHelper(ll::Logger::OutputStream* outStream, const Arguments& args) {
+void inline LogDataHelper(ll::OutputStream* outStream, const Arguments& args) {
     std::string res;
     for (int i = 0; i < args.size(); ++i) res += ValueToString(args[i]);
     (*outStream)(res);

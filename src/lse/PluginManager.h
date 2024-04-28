@@ -18,8 +18,8 @@ public:
     ~PluginManager() override = default;
 
 private:
-    auto load(ll::plugin::Manifest manifest) -> bool override;
-    auto unload(std::string_view name) -> bool override;
+    ll::Expected<> load(ll::plugin::Manifest manifest) override;
+    ll::Expected<> unload(std::string_view name) override;
 };
 
 } // namespace lse

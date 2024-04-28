@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2024-04-28
+
+### Changed
+
+- Adapt to LeviLamina 0.12.x
+
 ## [0.6.4] - 2024-04-21
 
 ### Fixed
@@ -303,6 +309,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#102]: https://github.com/LiteLDev/LegacyScriptEngine/issues/102
 [#104]: https://github.com/LiteLDev/LegacyScriptEngine/issues/104
 
+[0.7.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.4...v0.7.0
 [0.6.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.6.1...v0.6.2

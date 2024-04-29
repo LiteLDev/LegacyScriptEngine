@@ -1357,7 +1357,7 @@ Local<Value> EntityClass::getAllTags(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         Local<Array> arr = Array::newArray();
-        for (auto tag : entity->getTags()) {
+        for (auto& tag : entity->getTags()) {
             arr.add(String::newString(tag));
         }
         return arr;

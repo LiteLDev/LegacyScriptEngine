@@ -200,7 +200,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
-            for (auto msg : output.getMessages()) {
+            for (auto& msg : output.getMessages()) {
                 std::string temp;
                 getI18n().getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
                 outputStr += temp.append("\n");

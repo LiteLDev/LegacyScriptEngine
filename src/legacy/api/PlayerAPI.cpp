@@ -2970,7 +2970,7 @@ Local<Value> PlayerClass::getAllTags(const Arguments& args) {
         if (!player) return Local<Value>();
 
         Local<Array> arr = Array::newArray();
-        for (auto tag : player->getTags()) {
+        for (auto& tag : player->getTags()) {
             arr.add(String::newString(tag));
         }
         return arr;

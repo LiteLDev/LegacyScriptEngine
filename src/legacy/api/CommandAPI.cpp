@@ -183,8 +183,6 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     CATCH("Fail in RunCmd!")
 }
 
-I18n& getI18n(); // Stupid Mojang
-
 Local<Value> McClass::runcmdEx(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)

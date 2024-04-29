@@ -186,31 +186,34 @@ Local<Value> McClass::runcmd(const Arguments& args) {
 Local<Value> McClass::runcmdEx(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
-    auto origin =
-        ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0);
-    auto command = ll::service::getMinecraft()->getCommands().compileCommand(
-        args[0].asString().toString(),
-        origin,
-        (CurrentCmdVersion)CommandVersion::CurrentVersion,
-        [](std::string const& err) {}
-    );
-    CommandOutput output(CommandOutputType::AllOutput);
-    std::string   outputStr;
-    Local<Object> resObj = Object::newObject();
     try {
+        std::string outputStr;
+        auto        origin =
+            ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0);
+        auto command = ll::service::getMinecraft()->getCommands().compileCommand(
+            args[0].asString().toString(),
+            origin,
+            (CurrentCmdVersion)CommandVersion::CurrentVersion,
+            [&](std::string const& err) { outputStr.append(err).append("\n"); }
+        );
+        Local<Object> resObj = Object::newObject();
         if (command) {
+            CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
             for (auto msg : output.getMessages()) {
                 std::string temp;
                 getI18n().getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
                 outputStr += temp.append("\n");
             }
-            if (output.getMessages().size()) {
+            if (outputStr.ends_with('\n')) {
                 outputStr.pop_back();
             }
             resObj.set("success", output.getSuccessCount() ? true : false);
             resObj.set("output", outputStr);
             return resObj;
+        }
+        if (outputStr.ends_with('\n')) {
+            outputStr.pop_back();
         }
         resObj.set("success", false);
         return resObj;

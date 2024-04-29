@@ -200,10 +200,10 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
+            static std::shared_ptr<Localization> localization =
+                getI18n().getLocaleFor(getI18n().getCurrentLanguage()->getFullLanguageCode());
             for (auto& msg : output.getMessages()) {
-                std::string temp;
-                getI18n().getCurrentLanguage()->get(msg.getMessageId(), temp, msg.getParams());
-                outputStr += temp.append("\n");
+                outputStr += getI18n().get(msg.getMessageId(), msg.getParams(), localization).append("\n");
             }
             if (outputStr.ends_with('\n')) {
                 outputStr.pop_back();

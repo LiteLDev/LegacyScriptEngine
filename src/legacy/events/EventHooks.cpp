@@ -11,6 +11,8 @@
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/ActorUniqueID.h"
+#include "mc/world/containers/ContainerID.h"
+#include "mc/world/inventory/transaction/InventorySource.h"
 #include "mc/world/scores/ScoreInfo.h"
 
 #include <ll/api/memory/Hook.h>
@@ -28,6 +30,7 @@
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/containers/models/LevelContainerModel.h>
 #include <mc/world/events/EventResult.h>
+#include <mc/world/inventory/transaction/ComplexInventoryTransaction.h>
 #include <mc/world/item/BucketItem.h>
 #include <mc/world/item/CrossbowItem.h>
 #include <mc/world/item/ItemInstance.h>
@@ -84,7 +87,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    PlayerDropItemHook,
+    PlayerDropItemHook1,
     HookPriority::Normal,
     Player,
     "?drop@Player@@UEAA_NAEBVItemStack@@_N@Z",
@@ -102,6 +105,33 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onDropItem);
     return origin(item, randomly);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    PlayerDropItemHook2,
+    HookPriority::Normal,
+    ComplexInventoryTransaction,
+    "?handle@ComplexInventoryTransaction@@UEBA?AW4InventoryTransactionError@@AEAVPlayer@@_N@Z",
+    InventoryTransactionError,
+    Player& player,
+    bool    isSenderAuthority
+) {
+    if (type == ComplexInventoryTransaction::Type::NormalTransaction) {
+        IF_LISTENED(EVENT_TYPES::onDropItem) {
+            InventorySource source(InventorySourceType::ContainerInventory, ContainerID::Inventory);
+            auto&           actions = data.getActions(source);
+            if (actions.size() == 1) {
+                CallEventRtnValue(
+                    EVENT_TYPES::onDropItem,
+                    InventoryTransactionError::NoError,
+                    PlayerClass::newPlayer(&player),
+                    ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)), false)
+                );
+            }
+        }
+        IF_LISTENED_END(EVENT_TYPES::onDropItem);
+    }
+    return origin(player, isSenderAuthority);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -1008,7 +1038,10 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
-void PlayerDropItem() { PlayerDropItemHook::hook(); }
+void PlayerDropItem() {
+    PlayerDropItemHook1::hook();
+    PlayerDropItemHook2::hook();
+}
 void PlayerOpenContainerEvent() { PlayerOpenContainerHook::hook(); }
 void PlayerCloseContainerEvent() {
     PlayerCloseContainerHook1::hook();

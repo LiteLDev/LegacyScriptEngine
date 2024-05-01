@@ -14,6 +14,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/HitDetection.h"
 #include "mc/dataloadhelper/DataLoadHelper.h"
+#include "mc/deps/core/string/HashedString.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/enums/FacingID.h"
@@ -24,6 +25,7 @@
 #include "mc/world/level/block/Block.h"
 
 #include <magic_enum.hpp>
+#include <mc/deps/core/string/HashedString.h>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -1458,7 +1460,7 @@ Local<Value> EntityClass::getBiomeId() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return Number::newNumber(bio.getId());
+        return Number::newNumber(ll::memory::dAccess<int>(&bio, 0x80));
     }
     CATCH("Fail in getBiomeId!");
 }
@@ -1468,7 +1470,7 @@ Local<Value> EntityClass::getBiomeName() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return String::newString(bio.getName().getString());
+        return String::newString(ll::memory::dAccess<HashedString>(&bio, 0x08).getString());
     }
     CATCH("Fail in getBiomeName!");
 }

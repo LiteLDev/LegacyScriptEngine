@@ -3468,7 +3468,7 @@ Local<Value> PlayerClass::getBiomeId() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return Number::newNumber(bio.getId());
+        return Number::newNumber(ll::memory::dAccess<int>(&bio, 0x80));
     }
     CATCH("Fail in getBiomeId!");
 }
@@ -3478,7 +3478,7 @@ Local<Value> PlayerClass::getBiomeName() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return String::newString(bio.getName().getString());
+        return String::newString(ll::memory::dAccess<HashedString>(&bio, 0x08).getString());
     }
     CATCH("Fail in getBiomeName!");
 }

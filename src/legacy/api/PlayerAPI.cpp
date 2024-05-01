@@ -1659,8 +1659,8 @@ Local<Value> PlayerClass::getRespawnPosition(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        BlockPos      position = player->getSpawnPosition();
-        DimensionType dim      = player->getSpawnDimension();
+        BlockPos      position = player->getExpectedSpawnPosition();
+        DimensionType dim      = player->getExpectedSpawnDimensionId();
         return IntPos::newPos(position, dim);
     }
     CATCH("Fail in getRespawnPosition!")

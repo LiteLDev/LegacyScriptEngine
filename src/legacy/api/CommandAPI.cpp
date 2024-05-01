@@ -173,9 +173,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CommandContext context = CommandContext(
         args[0].asString().toString(),
-        std::make_unique<ServerCommandOrigin>(
-            ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0)
-        )
+        std::make_unique<ServerCommandOrigin>("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Owner, 0)
     );
     try {
         return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, false));
@@ -189,7 +187,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
     try {
         std::string outputStr;
         auto        origin =
-            ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Internal, 0);
+            ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Owner, 0);
         auto command = ll::service::getMinecraft()->getCommands().compileCommand(
             args[0].asString().toString(),
             origin,

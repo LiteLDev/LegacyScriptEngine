@@ -407,13 +407,16 @@
 #### `"onPlaceBlock"` - 玩家尝试放置方块
 
 - 监听函数原型
-  `function(player,block)`
+  `function(player,block,face)`
 - 参数：
   - player : `Player`  
     放置方块的玩家对象
 
   - block : `Block`  
     将要放置的方块对象
+
+  - face : `Integer`  
+    被戴上的那张脸。
 
 - 拦截事件：函数返回`false`
 

@@ -256,7 +256,7 @@ void EnableEventListener(int eventId) {
                     EVENT_TYPES::onPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
                     BlockClass::newBlock(ev.pos(), ev.self().getDimensionId()),
-                    Number::newNumber((int)ev.face()),
+                    Number::newNumber((schar)ev.face())
                 );
             }
             IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);

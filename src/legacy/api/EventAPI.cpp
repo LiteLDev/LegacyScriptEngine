@@ -276,7 +276,7 @@ void EnableEventListener(int eventId) {
                 CallEvent(
                     EVENT_TYPES::onPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                    BlockClass::newBlock(truePos, ev.self().getDimensionId())
                 );
             }
             IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);

@@ -396,12 +396,14 @@ Note: The player may trigger this event on the server multiple times in a row.
 #### `"onPlaceBlock"` - Player Try Places Block Event
 
 - Listener function prototype 
-  `function(player,block)`
+  `function(player,block,face)`
 - Parameters: 
   - player : `Player`  
     The player that placed the block.
   - block : `Block`  
-    The block that was placed.
+    The block that was placed on.
+  - face : `Integer`  
+    The face that was placed on.
 
 - Intercept events: function returns `false`
 

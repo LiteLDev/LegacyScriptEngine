@@ -2,20 +2,30 @@
 
 A plugin engine for running LLSE plugins on LeviLamina
 
-## Install
+## Installation
 
-To install all engines as a whole, you can use the following command:
+To install QuickJs and Lua engine, you can use the following command:
 
-```sh
+```shell
 lip install github.com/LiteLDev/LegacyScriptEngine
 ```
 
 To install a specific engine, you can use the following command:
 
-```sh
+```shell
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python
+```
+
+To upgrade engines, you can use the following command:
+
+```shell
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-lua
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 ```
 
 ## Usage
@@ -26,6 +36,8 @@ lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
 
 3. To load them, you need to restart the server.
 
+For more information, please refer to [the documentation](https://lse.liteldev.com).
+
 ## Contributing
 
 If you have any questions, please open an issue to discuss it.
@@ -34,4 +46,4 @@ PRs are welcome.
 
 ## License
 
-GPL-3.0-only © LiteLDev
+GPL-3.0-or-later © LiteLDev

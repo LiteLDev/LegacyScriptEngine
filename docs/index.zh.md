@@ -4,7 +4,7 @@
 
 ## 安装
 
-要一次性安装所有引擎，您可以使用以下命令：
+要一次性安装QuickJs和Lua引擎，您可以使用以下命令：
 
 ```sh
 lip install github.com/LiteLDev/LegacyScriptEngine
@@ -12,10 +12,20 @@ lip install github.com/LiteLDev/LegacyScriptEngine
 
 要安装特定的引擎，您可以使用以下命令：
 
-```sh
+```shell
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python
+```
+
+要升级特定引擎，您可以使用以下命令:
+
+```shell
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-lua
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
+lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 ```
 
 ## 使用

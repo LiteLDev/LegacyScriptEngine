@@ -208,9 +208,12 @@ std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
 
 // 成员函数
 void EntityClass::set(Actor* actor) {
-    __try {
+    try {
         id = actor->getOrCreateUniqueID();
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    } catch (...) {
+        lse::getSelfPluginInstance().getLogger().error("Fail in EntityClass::set");
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+        LOG_ERROR_WITH_SCRIPT_INFO();
         isValid = false;
     }
 }

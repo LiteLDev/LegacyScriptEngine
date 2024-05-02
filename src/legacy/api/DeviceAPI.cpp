@@ -40,9 +40,12 @@ Local<Object> DeviceClass::newDevice(Player* p) {
 
 // 成员函数
 void DeviceClass::setPlayer(Player* player) {
-    __try {
+    try {
         id = player->getOrCreateUniqueID();
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    } catch (...) {
+        lse::getSelfPluginInstance().getLogger().error("Fail in DeviceClass::setPlayer");
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+        LOG_ERROR_WITH_SCRIPT_INFO();
         isValid = false;
     }
 }

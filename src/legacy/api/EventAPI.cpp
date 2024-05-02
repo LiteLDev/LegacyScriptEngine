@@ -562,7 +562,9 @@ void EnableEventListener(int eventId) {
                 Actor* source = nullptr;
                 if (ev.source().isEntitySource()) {
                     source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
-                    if (ev.source().isChildEntitySource()) source = source->getOwner();
+                    if (source) {
+                        if (ev.source().isChildEntitySource()) source = source->getOwner();
+                    }
                 }
 
                 CallEventUncancelable(

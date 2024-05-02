@@ -657,17 +657,17 @@ The following APIs provide APIs for interacting with entities at specified locat
 
 #### Create an Explosion at the Specified Location
 
-`mc.explode(pos,source,power,range,isDestroy,isFire)`  
-`mc.explode(x,y,z,dimid,source,power,range,isDestroy,isFire)`
+`mc.explode(pos,source,maxResistance,radius,isDestroy,isFire)`  
+`mc.explode(x,y,z,dimid,source,maxResistance,radius,isDestroy,isFire)`
 
 - Parameters: 
   - pos : `IntPos `/ `FloatPos`  
     The coordinates of the location where the explosion occurred (or use x, y, z, dimid to determine entity location).
   - source : `Entity`  
     Set the entity object of the explosion source, which can be `Null`.
-  - power : `Float`  
-    The power value of the explosion, which affects the damage and damage range of the explosion.
-  - range : `Float`  
+  - maxResistance : `Float`  
+    The maximum explosion resistance of the block. Blocks lower than this value will be destroyed.
+  - radius : `Float`  
     The radius of the explosion, which affects the scope of the explosion.
   - isDestroy : `Boolean`  
     Does the explosion destroy blocks.

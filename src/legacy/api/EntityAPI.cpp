@@ -1756,12 +1756,12 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
 }
 
 Local<Value> McClass::explode(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 5);
+    CHECK_ARGS_COUNT(args, 6);
 
     try {
         FloatVec4 pos;
         int       beginIndex;
-        if (args.size() == 5) {
+        if (args.size() == 6) {
             // PosObj
             beginIndex = 1;
 
@@ -1786,7 +1786,7 @@ Local<Value> McClass::explode(const Arguments& args) {
                 LOG_WRONG_ARG_TYPE();
                 return Local<Value>();
             }
-        } else if (args.size() == 8) {
+        } else if (args.size() == 9) {
             // Number Pos
             beginIndex = 4;
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1807,21 +1807,23 @@ Local<Value> McClass::explode(const Arguments& args) {
         auto source = EntityClass::extract(args[beginIndex + 0]); // Can be nullptr
 
         CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
-        CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kBoolean);
+        CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
         CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
+        CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
 
-        float power     = args[beginIndex + 1].asNumber().toFloat();
-        bool  isDestroy = args[beginIndex + 2].asBoolean().value();
-        bool  isFire    = args[beginIndex + 3].asBoolean().value();
+        float maxResistance = args[beginIndex + 1].asNumber().toFloat();
+        float radius        = args[beginIndex + 2].asNumber().toFloat();
+        bool  isDestroy     = args[beginIndex + 3].asBoolean().value();
+        bool  isFire        = args[beginIndex + 4].asBoolean().value();
 
         ll::service::getLevel()->explode(
             ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
             source,
             pos.getVec3(),
-            power,
+            radius,
             isFire,
             isDestroy,
-            3.40282347e+38,
+            maxResistance,
             false
         );
         return Boolean::newBoolean(true);

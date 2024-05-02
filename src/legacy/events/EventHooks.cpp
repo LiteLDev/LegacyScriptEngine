@@ -1006,11 +1006,13 @@ LL_TYPE_INSTANCE_HOOK(
     HitResult const& res
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitEntity) {
-        CallEventVoid(
-            EVENT_TYPES::onProjectileHitEntity,
-            EntityClass::newEntity(res.getEntity()),
-            EntityClass::newEntity(&owner)
-        );
+        if (res.getEntity()) {
+            CallEventVoid(
+                EVENT_TYPES::onProjectileHitEntity,
+                EntityClass::newEntity(res.getEntity()),
+                EntityClass::newEntity(&owner)
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onProjectileHitEntity);
     origin(owner, res);
@@ -1027,11 +1029,13 @@ LL_TYPE_INSTANCE_HOOK(
     Actor const&    projectile
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-        CallEventVoid(
-            EVENT_TYPES::onProjectileHitBlock,
-            BlockClass::newBlock(this, &pos, &region),
-            EntityClass::newEntity(&const_cast<Actor&>(projectile))
-        );
+        if (pos != BlockPos::ZERO && !this->isAir()) {
+            CallEventVoid(
+                EVENT_TYPES::onProjectileHitBlock,
+                BlockClass::newBlock(this, &pos, &region),
+                EntityClass::newEntity(&const_cast<Actor&>(projectile))
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
     origin(region, pos, projectile);

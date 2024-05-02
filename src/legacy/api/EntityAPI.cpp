@@ -211,9 +211,6 @@ void EntityClass::set(Actor* actor) {
     try {
         id = actor->getOrCreateUniqueID();
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail in EntityClass::set");
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
-        LOG_ERROR_WITH_SCRIPT_INFO();
         isValid = false;
     }
 }

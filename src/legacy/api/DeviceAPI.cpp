@@ -43,9 +43,6 @@ void DeviceClass::setPlayer(Player* player) {
     try {
         id = player->getOrCreateUniqueID();
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail in DeviceClass::setPlayer");
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
-        LOG_ERROR_WITH_SCRIPT_INFO();
         isValid = false;
     }
 }

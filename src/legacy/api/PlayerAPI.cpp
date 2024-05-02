@@ -651,9 +651,6 @@ void PlayerClass::set(Player* player) {
     try {
         id = player->getOrCreateUniqueID();
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail in PlayerClass::set");
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
-        LOG_ERROR_WITH_SCRIPT_INFO();
         isValid = false;
     }
 }

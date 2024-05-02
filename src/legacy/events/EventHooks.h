@@ -38,5 +38,6 @@ void PlayerConsumeTotemEvent();
 void PlayerSetArmorEvent();
 void ProjectileHitEntityEvent();
 void ProjectileHitBlockEvent();
+void HopperEvent(bool pullIn);
 
 } // namespace lse::events

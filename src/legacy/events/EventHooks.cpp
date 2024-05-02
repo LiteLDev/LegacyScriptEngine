@@ -25,6 +25,7 @@
 #include <mc/world/actor/ActorDefinitionIdentifier.h>
 #include <mc/world/actor/ArmorStand.h>
 #include <mc/world/actor/FishingHook.h>
+#include <mc/world/actor/Hopper.h>
 #include <mc/world/actor/boss/WitherBoss.h>
 #include <mc/world/actor/item/ItemActor.h>
 #include <mc/world/actor/player/Player.h>
@@ -1041,6 +1042,82 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, projectile);
 }
 
+namespace HopperEvents {
+enum class HopperStatus { None, PullIn, PullOut } hopperStatus = HopperStatus::None;
+Vec3 hopperPos;
+
+LL_TYPE_INSTANCE_HOOK(
+    HopperPullInHook,
+    HookPriority::Normal,
+    Hopper,
+    &Hopper::_tryPullInItemsFromAboveContainer,
+    bool,
+    BlockSource& region,
+    Container&   toContainer,
+    Vec3 const&  pos
+) {
+    hopperStatus = HopperStatus::PullIn;
+    hopperPos    = pos;
+    return origin(region, toContainer, pos);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    HopperPushOutHook,
+    HookPriority::Normal,
+    Hopper,
+    &Hopper::_pushOutItems,
+    bool,
+    BlockSource& region,
+    Container&   fromContainer,
+    Vec3 const&  position,
+    int          attachedFace
+) {
+    hopperStatus = HopperStatus::PullOut;
+    hopperPos    = position;
+    return origin(region, fromContainer, position, attachedFace);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    HopperAddItemHook,
+    HookPriority::Normal,
+    Hopper,
+    &Hopper::_addItem,
+    bool,
+    BlockSource& region,
+    Container&   container,
+    ItemStack&   item,
+    int          face,
+    int          itemCount
+) {
+    IF_LISTENED(EVENT_TYPES::onHopperSearchItem) {
+        if (hopperStatus == HopperStatus::PullIn) {
+            CallEventRtnValue(
+                EVENT_TYPES::onHopperSearchItem,
+                false,
+                FloatPos::newPos(hopperPos, region.getDimensionId()),
+                Boolean::newBoolean(this->mTransferedFromChestMinecart),
+                ItemClass::newItem(&item, false)
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onHopperSearchItem);
+    IF_LISTENED(EVENT_TYPES::onHopperPushOut) {
+        if (hopperStatus == HopperStatus::PullOut) {
+            CallEventRtnValue(
+                EVENT_TYPES::onHopperPushOut,
+                false,
+                FloatPos::newPos(hopperPos, region.getDimensionId()),
+                Boolean::newBoolean(this->mTransferedFromChestMinecart),
+                ItemClass::newItem(&item, false)
+            );
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onHopperPushOut);
+    hopperStatus = HopperStatus::None;
+    return origin(region, container, item, face, itemCount);
+}
+} // namespace HopperEvents
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() {
     PlayerDropItemHook1::hook();
@@ -1097,6 +1174,14 @@ void PlayerConsumeTotemEvent() { PlayerConsumeTotemHook::hook(); }
 void PlayerSetArmorEvent() { PlayerSetArmorHook::hook(); }
 void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
 void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
+void HopperEvent(bool pullIn) {
+    HopperEvents::HopperAddItemHook::hook();
+    if (pullIn) {
+        HopperEvents::HopperPullInHook::hook();
+    } else {
+        HopperEvents::HopperPushOutHook::hook();
+    }
+}
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

@@ -1095,7 +1095,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onHopperSearchItem,
                 false,
                 FloatPos::newPos(hopperPos, region.getDimensionId()),
-                Boolean::newBoolean(this->mTransferedFromChestMinecart),
+                Boolean::newBoolean(this->mIsEntity),
                 ItemClass::newItem(&item, false)
             );
         }
@@ -1107,7 +1107,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onHopperPushOut,
                 false,
                 FloatPos::newPos(hopperPos, region.getDimensionId()),
-                Boolean::newBoolean(this->mTransferedFromChestMinecart),
+                Boolean::newBoolean(this->mIsEntity),
                 ItemClass::newItem(&item, false)
             );
         }

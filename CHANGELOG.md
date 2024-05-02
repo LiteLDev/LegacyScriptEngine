@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5] - 2024-05-02
+
+### Added
+
+- Add missing hopper events [#88]
+
+### Changed
+
+- Replace SimulatedPlayer::create
+
+### Fixed
+
+- Fix unexpected situation of onMobDie
+- Fix some stupid exception process
+
 ## [0.7.4] - 2024-05-02
 
 ### Changed
@@ -14,8 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix truePos pre calculation
-- Fix onProjectileHitBlock & onProjectileHitEntity #108
-- Fix mc.explode #111
+- Fix onProjectileHitBlock & onProjectileHitEntity [#108]
+- Fix mc.explode [#111]
 
 ## [0.7.3] - 2024-05-01
 
@@ -333,6 +348,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#81]: https://github.com/LiteLDev/LegacyScriptEngine/issues/81
 [#82]: https://github.com/LiteLDev/LegacyScriptEngine/issues/82
 [#87]: https://github.com/LiteLDev/LegacyScriptEngine/issues/87
+[#88]: https://github.com/LiteLDev/LegacyScriptEngine/issues/88
 [#91]: https://github.com/LiteLDev/LegacyScriptEngine/issues/91
 [#92]: https://github.com/LiteLDev/LegacyScriptEngine/issues/92
 [#94]: https://github.com/LiteLDev/LegacyScriptEngine/issues/94
@@ -343,9 +359,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#101]: https://github.com/LiteLDev/LegacyScriptEngine/issues/101
 [#102]: https://github.com/LiteLDev/LegacyScriptEngine/issues/102
 [#104]: https://github.com/LiteLDev/LegacyScriptEngine/issues/104
+[#108]: https://github.com/LiteLDev/LegacyScriptEngine/issues/108
 [#110]: https://github.com/LiteLDev/LegacyScriptEngine/issues/110
+[#111]: https://github.com/LiteLDev/LegacyScriptEngine/issues/111
 [#115]: https://github.com/LiteLDev/LegacyScriptEngine/issues/115
 
+[0.7.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.1...v0.7.2

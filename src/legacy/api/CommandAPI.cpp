@@ -12,28 +12,21 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
-#include "ll/api/command/CommandRegistrar.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/service/ServerInfo.h"
 #include "lse/Plugin.h"
 #include "magic_enum.hpp"
-#include "main/Configs.h"
 #include "mc/_HeaderOutputPredefine.h"
-#include "mc/codebuilder/MCRESULT.h"
 #include "mc/common/wrapper/GenerateMessageResult.h"
 #include "mc/deps/json/JsonHelpers.h"
 #include "mc/enums/CurrentCmdVersion.h"
 #include "mc/locale/I18n.h"
 #include "mc/locale/Localization.h"
 #include "mc/server/ServerLevel.h"
-#include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandBlockNameResult.h"
 #include "mc/server/commands/CommandContext.h"
-#include "mc/server/commands/CommandOriginLoader.h"
-#include "mc/server/commands/CommandOutputParameter.h"
 #include "mc/server/commands/CommandOutputType.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
 #include "mc/server/commands/CommandVersion.h"
@@ -43,9 +36,7 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/registry/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "utils/Utils.h"
 
-#include <filesystem>
 #include <string>
 #include <vector>
 

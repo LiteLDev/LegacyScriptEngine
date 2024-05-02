@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix truePos pre calculation
 - Fix onProjectileHitBlock & onProjectileHitEntity #108
+- Fix mc.explode #111
 
 ## [0.7.3] - 2024-05-01
 

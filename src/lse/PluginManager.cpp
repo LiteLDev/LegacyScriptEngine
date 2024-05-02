@@ -121,7 +121,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
     logger.info("loading plugin {}", manifest.name);
 
     if (hasPlugin(manifest.name)) {
-        throw std::runtime_error("plugin already loaded");
+        return ll::makeStringError("plugin already loaded");
     }
 
     auto& scriptEngine = *EngineManager::newEngine(manifest.name);
@@ -166,7 +166,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
         if (!baseLibContent) {
-            throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+            return ll::makeStringError(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
         }
         scriptEngine.eval(baseLibContent.value());
 #endif
@@ -176,12 +176,12 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-            throw std::runtime_error(fmt::format("failed to load plugin code"));
+            return ll::makeStringError(fmt::format("failed to load plugin code"));
         }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
-            throw std::runtime_error(fmt::format("failed to load plugin code"));
+            return ll::makeStringError(fmt::format("failed to load plugin code"));
         }
 #endif
 #if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
@@ -192,7 +192,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
-                throw std::runtime_error(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
+                return ll::makeStringError(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
             }
             scriptEngine.eval(pluginEntryContent.value());
         }

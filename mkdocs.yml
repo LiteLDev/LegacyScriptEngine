@@ -43,11 +43,6 @@ nav:
       - GuiAPI:
           - apis/GuiAPI/Form.md
           - apis/GuiAPI/FormBuilder.md
-      - NativeAPI:
-          - apis/NativeAPI/NativeFunction.md
-          - apis/NativeAPI/NativePatch.md
-          - apis/NativeAPI/NativePointer.md
-          - apis/NativeAPI/Summary.md
       - NbtAPI:
           - apis/NbtAPI/NBT.md
           - apis/NbtAPI/NBTCompound.md
@@ -64,9 +59,6 @@ nav:
           - apis/SystemAPI/Network.md
           - apis/SystemAPI/SystemCall.md
           - apis/SystemAPI/SystemInfo.md
-
-exclude_docs: |
-  api/native/
 
 theme:
   name: material

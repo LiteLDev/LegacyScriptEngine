@@ -58,14 +58,7 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
             }
             bpos = BlockPos(args[1].toInt(), args[2].toInt(), args[3].toInt()).bottomCenter();
         }
-        if (auto sp = SimulatedPlayer::create(
-                name,
-                bpos,
-                dimid,
-                ll::service::getMinecraft()->getServerNetworkHandler(),
-                std::to_string(ll::random_utils::rand<int64>(INT64_MIN, -1))
-            ))
-            return PlayerClass::newPlayer(sp);
+        if (auto sp = SimulatedPlayer::create(name, bpos, dimid)) return PlayerClass::newPlayer(sp);
         else return Local<Value>();
     }
     CATCH("Fail in " __FUNCTION__ "!")

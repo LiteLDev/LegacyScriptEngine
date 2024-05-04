@@ -16,9 +16,9 @@ add_requires(
     "simpleini",
     "sqlite3 3.43.0+200",
     "toml++",
-    "openssl3", {configs={system=false}},
-    "cpp-httplib", {configs={ssl=true, zlib=true}}
+    "openssl3 3.0.7"
 )
+add_requires("cpp-httplib 0.15.3", {configs={ssl=true, zlib=true}})
 
 if is_config("backend", "lua") then
     add_requires("scriptx main", {configs={backend="Lua"}})

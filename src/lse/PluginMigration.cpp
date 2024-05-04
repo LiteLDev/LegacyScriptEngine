@@ -99,11 +99,12 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     };
     std::filesystem::remove(path);
 #endif
+    if (!std::filesystem::exists(pluginDir / "manifest.json")) {
+        auto manifestJson = ll::reflection::serialize<nlohmann::ordered_json>(manifest).value();
 
-    auto manifestJson = ll::reflection::serialize<nlohmann::ordered_json>(manifest).value();
-
-    std::ofstream manifestFile{pluginDir / "manifest.json"};
-    manifestFile << manifestJson.dump(4);
+        std::ofstream manifestFile{pluginDir / "manifest.json"};
+        manifestFile << manifestJson.dump(4);
+    }
 }
 
 } // namespace

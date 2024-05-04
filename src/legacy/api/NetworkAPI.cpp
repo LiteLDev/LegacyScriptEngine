@@ -705,8 +705,8 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
     }
 
     try {
-        string addr = "127.0.0.1";
-        int    port = 80;
+        std::string addr = "127.0.0.1";
+        int         port = 80;
         if (args.size() == 2) {
             addr = args[0].toStr();
             port = args[1].asNumber().toInt32();

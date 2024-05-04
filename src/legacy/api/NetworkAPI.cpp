@@ -24,7 +24,6 @@ ll::schedule::GameTickScheduler WSScheduler;
         EngineScope enter(engine);                                                                                     \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        ExitEngineScope exit;                                                                                          \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
@@ -32,7 +31,6 @@ ll::schedule::GameTickScheduler WSScheduler;
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         EngineScope enter(engine);                                                                                     \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
-        ExitEngineScope exit;                                                                                          \
         return;                                                                                                        \
     }
 
@@ -187,7 +185,6 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {String::newString(msg)});
                     }
-                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnTextReceived")
         });
@@ -210,7 +207,6 @@ void WSClientClass::initListeners_s() {
                         for (auto& listener : *nowList) {
                             listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
                         }
-                    ExitEngineScope exit;
                 }
                 CATCH_CALLBACK("Fail in OnBinaryReceived")
             }
@@ -232,7 +228,6 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {String::newString(msg)});
                     }
-                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnError")
         });
@@ -253,7 +248,6 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {Number::newNumber(code)});
                     }
-                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnLostConnection")
         });
@@ -467,7 +461,6 @@ ll::thread::TickSyncTaskPool taskPool;
                             }                                                                                          \
                         }                                                                                              \
                     }                                                                                                  \
-                    ExitEngineScope exit;                                                                              \
                 }                                                                                                      \
                 CATCH_CALLBACK("Fail in NetworkAPI callback")                                                          \
             })                                                                                                         \
@@ -590,7 +583,6 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                             handled = true;
                         }
                         resp = *respObj->get();
-                        ExitEngineScope exit;
                     }
                     CATCH_CALLBACK("Fail in onPreRouting");
                 })

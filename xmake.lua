@@ -16,7 +16,7 @@ add_requires(
     "simpleini",
     "sqlite3 3.43.0+200",
     "toml++",
-    "cpp-httplib 0.14.0", {configs={ssl=true, zlib=true}}
+    "cpp-httplib", {configs={ssl=true, zlib=true}}
 )
 
 if is_config("backend", "lua") then

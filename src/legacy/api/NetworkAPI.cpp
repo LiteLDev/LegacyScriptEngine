@@ -3,6 +3,7 @@
 #include "api/APIHelp.h"
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
+#include "httplib.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
@@ -20,13 +21,17 @@ ll::schedule::GameTickScheduler WSScheduler;
 // stacktrace
 #define CATCH_CALLBACK(LOG)                                                                                            \
     catch (const Exception& e) {                                                                                       \
+        EngineScope enter(engine);                                                                                     \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
+        ExitEngineScope exit;                                                                                          \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        EngineScope enter(engine);                                                                                     \
         LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        ExitEngineScope exit;                                                                                          \
         return;                                                                                                        \
     }
 
@@ -181,6 +186,7 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {String::newString(msg)});
                     }
+                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnTextReceived")
         });
@@ -203,6 +209,7 @@ void WSClientClass::initListeners_s() {
                         for (auto& listener : *nowList) {
                             listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
                         }
+                    ExitEngineScope exit;
                 }
                 CATCH_CALLBACK("Fail in OnBinaryReceived")
             }
@@ -224,6 +231,7 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {String::newString(msg)});
                     }
+                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnError")
         });
@@ -244,6 +252,7 @@ void WSClientClass::initListeners_s() {
                     for (auto& listener : *nowList) {
                         listener.func.get().call({}, {Number::newNumber(code)});
                     }
+                ExitEngineScope exit;
             }
             CATCH_CALLBACK("Fail in OnLostConnection")
         });
@@ -431,12 +440,12 @@ using namespace httplib;
         }                                                                                                              \
     ));                                                                                                                \
     svr->METHOD(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {      \
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)                    \
+        if ((ll::getServerStatus() == ll::ServerStatus::Stopping) || !EngineManager::isValid(engine)                   \
             || engine->isDestroying())                                                                                 \
             return;                                                                                                    \
         WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [this, engine, req, &resp] {                    \
             try {                                                                                                      \
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)            \
+                if ((ll::getServerStatus() == ll::ServerStatus::Stopping) || !EngineManager::isValid(engine)           \
                     || engine->isDestroying())                                                                         \
                     return;                                                                                            \
                 EngineScope enter(engine);                                                                             \
@@ -454,6 +463,7 @@ using namespace httplib;
                         }                                                                                              \
                     }                                                                                                  \
                 }                                                                                                      \
+                ExitEngineScope exit;                                                                                  \
             }                                                                                                          \
             CATCH_CALLBACK("Fail in NetworkAPI callback")                                                              \
         });                                                                                                            \
@@ -574,6 +584,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                         handled = true;
                     }
                     resp = *respObj->get();
+                    ExitEngineScope exit;
                 }
                 CATCH_CALLBACK("Fail in onPreRouting");
             });
@@ -696,9 +707,14 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         }
 
         RecordOperation(ENGINE_OWN_DATA()->pluginName, "StartHttpServer", fmt::format("on {}:{}", addr, port));
-
-        std::thread th([this](string addr, int port) { svr->listen(addr.c_str(), port); }, addr, port);
-        th.detach();
+        std::thread([this, addr, port]() {
+            try {
+                svr->stop();
+                svr->listen(addr, port);
+            } catch (...) {
+                ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+            }
+        }).detach();
         return this->getScriptObject(); // return self
     }
     CATCH("Fail in listen!");

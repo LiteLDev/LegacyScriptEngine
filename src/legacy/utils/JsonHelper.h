@@ -50,7 +50,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
         jsonFile.close();
     } else {
         // 已存在
-        auto jsonTexts = ll::file_utils::readFile(path);
+        auto jsonTexts = ll::file_utils::readFile(ll::string_utils::str2u8str(path));
         if (!jsonTexts) {
             jsonConf = ordered_json::object();
         } else {

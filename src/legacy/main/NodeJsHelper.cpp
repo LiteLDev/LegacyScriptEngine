@@ -118,7 +118,7 @@ script::ScriptEngine* newEngine() {
 }
 
 bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath) {
-    auto mainScripts = ll::file_utils::readFile(entryScriptPath);
+    auto mainScripts = ll::file_utils::readFile(ll::string_utils::str2u8str(entryScriptPath));
     if (!mainScripts) {
         return false;
     }

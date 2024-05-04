@@ -105,7 +105,7 @@ Local<Value> ConfBaseClass::getPath(const Arguments& args) {
 
 Local<Value> ConfBaseClass::read(const Arguments& args) {
     try {
-        auto content = ll::file_utils::readFile(confPath);
+        auto content = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
         if (!content) return Local<Value>();
         else return String::newString(*content);
     }
@@ -227,7 +227,7 @@ Local<Value> ConfJsonClass::write(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        bool res = ll::file_utils::writeFile(confPath, args[0].toStr(), false);
+        bool res = ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].toStr(), false);
         reload();
         return Boolean::newBoolean(res);
     }
@@ -249,7 +249,7 @@ bool ConfJsonClass::close() {
 }
 
 bool ConfJsonClass::reload() {
-    auto jsonTexts = ll::file_utils::readFile(confPath);
+    auto jsonTexts = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
     if (!jsonTexts) return false;
 
     try {
@@ -502,7 +502,7 @@ Local<Value> ConfIniClass::write(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        bool res = ll::file_utils::writeFile(confPath, args[0].toStr(), false);
+        bool res = ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].toStr(), false);
         reload();
         return Boolean::newBoolean(res);
     }

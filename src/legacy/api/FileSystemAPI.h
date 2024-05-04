@@ -27,7 +27,7 @@ Local<Value> GetFilesList(const Arguments& args);
 class FileClass : public ScriptClass {
 private:
     std::fstream file;
-    string       path;
+    std::string  path;
     bool         isBinary;
     std::mutex   lock;
 

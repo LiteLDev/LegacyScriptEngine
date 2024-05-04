@@ -5,6 +5,7 @@
 #include "engine/LocalShareData.h"
 #include "engine/TimeTaskSystem.h"
 #include "ll/api/service/ServerInfo.h"
+#include "ll/api/utils/StringUtils.h"
 
 #include <corecrt_io.h>
 #include <filesystem>
@@ -69,24 +70,6 @@ ClassDefine<FileClass> FileClassBuilder =
         .function("open", &FileClass::open)
         .build();
 
-std::optional<std::string> getDirectoryPath(const std::string& path) {
-    std::string dirPath;                       // Directory path
-    if (path.find('/') != std::string::npos) { // e.g. plugins/LeviLamina/LeviLamina.json
-        std::size_t pos = path.find_last_of('/');
-        if (pos != std::string::npos) {
-            dirPath = path.substr(0, pos);
-        }
-    } else if (path.find('\\') != std::string::npos) { // e.g. plugins\\LeviLamina\\LeviLamina.json
-        std::size_t pos = path.find_last_of('\\');
-        if (pos != std::string::npos) {
-            dirPath = path.substr(0, pos);
-        }
-    } else {
-        return {};
-    }
-    return dirPath;
-}
-
 //////////////////// Classes ////////////////////
 
 // 生成函数
@@ -111,18 +94,17 @@ FileClass* FileClass::constructor(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE_C(args[2], ValueKind::kBoolean);
 
     try {
-        string                     path    = args[0].toStr();
-        std::optional<std::string> dirPath = getDirectoryPath(path);
-        if (dirPath.has_value()) {
-            std::filesystem::create_directories(dirPath.value());
+        std::filesystem::path path(args[0].asString().toU8string());
+        if (!path.empty() && path.has_parent_path()) {
+            std::filesystem::create_directories(path.parent_path());
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory of " + args[0].asString().toString() + "!\n");
             return nullptr;
         }
         FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
         // Auto Create
         if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
-            std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
+            std::fstream tmp(path, std::ios_base::app);
             tmp.flush();
             tmp.close();
         }
@@ -142,12 +124,12 @@ FileClass* FileClass::constructor(const Arguments& args) {
             mode     |= std::ios_base::binary;
         }
 
-        std::fstream fs(ll::string_utils::str2wstr(path), mode);
+        std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path.string() + "!\n");
             return nullptr;
         }
-        return new FileClass(args.thiz(), std::move(fs), path, isBinary);
+        return new FileClass(args.thiz(), std::move(fs), path.string(), isBinary);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return nullptr;
@@ -202,7 +184,7 @@ Local<Value> FileClass::readSync(const Arguments& args) {
 
 Local<Value> FileClass::readLineSync(const Arguments& args) {
     try {
-        string buf;
+        std::string buf;
         getline(file, buf);
         return String::newString(buf);
     }
@@ -211,7 +193,7 @@ Local<Value> FileClass::readLineSync(const Arguments& args) {
 
 Local<Value> FileClass::readAllSync(const Arguments& args) {
     try {
-        string res((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        std::string res((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         return isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
                         : String::newString(res).asValue();
     }
@@ -299,7 +281,7 @@ Local<Value> FileClass::readLine(const Arguments& args) {
             if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
 
-            string buf;
+            std::string buf;
             lock->lock();
             getline(*fp, buf);
             lock->unlock();
@@ -331,7 +313,7 @@ Local<Value> FileClass::readAll(const Arguments& args) {
             if (!EngineManager::isValid(engine)) return;
 
             lock->lock();
-            string res((std::istreambuf_iterator<char>(*fp)), std::istreambuf_iterator<char>());
+            std::string res((std::istreambuf_iterator<char>(*fp)), std::istreambuf_iterator<char>());
             lock->unlock();
 
             EngineScope scope(engine);
@@ -352,13 +334,15 @@ Local<Value> FileClass::write(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        string data;
-        bool   isString = true;
+        std::string data;
+        bool        isString = true;
         if (args[0].isString()) {
             data = std::move(args[0].toStr());
         } else if (args[0].isByteBuffer()) {
             isString = false;
-            data = std::move(string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength()));
+            data =
+                std::move(std::string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength())
+                );
         } else {
             LOG_WRONG_ARG_TYPE();
             return {};
@@ -401,7 +385,7 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        string data{std::move(args[0].toStr())};
+        std::string data{std::move(args[0].toStr())};
 
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
@@ -521,7 +505,7 @@ Local<Value> DirCreate(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(std::filesystem::create_directories(args[0].toStr()));
+        return Boolean::newBoolean(std::filesystem::create_directories(args[0].asString().toU8string()));
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Create Dir " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -534,7 +518,9 @@ Local<Value> PathDelete(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0);
+        return Boolean::newBoolean(
+            std::filesystem::remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0
+        );
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Delete " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
@@ -663,7 +649,7 @@ Local<Value> FileReadFrom(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto content = ll::file_utils::readFile(args[0].toStr());
+        auto content = ll::file_utils::readFile(args[0].asString().toU8string());
         if (!content) return {}; // Null
         return String::newString(content.value());
     }
@@ -676,17 +662,16 @@ Local<Value> FileWriteTo(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string                     path    = args[0].toStr();
-        std::optional<std::string> dirPath = getDirectoryPath(path);
-        if (dirPath.has_value()) {
+        std::filesystem::path path(args[0].asString().toU8string());
+        if (!path.empty() && path.has_parent_path()) {
             std::error_code code;
-            std::filesystem::create_directories(dirPath.value(), code);
+            std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + path.parent_path().string() + "!\n");
                 return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory of " + args[0].asString().toString() + "!\n");
             return Boolean::newBoolean(false);
         }
         return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].toStr(), false));
@@ -700,17 +685,16 @@ Local<Value> FileWriteLine(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string                     path    = args[0].toStr();
-        std::optional<std::string> dirPath = getDirectoryPath(path);
-        if (dirPath.has_value()) {
+        std::filesystem::path path(args[0].asString().toString());
+        if (!path.empty() && path.has_parent_path()) {
             std::error_code code;
-            std::filesystem::create_directories(dirPath.value(), code);
+            std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + path.parent_path().string() + "!\n");
                 return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory of " + args[0].asString().toString() + "!\n");
             return Boolean::newBoolean(false);
         }
 
@@ -731,24 +715,23 @@ Local<Value> OpenFile(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kBoolean);
 
     try {
-        string                     path    = args[0].toStr();
-        std::optional<std::string> dirPath = getDirectoryPath(path);
-        if (dirPath.has_value()) {
+        std::filesystem::path path(args[0].asString().toU8string());
+        if (!path.empty() && path.has_parent_path()) {
             std::error_code code;
-            std::filesystem::create_directories(dirPath.value(), code);
+            std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+                LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + path.parent_path().string() + "!\n");
                 return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + dirPath.value() + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory " + args[0].asString().toString() + "!\n");
             return {};
         }
 
         FileOpenMode            fMode = (FileOpenMode)(args[1].toInt());
         std::ios_base::openmode mode  = std::ios_base::in;
         if (fMode == FileOpenMode::WriteMode) {
-            std::fstream tmp(ll::string_utils::str2wstr(path), std::ios_base::app);
+            std::fstream tmp(path, std::ios_base::app);
             tmp.flush();
             tmp.close();
             mode |= std::ios_base::out;
@@ -760,12 +743,12 @@ Local<Value> OpenFile(const Arguments& args) {
             mode     |= std::ios_base::binary;
         }
 
-        std::fstream fs(ll::string_utils::str2wstr(path), mode);
+        std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path + "!\n");
+            LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + path.string() + "!\n");
             return {};
         }
-        return FileClass::newFile(std::move(fs), path, isBinary);
+        return FileClass::newFile(std::move(fs), path.string(), isBinary);
     } catch (const filesystem_error& e) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return {};

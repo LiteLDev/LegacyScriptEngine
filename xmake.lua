@@ -16,6 +16,7 @@ add_requires(
     "simpleini",
     "sqlite3 3.43.0+200",
     "toml++",
+    "openssl3",
     "cpp-httplib", {configs={ssl=true, zlib=true}}
 )
 

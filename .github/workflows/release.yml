@@ -96,7 +96,7 @@ jobs:
           git config --global user.name "Actions"
           git config --global user.email "shrbox@liteldev.com"
           rm release/legacy-script-engine-${{ matrix.backend }}/*.pdb
-          git clone git@gitea.litebds.com:LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
+          git clone --depth=1 git@gitea.litebds.com:LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
           cd legacy-script-engine-${{ matrix.backend }}
           rm -rf legacy-script-engine-${{ matrix.backend }}
           mv ../release/legacy-script-engine-${{ matrix.backend }} .

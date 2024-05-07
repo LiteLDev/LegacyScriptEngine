@@ -24,6 +24,7 @@
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/Block.h"
 
+#include <climits>
 #include <magic_enum.hpp>
 #include <mc/deps/core/string/HashedString.h>
 #include <mc/entity/EntityContext.h>
@@ -1756,12 +1757,14 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
 }
 
 Local<Value> McClass::explode(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 6);
+    CHECK_ARGS_COUNT(args, 5);
 
     try {
         FloatVec4 pos;
         int       beginIndex;
-        if (args.size() == 6) {
+        switch (args.size()) {
+        case 5:
+        case 6:
             // PosObj
             beginIndex = 1;
 
@@ -1786,7 +1789,9 @@ Local<Value> McClass::explode(const Arguments& args) {
                 LOG_WRONG_ARG_TYPE();
                 return Local<Value>();
             }
-        } else if (args.size() == 9) {
+            break;
+        case 8:
+        case 9:
             // Number Pos
             beginIndex = 4;
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1799,34 +1804,55 @@ Local<Value> McClass::explode(const Arguments& args) {
                 args[2].asNumber().toFloat(),
                 args[3].toInt()
             };
-        } else {
+            break;
+        default:
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
+            break;
         }
-
         auto source = EntityClass::extract(args[beginIndex + 0]); // Can be nullptr
 
-        CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
-        CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
-        CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
-        CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
+        if (args.size() == 5 || args.size() == 8) {
+            CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
+            CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
+            CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
 
-        float maxResistance = args[beginIndex + 1].asNumber().toFloat();
-        float radius        = args[beginIndex + 2].asNumber().toFloat();
-        bool  isDestroy     = args[beginIndex + 3].asBoolean().value();
-        bool  isFire        = args[beginIndex + 4].asBoolean().value();
+            float radius    = args[beginIndex + 1].asNumber().toFloat();
+            bool  isDestroy = args[beginIndex + 2].asBoolean().value();
+            bool  isFire    = args[beginIndex + 3].asBoolean().value();
 
-        ll::service::getLevel()->explode(
-            ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
-            source,
-            pos.getVec3(),
-            radius,
-            isFire,
-            isDestroy,
-            maxResistance,
-            false
-        );
-        return Boolean::newBoolean(true);
+            return Boolean::newBoolean(ll::service::getLevel()->explode(
+                ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+                source,
+                pos.getVec3(),
+                radius,
+                isFire,
+                isDestroy,
+                FLT_MAX,
+                false
+            ));
+        } else {
+            CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
+            CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
+            CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
+            CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
+
+            float maxResistance = args[beginIndex + 1].asNumber().toFloat();
+            float radius        = args[beginIndex + 2].asNumber().toFloat();
+            bool  isDestroy     = args[beginIndex + 3].asBoolean().value();
+            bool  isFire        = args[beginIndex + 4].asBoolean().value();
+
+            return Boolean::newBoolean(ll::service::getLevel()->explode(
+                ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+                source,
+                pos.getVec3(),
+                radius,
+                isFire,
+                isDestroy,
+                maxResistance,
+                false
+            ));
+        }
     }
     CATCH("Fail in Explode!");
 }

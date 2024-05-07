@@ -167,36 +167,39 @@ Local<Value> LlClass::requireVersion(const Arguments& args) { return Boolean::ne
 Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     try {
         Local<Array> plugins = Array::newArray();
-        lse::getPluginManager().forEachPlugin([&](std::string_view name, ll::plugin::Plugin& plugin) {
-            // Create plugin object
-            auto pluginObject = Object::newObject();
+        ll::plugin::PluginManagerRegistry::getInstance().forEachPluginWithType(
+            [&](std::string_view type, std::string_view name, ll::plugin::Plugin& plugin) {
+                // Create plugin object
+                auto pluginObject = Object::newObject();
 
-            pluginObject.set("name", plugin.getManifest().name);
-            if (plugin.getManifest().description.has_value()) {
-                pluginObject.set("desc", plugin.getManifest().description.value());
-            }
-
-            auto ver = Array::newArray();
-            ver.add(Number::newNumber(plugin.getManifest().version->major));
-            ver.add(Number::newNumber(plugin.getManifest().version->minor));
-            ver.add(Number::newNumber(plugin.getManifest().version->patch));
-
-            pluginObject.set("version", ver);
-            pluginObject.set("versionStr", plugin.getManifest().version->to_string());
-            pluginObject.set("filePath", plugin.getManifest().entry);
-
-            if (plugin.getManifest().extraInfo.has_value()) {
-                auto others = Object::newObject();
-                for (const auto& [k, v] : plugin.getManifest().extraInfo.value()) {
-                    others.set(k, v);
+                pluginObject.set("name", plugin.getManifest().name);
+                if (plugin.getManifest().description.has_value()) {
+                    pluginObject.set("desc", plugin.getManifest().description.value());
                 }
-                pluginObject.set("others", others);
-            }
+                pluginObject.set("type", type);
 
-            // Add plugin object to list
-            plugins.add(pluginObject);
-            return true;
-        });
+                auto ver = Array::newArray();
+                ver.add(Number::newNumber(plugin.getManifest().version->major));
+                ver.add(Number::newNumber(plugin.getManifest().version->minor));
+                ver.add(Number::newNumber(plugin.getManifest().version->patch));
+
+                pluginObject.set("version", ver);
+                pluginObject.set("versionStr", plugin.getManifest().version->to_string());
+                pluginObject.set("filePath", plugin.getManifest().entry);
+
+                if (plugin.getManifest().extraInfo.has_value()) {
+                    auto others = Object::newObject();
+                    for (const auto& [k, v] : plugin.getManifest().extraInfo.value()) {
+                        others.set(k, v);
+                    }
+                    pluginObject.set("others", others);
+                }
+
+                // Add plugin object to list
+                plugins.add(pluginObject);
+                return true;
+            }
+        );
         return plugins;
     }
     CATCH("Fail in LLAPI");

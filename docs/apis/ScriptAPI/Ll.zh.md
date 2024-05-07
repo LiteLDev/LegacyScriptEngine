@@ -42,6 +42,7 @@
   | ----------------- | -------------------- | -------------------------------- |
   | plugin.name       | 插件名称             | `String`                         |
   | plugin.desc       | 插件描述             | `String`                         |
+  | plugin.type       | 插件类型             | `String`                         |
   | plugin.version    | 插件版本（数组形式） | `Array<Integer,Integer,Integer>` |
   | plugin.versionStr | 插件版本             | `String`                         |
   | plugin.filePath   | 插件路径             | `String`                         |

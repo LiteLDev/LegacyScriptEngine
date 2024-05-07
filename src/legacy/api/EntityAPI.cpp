@@ -1810,12 +1810,12 @@ Local<Value> McClass::explode(const Arguments& args) {
             return Local<Value>();
             break;
         }
-        auto source = EntityClass::extract(args[beginIndex + 0]); // Can be nullptr
+        auto source = EntityClass::extract(args[beginIndex]); // Can be nullptr
 
         if (args.size() == 5 || args.size() == 8) {
             CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
+            CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kBoolean);
             CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
-            CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
 
             float radius    = args[beginIndex + 1].asNumber().toFloat();
             bool  isDestroy = args[beginIndex + 2].asBoolean().value();

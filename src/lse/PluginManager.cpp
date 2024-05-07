@@ -202,9 +202,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         ExitEngineScope exit;
 #endif
         plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
-#endif
         plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
         plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
     } catch (const Exception& e) {
@@ -241,7 +239,9 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         auto& scriptEngine = *EngineManager::getEngine(std::string(name));
 
+#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         LLSERemoveTimeTaskData(&scriptEngine);
+#endif
         LLSERemoveAllEventListeners(&scriptEngine);
         LLSERemoveCmdRegister(&scriptEngine);
         LLSERemoveCmdCallback(&scriptEngine);
@@ -249,8 +249,11 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         scriptEngine.getData().reset();
         EngineManager::unregisterEngine(&scriptEngine);
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+        NodeJsHelper::stopEngine(&scriptEngine);
+#else
         scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
-        erasePlugin(name);
+#endif
         return {};
     } catch (const std::exception& e) {
         return ll::makeStringError("Failed to unload plugin {}: {}"_tr(name, e.what()));

@@ -231,7 +231,8 @@ bool processConsolePipCmd(const std::string& cmd) {
 // (./plugins/legacy-script-engine/lib/python-env/Lib/site-packages)
 int executePipCommand(std::string cmd) {
     if (cmd.find("--disable-pip-version-check") == std::string::npos) cmd += " --disable-pip-version-check";
-    cmd = (lse::getSelfPluginInstance().getPluginDir() / "python.exe").string() + " -m" + cmd;
+    cmd = ll::string_utils::u8str2str((lse::getSelfPluginInstance().getPluginDir() / "python.exe").u8string()) + " -m"
+        + cmd;
 
     SECURITY_ATTRIBUTES sa;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);

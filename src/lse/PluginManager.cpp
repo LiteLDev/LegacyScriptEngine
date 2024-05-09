@@ -64,15 +64,17 @@ PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
 ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-    std::filesystem::path dirPath   = ll::plugin::getPluginsRoot() / manifest.name;    // Plugin path
-    std::string           entryPath = PythonHelper::findEntryScript(dirPath.string()); // Plugin entry
+    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
+    std::string           entryPath =
+        PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
     // if (entryPath.empty()) return false;
     // std::string pluginName = PythonHelper::getPluginPackageName(dirPath.string()); // Plugin name
 
     // Run "pip install" if needed
     auto realPackageInstallDir = (std::filesystem::path(dirPath) / "site-packages").make_preferred();
     if (!std::filesystem::exists(realPackageInstallDir)) {
-        std::string dependTmpFilePath = PythonHelper::getPluginPackDependencyFilePath(dirPath.string());
+        std::string dependTmpFilePath =
+            PythonHelper::getPluginPackDependencyFilePath(ll::string_utils::u8str2str(dirPath.u8string()));
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
             lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.start"_tr(
@@ -103,13 +105,14 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
     // std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string()); // Plugin name
 
     // Run "npm install" if needed
-    if (NodeJsHelper::doesPluginPackHasDependency(dirPath.string())
+    if (NodeJsHelper::doesPluginPackHasDependency(ll::string_utils::u8str2str(dirPath.u8string()))
         && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
         int exitCode = 0;
         lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.start"_tr(
             fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
         ));
-        if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", dirPath.string())) == 0)
+        if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", ll::string_utils::u8str2str(dirPath.u8string())))
+            == 0)
             lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.success"_tr());
         else
             lse::getSelfPluginInstance().getLogger().error(
@@ -173,14 +176,22 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         // Load the plugin entry.
         auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
         auto entryPath = pluginDir / manifest.entry;
-        ENGINE_OWN_DATA()->pluginFileOrDirPath = entryPath.string();
+        ENGINE_OWN_DATA()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-        if (!PythonHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+        if (!PythonHelper::loadPluginCode(
+                &scriptEngine,
+                ll::string_utils::u8str2str(entryPath.u8string()),
+                ll::string_utils::u8str2str(dirPath.u8string())
+            )) {
             return ll::makeStringError(fmt::format("failed to load plugin code"));
         }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-        if (!NodeJsHelper::loadPluginCode(&scriptEngine, entryPath.string(), dirPath.string())) {
+        if (!NodeJsHelper::loadPluginCode(
+                &scriptEngine,
+                ll::string_utils::u8str2str(entryPath.u8string()),
+                ll::string_utils::u8str2str(dirPath.u8string())
+            )) {
             return ll::makeStringError(fmt::format("failed to load plugin code"));
         }
 #endif

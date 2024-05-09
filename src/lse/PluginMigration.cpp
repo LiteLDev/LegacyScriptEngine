@@ -86,9 +86,13 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     };
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    lse::legacy::UncompressFile(path.string(), pluginDir.string(), 30000);
+    lse::legacy::UncompressFile(
+        ll::string_utils::u8str2str(path.u8string()),
+        ll::string_utils::u8str2str(pluginDir.u8string()),
+        30000
+    );
     ll::plugin::Manifest manifest{
-        .entry = NodeJsHelper::findEntryScript(path.string()),
+        .entry = NodeJsHelper::findEntryScript(ll::string_utils::u8str2str(path.u8string())),
         .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
         .type  = pluginType,
         .dependencies =

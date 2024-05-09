@@ -205,7 +205,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
             if (!pluginEntryContent) {
                 return ll::makeStringError(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
             }
-            scriptEngine.eval(pluginEntryContent.value());
+            scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
         if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
             LLSECallEventsOnHotLoad(&scriptEngine);

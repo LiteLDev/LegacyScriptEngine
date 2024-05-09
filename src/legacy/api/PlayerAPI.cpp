@@ -3175,18 +3175,21 @@ Local<Value> PlayerClass::transMoney(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        auto   xuid = player->getXuid();
-        string targetXuid;
-        string note;
-        if (args[0].getKind() == ValueKind::kString) targetXuid = args[0].toStr();
-        else targetXuid = PlayerClass::extract(args[0])->getXuid();
+        std::string xuid = player->getXuid();
+        std::string targetXuid;
+        std::string note;
+        if (args[0].getKind() == ValueKind::kString) {
+            targetXuid = args[0].toStr();
+        } else {
+            targetXuid = PlayerClass::extract(args[0])->getXuid();
+        }
         if (args.size() >= 3) {
             CHECK_ARG_TYPE(args[2], ValueKind::kString);
             note = args[2].toStr();
         }
         return xuid.empty()
                  ? Local<Value>()
-                 : Boolean::newBoolean(EconomySystem::transMoney(xuid, targetXuid, args[0].asNumber().toInt64(), note));
+                 : Boolean::newBoolean(EconomySystem::transMoney(xuid, targetXuid, args[1].asNumber().toInt64(), note));
     }
     CATCH("Fail in transMoney!");
 }

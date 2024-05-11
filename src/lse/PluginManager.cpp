@@ -265,6 +265,8 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 #else
         scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
 #endif
+        erasePlugin(name);
+
         return {};
     } catch (const std::exception& e) {
         return ll::makeStringError("Failed to unload plugin {}: {}"_tr(name, e.what()));

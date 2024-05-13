@@ -103,7 +103,7 @@ Every binary stream object contains some member functions (member methods) that 
 | writeVarInt             | `Number`       |
 | writeVarInt64           | `Number`       |
 | writeVec3               | `FloatPos`     |
-| writeCompountTag        | `NbtCompound`  |
+| writeCompoundTag        | `NbtCompound`  |
 
 
 

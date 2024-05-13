@@ -103,7 +103,7 @@
 | writeVarInt             | `Number`      |
 | writeVarInt64           | `Number`      |
 | writeVec3               | `FloatPos`    |
-| writeCompountTag        | `NbtCompound` |
+| writeCompoundTag        | `NbtCompound` |
 
 
 

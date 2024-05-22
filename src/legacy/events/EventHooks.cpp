@@ -499,7 +499,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventRtnValue(
             EVENT_TYPES::onPistonTryPush,
             false,
-            IntPos::newPos(curPos, region.getDimensionId()),
+            IntPos::newPos(this->getPosition(), region.getDimensionId()),
             BlockClass::newBlock(curPos, region.getDimensionId())
         );
     }
@@ -509,7 +509,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (shouldPush) {
             CallEventUncancelable(
                 EVENT_TYPES::onPistonPush,
-                IntPos::newPos(curPos, region.getDimensionId()),
+                IntPos::newPos(this->getPosition(), region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
             );
         }

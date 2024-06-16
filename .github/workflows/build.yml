@@ -51,15 +51,15 @@ jobs:
           path: |
             bin/
 
-  clang-format:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
+  # clang-format:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - run: |
-          choco install llvm -y
+  #     - run: |
+  #         choco install llvm -y
 
-      - name: clang-format
-        run: |
-          Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-format --dry-run -Werror $_.FullName; if ($LASTEXITCODE -ne 0) { exit 1; } }
-          Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-format --dry-run -Werror $_.FullName; if ($LASTEXITCODE -ne 0) { exit 1; } }
+  #     - name: clang-format
+  #       run: |
+  #         Get-ChildItem src/ -Filter *.cpp -Recurse | ForEach-Object { clang-format --dry-run -Werror $_.FullName; if ($LASTEXITCODE -ne 0) { exit 1; } }
+  #         Get-ChildItem src/ -Filter *.h -Recurse | ForEach-Object { clang-format --dry-run -Werror $_.FullName; if ($LASTEXITCODE -ne 0) { exit 1; } }

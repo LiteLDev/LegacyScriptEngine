@@ -293,7 +293,7 @@ Local<Value> ItemClass::isStackable() {
 
 Local<Value> ItemClass::isWearableItem() {
     try {
-        return Boolean::newBoolean(get()->isWearableItem());
+        return Boolean::newBoolean(get()->isHumanoidWearableItem());
     }
     CATCH("Fail in isWearableItem!");
 }

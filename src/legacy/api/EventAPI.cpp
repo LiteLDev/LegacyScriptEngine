@@ -38,7 +38,6 @@
 #include "ll/api/event/player/PlayerSprintEvent.h"
 #include "ll/api/event/player/PlayerSwingEvent.h"
 #include "ll/api/event/player/PlayerUseItemEvent.h"
-#include "ll/api/event/player/PlayerUseItemOnEvent.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/event/world/BlockChangedEvent.h"
 #include "ll/api/event/world/FireSpreadEvent.h"
@@ -349,7 +348,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onUseItemOn:
-        bus.emplaceListener<PlayerUseItemOnEvent>([](PlayerUseItemOnEvent& ev) {
+        bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItemOn) {
                 CallEvent(
                     EVENT_TYPES::onUseItemOn,
@@ -615,13 +614,12 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onBlockInteracted:
-
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
                 CallEvent(
                     EVENT_TYPES::onBlockInteracted,
                     PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                    BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
                 );
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);

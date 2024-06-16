@@ -565,8 +565,8 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         if (!id.isValid()) {
             return Boolean::newBoolean(true);
         }
-        return Boolean::newBoolean(scoreboard.getScoreboardIdentityRef(id)->removeFromObjective(scoreboard, *objective)
-        );
+        objective->_resetPlayer(id);
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in deletePlayerScore!")
 }
@@ -1553,7 +1553,7 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         if (!player) return Local<Value>();
 
         TextPacket pkt =
-            TextPacket::createChat(player->getName(), args[0].asString().toString(), player->getXuid(), "");
+            TextPacket::createChat(player->getName(), args[0].asString().toString(), player->getXuid(), "", "");
         if (ll::service::getLevel().has_value()) {
             IF_LISTENED(EVENT_TYPES::onChat) {
                 CallEventRtnValue(
@@ -1587,7 +1587,7 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         if (!player) return Local<Value>();
 
         TextPacket pkt =
-            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), player->getXuid(), "");
+            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), player->getXuid(), "", "");
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -2084,7 +2084,8 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
         if (!id.isValid()) {
             return Boolean::newBoolean(true);
         }
-        return Boolean::newBoolean(scoreboard.getScoreboardIdentityRef(id)->removeFromObjective(scoreboard, *obj));
+        obj->_resetPlayer(id);
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in deleteScore!");
 }
@@ -3470,7 +3471,7 @@ Local<Value> PlayerClass::getBiomeId() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+        Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return Number::newNumber(ll::memory::dAccess<int>(&bio, 0x80));
     }
     CATCH("Fail in getBiomeId!");
@@ -3480,7 +3481,7 @@ Local<Value> PlayerClass::getBiomeName() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        Biome& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
+        Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return String::newString(ll::memory::dAccess<HashedString>(&bio, 0x08).getString());
     }
     CATCH("Fail in getBiomeName!");

@@ -392,7 +392,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = IntPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getBlockPos());
+                sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)0);
                 return Boolean::newBoolean(true);
             }
             lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
@@ -401,7 +401,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = FloatPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getVec3());
+                sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)0);
                 return Boolean::newBoolean(true);
             }
             lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
@@ -411,7 +411,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos   = IntPos::extractPos(block->getPos());
             auto did   = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getBlockPos());
+                sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)0);
                 return Boolean::newBoolean(true);
             }
             lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");

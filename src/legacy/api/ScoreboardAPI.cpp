@@ -241,7 +241,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            return Boolean::newBoolean(scoreboard.getScoreboardIdentityRef(id)->removeFromObjective(scoreboard, *obj));
+            obj->_resetPlayer(id);
+            return Boolean::newBoolean(true);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -253,7 +254,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            return Boolean::newBoolean(scoreboard.getScoreboardIdentityRef(id)->removeFromObjective(scoreboard, *obj));
+            obj->_resetPlayer(id);
+            return Boolean::newBoolean(true);
         } else {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();

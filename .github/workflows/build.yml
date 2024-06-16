@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: |
-          choco install llvm -y --version=17.0.6
+          choco install llvm -y
 
       - name: clang-format
         run: |

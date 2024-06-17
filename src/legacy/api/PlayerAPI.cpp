@@ -1641,14 +1641,6 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
         auto chest = player->getEnderChestContainer();
         if (chest) {
             return ContainerClass::newContainer(chest);
-        } else {
-            EnderChestContainer* enderChest = ll::memory::dAccess<EnderChestContainer*>(
-                player,
-                3248
-            ); // Todo: please remove it when LeviLamina 0.11.1 released
-            if (enderChest) {
-                return ContainerClass::newContainer(enderChest);
-            }
         }
         return {};
     }

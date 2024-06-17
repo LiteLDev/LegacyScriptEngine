@@ -1497,7 +1497,7 @@ Local<Value> PlayerClass::tell(const Arguments& args) {
 
         TextPacket pkt = TextPacket();
         pkt.mType      = type;
-        pkt.mMessage   = args[0].asString().toString();
+        pkt.mMessage.assign(args[0].asString().toString());
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }

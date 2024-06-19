@@ -174,7 +174,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onCloseContainer,
             PlayerClass::newPlayer(&const_cast<Player&>(player)),
             BlockClass::newBlock(
-                ((BlockActor*)((char*)this - 240))->getPosition(),
+                ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
                 player.getDimensionId()
             ) // IDA ChestBlockActor::stopOpen
         );
@@ -196,7 +196,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onCloseContainer,
             PlayerClass::newPlayer(&const_cast<Player&>(player)),
             BlockClass::newBlock(
-                ((BlockActor*)((char*)this - 240))->getPosition(),
+                ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
                 player.getDimensionId()
             ) // IDA ChestBlockActor::stopOpen
         );

@@ -9,7 +9,7 @@ add_requires(
     "legacymoney 0.8.0",
     "legacyparticleapi 0.8.0",
     "legacyremotecall 0.8.0",
-    "levilamina develop",
+    "levilamina 0.13.0",
     "lightwebsocketclient",
     "magic_enum",
     "nlohmann_json",

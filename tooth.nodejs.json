@@ -19,7 +19,7 @@
         "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
     },
     "prerequisites": {
-        "github.com/LiteLDev/LeviLamina": "1.0.x"
+        "github.com/LiteLDev/LeviLamina": "0.13.x"
     },
     "files": {
         "place": [

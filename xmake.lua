@@ -51,7 +51,8 @@ target("legacy-script-engine")
     add_defines(
         "NOMINMAX",
         "UNICODE",
-        "_AMD64_"
+        "_AMD64_",
+        "_HAS_CXX23=1"
     )
     add_files(
         "src/**.cpp"

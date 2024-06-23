@@ -9,7 +9,7 @@ add_requires(
     "legacymoney 0.8.1",
     "legacyparticleapi 0.8.1",
     "legacyremotecall 0.8.1",
-    "levilamina 0.13.0",
+    "levilamina 0.13.2",
     "lightwebsocketclient",
     "magic_enum",
     "nlohmann_json",
@@ -49,7 +49,6 @@ target("legacy-script-engine")
         "/utf-8"
     )
     add_defines(
-        "_HAS_CXX23=1",
         "NOMINMAX",
         "UNICODE",
         "_AMD64_"

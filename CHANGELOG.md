@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2024-06-23
+
+### Fixed
+
+- Fix reduceExperience [#145]
+- Fix ScoreboardAPI [#84]
+
 ## [0.8.0] - 2024-06-18
 
 ### Added
@@ -407,6 +414,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#80]: https://github.com/LiteLDev/LegacyScriptEngine/issues/80
 [#81]: https://github.com/LiteLDev/LegacyScriptEngine/issues/81
 [#82]: https://github.com/LiteLDev/LegacyScriptEngine/issues/82
+[#84]: https://github.com/LiteLDev/LegacyScriptEngine/issues/84
 [#87]: https://github.com/LiteLDev/LegacyScriptEngine/issues/87
 [#88]: https://github.com/LiteLDev/LegacyScriptEngine/issues/88
 [#91]: https://github.com/LiteLDev/LegacyScriptEngine/issues/91
@@ -428,7 +436,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#130]: https://github.com/LiteLDev/LegacyScriptEngine/issues/130
 [#134]: https://github.com/LiteLDev/LegacyScriptEngine/issues/134
 [#137]: https://github.com/LiteLDev/LegacyScriptEngine/issues/137
+[#145]: https://github.com/LiteLDev/LegacyScriptEngine/issues/145
 
+[0.8.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.12...v0.8.0
 [0.7.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.11...v0.7.12
 [0.7.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.7.10...v0.7.11

@@ -1828,8 +1828,31 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        player->addExperience(-args[0].toInt());
-        return Boolean::newBoolean(true);
+        float exp  = args[0].asNumber().toFloat();
+        auto  attr = player->getMutableAttribute(Player::EXPERIENCE);
+        if (!attr) {
+            return Boolean::newBoolean(false);
+        }
+        int neededExp  = player->getXpNeededForNextLevel();
+        int currentExp = static_cast<int>(attr->getCurrentValue() * neededExp);
+        if (exp <= currentExp) {
+            attr->setCurrentValue(static_cast<float>(currentExp - exp) / neededExp);
+            return Boolean::newBoolean(true);
+        }
+        attr->setCurrentValue(0);
+        size_t needExp = exp - currentExp;
+        int    level   = player->getPlayerLevel();
+        while (level > 0) {
+            player->addLevels(-1);
+            int levelXp = player->getXpNeededForNextLevel();
+            if (needExp < levelXp) {
+                attr->setCurrentValue(static_cast<float>(levelXp - needExp) / player->getXpNeededForNextLevel());
+                return Boolean::newBoolean(true);
+            }
+            needExp -= levelXp;
+            level    = player->getPlayerLevel();
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in reduceExperience!");
 }

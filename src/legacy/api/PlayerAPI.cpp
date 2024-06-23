@@ -334,11 +334,13 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto                         uuid   = mce::UUID::fromString(args[0].asString().toString());
-        std::unique_ptr<CompoundTag> tag    = std::make_unique<CompoundTag>();
-        Player*                      player = ll::service::getLevel()->getPlayer(uuid);
+        auto    uuid   = mce::UUID::fromString(args[0].asString().toString());
+        Player* player = ll::service::getLevel()->getPlayer(uuid);
         if (player) {
-            player->save(*tag);
+            std::unique_ptr<CompoundTag> tag;
+            if (player->save(*tag)) {
+                return NbtCompoundClass::pack(std::move(tag));
+            }
         } else {
             DBStorage* db = MoreGlobal::db;
             if (db) {
@@ -349,15 +351,14 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
                         std::string serverId = playerTag->at("ServerId");
                         if (!serverId.empty()) {
                             if (db->hasKey(serverId, DBHelpers::Category::Player)) {
-                                tag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+                                return NbtCompoundClass::pack(
+                                    std::move(db->getCompoundTag(serverId, DBHelpers::Category::Player))
+                                );
                             }
                         }
                     }
                 }
             }
-        }
-        if (tag && !tag->isEmpty()) {
-            return NbtCompoundClass::pack(std::move(tag));
         }
         return Local<Value>();
     }
@@ -443,12 +444,39 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
     try {
-        auto         obj       = args[1].asString().toString();
-        Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
-        Objective*   objective = board.getObjective(obj);
-        ScoreboardId sid = board.getScoreboardId(PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
-        if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
-            return {};
+        auto        obj        = args[1].asString().toString();
+        Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
+        Objective*  objective  = scoreboard.getObjective(obj);
+        DBStorage*  db         = MoreGlobal::db;
+        if (!objective) {
+            return Number::newNumber(0);
+        }
+        if (!db) {
+            return Number::newNumber(0);
+        }
+        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+            return Number::newNumber(0);
+        }
+        std::unique_ptr<CompoundTag> playerTag =
+            db->getCompoundTag("player_" + args[0].asString().toString(), DBHelpers::Category::Player);
+        if (!playerTag) {
+            return Number::newNumber(0);
+        }
+        std::string serverId = playerTag->at("ServerId");
+        if (serverId.empty()) {
+            return Number::newNumber(0);
+        }
+        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+            return Number::newNumber(0);
+        }
+        std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+        if (!serverIdTag || !serverIdTag->contains("UniqueID")) {
+            return Number::newNumber(0);
+        }
+        int64        uniqueId = serverIdTag->at("UniqueID");
+        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
+        if (!sid.isValid() || !objective->hasScore(sid)) {
+            return Number::newNumber(0);
         }
         return Number::newNumber(objective->getPlayerScore(sid).mScore);
     }
@@ -467,19 +495,37 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id =
-            scoreboard.getScoreboardId(PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
-        if (!id.isValid()) {
-            Player* pl = ll::service::getLevel()->getPlayer(uuid);
-            if (pl) {
-                scoreboard.createScoreboardId(*pl);
-            } else {
-                return Boolean::newBoolean(false);
-            }
+        DBStorage* db = MoreGlobal::db;
+        if (!db) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> playerTag =
+            db->getCompoundTag("player_" + args[0].asString().toString(), DBHelpers::Category::Player);
+        if (!playerTag) {
+            return Boolean::newBoolean(false);
+        }
+        std::string serverId = playerTag->at("ServerId");
+        if (serverId.empty()) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+        if (!serverIdTag || !serverIdTag->contains("UniqueID")) {
+            return Boolean::newBoolean(false);
+        }
+        int64        uniqueId = serverIdTag->at("UniqueID");
+        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
+        if (!sid.isValid()) {
+            return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
         scoreboard
-            .modifyPlayerScore(isSuccess, id, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Set);
+            .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Set);
         return Boolean::newBoolean(isSuccess);
     }
     CATCH("Fail in setPlayerScore!")
@@ -497,19 +543,37 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id =
-            scoreboard.getScoreboardId(PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
-        if (!id.isValid()) {
-            Player* pl = ll::service::getLevel()->getPlayer(uuid);
-            if (pl) {
-                scoreboard.createScoreboardId(*pl);
-            } else {
-                return Boolean::newBoolean(false);
-            }
+        DBStorage* db = MoreGlobal::db;
+        if (!db) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> playerTag =
+            db->getCompoundTag("player_" + args[0].asString().toString(), DBHelpers::Category::Player);
+        if (!playerTag) {
+            return Boolean::newBoolean(false);
+        }
+        std::string serverId = playerTag->at("ServerId");
+        if (serverId.empty()) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+        if (!serverIdTag || !serverIdTag->contains("UniqueID")) {
+            return Boolean::newBoolean(false);
+        }
+        int64        uniqueId = serverIdTag->at("UniqueID");
+        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
+        if (!sid.isValid()) {
+            return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
         scoreboard
-            .modifyPlayerScore(isSuccess, id, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Add);
+            .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Add);
         return Boolean::newBoolean(isSuccess);
     }
     CATCH("Fail in addPlayerScore!")
@@ -527,20 +591,38 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id =
-            scoreboard.getScoreboardId(PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
-        if (!id.isValid()) {
-            Player* pl = ll::service::getLevel()->getPlayer(uuid);
-            if (pl) {
-                scoreboard.createScoreboardId(*pl);
-            } else {
-                return Boolean::newBoolean(false);
-            }
+        DBStorage* db = MoreGlobal::db;
+        if (!db) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> playerTag =
+            db->getCompoundTag("player_" + args[0].asString().toString(), DBHelpers::Category::Player);
+        if (!playerTag) {
+            return Boolean::newBoolean(false);
+        }
+        std::string serverId = playerTag->at("ServerId");
+        if (serverId.empty()) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+        if (!serverIdTag || !serverIdTag->contains("UniqueID")) {
+            return Boolean::newBoolean(false);
+        }
+        int64        uniqueId = serverIdTag->at("UniqueID");
+        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
+        if (!sid.isValid()) {
+            return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
         scoreboard.modifyPlayerScore(
             isSuccess,
-            id,
+            sid,
             *objective,
             args[2].asNumber().toInt32(),
             PlayerScoreSetFunction::Subtract
@@ -560,12 +642,35 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        const ScoreboardId& id =
-            scoreboard.getScoreboardId(PlayerScoreboardId(std::atoll(args[0].asString().toString().c_str())));
-        if (!id.isValid()) {
-            return Boolean::newBoolean(true);
+        DBStorage* db = MoreGlobal::db;
+        if (!db) {
+            return Boolean::newBoolean(false);
         }
-        objective->_resetPlayer(id);
+        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> playerTag =
+            db->getCompoundTag("player_" + args[0].asString().toString(), DBHelpers::Category::Player);
+        if (!playerTag) {
+            return Boolean::newBoolean(false);
+        }
+        std::string serverId = playerTag->at("ServerId");
+        if (serverId.empty()) {
+            return Boolean::newBoolean(false);
+        }
+        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+            return Boolean::newBoolean(false);
+        }
+        std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+        if (!serverIdTag || !serverIdTag->contains("UniqueID")) {
+            return Boolean::newBoolean(false);
+        }
+        int64        uniqueId = serverIdTag->at("UniqueID");
+        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
+        if (!sid.isValid()) {
+            return Boolean::newBoolean(false);
+        }
+        objective->_resetPlayer(sid);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deletePlayerScore!")

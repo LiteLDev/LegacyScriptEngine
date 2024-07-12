@@ -17,8 +17,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: xmake-io/github-action-setup-xmake@v1
-        with:
-         xmake-version: branch@master
 
       - uses: actions/cache@v4
         with:

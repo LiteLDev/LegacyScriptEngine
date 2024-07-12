@@ -2651,9 +2651,7 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* healthAttribute = player->getMutableAttribute(SharedAttributes::HEALTH);
-
-        healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2668,9 +2666,7 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* healthAttribute = player->getMutableAttribute(SharedAttributes::HEALTH);
-
-        healthAttribute->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH)->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2685,9 +2681,7 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* absorptionAttribute = player->getMutableAttribute(SharedAttributes::ABSORPTION);
-
-        absorptionAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ABSORPTION)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2702,9 +2696,7 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
-
-        attactDamageAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2719,9 +2711,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
-
-        attactDamageAttribute->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2736,9 +2726,7 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* followRangeAttribute = player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE);
-
-        followRangeAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2753,10 +2741,8 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* knockbackResistanceAttribute =
-            player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE);
-
-        knockbackResistanceAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE)
+            ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2771,9 +2757,7 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* luckAttribute = player->getMutableAttribute(SharedAttributes::LUCK);
-
-        luckAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::LUCK)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2788,18 +2772,22 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
-        if (movementSpeedAttribute) {
-            movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-            return Boolean::newBoolean(true);
-        } else {
-            player->_registerPlayerAttributes();
-            movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED); // Check again
-            if (movementSpeedAttribute) {
-                movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-                return Boolean::newBoolean(true);
-            }
-        }
+        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED)->setCurrentValue(args[0].asNumber().toFloat());
+
+        // Unknown why we need to check again after registering attributes
+        //
+        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
+        // if (movementSpeedAttribute) {
+        //     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        //     return Boolean::newBoolean(true);
+        // } else {
+        //     player->_registerPlayerAttributes();
+        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED); // Check again
+        //     if (movementSpeedAttribute) {
+        //         movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        //         return Boolean::newBoolean(true);
+        //     }
+        // }
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
@@ -2813,10 +2801,8 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* underwaterMovementSpeedAttribute =
-            player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED);
-
-        underwaterMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED)
+            ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2831,10 +2817,8 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* lavaMovementSpeedAttribute =
-            player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED);
-
-        lavaMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED)
+            ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2849,9 +2833,7 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        AttributeInstance* healthAttribute = player->getMutableAttribute(player->HUNGER);
-
-        healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(Player::HUNGER)->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }

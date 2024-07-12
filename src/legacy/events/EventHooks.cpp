@@ -679,16 +679,19 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& flowFromPos,
     uchar           flowFromDirection
 ) {
+    bool result = origin(region, pos, flowFromPos, flowFromDirection);
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        CallEventRtnValue(
-            EVENT_TYPES::onLiquidFlow,
-            false,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            IntPos::newPos(pos, region.getDimensionId())
-        );
+        if (result) {
+            CallEventRtnValue(
+                EVENT_TYPES::onLiquidFlow,
+                false,
+                BlockClass::newBlock(pos, region.getDimensionId()),
+                IntPos::newPos(pos, region.getDimensionId())
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
-    return origin(region, pos, flowFromPos, flowFromDirection);
+    return result;
 }
 
 LL_TYPE_INSTANCE_HOOK(

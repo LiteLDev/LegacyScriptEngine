@@ -370,6 +370,8 @@ pl.kill();
 
 #### Damage the Player
 
+`pl.hurt(damage,type,source)`
+
 - Parameters: 
   - damage : `Float`  
     The amount of damage to deal to the player.

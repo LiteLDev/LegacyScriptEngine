@@ -432,6 +432,8 @@
 
 #### 对玩家造成伤害
 
+`pl.hurt(damage,type,source)`
+
 - 参数：
   - damage : `Float`  
     对玩家造成的伤害数值

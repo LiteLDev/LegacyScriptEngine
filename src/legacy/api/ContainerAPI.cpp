@@ -139,7 +139,7 @@ Local<Value> ContainerClass::getItem(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        ItemStack* item = (ItemStack*)&container->getItem(args[0].toInt());
+        ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].toInt()));
         if (!item) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
             return Local<Value>();
@@ -172,7 +172,7 @@ Local<Value> ContainerClass::getAllItems(const Arguments& args) {
 
         Local<Array> res = Array::newArray();
         for (auto& item : list) {
-            res.add(ItemClass::newItem((ItemStack*)item, false));
+            res.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
         }
         return res;
     }

@@ -99,6 +99,7 @@
 #include <mc/world/level/material/Material.h>
 #include <mc/world/scores/Objective.h>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -1063,10 +1064,9 @@ Local<Value> PlayerClass::getInLava() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(ActorMobilityUtils::shouldApplyLava(
-            *(IConstBlockSource*)&player->getDimensionBlockSourceConst(),
-            player->getEntityContext()
-        ));
+        return Boolean::newBoolean(
+            ActorMobilityUtils::shouldApplyLava(player->getDimensionBlockSourceConst(), player->getEntityContext())
+        );
     }
     CATCH("Fail in getInLava!")
 }
@@ -2619,11 +2619,11 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            auto source = EntityClass::extract(args[2]);
+            std::optional<Actor*> source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type, source));
+            return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type, source.value()));
         }
         return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type));
     }

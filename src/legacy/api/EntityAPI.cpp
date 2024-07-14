@@ -575,10 +575,9 @@ Local<Value> EntityClass::getInLava() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(ActorMobilityUtils::shouldApplyLava(
-            *(IConstBlockSource*)&entity->getDimensionBlockSourceConst(),
-            entity->getEntityContext()
-        ));
+        return Boolean::newBoolean(
+            ActorMobilityUtils::shouldApplyLava(entity->getDimensionBlockSourceConst(), entity->getEntityContext())
+        );
     }
     CATCH("Fail in getInLava!")
 }
@@ -904,7 +903,7 @@ Local<Value> EntityClass::toPlayer(const Arguments& args) {
         Actor* entity = get();
         if (!entity || !entity->isType(ActorType::Player)) return Local<Value>();
 
-        auto pl = (Player*)entity;
+        Player* pl = static_cast<Player*>(entity);
         if (!pl) return Local<Value>();
         else return PlayerClass::newPlayer(pl);
     }
@@ -926,7 +925,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
         Actor* entity = get();
         if (!entity || !entity->hasCategory(ActorCategory::Item)) return Local<Value>();
 
-        auto it = (ItemActor*)entity;
+        ItemActor* it = static_cast<ItemActor*>(entity);
         if (!it) return Local<Value>();
         else return ItemClass::newItem(&it->item(), false);
     }
@@ -958,7 +957,7 @@ Local<Value> EntityClass::refreshItems(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        ((Mob*)entity)->refreshInventory();
+        static_cast<Mob*>(entity)->refreshInventory();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in refreshItems!");
@@ -1008,11 +1007,11 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            auto source = EntityClass::extract(args[2]);
+            std::optional<Actor*> source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source, (ActorDamageCause)type);
+            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source.value(), (ActorDamageCause)type);
             return Boolean::newBoolean(entity->hurt(damageBySource, damage, true, false));
         }
         ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
@@ -1810,7 +1809,7 @@ Local<Value> McClass::explode(const Arguments& args) {
             return Local<Value>();
             break;
         }
-        auto source = EntityClass::extract(args[beginIndex]); // Can be nullptr
+        std::optional<Actor*> source = EntityClass::tryExtractActor(args[beginIndex]); // Can be nullptr
 
         if (args.size() == 5 || args.size() == 8) {
             CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
@@ -1823,7 +1822,7 @@ Local<Value> McClass::explode(const Arguments& args) {
 
             return Boolean::newBoolean(ll::service::getLevel()->explode(
                 ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
-                source,
+                source.value_or(nullptr),
                 pos.getVec3(),
                 radius,
                 isFire,
@@ -1844,7 +1843,7 @@ Local<Value> McClass::explode(const Arguments& args) {
 
             return Boolean::newBoolean(ll::service::getLevel()->explode(
                 ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
-                source,
+                source.value_or(nullptr),
                 pos.getVec3(),
                 radius,
                 isFire,

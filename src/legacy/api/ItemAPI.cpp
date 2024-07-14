@@ -8,6 +8,7 @@
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/world/actor/Actor.h"
+#include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/dimension/Dimension.h"
 
@@ -445,7 +446,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 return Local<Value>();
             }
         } else {
-            CompoundTag* nbt = (CompoundTag*)NbtCompoundClass::extract(args[0]);
+            CompoundTag* nbt = NbtCompoundClass::extract(args[0]);
             if (nbt) {
                 auto newItem = new ItemStack{ItemStack::EMPTY_ITEM};
                 newItem->load(*nbt);
@@ -516,7 +517,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 pos.dim
             );
             if (!entity) return Local<Value>(); // Null
-            else return EntityClass::newEntity((Actor*)entity);
+            else return EntityClass::newEntity(entity);
         } else {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();

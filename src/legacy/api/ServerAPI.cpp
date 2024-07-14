@@ -7,6 +7,7 @@
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/SetTimePacket.h"
 
+#include <cstdint>
 #include <ll/api/service/ServerInfo.h>
 
 Local<Value> McClass::setMotd(const Arguments& args) {
@@ -54,7 +55,7 @@ Local<Value> McClass::getTime(const Arguments& args) {
         return Number::newNumber(ll::service::getLevel()->getTime() % 24000);
         break;
     case 1:
-        return Number::newNumber((int)*(size_t*)&ll::service::getLevel()->getCurrentTick());
+        return Number::newNumber(static_cast<int64_t>(ll::service::getLevel()->getCurrentTick()));
         break;
     case 2:
         return Number::newNumber(ll::service::getLevel()->getTime() / 24000);

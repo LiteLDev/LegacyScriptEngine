@@ -91,7 +91,7 @@ Local<Object> BlockClass::newBlock(BlockPos const* pos, int dim) {
     return BlockClass::newBlock(&bl, pos, dim);
 }
 
-Local<Object> BlockClass::newBlock(const BlockPos& pos, int dim) { return newBlock((BlockPos*)&pos, dim); }
+Local<Object> BlockClass::newBlock(const BlockPos& pos, int dim) { return newBlock(&pos, dim); }
 
 Local<Object> BlockClass::newBlock(Block const* p, BlockPos const* pos, BlockSource const* bs) {
     auto newp = new BlockClass(p, *pos, bs->getDimensionId());

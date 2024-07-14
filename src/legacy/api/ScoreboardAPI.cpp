@@ -107,7 +107,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
-            auto        player     = PlayerClass::extract(args[0]);
+            Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -155,7 +155,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
-            auto        player     = PlayerClass::extract(args[0]);
+            Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -203,7 +203,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
-            auto        player     = PlayerClass::extract(args[0]);
+            Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -380,7 +380,7 @@ Local<Value> McClass::getAllScoreObjectives(const Arguments& args) {
 
         auto objs = ll::service::getLevel()->getScoreboard().getObjectives();
         for (auto& obj : objs) {
-            if (obj) res.add(ObjectiveClass::newObjective((Objective*)obj));
+            if (obj) res.add(ObjectiveClass::newObjective(const_cast<Objective*>(obj)));
         }
         return res;
     }

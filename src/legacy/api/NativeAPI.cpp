@@ -24,7 +24,11 @@ Concurrency::concurrent_unordered_map<std::string, NativeFunction> NativeFunctio
         return Local<Value>();                                                                                         \
     }
 
-Local<Value> NativeFunction::callNativeFunction(DCCallVM* vm, NativeFunction* funcSymbol, const Arguments& args) {
+Local<Value> NativeFunction::callNativeFunction(
+    DCCallVM*        vm,
+    NativeFunction*  funcSymbol,
+    const Arguments& args
+) { // It breaks sometime
     if (args.size() < funcSymbol->mParams.size()) {
         lse::getSelfPluginInstance().getLogger().error("Too Few arguments!");
         lse::getSelfPluginInstance().getLogger().error("In Component: NativeCall");
@@ -522,7 +526,7 @@ Local<Value> ScriptNativeFunction::hook(const Arguments& args) {
         hookSymbol->mNativeCallback,
         reinterpret_cast<ll::memory::FuncPtr*>(hookOriginl),
         ll::memory::HookPriority::Normal
-    );
+    ); // It's broken
     hookSymbol->mFunction = hookOriginl;
     return scriptResult;
 }

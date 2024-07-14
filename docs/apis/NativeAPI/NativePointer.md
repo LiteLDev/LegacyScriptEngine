@@ -1,5 +1,8 @@
 # NativePointer
 
+!!! warning
+    NativeAPI has broken, don't use it in production environment
+
 This API is designed to help developers manipulate native pointers
 
 > Due to the x64 calling convention, any object (size>8) is passed by reference. To learn more details, please refer to [msdoc: x64 calling convention](https://docs.microsoft.com/cpp/build/x64-calling-convention)

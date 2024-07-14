@@ -1,5 +1,8 @@
 # NativeFunction
 
+!!! warning
+    NativeAPI has broken, don't use it in production environment
+
 This API set contains two types: `NativeFunction` and `NativeHook`, where `NativeHook` is a specialized implementation that only contains `call` and `address` properties.
 
 ### Symbol get function

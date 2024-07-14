@@ -1,5 +1,8 @@
 # NativeFunction原生函数
 
+!!! warning
+    NativeAPI已损坏，请勿在生产环境中使用
+
 此API集包含如下两种类型`NativeFunction`和`NativeHook`，其中`NativeHook`为特化的实现，只包含`call`,`address`两个属性
 
 ### Symbol获得函数

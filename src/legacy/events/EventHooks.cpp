@@ -26,6 +26,7 @@
 #include <mc/world/actor/ArmorStand.h>
 #include <mc/world/actor/FishingHook.h>
 #include <mc/world/actor/Hopper.h>
+#include <mc/world/actor/VanillaActorRendererId.h>
 #include <mc/world/actor/boss/WitherBoss.h>
 #include <mc/world/actor/item/ItemActor.h>
 #include <mc/world/actor/player/Player.h>
@@ -35,6 +36,7 @@
 #include <mc/world/item/BucketItem.h>
 #include <mc/world/item/CrossbowItem.h>
 #include <mc/world/item/ItemInstance.h>
+#include <mc/world/item/TridentItem.h>
 #include <mc/world/item/registry/ItemStack.h>
 #include <mc/world/level/BlockEventCoordinator.h>
 #include <mc/world/level/BlockSource.h>
@@ -58,6 +60,7 @@
 #include <mc/world/level/block/actor/PistonBlockActor.h>
 #include <mc/world/phys/AABB.h>
 #include <mc/world/scores/ServerScoreboard.h>
+
 
 namespace lse::events {
 
@@ -358,12 +361,14 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&                      direction
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        CallEventRtnValue(
-            EVENT_TYPES::onSpawnProjectile,
-            nullptr,
-            EntityClass::newEntity(spawner),
-            String::newString(id.getCanonicalName())
-        );
+        if (id._getLegacyActorType() != ActorType::Trident) {
+            CallEventRtnValue(
+                EVENT_TYPES::onSpawnProjectile,
+                nullptr,
+                EntityClass::newEntity(spawner),
+                String::newString(id.getCanonicalName())
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     Actor* projectile = origin(region, id, spawner, position, direction);
@@ -396,6 +401,27 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(projectileInstance, player);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileSpawnHook3,
+    HookPriority::Normal,
+    TridentItem,
+    "?releaseUsing@TridentItem@@UEBAXAEAVItemStack@@PEAVPlayer@@H@Z",
+    void,
+    ItemStack& item,
+    Player*    player,
+    int        durationLeft
+) {
+    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
+        CallEventVoid(
+            EVENT_TYPES::onSpawnProjectile,
+            EntityClass::newEntity(player),
+            String::newString(VanillaActorRendererId::trident.getString())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
+    origin(item, player, durationLeft);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -1141,7 +1167,8 @@ void PlayerUseFrameEvent() {
 }
 void ProjectileSpawnEvent() {
     ProjectileSpawnHook1::hook();
-    ProjectileSpawnHook2 ::hook();
+    ProjectileSpawnHook2::hook();
+    ProjectileSpawnHook3::hook();
 };
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }

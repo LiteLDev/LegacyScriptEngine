@@ -150,7 +150,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
     }
 
-// 调用事件监听函数，取消事件
+// 调用事件监听函数，拦截则取消事件
 #define CallEvent(TYPE, ...)                                                                                           \
     std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
     for (auto& listener : nowList) {                                                                                   \
@@ -164,7 +164,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         LISTENER_CATCH(TYPE)                                                                                           \
     }
 
-// 调用事件监听函数，拦截返回RETURN_VALUE
+// 调用事件监听函数，拦截则返回RETURN_VALUE
 #define CallEventRtnValue(TYPE, RETURN_VALUE, ...)                                                                     \
     std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
     bool                         isCancelled = false;                                                                  \
@@ -182,7 +182,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         return RETURN_VALUE;                                                                                           \
     }
 
-// 调用事件监听函数，拦截返回
+// 调用事件监听函数，拦截则返回
 #define CallEventVoid(TYPE, ...)                                                                                       \
     std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
     bool                         isCancelled = false;                                                                  \

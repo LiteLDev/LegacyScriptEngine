@@ -1,7 +1,9 @@
 #include "legacyapi/db/ConnParams.h"
 
-#include "ll/api/Logger.h"
 #include "ll/api/utils/StringUtils.h"
+
+#include <expected>
+#include <ll/api/Logger.h>
 
 namespace DB {
 

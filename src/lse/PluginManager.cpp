@@ -13,8 +13,8 @@
 #include <fmt/format.h>
 #include <ll/api/Logger.h>
 #include <ll/api/io/FileUtils.h>
-#include <ll/api/plugin/Plugin.h>
-#include <ll/api/plugin/PluginManager.h>
+#include <ll/api/mod/Mod.h>
+#include <ll/api/mod/ModManager.h>
 #include <ll/api/service/ServerInfo.h>
 #include <ll/api/utils/StringUtils.h>
 #include <memory>
@@ -59,9 +59,9 @@ auto LLSERemoveAllExportedFuncs(script::ScriptEngine* engine) -> bool;
 
 namespace lse {
 
-PluginManager::PluginManager() : ll::plugin::PluginManager(PluginManagerName) {}
+PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
 
-ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
+ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
@@ -123,7 +123,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
 
     logger.info("loading plugin {}", manifest.name);
 
-    if (hasPlugin(manifest.name)) {
+    if (hasMod(manifest.name)) {
         return ll::makeStringError("plugin already loaded");
     }
 
@@ -166,7 +166,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         auto& self = getSelfPluginInstance();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         // Load BaseLib.
-        auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
+        auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
         if (!baseLibContent) {
             return ll::makeStringError(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
@@ -174,8 +174,8 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         scriptEngine.eval(baseLibContent.value());
 #endif
         // Load the plugin entry.
-        auto pluginDir = std::filesystem::canonical(ll::plugin::getPluginsRoot() / manifest.name);
-        auto entryPath = pluginDir / manifest.entry;
+        auto pluginDir                         = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
+        auto entryPath                         = pluginDir / manifest.entry;
         ENGINE_OWN_DATA()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(
@@ -212,10 +212,10 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         }
         ExitEngineScope exit;
 #endif
-        plugin->onLoad([](ll::plugin::Plugin& plugin) { return true; });
-        plugin->onUnload([](ll::plugin::Plugin& plugin) { return true; });
-        plugin->onEnable([](ll::plugin::Plugin& plugin) { return true; });
-        plugin->onDisable([](ll::plugin::Plugin& plugin) { return true; });
+        plugin->onLoad([](ll::mod::Mod& plugin) { return true; });
+        plugin->onUnload([](ll::mod::Mod& plugin) { return true; });
+        plugin->onEnable([](ll::mod::Mod& plugin) { return true; });
+        plugin->onDisable([](ll::mod::Mod& plugin) { return true; });
     } catch (const Exception& e) {
         EngineScope engineScope(scriptEngine);
         auto        error =
@@ -234,7 +234,7 @@ ll::Expected<> PluginManager::load(ll::plugin::Manifest manifest) {
         return error;
     }
 
-    addPlugin(manifest.name, plugin);
+    addMod(manifest.name, plugin);
 
     return {};
 }
@@ -244,7 +244,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
     try {
 
-        auto plugin = std::static_pointer_cast<Plugin>(getPlugin(name));
+        auto plugin = std::static_pointer_cast<Plugin>(getMod(name));
 
         logger.info("Unloading plugin {}", name);
 
@@ -265,7 +265,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 #else
         scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
 #endif
-        erasePlugin(name);
+        eraseMod(name);
 
         return {};
     } catch (const std::exception& e) {

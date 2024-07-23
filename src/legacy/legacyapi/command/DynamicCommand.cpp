@@ -1,8 +1,6 @@
 ﻿#include "DynamicCommand.h"
 
 #include "fmt/core.h"
-#include "ll/api/Logger.h"
-#include "ll/api/command/CommandRegistrar.h"
 #include "ll/api/memory/Closure.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -37,6 +35,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
+#include <ll/api/Logger.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <memory>
 #include <sstream>

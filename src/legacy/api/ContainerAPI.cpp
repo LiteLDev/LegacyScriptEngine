@@ -4,7 +4,6 @@
 #include "api/ItemAPI.h"
 #include "api/NativeAPI.h"
 #include "ll/api/utils/StringUtils.h"
-#include "mc/nbt/CompoundTag.h"
 #include "mc/world/item/registry/ItemStack.h"
 
 //////////////////// Class Definition ////////////////////

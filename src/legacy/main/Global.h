@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ll/api/i18n/I18n.h"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -8,13 +7,12 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #endif
 
-#include "ll/api/Logger.h"
-#include "ll/api/service/Bedrock.h"
-#include "main/Configs.h"
 #include "mc/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
-#include "utils/JsonHelper.h"
 
+#include <expected>
+#include <ll/api/Logger.h>
+#include <ll/api/i18n/I18n.h>
 #include <string>
 #include <vector>
 
@@ -22,7 +20,7 @@ using std::string;
 using std::vector;
 
 // 全局工具
-extern ordered_json globalConfig;
+extern nlohmann::ordered_json globalConfig;
 
 typedef unsigned long long QWORD;
 

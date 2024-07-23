@@ -1,12 +1,13 @@
 #pragma once
 
-#include <ll/api/plugin/Manifest.h>
-#include <ll/api/plugin/PluginManager.h>
+#include <expected>
+#include <ll/api/mod/Manifest.h>
+#include <ll/api/mod/ModManager.h>
 #include <string_view>
 
 namespace lse {
 
-class PluginManager : public ll::plugin::PluginManager {
+class PluginManager : public ll::mod::ModManager {
 public:
     PluginManager();
 
@@ -18,7 +19,7 @@ public:
     ~PluginManager() override = default;
 
 private:
-    ll::Expected<> load(ll::plugin::Manifest manifest) override;
+    ll::Expected<> load(ll::mod::Manifest manifest) override;
     ll::Expected<> unload(std::string_view name) override;
 };
 

@@ -1,7 +1,7 @@
 #include "engine/OperationCount.h"
 
 #include "engine/GlobalShareData.h"
-#include "ll/api/plugin/PluginManager.h"
+#include "ll/api/mod/ModManager.h"
 #include "main/Configs.h"
 
 #include <vector>
@@ -46,7 +46,7 @@ int OperationCount::get() {
 bool OperationCount::hasReachCount(int count) { return get() >= count; }
 
 bool OperationCount::hasReachMaxEngineCount() {
-    return hasReachCount(lse::getPluginManager().getPluginCount());
+    return hasReachCount(lse::getPluginManager().getModCount());
     return false;
 }
 

@@ -1,4 +1,5 @@
 #include "api/DatabaseAPI.h"
+
 using namespace DB;
 
 #define CATCH_AND_THROW(LOG)                                                                                           \

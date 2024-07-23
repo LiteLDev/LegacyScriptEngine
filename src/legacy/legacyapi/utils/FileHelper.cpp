@@ -1,8 +1,6 @@
 #include "FileHelper.h"
 
 #include "ll/api/utils/StringUtils.h"
-#include "ll/api/utils/WinUtils.h"
-#include "lse/Entry.h"
 
 #include <filesystem>
 #include <io.h>

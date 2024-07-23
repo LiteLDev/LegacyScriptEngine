@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "PluginManager.h"
 
-#include <ll/api/plugin/NativePlugin.h>
+#include <ll/api/mod/NativeMod.h>
 
 namespace lse {
 
@@ -11,6 +11,6 @@ namespace lse {
 
 [[nodiscard]] auto getPluginManager() -> PluginManager&;
 
-[[nodiscard]] auto getSelfPluginInstance() -> ll::plugin::NativePlugin&;
+[[nodiscard]] auto getSelfPluginInstance() -> ll::mod::NativeMod&;
 
 } // namespace lse

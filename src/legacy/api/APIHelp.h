@@ -12,6 +12,7 @@
 #include <mc/world/level/Level.h>
 #include <string>
 
+
 // 输出异常信息
 inline void PrintException(const script::Exception& e) {
     lse::getSelfPluginInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());

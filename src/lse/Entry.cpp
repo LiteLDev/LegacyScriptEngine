@@ -16,8 +16,8 @@
 #include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/FileUtils.h>
-#include <ll/api/plugin/NativePlugin.h>
-#include <ll/api/plugin/PluginManagerRegistry.h>
+#include <ll/api/mod/ModManagerRegistry.h>
+#include <ll/api/mod/NativeMod.h>
 #include <ll/api/utils/ErrorUtils.h>
 #include <ll/api/utils/StringUtils.h>
 #include <memory>
@@ -68,14 +68,14 @@ Config config; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-std::unique_ptr<std::reference_wrapper<ll::plugin::NativePlugin>>
+std::unique_ptr<std::reference_wrapper<ll::mod::NativeMod>>
     selfPluginInstance; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
-void loadConfig(const ll::plugin::NativePlugin& self, Config& config);
-void loadDebugEngine(const ll::plugin::NativePlugin& self);
+void loadConfig(const ll::mod::NativeMod& self, Config& config);
+void loadDebugEngine(const ll::mod::NativeMod& self);
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 
-auto enable(ll::plugin::NativePlugin& /*self*/) -> bool {
+auto enable(ll::mod::NativeMod& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 
     try {
@@ -115,7 +115,7 @@ void initializeLegacyStuff() {
     MoreGlobal::Init();
 }
 
-auto load(ll::plugin::NativePlugin& self) -> bool {
+auto load(ll::mod::NativeMod& self) -> bool {
     auto& logger = self.getLogger();
 #ifdef NDEBUG
     ll::error_utils::setSehTranslator();
@@ -128,7 +128,7 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
 
         config             = Config();
         pluginManager      = std::make_shared<PluginManager>();
-        selfPluginInstance = std::make_unique<std::reference_wrapper<ll::plugin::NativePlugin>>(self);
+        selfPluginInstance = std::make_unique<std::reference_wrapper<ll::mod::NativeMod>>(self);
 
         loadConfig(self, config);
 
@@ -153,14 +153,14 @@ auto load(ll::plugin::NativePlugin& self) -> bool {
     }
 }
 
-void loadConfig(const ll::plugin::NativePlugin& self, Config& config) {
+void loadConfig(const ll::mod::NativeMod& self, Config& config) {
     const auto& configFilePath = self.getConfigDir() / "config.json";
     if (!ll::config::loadConfig(config, configFilePath) && !ll::config::saveConfig(config, configFilePath)) {
         throw std::runtime_error(fmt::format("cannot save default configurations to {}", configFilePath));
     }
 }
 
-void loadDebugEngine(const ll::plugin::NativePlugin& self) {
+void loadDebugEngine(const ll::mod::NativeMod& self) {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto& scriptEngine = *EngineManager::newEngine();
 
@@ -169,7 +169,7 @@ void loadDebugEngine(const ll::plugin::NativePlugin& self) {
     BindAPIs(&scriptEngine);
 
     // Load BaseLib.
-    auto baseLibPath    = self.getPluginDir() / "baselib" / BaseLibFileName;
+    auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
     auto baseLibContent = ll::file_utils::readFile(baseLibPath);
     if (!baseLibContent) {
         throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
@@ -181,7 +181,7 @@ void loadDebugEngine(const ll::plugin::NativePlugin& self) {
 }
 
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) {
-    auto& pluginManagerRegistry = ll::plugin::PluginManagerRegistry::getInstance();
+    auto& pluginManagerRegistry = ll::mod::ModManagerRegistry::getInstance();
 
     if (!pluginManagerRegistry.addManager(pluginManager)) {
         throw std::runtime_error("failed to register plugin manager");
@@ -200,7 +200,7 @@ auto getPluginManager() -> PluginManager& {
     return *pluginManager;
 }
 
-auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
+auto getSelfPluginInstance() -> ll::mod::NativeMod& {
     if (!selfPluginInstance) {
         throw std::runtime_error("selfPluginInstance is null");
     }
@@ -211,9 +211,9 @@ auto getSelfPluginInstance() -> ll::plugin::NativePlugin& {
 } // namespace lse
 
 extern "C" {
-_declspec(dllexport) auto ll_plugin_load(ll::plugin::NativePlugin& self) -> bool { return lse::load(self); }
+_declspec(dllexport) auto ll_plugin_load(ll::mod::NativeMod& self) -> bool { return lse::load(self); }
 
-_declspec(dllexport) auto ll_plugin_enable(ll::plugin::NativePlugin& self) -> bool { return lse::enable(self); }
+_declspec(dllexport) auto ll_plugin_enable(ll::mod::NativeMod& self) -> bool { return lse::enable(self); }
 
 // LegacyScriptEngine  should not be disabled or unloaded currently.
 }

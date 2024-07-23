@@ -2,17 +2,17 @@
 
 #include "PluginManager.h"
 
-#include <ll/api/plugin/Manifest.h>
-#include <ll/api/plugin/Plugin.h>
+#include <ll/api/mod/Manifest.h>
+#include <ll/api/mod/Mod.h>
 
 namespace lse {
 
-class Plugin : public ll::plugin::Plugin {
+class Plugin : public ll::mod::Mod {
     friend PluginManager;
 
 public:
-    Plugin(const ll::plugin::Manifest& manifest);
+    Plugin(const ll::mod::Manifest& manifest);
 
-    static std::shared_ptr<ll::plugin::Plugin> current();
+    static std::shared_ptr<ll::mod::Mod> current();
 };
 } // namespace lse

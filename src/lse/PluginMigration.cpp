@@ -7,8 +7,8 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
-#include <ll/api/plugin/Manifest.h>
-#include <ll/api/plugin/Plugin.h>
+#include <ll/api/mod/Manifest.h>
+#include <ll/api/mod/Mod.h>
 #include <ll/api/reflection/Serialization.h>
 #include <nlohmann/json.hpp>
 #include <unordered_set>
@@ -53,7 +53,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
     const auto& pluginFileName     = path.filename();
     const auto& pluginFileBaseName = path.stem();
-    const auto& pluginDir          = ll::plugin::getPluginsRoot() / pluginFileBaseName;
+    const auto& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(fmt::format(
@@ -74,13 +74,13 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     // Move plugin file.
     std::filesystem::rename(path, pluginDir / pluginFileName);
 
-    ll::plugin::Manifest manifest{
+    ll::mod::Manifest manifest{
         .entry = ll::string_utils::u8str2str(pluginFileName.u8string()),
         .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
         .type  = pluginType,
         .dependencies =
-            std::unordered_set<ll::plugin::Dependency>{
-                                                       ll::plugin::Dependency{
+            std::unordered_set<ll::mod::Dependency>{
+                                                    ll::mod::Dependency{
                     .name = self.getManifest().name,
                 }, },
     };
@@ -123,7 +123,7 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     // Discover plugins.
     logger.info("Discovering legacy plugins...");
 
-    const auto& pluginBaseDir = ll::plugin::getPluginsRoot();
+    const auto& pluginBaseDir = ll::mod::getModsRoot();
 
     for (const auto& entry : std::filesystem::directory_iterator(pluginBaseDir)) {
         if (!entry.is_regular_file() || entry.path().extension() != PluginExtName) {

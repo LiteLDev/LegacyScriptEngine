@@ -1,9 +1,7 @@
 #pragma once
-#include "ll/api/Logger.h"
-
 #include <Windows.h>
-#include <fstream>
-#include <optional>
+#include <expected>
+#include <ll/api/Logger.h>
 #include <string>
 
 namespace lse::legacy {

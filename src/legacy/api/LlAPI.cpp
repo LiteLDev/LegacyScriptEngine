@@ -2,10 +2,11 @@
 
 #include "api/APIHelp.h"
 #include "engine/GlobalShareData.h"
-#include "ll/api/plugin/PluginManager.h"
-#include "ll/api/plugin/PluginManagerRegistry.h"
-#include "ll/api/service/ServerInfo.h"
-#include "ll/api/utils/WinUtils.h"
+#include "ll/api/Versions.h"
+#include "ll/api/mod/Mod.h"
+#include "ll/api/mod/ModManager.h"
+#include "ll/api/mod/ModManagerRegistry.h"
+#include "ll/api/utils/SystemUtils.h"
 #include "lse/PluginManager.h"
 
 #include <string>
@@ -55,14 +56,14 @@ ClassDefine<void> VersionClassBuilder = defineClass("Version")
 
 Local<Value> LlClass::getLanguage() {
     try {
-        return String::newString(ll::win_utils::getSystemLocaleName());
+        return String::newString(ll::sys_utils::getSystemLocaleName());
     }
     CATCH("Fail in LLSEGetLanguage")
 }
 
 Local<Value> LlClass::isWine() {
     try {
-        return Boolean::newBoolean(ll::win_utils::isWine());
+        return Boolean::newBoolean(ll::sys_utils::isWine());
     }
     CATCH("Fail in LLSEIsWine")
 }
@@ -124,7 +125,7 @@ Local<Value> LlClass::getVersionStatus() { return Number::newNumber(0); }
 Local<Value> LlClass::registerPlugin(const Arguments& args) { return Boolean::newBoolean(true); }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
-        auto plugin = lse::getPluginManager().getPlugin(args[0].asString().toString());
+        auto plugin = lse::getPluginManager().getMod(args[0].asString().toString());
         if (plugin) {
             auto result = Object::newObject();
 
@@ -167,8 +168,8 @@ Local<Value> LlClass::requireVersion(const Arguments& args) { return Boolean::ne
 Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     try {
         Local<Array> plugins = Array::newArray();
-        ll::plugin::PluginManagerRegistry::getInstance().forEachPluginWithType(
-            [&](std::string_view type, std::string_view name, ll::plugin::Plugin& plugin) {
+        ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
+            [&](std::string_view type, std::string_view name, ll::mod::Mod& plugin) {
                 // Create plugin object
                 auto pluginObject = Object::newObject();
 
@@ -208,8 +209,8 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
 Local<Value> LlClass::listPlugins(const Arguments& args) {
     try {
         Local<Array> plugins = Array::newArray();
-        ll::plugin::PluginManagerRegistry::getInstance().forEachPluginWithType(
-            [&](std::string_view type, std::string_view name, ll::plugin::Plugin&) {
+        ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
+            [&](std::string_view type, std::string_view name, ll::mod::Mod&) {
                 plugins.add(String::newString(name));
                 return true;
             }

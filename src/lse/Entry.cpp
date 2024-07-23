@@ -211,9 +211,9 @@ auto getSelfPluginInstance() -> ll::mod::NativeMod& {
 } // namespace lse
 
 extern "C" {
-_declspec(dllexport) auto ll_plugin_load(ll::mod::NativeMod& self) -> bool { return lse::load(self); }
+_declspec(dllexport) auto ll_mod_load(ll::mod::NativeMod& self) -> bool { return lse::load(self); }
 
-_declspec(dllexport) auto ll_plugin_enable(ll::mod::NativeMod& self) -> bool { return lse::enable(self); }
+_declspec(dllexport) auto ll_mod_enable(ll::mod::NativeMod& self) -> bool { return lse::enable(self); }
 
 // LegacyScriptEngine  should not be disabled or unloaded currently.
 }

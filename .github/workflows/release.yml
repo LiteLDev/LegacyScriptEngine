@@ -33,7 +33,7 @@ jobs:
           xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
 
       - run: |
-          xmake -w -y
+          xmake -y
 
       - uses: actions/upload-artifact@v4
         with:

@@ -5,7 +5,6 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
-#include "ll/api/Expected.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -18,7 +17,6 @@
 #include <ll/api/service/ServerInfo.h>
 #include <ll/api/utils/StringUtils.h>
 #include <memory>
-#include <stdexcept>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 

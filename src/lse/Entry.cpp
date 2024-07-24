@@ -6,7 +6,6 @@
 #include "legacy/api/MoreGlobal.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
-#include "legacy/main/PythonHelper.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>

@@ -8,7 +8,6 @@
 #include "magic_enum.hpp"
 #include "mc/common/wrapper/GenerateMessageResult.h"
 #include "mc/deps/core/common/bedrock/typeid_t.h"
-#include "mc/enums/SoftEnumUpdateType.h"
 #include "mc/network/packet/AvailableCommandsPacket.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -22,7 +21,6 @@
 #include "mc/server/commands/CommandPosition.h"
 #include "mc/server/commands/CommandRegistry.h"
 #include "mc/server/commands/CommandSelector.h"
-#include "mc/server/commands/CommandSoftEnumRegistry.h"
 #include "mc/server/commands/CommandUtils.h"
 #include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/WildcardCommandSelector.h"
@@ -35,7 +33,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ll/api/Expected.h>
 #include <ll/api/Logger.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <memory>

@@ -64,7 +64,7 @@ PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
+    std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     std::string           entryPath =
         PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
     // if (entryPath.empty()) return false;
@@ -99,7 +99,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    std::filesystem::path dirPath = ll::plugin::getPluginsRoot() / manifest.name; // Plugin path
+    std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;
     // std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string()); // Plugin name

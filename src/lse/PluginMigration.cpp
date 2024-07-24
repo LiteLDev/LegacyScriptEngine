@@ -91,13 +91,13 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
         ll::string_utils::u8str2str(pluginDir.u8string()),
         30000
     );
-    ll::plugin::Manifest manifest{
+    ll::mod::Manifest manifest{
         .entry = NodeJsHelper::findEntryScript(ll::string_utils::u8str2str(path.u8string())),
         .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
         .type  = pluginType,
         .dependencies =
-            std::unordered_set<ll::plugin::Dependency>{
-                                                       ll::plugin::Dependency{
+            std::unordered_set<ll::mod::Dependency>{
+                                                    ll::mod::Dependency{
                     .name = self.getManifest().name,
                 }, },
     };

@@ -1,6 +1,7 @@
 #pragma once
+#include "ll/api/base/Macro.h"
 
-#include <expected>
+#include <ll/api/Expected.h>
 #include <ll/api/mod/Manifest.h>
 #include <ll/api/mod/ModManager.h>
 #include <string_view>

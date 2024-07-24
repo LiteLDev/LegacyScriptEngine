@@ -35,7 +35,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <expected>
+#include <ll/api/Expected.h>
 #include <ll/api/Logger.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <memory>

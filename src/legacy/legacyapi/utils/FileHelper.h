@@ -1,6 +1,8 @@
 #pragma once
+#include "ll/api/base/Macro.h"
+
 #include <Windows.h>
-#include <expected>
+#include <ll/api/Expected.h>
 #include <ll/api/Logger.h>
 #include <string>
 

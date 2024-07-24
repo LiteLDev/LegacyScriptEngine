@@ -43,12 +43,12 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getPluginDir());
+        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getModDir());
         script::py_interop::setModuleSearchPaths({
-            lse::getSelfPluginInstance().getPluginDir() / "python310.zip",
-            lse::getSelfPluginInstance().getPluginDir() / "DLLs",
-            lse::getSelfPluginInstance().getPluginDir() / "Lib",
-            lse::getSelfPluginInstance().getPluginDir() / "site-packages",
+            lse::getSelfPluginInstance().getModDir() / "python310.zip",
+            lse::getSelfPluginInstance().getModDir() / "DLLs",
+            lse::getSelfPluginInstance().getModDir() / "Lib",
+            lse::getSelfPluginInstance().getModDir() / "site-packages",
         });
         pythonInited = true;
     }
@@ -231,8 +231,8 @@ bool processConsolePipCmd(const std::string& cmd) {
 // (./plugins/legacy-script-engine/lib/python-env/Lib/site-packages)
 int executePipCommand(std::string cmd) {
     if (cmd.find("--disable-pip-version-check") == std::string::npos) cmd += " --disable-pip-version-check";
-    cmd = ll::string_utils::u8str2str((lse::getSelfPluginInstance().getPluginDir() / "python.exe").u8string()) + " -m"
-        + cmd;
+    cmd =
+        ll::string_utils::u8str2str((lse::getSelfPluginInstance().getModDir() / "python.exe").u8string()) + " -m" + cmd;
 
     SECURITY_ATTRIBUTES sa;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);

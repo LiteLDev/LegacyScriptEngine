@@ -15,10 +15,10 @@ add_requires(
     "nlohmann_json",
     "simpleini",
     "sqlite3 3.43.0+200",
-    "toml++",
-    "openssl3 3.0.7"
+    "toml++"
 )
-add_requires("cpp-httplib 0.15.3", {configs={ssl=true, zlib=true}})
+add_requires("openssl 1.1.1-w", {configs = {shared = false}})
+add_requires("cpp-httplib 0.14.3", {configs = {ssl = true}})
 
 if is_config("backend", "lua") then
     add_requires("scriptx main", {configs={backend="Lua"}})

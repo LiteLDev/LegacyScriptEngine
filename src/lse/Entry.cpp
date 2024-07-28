@@ -105,7 +105,7 @@ void initializeLegacyStuff() {
     //
     // Attention! When CPython is upgraded, this fix must be re-adapted or removed!!
     //
-    // PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
+    PythonHelper::FixPython310Stdin::patchPython310CreateStdio();
     PythonHelper::initPythonRuntime();
 #endif
 

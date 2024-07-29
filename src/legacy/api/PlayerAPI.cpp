@@ -63,9 +63,9 @@
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/SimpleContainer.h"
+#include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/player/EnderChestContainer.h"
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
-#include "mc/world/actor/player/PlayerUISlot.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BossEventUpdateType.h"
 #include "mc/world/item/registry/ItemStack.h"
@@ -2623,9 +2623,11 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type, source.value()));
+            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source.value(), (ActorDamageCause)type);
+            return Boolean::newBoolean(player->_hurt(damageBySource, damage, true, false));
         }
-        return Boolean::newBoolean(player->hurtByCause(damage, (ActorDamageCause)type));
+        ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
+        return Boolean::newBoolean(player->_hurt(damageSource, damage, true, false));
     }
     CATCH("Fail in hurt!");
 }

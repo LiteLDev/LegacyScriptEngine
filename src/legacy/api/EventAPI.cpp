@@ -528,27 +528,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobHurt:
-        bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onMobHurt) {
-                Actor* source = nullptr;
-                if (ev.source().isEntitySource()) {
-                    if (ev.source().isChildEntitySource()) {
-                        source = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID());
-                    } else {
-                        source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
-                    }
-                }
-
-                CallEvent(
-                    EVENT_TYPES::onMobHurt,
-                    EntityClass::newEntity(&ev.self()),
-                    source ? EntityClass::newEntity(source) : Local<Value>(),
-                    Number::newNumber(float(ev.damage())),
-                    Number::newNumber((int)ev.source().getCause())
-                );
-            }
-            IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-        });
+        lse::events::MobHurtEvent();
         break;
 
     case EVENT_TYPES::onStepOnPressurePlate:

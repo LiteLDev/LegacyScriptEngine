@@ -39,5 +39,6 @@ void PlayerSetArmorEvent();
 void ProjectileHitEntityEvent();
 void ProjectileHitBlockEvent();
 void HopperEvent(bool pullIn);
+void MobHurtEvent();
 
 } // namespace lse::events

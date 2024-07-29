@@ -11,6 +11,8 @@
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/ActorUniqueID.h"
+#include "mc/world/actor/ActorDamageSource.h"
+#include "mc/world/actor/Mob.h"
 #include "mc/world/containers/ContainerID.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
 #include "mc/world/scores/ScoreInfo.h"
@@ -60,7 +62,6 @@
 #include <mc/world/level/block/actor/PistonBlockActor.h>
 #include <mc/world/phys/AABB.h>
 #include <mc/world/scores/ServerScoreboard.h>
-
 
 namespace lse::events {
 
@@ -1147,6 +1148,74 @@ LL_TYPE_INSTANCE_HOOK(
 }
 } // namespace HopperEvents
 
+LL_TYPE_INSTANCE_HOOK(
+    MobHurtHook,
+    HookPriority::Normal,
+    Mob,
+    "?_hurt@Mob@@MEAA_NAEBVActorDamageSource@@M_N1@Z",
+    bool,
+    ActorDamageSource const& source,
+    float                    dmg,
+    bool                     knock,
+    bool                     ignite
+) {
+    IF_LISTENED(EVENT_TYPES::onMobHurt) {
+        Actor* damageSource;
+        if (source.isEntitySource()) {
+            if (source.isChildEntitySource()) {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
+            } else {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
+            }
+        }
+
+        CallEventRtnValue(
+            EVENT_TYPES::onMobHurt,
+            false,
+            EntityClass::newEntity(this),
+            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+            Number::newNumber(dmg),
+            Number::newNumber((int)source.getCause())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+    return origin(source, dmg, knock, ignite);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    MobHurtEffectHook,
+    HookPriority::Normal,
+    Mob,
+    "?hurtEffects@Mob@@UEAAXAEBVActorDamageSource@@M_N1@Z",
+    bool,
+    ActorDamageSource const& source,
+    float                    damage,
+    bool                     knock,
+    bool                     ignite
+) {
+    IF_LISTENED(EVENT_TYPES::onMobHurt) {
+        Actor* damageSource;
+        if (source.isEntitySource()) {
+            if (source.isChildEntitySource()) {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
+            } else {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
+            }
+        }
+
+        CallEventRtnValue(
+            EVENT_TYPES::onMobHurt,
+            false,
+            EntityClass::newEntity(this),
+            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+            Number::newNumber(damage),
+            Number::newNumber((int)source.getCause())
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+    return origin(source, damage, knock, ignite);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() {
     PlayerDropItemHook1::hook();
@@ -1211,6 +1280,10 @@ void HopperEvent(bool pullIn) {
     } else {
         HopperEvents::HopperPushOutHook::hook();
     }
+}
+void MobHurtEvent() {
+    MobHurtHook::hook();
+    MobHurtEffectHook::hook();
 }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)

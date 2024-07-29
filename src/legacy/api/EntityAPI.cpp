@@ -1012,10 +1012,10 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source.value(), (ActorDamageCause)type);
-            return Boolean::newBoolean(entity->hurt(damageBySource, damage, true, false));
+            return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
         ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
-        return Boolean::newBoolean(entity->hurt(damageSource, damage, true, false));
+        return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
     CATCH("Fail in hurt!");
 }

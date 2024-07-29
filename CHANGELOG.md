@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.5] - 2024-07-29
+
+### Changed
+
+- Downgrade cpp-httplib
+- Refactoring some confusing code
+- Remove useless package for python engine
+
+### Fixed
+
+- Fix exception message in NbtCompoundClass::constructor
+- Fix onMobHurt [#154]
+- Fix Entity::hurt [#153]
+
 ## [0.8.4] - 2024-07-24
 
 ### Changed
@@ -459,7 +473,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#143]: https://github.com/LiteLDev/LegacyScriptEngine/issues/143
 [#145]: https://github.com/LiteLDev/LegacyScriptEngine/issues/145
 [#152]: https://github.com/LiteLDev/LegacyScriptEngine/issues/152
+[#153]: https://github.com/LiteLDev/LegacyScriptEngine/issues/153
+[#154]: https://github.com/LiteLDev/LegacyScriptEngine/issues/154
 
+[0.8.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.4...v0.8.5
 [0.8.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.1...v0.8.2

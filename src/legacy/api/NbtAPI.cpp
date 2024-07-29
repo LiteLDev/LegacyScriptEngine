@@ -340,8 +340,7 @@ NbtByteClass::NbtByteClass(std::unique_ptr<ByteTag> p) : ScriptClass(ScriptClass
 
 NbtByteClass* NbtByteClass::constructor(const Arguments& args) {
     try {
-        auto tag = ByteTag((char)args[0].toInt());
-        return new NbtByteClass(args.thiz(), std::move(std::make_unique<ByteTag>(tag)));
+        return new NbtByteClass(args.thiz(), std::move(std::make_unique<ByteTag>((char)args[0].toInt())));
     }
     CATCH_C("Fail in Create ByteTag!");
 }
@@ -411,8 +410,7 @@ NbtIntClass::NbtIntClass(std::unique_ptr<IntTag> p) : ScriptClass(ScriptClass::C
 
 NbtIntClass* NbtIntClass::constructor(const Arguments& args) {
     try {
-        auto tag = IntTag(args[0].toInt());
-        return new NbtIntClass(args.thiz(), std::make_unique<IntTag>(tag));
+        return new NbtIntClass(args.thiz(), std::make_unique<IntTag>(args[0].toInt()));
     }
     CATCH_C("Fail in Create IntTag!");
 }
@@ -483,8 +481,7 @@ NbtShortClass::NbtShortClass(std::unique_ptr<ShortTag> p)
 
 NbtShortClass* NbtShortClass::constructor(const Arguments& args) {
     try {
-        auto tag = ShortTag(args[0].toInt());
-        return new NbtShortClass(args.thiz(), std::make_unique<ShortTag>(tag));
+        return new NbtShortClass(args.thiz(), std::make_unique<ShortTag>(args[0].toInt()));
     }
     CATCH_C("Fail in Create ShortTag!");
 }
@@ -554,8 +551,7 @@ NbtLongClass::NbtLongClass(std::unique_ptr<Int64Tag> p) : ScriptClass(ScriptClas
 
 NbtLongClass* NbtLongClass::constructor(const Arguments& args) {
     try {
-        auto tag = Int64Tag(args[0].asNumber().toInt64());
-        return new NbtLongClass(args.thiz(), std::make_unique<Int64Tag>(tag));
+        return new NbtLongClass(args.thiz(), std::make_unique<Int64Tag>(args[0].asNumber().toInt64()));
     }
     CATCH_C("Fail in Create LongTag!");
 }
@@ -626,8 +622,7 @@ NbtFloatClass::NbtFloatClass(std::unique_ptr<FloatTag> p)
 
 NbtFloatClass* NbtFloatClass::constructor(const Arguments& args) {
     try {
-        auto tag = FloatTag(args[0].asNumber().toFloat());
-        return new NbtFloatClass(args.thiz(), std::make_unique<FloatTag>(tag));
+        return new NbtFloatClass(args.thiz(), std::make_unique<FloatTag>(args[0].asNumber().toFloat()));
     }
     CATCH_C("Fail in Create FloatTag!");
 }
@@ -698,8 +693,7 @@ NbtDoubleClass::NbtDoubleClass(std::unique_ptr<DoubleTag> p)
 
 NbtDoubleClass* NbtDoubleClass::constructor(const Arguments& args) {
     try {
-        auto tag = DoubleTag(args[0].asNumber().toDouble());
-        return new NbtDoubleClass(args.thiz(), std::make_unique<DoubleTag>(tag));
+        return new NbtDoubleClass(args.thiz(), std::make_unique<DoubleTag>(args[0].asNumber().toDouble()));
     }
     CATCH_C("Fail in Create DoubleTag!");
 }
@@ -770,8 +764,7 @@ NbtStringClass::NbtStringClass(std::unique_ptr<StringTag> p)
 
 NbtStringClass* NbtStringClass::constructor(const Arguments& args) {
     try {
-        auto tag = StringTag(args[0].toStr());
-        return new NbtStringClass(args.thiz(), std::make_unique<StringTag>(tag));
+        return new NbtStringClass(args.thiz(), std::make_unique<StringTag>(args[0].toStr()));
     }
     CATCH_C("Fail in Create StringTag!");
 }
@@ -845,7 +838,7 @@ NbtByteArrayClass* NbtByteArrayClass::constructor(const Arguments& args) {
     try {
         auto buf = args[0].asByteBuffer();
 
-        std::unique_ptr<ByteArrayTag> arrayTag = std::make_unique<ByteArrayTag>(ByteArrayTag());
+        std::unique_ptr<ByteArrayTag> arrayTag = std::make_unique<ByteArrayTag>();
         for (char c : buf.describeUtf8()) {
             arrayTag->push_back(c);
         }
@@ -971,14 +964,14 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
 
 NbtListClass* NbtListClass::constructor(const Arguments& args) {
     try {
-        auto tag = ListTag();
+        auto tag = std::make_unique<ListTag>();
 
         if (args.size() >= 1 && args[0].isArray()) {
             auto arr = args[0].asArray();
-            NbtListClassAddHelper(&tag, arr);
+            NbtListClassAddHelper(tag.get(), arr);
         }
 
-        return new NbtListClass(args.thiz(), std::make_unique<ListTag>(tag));
+        return new NbtListClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create ListTag!");
 }
@@ -1470,14 +1463,14 @@ void NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj) {
 
 NbtCompoundClass* NbtCompoundClass::constructor(const Arguments& args) {
     try {
-        auto tag = CompoundTag();
+        auto tag = std::make_unique<CompoundTag>();
 
         if (args.size() >= 1 && args[0].isObject()) {
             auto obj = args[0].asObject();
-            NbtCompoundClassAddHelper(&tag, obj);
+            NbtCompoundClassAddHelper(tag.get(), obj);
         }
 
-        return new NbtCompoundClass(args.thiz(), std::make_unique<CompoundTag>(tag));
+        return new NbtCompoundClass(args.thiz(), std::move(tag));
     }
     CATCH_C("Fail in Create ListTag!");
 }
@@ -1960,7 +1953,7 @@ Local<Value> NbtStatic::parseSNBT(const Arguments& args) {
 
     try {
         auto tag = CompoundTag::fromSnbt(args[0].toStr());
-        if (tag.has_value()) return NbtCompoundClass::pack(&tag.value());
+        if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
         else return Local<Value>();
     }
     CATCH("Fail in parseSNBT!");
@@ -1973,7 +1966,7 @@ Local<Value> NbtStatic::parseBinaryNBT(const Arguments& args) {
     try {
         auto data = args[0].asByteBuffer();
         auto tag  = CompoundTag::fromBinaryNbt(std::string_view((char*)data.getRawBytes(), data.byteLength()));
-        if (tag.has_value()) return NbtCompoundClass::pack(&tag.value());
+        if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
         else return Local<Value>();
     }
     CATCH("Fail in parseBinaryNBT!");

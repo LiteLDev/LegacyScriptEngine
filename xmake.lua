@@ -28,7 +28,6 @@ elseif is_config("backend", "quickjs") then
 
 elseif is_config("backend", "python") then
     add_requires("scriptx main", {configs={backend="Python"}})
-    add_requires("microsoft-detours")
 
 elseif is_config("backend", "nodejs") then
     add_requires("scriptx main", {configs={backend="V8"}})
@@ -102,7 +101,6 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
         )
         set_basename("legacy-script-engine-python")
-        add_packages("microsoft-detours")
 
     elseif is_config("backend", "nodejs") then
         add_defines(

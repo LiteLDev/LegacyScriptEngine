@@ -14,7 +14,6 @@
 #include "utils/Utils.h"
 
 #include <Python.h>
-#include <detours.h>
 #include <engine/TimeTaskSystem.h>
 #include <filesystem>
 #include <toml.h>
@@ -267,51 +266,52 @@ int executePipCommand(std::string cmd) {
 //
 // Attention! When CPython is upgraded, this fix must be re-adapted or removed!!
 //
-namespace FixPython310Stdin {
-// Hard coded function address
-const uintptr_t create_stdio_func_base_offset = 0xCE0F4;
+// namespace FixPython310Stdin {
+// // Hard coded function address
+// const uintptr_t create_stdio_func_base_offset = 0xCE0F4;
 
-create_stdio_func_type create_stdio_original = nullptr;
+// create_stdio_func_type create_stdio_original = nullptr;
 
-PyObject* create_stdio_hooked(
-    const PyConfig* config,
-    PyObject*       io,
-    int             fd,
-    int             write_mode,
-    const char*     name,
-    const wchar_t*  encoding,
-    const wchar_t*  errors
-) {
-    if (fd == 0) {
-        Py_RETURN_NONE;
-    }
-    return create_stdio_original(config, io, fd, write_mode, name, encoding, errors);
-}
+// PyObject* create_stdio_hooked(
+//     const PyConfig* config,
+//     PyObject*       io,
+//     int             fd,
+//     int             write_mode,
+//     const char*     name,
+//     const wchar_t*  encoding,
+//     const wchar_t*  errors
+// ) {
+//     if (fd == 0) {
+//         Py_RETURN_NONE;
+//     }
+//     return create_stdio_original(config, io, fd, write_mode, name, encoding, errors);
+// }
 
-bool patchPython310CreateStdio() {
-    if (create_stdio_original == nullptr) {
-        HMODULE hModule = GetModuleHandleW(L"python310.dll");
-        if (hModule == NULL) return false;
-        create_stdio_original = (create_stdio_func_type)(void*)(((uintptr_t)hModule) + create_stdio_func_base_offset);
-    }
+// bool patchPython310CreateStdio() {
+//     if (create_stdio_original == nullptr) {
+//         HMODULE hModule = GetModuleHandleW(L"python310.dll");
+//         if (hModule == NULL) return false;
+//         create_stdio_original = (create_stdio_func_type)(void*)(((uintptr_t)hModule) +
+//         create_stdio_func_base_offset);
+//     }
 
-    DetourRestoreAfterWith();
-    if (DetourTransactionBegin() != NO_ERROR) return false;
-    else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
-    else if (DetourAttach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
-    else if (DetourTransactionCommit() != NO_ERROR) return false;
-    return true;
-}
+//     DetourRestoreAfterWith();
+//     if (DetourTransactionBegin() != NO_ERROR) return false;
+//     else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
+//     else if (DetourAttach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
+//     else if (DetourTransactionCommit() != NO_ERROR) return false;
+//     return true;
+// }
 
-bool unpatchPython310CreateStdio() {
-    if (DetourTransactionBegin() != NO_ERROR) return false;
-    else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
-    else if (DetourDetach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
-    else if (DetourTransactionCommit() != NO_ERROR) return false;
-    return true;
-}
+// bool unpatchPython310CreateStdio() {
+//     if (DetourTransactionBegin() != NO_ERROR) return false;
+//     else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
+//     else if (DetourDetach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
+//     else if (DetourTransactionCommit() != NO_ERROR) return false;
+//     return true;
+// }
 
-} // namespace FixPython310Stdin
+// } // namespace FixPython310Stdin
 
 } // namespace PythonHelper
 

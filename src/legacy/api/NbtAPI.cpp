@@ -1472,7 +1472,7 @@ NbtCompoundClass* NbtCompoundClass::constructor(const Arguments& args) {
 
         return new NbtCompoundClass(args.thiz(), std::move(tag));
     }
-    CATCH_C("Fail in Create ListTag!");
+    CATCH_C("Fail in Create CompoundTag!");
 }
 
 CompoundTag* NbtCompoundClass::extract(Local<Value> v) {

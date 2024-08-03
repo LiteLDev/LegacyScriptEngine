@@ -47,6 +47,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
+#include "mc/entity/utilities/ActorType.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/item/Item.h"
@@ -528,6 +529,31 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobHurt:
+        bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
+            IF_LISTENED(EVENT_TYPES::onMobHurt) {
+                if (ev.self().isType(ActorType::Mob)) {
+                    Actor* damageSource;
+                    if (ev.source().isEntitySource()) {
+                        if (ev.source().isChildEntitySource()) {
+                            damageSource = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID());
+                        } else {
+                            damageSource =
+                                ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
+                        }
+                    }
+
+                    CallEventRtnValue(
+                        EVENT_TYPES::onMobHurt,
+                        false,
+                        EntityClass::newEntity(&ev.self()),
+                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                        Number::newNumber(ev.damage()),
+                        Number::newNumber((int)ev.source().getCause())
+                    );
+                }
+            }
+            IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+        });
         lse::events::MobHurtEvent();
         break;
 

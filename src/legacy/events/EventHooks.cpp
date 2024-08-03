@@ -1149,40 +1149,6 @@ LL_TYPE_INSTANCE_HOOK(
 } // namespace HopperEvents
 
 LL_TYPE_INSTANCE_HOOK(
-    MobHurtHook,
-    HookPriority::Normal,
-    Mob,
-    "?_hurt@Mob@@MEAA_NAEBVActorDamageSource@@M_N1@Z",
-    bool,
-    ActorDamageSource const& source,
-    float                    dmg,
-    bool                     knock,
-    bool                     ignite
-) {
-    IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        Actor* damageSource;
-        if (source.isEntitySource()) {
-            if (source.isChildEntitySource()) {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
-            } else {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
-            }
-        }
-
-        CallEventRtnValue(
-            EVENT_TYPES::onMobHurt,
-            false,
-            EntityClass::newEntity(this),
-            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-            Number::newNumber(dmg),
-            Number::newNumber((int)source.getCause())
-        );
-    }
-    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, dmg, knock, ignite);
-}
-
-LL_TYPE_INSTANCE_HOOK(
     MobHurtEffectHook,
     HookPriority::Normal,
     Mob,
@@ -1281,10 +1247,7 @@ void HopperEvent(bool pullIn) {
         HopperEvents::HopperPushOutHook::hook();
     }
 }
-void MobHurtEvent() {
-    MobHurtHook::hook();
-    MobHurtEffectHook::hook();
-}
+void MobHurtEvent() { MobHurtEffectHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

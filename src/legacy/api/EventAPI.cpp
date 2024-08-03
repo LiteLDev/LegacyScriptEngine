@@ -542,9 +542,8 @@ void EnableEventListener(int eventId) {
                         }
                     }
 
-                    CallEventRtnValue(
+                    CallEvent(
                         EVENT_TYPES::onMobHurt,
-                        false,
                         EntityClass::newEntity(&ev.self()),
                         damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                         Number::newNumber(ev.damage()),

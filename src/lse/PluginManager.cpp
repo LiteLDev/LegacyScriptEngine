@@ -75,7 +75,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             PythonHelper::getPluginPackDependencyFilePath(ll::string_utils::u8str2str(dirPath.u8string()));
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
-            lse::getSelfPluginInstance().getLogger().info("Executing " pip install " for plugin {name}..."_tr(
+            lse::getSelfPluginInstance().getLogger().info("Executing \" pip install \" for plugin {name}..."_tr(
                 fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
             ));
 

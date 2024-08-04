@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "オーバーワールド",
-      "1": "ネザー",
-      "2": "エンド",
-      "unknown": "その他のサイズ"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "LLMoney.dll が見つかりません。ScriptEngine Economy Systemは動作しません"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - プラグインが正常にロードされました。ロード: ",
-          "fail": " - プラグインの読み込みに失敗しました",
-          "download": {
-            "success": " - 正常なダウンロードが必要です。パス: ",
-            "fail": " - プラグインのダウンロードに失敗しました。 コード: "
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "JSONの構文エラー"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "依存関係 {} が読み込まれました。",
-        "fail": "依存関係の読み込みに失敗しました {}"
-      },
-      "loadMain": {
-        "start": "{type} プラグインを読み込み中...",
-        "done": "{count} {type} プラグインが読み込まれました。",
-        "nodejs": {
-          "installPack": {
-            "fail": "プラグインパック {} のインストールに失敗しました。package.json ファイルを確認してください。",
-            "start": "Node.js プラグインパック \"{path}\" が見つかりました。インストールを試してください..."
-          },
-          "ignored": "ディレクトリ {path}にpackage.json ファイルが見つかりませんでした。無視しました。"
-        },
-        "loadedPlugin": "{type} プラグイン <{name}> を読み込みました。",
-        "installPluginPack": {
-          "done": "{count} {type} プラグインパックがインストールされました。"
-        },
-        "python": {
-          "ignored": "ディレクトリ {path}にpyproject.tomlファイルが見つかりませんでした。",
-          "installPack": {
-            "start": "Python プラグインパック \"{path}\" が見つかりました! インストールしてみてください...",
-            "fail": "プラグインパック{}のインストールに失敗しました。ソースファイルを確認してください！"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npmは正常に終了しました。",
-          "start": "プラグイン {name} の \"npm install\" を実行しています...",
-          "fail": "エラーが発生しました。終了コード: {code}"
-        },
-        "register": {
-          "fail": "プラグイン {name} の登録に失敗しました。"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "プラグイン {name} の \"pip install\" を実行中 ...",
-          "success": "ピップは正常に終了しました。",
-          "fail": "エラーが発生しました。終了コード： {code}"
-        }
+  "Failed to enable: {0}": "有効化に失敗しました: {0}",
+  "Failed to load: {0}": "読み込みに失敗しました： {0}",
+  "Cannot save default configurations to {0}": "デフォルト設定を {0}に保存できません",
+  "Failed to read BaseLib at {0}": "{0} の BaseLib の読み込みに失敗しました",
+  "Failed to register plugin manager": "プラグインマネージャーの登録に失敗しました",
+  "Failed to load plugin code": "プラグインコードの読み込みに失敗しました",
+  "Failed to read plugin entry at {0}": "{0} のプラグインエントリの読み取りに失敗しました",
+  "Failed to load plugin {0}: {1}\\n{2}": "プラグイン {0}の読み込みに失敗しました: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "プラグイン {0}のアンロードに失敗しました: {1}",
+  "Migrating legacy plugin at {0}": "{0}でレガシープラグインを移行中",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "{0}でレガシープラグインを移行できませんでした: {1} は既に存在します",
+  "Failed to create directory {0}": "{0}ディレクトリの作成に失敗しました",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "レガシープラグインを移行中..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "{0} が必要としているプラグインが見つかりません",
-      "success": "{1} が必要とするプラグイン{0} がロードされました",
-      "network": {
-        "fail": "{0}で必要なプラグインのダウンロード時にエラーが発生しました。httpコード: {1}"
-      },
-      "download": {
-        "success": "{0} が必要とするプラグインが{1} に正常にダウンロードされました。"
+  "Legacy plugins have been migrated, please restart the server to load them!": "以前のプラグインは移行されました。サーバーを再起動してロードしてください！",
+  "Overworld": "オーバーワールド",
+  "Nether": "ネザー",
+  "End": "エンド",
+  "Other dimension": "その他のサイズ",
+  "JSON parse error": "JSONの構文エラー",
+  "Npm finished successfully": {
+    "": "Npmは正常に終了しました。"
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "プラグイン {name} の \"npm install\" を実行しています..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "エラーが発生しました。終了コード： {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "プラグイン {name} の \"pip install\" を実行中 ..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "ピップは正常に終了しました。"
   }
 }

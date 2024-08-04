@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "Overworld",
-      "1": "Nederland",
-      "2": "Ende",
-      "unknown": "Sonstige Dimension"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "LLMoney.dll nicht gefunden, ScriptEngine Economy System funktioniert nicht"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - Plugin muss geladen werden. geladen: ",
-          "fail": " - Plugin erfordert Laden fehlgeschlagen",
-          "download": {
-            "success": " - Erfolgreich heruntergeladen erforderlich! Pfad: ",
-            "fail": " - Download Plugin erforderlich fehlgeschlagen! Code: "
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "JSON-Parse-Fehler"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "Abhängigkeit {} geladen.",
-        "fail": "Fehler beim Laden der Abhängigkeit {}"
-      },
-      "loadMain": {
-        "start": "Lade {type} Plugins...",
-        "done": "{count} {type} Plugin(s) geladen.",
-        "nodejs": {
-          "installPack": {
-            "fail": "Installation des Plugin-Pakets {}, bitte überprüfe deine package.json-Datei!",
-            "start": "Node.js Plugin Pack \"{path}\" gefunden! Versuche es zu installieren..."
-          },
-          "ignored": "Keine package.json-Datei im Verzeichnis {path}gefunden, ignoriert."
-        },
-        "loadedPlugin": "{type} Plugin <{name}> geladen.",
-        "installPluginPack": {
-          "done": "{count} {type} Plugin-Paket(e) installiert."
-        },
-        "python": {
-          "ignored": "Keine pyproject.toml Datei im Verzeichnis {path}gefunden, ignoriert.",
-          "installPack": {
-            "start": "Python Plugin Pack \"{path}\"gefunden! Versuche zu installieren...",
-            "fail": "Fehler beim Installieren des Plugin-Pakets {}, bitte überprüfen Sie die Quelldateien!"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npm erfolgreich abgeschlossen.",
-          "start": "Führe \"npm install\" für Plugin {name} aus ...",
-          "fail": "Fehler aufgetreten. Exit-Code: {code}"
-        },
-        "register": {
-          "fail": "Fehler beim Helfen des Plugins {name} registriert werden!"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "Führe \"pip install\" für Plugin {name} aus ...",
-          "success": "Pip erfolgreich abgeschlossen.",
-          "fail": "Fehler aufgetreten. Exit-Code: {code}"
-        }
+  "Failed to enable: {0}": "Fehler beim Aktivieren: {0}",
+  "Failed to load: {0}": "Fehler beim Laden: {0}",
+  "Cannot save default configurations to {0}": "Standardkonfigurationen können nicht in {0} gespeichert werden",
+  "Failed to read BaseLib at {0}": "Fehler beim Lesen von BaseLib auf {0}",
+  "Failed to register plugin manager": "Fehler beim Registrieren des Plugin-Managers",
+  "Failed to load plugin code": "Fehler beim Laden des Plugin-Codes",
+  "Failed to read plugin entry at {0}": "Fehler beim Lesen des Plugin-Eintrags auf {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Fehler beim Laden des Plugins {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Entladen des Plugins {0}fehlgeschlagen: {1}",
+  "Migrating legacy plugin at {0}": "Altes Plugin auf {0} migrieren",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Fehler beim Migrieren des älteren Plugins auf {0}: {1} existiert bereits",
+  "Failed to create directory {0}": "Verzeichnis {0} konnte nicht erstellt werden",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "Alte Plugins werden migriert..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "Plugin, das von {0} benötigt wird, wurde nicht gefunden.",
-      "success": "Plugin mit dem Namen {0} , das von {1} benötigt wird.",
-      "network": {
-        "fail": "Fehler beim Herunterladen des Plugins, das von {0}benötigt wird, http-Code: {1}"
-      },
-      "download": {
-        "success": "Plugin herunterladen, das von {0} benötigt wird, Pfad {1}."
+  "Legacy plugins have been migrated, please restart the server to load them!": "Alte Plugins wurden migriert, bitte starte den Server neu, um sie zu laden!",
+  "Overworld": "Overworld",
+  "Nether": "Nederland",
+  "End": "Ende",
+  "Other dimension": "Sonstige Dimension",
+  "JSON parse error": "JSON-Parse-Fehler",
+  "Npm finished successfully": {
+    "": "Npm erfolgreich abgeschlossen."
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Führe \"npm install\" für Plugin {name} aus ..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "Fehler aufgetreten. Exit-Code: {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Führe \"pip install\" für Plugin {name} aus ..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "Pip erfolgreich abgeschlossen."
   }
 }

@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "Overworld",
-      "1": "Nether",
-      "2": "End",
-      "unknown": "Other dimension"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "LLMoney.dll not found, ScriptEngine Economy System won't work"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - Plugin require loaded successfully. Loaded: ",
-          "fail": " - Plugin require load failed",
-          "download": {
-            "success": " - Successfully downloaded require! Path: ",
-            "fail": " - Download plugin require failed! Code: "
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "JSON parse error"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "Dependence {} loaded.",
-        "fail": "Fail to load dependence {}"
-      },
-      "loadMain": {
-        "start": "Loading {type} plugins...",
-        "done": "{count} {type} plugin(s) loaded.",
-        "nodejs": {
-          "installPack": {
-            "fail": "Failed to install plugin pack {}, please check your package.json file!",
-            "start": "Found Node.js plugin pack \"{path}\"! Try installing..."
-          },
-          "ignored": "No package.json file found in directory {path}, ignored."
-        },
-        "loadedPlugin": "{type} plugin <{name}> loaded.",
-        "installPluginPack": {
-          "done": "{count} {type} plugin pack(s) installed."
-        },
-        "python": {
-          "ignored": "No pyproject.toml file found in directory {path}, ignored.",
-          "installPack": {
-            "start": "Found Python plugin pack \"{path}\"! Try installing...",
-            "fail": "Failed to install plugin pack {}, please check the source files!"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npm finished successfully.",
-          "start": "Executing \"npm install\" for plugin {name}...",
-          "fail": "Error occurred. Exit code: {code}"
-        },
-        "register": {
-          "fail": "Fail to help plugin {name} get registered!"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "Executing \"pip install\" for plugin {name}...",
-          "success": "Pip finished successfully.",
-          "fail": "Error occurred. Exit code: {code}"
-        }
+  "Failed to enable: {0}": "Failed to enable: {0}",
+  "Failed to load: {0}": "Failed to load: {0}",
+  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
+  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
+  "Failed to register plugin manager": "Failed to register plugin manager",
+  "Failed to load plugin code": "Failed to load plugin code",
+  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
+  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "Migrating legacy plugins..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "Plugin which is required by {0} not found.",
-      "success": "Plugin named {0} which is required by {1} loaded.",
-      "network": {
-        "fail": "Error occurred when download plugin which is required by {0}, http code: {1}"
-      },
-      "download": {
-        "success": "Download plugin which is required by {0} successfully, path {1}."
+  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
+  "Overworld": "Overworld",
+  "Nether": "Nether",
+  "End": "End",
+  "Other dimension": "Other dimension",
+  "JSON parse error": "JSON parse error",
+  "Npm finished successfully": {
+    "": "Npm finished successfully."
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Executing \"npm install\" for plugin {name}..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "Error occurred. Exit code: {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Executing \"pip install\" for plugin {name}..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "Pip finished successfully."
   }
 }

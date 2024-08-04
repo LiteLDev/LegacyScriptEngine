@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "Extrema",
-      "1": "Nether",
-      "2": "Término",
-      "unknown": "Outra dimensão"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "LLMoney.dll não encontrado, o Sistema de Economia de ScriptEngine não funcionará"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - Plugin requer carregado com sucesso. Carregado: ",
-          "fail": " - O plugin requer carregamento falhou",
-          "download": {
-            "success": " - Baixado com sucesso! Caminho: ",
-            "fail": " - Falha no download do plugin! Código: "
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "Erro de análise JSON"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "Dependência {} carregada.",
-        "fail": "Falha ao carregar dependência {}"
-      },
-      "loadMain": {
-        "start": "Carregando plugins {type}...",
-        "done": "Plugin {count} {type} carregado.",
-        "nodejs": {
-          "installPack": {
-            "fail": "Falha ao instalar o pacote de plugins {}, por favor, verifique o seu arquivo package.json!",
-            "start": "Pacote de plugin Node.js encontrado \"{path}\"! Tente instalar..."
-          },
-          "ignored": "Nenhum arquivo package.json encontrado no diretório {path}, ignorado."
-        },
-        "loadedPlugin": "Plugin {type} <{name}> carregado.",
-        "installPluginPack": {
-          "done": "{count} Pacote {type} plugin instalado(s)."
-        },
-        "python": {
-          "ignored": "Nenhum arquivo pyproject.toml encontrado no diretório {path}, foi ignorado.",
-          "installPack": {
-            "start": "Found Python plugin pack \"{path}\"! Try installing...",
-            "fail": "Falha ao instalar plugin pacote {}, verifique os arquivos de origem!"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npm concluído com sucesso.",
-          "start": "Executando \"npm install\" para o plugin {name}...",
-          "fail": "Ocorreu um erro. Sair do código: {code}"
-        },
-        "register": {
-          "fail": "Falha ao ajudar o plugin {name} a ser registrado!"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "Executando \"pip install\" para o plugin {name}...",
-          "success": "Pip concluído com sucesso.",
-          "fail": "Ocorreu um erro. Sair do código: {code}"
-        }
+  "Failed to enable: {0}": "Falha ao ativar: {0}",
+  "Failed to load: {0}": "Falha ao carregar: {0}",
+  "Cannot save default configurations to {0}": "Não é possível salvar as configurações padrão para {0}",
+  "Failed to read BaseLib at {0}": "Falha ao ler BaseLib em {0}",
+  "Failed to register plugin manager": "Falha ao registrar o gerenciador de plugins",
+  "Failed to load plugin code": "Falha ao carregar o código do plugin",
+  "Failed to read plugin entry at {0}": "Falha ao ler entrada do plugin em {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Falha ao carregar plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Falha ao descarregar plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Migrando plugin legado em {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Falha ao migrar o plugin legado para {0}: {1} já existe",
+  "Failed to create directory {0}": "Falha ao criar diretório {0}",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "Migrando plugins legados..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "Plugin que é necessário por {0} não encontrado.",
-      "success": "Plugin chamado {0} que é necessário para {1} carregado.",
-      "network": {
-        "fail": "Ocorreu um erro ao baixar o plugin que é necessário para {0}, código http: {1}"
-      },
-      "download": {
-        "success": "Plugin de download necessário para {0} com sucesso, caminho {1}."
+  "Legacy plugins have been migrated, please restart the server to load them!": "Plugins Legacy foram migrados, por favor reinicie o servidor para carregá-los!",
+  "Overworld": "Extrema",
+  "Nether": "Nether",
+  "End": "Término",
+  "Other dimension": "Outra dimensão",
+  "JSON parse error": "Erro de análise JSON",
+  "Npm finished successfully": {
+    "": "Npm concluído com sucesso."
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Executando \"npm install\" para o plugin {name}..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "Ocorreu um erro. Sair do código: {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Executando \"pip install\" para o plugin {name}..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "Pip concluído com sucesso."
   }
 }

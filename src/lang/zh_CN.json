@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "主世界",
-      "1": "下界",
-      "2": "末地",
-      "unknown": "其他维度"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "未找到LLMoney.dll，脚本引擎经济系统将无法工作"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - 插件依赖库加载成功。已加载：",
-          "fail": " - 插件依赖库加载失败",
-          "download": {
-            "success": " - 下载依赖库成功！路径：",
-            "fail": " - 插件依赖库下载失败！错误代码："
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "JSON 解析错误"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "依赖项 {} 已加载。",
-        "fail": "加载依赖项 {} 失败"
-      },
-      "loadMain": {
-        "start": "加载 {type} 插件...",
-        "done": "{count} 个 {type} 插件已加载。",
-        "nodejs": {
-          "installPack": {
-            "fail": "安装插件包 {} 失败，请检查您的 package.json 文件！",
-            "start": "找到 Node.js 插件包 \"{path}\"！尝试安装..."
-          },
-          "ignored": "在目录 {path} 中没有找到 package.json 文件，已忽略。"
-        },
-        "loadedPlugin": "{type} 插件 <{name}> 已加载。",
-        "installPluginPack": {
-          "done": "{count} 个 {type} 插件包已安装。"
-        },
-        "python": {
-          "ignored": "在目录 {path} 中没有找到 pyproject.toml 文件，已忽略。",
-          "installPack": {
-            "start": "找到 Python 插件包 \"{path}\"！尝试安装...",
-            "fail": "安装插件包 {} 失败，请检查插件源文件！"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npm 命令成功完成",
-          "start": "为插件 {name} 执行 \"npm install\"...",
-          "fail": "发生错误。退出代码： {code}"
-        },
-        "register": {
-          "fail": "插件 {name} 注册失败！"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "为插件 {name} 执行 \"pip install\"...",
-          "success": "Pip 命令成功完成",
-          "fail": "发生错误。退出代码： {code}"
-        }
+  "Failed to enable: {0}": "启用 {0} 失败",
+  "Failed to load: {0}": "{0} 加载失败",
+  "Cannot save default configurations to {0}": "无法将默认配置保存到 {0}",
+  "Failed to read BaseLib at {0}": "无法读取 位于 {0} 的BaseLib",
+  "Failed to register plugin manager": "注册插件管理器失败",
+  "Failed to load plugin code": "加载插件代码失败",
+  "Failed to read plugin entry at {0}": "在 {0} 读取插件条目失败",
+  "Failed to load plugin {0}: {1}\\n{2}": "加载插件 {0} 失败: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "卸载插件 {0} 失败: {1}",
+  "Migrating legacy plugin at {0}": "正在迁移旧版插件到 {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "迁移旧版插件失败 {0}: {1} 已经存在",
+  "Failed to create directory {0}": "无法创建目录 {0}",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "正在迁移旧版插件..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "未找到被 {0} 依赖的插件",
-      "success": "被 {1} 依赖的插件 {0} 已加载",
-      "network": {
-        "fail": "下载插件 {0} 时发生错误，状态码: {1}"
-      },
-      "download": {
-        "success": "{0} 依赖的插件下载成功，位于 {1}"
+  "Legacy plugins have been migrated, please restart the server to load them!": "旧版插件已迁移，请重启服务器加载！",
+  "Overworld": "主世界",
+  "Nether": "下界",
+  "End": "末地",
+  "Other dimension": "其他维度",
+  "JSON parse error": "JSON 解析错误",
+  "Npm finished successfully": {
+    "": "Npm 命令成功完成"
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "为插件 {name} 执行 \"npm install\"..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "发生错误。退出代码： {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "为插件 {name} 执行 \"pip install\"..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "Pip 命令成功完成"
   }
 }

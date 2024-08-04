@@ -1,91 +1,50 @@
 {
-  "base": {
-    "getDimName": {
-      "0": "โลกปกติ",
-      "1": "เนเธอร์",
-      "2": "ดิเอนด์",
-      "unknown": "มิติอื่นๆ"
-    }
-  },
-  "llse": {
-    "init": {
-      "llMoney": {
-        "notFound": "ไม่พบ LLMoney.dll ของระบบ ScriptEngine Economy จะไม่ทำงาน"
-      }
-    },
-    "api": {
-      "ll": {
-        "require": {
-          "success": " - ปลั๊กอินที่ต้องการโหลดสำเร็จแล้ว โหลด: ",
-          "fail": " - ปลั๊กอินที่ต้องการโหลดไม่สำเร็จ",
-          "download": {
-            "success": " - ไฟล์ที่ต้องการดาวน์โหลดสำเร็จ ตำแหน่ง: ",
-            "fail": " - ดาวน์โหลดปลั๊กอินที่ต้องการไม่สำเร็จ! รหัส: "
-          }
-        }
-      }
-    },
-    "apiHelp": {
-      "parseJson": {
-        "fail": "ข้อผิดพลาดในการแยกวิเคราะห์ Json"
-      }
-    },
-    "loader": {
-      "loadDepends": {
-        "success": "ส่วนเสริม {} โหลดแล้ว.",
-        "fail": "ไม่สามารถโหลดส่วนเสริม {}"
-      },
-      "loadMain": {
-        "start": "กำลังโหลดปลั๊กอิน {type}...",
-        "done": "{count} {type} ปลั๊กอินโหลดแล้ว",
-        "nodejs": {
-          "installPack": {
-            "fail": "ไม่สามารถติดตั้งปลั๊กอินแพ็ค {}, โปรดเช็คไฟล์ package.json ของคุณ!",
-            "start": "พบแพ็คปลั๊กอิน Node.js \"{path}\"! กำลังติดตั้ง..."
-          },
-          "ignored": "ไม่พบไฟล์ package.json ในตำแหน่ง {path}"
-        },
-        "loadedPlugin": "ปลั๊กอิน {type} <{name}> โหลดแล้ว",
-        "installPluginPack": {
-          "done": "{count} {type} ปลั๊กอินแพ็คติดตั้งแล้ว"
-        },
-        "python": {
-          "ignored": "No pyproject.toml file found in directory {path}, ignored.",
-          "installPack": {
-            "start": "Found Python plugin pack \"{path}\"! Try installing...",
-            "fail": "Failed to install plugin pack {}, please check the source files!"
-          }
-        }
-      },
-      "nodejs": {
-        "executeNpmInstall": {
-          "success": "Npm เสร็จเรียบร้อยแล้ว",
-          "start": "ดำเนินการ \"npm install\" สำหรับปลั๊กอิน {name}...",
-          "fail": "เกิดข้อผิดพลาด โค้ด: {code}"
-        },
-        "register": {
-          "fail": "ไม่สามารถลงทะเบียนปลั๊กอิน {name} ได้!"
-        }
-      },
-      "python": {
-        "executePipInstall": {
-          "start": "Executing \"pip install\" for plugin {name}...",
-          "success": "Pip finished successfully.",
-          "fail": "Error occurred. Exit code: {code}"
-        }
+  "Failed to enable: {0}": "Failed to enable: {0}",
+  "Failed to load: {0}": "Failed to load: {0}",
+  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
+  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
+  "Failed to register plugin manager": "Failed to register plugin manager",
+  "Failed to load plugin code": "Failed to load plugin code",
+  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
+  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Migrating legacy plugins": {
+    "": {
+      "": {
+        "": "Migrating legacy plugins..."
       }
     }
   },
-  "llseapi": {
-    "require": {
-      "fail": "Plugin which is required by {0} not found.",
-      "success": "Plugin named {0} which is required by {1} loaded.",
-      "network": {
-        "fail": "Error occurred when download plugin which is required by {0}, http code: {1}"
-      },
-      "download": {
-        "success": "Download plugin which is required by {0} successfully, path {1}."
+  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
+  "Overworld": "โลกปกติ",
+  "Nether": "เนเธอร์",
+  "End": "ดิเอนด์",
+  "Other dimension": "มิติอื่นๆ",
+  "JSON parse error": "ข้อผิดพลาดในการแยกวิเคราะห์ Json",
+  "Npm finished successfully": {
+    "": "Npm เสร็จเรียบร้อยแล้ว"
+  },
+  "Executing \"npm install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "ดำเนินการ \"npm install\" สำหรับปลั๊กอิน {name}..."
       }
     }
+  },
+  "Error occurred": {
+    " Exit code: {code}": "Error occurred. Exit code: {code}"
+  },
+  "Executing \"pip install\" for plugin {name}": {
+    "": {
+      "": {
+        "": "Executing \"pip install\" for plugin {name}..."
+      }
+    }
+  },
+  "Pip finished successfully": {
+    "": "Pip finished successfully."
   }
 }

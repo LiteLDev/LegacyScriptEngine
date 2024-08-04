@@ -60,16 +60,16 @@ inline std::string DimId2Name(int dimid) {
     std::string name;
     switch (dimid) {
     case 0:
-        name = "base.getDimName.0"_tr();
+        name = "Overworld"_tr();
         break;
     case 1:
-        name = "base.getDimName.1"_tr();
+        name = "Nether"_tr();
         break;
     case 2:
-        name = "base.getDimName.2"_tr();
+        name = "End"_tr();
         break;
     default:
-        name = "base.getDimName.unknown"_tr();
+        name = "Other dimension"_tr();
         break;
     }
     return name;

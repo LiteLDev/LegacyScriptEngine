@@ -75,7 +75,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             PythonHelper::getPluginPackDependencyFilePath(ll::string_utils::u8str2str(dirPath.u8string()));
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
-            lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.start"_tr(
+            lse::getSelfPluginInstance().getLogger().info("Executing " pip install " for plugin {name}..."_tr(
                 fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
             ));
 
@@ -84,10 +84,10 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                      + ll::string_utils::u8str2str(realPackageInstallDir.u8string()) + "\" --disable-pip-version-check "
                  ))
                 == 0) {
-                lse::getSelfPluginInstance().getLogger().info("llse.loader.python.executePipInstall.success"_tr());
+                lse::getSelfPluginInstance().getLogger().info("Pip finished successfully."_tr());
             } else
                 lse::getSelfPluginInstance().getLogger().error(
-                    "llse.loader.python.executePipInstall.fail"_tr(fmt::arg("code", exitCode))
+                    "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))
                 );
 
             // remove temp dependency file after installation
@@ -106,20 +106,20 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     if (NodeJsHelper::doesPluginPackHasDependency(ll::string_utils::u8str2str(dirPath.u8string()))
         && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
         int exitCode = 0;
-        lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.start"_tr(
+        lse::getSelfPluginInstance().getLogger().info("Executing " npm install " for plugin {name}..."_tr(
             fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
         ));
         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", ll::string_utils::u8str2str(dirPath.u8string())))
             == 0)
-            lse::getSelfPluginInstance().getLogger().info("llse.loader.nodejs.executeNpmInstall.success"_tr());
+            lse::getSelfPluginInstance().getLogger().info(""_tr());
         else
             lse::getSelfPluginInstance().getLogger().error(
-                "llse.loader.nodejs.executeNpmInstall.fail"_tr(fmt::arg("code", exitCode))
+                "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))
             );
     }
 #endif
     if (hasMod(manifest.name)) {
-        return ll::makeStringError("plugin already loaded");
+        return ll::makeStringError("Plugin has already loaded");
     }
 
     auto& scriptEngine = *EngineManager::newEngine(manifest.name);
@@ -164,7 +164,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
         if (!baseLibContent) {
-            return ll::makeStringError("Failed to read BaseLib at {}"_tr(baseLibPath.string()));
+            return ll::makeStringError("Failed to read BaseLib at {0}"_tr(baseLibPath.string()));
         }
         scriptEngine.eval(baseLibContent.value());
 #endif
@@ -198,7 +198,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
-                return ll::makeStringError("Failed to read plugin entry at {}"_tr(entryPath.string()));
+                return ll::makeStringError("Failed to read plugin entry at {0}"_tr(entryPath.string()));
             }
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
@@ -262,7 +262,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         return {};
     } catch (const std::exception& e) {
-        return ll::makeStringError("Failed to unload plugin {}: {}"_tr(name, e.what()));
+        return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, e.what()));
     }
 }
 

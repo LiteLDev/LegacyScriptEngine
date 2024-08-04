@@ -87,7 +87,7 @@ auto enable(ll::mod::NativeMod& /*self*/) -> bool {
         return true;
 
     } catch (const std::exception& error) {
-        logger.error("Failed to enable: {}"_tr(error.what()));
+        logger.error("Failed to enable: {0}"_tr(error.what()));
         return false;
     }
 }
@@ -135,7 +135,7 @@ auto load(ll::mod::NativeMod& self) -> bool {
         return true;
 
     } catch (const std::exception& error) {
-        logger.error("Failed to load: {}"_tr(error.what()));
+        logger.error("Failed to load: {0}"_tr(error.what()));
         return false;
     }
 }
@@ -143,7 +143,7 @@ auto load(ll::mod::NativeMod& self) -> bool {
 void loadConfig(const ll::mod::NativeMod& self, Config& config) {
     const auto& configFilePath = self.getConfigDir() / "config.json";
     if (!ll::config::loadConfig(config, configFilePath) && !ll::config::saveConfig(config, configFilePath)) {
-        throw std::runtime_error("Cannot save default configurations to {}"_tr(configFilePath));
+        throw std::runtime_error("Cannot save default configurations to {0}"_tr(configFilePath));
     }
 }
 
@@ -159,7 +159,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
     auto baseLibContent = ll::file_utils::readFile(baseLibPath);
     if (!baseLibContent) {
-        throw std::runtime_error("Failed to read BaseLib at {}"_tr(baseLibPath.string()));
+        throw std::runtime_error("Failed to read BaseLib at {0}"_tr(baseLibPath.string()));
     }
     scriptEngine.eval(baseLibContent.value());
 

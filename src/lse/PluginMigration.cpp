@@ -48,7 +48,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
     auto& logger = self.getLogger();
 
-    logger.info("Migrating legacy plugin at {}"_tr(ll::string_utils::u8str2str(path.u8string())));
+    logger.info("Migrating legacy plugin at {0}"_tr(ll::string_utils::u8str2str(path.u8string())));
 
     const auto& pluginType = pluginManager.getType();
 
@@ -57,7 +57,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     const auto& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
-        throw std::runtime_error("Failed to migrate legacy plugin at {}: {} already exists"_tr(
+        throw std::runtime_error("Failed to migrate legacy plugin at {0}: {1} already exists"_tr(
             ll::string_utils::u8str2str(path.u8string()),
             ll::string_utils::u8str2str(pluginDir.u8string())
         ));
@@ -65,8 +65,9 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
-            throw std::runtime_error("Failed to create directory {}"_tr(ll::string_utils::u8str2str(pluginDir.u8string()
-            )));
+            throw std::runtime_error(
+                "Failed to create directory {0}"_tr(ll::string_utils::u8str2str(pluginDir.u8string()))
+            );
         }
     }
 

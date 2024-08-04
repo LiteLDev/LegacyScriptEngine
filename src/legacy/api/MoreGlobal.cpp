@@ -4,8 +4,9 @@
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/DBStorageConfig.h"
 
-DBStorage*             MoreGlobal::dbStorage;
-DefaultDataLoadHelper* MoreGlobal::defaultDataLoadHelper;
+namespace MoreGlobal {
+DBStorage*             dbStorage;
+DefaultDataLoadHelper* defaultDataLoadHelper;
 
 LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
@@ -21,13 +22,14 @@ LL_TYPE_INSTANCE_HOOK(
     return ori;
 };
 
-void MoreGlobal::onLoad() { DBStorageHook::hook(); }
+void onLoad() { DBStorageHook::hook(); }
 
-bool MoreGlobal::onEnable() {
+bool onEnable() {
     defaultDataLoadHelper =
         static_cast<DefaultDataLoadHelper*>(ll::memory::resolveSymbol("??_7DefaultDataLoadHelper@@6B@"));
-    if (defaultDataLoadHelper && DBStorageHook::unhook()) {
+    if (defaultDataLoadHelper && dbStorage && DBStorageHook::unhook()) {
         return true;
     }
     return false;
 }
+} // namespace MoreGlobal

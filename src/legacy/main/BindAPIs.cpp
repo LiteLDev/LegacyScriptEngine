@@ -67,8 +67,6 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass(OriginTypeStaticBuilder);
     engine->registerNativeClass(DamageCauseEnumBuilder);
 
-    // engine->registerNativeClass(PermissionClassBuilder);
-
     engine->registerNativeClass(I18nClassBuilder);
 
     //////////////// 实例类 ////////////////
@@ -111,15 +109,14 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass<HttpRequestClass>(HttpRequestClassBuilder);
     engine->registerNativeClass<HttpResponseClass>(HttpResponseClassBuilder);
     engine->registerNativeClass<BinaryStreamClass>(BinaryStreamClassBuilder);
-    // engine->registerNativeClass<RoleClass>(RoleClassBuilder);
     engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
 
     //////////////// NativeFFI ////////////////
-    engine->registerNativeClass(NativeTypeEnumBuilder);
-    engine->registerNativeClass<NativePointer>(NativePointerBuilder);
-    engine->registerNativeClass<ScriptNativeFunction>(NativeCallBuilder);
-    engine->registerNativeClass<NativeStdString>(NativeStdStringBuilder);
-    engine->registerNativeClass<DynamicHookData>(NativeHookBuilder);
+    // engine->registerNativeClass(NativeTypeEnumBuilder);
+    // engine->registerNativeClass<NativePointer>(NativePointerBuilder);
+    // engine->registerNativeClass<ScriptNativeFunction>(NativeCallBuilder);
+    // engine->registerNativeClass<NativeStdString>(NativeStdStringBuilder);
+    // engine->registerNativeClass<DynamicHookData>(NativeHookBuilder);
     // engine->registerNativeClass<NativePatch>(NativePatchBuilder);
-    engine->registerNativeClass<GlobalNativePointer>(GlobalNativePointerBuilder);
+    // engine->registerNativeClass<GlobalNativePointer>(GlobalNativePointerBuilder);
 }

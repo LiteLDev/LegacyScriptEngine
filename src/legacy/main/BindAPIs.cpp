@@ -112,11 +112,11 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
 
     //////////////// NativeFFI ////////////////
-    // engine->registerNativeClass(NativeTypeEnumBuilder);
-    // engine->registerNativeClass<NativePointer>(NativePointerBuilder);
-    // engine->registerNativeClass<ScriptNativeFunction>(NativeCallBuilder);
-    // engine->registerNativeClass<NativeStdString>(NativeStdStringBuilder);
-    // engine->registerNativeClass<DynamicHookData>(NativeHookBuilder);
+    engine->registerNativeClass(NativeTypeEnumBuilder);
+    engine->registerNativeClass<NativePointer>(NativePointerBuilder);
+    engine->registerNativeClass<ScriptNativeFunction>(NativeCallBuilder);
+    engine->registerNativeClass<NativeStdString>(NativeStdStringBuilder);
+    engine->registerNativeClass<DynamicHookData>(NativeHookBuilder);
     // engine->registerNativeClass<NativePatch>(NativePatchBuilder);
-    // engine->registerNativeClass<GlobalNativePointer>(GlobalNativePointerBuilder);
+    engine->registerNativeClass<GlobalNativePointer>(GlobalNativePointerBuilder);
 }

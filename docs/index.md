@@ -30,19 +30,15 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 
 ## Usage
 
-1. Put LLSE plugins directly in `/path/to/bedrock_dedicated_server/plugins/`。
-
-2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically.
-
-3. To load them, you need to restart the server.
-
-For more information, please refer to [the documentation](https://lse.liteldev.com).
+1. Put LLSE plugins directly in `/path/to/bedrock_dedicated_server/plugins/`
+2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically
+3. To load them, you need to restart the server
 
 ## Contributing
 
-If you have any questions, please open an issue to discuss it.
-
-PRs are welcome.
+If you have any questions, please open an issue to discuss it  
+Help us improve translation [here](https://crowdin.com/project/legacyscriptengine)  
+PRs are welcome
 
 ## License
 

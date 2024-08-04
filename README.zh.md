@@ -1,5 +1,7 @@
 # LegacyScriptEngine
 
+[English](README.md) | 简体中文
+
 一个用于在 LeviLamina 上运行 LLSE 插件的插件引擎
 
 ## 安装
@@ -33,6 +35,8 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 1. 直接将 LLSE 插件放在 `/path/to/bedrock_dedicated_server/plugins/` 中
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
 3. 重启服务器后，插件就会被加载
+
+更多信息请参见[文档](https://lse.liteldev.com)
 
 ## 贡献
 

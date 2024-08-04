@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix setNbt bug
 - Refactor MoreGlobal
-- Fix a critical issue in 0.8.6
+- Fix a critical issue in 0.8.7
 
 ## [0.8.7] - 2024-08-04
 

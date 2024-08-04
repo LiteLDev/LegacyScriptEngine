@@ -3000,9 +3000,9 @@ Local<Value> PlayerClass::getNbt(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        CompoundTag* tag = new CompoundTag();
+        std::unique_ptr<CompoundTag> tag = std::make_unique<CompoundTag>();
         player->save(*tag);
-        return NbtCompoundClass::pack(tag);
+        return NbtCompoundClass::pack(std::move(tag));
     }
     CATCH("Fail in getNbt!")
 }

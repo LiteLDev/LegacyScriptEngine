@@ -54,7 +54,7 @@ public:
     }
 };
 
-using ll::i18n_literals::operator""_tr;
+using namespace ll::i18n_literals;
 
 inline std::string DimId2Name(int dimid) {
     std::string name;

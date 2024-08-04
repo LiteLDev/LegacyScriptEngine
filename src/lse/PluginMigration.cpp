@@ -1,11 +1,11 @@
 #include "PluginMigration.h"
 
 #include "Entry.h"
-#include "legacy/legacyapi/utils/FileHelper.h"
 
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
+#include <ll/api/i18n/I18n.h>
 #include <ll/api/mod/Manifest.h>
 #include <ll/api/mod/Mod.h>
 #include <ll/api/reflection/Serialization.h>
@@ -37,6 +37,8 @@ constexpr auto PluginExtName = ".llplugin";
 
 #endif
 
+using namespace ll::i18n_literals;
+
 namespace lse {
 
 namespace {
@@ -46,7 +48,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
     auto& logger = self.getLogger();
 
-    logger.info("Migrating legacy plugin at {}", ll::string_utils::u8str2str(path.u8string()));
+    logger.info("Migrating legacy plugin at {}"_tr(ll::string_utils::u8str2str(path.u8string())));
 
     const auto& pluginType = pluginManager.getType();
 
@@ -55,8 +57,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     const auto& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
-        throw std::runtime_error(fmt::format(
-            "Failed to migrate legacy plugin at {}: {} already exists",
+        throw std::runtime_error("Failed to migrate legacy plugin at {}: {} already exists"_tr(
             ll::string_utils::u8str2str(path.u8string()),
             ll::string_utils::u8str2str(pluginDir.u8string())
         ));
@@ -64,9 +65,8 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
-            throw std::runtime_error(
-                fmt::format("Failed to create directory {}", ll::string_utils::u8str2str(pluginDir.u8string()))
-            );
+            throw std::runtime_error("Failed to create directory {}"_tr(ll::string_utils::u8str2str(pluginDir.u8string()
+            )));
         }
     }
 
@@ -120,7 +120,7 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     std::unordered_set<std::filesystem::path> pluginPaths;
 
     // Discover plugins.
-    logger.info("Discovering legacy plugins...");
+    // logger.info("Discovering legacy plugins..."_tr());
 
     const auto& pluginBaseDir = ll::mod::getModsRoot();
 
@@ -133,19 +133,18 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     }
 
     if (pluginPaths.empty()) {
-        logger.info("No legacy plugin found, skipping migration");
-
+        // logger.info("No legacy plugin found, skipping migration"_tr());
         return;
     }
 
     // Migrate plugins.
-    logger.info("Migrating legacy plugins...");
+    logger.info("Migrating legacy plugins..."_tr());
 
     for (const auto& path : pluginPaths) {
         migratePlugin(pluginManager, path);
     }
 
-    logger.warn("Legacy plugins have been migrated, please restart the server to load them!");
+    logger.warn("Legacy plugins have been migrated, please restart the server to load them!"_tr());
 }
 
 } // namespace lse

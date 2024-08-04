@@ -48,6 +48,8 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 
 #endif
 
+using namespace ll::i18n_literals;
+
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void                  BindAPIs(script::ScriptEngine* engine);
 void                  InitBasicEventListeners();
@@ -78,16 +80,14 @@ auto enable(ll::mod::NativeMod& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
 
     try {
-        logger.info("enabling...");
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         RegisterDebugCommand();
 #endif
-        logger.info("enabled");
 
         return true;
 
     } catch (const std::exception& error) {
-        logger.error(fmt::format("failed to enable: {}", error.what()));
+        logger.error("Failed to enable: {}"_tr(error.what()));
         return false;
     }
 }
@@ -113,8 +113,6 @@ auto load(ll::mod::NativeMod& self) -> bool {
 #endif
 
     try {
-        logger.info("loading...");
-
         ll::i18n::load(self.getLangDir());
 
         config             = Config();
@@ -134,12 +132,10 @@ auto load(ll::mod::NativeMod& self) -> bool {
 
         loadDebugEngine(self);
 
-        logger.info("loaded");
-
         return true;
 
     } catch (const std::exception& error) {
-        logger.error(fmt::format("failed to load: {}", error.what()));
+        logger.error("Failed to load: {}"_tr(error.what()));
         return false;
     }
 }
@@ -147,7 +143,7 @@ auto load(ll::mod::NativeMod& self) -> bool {
 void loadConfig(const ll::mod::NativeMod& self, Config& config) {
     const auto& configFilePath = self.getConfigDir() / "config.json";
     if (!ll::config::loadConfig(config, configFilePath) && !ll::config::saveConfig(config, configFilePath)) {
-        throw std::runtime_error(fmt::format("cannot save default configurations to {}", configFilePath));
+        throw std::runtime_error("Cannot save default configurations to {}"_tr(configFilePath));
     }
 }
 
@@ -163,7 +159,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
     auto baseLibContent = ll::file_utils::readFile(baseLibPath);
     if (!baseLibContent) {
-        throw std::runtime_error(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+        throw std::runtime_error("Failed to read BaseLib at {}"_tr(baseLibPath.string()));
     }
     scriptEngine.eval(baseLibContent.value());
 
@@ -175,7 +171,7 @@ void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) 
     auto& pluginManagerRegistry = ll::mod::ModManagerRegistry::getInstance();
 
     if (!pluginManagerRegistry.addManager(pluginManager)) {
-        throw std::runtime_error("failed to register plugin manager");
+        throw std::runtime_error("Failed to register plugin manager"_tr());
     }
 }
 

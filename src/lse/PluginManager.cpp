@@ -118,9 +118,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             );
     }
 #endif
-
-    logger.info("loading plugin {}", manifest.name);
-
     if (hasMod(manifest.name)) {
         return ll::makeStringError("plugin already loaded");
     }
@@ -167,7 +164,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
         if (!baseLibContent) {
-            return ll::makeStringError(fmt::format("failed to read BaseLib at {}", baseLibPath.string()));
+            return ll::makeStringError("Failed to read BaseLib at {}"_tr(baseLibPath.string()));
         }
         scriptEngine.eval(baseLibContent.value());
 #endif
@@ -181,7 +178,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                 ll::string_utils::u8str2str(entryPath.u8string()),
                 ll::string_utils::u8str2str(dirPath.u8string())
             )) {
-            return ll::makeStringError(fmt::format("failed to load plugin code"));
+            return ll::makeStringError("Failed to load plugin code"_tr());
         }
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
@@ -190,7 +187,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                 ll::string_utils::u8str2str(entryPath.u8string()),
                 ll::string_utils::u8str2str(dirPath.u8string())
             )) {
-            return ll::makeStringError(fmt::format("failed to load plugin code"));
+            return ll::makeStringError("Failed to load plugin code"_tr());
         }
 #endif
 #if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
@@ -201,7 +198,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
-                return ll::makeStringError(fmt::format("Failed to read plugin entry at {}", entryPath.string()));
+                return ll::makeStringError("Failed to read plugin entry at {}"_tr(entryPath.string()));
             }
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
@@ -243,8 +240,6 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
     try {
 
         auto plugin = std::static_pointer_cast<Plugin>(getMod(name));
-
-        logger.info("Unloading plugin {}", name);
 
         auto& scriptEngine = *EngineManager::getEngine(std::string(name));
 

@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-python",
-    "version": "0.8.7",
+    "version": "0.8.8",
     "info": {
         "name": "LegacyScriptEngine with Python backend",
         "description": "A plugin engine for running LLSE plugins on LeviLamina",

@@ -4,7 +4,8 @@
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/DBStorageConfig.h"
 
-DBStorage* MoreGlobal::db;
+DBStorage*             MoreGlobal::dbStorage;
+DefaultDataLoadHelper* MoreGlobal::defaultDataLoadHelper;
 
 LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
@@ -15,9 +16,18 @@ LL_TYPE_INSTANCE_HOOK(
     struct DBStorageConfig&                        cfg,
     Bedrock::NotNullNonOwnerPtr<class LevelDbEnv>& dbEnv
 ) {
-    DBStorage* ori = origin(cfg, dbEnv);
-    MoreGlobal::db = ori;
+    DBStorage* ori        = origin(cfg, dbEnv);
+    MoreGlobal::dbStorage = ori;
     return ori;
 };
 
-void MoreGlobal::Init() { DBStorageHook::hook(); }
+void MoreGlobal::onLoad() { DBStorageHook::hook(); }
+
+bool MoreGlobal::onEnable() {
+    defaultDataLoadHelper =
+        static_cast<DefaultDataLoadHelper*>(ll::memory::resolveSymbol("??_7DefaultDataLoadHelper@@6B@"));
+    if (defaultDataLoadHelper && DBStorageHook::unhook()) {
+        return true;
+    }
+    return false;
+}

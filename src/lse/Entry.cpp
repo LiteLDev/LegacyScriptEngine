@@ -78,7 +78,9 @@ void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 
 auto enable(ll::mod::NativeMod& /*self*/) -> bool {
     auto& logger = getSelfPluginInstance().getLogger();
-
+    if (!MoreGlobal::onEnable()) {
+        logger.error("Failed to enable MoreGlobal"_tr());
+    }
     try {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         RegisterDebugCommand();
@@ -103,7 +105,7 @@ void initializeLegacyStuff() {
 
     InitBasicEventListeners();
     InitMessageSystem();
-    MoreGlobal::Init();
+    MoreGlobal::onLoad();
 }
 
 auto load(ll::mod::NativeMod& self) -> bool {

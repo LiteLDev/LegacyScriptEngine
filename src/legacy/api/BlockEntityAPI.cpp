@@ -5,10 +5,9 @@
 #include "api/BlockAPI.h"
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
-#include "ll/api/memory/Memory.h"
+#include "legacy/api/MoreGlobal.h"
 #include "ll/api/service/Bedrock.h"
 #include "main/Global.h"
-#include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/level/BlockSource.h"
@@ -93,9 +92,10 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
 
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt) return Local<Value>(); // Null
-        DefaultDataLoadHelper helper;
-        blockEntity->load(*ll::service::getLevel(), *nbt, helper);
+        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+            return Local<Value>();
+        }
+        blockEntity->load(*ll::service::getLevel(), *nbt, *MoreGlobal::defaultDataLoadHelper);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setNbt!")

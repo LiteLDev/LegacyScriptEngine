@@ -9,15 +9,14 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
-#include "ll/api/base/StdInt.h"
+#include "legacy/api/MoreGlobal.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/HitDetection.h"
-#include "mc/dataloadhelper/DataLoadHelper.h"
+#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
 #include "mc/entity/utilities/ActorType.h"
-#include "mc/enums/FacingID.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -1296,8 +1295,6 @@ Local<Value> EntityClass::getNbt(const Arguments& args) {
     CATCH("Fail in getNbt!")
 }
 
-#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
-
 Local<Value> EntityClass::setNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
@@ -1306,10 +1303,11 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt) return Local<Value>(); // Null
+        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+            return Local<Value>();
+        }
 
-        DefaultDataLoadHelper helper;
-        return Boolean::newBoolean(entity->load(*nbt, helper));
+        return Boolean::newBoolean(entity->load(*nbt, *MoreGlobal::defaultDataLoadHelper));
     }
     CATCH("Fail in setNbt!")
 }

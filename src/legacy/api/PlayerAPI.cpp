@@ -21,6 +21,7 @@
 #include "legacyapi/form/FormPacketHelper.h"
 #include "legacyapi/form/FormUI.h"
 #include "ll/api/form/CustomForm.h"
+#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
@@ -28,19 +29,13 @@
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
-#include "mc/dataloadhelper/DataLoadHelper.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
-#include "mc/entity/EntityIdTraits.h"
-#include "mc/entity/gamerefs_entity/EntityRegistry.h"
-#include "mc/entity/utilities/ActorDataIDs.h"
 #include "mc/enums/BossBarColor.h"
 #include "mc/enums/MinecraftPacketIds.h"
-#include "mc/enums/ScorePacketType.h"
 #include "mc/enums/TextPacketType.h"
 #include "mc/enums/d_b_helpers/Category.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
-#include "mc/network/MinecraftPackets.h"
 #include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
@@ -343,7 +338,7 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
                 return NbtCompoundClass::pack(std::move(tag));
             }
         } else {
-            DBStorage* db = MoreGlobal::db;
+            DBStorage* db = MoreGlobal::dbStorage;
             if (db) {
                 if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                     std::unique_ptr<CompoundTag> playerTag =
@@ -373,12 +368,11 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         auto    uuid   = mce::UUID::fromString(args[0].asString().toString());
         auto    tag    = NbtCompoundClass::extract(args[1]);
         Player* player = ll::service::getLevel()->getPlayer(uuid);
-        if (player) {
-            DefaultDataLoadHelper defaultDataLoadHelper;
-            player->load(*tag, defaultDataLoadHelper);
+        if (player && !MoreGlobal::defaultDataLoadHelper) {
+            player->load(*tag, *MoreGlobal::defaultDataLoadHelper);
             return Boolean::newBoolean(true);
         } else {
-            DBStorage* db = MoreGlobal::db;
+            DBStorage* db = MoreGlobal::dbStorage;
             if (db) {
                 if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                     std::unique_ptr<CompoundTag> playerTag =
@@ -409,7 +403,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
         Player*      player = ll::service::getLevel()->getPlayer(uuid);
         CompoundTag  playerNbt;
         player->save(playerNbt);
-        if (player) {
+        if (player && MoreGlobal::defaultDataLoadHelper) {
             for (int i = 0; i < arr.size(); ++i) {
                 auto value = arr.get(i);
                 if (value.getKind() == ValueKind::kString) {
@@ -419,8 +413,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
                     }
                 }
             }
-            DefaultDataLoadHelper defaultDataLoadHelper;
-            player->load(playerNbt, defaultDataLoadHelper);
+            player->load(playerNbt, *MoreGlobal::defaultDataLoadHelper);
             player->refreshInventory();
             return Boolean::newBoolean(true);
         }
@@ -448,7 +441,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         auto        obj        = args[1].asString().toString();
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(obj);
-        DBStorage*  db         = MoreGlobal::db;
+        DBStorage*  db         = MoreGlobal::dbStorage;
         if (!objective) {
             return Number::newNumber(0);
         }
@@ -496,7 +489,7 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        DBStorage* db = MoreGlobal::db;
+        DBStorage* db = MoreGlobal::dbStorage;
         if (!db) {
             return Boolean::newBoolean(false);
         }
@@ -544,7 +537,7 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        DBStorage* db = MoreGlobal::db;
+        DBStorage* db = MoreGlobal::dbStorage;
         if (!db) {
             return Boolean::newBoolean(false);
         }
@@ -592,7 +585,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        DBStorage* db = MoreGlobal::db;
+        DBStorage* db = MoreGlobal::dbStorage;
         if (!db) {
             return Boolean::newBoolean(false);
         }
@@ -643,7 +636,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         if (!objective) {
             return Boolean::newBoolean(false);
         }
-        DBStorage* db = MoreGlobal::db;
+        DBStorage* db = MoreGlobal::dbStorage;
         if (!db) {
             return Boolean::newBoolean(false);
         }
@@ -3022,10 +3015,10 @@ Local<Value> PlayerClass::setNbt(const Arguments& args) {
         if (!player) return Local<Value>();
 
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt) return Local<Value>(); // Null
-
-        DefaultDataLoadHelper helper = DefaultDataLoadHelper();
-        return Boolean::newBoolean(player->load(*nbt, helper));
+        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+            return Local<Value>();
+        }
+        return Boolean::newBoolean(player->load(*nbt, *MoreGlobal::defaultDataLoadHelper));
     }
     CATCH("Fail in setNbt!")
 }

@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.9] - 2024-08-05
+
+### Changed
+
+- Refactoring PlayerAPI
+
+### Fixed
+
+- Fix onMobHurt crash
+- Fix DefaultDataLoadHelper
+
 ## [0.8.8] - 2024-08-05
 
 ### Fixed
@@ -500,6 +511,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#154]: https://github.com/LiteLDev/LegacyScriptEngine/issues/154
 [#157]: https://github.com/LiteLDev/LegacyScriptEngine/issues/157
 
+[0.8.9]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.6...v0.8.7
 [0.8.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.5...v0.8.6

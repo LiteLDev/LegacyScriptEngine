@@ -46,7 +46,6 @@
 #include <mc/world/level/material/Material.h>
 #include <mc/world/phys/AABB.h>
 
-
 using magic_enum::enum_integer;
 
 //////////////////// Class Definition ////////////////////
@@ -1304,11 +1303,11 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+        if (!nbt) {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(entity->load(*nbt, *MoreGlobal::defaultDataLoadHelper));
+        return Boolean::newBoolean(entity->load(*nbt, MoreGlobal::defaultDataLoadHelper()));
     }
     CATCH("Fail in setNbt!")
 }

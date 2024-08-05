@@ -1,12 +1,14 @@
 #include "MoreGlobal.h"
 
 #include "ll/api/memory/Hook.h"
+#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/DBStorageConfig.h"
 
 namespace MoreGlobal {
 DBStorage*             dbStorage;
-DefaultDataLoadHelper* defaultDataLoadHelper;
+DefaultDataLoadHelper* helper;
+DefaultDataLoadHelper& defaultDataLoadHelper() { return (DefaultDataLoadHelper&)helper; }
 
 LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
@@ -25,9 +27,8 @@ LL_TYPE_INSTANCE_HOOK(
 void onLoad() { DBStorageHook::hook(); }
 
 bool onEnable() {
-    defaultDataLoadHelper =
-        static_cast<DefaultDataLoadHelper*>(ll::memory::resolveSymbol("??_7DefaultDataLoadHelper@@6B@"));
-    if (defaultDataLoadHelper && dbStorage && DBStorageHook::unhook()) {
+    helper = static_cast<DefaultDataLoadHelper*>(ll::memory::resolveSymbol("??_7DefaultDataLoadHelper@@6B@"));
+    if (helper && dbStorage && DBStorageHook::unhook()) {
         return true;
     }
     return false;

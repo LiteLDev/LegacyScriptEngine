@@ -352,17 +352,22 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        mce::UUID    uuid = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag* tag  = NbtCompoundClass::extract(args[1]);
-        DBStorage*   db   = MoreGlobal::dbStorage;
-        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-            std::unique_ptr<CompoundTag> playerTag =
-                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-            if (playerTag) {
-                std::string serverId = playerTag->at("ServerId");
-                if (!serverId.empty()) {
-                    db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
-                    return Boolean::newBoolean(true);
+        mce::UUID uuid   = mce::UUID::fromString(args[0].asString().toString());
+        auto      tag    = NbtCompoundClass::extract(args[1]);
+        Player*   player = ll::service::getLevel()->getPlayer(uuid);
+        if (player && tag) {
+            player->load(*tag, MoreGlobal::defaultDataLoadHelper());
+        } else if (tag) {
+            DBStorage* db = MoreGlobal::dbStorage;
+            if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                std::unique_ptr<CompoundTag> playerTag =
+                    db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                if (playerTag) {
+                    std::string serverId = playerTag->at("ServerId");
+                    if (!serverId.empty()) {
+                        db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
+                        return Boolean::newBoolean(true);
+                    }
                 }
             }
         }
@@ -376,31 +381,47 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kArray);
     try {
-        mce::UUID    uuid = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag* tag  = NbtCompoundClass::extract(args[1]);
-        Local<Array> arr  = args[2].asArray();
-        DBStorage*   db   = MoreGlobal::dbStorage;
-        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-            std::unique_ptr<CompoundTag> playerTag =
-                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-            if (playerTag) {
-                std::string serverId = playerTag->at("ServerId");
-                if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
-                    auto loadedTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
-                    if (loadedTag) {
-                        for (int i = 0; i < arr.size(); ++i) {
-                            auto value = arr.get(i);
-                            if (value.getKind() == ValueKind::kString) {
-                                std::string tagName = value.asString().toString();
-                                if (!tag->at(tagName).is_null()) {
-                                    loadedTag->at(tagName) = tag->at(tagName);
+        mce::UUID    uuid   = mce::UUID::fromString(args[0].asString().toString());
+        auto         tag    = NbtCompoundClass::extract(args[1]);
+        Local<Array> arr    = args[2].asArray();
+        Player*      player = ll::service::getLevel()->getPlayer(uuid);
+        if (player && tag) {
+            CompoundTag loadedTag;
+            player->save(loadedTag);
+            for (int i = 0; i < arr.size(); ++i) {
+                auto value = arr.get(i);
+                if (value.getKind() == ValueKind::kString) {
+                    std::string tagName = value.asString().toString();
+                    if (!tag->at(tagName).is_null()) {
+                        loadedTag.at(tagName) = tag->at(tagName);
+                    }
+                }
+            }
+            player->load(loadedTag, MoreGlobal::defaultDataLoadHelper());
+        } else if (tag) {
+            DBStorage* db = MoreGlobal::dbStorage;
+            if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+                std::unique_ptr<CompoundTag> playerTag =
+                    db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+                if (playerTag) {
+                    std::string serverId = playerTag->at("ServerId");
+                    if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
+                        auto loadedTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+                        if (loadedTag) {
+                            for (int i = 0; i < arr.size(); ++i) {
+                                auto value = arr.get(i);
+                                if (value.getKind() == ValueKind::kString) {
+                                    std::string tagName = value.asString().toString();
+                                    if (!tag->at(tagName).is_null()) {
+                                        loadedTag->at(tagName) = tag->at(tagName);
+                                    }
                                 }
                             }
+                            db->saveData(serverId, loadedTag->toBinaryNbt(), DBHelpers::Category::Player);
+                            return Boolean::newBoolean(true);
                         }
-                        db->saveData(serverId, loadedTag->toBinaryNbt(), DBHelpers::Category::Player);
                         return Boolean::newBoolean(true);
                     }
-                    return Boolean::newBoolean(true);
                 }
             }
         }
@@ -2957,10 +2978,10 @@ Local<Value> PlayerClass::setNbt(const Arguments& args) {
         if (!player) return Local<Value>();
 
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+        if (!nbt) {
             return Local<Value>();
         }
-        return Boolean::newBoolean(player->load(*nbt, *MoreGlobal::defaultDataLoadHelper));
+        return Boolean::newBoolean(player->load(*nbt, MoreGlobal::defaultDataLoadHelper()));
     }
     CATCH("Fail in setNbt!")
 }

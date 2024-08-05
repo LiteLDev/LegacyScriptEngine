@@ -510,7 +510,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
         } else if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
-            CompoundTag*              nbt = NbtCompoundClass::extract(block);
+            auto                      nbt = NbtCompoundClass::extract(block);
             optional_ref<const Block> bl  = Block::tryGetFromRegistry(*nbt);
             if (!bl.has_value()) {
                 return Boolean::newBoolean(false);

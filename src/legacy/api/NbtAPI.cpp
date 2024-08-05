@@ -1475,9 +1475,9 @@ NbtCompoundClass* NbtCompoundClass::constructor(const Arguments& args) {
     CATCH_C("Fail in Create CompoundTag!");
 }
 
-CompoundTag* NbtCompoundClass::extract(Local<Value> v) {
+std::unique_ptr<CompoundTag> NbtCompoundClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtCompoundClass>(v))
-        return EngineScope::currentEngine()->getNativeInstance<NbtCompoundClass>(v)->nbt.get();
+        return std::move(EngineScope::currentEngine()->getNativeInstance<NbtCompoundClass>(v)->nbt);
     else return nullptr;
 }
 

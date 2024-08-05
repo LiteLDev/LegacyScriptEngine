@@ -446,7 +446,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 return Local<Value>();
             }
         } else {
-            CompoundTag* nbt = NbtCompoundClass::extract(args[0]);
+            auto nbt = NbtCompoundClass::extract(args[0]);
             if (nbt) {
                 auto newItem = new ItemStack{ItemStack::EMPTY_ITEM};
                 newItem->load(*nbt);

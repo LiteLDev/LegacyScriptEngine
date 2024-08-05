@@ -15,7 +15,6 @@
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<BlockEntityClass> BlockEntityClassBuilder = defineClass<BlockEntityClass>("LLSE_BlockEntity")
@@ -93,10 +92,10 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
 
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt || !MoreGlobal::defaultDataLoadHelper) {
+        if (!nbt) {
             return Local<Value>();
         }
-        blockEntity->load(*ll::service::getLevel(), *nbt, *MoreGlobal::defaultDataLoadHelper);
+        blockEntity->load(*ll::service::getLevel(), *nbt, MoreGlobal::defaultDataLoadHelper());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setNbt!")

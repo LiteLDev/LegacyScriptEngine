@@ -30,6 +30,7 @@
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
+#include "mc/deps/core/mce/UUID.h"
 #include "mc/enums/BossBarColor.h"
 #include "mc/enums/MinecraftPacketIds.h"
 #include "mc/enums/TextPacketType.h"
@@ -98,7 +99,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 
 //////////////////// Class Definition ////////////////////
 
@@ -331,29 +331,15 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto    uuid   = mce::UUID::fromString(args[0].asString().toString());
-        Player* player = ll::service::getLevel()->getPlayer(uuid);
-        if (player) {
-            std::unique_ptr<CompoundTag> tag;
-            if (player->save(*tag)) {
-                return NbtCompoundClass::pack(std::move(tag));
-            }
-        } else {
-            DBStorage* db = MoreGlobal::dbStorage;
-            if (db) {
-                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-                    std::unique_ptr<CompoundTag> playerTag =
-                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-                    if (playerTag) {
-                        std::string serverId = playerTag->at("ServerId");
-                        if (!serverId.empty()) {
-                            if (db->hasKey(serverId, DBHelpers::Category::Player)) {
-                                return NbtCompoundClass::pack(
-                                    std::move(db->getCompoundTag(serverId, DBHelpers::Category::Player))
-                                );
-                            }
-                        }
-                    }
+        auto       uuid = mce::UUID::fromString(args[0].asString().toString());
+        DBStorage* db   = MoreGlobal::dbStorage;
+        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+            std::unique_ptr<CompoundTag> playerTag =
+                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+            if (playerTag) {
+                std::string serverId = playerTag->at("ServerId");
+                if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
+                    return NbtCompoundClass::pack(std::move(db->getCompoundTag(serverId, DBHelpers::Category::Player)));
                 }
             }
         }
@@ -366,25 +352,17 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto    uuid   = mce::UUID::fromString(args[0].asString().toString());
-        auto    tag    = NbtCompoundClass::extract(args[1]);
-        Player* player = ll::service::getLevel()->getPlayer(uuid);
-        if (player && !MoreGlobal::defaultDataLoadHelper) {
-            player->load(*tag, *MoreGlobal::defaultDataLoadHelper);
-            return Boolean::newBoolean(true);
-        } else {
-            DBStorage* db = MoreGlobal::dbStorage;
-            if (db) {
-                if (db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-                    std::unique_ptr<CompoundTag> playerTag =
-                        db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-                    if (playerTag) {
-                        std::string serverId = playerTag->at("ServerId");
-                        if (!serverId.empty()) {
-                            db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
-                            return Boolean::newBoolean(true);
-                        }
-                    }
+        mce::UUID    uuid = mce::UUID::fromString(args[0].asString().toString());
+        CompoundTag* tag  = NbtCompoundClass::extract(args[1]);
+        DBStorage*   db   = MoreGlobal::dbStorage;
+        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+            std::unique_ptr<CompoundTag> playerTag =
+                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+            if (playerTag) {
+                std::string serverId = playerTag->at("ServerId");
+                if (!serverId.empty()) {
+                    db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
+                    return Boolean::newBoolean(true);
                 }
             }
         }
@@ -398,25 +376,33 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kArray);
     try {
-        auto         uuid   = mce::UUID::fromString(args[0].asString().toString());
-        CompoundTag* nbt    = NbtCompoundClass::extract(args[1]);
-        auto         arr    = args[2].asArray();
-        Player*      player = ll::service::getLevel()->getPlayer(uuid);
-        CompoundTag  playerNbt;
-        player->save(playerNbt);
-        if (player && MoreGlobal::defaultDataLoadHelper) {
-            for (int i = 0; i < arr.size(); ++i) {
-                auto value = arr.get(i);
-                if (value.getKind() == ValueKind::kString) {
-                    std::string tagName = value.asString().toString();
-                    if (!nbt->at(tagName).is_null()) {
-                        playerNbt.at(tagName) = nbt->at(tagName);
+        mce::UUID    uuid = mce::UUID::fromString(args[0].asString().toString());
+        CompoundTag* tag  = NbtCompoundClass::extract(args[1]);
+        Local<Array> arr  = args[2].asArray();
+        DBStorage*   db   = MoreGlobal::dbStorage;
+        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
+            std::unique_ptr<CompoundTag> playerTag =
+                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+            if (playerTag) {
+                std::string serverId = playerTag->at("ServerId");
+                if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
+                    auto loadedTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
+                    if (loadedTag) {
+                        for (int i = 0; i < arr.size(); ++i) {
+                            auto value = arr.get(i);
+                            if (value.getKind() == ValueKind::kString) {
+                                std::string tagName = value.asString().toString();
+                                if (!tag->at(tagName).is_null()) {
+                                    loadedTag->at(tagName) = tag->at(tagName);
+                                }
+                            }
+                        }
+                        db->saveData(serverId, loadedTag->toBinaryNbt(), DBHelpers::Category::Player);
+                        return Boolean::newBoolean(true);
                     }
+                    return Boolean::newBoolean(true);
                 }
             }
-            player->load(playerNbt, *MoreGlobal::defaultDataLoadHelper);
-            player->refreshInventory();
-            return Boolean::newBoolean(true);
         }
         return Boolean::newBoolean(false);
     }
@@ -427,7 +413,7 @@ Local<Value> McClass::deletePlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto uuid = mce::UUID::fromString(args[0].asString().toString());
+        mce::UUID uuid = mce::UUID::fromString(args[0].asString().toString());
         ll::service::getLevel()->getLevelStorage().deleteData("player_" + uuid.asString(), DBHelpers::Category::Player);
         return Boolean::newBoolean(true);
     }
@@ -443,13 +429,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(obj);
         DBStorage*  db         = MoreGlobal::dbStorage;
-        if (!objective) {
-            return Number::newNumber(0);
-        }
-        if (!db) {
-            return Number::newNumber(0);
-        }
-        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+        if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Number::newNumber(0);
         }
         std::unique_ptr<CompoundTag> playerTag =
@@ -458,10 +438,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
             return Number::newNumber(0);
         }
         std::string serverId = playerTag->at("ServerId");
-        if (serverId.empty()) {
-            return Number::newNumber(0);
-        }
-        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+        if (serverId.empty() || !db->hasKey(serverId, DBHelpers::Category::Player)) {
             return Number::newNumber(0);
         }
         std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
@@ -487,14 +464,8 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
         auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        if (!objective) {
-            return Boolean::newBoolean(false);
-        }
-        DBStorage* db = MoreGlobal::dbStorage;
-        if (!db) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+        DBStorage*  db         = MoreGlobal::dbStorage;
+        if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> playerTag =
@@ -503,10 +474,7 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         std::string serverId = playerTag->at("ServerId");
-        if (serverId.empty()) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+        if (serverId.empty() || !db->hasKey(serverId, DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
@@ -535,14 +503,8 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
         auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        if (!objective) {
-            return Boolean::newBoolean(false);
-        }
-        DBStorage* db = MoreGlobal::dbStorage;
-        if (!db) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+        DBStorage*  db         = MoreGlobal::dbStorage;
+        if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> playerTag =
@@ -551,10 +513,7 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         std::string serverId = playerTag->at("ServerId");
-        if (serverId.empty()) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+        if (serverId.empty() || !db->hasKey(serverId, DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
@@ -583,14 +542,8 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
         auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        if (!objective) {
-            return Boolean::newBoolean(false);
-        }
-        DBStorage* db = MoreGlobal::dbStorage;
-        if (!db) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+        DBStorage*  db         = MoreGlobal::dbStorage;
+        if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> playerTag =
@@ -599,10 +552,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         std::string serverId = playerTag->at("ServerId");
-        if (serverId.empty()) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+        if (serverId.empty() || !db->hasKey(serverId, DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
@@ -634,14 +584,8 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        if (!objective) {
-            return Boolean::newBoolean(false);
-        }
-        DBStorage* db = MoreGlobal::dbStorage;
-        if (!db) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
+        DBStorage*  db         = MoreGlobal::dbStorage;
+        if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> playerTag =
@@ -650,10 +594,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         std::string serverId = playerTag->at("ServerId");
-        if (serverId.empty()) {
-            return Boolean::newBoolean(false);
-        }
-        if (!db->hasKey(serverId, DBHelpers::Category::Player)) {
+        if (serverId.empty() || !db->hasKey(serverId, DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
         std::unique_ptr<CompoundTag> serverIdTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);

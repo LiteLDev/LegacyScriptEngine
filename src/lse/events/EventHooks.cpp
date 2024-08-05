@@ -7,6 +7,7 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/entity/utilities/ActorDamageCause.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
@@ -1152,34 +1153,34 @@ LL_TYPE_INSTANCE_HOOK(
     MobHurtEffectHook,
     HookPriority::Normal,
     Mob,
-    "?hurtEffects@Mob@@UEAAXAEBVActorDamageSource@@M_N1@Z",
-    bool,
+    &Mob::getDamageAfterResistanceEffect,
+    float,
     ActorDamageSource const& source,
-    float                    damage,
-    bool                     knock,
-    bool                     ignite
+    float                    damage
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        Actor* damageSource;
-        if (source.isEntitySource()) {
-            if (source.isChildEntitySource()) {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
-            } else {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
+        if (source.getCause() == ActorDamageCause::Magic || source.getCause() == ActorDamageCause::Wither) {
+            Actor* damageSource;
+            if (source.isEntitySource()) {
+                if (source.isChildEntitySource()) {
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
+                } else {
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
+                }
             }
-        }
 
-        CallEventRtnValue(
-            EVENT_TYPES::onMobHurt,
-            false,
-            EntityClass::newEntity(this),
-            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-            Number::newNumber(damage),
-            Number::newNumber((int)source.getCause())
-        );
+            CallEventRtnValue(
+                EVENT_TYPES::onMobHurt,
+                0.0f,
+                EntityClass::newEntity(this),
+                damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                Number::newNumber(damage < 0.0f ? -damage : damage),
+                Number::newNumber((int)source.getCause())
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage, knock, ignite);
+    return origin(source, damage);
 }
 
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }

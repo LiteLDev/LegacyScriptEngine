@@ -528,7 +528,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobHurt:
         bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobHurt) {
-                if (ev.self().isType(ActorType::Mob)) {
+                if (ev.self().hasType(ActorType::Mob)) {
                     Actor* damageSource;
                     if (ev.source().isEntitySource()) {
                         if (ev.source().isChildEntitySource()) {

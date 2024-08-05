@@ -5,8 +5,8 @@
 #include "api/BlockAPI.h"
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
-#include "legacy/api/MoreGlobal.h"
 #include "ll/api/service/Bedrock.h"
+#include "lse/api/MoreGlobal.h"
 #include "main/Global.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/nbt/CompoundTag.h"
@@ -14,6 +14,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
+
 
 //////////////////// Class Definition ////////////////////
 

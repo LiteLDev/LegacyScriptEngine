@@ -3,9 +3,9 @@
 #include "Config.h"
 #include "PluginManager.h"
 #include "PluginMigration.h"
-#include "legacy/api/MoreGlobal.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
+#include "lse/api/MoreGlobal.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -22,6 +22,7 @@
 #include <memory>
 #include <processenv.h>
 #include <stdexcept>
+
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 

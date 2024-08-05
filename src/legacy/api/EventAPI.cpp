@@ -1,7 +1,6 @@
 #include "api/EventAPI.h"
 
 #include "../engine/LocalShareData.h"
-#include "../engine/TimeTaskSystem.h"
 #include "../main/BuiltinCommands.h"
 #include "BaseAPI.h"
 #include "BlockAPI.h"
@@ -13,7 +12,6 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "legacy/events/EventHooks.h"
 #include "legacy/main/NodeJsHelper.h"
 #include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
@@ -45,7 +43,7 @@
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/utils/StringUtils.h"
+#include "lse/events/EventHooks.h"
 #include "main/Global.h"
 #include "mc/entity/utilities/ActorType.h"
 #include "mc/server/commands/CommandOriginType.h"
@@ -55,7 +53,6 @@
 #include "mc/world/level./BlockSource.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-#include <exception>
 #include <list>
 #include <shared_mutex>
 #include <string>

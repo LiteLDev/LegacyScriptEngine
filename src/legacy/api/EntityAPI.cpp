@@ -9,9 +9,9 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
-#include "legacy/api/MoreGlobal.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
+#include "lse/api/MoreGlobal.h"
 #include "mc/common/HitDetection.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/deps/core/string/HashedString.h"
@@ -45,6 +45,7 @@
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/level/material/Material.h>
 #include <mc/world/phys/AABB.h>
+
 
 using magic_enum::enum_integer;
 

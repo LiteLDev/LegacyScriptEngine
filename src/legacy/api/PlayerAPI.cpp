@@ -1,7 +1,6 @@
 #include "api/PlayerAPI.h"
 
 #include "EventAPI.h"
-#include "MoreGlobal.h"
 #include "ScriptX/ScriptX.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
@@ -25,6 +24,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
+#include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
@@ -98,6 +98,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 
 //////////////////// Class Definition ////////////////////
 

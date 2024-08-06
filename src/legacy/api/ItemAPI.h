@@ -8,25 +8,25 @@ class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    std::variant<std::unique_ptr<ItemStack>, ItemStack*> item;
+    std::variant<std::shared_ptr<ItemStack>, ItemStack*> item;
 
     // Pre data
     std::string name, type;
     int         id, count, aux;
 
 public:
-    explicit ItemClass(ItemStack* p, bool isNew);
+    explicit ItemClass(ItemStack* p, bool isNew = false);
     void preloadData();
 
     ItemStack* get() {
-        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
-            return std::get<std::unique_ptr<ItemStack>>(item).get();
+        if (std::holds_alternative<std::shared_ptr<ItemStack>>(item)) {
+            return std::get<std::shared_ptr<ItemStack>>(item).get();
         } else {
             return std::get<ItemStack*>(item);
         }
     }
 
-    static Local<Object> newItem(ItemStack* p, bool isNew);
+    static Local<Object> newItem(ItemStack* p, bool isNew = false);
     static ItemStack*    extract(Local<Value> v);
     Local<Value>         asPointer(const Arguments& args);
 

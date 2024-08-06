@@ -925,7 +925,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
             return Local<Value>();
         } else {
-            return ItemClass::newItem(&((ItemActor*)entity)->item(), false);
+            return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item(), false);
         }
     }
     CATCH("Fail in toItem!");

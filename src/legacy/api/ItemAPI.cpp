@@ -73,7 +73,7 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
 
 ItemClass::ItemClass(ItemStack* p, bool isNew) : ScriptClass(ScriptClass::ConstructFromCpp<ItemClass>{}) {
     if (isNew) {
-        item = std::unique_ptr<ItemStack>(p);
+        item = std::shared_ptr<ItemStack>(p);
     } else {
         item = p;
     }
@@ -314,8 +314,8 @@ Local<Value> ItemClass::set(const Arguments& args) {
         if (!itemNew) return Local<Value>(); // Null
 
         auto tag = itemNew->save();
-        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
-            std::get<std::unique_ptr<ItemStack>>(item)->load(*tag);
+        if (std::holds_alternative<std::shared_ptr<ItemStack>>(item)) {
+            std::get<std::shared_ptr<ItemStack>>(item)->load(*tag);
         } else {
             std::get<ItemStack*>(item)->load(*tag);
         }

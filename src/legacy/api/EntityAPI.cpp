@@ -899,12 +899,12 @@ Local<Value> EntityClass::isPlayer(const Arguments& args) {
 
 Local<Value> EntityClass::toPlayer(const Arguments& args) {
     try {
-        Actor* entity = get();
-        if (!entity || !entity->isType(ActorType::Player)) return Local<Value>();
-
-        Player* pl = static_cast<Player*>(entity);
-        if (!pl) return Local<Value>();
-        else return PlayerClass::newPlayer(pl);
+        Player* player = ll::service::getLevel()->getPlayer(id);
+        if (!player) {
+            return Local<Value>();
+        } else {
+            return PlayerClass::newPlayer(player);
+        }
     }
     CATCH("Fail in toPlayer!");
 }
@@ -916,17 +916,17 @@ Local<Value> EntityClass::isItemEntity(const Arguments& args) {
 
         return Boolean::newBoolean(entity->hasCategory(ActorCategory::Item));
     }
-    CATCH("Fail in isPlayer!")
+    CATCH("Fail in isItemEntity!")
 }
 
 Local<Value> EntityClass::toItem(const Arguments& args) {
     try {
         Actor* entity = get();
-        if (!entity || !entity->hasCategory(ActorCategory::Item)) return Local<Value>();
-
-        ItemActor* it = static_cast<ItemActor*>(entity);
-        if (!it) return Local<Value>();
-        else return ItemClass::newItem(&it->item(), false);
+        if (!entity || !entity->hasCategory(ActorCategory::Item)) {
+            return Local<Value>();
+        } else {
+            return ItemClass::newItem(&((ItemActor*)entity)->item(), false);
+        }
     }
     CATCH("Fail in toItem!");
 }

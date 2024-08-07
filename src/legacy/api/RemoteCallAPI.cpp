@@ -44,7 +44,7 @@ RemoteCall::ValueType pack(Local<Object> value) {
         auto pos = IntPos::extractPos(value);
         return std::make_pair(pos->getBlockPos(), pos->getDimensionId());
     }
-    if (IsInstanceOf<NbtCompoundClass>(value)) return NbtCompoundClass::extract(value).get();
+    if (IsInstanceOf<NbtCompoundClass>(value)) return NbtCompoundClass::extract(value);
     std::unordered_map<std::string, RemoteCall::ValueType> result;
     for (auto& k : value.getKeyNames()) result.emplace(k, pack(value.get(k)));
     return std::move(result);

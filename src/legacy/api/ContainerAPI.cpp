@@ -81,10 +81,9 @@ Local<Value> ContainerClass::addItem(const Arguments& args) {
         }
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            for (unsigned short i = 0; i < args[1].toInt(); ++i) {
-                if (container->addItem(*item)) {
-                    return Boolean::newBoolean(false);
-                }
+            item->set(args[1].asNumber().toInt32());
+            if (container->addItem(*item)) {
+                return Boolean::newBoolean(false);
             }
             return Boolean::newBoolean(true);
         }

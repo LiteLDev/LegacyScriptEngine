@@ -273,10 +273,10 @@ public:
         if (!canDelete) nbt.release();
     }
 
-    static NbtCompoundClass*            constructor(const Arguments& args);
-    static std::unique_ptr<CompoundTag> extract(Local<Value> v);
-    static Local<Value>                 pack(CompoundTag* tag, bool noDelete = false);
-    static Local<Value>                 pack(std::unique_ptr<CompoundTag> tag);
+    static NbtCompoundClass* constructor(const Arguments& args);
+    static CompoundTag*      extract(Local<Value> v);
+    static Local<Value>      pack(CompoundTag* tag, bool noDelete = false);
+    static Local<Value>      pack(std::unique_ptr<CompoundTag> tag);
 
     Local<Value> getType(const Arguments& args);
     Local<Value> getKeys(const Arguments& args);

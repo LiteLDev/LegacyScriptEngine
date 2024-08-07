@@ -1,13 +1,18 @@
 #include "api/LoggerAPI.h"
 
 #include "api/APIHelp.h"
+#include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "ll/api/Logger.h"
+#include "ll/api/service/Bedrock.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/level/Level.h"
 #include "utils/Utils.h"
 
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 
 //////////////////// Classes ////////////////////
 
@@ -169,8 +174,20 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
 }
 
 Local<Value> LoggerClass::setPlayer(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1)
     try {
-        return Boolean::newBoolean(false);
+        Player* player = PlayerClass::extract(args[0]);
+        if (!player) {
+            return Boolean::newBoolean(false);
+        }
+        ENGINE_OWN_DATA()->logger.setPlayerOutputFunc([uuid(player->getUuid())](std::string_view str) {
+            ll::service::getLevel()->getPlayer(uuid)->sendMessage(str);
+        });
+        if (args.size() >= 2) {
+            ENGINE_OWN_DATA()->logger.fileLevel = args[1].toInt();
+            UpdateMaxLogLevel();
+        }
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in LoggerSetPlayer!")
 }

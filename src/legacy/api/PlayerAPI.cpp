@@ -2033,10 +2033,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments& args) {
 
 Local<Value> PlayerClass::getDevice(const Arguments& args) {
     try {
-        Player* player = get();
-        if (!player) return Local<Value>();
-
-        return DeviceClass::newDevice(player);
+        return DeviceClass::newDevice(id);
     }
     CATCH("Fail in getDevice!");
 }

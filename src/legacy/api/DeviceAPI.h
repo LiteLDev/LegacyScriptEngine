@@ -1,5 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
+#include "mc/deps/core/mce/UUID.h"
 #include "mc/world/ActorUniqueID.h"
 
 //////////////////// Classes ////////////////////
@@ -10,12 +11,14 @@ private:
     bool          isValid = true;
 
 public:
-    explicit DeviceClass(Player* p) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) { setPlayer(p); }
+    explicit DeviceClass(ActorUniqueID& uid) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
+        setPlayer(uid);
+    }
 
-    void    setPlayer(Player* player);
+    void    setPlayer(ActorUniqueID& uid);
     Player* getPlayer();
 
-    static Local<Object> newDevice(Player* p);
+    static Local<Object> newDevice(ActorUniqueID& uid);
 
     Local<Value> getIP();
     Local<Value> getAvgPing();

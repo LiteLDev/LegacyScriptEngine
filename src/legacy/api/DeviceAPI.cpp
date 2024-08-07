@@ -7,6 +7,7 @@
 #include "mc/enums/InputMode.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
+#include "mc/world/ActorUniqueID.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/Level.h"
 
@@ -33,23 +34,27 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 //////////////////// Classes ////////////////////
 
 // 生成函数
-Local<Object> DeviceClass::newDevice(Player* p) {
-    auto newp = new DeviceClass(p);
+Local<Object> DeviceClass::newDevice(ActorUniqueID& uid) {
+    auto newp = new DeviceClass(uid);
     return newp->getScriptObject();
 }
 
 // 成员函数
-void DeviceClass::setPlayer(Player* player) {
+void DeviceClass::setPlayer(ActorUniqueID& uid) {
     try {
-        id = player->getOrCreateUniqueID();
+        id = uid;
     } catch (...) {
         isValid = false;
     }
 }
 
 Player* DeviceClass::getPlayer() {
-    if (!isValid) return nullptr;
-    else return ll::service::getLevel()->getPlayer(id);
+    Player* player = ll::service::getLevel()->getPlayer(id);
+    if (!isValid || !player) {
+        return nullptr;
+    } else {
+        return player;
+    }
 }
 
 Local<Value> DeviceClass::getIP() {
@@ -85,9 +90,7 @@ Local<Value> DeviceClass::getAvgPacketLoss() {
 Local<Value> DeviceClass::getLastPing() {
     try {
         Player* player = getPlayer();
-        if (!player) {
-            return Local<Value>();
-        }
+        if (!player) return Local<Value>();
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPing);
     }
@@ -97,9 +100,7 @@ Local<Value> DeviceClass::getLastPing() {
 Local<Value> DeviceClass::getLastPacketLoss() {
     try {
         Player* player = getPlayer();
-        if (!player) {
-            return Local<Value>();
-        }
+        if (!player) return Local<Value>();
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPacketLoss);
     }
@@ -119,9 +120,8 @@ Local<Value> DeviceClass::getOs() {
 Local<Value> DeviceClass::getServerAddress() {
     try {
         Player* player = getPlayer();
-        if (!player) {
-            return Local<Value>();
-        }
+        if (!player) return Local<Value>();
+
         if (player->isSimulatedPlayer()) String::newString("unknown");
         Json::Value& requestJson = ll::service::getServerNetworkHandler()
                                        ->fetchConnectionRequest(player->getNetworkIdentifier())

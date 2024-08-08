@@ -638,7 +638,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        string target = args[0].toStr();
+        std::string target = args[0].toStr();
         if (target.empty()) return Local<Value>();
 
         transform(target.begin(), target.end(), target.begin(),

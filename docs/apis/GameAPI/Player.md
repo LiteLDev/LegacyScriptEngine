@@ -714,11 +714,11 @@ For more usage of container objects, please refer to [Container Object API Docum
 
 #### Modify the Player’s Respawn Coordinates  
 
-`mc.setRespawnPosition(pos)`  
-`mc.setRespawnPosition(x,y,z,dimid)`
+`pl.setRespawnPosition(pos)`  
+`pl.setRespawnPosition(x,y,z,dimid)`
 
 - Parameters: 
-  - pos : `IntPos`  
+  - pos : `IntPos` or `FloatPos`  
     Respawn coordinates (or use x, y, z, dimid to determine respawn position)
 - Return value: Whether the modification was successful.
 - Return value type: `Boolean`

@@ -877,11 +877,11 @@
 
 #### 修改玩家的重生坐标  
 
-`mc.setRespawnPosition(pos)`  
-`mc.setRespawnPosition(x,y,z,dimid)`
+`pl.setRespawnPosition(pos)`  
+`pl.setRespawnPosition(x,y,z,dimid)`
 
 - 参数：
-  - pos : `IntPos`  
+  - pos : `IntPos`或`FloatPos`  
     重生坐标（或者使用x, y, z, dimid来确定重生位置）
 - 返回值：是否成功修改
 - 返回值类型：`Boolean`
@@ -889,11 +889,11 @@
 - 示例：  
   - JavaScript
     ```js
-    mc.setRespawnPosition(pos);
+    pl.setRespawnPosition(pos);
     ```
   - Lua
     ```lua
-    mc.setRespawnPosition(pos)
+    pl.setRespawnPosition(pos)
     ```
 
 #### 给予玩家一个物品

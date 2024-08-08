@@ -15,6 +15,10 @@ public:
     static Local<Value> xuid2uuid(const Arguments& args);
     static Local<Value> name2uuid(const Arguments& args);
     static Local<Value> getAllPlayerInfo(const Arguments& args);
+    // New API for LSE
+    static Local<Value> fromUuid(const Arguments& args);
+    static Local<Value> fromXuid(const Arguments& args);
+    static Local<Value> fromName(const Arguments& args);
 
     static Local<Value> parseJson(const Arguments& args);
     static Local<Value> toJson(const Arguments& args);

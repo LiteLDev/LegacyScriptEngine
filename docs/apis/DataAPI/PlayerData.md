@@ -66,7 +66,7 @@ When a player enters the server for the first time, his name and XUID are automa
 
 - Parameters: 
   - xuid: `String`  
-    Player's XUID to query.
+    The xuid of the player to query.
 - Return value: Player's name.
 - Return value type: `String`
   - If the return value is `Null`, it means the query failed.
@@ -105,3 +105,38 @@ When a player enters the server for the first time, his name and XUID are automa
     - `uuid`: Player's UUID.
 
 Tip: The player name stored in the XUID database is named corresponding to the player object. `realName` field.
+
+!!! tip
+  APIs below are added in LSE 0.8.13, using these API will make plugin not compitable with older version.
+#### Query player information by XUID
+
+`data.fromXuid(xuid)`
+
+- Parameters:
+  - xuid: `String`
+    The XUID of the player to query.
+- Return value: Player information entry, example: `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- Return value type: `Object`
+  - If the return value is `Null`, it means the query failed.
+
+#### Query player information by UUID
+
+`data.fromUuid(uuid)`
+
+- Parameters:
+  - uuid: `String`
+    The UUID of the player to query.
+- Return value: Player information entry, example: `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- Return value type: `Object`
+  - If the return value is `Null`, it means the query failed.
+
+#### Query player information by name
+
+`data.fromName(name)`
+
+- Parameters:
+  - name: `String`
+    The name of the player to query.
+- Return value: Player information entry, example: `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- Return value type: `Object`
+  - If the return value is `Null`, it means the query failed.

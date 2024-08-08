@@ -105,3 +105,38 @@ XUID数据库让你可以即使在玩家离线的时候，也可以查询玩家�
     - `uuid`: 玩家UUID
 
 提示：XUID数据库中储存的玩家名为玩家对象对应的`realName`字段
+
+!!! tip
+  以下API均为LSE 0.8.13新API，使用以下API将导致插件无法兼容旧版
+#### 根据XUID查询玩家信息
+
+`data.fromXuid(xuid)`
+
+- 参数:
+  - xuid: `String`
+    要查询玩家的XUID
+- 返回值： 玩家信息条目，例如 `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- 返回值类型： `Object`
+  - 如果返回值为`Null`，则代表查询失败
+
+#### 根据UUID查询玩家信息
+
+`data.fromUuid(uuid)`
+
+- 参数:
+  - uuid: `String`
+    要查询玩家的UUID
+- 返回值： 玩家信息条目，例如 `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- 返回值类型： `Object`
+  - 如果返回值为`Null`，则代表查询失败
+
+#### 根据名字查询玩家信息
+
+`data.fromName(name)`
+
+- 参数:
+  - name: `String`
+    要查询玩家的名字
+- 返回值： 玩家信息条目，例如 `{xuid:1145141919810,name:yjsp,uuid:2a30fa4a-3a63-3370-88a8-144a941101e2}`
+- 返回值类型： `Object`
+  - 如果返回值为`Null`，则代表查询失败

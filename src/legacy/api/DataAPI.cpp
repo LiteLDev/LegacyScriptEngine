@@ -27,6 +27,9 @@ ClassDefine<void> DataClassBuilder = defineClass("data")
                                          .function("xuid2uuid", &DataClass::xuid2uuid)
                                          .function("name2uuid", &DataClass::name2uuid)
                                          .function("getAllPlayerInfo", &DataClass::getAllPlayerInfo)
+                                         .function("fromUuid", &DataClass::fromUuid)
+                                         .function("fromXuid", &DataClass::fromXuid)
+                                         .function("fromName", &DataClass::fromName)
                                          .function("parseJson", &DataClass::parseJson)
                                          .function("toJson", &DataClass::toJson)
                                          .function("toMD5", &DataClass::toMD5)
@@ -701,7 +704,11 @@ Local<Value> DataClass::xuid2name(const Arguments& args) {
 
     try {
         auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
-        return String::newString(playerInfo ? playerInfo->name : std::string());
+        if (playerInfo) {
+            return String::newString(playerInfo->name);
+        } else {
+            return {};
+        }
     }
     CATCH("Fail in XuidToName!");
 }
@@ -712,7 +719,11 @@ Local<Value> DataClass::name2xuid(const Arguments& args) {
 
     try {
         auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
-        return String::newString(playerInfo ? playerInfo->xuid : std::string());
+        if (playerInfo) {
+            return String::newString(playerInfo->xuid);
+        } else {
+            return {};
+        }
     }
     CATCH("Fail in NameToXuid!");
 }
@@ -723,7 +734,11 @@ Local<Value> DataClass::name2uuid(const Arguments& args) {
 
     try {
         auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
-        return String::newString(playerInfo ? playerInfo->uuid.asString() : std::string());
+        if (playerInfo) {
+            return String::newString(playerInfo->uuid.asString());
+        } else {
+            return {};
+        }
     }
     CATCH("Fail in NameToUuid!");
 }
@@ -734,12 +749,15 @@ Local<Value> DataClass::xuid2uuid(const Arguments& args) {
 
     try {
         auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
-        return String::newString(playerInfo ? playerInfo->uuid.asString() : std::string());
+        if (playerInfo) {
+            return String::newString(playerInfo->uuid.asString());
+        } else {
+            return {};
+        }
     }
     CATCH("Fail in XuidToUuid!");
 }
 
-// Unsupported
 Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 0);
 
@@ -761,6 +779,64 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
         return arr;
     }
     CATCH("Fail in getAllPlayerInfo!");
+}
+
+// New API for LSE
+Local<Value> DataClass::fromUuid(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        auto playerInfo = ll::service::PlayerInfo::getInstance().fromUuid(args[0].asString().toString());
+        if (playerInfo) {
+            auto object = Object::newObject();
+            object.set("xuid", playerInfo->xuid);
+            object.set("name", playerInfo->name);
+            object.set("uuid", playerInfo->uuid.asString());
+            return object;
+        } else {
+            return {};
+        }
+    }
+    CATCH("Fail in NameToUuid!");
+}
+
+Local<Value> DataClass::fromXuid(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
+        if (playerInfo) {
+            auto object = Object::newObject();
+            object.set("xuid", playerInfo->xuid);
+            object.set("name", playerInfo->name);
+            object.set("uuid", playerInfo->uuid.asString());
+            return object;
+        } else {
+            return {};
+        }
+    }
+    CATCH("Fail in NameToUuid!");
+}
+
+Local<Value> DataClass::fromName(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
+        if (playerInfo) {
+            auto object = Object::newObject();
+            object.set("xuid", playerInfo->xuid);
+            object.set("name", playerInfo->name);
+            object.set("uuid", playerInfo->uuid.asString());
+            return object;
+        } else {
+            return {};
+        }
+    }
+    CATCH("Fail in NameToUuid!");
 }
 
 Local<Value> DataClass::toJson(const Arguments& args) {

@@ -357,7 +357,9 @@ Local<Value> NbtByteClass::pack(ByteTag* tag, bool noDelete) {
             NbtByteClass* nbtObj = new NbtByteClass(std::unique_ptr<ByteTag>(tag));
             nbtObj->canDelete    = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtByteClass(std::unique_ptr<ByteTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtByteClass(std::unique_ptr<ByteTag>(tag->copy()->as_ptr<ByteTag>())))
+                ->getScriptObject(); // Raw pointer usually from BDS, so we have to copy it before pack it.
     }
     CATCH("Fail in construct NbtByte!");
 }
@@ -427,7 +429,7 @@ Local<Value> NbtIntClass::pack(IntTag* tag, bool noDelete) {
             NbtIntClass* nbtObj = new NbtIntClass(std::unique_ptr<IntTag>(tag));
             nbtObj->canDelete   = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtIntClass(std::unique_ptr<IntTag>(tag)))->getScriptObject();
+        } else return (new NbtIntClass(std::unique_ptr<IntTag>(tag->copy()->as_ptr<IntTag>())))->getScriptObject();
     }
     CATCH("Fail in construct NbtInt!");
 }
@@ -498,7 +500,8 @@ Local<Value> NbtShortClass::pack(ShortTag* tag, bool noDelete) {
             NbtShortClass* nbtObj = new NbtShortClass(std::unique_ptr<ShortTag>(tag));
             nbtObj->canDelete     = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtShortClass(std::unique_ptr<ShortTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtShortClass(std::unique_ptr<ShortTag>(tag->copy()->as_ptr<ShortTag>())))->getScriptObject();
     }
     CATCH("Fail in construct NbtShort!");
 }
@@ -568,7 +571,7 @@ Local<Value> NbtLongClass::pack(Int64Tag* tag, bool noDelete) {
             NbtLongClass* nbtObj = new NbtLongClass(std::unique_ptr<Int64Tag>(tag));
             nbtObj->canDelete    = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtLongClass(std::unique_ptr<Int64Tag>(tag)))->getScriptObject();
+        } else return (new NbtLongClass(std::unique_ptr<Int64Tag>(tag->copy()->as_ptr<Int64Tag>())))->getScriptObject();
     }
     CATCH("Fail in construct NbtLong!");
 }
@@ -639,7 +642,8 @@ Local<Value> NbtFloatClass::pack(FloatTag* tag, bool noDelete) {
             NbtFloatClass* nbtObj = new NbtFloatClass(std::unique_ptr<FloatTag>(tag));
             nbtObj->canDelete     = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtFloatClass(std::unique_ptr<FloatTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtFloatClass(std::unique_ptr<FloatTag>(tag->copy()->as_ptr<FloatTag>())))->getScriptObject();
     }
     CATCH("Fail in construct NbtFloat!");
 }
@@ -710,7 +714,9 @@ Local<Value> NbtDoubleClass::pack(DoubleTag* tag, bool noDelete) {
             NbtDoubleClass* nbtObj = new NbtDoubleClass(std::unique_ptr<DoubleTag>(tag));
             nbtObj->canDelete      = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtDoubleClass(std::unique_ptr<DoubleTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtDoubleClass(std::unique_ptr<DoubleTag>(tag->copy()->as_ptr<DoubleTag>())))
+                ->getScriptObject();
     }
     CATCH("Fail in construct NbtDouble!");
 }
@@ -781,7 +787,9 @@ Local<Value> NbtStringClass::pack(StringTag* tag, bool noDelete) {
             NbtStringClass* nbtObj = new NbtStringClass(std::unique_ptr<StringTag>(tag));
             nbtObj->canDelete      = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtStringClass(std::unique_ptr<StringTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtStringClass(std::unique_ptr<StringTag>(tag->copy()->as_ptr<StringTag>())))
+                ->getScriptObject();
     }
     CATCH("Fail in construct NbtString!");
 }
@@ -859,7 +867,9 @@ Local<Value> NbtByteArrayClass::pack(ByteArrayTag* tag, bool noDelete) {
             NbtByteArrayClass* nbtObj = new NbtByteArrayClass(std::unique_ptr<ByteArrayTag>(tag));
             nbtObj->canDelete         = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtByteArrayClass(std::unique_ptr<ByteArrayTag>(tag)))->getScriptObject();
+        } else
+            return (new NbtByteArrayClass(std::unique_ptr<ByteArrayTag>(tag->copy()->as_ptr<ByteArrayTag>())))
+                ->getScriptObject();
     }
     CATCH("Fail in construct NbtByteArray!");
 }
@@ -989,7 +999,7 @@ Local<Value> NbtListClass::pack(ListTag* tag, bool noDelete) {
             NbtListClass* nbtObj = new NbtListClass(std::unique_ptr<ListTag>(tag));
             nbtObj->canDelete    = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtListClass(std::unique_ptr<ListTag>(tag)))->getScriptObject();
+        } else return (new NbtListClass(tag->copyList()))->getScriptObject();
     }
     CATCH("Fail in construct NbtList!");
 }
@@ -1499,7 +1509,7 @@ Local<Value> NbtCompoundClass::pack(CompoundTag* tag, bool noDelete) {
             NbtCompoundClass* nbtObj = new NbtCompoundClass(std::unique_ptr<CompoundTag>(tag));
             nbtObj->canDelete        = false;
             return nbtObj->getScriptObject();
-        } else return (new NbtCompoundClass(std::unique_ptr<CompoundTag>(tag)))->getScriptObject();
+        } else return (new NbtCompoundClass(tag->clone()))->getScriptObject();
     }
     CATCH("Fail in construct NbtCompound!");
 }

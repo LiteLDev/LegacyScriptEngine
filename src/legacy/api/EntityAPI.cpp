@@ -45,6 +45,7 @@
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/level/material/Material.h>
 #include <mc/world/phys/AABB.h>
+#include <memory>
 
 using magic_enum::enum_integer;
 
@@ -1288,7 +1289,7 @@ Local<Value> EntityClass::getNbt(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        CompoundTag* tag = new CompoundTag();
+        std::unique_ptr<CompoundTag> tag = std::make_unique<CompoundTag>();
         entity->save(*tag);
         return NbtCompoundClass::pack(std::move(tag));
     }

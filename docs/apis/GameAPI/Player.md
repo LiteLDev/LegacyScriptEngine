@@ -16,6 +16,9 @@ Use this function to manually generate objects. Note that the player you want to
 
 `mc.getPlayer(info)`
 
+!!! tip
+    Versions before 0.8.13 could not get player by UUID
+
 - Parameters: 
   - info : `String`  
     Player's name, XUID or UniqueId or UUID.
@@ -1510,6 +1513,9 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 `sp.simulateLookAt(pos, [lookDuration])`
 `sp.simulateLookAt(entity, [lookDuration])`
 `sp.simulateLookAt(block, [lookDuration])`
+
+!!! tip
+  `lookDuration` parameter not available in versions prior to 0.8.13
 
 - Parameters:
 

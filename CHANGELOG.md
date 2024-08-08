@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.13] - 2024-08-08
+
+### Added
+
+- Add uuid support for `mc.getPlayer()`
+- Add new PlayerInfo API
+
+### Fixed
+
+- Fix simulateLookAt [#146]
+
 ## [0.8.12] - 2024-08-07
 
 ### Fixed
@@ -528,11 +539,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#137]: https://github.com/LiteLDev/LegacyScriptEngine/issues/137
 [#143]: https://github.com/LiteLDev/LegacyScriptEngine/issues/143
 [#145]: https://github.com/LiteLDev/LegacyScriptEngine/issues/145
+[#146]: https://github.com/LiteLDev/LegacyScriptEngine/issues/146
 [#152]: https://github.com/LiteLDev/LegacyScriptEngine/issues/152
 [#153]: https://github.com/LiteLDev/LegacyScriptEngine/issues/153
 [#154]: https://github.com/LiteLDev/LegacyScriptEngine/issues/154
 [#157]: https://github.com/LiteLDev/LegacyScriptEngine/issues/157
 
+[0.8.13]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.12...v0.8.13
 [0.8.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.11...v0.8.12
 [0.8.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.10...v0.8.11
 [0.8.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.9...v0.8.10

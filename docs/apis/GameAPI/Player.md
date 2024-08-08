@@ -1507,9 +1507,9 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 #### Simulate Look At a Block or Entity
 
-`sp.simulateLookAt(pos)`
-`sp.simulateLookAt(entity)`
-`sp.simulateLookAt(block)`
+`sp.simulateLookAt(pos, [lookDuration])`
+`sp.simulateLookAt(entity, [lookDuration])`
+`sp.simulateLookAt(block, [lookDuration])`
 
 - Parameters:
 
@@ -1519,6 +1519,9 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
     The coordinates to look at
   - block :`Block`  
     The block to look at
+  - lookDuration: `Int`  
+    The duration SimulatedPlayer look  
+    0 = Instant, 1 = Continuous, 2 = UntilMove
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`

@@ -118,7 +118,7 @@ Local<Value> _extractValue(RemoteCall::ItemType&& v) {
 };
 Local<Value> _extractValue(RemoteCall::NbtType&& v) {
     if (v.own) return NbtCompoundClass::pack(v.tryGetUniquePtr());
-    else return NbtCompoundClass::pack(const_cast<CompoundTag*>(v.ptr), false);
+    else return NbtCompoundClass::pack(const_cast<CompoundTag*>(v.ptr));
 };
 
 Local<Value> extract(RemoteCall::ValueType&& val);

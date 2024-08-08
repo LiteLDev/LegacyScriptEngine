@@ -1888,9 +1888,9 @@
 
 #### 模拟看向某方块或实体
 
-`sp.simulateLookAt(pos)`
-`sp.simulateLookAt(entity)`
-`sp.simulateLookAt(block)`
+`sp.simulateLookAt(pos, [lookDuration])`
+`sp.simulateLookAt(entity, [lookDuration])`
+`sp.simulateLookAt(block, [lookDurration])`
 
 - 参数：
 
@@ -1900,6 +1900,9 @@
     要看向的坐标  
   - block :`Block`  
     要看向的方块  
+  - lookDuration: `Int`  
+    模拟玩家看向目标的持续时间  
+    0 = 立刻, 1 = 持续, 2 = 不变直到移动
 
 - 返回值：是否成功模拟操作
 - 返回值类型：`Boolean`

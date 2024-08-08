@@ -18,7 +18,7 @@ Use this function to manually generate objects. Note that the player you want to
 
 - Parameters: 
   - info : `String`  
-    Player's name or XUID or uniqueId.
+    Player's name, XUID or UniqueId or UUID.
 - Return value: The generated player object. 
 - Return value type: `Player`
   - If the return value is `Null`, it means that getting the player failed.

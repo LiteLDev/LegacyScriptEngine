@@ -75,6 +75,7 @@
 #include "mc/world/scores/ScoreboardId.h"
 
 #include <algorithm>
+#include <climits>
 #include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
@@ -640,35 +641,42 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     try {
         std::string target = args[0].toStr();
         if (target.empty()) return Local<Value>();
+        Player* found;
+        if (mce::UUID::canParse(target)) { // If target is UUID, then get player by using UUID
+            found = ll::service::getLevel()->getPlayer(mce::UUID(target));
+            if (found) {
+                return PlayerClass::newPlayer(found);
+            } else {
+                return Local<Value>();
+            }
+        }
 
         transform(target.begin(), target.end(), target.begin(),
                   ::tolower); // lower case the string
-        std::vector<Player*> playerList;
-        int                  delta = 2147483647; // c++ int max
-        Player*              found = nullptr;
+        int delta = INT_MAX;
         ll::service::getLevel()->forEachPlayer([&](Player& player) {
-            playerList.push_back(&player);
-            return true;
-        });
-
-        for (Player* p : playerList) {
-            if (p->getXuid() == target || std::to_string(p->getOrCreateUniqueID().id) == target)
-                return PlayerClass::newPlayer(p);
-
-            string pName = p->getName();
+            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().id) == target) {
+                found = &player;
+                return false;
+            }
+            std::string pName = player.getName();
             transform(pName.begin(), pName.end(), pName.begin(), ::tolower);
 
             if (pName.find(target) == 0) {
                 // 0 ís the index where the "target" appear in "pName"
                 int curDelta = pName.length() - target.length();
-                if (curDelta == 0) return PlayerClass::newPlayer(p);
+                if (curDelta == 0) {
+                    found = &player;
+                    return false;
+                }
 
                 if (curDelta < delta) {
-                    found = p;
+                    found = &player;
                     delta = curDelta;
                 }
             }
-        }
+            return true;
+        });
         return found ? PlayerClass::newPlayer(found) : Local<Value>(); // Player/Null
     }
     CATCH("Fail in GetPlayer!")

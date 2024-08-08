@@ -18,7 +18,7 @@
 
 - 参数：
   - info : `String`  
-    玩家的名字或者XUID或者uniqueId
+    玩家的名字、XUID、UniqueId或者UUID
 - 返回值：生成的玩家对象 
 - 返回值类型：`Player`
   - 如返回值为 `Null` 则表示获取玩家失败

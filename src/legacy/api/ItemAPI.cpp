@@ -16,6 +16,7 @@
 #include <mc/world/item/Item.h>
 #include <mc/world/item/registry/ItemStack.h>
 #include <string>
+#include <variant>
 #include <vector>
 
 //////////////////// Class Definition ////////////////////
@@ -71,18 +72,19 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
 
 //////////////////// Classes ////////////////////
 
-ItemClass::ItemClass(ItemStack* p, bool isNew) : ScriptClass(ScriptClass::ConstructFromCpp<ItemClass>{}) {
-    if (isNew) {
-        item = std::shared_ptr<ItemStack>(p);
+ItemClass::ItemClass(ItemStack* itemStack, bool isManagedByBDS)
+: ScriptClass(ScriptClass::ConstructFromCpp<ItemClass>{}) {
+    if (isManagedByBDS) {
+        item = itemStack;
     } else {
-        item = p;
+        item = std::unique_ptr<ItemStack>(itemStack);
     }
     preloadData();
 }
 
 // 生成函数
-Local<Object> ItemClass::newItem(ItemStack* p, bool isNew) {
-    auto newp = new ItemClass(p, isNew);
+Local<Object> ItemClass::newItem(ItemStack* itemStack, bool isManagedByBDS) {
+    auto newp = new ItemClass(itemStack, isManagedByBDS);
     return newp->getScriptObject();
 }
 
@@ -314,12 +316,11 @@ Local<Value> ItemClass::set(const Arguments& args) {
         if (!itemNew) return Local<Value>(); // Null
 
         auto tag = itemNew->save();
-        if (std::holds_alternative<std::shared_ptr<ItemStack>>(item)) {
-            std::get<std::shared_ptr<ItemStack>>(item)->load(*tag);
+        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
+            std::get<std::unique_ptr<ItemStack>>(item)->load(*tag);
         } else {
             std::get<ItemStack*>(item)->load(*tag);
         }
-
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in set!");
@@ -330,7 +331,7 @@ Local<Value> ItemClass::clone(const Arguments& args) {
         auto item = get();
         if (!item) return Local<Value>(); // Null
         auto itemNew = new ItemStack(*item);
-        return ItemClass::newItem(itemNew, true);
+        return ItemClass::newItem(itemNew, false);
     }
     CATCH("Fail in cloneItem!");
 }
@@ -439,8 +440,8 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 int    cnt  = args[1].toInt();
 
                 ItemStack* item = new ItemStack{type, cnt};
-                if (!item) return Local<Value>(); // Null
-                else return ItemClass::newItem(item, true);
+                if (!item) return Local<Value>();            // Null
+                else return ItemClass::newItem(item, false); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
                 LOG_TOO_FEW_ARGS();
                 return Local<Value>();
@@ -451,7 +452,11 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 auto newItem = new ItemStack{ItemStack::EMPTY_ITEM};
                 newItem->load(*nbt);
                 if (!newItem) return Local<Value>(); // Null
-                else return ItemClass::newItem(newItem, true);
+                else
+                    return ItemClass::newItem(
+                        newItem,
+                        false
+                    ); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
                 LOG_WRONG_ARG_TYPE();
                 return Local<Value>();

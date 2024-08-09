@@ -106,7 +106,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onDropItem,
             false,
             PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(item), false)
+            ItemClass::newItem(&const_cast<ItemStack&>(item))
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onDropItem);
@@ -131,7 +131,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EVENT_TYPES::onDropItem,
                     InventoryTransactionError::NoError,
                     PlayerClass::newPlayer(&player),
-                    ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)), false)
+                    ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)))
                 );
             }
         }
@@ -227,8 +227,8 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onInventoryChange,
             PlayerClass::newPlayer(this),
             slot,
-            ItemClass::newItem(&const_cast<ItemStack&>(oldItem), false),
-            ItemClass::newItem(&const_cast<ItemStack&>(newItem), false)
+            ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+            ItemClass::newItem(&const_cast<ItemStack&>(newItem))
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
@@ -253,8 +253,8 @@ LL_TYPE_INSTANCE_HOOK(
                 PlayerClass::newPlayer(player),
                 BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
                 Number::newNumber(slotNumber + this->_getContainerOffset()),
-                ItemClass::newItem(&const_cast<ItemStack&>(oldItem), false),
-                ItemClass::newItem(&const_cast<ItemStack&>(newItem), false)
+                ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                ItemClass::newItem(&const_cast<ItemStack&>(newItem))
             );
         }
     }
@@ -278,7 +278,7 @@ LL_TYPE_INSTANCE_HOOK(
             false,
             PlayerClass::newPlayer(player),
             BlockClass::newBlock(pos, player->getDimensionId()),
-            !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item), false) : Local<Value>()
+            !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
@@ -551,7 +551,7 @@ LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat,
         CallEventVoid(
             EVENT_TYPES::onAte,
             PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(instance), false)
+            ItemClass::newItem(&const_cast<ItemStack&>(instance))
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);
@@ -859,9 +859,8 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onPlayerPullFishingHook,
             PlayerClass::newPlayer(this->getPlayerOwner()),
             EntityClass::newEntity(&inEntity),
-            inEntity.isType(ActorType::ItemEntity)
-                ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item(), false)
-                : Local<Value>()
+            inEntity.isType(ActorType::ItemEntity) ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item())
+                                                   : Local<Value>()
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onPlayerPullFishingHook);
@@ -912,7 +911,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onUseBucketPlace,
             false,
             PlayerClass::newPlayer(static_cast<Player*>(placer)),
-            ItemClass::newItem(&const_cast<ItemStack&>(instance), false),
+            ItemClass::newItem(&const_cast<ItemStack&>(instance)),
             BlockClass::newBlock(&contents, &pos, &region),
             Number::newNumber(face),
             FloatPos::newPos(pos, region.getDimensionId())
@@ -937,7 +936,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onUseBucketTake,
             false,
             PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-            ItemClass::newItem(&item, false),
+            ItemClass::newItem(&item),
             BlockClass::newBlock(&pos, entity.getDimensionId()),
             Number::newNumber(-1),
             FloatPos::newPos(pos, entity.getDimensionId())
@@ -962,7 +961,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onUseBucketTake,
             false,
             PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-            ItemClass::newItem(&item, false),
+            ItemClass::newItem(&item),
             BlockClass::newBlock(&pos, entity.getDimensionId()),
             Number::newNumber(-1),
             FloatPos::newPos(pos, entity.getDimensionId())
@@ -1021,7 +1020,7 @@ LL_TYPE_INSTANCE_HOOK(
             EVENT_TYPES::onSetArmor,
             PlayerClass::newPlayer(this),
             Number::newNumber((int)armorSlot),
-            ItemClass::newItem(&const_cast<ItemStack&>(item), false)
+            ItemClass::newItem(&const_cast<ItemStack&>(item))
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onSetArmor);
@@ -1127,7 +1126,7 @@ LL_TYPE_INSTANCE_HOOK(
                 false,
                 FloatPos::newPos(hopperPos, region.getDimensionId()),
                 Boolean::newBoolean(this->mIsEntity),
-                ItemClass::newItem(&item, false)
+                ItemClass::newItem(&item)
             );
         }
     }
@@ -1139,7 +1138,7 @@ LL_TYPE_INSTANCE_HOOK(
                 false,
                 FloatPos::newPos(hopperPos, region.getDimensionId()),
                 Boolean::newBoolean(this->mIsEntity),
-                ItemClass::newItem(&item, false)
+                ItemClass::newItem(&item)
             );
         }
     }

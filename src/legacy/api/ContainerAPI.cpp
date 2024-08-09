@@ -142,7 +142,7 @@ Local<Value> ContainerClass::getItem(const Arguments& args) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
             return Local<Value>();
         }
-        return ItemClass::newItem(item, false);
+        return ItemClass::newItem(item);
     }
     CATCH("Fail in getItem!");
 }
@@ -170,7 +170,7 @@ Local<Value> ContainerClass::getAllItems(const Arguments& args) {
 
         Local<Array> res = Array::newArray();
         for (auto& item : list) {
-            res.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+            res.add(ItemClass::newItem(const_cast<ItemStack*>(item)));
         }
         return res;
     }

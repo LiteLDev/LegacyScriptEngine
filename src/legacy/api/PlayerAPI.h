@@ -1,16 +1,14 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/world/ActorUniqueID.h"
+#include "mc/world/ActorRuntimeID.h"
 
 class SimulatedPlayer;
 
 //////////////////// Classes ////////////////////
 class Player;
-class ActorUniqueID;
 class PlayerClass : public ScriptClass {
 private:
-    ActorUniqueID id;
-    bool          isValid = true;
+    ActorRuntimeID runtimeId;
 
 public:
     explicit PlayerClass(Player* p);

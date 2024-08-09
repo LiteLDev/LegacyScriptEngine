@@ -34,27 +34,23 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 //////////////////// Classes ////////////////////
 
 // 生成函数
-Local<Object> DeviceClass::newDevice(ActorUniqueID& uid) {
-    auto newp = new DeviceClass(uid);
+Local<Object> DeviceClass::newDevice(ActorRuntimeID& id) {
+    auto newp = new DeviceClass(id);
     return newp->getScriptObject();
 }
 
 // 成员函数
-void DeviceClass::setPlayer(ActorUniqueID& uid) {
-    try {
-        id = uid;
-    } catch (...) {
-        isValid = false;
+void DeviceClass::setPlayer(ActorRuntimeID& id) {
+    if (id) {
+        runtimeId = id;
     }
 }
 
 Player* DeviceClass::getPlayer() {
-    Player* player = ll::service::getLevel()->getPlayer(id);
-    if (!isValid || !player) {
-        return nullptr;
-    } else {
-        return player;
+    if (runtimeId) {
+        ll::service::getLevel()->getRuntimePlayer(runtimeId);
     }
+    return nullptr;
 }
 
 Local<Value> DeviceClass::getIP() {

@@ -121,8 +121,8 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
             new ItemStack(result.getRaw<CommandItem>()
                               .createInstance(1, 1, *new CommandOutput(CommandOutputType::None), true)
                               .value_or(ItemInstance::EMPTY_ITEM)),
-            true
-        );
+            false
+        ); // Not managed by BDS, pointer will be saved as unique_ptr
     case DynamicCommand::ParameterType::Block:
         return BlockClass::newBlock(
             const_cast<Block*>(result.getRaw<CommandBlockName>().resolveBlock(0).getBlock()),
@@ -266,13 +266,13 @@ CommandClass::CommandClass(std::unique_ptr<DynamicCommandInstance>&& p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(std::move(p)),
   ptr(uptr.get()),
-  registered(false){};
+  registered(false) {};
 
 CommandClass::CommandClass(DynamicCommandInstance* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(),
   ptr(p),
-  registered(true){};
+  registered(true) {};
 
 Local<Object> CommandClass::newCommand(std::unique_ptr<DynamicCommandInstance>&& p) {
     auto newp = new CommandClass(std::move(p));

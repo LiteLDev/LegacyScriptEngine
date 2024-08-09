@@ -399,7 +399,7 @@ Local<Value> NativePointer::asEntity() {
 
 Local<Value> NativePointer::asItem() {
     try {
-        return ItemClass::newItem((ItemStack*)mPtr, false);
+        return ItemClass::newItem((ItemStack*)mPtr);
     }
     CATCH("Fail in NativePointer::asItem!")
 }

@@ -1,32 +1,34 @@
 #pragma once
 #include "api/APIHelp.h"
 
+#include <memory>
 #include <string>
+#include <variant>
 
 //////////////////// Classes ////////////////////
 class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    std::variant<std::shared_ptr<ItemStack>, ItemStack*> item;
+    std::variant<ItemStack*, std::unique_ptr<ItemStack>> item; // BDS manages ItemStack*
 
     // Pre data
     std::string name, type;
     int         id, count, aux;
 
 public:
-    explicit ItemClass(ItemStack* p, bool isNew = false);
+    explicit ItemClass(ItemStack* itemStack, bool isManagedByBDS = true);
     void preloadData();
 
     ItemStack* get() {
-        if (std::holds_alternative<std::shared_ptr<ItemStack>>(item)) {
-            return std::get<std::shared_ptr<ItemStack>>(item).get();
+        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
+            return std::get<std::unique_ptr<ItemStack>>(item).get();
         } else {
             return std::get<ItemStack*>(item);
         }
     }
 
-    static Local<Object> newItem(ItemStack* p, bool isNew = false);
+    static Local<Object> newItem(ItemStack* itemStack, bool isManagedByBDS = true);
     static ItemStack*    extract(Local<Value> v);
     Local<Value>         asPointer(const Arguments& args);
 

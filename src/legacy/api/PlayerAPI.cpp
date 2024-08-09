@@ -314,10 +314,10 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
 //////////////////// Classes ////////////////////
 
 // 生成函数
-PlayerClass::PlayerClass(Player* p) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) { set(p); }
+PlayerClass::PlayerClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) { set(player); }
 
-Local<Object> PlayerClass::newPlayer(Player* p) {
-    auto newp = new PlayerClass(p);
+Local<Object> PlayerClass::newPlayer(Player* player) {
+    auto newp = new PlayerClass(player);
     return newp->getScriptObject();
 }
 
@@ -718,16 +718,16 @@ Local<Value> McClass::broadcast(const Arguments& args) {
 
 // 成员函数
 void PlayerClass::set(Player* player) {
-    try {
-        id = player->getOrCreateUniqueID();
-    } catch (...) {
-        isValid = false;
+    if (player) {
+        runtimeId = player->getRuntimeID();
     }
 }
 
 Player* PlayerClass::get() {
-    if (!isValid) return nullptr;
-    else return ll::service::getLevel()->getPlayer(id);
+    if (runtimeId) {
+        return ll::service::getLevel()->getRuntimePlayer(runtimeId);
+    }
+    return nullptr;
 }
 
 Local<Value> PlayerClass::getName() {
@@ -1668,7 +1668,7 @@ Local<Value> PlayerClass::getHand(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()), false);
+        return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()));
     }
     CATCH("Fail in getHand!");
 }
@@ -1678,7 +1678,7 @@ Local<Value> PlayerClass::getOffHand(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ItemClass::newItem((ItemStack*)&player->getOffhandSlot(), false);
+        return ItemClass::newItem(const_cast<ItemStack*>(&player->getOffhandSlot()));
     }
     CATCH("Fail in getOffHand!");
 }
@@ -2041,7 +2041,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments& args) {
 
 Local<Value> PlayerClass::getDevice(const Arguments& args) {
     try {
-        return DeviceClass::newDevice(id);
+        return DeviceClass::newDevice(runtimeId);
     }
     CATCH("Fail in getDevice!");
 }
@@ -3290,16 +3290,16 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Local<Object> result = Object::newObject();
 
         // hand
-        result.set("hand", ItemClass::newItem(&const_cast<ItemStack&>(hand), false));
+        result.set("hand", ItemClass::newItem(&const_cast<ItemStack&>(hand)));
 
         // offHand
-        result.set("offHand", ItemClass::newItem(&const_cast<ItemStack&>(offHand), false));
+        result.set("offHand", ItemClass::newItem(&const_cast<ItemStack&>(offHand)));
 
         // inventory
         Local<Array> inventoryArr = Array::newArray();
         for (const ItemStack* item : inventory) {
             if (item) {
-                inventoryArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+                inventoryArr.add(ItemClass::newItem(const_cast<ItemStack*>(item)));
             }
         }
         result.set("inventory", inventoryArr);
@@ -3308,7 +3308,7 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Local<Array> armorArr = Array::newArray();
         for (const ItemStack* item : armor) {
             if (item) {
-                armorArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+                armorArr.add(ItemClass::newItem(const_cast<ItemStack*>(item)));
             }
         }
         result.set("armor", armorArr);
@@ -3317,7 +3317,7 @@ Local<Value> PlayerClass::getAllItems(const Arguments& args) {
         Local<Array> endChestArr = Array::newArray();
         for (const ItemStack* item : endChest) {
             if (item) {
-                endChestArr.add(ItemClass::newItem(const_cast<ItemStack*>(item), false));
+                endChestArr.add(ItemClass::newItem(const_cast<ItemStack*>(item)));
             }
         }
         result.set("endChest", endChestArr);

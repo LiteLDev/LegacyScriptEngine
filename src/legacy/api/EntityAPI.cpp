@@ -46,6 +46,7 @@
 #include <mc/world/level/material/Material.h>
 #include <mc/world/phys/AABB.h>
 #include <memory>
+#include <vector>
 
 using magic_enum::enum_integer;
 
@@ -190,8 +191,8 @@ ClassDefine<void> ActorDamageCauseBuilder =
 // clang-format on
 
 // 生成函数
-Local<Object> EntityClass::newEntity(Actor* p) {
-    auto newp = new EntityClass(p);
+Local<Object> EntityClass::newEntity(Actor* actor) {
+    auto newp = new EntityClass(actor);
     return newp->getScriptObject();
 }
 
@@ -209,16 +210,16 @@ std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
 
 // 成员函数
 void EntityClass::set(Actor* actor) {
-    try {
-        id = actor->getOrCreateUniqueID();
-    } catch (...) {
-        isValid = false;
+    if (actor) {
+        runtimeId = actor->getRuntimeID();
     }
 }
 
 Actor* EntityClass::get() {
-    if (!isValid) return nullptr;
-    else return ll::service::getLevel()->fetchEntity(id);
+    if (runtimeId) {
+        return ll::service::getLevel()->getRuntimeEntity(runtimeId);
+    }
+    return nullptr;
 }
 
 Local<Value> EntityClass::asPointer(const Arguments& args) {
@@ -900,12 +901,11 @@ Local<Value> EntityClass::isPlayer(const Arguments& args) {
 
 Local<Value> EntityClass::toPlayer(const Arguments& args) {
     try {
-        Player* player = ll::service::getLevel()->getPlayer(id);
+        Player* player = ll::service::getLevel()->getRuntimePlayer(runtimeId);
         if (!player) {
             return Local<Value>();
-        } else {
-            return PlayerClass::newPlayer(player);
         }
+        return PlayerClass::newPlayer(player);
     }
     CATCH("Fail in toPlayer!");
 }
@@ -926,7 +926,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
             return Local<Value>();
         } else {
-            return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item(), false);
+            return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
         }
     }
     CATCH("Fail in toItem!");

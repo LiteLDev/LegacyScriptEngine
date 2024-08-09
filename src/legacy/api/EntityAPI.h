@@ -1,21 +1,21 @@
 #pragma once
 #include "api/APIHelp.h"
+#include "mc/world/ActorRuntimeID.h"
 #include "mc/world/ActorUniqueID.h"
 
 //////////////////// Classes ////////////////////
 class Actor;
 class EntityClass : public ScriptClass {
 private:
-    ActorUniqueID id;
-    bool          isValid = true;
+    ActorRuntimeID runtimeId;
 
 public:
-    explicit EntityClass(Actor* p) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) { set(p); }
+    explicit EntityClass(Actor* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) { set(actor); }
 
     void   set(Actor* actor);
     Actor* get();
 
-    static Local<Object>         newEntity(Actor* p);
+    static Local<Object>         newEntity(Actor* actor);
     static Actor*                extract(Local<Value> v);
     static std::optional<Actor*> tryExtractActor(Local<Value> v);
     Local<Value>                 asPointer(const Arguments& args);

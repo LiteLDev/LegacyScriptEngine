@@ -44,11 +44,20 @@ void DeviceClass::setPlayer(Player* player) {
     try {
         if (player) {
             mWeakEntity = player->getWeakEntity();
+            mValid      = true;
         }
-    } catch (...) {}
+    } catch (...) {
+        mValid = false;
+    }
 }
 
-Player* DeviceClass::getPlayer() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }
+Player* DeviceClass::getPlayer() {
+    if (mValid) {
+        return mWeakEntity.tryUnwrap<Player>().as_ptr();
+    } else {
+        return nullptr;
+    }
+}
 
 Local<Value> DeviceClass::getIP() {
     try {

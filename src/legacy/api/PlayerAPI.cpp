@@ -723,11 +723,20 @@ void PlayerClass::set(Player* player) {
     try {
         if (player) {
             mWeakEntity = player->getWeakEntity();
+            mValid      = true;
         }
-    } catch (...) {}
+    } catch (...) {
+        mValid = false;
+    }
 }
 
-Player* PlayerClass::get() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }
+Player* PlayerClass::get() {
+    if (mValid) {
+        return mWeakEntity.tryUnwrap<Player>().as_ptr();
+    } else {
+        return nullptr;
+    }
+}
 
 Local<Value> PlayerClass::getName() {
     try {

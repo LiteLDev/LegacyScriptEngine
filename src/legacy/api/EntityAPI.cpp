@@ -209,14 +209,23 @@ void EntityClass::set(Actor* actor) {
     try {
         if (actor) {
             mWeakEntity = actor->getWeakEntity();
+            mValid      = true;
         }
-    } catch (...) {}
+    } catch (...) {
+        mValid = false;
+    }
 }
 
 WeakStorageEntity& WeakStorageEntity::operator=(WeakStorageEntity const&) = default;
 WeakStorageEntity::WeakStorageEntity(WeakStorageEntity const&)            = default;
 
-Actor* EntityClass::get() { return mWeakEntity.tryUnwrap<Actor>().as_ptr(); }
+Actor* EntityClass::get() {
+    if (mValid) {
+        return mWeakEntity.tryUnwrap<Actor>().as_ptr();
+    } else {
+        return nullptr;
+    }
+}
 
 Local<Value> EntityClass::asPointer(const Arguments& args) {
     try {

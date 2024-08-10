@@ -10,6 +10,7 @@ class Player;
 class PlayerClass : public ScriptClass {
 private:
     WeakRef<EntityContext> mWeakEntity;
+    bool                   mValid;
 
 public:
     explicit PlayerClass(Player* player);

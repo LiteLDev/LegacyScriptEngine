@@ -8,6 +8,7 @@ class Player;
 class DeviceClass : public ScriptClass {
 private:
     WeakRef<EntityContext> mWeakEntity;
+    bool                   mValid;
 
 public:
     explicit DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {

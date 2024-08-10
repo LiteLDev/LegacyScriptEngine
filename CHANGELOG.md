@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.17] - 2024-08-10
+
+### Fixed
+
+- Add valid check for Entity
+
 ## [0.8.16] - 2024-08-10
 
 ### Fixed
@@ -567,7 +573,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#157]: https://github.com/LiteLDev/LegacyScriptEngine/issues/157
 [#160]: https://github.com/LiteLDev/LegacyScriptEngine/issues/160
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.16...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.17...HEAD
+[0.8.17]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.16...v0.8.17
 [0.8.16]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.15...v0.8.16
 [0.8.15]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.14...v0.8.15
 [0.8.14]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.13...v0.8.14

@@ -33,10 +33,6 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 
 //////////////////// Classes ////////////////////
 
-namespace PlayerAPIPatch {
-extern std::list<Player*> validPlayers;
-}
-
 // 生成函数
 Local<Object> DeviceClass::newDevice(Player* player) {
     auto newp = new DeviceClass(player);
@@ -46,26 +42,11 @@ Local<Object> DeviceClass::newDevice(Player* player) {
 // 成员函数
 void DeviceClass::setPlayer(Player* player) {
     if (player) {
-        mPlayer = player;
-        PlayerAPIPatch::validPlayers.emplace_back(player);
-    } else {
-        mValid = false;
+        mWeakEntity = player->getWeakEntity();
     }
 }
 
-Player* DeviceClass::getPlayer() {
-    mValid = false;
-    for (Player* player : PlayerAPIPatch::validPlayers) {
-        if (player == mPlayer) {
-            mValid = true;
-            break;
-        }
-    }
-    if (mPlayer && mValid) {
-        return mPlayer;
-    }
-    return nullptr;
-}
+Player* DeviceClass::getPlayer() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }
 
 Local<Value> DeviceClass::getIP() {
     try {
@@ -133,10 +114,8 @@ Local<Value> DeviceClass::getServerAddress() {
         if (!player) return Local<Value>();
 
         if (player->isSimulatedPlayer()) String::newString("unknown");
-        Json::Value& requestJson = ll::service::getServerNetworkHandler()
-                                       ->fetchConnectionRequest(player->getNetworkIdentifier())
-                                       .mRawToken->mDataInfo;
-        return String::newString(requestJson.get("ServerAddress", "unknown").asString("unknown"));
+        Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
+        return String::newString(requestJson["ServerAddress"].asString("unknown"));
     }
     CATCH("Fail in getServerAddress!")
 }
@@ -146,9 +125,7 @@ Local<Value> DeviceClass::getClientId() {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
 
-        return String::newString(
-            ll::service::getServerNetworkHandler()->fetchConnectionRequest(player->getNetworkIdentifier()).getDeviceId()
-        );
+        return String::newString(player->getConnectionRequest()->getDeviceId());
     }
     CATCH("Fail in getClientId!")
 }
@@ -158,10 +135,8 @@ Local<Value> DeviceClass::getInputMode() {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
 
-        Json::Value& requestJson = ll::service::getServerNetworkHandler()
-                                       ->fetchConnectionRequest(player->getNetworkIdentifier())
-                                       .mRawToken->mDataInfo;
-        return Number::newNumber(requestJson.get("CurrentInputMode", 0).asInt(0));
+        Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
+        return Number::newNumber(requestJson["CurrentInputMode"].asInt(0));
     }
     CATCH("Fail in getInputMode!")
 }

@@ -718,36 +718,14 @@ Local<Value> McClass::broadcast(const Arguments& args) {
     CATCH("Fail in Broadcast!")
 }
 
-namespace PlayerAPIPatch {
-std::list<Player*> validPlayers;
-LL_AUTO_TYPE_INSTANCE_HOOK(PlayerDestructorHook, HookPriority::Highest, Player, "??1Player@@UEAA@XZ", void) {
-    validPlayers.remove(this);
-}
-} // namespace PlayerAPIPatch
-
 // 成员函数
 void PlayerClass::set(Player* player) {
     if (player) {
-        mPlayer = player;
-        PlayerAPIPatch::validPlayers.emplace_back(player);
-    } else {
-        mValid = false;
+        mWeakEntity = player->getWeakEntity();
     }
 }
 
-Player* PlayerClass::get() {
-    mValid = false;
-    for (Player* player : PlayerAPIPatch::validPlayers) {
-        if (player == mPlayer) {
-            mValid = true;
-            break;
-        }
-    }
-    if (mPlayer && mValid) {
-        return mPlayer;
-    }
-    return nullptr;
-}
+Player* PlayerClass::get() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }
 
 Local<Value> PlayerClass::getName() {
     try {
@@ -2060,7 +2038,9 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments& args) {
 
 Local<Value> PlayerClass::getDevice(const Arguments& args) {
     try {
-        return DeviceClass::newDevice(mPlayer);
+        Player* player = get();
+        if (!player) return Local<Value>();
+        return DeviceClass::newDevice(player);
     }
     CATCH("Fail in getDevice!");
 }

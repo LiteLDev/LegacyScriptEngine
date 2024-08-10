@@ -185,12 +185,6 @@ ClassDefine<void> ActorDamageCauseBuilder =
         .build();
 
 // clang-format on
-namespace EntityAPIPatch {
-std::list<Actor*> validActors;
-LL_AUTO_TYPE_INSTANCE_HOOK(ActorDestructorHook, HookPriority::Highest, Actor, "??1Actor@@UEAA@XZ", void) {
-    validActors.remove(this);
-}
-} // namespace EntityAPIPatch
 
 // 生成函数
 Local<Object> EntityClass::newEntity(Actor* actor) {
@@ -213,26 +207,14 @@ std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
 // 成员函数
 void EntityClass::set(Actor* actor) {
     if (actor) {
-        mActor = actor;
-        EntityAPIPatch::validActors.emplace_back(actor);
-    } else {
-        mValid = false;
+        mWeakEntity = actor->getWeakEntity();
     }
 }
 
-Actor* EntityClass::get() {
-    mValid = false;
-    for (Actor* actor : EntityAPIPatch::validActors) {
-        if (actor == mActor) {
-            mValid = true;
-            break;
-        }
-    }
-    if (mActor && mValid) {
-        return mActor;
-    }
-    return nullptr;
-}
+WeakStorageEntity& WeakStorageEntity::operator=(WeakStorageEntity const&) = default;
+WeakStorageEntity::WeakStorageEntity(WeakStorageEntity const&)            = default;
+
+Actor* EntityClass::get() { return mWeakEntity.tryUnwrap<Actor>().as_ptr(); }
 
 Local<Value> EntityClass::asPointer(const Arguments& args) {
     try {
@@ -913,10 +895,10 @@ Local<Value> EntityClass::isPlayer(const Arguments& args) {
 
 Local<Value> EntityClass::toPlayer(const Arguments& args) {
     try {
-        if (!mActor || !mValid) {
-            return Local<Value>();
+        if (auto player = mWeakEntity.tryUnwrap<Player>()) {
+            return PlayerClass::newPlayer(player);
         }
-        return PlayerClass::newPlayer(static_cast<Player*>(mActor));
+        return Local<Value>();
     }
     CATCH("Fail in toPlayer!");
 }

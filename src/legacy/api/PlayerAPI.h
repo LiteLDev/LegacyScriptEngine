@@ -1,5 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
+#include "mc/entity/WeakEntityRef.h"
 #include "mc/world/ActorRuntimeID.h"
 
 class SimulatedPlayer;
@@ -8,8 +9,7 @@ class SimulatedPlayer;
 class Player;
 class PlayerClass : public ScriptClass {
 private:
-    Player* mPlayer;
-    bool    mValid = true;
+    WeakRef<EntityContext> mWeakEntity;
 
 public:
     explicit PlayerClass(Player* player);

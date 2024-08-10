@@ -33,22 +33,36 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 
 //////////////////// Classes ////////////////////
 
+namespace PlayerAPIPatch {
+extern std::list<Player*> validPlayers;
+}
+
 // 生成函数
-Local<Object> DeviceClass::newDevice(ActorRuntimeID& id) {
-    auto newp = new DeviceClass(id);
+Local<Object> DeviceClass::newDevice(Player* player) {
+    auto newp = new DeviceClass(player);
     return newp->getScriptObject();
 }
 
 // 成员函数
-void DeviceClass::setPlayer(ActorRuntimeID& id) {
-    if (id) {
-        runtimeId = id;
+void DeviceClass::setPlayer(Player* player) {
+    if (player) {
+        mPlayer = player;
+        PlayerAPIPatch::validPlayers.emplace_back(player);
+    } else {
+        mValid = false;
     }
 }
 
 Player* DeviceClass::getPlayer() {
-    if (runtimeId) {
-        ll::service::getLevel()->getRuntimePlayer(runtimeId);
+    mValid = false;
+    for (Player* player : PlayerAPIPatch::validPlayers) {
+        if (player == mPlayer) {
+            mValid = true;
+            break;
+        }
+    }
+    if (mPlayer && mValid) {
+        return mPlayer;
     }
     return nullptr;
 }

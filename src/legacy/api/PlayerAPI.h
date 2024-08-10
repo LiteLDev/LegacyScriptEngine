@@ -8,10 +8,11 @@ class SimulatedPlayer;
 class Player;
 class PlayerClass : public ScriptClass {
 private:
-    ActorRuntimeID runtimeId;
+    Player* mPlayer;
+    bool    mValid = true;
 
 public:
-    explicit PlayerClass(Player* p);
+    explicit PlayerClass(Player* player);
 
     void             set(Player* player);
     Player*          get();

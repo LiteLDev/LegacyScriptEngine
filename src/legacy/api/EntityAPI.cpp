@@ -9,42 +9,38 @@
 #include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
+#include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
 #include "mc/common/HitDetection.h"
-#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/entity/utilities/ActorDamageCause.h"
+#include "mc/entity/utilities/ActorEquipment.h"
+#include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/entity/utilities/ActorType.h"
+#include "mc/math/Vec2.h"
+#include "mc/nbt/CompoundTag.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/Mob.h"
+#include "mc/world/actor/components/SynchedActorDataAccess.h"
+#include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/MobEffectInstance.h"
+#include "mc/world/level/BlockSource.h"
+#include "mc/world/level/IConstBlockSource.h"
+#include "mc/world/level/Level.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/material/Material.h"
+#include "mc/world/phys/AABB.h"
 
 #include <climits>
+#include <entt/entt.hpp>
 #include <magic_enum.hpp>
-#include <mc/deps/core/string/HashedString.h>
-#include <mc/entity/EntityContext.h>
-#include <mc/entity/utilities/ActorEquipment.h>
-#include <mc/entity/utilities/ActorMobilityUtils.h>
-#include <mc/nbt/CompoundTag.h>
-#include <mc/server/ServerPlayer.h>
-#include <mc/world/actor/Mob.h>
-#include <mc/world/actor/SynchedActorData.h>
-#include <mc/world/actor/SynchedActorDataEntityWrapper.h>
-#include <mc/world/actor/components/SynchedActorDataAccess.h>
-#include <mc/world/actor/item/ItemActor.h>
-#include <mc/world/attribute/Attribute.h>
-#include <mc/world/attribute/AttributeInstance.h>
-#include <mc/world/attribute/SharedAttributes.h>
-#include <mc/world/level/BlockSource.h>
-#include <mc/world/level/IConstBlockSource.h>
-#include <mc/world/level/Level.h>
-#include <mc/world/level/biome/Biome.h>
-#include <mc/world/level/material/Material.h>
-#include <mc/world/phys/AABB.h>
 #include <memory>
 #include <vector>
 
@@ -189,6 +185,12 @@ ClassDefine<void> ActorDamageCauseBuilder =
         .build();
 
 // clang-format on
+namespace EntityAPIPatch {
+std::list<Actor*> validActors;
+LL_AUTO_TYPE_INSTANCE_HOOK(ActorDestructorHook, HookPriority::Highest, Actor, "??1Actor@@UEAA@XZ", void) {
+    validActors.remove(this);
+}
+} // namespace EntityAPIPatch
 
 // 生成函数
 Local<Object> EntityClass::newEntity(Actor* actor) {
@@ -211,13 +213,23 @@ std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
 // 成员函数
 void EntityClass::set(Actor* actor) {
     if (actor) {
-        runtimeId = actor->getRuntimeID();
+        mActor = actor;
+        EntityAPIPatch::validActors.emplace_back(actor);
+    } else {
+        mValid = false;
     }
 }
 
 Actor* EntityClass::get() {
-    if (runtimeId) {
-        return ll::service::getLevel()->getRuntimeEntity(runtimeId);
+    mValid = false;
+    for (Actor* actor : EntityAPIPatch::validActors) {
+        if (actor == mActor) {
+            mValid = true;
+            break;
+        }
+    }
+    if (mActor && mValid) {
+        return mActor;
     }
     return nullptr;
 }
@@ -901,11 +913,10 @@ Local<Value> EntityClass::isPlayer(const Arguments& args) {
 
 Local<Value> EntityClass::toPlayer(const Arguments& args) {
     try {
-        Player* player = ll::service::getLevel()->getRuntimePlayer(runtimeId);
-        if (!player) {
+        if (!mActor || !mValid) {
             return Local<Value>();
         }
-        return PlayerClass::newPlayer(player);
+        return PlayerClass::newPlayer(static_cast<Player*>(mActor));
     }
     CATCH("Fail in toPlayer!");
 }

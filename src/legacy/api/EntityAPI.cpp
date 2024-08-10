@@ -206,9 +206,11 @@ std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
 
 // 成员函数
 void EntityClass::set(Actor* actor) {
-    if (actor) {
-        mWeakEntity = actor->getWeakEntity();
-    }
+    try {
+        if (actor) {
+            mWeakEntity = actor->getWeakEntity();
+        }
+    } catch (...) {}
 }
 
 WeakStorageEntity& WeakStorageEntity::operator=(WeakStorageEntity const&) = default;

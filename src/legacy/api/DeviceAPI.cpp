@@ -41,9 +41,11 @@ Local<Object> DeviceClass::newDevice(Player* player) {
 
 // 成员函数
 void DeviceClass::setPlayer(Player* player) {
-    if (player) {
-        mWeakEntity = player->getWeakEntity();
-    }
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+        }
+    } catch (...) {}
 }
 
 Player* DeviceClass::getPlayer() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }

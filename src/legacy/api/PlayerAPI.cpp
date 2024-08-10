@@ -720,9 +720,11 @@ Local<Value> McClass::broadcast(const Arguments& args) {
 
 // 成员函数
 void PlayerClass::set(Player* player) {
-    if (player) {
-        mWeakEntity = player->getWeakEntity();
-    }
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+        }
+    } catch (...) {}
 }
 
 Player* PlayerClass::get() { return mWeakEntity.tryUnwrap<Player>().as_ptr(); }

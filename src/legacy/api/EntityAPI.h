@@ -16,10 +16,10 @@ public:
     void   set(Actor* actor);
     Actor* get();
 
-    static Local<Object>         newEntity(Actor* actor);
-    static Actor*                extract(Local<Value> v);
-    static std::optional<Actor*> tryExtractActor(Local<Value> v);
-    Local<Value>                 asPointer(const Arguments& args);
+    static Local<Object> newEntity(Actor* actor);
+    static Actor*        extract(Local<Value> v);
+    static Actor*        tryExtractActor(Local<Value> v);
+    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getType();

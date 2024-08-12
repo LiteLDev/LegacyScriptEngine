@@ -522,7 +522,7 @@ void EnableEventListener(int eventId) {
         bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobHurt) {
                 if (ev.self().hasType(ActorType::Mob)) {
-                    std::optional<Actor*> damageSource;
+                    Actor* damageSource = nullptr;
                     if (ev.source().isEntitySource()) {
                         if (ev.source().isChildEntitySource()) {
                             damageSource = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID());
@@ -535,7 +535,7 @@ void EnableEventListener(int eventId) {
                     CallEvent(
                         EVENT_TYPES::onMobHurt,
                         EntityClass::newEntity(&ev.self()),
-                        damageSource.has_value() ? EntityClass::newEntity(damageSource.value()) : Local<Value>(),
+                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                         Number::newNumber(ev.damage()),
                         Number::newNumber((int)ev.source().getCause())
                     );

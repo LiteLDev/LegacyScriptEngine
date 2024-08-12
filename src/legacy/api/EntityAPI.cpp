@@ -198,10 +198,10 @@ Actor* EntityClass::extract(Local<Value> v) {
     else return nullptr;
 }
 
-std::optional<Actor*> EntityClass::tryExtractActor(Local<Value> v) {
+Actor* EntityClass::tryExtractActor(Local<Value> v) {
     if (IsInstanceOf<EntityClass>(v)) return EntityClass::extract(v);
     if (IsInstanceOf<PlayerClass>(v)) return PlayerClass::extract(v);
-    return std::nullopt;
+    return nullptr;
 }
 
 // 成员函数
@@ -759,7 +759,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]).value();
+                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
                 Vec3 targetActorPos = targetActor->getPosition();
@@ -825,7 +825,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]).value();
+                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
                 Vec3 targetActorPos = targetActor->getPosition();

@@ -643,7 +643,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     try {
         std::string target = args[0].toStr();
         if (target.empty()) return Local<Value>();
-        Player* found;
+        Player* found = nullptr;
         if (mce::UUID::canParse(target)) { // If target is UUID, then get player by using UUID
             found = ll::service::getLevel()->getPlayer(mce::UUID(target));
             if (found) {
@@ -2590,11 +2590,11 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            std::optional<Actor*> source = EntityClass::tryExtractActor(args[2]);
+            Actor* source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source.value(), (ActorDamageCause)type);
+            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source, (ActorDamageCause)type);
             return Boolean::newBoolean(player->_hurt(damageBySource, damage, true, false));
         }
         ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
@@ -3400,7 +3400,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]).value();
+                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
                 Vec3 targetActorPos = targetActor->getPosition();
@@ -3466,7 +3466,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]).value();
+                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
                 Vec3 targetActorPos = targetActor->getPosition();

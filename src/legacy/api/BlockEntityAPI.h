@@ -7,7 +7,7 @@
 class BlockActor;
 class BlockEntityClass : public ScriptClass {
 private:
-    BlockActor* blockEntity;
+    BlockActor* blockEntity = nullptr;
     int         dim;
 
 public:

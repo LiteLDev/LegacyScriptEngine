@@ -1159,7 +1159,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
         if (source.getCause() == ActorDamageCause::Magic || source.getCause() == ActorDamageCause::Wither) {
-            Actor* damageSource;
+            Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
                 if (source.isChildEntitySource()) {
                     damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());

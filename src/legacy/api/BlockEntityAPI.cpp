@@ -50,7 +50,7 @@ BlockActor* BlockEntityClass::extract(Local<Value> v) {
 }
 
 // 成员函数
-Local<Value> BlockEntityClass::asPointer(const Arguments& args) {
+Local<Value> BlockEntityClass::asPointer(const Arguments&) {
     try {
         return NativePointer::newNativePointer(blockEntity);
     }
@@ -78,7 +78,7 @@ Local<Value> BlockEntityClass::getType() {
     CATCH("Fail in getBlockEntityType!")
 }
 
-Local<Value> BlockEntityClass::getNbt(const Arguments& args) {
+Local<Value> BlockEntityClass::getNbt(const Arguments&) {
     try {
         CompoundTag* tag = new CompoundTag();
         blockEntity->save(*tag);
@@ -101,7 +101,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
     CATCH("Fail in setNbt!")
 }
 
-Local<Value> BlockEntityClass::getBlock(const Arguments& args) {
+Local<Value> BlockEntityClass::getBlock(const Arguments&) {
     try {
         BlockPos bp = blockEntity->getPosition();
         auto&    bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);

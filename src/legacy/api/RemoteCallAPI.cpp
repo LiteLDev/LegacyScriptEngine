@@ -99,8 +99,8 @@ RemoteCall::ValueType pack(Local<Value> value) {
 // Player*, Actor*, ItemStack*, Block*, BlockActor*, Container*, Vec3, BlockPos, CompoundTag*
 Local<Value> _extractValue(bool v) { return Boolean::newBoolean(v); };
 Local<Value> _extractValue(std::string v) { return String::newString(v); };
-Local<Value> _extractValue(std::nullptr_t v) { return Local<Value>(); };
-Local<Value> _extractValue(std::string* v) { return Local<Value>(); };
+Local<Value> _extractValue(std::nullptr_t) { return Local<Value>(); };
+Local<Value> _extractValue(std::string*) { return Local<Value>(); };
 Local<Value> _extractValue(Player* v) { return PlayerClass::newPlayer(v); };
 Local<Value> _extractValue(Actor* v) { return EntityClass::newEntity(v); };
 Local<Value> _extractValue(Block* v) { return BlockClass::newBlock(v, &BlockPos::ZERO, -1); };

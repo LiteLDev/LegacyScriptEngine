@@ -45,9 +45,6 @@ int OperationCount::get() {
 
 bool OperationCount::hasReachCount(int count) { return get() >= count; }
 
-bool OperationCount::hasReachMaxEngineCount() {
-    return hasReachCount(lse::getPluginManager().getModCount());
-    return false;
-}
+bool OperationCount::hasReachMaxEngineCount() { return hasReachCount(lse::getPluginManager().getModCount()); }
 
 bool OperationCount::hasReachMaxBackendCount() { return hasReachCount(LLSE_VALID_BACKENDS_COUNT); }

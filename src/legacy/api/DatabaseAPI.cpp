@@ -4,7 +4,7 @@ using namespace DB;
 
 #define CATCH_AND_THROW(LOG)                                                                                           \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error(LOG##"\n");                                                     \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
         return Local<Value>();                                                                                         \
@@ -173,7 +173,7 @@ KVDBClass::KVDBClass(const Local<Object>& scriptObj, const string& dir) : Script
         kvdb.reset();
     }
 
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine* engine) { kvdb.reset(); });
+    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
 KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
@@ -182,7 +182,7 @@ KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::Const
     } catch (...) {
         kvdb.reset();
     }
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine* engine) { kvdb.reset(); });
+    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
 KVDBClass::~KVDBClass() {}
@@ -239,7 +239,7 @@ Local<Value> KVDBClass::del(const Arguments& args) {
     CATCH_AND_THROW("Fail in DbDel!");
 }
 
-Local<Value> KVDBClass::close(const Arguments& args) {
+Local<Value> KVDBClass::close(const Arguments&) {
     ENGINE_OWN_DATA()->removeUnloadCallback(unloadCallbackIndex);
     unloadCallbackIndex = -1;
     try {
@@ -249,12 +249,12 @@ Local<Value> KVDBClass::close(const Arguments& args) {
     CATCH_AND_THROW("Fail in DbClose!");
 }
 
-Local<Value> KVDBClass::listKey(const Arguments& args) {
+Local<Value> KVDBClass::listKey(const Arguments&) {
     try {
         if (!isValid()) return Local<Value>();
 
         Local<Array> array = Array::newArray();
-        kvdb->iter([&array](std::string_view key, std::string_view value) {
+        kvdb->iter([&array](std::string_view key, std::string_view) {
             array.add(String::newString(key));
             return true;
         });

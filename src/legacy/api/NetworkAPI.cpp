@@ -129,7 +129,7 @@ WSClientClass::WSClientClass()
 }
 
 void WSClientClass::initListeners() {
-    ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]}](WebSocketClient& client, string msg) {
+    ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]}](WebSocketClient&, string msg) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -140,7 +140,7 @@ void WSClientClass::initListeners() {
     });
 
     ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]
-                         }](WebSocketClient& client, vector<uint8_t> data) {
+                         }](WebSocketClient&, vector<uint8_t> data) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -149,7 +149,7 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]}](WebSocketClient& client, string msg) {
+    ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]}](WebSocketClient&, string msg) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -158,8 +158,7 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]
-                         }](WebSocketClient& client, int code) {
+    ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]}](WebSocketClient&, int code) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -171,7 +170,7 @@ void WSClientClass::initListeners() {
 
 void WSClientClass::initListeners_s() {
     ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]},
-                        engine = EngineScope::currentEngine()](WebSocketClient& client, string msg) {
+                        engine = EngineScope::currentEngine()](WebSocketClient&, string msg) {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
@@ -191,7 +190,7 @@ void WSClientClass::initListeners_s() {
     });
 
     ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]},
-                          engine = EngineScope::currentEngine()](WebSocketClient& client, vector<uint8_t> data) {
+                          engine = EngineScope::currentEngine()](WebSocketClient&, vector<uint8_t> data) {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
@@ -214,7 +213,7 @@ void WSClientClass::initListeners_s() {
     });
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]},
-                 engine = EngineScope::currentEngine()](WebSocketClient& client, string msg) {
+                 engine = EngineScope::currentEngine()](WebSocketClient&, string msg) {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
@@ -234,7 +233,7 @@ void WSClientClass::initListeners_s() {
     });
 
     ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]},
-                          engine = EngineScope::currentEngine()](WebSocketClient& client, int code) {
+                          engine = EngineScope::currentEngine()](WebSocketClient&, int code) {
         if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return;
@@ -288,7 +287,7 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
 Local<Value> WSClientClass::getStatus() {
     try {
         return Number::newNumber((int)ws->GetStatus());
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Local<Value>();
     }
     CATCH("Fail in getStatus!");
@@ -305,7 +304,7 @@ Local<Value> WSClientClass::connect(const Arguments& args) {
         RecordOperation(ENGINE_OWN_DATA()->pluginName, "ConnectToWebsocketServer", target);
         ws->Connect(target);
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in connect!");
@@ -336,7 +335,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 try {
                     ws->Connect(target);
                     result = true;
-                } catch (const std::runtime_error& e) {
+                } catch (const std::runtime_error&) {
                     result = false;
                 }
                 if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
@@ -353,7 +352,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
             }
         }).detach();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in connectAsync!");
@@ -371,7 +370,7 @@ Local<Value> WSClientClass::send(const Arguments& args) {
             return Local<Value>();
         }
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in send!");
@@ -385,36 +384,36 @@ Local<Value> WSClientClass::listen(const Arguments& args) {
     try {
         addListener(args[0].toStr(), args[1].asFunction());
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in listen!");
 }
 
-Local<Value> WSClientClass::close(const Arguments& args) {
+Local<Value> WSClientClass::close(const Arguments&) {
     try {
         ws->Close();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in close!");
 }
 
-Local<Value> WSClientClass::shutdown(const Arguments& args) {
+Local<Value> WSClientClass::shutdown(const Arguments&) {
     try {
         ws->Shutdown();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in shutdown!");
 }
 
-Local<Value> WSClientClass::errorCode(const Arguments& args) {
+Local<Value> WSClientClass::errorCode(const Arguments&) {
     try {
         return Number::newNumber(WSAGetLastError());
-    } catch (const std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
         return Local<Value>();
     }
     CATCH("Fail in errorCode!");
@@ -1230,7 +1229,7 @@ Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
 }
 
 // For compatibility
-Local<Value> NetworkClass::newWebSocket(const Arguments& args) {
+Local<Value> NetworkClass::newWebSocket(const Arguments&) {
     auto newp = new WSClientClass();
     return newp->getScriptObject();
 }

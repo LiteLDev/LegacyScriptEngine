@@ -707,9 +707,9 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& flowFromPos,
     uchar           flowFromDirection
 ) {
-    bool result = origin(region, pos, flowFromPos, flowFromDirection);
+    bool res = origin(region, pos, flowFromPos, flowFromDirection);
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        if (result) {
+        if (res) {
             CallEventRtnValue(
                 EVENT_TYPES::onLiquidFlow,
                 false,
@@ -719,7 +719,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
-    return result;
+    return res;
 }
 
 LL_TYPE_INSTANCE_HOOK(

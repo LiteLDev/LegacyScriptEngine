@@ -72,7 +72,7 @@ std::shared_ptr<Packet> PacketClass::extract(Local<Value> v) {
 
 // member function
 
-Local<Value> PacketClass::asPointer(const Arguments& args) {
+Local<Value> PacketClass::asPointer(const Arguments&) {
     try {
         std::shared_ptr<Packet> pkt = get();
         if (!pkt) return Local<Value>();
@@ -120,11 +120,11 @@ Local<Object> BinaryStreamClass::newBinaryStream() {
 
 Local<Value> BinaryStreamClass::getAndReleaseData() {
     try {
-        BinaryStream* bs = get();
+        BinaryStream* stream = get();
         if (!bs) {
             return Local<Value>();
         }
-        return String::newString(bs->getAndReleaseData());
+        return String::newString(stream->getAndReleaseData());
     }
     CATCH("Fail in BinaryStream getData!");
 }
@@ -138,11 +138,11 @@ BinaryStreamClass* BinaryStreamClass::constructor(const Arguments& args) {
 
 Local<Value> BinaryStreamClass::reset() {
     try {
-        BinaryStream* bs = get();
-        if (!bs) {
+        BinaryStream* stream = get();
+        if (!stream) {
             return Local<Value>();
         }
-        bs->reset();
+        stream->reset();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in BinaryStream reset!");
@@ -436,12 +436,12 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
 Local<Value> BinaryStreamClass::createPacket(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
-        BinaryStream* bs = get();
+        BinaryStream* stream = get();
         if (!bs) {
             return Local<Value>();
         }
         auto pkt = MinecraftPackets::createPacket((MinecraftPacketIds)args[0].asNumber().toInt32());
-        pkt->read(*bs);
+        pkt->read(*stream);
         return PacketClass::newPacket(pkt);
     }
     CATCH("Fail in BinaryStream createPacket!");

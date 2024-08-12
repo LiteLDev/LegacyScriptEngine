@@ -655,7 +655,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
 
         transform(target.begin(), target.end(), target.begin(),
                   ::tolower); // lower case the string
-        int delta = INT_MAX;
+        size_t delta = INT_MAX;
         ll::service::getLevel()->forEachPlayer([&](Player& player) {
             if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().id) == target) {
                 found = &player;
@@ -666,7 +666,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
 
             if (pName.find(target) == 0) {
                 // 0 ís the index where the "target" appear in "pName"
-                int curDelta = pName.length() - target.length();
+                size_t curDelta = pName.length() - target.length();
                 if (curDelta == 0) {
                     found = &player;
                     return false;
@@ -684,7 +684,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     CATCH("Fail in GetPlayer!")
 }
 
-Local<Value> McClass::getOnlinePlayers(const Arguments& args) {
+Local<Value> McClass::getOnlinePlayers(const Arguments&) {
     try {
         Local<Array> list  = Array::newArray();
         auto         level = ll::service::getLevel();
@@ -1105,7 +1105,7 @@ Local<Value> PlayerClass::getInClouds() {
     CATCH("Fail in getInClouds!")
 }
 
-Local<Value> PlayerClass::asPointer(const Arguments& args) {
+Local<Value> PlayerClass::asPointer(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();

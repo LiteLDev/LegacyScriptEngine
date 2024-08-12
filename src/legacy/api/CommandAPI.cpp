@@ -476,12 +476,7 @@ void onExecute(
 }
 
 // not complete
-void onExecute2(
-    DynamicCommand const&                                    command,
-    CommandOrigin const&                                     origin,
-    CommandOutput&                                           output,
-    std::unordered_map<std::string, DynamicCommand::Result>& results
-) {
+void onExecute2(DynamicCommand const& command, CommandOrigin const&, CommandOutput&, std::unordered_map<std::string, DynamicCommand::Result>&) {
     auto  instance    = command.getInstance();
     auto& commandName = instance->getCommandName();
     if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
@@ -546,7 +541,7 @@ Local<Value> CommandClass::setup(const Arguments& args) {
 
 Local<Value> CommandClass::isRegistered() { return Boolean::newBoolean(registered); }
 
-Local<Value> CommandClass::toString(const Arguments& args) {
+Local<Value> CommandClass::toString(const Arguments&) {
     try {
         return String::newString(fmt::format("<Command({})>", get()->getCommandName()));
     }
@@ -599,7 +594,7 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
     CATCH("Fail in getSoftEnumValues");
 }
 
-Local<Value> CommandClass::getSoftEnumNames(const Arguments& args) {
+Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
     try {
         std::vector<std::string> stringArray;
         for (auto& i : get()->softEnums) {

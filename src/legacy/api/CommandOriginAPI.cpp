@@ -100,7 +100,7 @@ Local<Value> CommandOriginClass::getPlayer() {
     CATCH("Fail in getPlayer!");
 }
 
-Local<Value> CommandOriginClass::getNbt(const Arguments& args) {
+Local<Value> CommandOriginClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get()->serialize()));
     }

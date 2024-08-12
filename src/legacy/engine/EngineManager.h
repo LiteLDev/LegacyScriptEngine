@@ -7,7 +7,7 @@
 
 class EngineManager {
 public:
-    static script::ScriptEngine* newEngine(std::string pluginName = "", bool isHotLoad = false);
+    static script::ScriptEngine* newEngine(std::string pluginName = "");
     static bool                  registerEngine(script::ScriptEngine* engine);
     static bool                  unregisterEngine(script::ScriptEngine* engine);
     static bool                  isValid(script::ScriptEngine* engine, bool onlyCheckLocal = false);

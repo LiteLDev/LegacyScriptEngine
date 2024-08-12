@@ -233,14 +233,14 @@ Local<Value> McClass::newFloatPos(const Arguments& args) {
     CATCH("Fail in NewFloatPos!")
 }
 
-Local<Value> McClass::getBDSVersion(const Arguments& args) {
+Local<Value> McClass::getBDSVersion(const Arguments&) {
     try {
         return String::newString(Common::getGameVersionString());
     }
     CATCH("Fail in GetBDSVersion!")
 }
 
-Local<Value> McClass::getServerProtocolVersion(const Arguments& args) {
+Local<Value> McClass::getServerProtocolVersion(const Arguments&) {
     try {
         return Number::newNumber(SharedConstants::NetworkProtocolVersion);
     }

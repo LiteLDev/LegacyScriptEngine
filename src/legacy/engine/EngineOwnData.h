@@ -11,7 +11,6 @@
 #include <string>
 #include <unordered_map>
 
-
 struct FormCallbackData {
     script::ScriptEngine*            engine;
     script::Global<script::Function> func;
@@ -88,7 +87,7 @@ struct EngineOwnData {
         unloadCallbacks[++index] = cb;
         return index;
     }
-    inline bool removeUnloadCallback(int index) { return unloadCallbacks.erase(index); }
+    inline bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
 
     // Init
     EngineOwnData() {

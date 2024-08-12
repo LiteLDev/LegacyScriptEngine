@@ -65,7 +65,7 @@ bool NewProcess(
         if (timeLimit == -1) WaitForSingleObject(hProcess, INFINITE);
         else {
             WaitForSingleObject(hProcess, timeLimit);
-            TerminateProcess(hProcess, -1);
+            TerminateProcess(hProcess, 0);
         }
         char   buffer[8192];
         string strOutput;
@@ -172,14 +172,14 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
     CATCH("Fail in newProcess");
 }
 
-Local<Value> SystemClass::getTimeStr(const Arguments& args) {
+Local<Value> SystemClass::getTimeStr(const Arguments&) {
     try {
         return String::newString(Raw_GetDateTimeStr());
     }
     CATCH("Fail in GetTimeStr!")
 }
 
-Local<Value> SystemClass::getTimeObj(const Arguments& args) {
+Local<Value> SystemClass::getTimeObj(const Arguments&) {
     try {
         SYSTEMTIME st;
         GetLocalTime(&st);
@@ -196,4 +196,4 @@ Local<Value> SystemClass::getTimeObj(const Arguments& args) {
     CATCH("Fail in GetTimeNow!")
 }
 
-Local<Value> SystemClass::randomGuid(const Arguments& args) { return String::newString(Raw_RandomGuid()); }
+Local<Value> SystemClass::randomGuid(const Arguments&) { return String::newString(Raw_RandomGuid()); }

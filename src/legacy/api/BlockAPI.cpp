@@ -270,7 +270,7 @@ Local<Value> BlockClass::isWaterBlockingBlock() {
     CATCH("Fail in isWaterBlockingBlock!");
 }
 
-Local<Value> BlockClass::asPointer(const Arguments& args) {
+Local<Value> BlockClass::asPointer(const Arguments&) {
     try {
         return NativePointer::newNativePointer(block);
     }
@@ -292,7 +292,7 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
     CATCH("Fail in destroyBlock!");
 }
 
-Local<Value> BlockClass::getNbt(const Arguments& args) {
+Local<Value> BlockClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(std::move(block->getSerializationId().clone()));
     }
@@ -323,7 +323,7 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
     CATCH("Fail in setNbt!")
 }
 
-Local<Value> BlockClass::getBlockState(const Arguments& args) {
+Local<Value> BlockClass::getBlockState(const Arguments&) {
     return Local<Value>();
     try {
         auto list = block->getSerializationId();
@@ -332,13 +332,13 @@ Local<Value> BlockClass::getBlockState(const Arguments& args) {
         } catch (...) {
             return Array::newArray();
         }
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         return Object::newObject();
     }
     CATCH("Fail in getBlockState!")
 }
 
-Local<Value> BlockClass::hasContainer(const Arguments& args) {
+Local<Value> BlockClass::hasContainer(const Arguments&) {
     try {
         auto& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(
             pos.getBlockPos()
@@ -348,7 +348,7 @@ Local<Value> BlockClass::hasContainer(const Arguments& args) {
     CATCH("Fail in hasContainer!");
 }
 
-Local<Value> BlockClass::getContainer(const Arguments& args) {
+Local<Value> BlockClass::getContainer(const Arguments&) {
     try {
         Container* container = ll::service::getLevel()
                                    ->getDimension(pos.dim)
@@ -360,14 +360,14 @@ Local<Value> BlockClass::getContainer(const Arguments& args) {
     CATCH("Fail in getContainer!");
 }
 
-Local<Value> BlockClass::hasBlockEntity(const Arguments& args) {
+Local<Value> BlockClass::hasBlockEntity(const Arguments&) {
     try {
         return Boolean::newBoolean(block->hasBlockEntity());
     }
     CATCH("Fail in hasBlockEntity!");
 }
 
-Local<Value> BlockClass::getBlockEntity(const Arguments& args) {
+Local<Value> BlockClass::getBlockEntity(const Arguments&) {
     try {
         BlockActor* be =
             ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlockEntity(
@@ -378,7 +378,7 @@ Local<Value> BlockClass::getBlockEntity(const Arguments& args) {
     CATCH("Fail in getBlockEntity!");
 }
 
-Local<Value> BlockClass::removeBlockEntity(const Arguments& args) {
+Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
     try {
         ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().removeBlockEntity(
             pos.getBlockPos()

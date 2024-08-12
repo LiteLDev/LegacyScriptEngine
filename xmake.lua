@@ -46,7 +46,8 @@ target("legacy-script-engine")
     add_cxflags(
         "/EHa",
         "/utf-8",
-        "/sdl"
+        "/sdl",
+        "/W4"
     )
     add_defines(
         "NOMINMAX",

@@ -204,7 +204,6 @@ int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
                                     if (taskData.func.isEmpty()) return;
                                     func = taskData.func.get();
                                     if (!taskData.paras.empty()) {
-                                        vector<Local<Value>> args;
                                         for (auto& para : taskData.paras)
                                             if (para.isEmpty()) return;
                                             else args.emplace_back(para.get());

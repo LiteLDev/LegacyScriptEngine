@@ -60,7 +60,6 @@ namespace lse {
 PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
-    auto& logger = getSelfPluginInstance().getLogger();
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     std::string           entryPath =
@@ -194,7 +193,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // Try loadFile
         try {
             scriptEngine.loadFile(entryPath.u8string());
-        } catch (const script::Exception& e) {
+        } catch (const script::Exception&) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
@@ -207,10 +206,10 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
         ExitEngineScope exit;
 #endif
-        plugin->onLoad([](ll::mod::Mod& plugin) { return true; });
-        plugin->onUnload([](ll::mod::Mod& plugin) { return true; });
-        plugin->onEnable([](ll::mod::Mod& plugin) { return true; });
-        plugin->onDisable([](ll::mod::Mod& plugin) { return true; });
+        plugin->onLoad([](ll::mod::Mod&) { return true; });
+        plugin->onUnload([](ll::mod::Mod&) { return true; });
+        plugin->onEnable([](ll::mod::Mod&) { return true; });
+        plugin->onDisable([](ll::mod::Mod&) { return true; });
     } catch (const Exception& e) {
         EngineScope engineScope(scriptEngine);
         auto        error =
@@ -235,8 +234,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 }
 
 ll::Expected<> PluginManager::unload(std::string_view name) {
-    auto& logger = getSelfPluginInstance().getLogger();
-
     try {
 
         auto plugin = std::static_pointer_cast<Plugin>(getMod(name));

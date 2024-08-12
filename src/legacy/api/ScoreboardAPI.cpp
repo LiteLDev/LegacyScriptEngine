@@ -374,7 +374,7 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
     CATCH("Fail in RemoveScoreObjective!")
 }
 
-Local<Value> McClass::getAllScoreObjectives(const Arguments& args) {
+Local<Value> McClass::getAllScoreObjectives(const Arguments&) {
     try {
         Local<Array> res = Array::newArray();
 

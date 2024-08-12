@@ -105,7 +105,7 @@ void* NativePointer::extract(Local<Value> v) {
     else return nullptr;
 }
 
-Local<Value> NativePointer::asRawAddress(const Arguments& args) {
+Local<Value> NativePointer::asRawAddress(const Arguments&) {
     try {
         void* pkt = unwrap();
         if (!pkt) return Local<Value>();
@@ -114,7 +114,7 @@ Local<Value> NativePointer::asRawAddress(const Arguments& args) {
     CATCH("Fail in NativePointer::asPointer!")
 }
 
-Local<Value> NativePointer::asHexAddress(const Arguments& args) {
+Local<Value> NativePointer::asHexAddress(const Arguments&) {
     try {
         void* pkt = unwrap();
         if (!pkt) return Local<Value>();
@@ -125,21 +125,21 @@ Local<Value> NativePointer::asHexAddress(const Arguments& args) {
     CATCH("Fail in NativePointer::asHexStr!")
 }
 
-Local<Value> NativePointer::asRef(const Arguments& args) {
+Local<Value> NativePointer::asRef(const Arguments&) {
     try {
         return newNativePointer((void*)&mPtr);
     }
     CATCH("Fail in NativePointer::asRef!")
 }
 
-Local<Value> NativePointer::deRef(const Arguments& args) {
+Local<Value> NativePointer::deRef(const Arguments&) {
     try {
         return newNativePointer(*(void**)mPtr);
     }
     CATCH("Fail in NativePointer::deRef!")
 }
 
-Local<Value> NativePointer::isNull(const Arguments& args) {
+Local<Value> NativePointer::isNull(const Arguments&) {
     try {
         return script::Boolean::newBoolean(mPtr == nullptr);
     }
@@ -164,7 +164,7 @@ Local<Value> NativePointer::getMemByte() {
     CATCH("Fail in NativePointer::getMemByte!")
 }
 
-void NativePointer::setMemByte(const Local<Value>& value) {
+void NativePointer::setMemByte(const Local<Value>&) {
 
     lse::getSelfPluginInstance().getLogger().error("Fail to set mem!");
     lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);

@@ -27,9 +27,9 @@ public:
     Local<Value> getZ() { return Number::newNumber(z); }
     Local<Value> getDim();
     Local<Value> getDimId() { return Number::newNumber(dim); }
-    void         setX(const Local<Value>& value) { x = value.asNumber().toInt64(); }
-    void         setY(const Local<Value>& value) { y = value.asNumber().toInt64(); }
-    void         setZ(const Local<Value>& value) { z = value.asNumber().toInt64(); }
+    void         setX(const Local<Value>& value) { x = value.asNumber().toInt32(); }
+    void         setY(const Local<Value>& value) { y = value.asNumber().toInt32(); }
+    void         setZ(const Local<Value>& value) { z = value.asNumber().toInt32(); }
     void         setDimId(const Local<Value>& value) { dim = value.asNumber().toInt32(); }
     Local<Value> toString();
 };
@@ -52,9 +52,9 @@ public:
     Local<Value> getDimId() { return Number::newNumber(dim); }
     Local<Value> toString();
 
-    void setX(const Local<Value>& value) { x = value.asNumber().toInt64(); }
-    void setY(const Local<Value>& value) { y = value.asNumber().toInt64(); }
-    void setZ(const Local<Value>& value) { z = value.asNumber().toInt64(); }
+    void setX(const Local<Value>& value) { x = value.asNumber().toFloat(); }
+    void setY(const Local<Value>& value) { y = value.asNumber().toFloat(); }
+    void setZ(const Local<Value>& value) { z = value.asNumber().toFloat(); }
     void setDimId(const Local<Value>& value) { dim = value.asNumber().toInt32(); }
 };
 extern ClassDefine<FloatPos> FloatPosBuilder;

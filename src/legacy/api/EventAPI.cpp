@@ -832,7 +832,7 @@ void InitBasicEventListeners() {
     });
 
     // ===== onServerStarted =====
-    bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent& ev) {
+    bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent&) {
         using namespace ll::chrono_literals;
         eventScheduler.add<ll::schedule::DelayTask>(1_tick, [] {
             IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventUncancelable(EVENT_TYPES::onServerStarted); }

@@ -122,7 +122,7 @@ Local<Value> LlClass::getScriptEngineVersion() {
 
 Local<Value> LlClass::getVersionStatus() { return Number::newNumber(0); }
 
-Local<Value> LlClass::registerPlugin(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::registerPlugin(const Arguments&) { return Boolean::newBoolean(true); }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
         auto plugin = lse::getPluginManager().getMod(args[0].asString().toString());
@@ -156,20 +156,20 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     }
     CATCH("Fail in LLAPI");
 }
-Local<Value> LlClass::versionString(const Arguments& args) {
+Local<Value> LlClass::versionString(const Arguments&) {
     try {
         return String::newString(ll::getLoaderVersion().to_string());
     }
     CATCH("Fail in LLSEGetVersionString!")
 }
 
-Local<Value> LlClass::requireVersion(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::requireVersion(const Arguments&) { return Boolean::newBoolean(true); }
 
-Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
+Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
     try {
         Local<Array> plugins = Array::newArray();
         ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
-            [&](std::string_view type, std::string_view name, ll::mod::Mod& plugin) {
+            [&](std::string_view type, std::string_view, ll::mod::Mod& plugin) {
                 // Create plugin object
                 auto pluginObject = Object::newObject();
 
@@ -206,11 +206,11 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments& args) {
     CATCH("Fail in LLAPI");
 }
 // For Compatibility
-Local<Value> LlClass::listPlugins(const Arguments& args) {
+Local<Value> LlClass::listPlugins(const Arguments&) {
     try {
         Local<Array> plugins = Array::newArray();
         ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
-            [&](std::string_view type, std::string_view name, ll::mod::Mod&) {
+            [&](std::string_view, std::string_view name, ll::mod::Mod&) {
                 plugins.add(String::newString(name));
                 return true;
             }
@@ -220,7 +220,7 @@ Local<Value> LlClass::listPlugins(const Arguments& args) {
     CATCH("Fail in LLAPI");
 }
 
-Local<Value> LlClass::require(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::require(const Arguments&) { return Boolean::newBoolean(true); }
 
 Local<Value> LlClass::eval(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -232,10 +232,10 @@ Local<Value> LlClass::eval(const Arguments& args) {
 }
 
 // For Compatibility
-Local<Value> LlClass::getVersionStatusFunction(const Arguments& args) { return Number::newNumber(0); }
+Local<Value> LlClass::getVersionStatusFunction(const Arguments&) { return Number::newNumber(0); }
 
 // For Compatibility
-Local<Value> LlClass::version(const Arguments& args) {
+Local<Value> LlClass::version(const Arguments&) {
     try {
         Local<Object> ver = Object::newObject();
         ver.set("major", ll::getLoaderVersion().major);
@@ -250,7 +250,7 @@ Local<Value> LlClass::version(const Arguments& args) {
 }
 
 // For Compatibility
-Local<Value> LlClass::isDebugModeFunction(const Arguments& args) {
+Local<Value> LlClass::isDebugModeFunction(const Arguments&) {
 #ifdef LEGACYSCRIPTENGINE_DEBUG
     return Boolean::newBoolean(true);
 #else
@@ -259,7 +259,7 @@ Local<Value> LlClass::isDebugModeFunction(const Arguments& args) {
 }
 
 // For Compatibility
-Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments& args) {
+Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments&) {
     try {
         return String::newString(EngineScope::currentEngine()->getEngineVersion());
     }

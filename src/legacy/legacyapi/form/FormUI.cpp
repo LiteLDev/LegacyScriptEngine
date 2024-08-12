@@ -29,18 +29,18 @@ std::string Button::serialize() {
     }
 }
 
-SimpleForm& SimpleForm::setTitle(const std::string& title) {
-    this->title = title;
+SimpleForm& SimpleForm::setTitle(const std::string& newTitle) {
+    this->title = newTitle;
     return *this;
 }
 
-SimpleForm& SimpleForm::setContent(const std::string& content) {
-    this->content = content;
+SimpleForm& SimpleForm::setContent(const std::string& newContent) {
+    this->content = newContent;
     return *this;
 }
 
-SimpleForm& SimpleForm::addButton(std::string text, std::string image, Button::ButtonCallback callback) {
-    return append(Button(text, image, callback));
+SimpleForm& SimpleForm::addButton(std::string text, std::string image, Button::ButtonCallback cb) {
+    return append(Button(text, image, cb));
 }
 
 SimpleForm& SimpleForm::append(const Button& element) {
@@ -64,9 +64,9 @@ std::string SimpleForm::serialize() {
     }
 }
 
-void SimpleForm::sendTo(Player* player, Callback callback) {
+void SimpleForm::sendTo(Player* player, Callback cb) {
     unsigned id    = NewFormId();
-    this->callback = std::move(callback);
+    this->callback = std::move(cb);
     SetSimpleFormBuilderData(id, std::make_shared<SimpleForm>(*this));
 
     std::string data = serialize();
@@ -78,13 +78,13 @@ void SimpleForm::sendTo(Player* player, Callback callback) {
 }
 
 //////////////////////////////// Modal Form ////////////////////////////////
-ModalForm& ModalForm::setTitle(const std::string& title) {
-    this->title = title;
+ModalForm& ModalForm::setTitle(const std::string& newTitle) {
+    this->title = newTitle;
     return *this;
 }
 
-ModalForm& ModalForm::setContent(const std::string& content) {
-    this->content = content;
+ModalForm& ModalForm::setContent(const std::string& newContent) {
+    this->content = newContent;
     return *this;
 }
 
@@ -113,9 +113,9 @@ std::string ModalForm::serialize() {
     }
 }
 
-void ModalForm::sendTo(Player* player, Callback callback) {
+void ModalForm::sendTo(Player* player, Callback cb) {
     unsigned id    = NewFormId();
-    this->callback = std::move(callback);
+    this->callback = std::move(cb);
     SetModalFormBuilderData(id, std::make_shared<ModalForm>(*this));
 
     std::string data = serialize();
@@ -261,42 +261,43 @@ std::string StepSlider::serialize() {
     }
 }
 
-CustomForm& CustomForm::setTitle(const std::string& title) {
-    this->title = title;
+CustomForm& CustomForm::setTitle(const std::string& newTitle) {
+    this->title = newTitle;
     return *this;
 }
 
 CustomForm& CustomForm::addLabel(const std::string& name, std::string text) { return append(Label(name, text)); }
 
-CustomForm& CustomForm::addInput(const std::string& name, std::string title, std::string placeholder, std::string def) {
-    return append(Input(name, title, placeholder, def));
+CustomForm&
+CustomForm::addInput(const std::string& name, std::string iTitle, std::string placeholder, std::string def) {
+    return append(Input(name, iTitle, placeholder, def));
 }
 
-CustomForm& CustomForm::addToggle(const std::string& name, std::string title, bool def) {
-    return append(Toggle(name, title, def));
+CustomForm& CustomForm::addToggle(const std::string& name, std::string tTitle, bool def) {
+    return append(Toggle(name, tTitle, def));
 }
 
 CustomForm& CustomForm::addDropdown(
     const std::string&              name,
-    std::string                     title,
+    std::string                     dTitle,
     const std::vector<std::string>& options,
     int                             defId
 ) {
-    return append(Dropdown(name, title, options, defId));
+    return append(Dropdown(name, dTitle, options, defId));
 }
 
 CustomForm&
-CustomForm::addSlider(const std::string& name, std::string title, double min, double max, double step, double def) {
-    return append(Slider(name, title, min, max, step, def));
+CustomForm::addSlider(const std::string& name, std::string sTitle, double min, double max, double step, double def) {
+    return append(Slider(name, sTitle, min, max, step, def));
 }
 
 CustomForm& CustomForm::addStepSlider(
     const std::string&              name,
-    std::string                     title,
+    std::string                     sTitle,
     const std::vector<std::string>& options,
     int                             defId
 ) {
-    return append(StepSlider(name, title, options, defId));
+    return append(StepSlider(name, sTitle, options, defId));
 }
 
 CustomForm& CustomForm::append(const Label& element) {
@@ -345,9 +346,9 @@ std::string CustomForm::serialize() {
     }
 }
 
-void CustomForm::sendTo(Player* player, Callback callback) {
+void CustomForm::sendTo(Player* player, Callback cb) {
     unsigned id    = NewFormId();
-    this->callback = std::move(callback);
+    this->callback = std::move(cb);
     SetCustomFormBuilderData(id, std::make_shared<CustomForm>(*this));
 
     std::string data = serialize();
@@ -359,11 +360,11 @@ void CustomForm::sendTo(Player* player, Callback callback) {
     player->sendNetworkPacket(packet);
 }
 
-void CustomForm::sendToForRawJson(Player* player, Callback2 callback) {
+void CustomForm::sendToForRawJson(Player* player, Callback2 cb) {
     unsigned id = NewFormId();
     // this->callback = callback;
     this->callback = nullptr;
-    SetCustomFormPacketCallback(id, callback);
+    SetCustomFormPacketCallback(id, cb);
 
     std::string data = serialize();
     if (data.empty()) {

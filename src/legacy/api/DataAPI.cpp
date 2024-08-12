@@ -99,14 +99,14 @@ ClassDefine<ConfIniClass> ConfIniClassBuilder =
 
 ConfBaseClass::ConfBaseClass(const string& dir) : confPath(dir) {}
 
-Local<Value> ConfBaseClass::getPath(const Arguments& args) {
+Local<Value> ConfBaseClass::getPath(const Arguments&) {
     try {
         return String::newString(confPath);
     }
     CATCH("Fail in confGetPath!")
 }
 
-Local<Value> ConfBaseClass::read(const Arguments& args) {
+Local<Value> ConfBaseClass::read(const Arguments&) {
     try {
         auto content = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
         if (!content) return Local<Value>();
@@ -153,11 +153,11 @@ Local<Value> ConfJsonClass::init(const Arguments& args) {
 
     try {
         return JsonToValue(jsonConf.at(args[0].toStr()));
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
-    } catch (const ordered_json::exception& e) {
+    } catch (const ordered_json::exception&) {
         jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
@@ -171,9 +171,9 @@ Local<Value> ConfJsonClass::get(const Arguments& args) {
 
     try {
         return JsonToValue(jsonConf.at(args[0].toStr()));
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
-    } catch (const ordered_json::exception& e) {
+    } catch (const ordered_json::exception&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
     }
     CATCH("Fail in confJsonGet!")
@@ -186,7 +186,7 @@ Local<Value> ConfJsonClass::set(const Arguments& args) {
     try {
         jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
         return Boolean::newBoolean(flush());
-    } catch (const ordered_json::exception& e) {
+    } catch (const ordered_json::exception&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in confJsonSet!");
@@ -200,13 +200,13 @@ Local<Value> ConfJsonClass::del(const Arguments& args) {
         if (jsonConf.erase(args[0].toStr()) <= 0) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(flush());
-    } catch (const ordered_json::exception& e) {
+    } catch (const ordered_json::exception&) {
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in confJsonDelete!");
 }
 
-Local<Value> ConfJsonClass::reload(const Arguments& args) {
+Local<Value> ConfJsonClass::reload(const Arguments&) {
     try {
         return Boolean::newBoolean(reload());
     } catch (const ordered_json::exception& e) {
@@ -218,7 +218,7 @@ Local<Value> ConfJsonClass::reload(const Arguments& args) {
     CATCH("Fail in confJsonReload!");
 }
 
-Local<Value> ConfJsonClass::close(const Arguments& args) {
+Local<Value> ConfJsonClass::close(const Arguments&) {
     try {
         return Boolean::newBoolean(close());
     }
@@ -453,11 +453,9 @@ Local<Value> ConfIniClass::getFloat(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        return Number::newNumber(iniConf->getFloat(
-            args[0].toStr(),
-            args[1].toStr(),
-            args.size() >= 3 ? (float)args[2].asNumber().toDouble() : 0.0
-        ));
+        return Number::newNumber(
+            iniConf->getFloat(args[0].toStr(), args[1].toStr(), args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0)
+        );
     }
     CATCH("Fail in ConfIniGetFloat!");
 }
@@ -493,7 +491,7 @@ Local<Value> ConfIniClass::del(const Arguments& args) {
     CATCH("Fail in confIniDelete!");
 }
 
-Local<Value> ConfIniClass::reload(const Arguments& args) {
+Local<Value> ConfIniClass::reload(const Arguments&) {
     try {
         return Boolean::newBoolean(reload());
     }
@@ -512,7 +510,7 @@ Local<Value> ConfIniClass::write(const Arguments& args) {
     CATCH("Fail in confIniWrite!");
 }
 
-Local<Value> ConfIniClass::close(const Arguments& args) {
+Local<Value> ConfIniClass::close(const Arguments&) {
     try {
         return Boolean::newBoolean(close());
     }
@@ -671,7 +669,7 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        string res{EconomySystem::getMoneyHist(args[0].toStr(), args[1].asNumber().toInt64())};
+        string res{EconomySystem::getMoneyHist(args[0].toStr(), args[1].asNumber().toInt32())};
         return objectificationMoneyHistory(res);
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
@@ -692,7 +690,7 @@ Local<Value> MoneyClass::clearHistory(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        EconomySystem::clearMoneyHist(args[0].asNumber().toInt64());
+        EconomySystem::clearMoneyHist(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in MoneyClearHistory!");

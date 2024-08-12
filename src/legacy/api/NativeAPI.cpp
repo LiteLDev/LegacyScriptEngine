@@ -362,7 +362,7 @@ Local<Value> NativeFunction::getCallableFunction() {
         return callNativeFunction(ENGINE_OWN_DATA()->dynamicCallVM, this, args);
     });
 }
-char NativeFunction::nativeCallbackHandler(DCCallback* cb, DCArgs* args, DCValue* result, void* userdata) {
+char NativeFunction::nativeCallbackHandler(DCCallback*, DCArgs* args, DCValue* result, void* userdata) {
     DynamicHookData* hookInfo = (DynamicHookData*)userdata;
 
     EngineScope enter(hookInfo->mEngine);
@@ -521,12 +521,12 @@ Local<Value> ScriptNativeFunction::hook(const Arguments& args) {
         dcbNewCallback(hookSymbol->buildDynCallbackSig().c_str(), &nativeCallbackHandler, hookSymbol);
     hookSymbol->mScriptCallback = args[0].asFunction();
     void* hookOriginl           = nullptr;
-    int   hookResult            = ll::memory::hook(
-        hookSymbol->mFunction,
-        hookSymbol->mNativeCallback,
-        reinterpret_cast<ll::memory::FuncPtr*>(hookOriginl),
-        ll::memory::HookPriority::Normal
-    ); // It's broken
+    // int   hookResult            = ll::memory::hook(
+    //     hookSymbol->mFunction,
+    //     hookSymbol->mNativeCallback,
+    //     reinterpret_cast<ll::memory::FuncPtr*>(hookOriginl),
+    //     ll::memory::HookPriority::Normal
+    // ); // It's broken
     hookSymbol->mFunction = hookOriginl;
     return scriptResult;
 }

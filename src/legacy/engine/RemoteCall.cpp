@@ -65,7 +65,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
             lse::getSelfPluginInstance().getLogger().error("Fail to post remote call result return!");
         }
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         lse::getSelfPluginInstance().getLogger().error(
             string("Fail to import! Function [") + funcName + "] has not been exported!"
         );

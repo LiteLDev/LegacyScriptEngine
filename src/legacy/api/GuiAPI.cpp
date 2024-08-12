@@ -263,6 +263,6 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
 
 //////////////////// APIs ////////////////////
 
-Local<Value> McClass::newSimpleForm(const Arguments& args) { return SimpleFormClass::newForm(); }
+Local<Value> McClass::newSimpleForm(const Arguments&) { return SimpleFormClass::newForm(); }
 
-Local<Value> McClass::newCustomForm(const Arguments& args) { return CustomFormClass::newForm(); }
+Local<Value> McClass::newCustomForm(const Arguments&) { return CustomFormClass::newForm(); }

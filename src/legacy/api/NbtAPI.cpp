@@ -338,7 +338,7 @@ NbtByteClass::NbtByteClass(std::unique_ptr<ByteTag> p) : ScriptClass(ScriptClass
 
 NbtByteClass* NbtByteClass::constructor(const Arguments& args) {
     try {
-        return new NbtByteClass(args.thiz(), std::move(std::make_unique<ByteTag>((char)args[0].toInt())));
+        return new NbtByteClass(args.thiz(), std::make_unique<ByteTag>((char)args[0].toInt()));
     }
     CATCH_C("Fail in Create ByteTag!");
 }
@@ -371,9 +371,9 @@ Local<Value> NbtByteClass::pack(std::unique_ptr<ByteTag> tag) {
     CATCH("Fail in construct NbtByte!");
 }
 
-Local<Value> NbtByteClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Byte); }
+Local<Value> NbtByteClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Byte); }
 
-Local<Value> NbtByteClass::get(const Arguments& args) {
+Local<Value> NbtByteClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -441,9 +441,9 @@ Local<Value> NbtIntClass::pack(std::unique_ptr<IntTag> tag) {
     CATCH("Fail in construct NbtInt!");
 }
 
-Local<Value> NbtIntClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Int); }
+Local<Value> NbtIntClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Int); }
 
-Local<Value> NbtIntClass::get(const Arguments& args) {
+Local<Value> NbtIntClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -513,9 +513,9 @@ Local<Value> NbtShortClass::pack(std::unique_ptr<ShortTag> tag) {
     CATCH("Fail in construct NbtShort!");
 }
 
-Local<Value> NbtShortClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Short); }
+Local<Value> NbtShortClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Short); }
 
-Local<Value> NbtShortClass::get(const Arguments& args) {
+Local<Value> NbtShortClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -583,9 +583,9 @@ Local<Value> NbtLongClass::pack(std::unique_ptr<Int64Tag> tag) {
     CATCH("Fail in construct NbtLong!");
 }
 
-Local<Value> NbtLongClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Int64); }
+Local<Value> NbtLongClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Int64); }
 
-Local<Value> NbtLongClass::get(const Arguments& args) {
+Local<Value> NbtLongClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -655,9 +655,9 @@ Local<Value> NbtFloatClass::pack(std::unique_ptr<FloatTag> tag) {
     CATCH("Fail in construct NbtFloat!");
 }
 
-Local<Value> NbtFloatClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Float); }
+Local<Value> NbtFloatClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Float); }
 
-Local<Value> NbtFloatClass::get(const Arguments& args) {
+Local<Value> NbtFloatClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -728,9 +728,9 @@ Local<Value> NbtDoubleClass::pack(std::unique_ptr<DoubleTag> tag) {
     CATCH("Fail in construct NbtDouble!");
 }
 
-Local<Value> NbtDoubleClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Double); }
+Local<Value> NbtDoubleClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Double); }
 
-Local<Value> NbtDoubleClass::get(const Arguments& args) {
+Local<Value> NbtDoubleClass::get(const Arguments&) {
     try {
         return Number::newNumber(nbt->data);
     }
@@ -801,9 +801,9 @@ Local<Value> NbtStringClass::pack(std::unique_ptr<StringTag> tag) {
     CATCH("Fail in construct NbtString!");
 }
 
-Local<Value> NbtStringClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::String); }
+Local<Value> NbtStringClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::String); }
 
-Local<Value> NbtStringClass::get(const Arguments& args) {
+Local<Value> NbtStringClass::get(const Arguments&) {
     try {
         return String::newString(nbt->toString());
     }
@@ -881,9 +881,9 @@ Local<Value> NbtByteArrayClass::pack(std::unique_ptr<ByteArrayTag> tag) {
     CATCH("Fail in construct NbtByteArray!");
 }
 
-Local<Value> NbtByteArrayClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::ByteArray); }
+Local<Value> NbtByteArrayClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::ByteArray); }
 
-Local<Value> NbtByteArrayClass::get(const Arguments& args) {
+Local<Value> NbtByteArrayClass::get(const Arguments&) {
     try {
         auto& data = *nbt;
         char  buf[1024];
@@ -933,34 +933,34 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
         > 0) { // ListTag::add deletes the Tag which is provided as argument, so make a copy of Tag before using it.
         Local<Value> t = arr.get(0);
         if (IsInstanceOf<NbtByteClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtByteClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtByteClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtShortClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtShortClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtShortClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtIntClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtIntClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtIntClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtLongClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtLongClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtLongClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtFloatClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtFloatClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtFloatClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtDoubleClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtDoubleClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtDoubleClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtStringClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtStringClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtStringClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtByteArrayClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtByteArrayClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtByteArrayClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtListClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtListClass::extract(arr.get(i))->copyList());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtListClass::extract(arr.get(i))->copyList());
         else if (IsInstanceOf<NbtCompoundClass>(t))
-            for (int i = 0; i < arr.size(); ++i) tag->add(*NbtCompoundClass::extract(arr.get(i))->clone());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtCompoundClass::extract(arr.get(i))->clone());
         else if (t.isArray()) {
-            for (int i = 0; i < arr.size(); ++i) {
+            for (size_t i = 0; i < arr.size(); ++i) {
                 auto arrTag = ListTag();
                 auto data   = arr.get(i).asArray();
                 NbtListClassAddHelper(&arrTag, data);
                 tag->add(std::move(arrTag));
             }
         } else if (t.isObject()) {
-            for (int i = 0; i < arr.size(); ++i) {
+            for (size_t i = 0; i < arr.size(); ++i) {
                 auto objTag = CompoundTag();
                 auto data   = arr.get(i).asObject();
                 NbtCompoundClassAddHelper(&objTag, data);
@@ -1011,9 +1011,9 @@ Local<Value> NbtListClass::pack(std::unique_ptr<ListTag> tag) {
     CATCH("Fail in construct NbtList!");
 }
 
-Local<Value> NbtListClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::List); }
+Local<Value> NbtListClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::List); }
 
-Local<Value> NbtListClass::getSize(const Arguments& args) {
+Local<Value> NbtListClass::getSize(const Arguments&) {
     try {
         return Number::newNumber((int)nbt->size());
     }
@@ -1405,7 +1405,7 @@ Local<Value> NbtListClass::getTag(const Arguments& args) {
     CATCH("Fail in NBT GetTag!");
 }
 
-Local<Value> NbtListClass::toArray(const Arguments& args) {
+Local<Value> NbtListClass::toArray(const Arguments&) {
     try {
         Local<Array> arr = Array::newArray();
 
@@ -1521,9 +1521,9 @@ Local<Value> NbtCompoundClass::pack(std::unique_ptr<CompoundTag> tag) {
     CATCH("Fail in construct NbtCompound!");
 }
 
-Local<Value> NbtCompoundClass::getType(const Arguments& args) { return Number::newNumber((int)Tag::Type::Compound); }
+Local<Value> NbtCompoundClass::getType(const Arguments&) { return Number::newNumber((int)Tag::Type::Compound); }
 
-Local<Value> NbtCompoundClass::getKeys(const Arguments& args) {
+Local<Value> NbtCompoundClass::getKeys(const Arguments&) {
     try {
         Local<Array> arr  = Array::newArray();
         auto&        list = nbt->mTags;
@@ -1545,7 +1545,7 @@ Local<Value> NbtCompoundClass::getTypeOf(const Arguments& args) {
         auto  key  = args[0].toStr();
 
         return Number::newNumber(int(list.at(key).getId()));
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range& ) {
         return Local<Value>();
     }
     CATCH("Fail in NBT GetTypeOf!");
@@ -1735,7 +1735,7 @@ Local<Value> NbtCompoundClass::removeTag(const Arguments& args) {
 
         list.erase(key);
         return this->getScriptObject();
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range& ) {
         LOG_ERROR_WITH_SCRIPT_INFO("Key no found in NBT Compound!");
         return Local<Value>();
     }
@@ -1750,7 +1750,7 @@ Local<Value> NbtCompoundClass::getData(const Arguments& args) {
         auto key = args[0].toStr();
 
         return Tag2Value(nbt->at(key).get().as_ptr<Tag>());
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range& ) {
         return Local<Value>();
     }
     CATCH("Fail in NBT GetData!")
@@ -1816,13 +1816,13 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
             break;
         }
         return res;
-    } catch (const std::out_of_range& e) {
+    } catch (const std::out_of_range&) {
         return Local<Value>();
     }
     CATCH("Fail in NBT GetTag!");
 }
 
-Local<Value> NbtCompoundClass::toObject(const Arguments& args) {
+Local<Value> NbtCompoundClass::toObject(const Arguments&) {
     try {
         auto&         comp = nbt->mTags;
         Local<Object> obj  = Object::newObject();
@@ -1844,7 +1844,7 @@ Local<Value> NbtCompoundClass::toSNBT(const Arguments& args) {
     CATCH("Fail in toSNBT!");
 }
 
-Local<Value> NbtCompoundClass::toBinaryNBT(const Arguments& args) {
+Local<Value> NbtCompoundClass::toBinaryNBT(const Arguments&) {
     try {
         auto res = nbt->toBinaryNbt();
         return ByteBuffer::newByteBuffer(res.data(), res.size());
@@ -1861,7 +1861,7 @@ Local<Value> NbtCompoundClass::toString(const Arguments& args) {
     CATCH("Fail in NBTtoJson!");
 }
 
-Local<Value> NbtCompoundClass::destroy(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> NbtCompoundClass::destroy(const Arguments&) { return Boolean::newBoolean(true); }
 
 //////////////////// APIs ////////////////////
 

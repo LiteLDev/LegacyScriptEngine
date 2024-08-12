@@ -240,13 +240,13 @@ ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::str
     return ModuleMessageResult(msgId, {});
 }
 
-bool ModuleMessage::sendResult(MessageType type, std::string data, int64_t delay) {
+bool ModuleMessage::sendResult(MessageType typ, std::string dat, int64_t delay) {
     int           msgId  = header->id;
     ScriptEngine* engine = header->fromEngine;
 
     try {
         engine->messageQueue()->postMessage(
-            PackEngineMessage(header->fromEngineModuleType, msgId, type, data),
+            PackEngineMessage(header->fromEngineModuleType, msgId, typ, dat),
             std::chrono::milliseconds(delay)
         );
         return true;
@@ -281,7 +281,7 @@ bool ModuleMessageResult::waitForAllResults(int maxWaitTime) { return waitForRes
 
 bool ModuleMessageResult::waitForOneResult(int maxWaitTime) { return waitForResultCount(1, maxWaitTime); }
 
-bool ModuleMessageResult::waitForResultCount(int targetCount, int maxWaitTime) {
+bool ModuleMessageResult::waitForResultCount(size_t targetCount, int maxWaitTime) {
     bool res      = false;
     auto fromTime = GetCurrentTimeStampMS();
 
@@ -351,7 +351,7 @@ void InitMessageSystem() {
     globalShareData->messageSystemHandlers[LLSE_MODULE_TYPE] = {ModuleMessage::handle, ModuleMessage::cleanup};
 
     ll::event::EventBus::getInstance().emplaceListener<ll::event::ServerStoppingEvent>(
-        [](ll::event::ServerStoppingEvent& ev) { EndMessageSystemLoop(); }
+        [](ll::event::ServerStoppingEvent&) { EndMessageSystemLoop(); }
     );
 
     // dangerous?

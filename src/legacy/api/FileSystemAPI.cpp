@@ -130,7 +130,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
             return nullptr;
         }
         return new FileClass(args.thiz(), std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error& ) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return nullptr;
     }
@@ -182,7 +182,7 @@ Local<Value> FileClass::readSync(const Arguments& args) {
     CATCH("Fail in readSync!");
 }
 
-Local<Value> FileClass::readLineSync(const Arguments& args) {
+Local<Value> FileClass::readLineSync(const Arguments&) {
     try {
         std::string buf;
         getline(file, buf);
@@ -191,7 +191,7 @@ Local<Value> FileClass::readLineSync(const Arguments& args) {
     CATCH("Fail in readLineSync!");
 }
 
-Local<Value> FileClass::readAllSync(const Arguments& args) {
+Local<Value> FileClass::readAllSync(const Arguments&) {
     try {
         std::string res((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         return isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
@@ -455,7 +455,7 @@ Local<Value> FileClass::setSize(const Arguments& args) {
     CATCH("Fail in setSize!");
 }
 
-Local<Value> FileClass::close(const Arguments& args) {
+Local<Value> FileClass::close(const Arguments&) {
     try {
         file.close();
         return Boolean::newBoolean(true);
@@ -463,14 +463,14 @@ Local<Value> FileClass::close(const Arguments& args) {
     CATCH("Fail in flush!");
 }
 
-Local<Value> FileClass::isEOF(const Arguments& args) {
+Local<Value> FileClass::isEOF(const Arguments&) {
     try {
         return Boolean::newBoolean(file.eof());
     }
     CATCH("Fail in isEOF!");
 }
 
-Local<Value> FileClass::flush(const Arguments& args) {
+Local<Value> FileClass::flush(const Arguments&) {
     try {
         pool.addTask([fp{&file}, lock{&lock}]() {
             lock->lock();
@@ -482,7 +482,7 @@ Local<Value> FileClass::flush(const Arguments& args) {
     CATCH("Fail in flush!");
 }
 
-Local<Value> FileClass::errorCode(const Arguments& args) {
+Local<Value> FileClass::errorCode(const Arguments&) {
     try {
         file.flush();
         return Number::newNumber(errno);
@@ -490,7 +490,7 @@ Local<Value> FileClass::errorCode(const Arguments& args) {
     CATCH("Fail in flush!");
 }
 
-Local<Value> FileClass::clear(const Arguments& args) {
+Local<Value> FileClass::clear(const Arguments&) {
     try {
         file.clear();
         return Boolean::newBoolean(true);
@@ -506,7 +506,7 @@ Local<Value> DirCreate(const Arguments& args) {
 
     try {
         return Boolean::newBoolean(std::filesystem::create_directories(args[0].asString().toU8string()));
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Create Dir " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -521,7 +521,7 @@ Local<Value> PathDelete(const Arguments& args) {
         return Boolean::newBoolean(
             std::filesystem::remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0
         );
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Delete " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -534,7 +534,7 @@ Local<Value> PathExists(const Arguments& args) {
 
     try {
         return Boolean::newBoolean(std::filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString())));
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Check " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -552,7 +552,7 @@ Local<Value> PathCopy(const Arguments& args) {
             ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Copy " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -570,7 +570,7 @@ Local<Value> PathRename(const Arguments& args) {
             ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Rename " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -589,7 +589,7 @@ Local<Value> PathMove(const Arguments& args) {
         );
         remove_all(ll::string_utils::str2wstr(args[0].asString().toString()));
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Move " + args[0].asString().toString() + "!\n");
         return Boolean::newBoolean(false);
     }
@@ -605,7 +605,7 @@ Local<Value> CheckIsDir(const Arguments& args) {
         if (!exists(p)) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(directory_entry(p).is_directory());
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error& ) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Get Type of " + args[0].asString().toString() + "!\n");
         return {};
     }
@@ -623,7 +623,7 @@ Local<Value> GetFileSize(const Arguments& args) {
 
         auto sz = file_size(p);
         return Number::newNumber((int64_t)sz);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error& ) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Get Size of " + args[0].asString().toString() + "!\n");
         return {};
     }
@@ -749,7 +749,7 @@ Local<Value> OpenFile(const Arguments& args) {
             return {};
         }
         return FileClass::newFile(std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error& e) {
+    } catch (const filesystem_error& ) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return {};
     }

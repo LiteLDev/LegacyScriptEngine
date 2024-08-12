@@ -8,26 +8,26 @@ namespace lse::legacy {
 
 StringReader::StringReader(const std::string& str)
 : str(str),
-  len(str.length()),
+  length(str.length()),
   begin(str.begin()),
   end(str.end()),
   it(begin) {}
 StringReader::StringReader(const char* cstr)
 : str(cstr),
-  len(str.length()),
+  length(str.length()),
   begin(str.begin()),
   end(str.end()),
   it(begin) {}
 StringReader::StringReader(const char* cstr, size_t len)
 : str(cstr, len),
-  len(len),
+  length(len),
   begin(str.begin()),
   end(str.end()),
   it(begin) {}
 
 //////////////////////////////// GET ////////////////////////////////
 
-bool StringReader::isEmpty() const { return len == 0; }
+bool StringReader::isEmpty() const { return length == 0; }
 
 bool StringReader::isEnd() const { return it == end; }
 
@@ -37,7 +37,7 @@ bool StringReader::isValid() const { return it != end; }
 
 size_t StringReader::getPos() const { return it - begin; }
 
-size_t StringReader::getLength() const { return len; }
+size_t StringReader::getLength() const { return length; }
 
 size_t StringReader::getRemaining() const { return end - it; }
 

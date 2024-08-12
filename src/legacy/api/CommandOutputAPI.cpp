@@ -22,7 +22,7 @@ ClassDefine<CommandOutputClass> CommandOutputClassBuilder =
 
 CommandOutputClass::CommandOutputClass(CommandOutput* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOutputClass>{}),
-  ptr(p){};
+  ptr(p) {};
 
 Local<Object> CommandOutputClass::newCommandOutput(CommandOutput* p) {
     auto newp = new CommandOutputClass(p);
@@ -129,7 +129,7 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
     CATCH("Fail in error!");
 };
 
-Local<Value> CommandOutputClass::toString(const Arguments& args) {
+Local<Value> CommandOutputClass::toString(const Arguments&) {
     try {
         return String::newString("<CommandOutput>");
     }

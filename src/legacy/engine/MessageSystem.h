@@ -26,12 +26,12 @@ public:
     ~ModuleMessageResult();
     operator bool();
 
-    int getSentCount() { return engineList.size(); }
-    int getMsgId() { return msgId; }
+    size_t getSentCount() { return engineList.size(); }
+    int    getMsgId() { return msgId; }
 
     bool waitForAllResults(int maxWaitTime = -1);
     bool waitForOneResult(int maxWaitTime = -1);
-    bool waitForResultCount(int targetCount, int maxWaitTime = -1);
+    bool waitForResultCount(size_t targetCount, int maxWaitTime = -1);
     bool cancel();
 };
 

@@ -23,7 +23,6 @@
 #include <processenv.h>
 #include <stdexcept>
 
-
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
 
 constexpr auto BaseLibFileName = "BaseLib.lua";
@@ -143,9 +142,9 @@ auto load(ll::mod::NativeMod& self) -> bool {
     }
 }
 
-void loadConfig(const ll::mod::NativeMod& self, Config& config) {
+void loadConfig(const ll::mod::NativeMod& self, Config& cfg) {
     const auto& configFilePath = self.getConfigDir() / "config.json";
-    if (!ll::config::loadConfig(config, configFilePath) && !ll::config::saveConfig(config, configFilePath)) {
+    if (!ll::config::loadConfig(cfg, configFilePath) && !ll::config::saveConfig(cfg, configFilePath)) {
         throw std::runtime_error("Cannot save default configurations to {0}"_tr(configFilePath));
     }
 }
@@ -170,10 +169,10 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
 #endif
 }
 
-void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager) {
+void registerPluginManager(const std::shared_ptr<PluginManager>& pm) {
     auto& pluginManagerRegistry = ll::mod::ModManagerRegistry::getInstance();
 
-    if (!pluginManagerRegistry.addManager(pluginManager)) {
+    if (!pluginManagerRegistry.addManager(pm)) {
         throw std::runtime_error("Failed to register plugin manager"_tr());
     }
 }

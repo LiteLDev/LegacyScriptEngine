@@ -10,7 +10,7 @@ ll::Logger dbLogger("LLSEDB");
 
 void Session::setDebugOutput(bool enable) { debugOutput = enable; }
 
-bool Session::relogin(const std::string& user, const std::string& password, const std::string& db) {
+bool Session::relogin(const std::string&, const std::string&, const std::string&) {
     throw std::runtime_error("Session::relogin: Not implemented");
 }
 

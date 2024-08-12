@@ -20,15 +20,7 @@ Local<Value> McClass::setMotd(const Arguments& args) {
     CATCH("Fail in SetServerMotd!")
 }
 
-Local<Value> McClass::crashBDS(const Arguments& args) //===========???
-{
-#ifdef LL_DEBUG
-    RecordOperation(ENGINE_OWN_DATA()->pluginName, "Crash Server", "Execute mc.crash() to crash server.");
-    throw;
-    return Boolean::newBoolean(true);
-#endif
-    return Boolean::newBoolean(false);
-}
+Local<Value> McClass::crashBDS(const Arguments&) { return Boolean::newBoolean(false); }
 
 Local<Value> McClass::setMaxNumPlayers(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
@@ -87,7 +79,7 @@ Local<Value> McClass::setTime(const Arguments& args) {
     return Boolean::newBoolean(true);
 }
 
-Local<Value> McClass::getWeather(const Arguments& args) { // weather: 0: Clear, 1: Rain, 2: Thunder
+Local<Value> McClass::getWeather(const Arguments&) { // weather: 0: Clear, 1: Rain, 2: Thunder
     if (ll::service::getLevel()->getLevelData().isLightning()) return Number::newNumber(2);
     else if (ll::service::getLevel()->getLevelData().isRaining()) return Number::newNumber(1);
 

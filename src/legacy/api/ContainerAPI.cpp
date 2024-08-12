@@ -63,7 +63,7 @@ Local<Value> ContainerClass::getType() {
     CATCH("Fail in getType!")
 }
 
-Local<Value> ContainerClass::asPointer(const Arguments& args) {
+Local<Value> ContainerClass::asPointer(const Arguments&) {
     try {
         return NativePointer::newNativePointer(container);
     }
@@ -164,7 +164,7 @@ Local<Value> ContainerClass::setItem(const Arguments& args) {
     CATCH("Fail in getItem!");
 }
 
-Local<Value> ContainerClass::getAllItems(const Arguments& args) {
+Local<Value> ContainerClass::getAllItems(const Arguments&) {
     try {
         auto list = container->getSlots();
 
@@ -177,7 +177,7 @@ Local<Value> ContainerClass::getAllItems(const Arguments& args) {
     CATCH("Fail in getAllItems!");
 }
 
-Local<Value> ContainerClass::removeAllItems(const Arguments& args) {
+Local<Value> ContainerClass::removeAllItems(const Arguments&) {
     try {
         container->removeAllItems();
         return Boolean::newBoolean(true);
@@ -185,7 +185,7 @@ Local<Value> ContainerClass::removeAllItems(const Arguments& args) {
     CATCH("Fail in removeAllItems!");
 }
 
-Local<Value> ContainerClass::isEmpty(const Arguments& args) {
+Local<Value> ContainerClass::isEmpty(const Arguments&) {
     try {
         return Boolean::newBoolean(container->isEmpty());
     }

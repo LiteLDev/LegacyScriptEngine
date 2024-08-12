@@ -301,7 +301,7 @@ Local<Value> ItemClass::isWearableItem() {
     CATCH("Fail in isWearableItem!");
 }
 
-Local<Value> ItemClass::asPointer(const Arguments& args) {
+Local<Value> ItemClass::asPointer(const Arguments&) {
     try {
         return NativePointer::newNativePointer(get());
     }
@@ -326,24 +326,24 @@ Local<Value> ItemClass::set(const Arguments& args) {
     CATCH("Fail in set!");
 }
 
-Local<Value> ItemClass::clone(const Arguments& args) {
+Local<Value> ItemClass::clone(const Arguments&) {
     try {
-        auto item = get();
-        if (!item) return Local<Value>(); // Null
-        auto itemNew = new ItemStack(*item);
+        auto itemStack = get();
+        if (!itemStack) return Local<Value>(); // Null
+        auto itemNew = new ItemStack(*itemStack);
         return ItemClass::newItem(itemNew, false);
     }
     CATCH("Fail in cloneItem!");
 }
 
-Local<Value> ItemClass::isNull(const Arguments& args) {
+Local<Value> ItemClass::isNull(const Arguments&) {
     try {
         return Boolean::newBoolean(get()->isNull());
     }
     CATCH("Fail in isNull!");
 }
 
-Local<Value> ItemClass::setNull(const Arguments& args) {
+Local<Value> ItemClass::setNull(const Arguments&) {
     try {
         get()->setNull({});
         return Boolean::newBoolean(true);
@@ -407,7 +407,7 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
     CATCH("Fail in setDamage!");
 }
 
-Local<Value> ItemClass::getNbt(const Arguments& args) {
+Local<Value> ItemClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(std::move(get()->save()));
     }
@@ -420,8 +420,8 @@ Local<Value> ItemClass::setNbt(const Arguments& args) {
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) return Local<Value>(); // Null
-        auto item = get();
-        item->load(*nbt);
+        auto itemStack = get();
+        itemStack->load(*nbt);
         // update Pre Data
         preloadData();
         return Boolean::newBoolean(true);

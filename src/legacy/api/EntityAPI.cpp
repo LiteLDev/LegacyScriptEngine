@@ -227,7 +227,7 @@ Actor* EntityClass::get() {
     }
 }
 
-Local<Value> EntityClass::asPointer(const Arguments& args) {
+Local<Value> EntityClass::asPointer(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -861,7 +861,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
     CATCH("Fail in distanceToSqr!")
 }
 
-Local<Value> EntityClass::kill(const Arguments& args) {
+Local<Value> EntityClass::kill(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -872,7 +872,7 @@ Local<Value> EntityClass::kill(const Arguments& args) {
     CATCH("Fail in killEntity!")
 }
 
-Local<Value> EntityClass::despawn(const Arguments& args) {
+Local<Value> EntityClass::despawn(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -883,7 +883,7 @@ Local<Value> EntityClass::despawn(const Arguments& args) {
     CATCH("Fail in despawnEntity!")
 }
 
-Local<Value> EntityClass::remove(const Arguments& args) {
+Local<Value> EntityClass::remove(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -894,7 +894,7 @@ Local<Value> EntityClass::remove(const Arguments& args) {
     CATCH("Fail in removeEntity!")
 }
 
-Local<Value> EntityClass::isPlayer(const Arguments& args) {
+Local<Value> EntityClass::isPlayer(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();

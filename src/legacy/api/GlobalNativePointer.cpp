@@ -4,47 +4,47 @@
 #include "mc/server/common/commands/AllowListCommand.h"
 #include "mc/world/Minecraft.h"
 
-Local<Value> GlobalNativePointer::getLevelPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getLevelPtr(const Arguments&) {
     return NativePointer::newNativePointer(ll::service::getLevel());
 }
 
-Local<Value> GlobalNativePointer::getMinecraftPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getMinecraftPtr(const Arguments&) {
     return NativePointer::newNativePointer(ll::service::getMinecraft());
 }
 
-Local<Value> GlobalNativePointer::getServerNetworkHandlerPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getServerNetworkHandlerPtr(const Arguments&) {
     return NativePointer::newNativePointer(ll::service::getServerNetworkHandler());
 }
 
-Local<Value> GlobalNativePointer::getMinecraftCommandsPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getMinecraftCommandsPtr(const Arguments&) {
     return NativePointer::newNativePointer(&ll::service::getMinecraft()->getCommands());
 }
 
-Local<Value> GlobalNativePointer::getLevelStoragePtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getLevelStoragePtr(const Arguments&) {
     return NativePointer::newNativePointer(&ll::service::getLevel()->getLevelStorage());
 }
 
-Local<Value> GlobalNativePointer::getDBStoragePtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getDBStoragePtr(const Arguments&) {
     return NativePointer::newNativePointer(&ll::service::getLevel()->getLevelStorage());
 }
 
-Local<Value> GlobalNativePointer::getRakNetServerLocatorPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getRakNetServerLocatorPtr(const Arguments&) {
     return NativePointer::newNativePointer(&ll::service::getNetworkSystem()->getServerLocator());
 }
 
-Local<Value> GlobalNativePointer::getRakNetRakPeerPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getRakNetRakPeerPtr(const Arguments&) {
     return NativePointer::newNativePointer(ll::service::getRakPeer());
 }
 
-Local<Value> GlobalNativePointer::getScoreboardPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getScoreboardPtr(const Arguments&) {
     return NativePointer::newNativePointer(&ll::service::getLevel()->getScoreboard());
 }
 
-Local<Value> GlobalNativePointer::getAllowListFilePtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getAllowListFilePtr(const Arguments&) {
     return NativePointer::newNativePointer(AllowListCommand::mAllowListFile);
 }
 
-Local<Value> GlobalNativePointer::getPropertiesSettingsPtr(const Arguments& args) {
+Local<Value> GlobalNativePointer::getPropertiesSettingsPtr(const Arguments&) {
     return NativePointer::newNativePointer(ll::service::getPropertiesSettings());
 }
 

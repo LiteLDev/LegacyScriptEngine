@@ -71,7 +71,7 @@ SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
     return nullptr;
 }
 
-Local<Value> PlayerClass::simulateSneak(const Arguments& args) {
+Local<Value> PlayerClass::simulateSneak(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -156,7 +156,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
 };
 
 // void simulateDisconnect();
-Local<Value> PlayerClass::simulateDisconnect(const Arguments& args) {
+Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -222,7 +222,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
 };
 
 // bool simulateJump();
-Local<Value> PlayerClass::simulateJump(const Arguments& args) {
+Local<Value> PlayerClass::simulateJump(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -232,7 +232,7 @@ Local<Value> PlayerClass::simulateJump(const Arguments& args) {
 };
 
 // bool simulateRespawn();
-Local<Value> PlayerClass::simulateRespawn(const Arguments& args) {
+Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -594,7 +594,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
 // void simulateStopInteracting();
 // void simulateStopMoving();
 // void simulateStopUsingItem();
-Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments& args) {
+Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -604,7 +604,7 @@ Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-Local<Value> PlayerClass::simulateStopInteracting(const Arguments& args) {
+Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -614,7 +614,7 @@ Local<Value> PlayerClass::simulateStopInteracting(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-Local<Value> PlayerClass::simulateStopMoving(const Arguments& args) {
+Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -624,7 +624,7 @@ Local<Value> PlayerClass::simulateStopMoving(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-Local<Value> PlayerClass::simulateStopUsingItem(const Arguments& args) {
+Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -634,7 +634,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-Local<Value> PlayerClass::simulateStopSneaking(const Arguments& args) {
+Local<Value> PlayerClass::simulateStopSneaking(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();

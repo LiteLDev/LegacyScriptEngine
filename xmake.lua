@@ -45,7 +45,8 @@ option("backend")
 target("legacy-script-engine")
     add_cxflags(
         "/EHa",
-        "/utf-8"
+        "/utf-8",
+        "/sdl"
     )
     add_defines(
         "NOMINMAX",

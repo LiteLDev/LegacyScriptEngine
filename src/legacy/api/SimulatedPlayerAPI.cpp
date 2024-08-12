@@ -91,8 +91,8 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateAttack());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!*actor) return Local<Value>();
-            return Boolean::newBoolean(sp->simulateAttack(*actor));
+            if (!actor) return Local<Value>();
+            return Boolean::newBoolean(sp->simulateAttack(actor));
         }
 
         LOG_WRONG_ARG_TYPE();
@@ -176,8 +176,8 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateInteract());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!*actor) return Local<Value>();
-            return Boolean::newBoolean(sp->simulateInteract(**actor));
+            if (!actor) return Local<Value>();
+            return Boolean::newBoolean(sp->simulateInteract(*actor));
         }
 
         int                                 dimid = sp->getDimensionId();
@@ -424,8 +424,8 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!*actor) return Local<Value>();
-            sp->simulateLookAt(**actor, (sim::LookDuration)lookDuration);
+            if (!actor) return Local<Value>();
+            sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
         LOG_WRONG_ARG_TYPE();
@@ -503,8 +503,8 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             sp->simulateNavigateToLocations(std::move(path), speed);
             return Boolean::newBoolean(true);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!*actor) return Local<Value>();
-            auto res = sp->simulateNavigateToEntity(**actor, speed);
+            if (!actor) return Local<Value>();
+            auto res = sp->simulateNavigateToEntity(*actor, speed);
             return NavigateResultToObject(res);
         } else if (IsInstanceOf<IntPos>(args[0]) || IsInstanceOf<FloatPos>(args[0])) {
             Vec3 pos = IsInstanceOf<IntPos>(args[0]) ? IntPos::extractPos(args[0])->getBlockPos().bottomCenter()

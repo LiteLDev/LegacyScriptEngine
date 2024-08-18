@@ -201,9 +201,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             }
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
-        if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
-            LLSECallEventsOnHotLoad(&scriptEngine);
-        }
         ExitEngineScope exit;
 #endif
         plugin->onLoad([](ll::mod::Mod&) { return true; });
@@ -226,6 +223,10 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         EngineManager::unregisterEngine(&scriptEngine);
 
         return error;
+    }
+    
+    if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
+        LLSECallEventsOnHotLoad(&scriptEngine);
     }
 
     addMod(manifest.name, plugin);

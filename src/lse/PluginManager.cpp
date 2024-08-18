@@ -201,15 +201,16 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             }
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
+#endif
         if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
             LLSECallEventsOnHotLoad(&scriptEngine);
         }
         ExitEngineScope exit;
-#endif
         plugin->onLoad([](ll::mod::Mod&) { return true; });
         plugin->onUnload([](ll::mod::Mod&) { return true; });
         plugin->onEnable([](ll::mod::Mod&) { return true; });
         plugin->onDisable([](ll::mod::Mod&) { return true; });
+        addMod(manifest.name, plugin);
     } catch (const Exception& e) {
         EngineScope engineScope(scriptEngine);
         auto        error =
@@ -227,9 +228,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         return error;
     }
-
-    addMod(manifest.name, plugin);
-
     return {};
 }
 

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.19] - 2024-08-23
+
+### Changed
+
+- Remove NativeAPI completely
+
+### Fixed
+
+- Fix LLSECallEventsOnHotLoad's position
+- Fix Entity::teleport with 2 argument
+
 ## [0.8.18] - 2024-08-12
 
 ### Fixed
@@ -579,7 +590,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#157]: https://github.com/LiteLDev/LegacyScriptEngine/issues/157
 [#160]: https://github.com/LiteLDev/LegacyScriptEngine/issues/160
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.18...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.19...HEAD
+[0.8.19]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.18...v0.8.19
 [0.8.18]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.17...v0.8.18
 [0.8.17]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.16...v0.8.17
 [0.8.16]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.15...v0.8.16

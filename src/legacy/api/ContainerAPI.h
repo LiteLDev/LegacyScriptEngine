@@ -17,7 +17,6 @@ public:
 
     static Local<Object> newContainer(Container* p);
     static Container*    extract(Local<Value> v);
-    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getSize();
     Local<Value> getType();

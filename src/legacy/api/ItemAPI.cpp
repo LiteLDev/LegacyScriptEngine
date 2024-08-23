@@ -4,7 +4,6 @@
 #include "api/BaseAPI.h"
 #include "api/EntityAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/world/actor/Actor.h"
@@ -23,8 +22,6 @@
 
 ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
                                               .constructor(nullptr)
-                                              .instanceFunction("asPointer", &ItemClass::asPointer)
-
                                               .instanceProperty("name", &ItemClass::getName)
                                               .instanceProperty("type", &ItemClass::getType)
                                               .instanceProperty("id", &ItemClass::getId)
@@ -299,13 +296,6 @@ Local<Value> ItemClass::isWearableItem() {
         return Boolean::newBoolean(get()->isHumanoidWearableItem());
     }
     CATCH("Fail in isWearableItem!");
-}
-
-Local<Value> ItemClass::asPointer(const Arguments&) {
-    try {
-        return NativePointer::newNativePointer(get());
-    }
-    CATCH("Fail in asPointer!");
 }
 
 Local<Value> ItemClass::set(const Arguments& args) {

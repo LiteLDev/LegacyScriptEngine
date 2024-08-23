@@ -3,7 +3,6 @@
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
@@ -19,8 +18,6 @@
 
 ClassDefine<BlockEntityClass> BlockEntityClassBuilder = defineClass<BlockEntityClass>("LLSE_BlockEntity")
                                                             .constructor(nullptr)
-                                                            .instanceFunction("asPointer", &BlockEntityClass::asPointer)
-
                                                             .instanceProperty("name", &BlockEntityClass::getName)
                                                             .instanceProperty("pos", &BlockEntityClass::getPos)
                                                             .instanceProperty("type", &BlockEntityClass::getType)
@@ -50,13 +47,6 @@ BlockActor* BlockEntityClass::extract(Local<Value> v) {
 }
 
 // 成员函数
-Local<Value> BlockEntityClass::asPointer(const Arguments&) {
-    try {
-        return NativePointer::newNativePointer(blockEntity);
-    }
-    CATCH("Fail in asPointer!")
-}
-
 Local<Value> BlockEntityClass::getPos() {
     try {
         return IntPos::newPos(blockEntity->getPosition(), dim);

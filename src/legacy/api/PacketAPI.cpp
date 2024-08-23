@@ -7,7 +7,6 @@
 #include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPackets.h"
@@ -17,7 +16,6 @@
 
 ClassDefine<PacketClass> PacketClassBuilder = defineClass<PacketClass>("LLSE_Packet")
                                                   .constructor(nullptr)
-                                                  .instanceFunction("asPointer", &PacketClass::asPointer)
                                                   .instanceFunction("getName", &PacketClass::getName)
                                                   .instanceFunction("getId", &PacketClass::getId)
 
@@ -71,16 +69,6 @@ std::shared_ptr<Packet> PacketClass::extract(Local<Value> v) {
 }
 
 // member function
-
-Local<Value> PacketClass::asPointer(const Arguments&) {
-    try {
-        std::shared_ptr<Packet> pkt = get();
-        if (!pkt) return Local<Value>();
-        else return NativePointer::newNativePointer(pkt.get());
-    }
-    CATCH("Fail in asPointer!")
-}
-
 Local<Value> PacketClass::getName() {
     try {
         std::shared_ptr<Packet> pkt = get();

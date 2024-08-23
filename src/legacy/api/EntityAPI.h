@@ -19,7 +19,6 @@ public:
     static Local<Object> newEntity(Actor* actor);
     static Actor*        extract(Local<Value> v);
     static Actor*        tryExtractActor(Local<Value> v);
-    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getType();

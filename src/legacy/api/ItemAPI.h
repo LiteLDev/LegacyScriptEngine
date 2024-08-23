@@ -30,7 +30,6 @@ public:
 
     static Local<Object> newItem(ItemStack* itemStack, bool isManagedByBDS = true);
     static ItemStack*    extract(Local<Value> v);
-    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getType();

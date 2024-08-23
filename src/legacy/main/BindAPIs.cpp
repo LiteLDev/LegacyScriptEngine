@@ -17,8 +17,6 @@
 #include "api/LlAPI.h"
 #include "api/LoggerAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
-#include "api/NativeStdString.h"
 #include "api/NbtAPI.h"
 #include "api/NetworkAPI.h"
 #include "api/PacketAPI.h"
@@ -110,13 +108,4 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass<HttpResponseClass>(HttpResponseClassBuilder);
     engine->registerNativeClass<BinaryStreamClass>(BinaryStreamClassBuilder);
     engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
-
-    //////////////// NativeFFI ////////////////
-    engine->registerNativeClass(NativeTypeEnumBuilder);
-    engine->registerNativeClass<NativePointer>(NativePointerBuilder);
-    engine->registerNativeClass<ScriptNativeFunction>(NativeCallBuilder);
-    engine->registerNativeClass<NativeStdString>(NativeStdStringBuilder);
-    engine->registerNativeClass<DynamicHookData>(NativeHookBuilder);
-    // engine->registerNativeClass<NativePatch>(NativePatchBuilder);
-    engine->registerNativeClass<GlobalNativePointer>(GlobalNativePointerBuilder);
 }

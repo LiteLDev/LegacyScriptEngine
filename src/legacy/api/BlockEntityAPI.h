@@ -17,7 +17,6 @@ public:
 
     static Local<Object> newBlockEntity(BlockActor* be, int dim);
     static BlockActor*   extract(Local<Value> v);
-    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getPos();

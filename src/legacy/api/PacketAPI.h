@@ -23,7 +23,6 @@ public:
 
     static Local<Object> newPacket(std::shared_ptr<Packet> pkt);
 
-    Local<Value> asPointer(const Arguments& args);
     Local<Value> getId();
     Local<Value> getName();
 };

@@ -6,10 +6,8 @@
 #include "api/ContainerAPI.h"
 #include "api/ItemAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
-#include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
@@ -42,7 +40,6 @@
 #include <entt/entt.hpp>
 #include <magic_enum.hpp>
 #include <memory>
-#include <vector>
 
 using magic_enum::enum_integer;
 
@@ -51,8 +48,6 @@ using magic_enum::enum_integer;
 ClassDefine<EntityClass> EntityClassBuilder =
     defineClass<EntityClass>("LLSE_Entity")
         .constructor(nullptr)
-        .instanceFunction("asPointer", &EntityClass::asPointer)
-
         .instanceProperty("name", &EntityClass::getName)
         .instanceProperty("type", &EntityClass::getType)
         .instanceProperty("id", &EntityClass::getId)
@@ -225,15 +220,6 @@ Actor* EntityClass::get() {
     } else {
         return nullptr;
     }
-}
-
-Local<Value> EntityClass::asPointer(const Arguments&) {
-    try {
-        Actor* entity = get();
-        if (!entity) return Local<Value>();
-        else return NativePointer::newNativePointer(entity);
-    }
-    CATCH("Fail in asPointer!")
 }
 
 Local<Value> EntityClass::getUniqueID() {
@@ -665,8 +651,6 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
     try {
         Actor* entity = get();
         if (!entity) return Boolean::newBoolean(false);
-        float     pitch;
-        float     yaw;
         FloatVec4 pos;
         bool      rotationIsValid = false;
         Vec2      ang;
@@ -695,8 +679,8 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
             }
             if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
                 auto angle      = DirectionAngle::extract(args[1]);
-                pitch           = angle->pitch;
-                yaw             = angle->yaw;
+                ang.x           = angle->pitch;
+                ang.y           = angle->yaw;
                 rotationIsValid = true;
             }
         } else if (args.size() <= 5) { // teleport(x,y,z,dimid[,rot])
@@ -904,7 +888,7 @@ Local<Value> EntityClass::isPlayer(const Arguments&) {
     CATCH("Fail in isPlayer!")
 }
 
-Local<Value> EntityClass::toPlayer(const Arguments& args) {
+Local<Value> EntityClass::toPlayer(const Arguments&) {
     try {
         if (auto player = mWeakEntity.tryUnwrap<Player>()) {
             return PlayerClass::newPlayer(player);
@@ -914,7 +898,7 @@ Local<Value> EntityClass::toPlayer(const Arguments& args) {
     CATCH("Fail in toPlayer!");
 }
 
-Local<Value> EntityClass::isItemEntity(const Arguments& args) {
+Local<Value> EntityClass::isItemEntity(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -924,7 +908,7 @@ Local<Value> EntityClass::isItemEntity(const Arguments& args) {
     CATCH("Fail in isItemEntity!")
 }
 
-Local<Value> EntityClass::toItem(const Arguments& args) {
+Local<Value> EntityClass::toItem(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
@@ -936,7 +920,7 @@ Local<Value> EntityClass::toItem(const Arguments& args) {
     CATCH("Fail in toItem!");
 }
 
-Local<Value> EntityClass::getBlockStandingOn(const Arguments& args) {
+Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -946,7 +930,7 @@ Local<Value> EntityClass::getBlockStandingOn(const Arguments& args) {
     CATCH("Fail in getBlockStandingOn!");
 }
 
-Local<Value> EntityClass::getArmor(const Arguments& args) {
+Local<Value> EntityClass::getArmor(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -956,7 +940,7 @@ Local<Value> EntityClass::getArmor(const Arguments& args) {
     CATCH("Fail in getArmor!");
 }
 
-Local<Value> EntityClass::refreshItems(const Arguments& args) {
+Local<Value> EntityClass::refreshItems(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -970,7 +954,7 @@ Local<Value> EntityClass::refreshItems(const Arguments& args) {
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-Local<Value> EntityClass::hasContainer(const Arguments& args) {
+Local<Value> EntityClass::hasContainer(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -981,7 +965,7 @@ Local<Value> EntityClass::hasContainer(const Arguments& args) {
     CATCH("Fail in hasContainer!");
 }
 
-Local<Value> EntityClass::getContainer(const Arguments& args) {
+Local<Value> EntityClass::getContainer(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -1263,7 +1247,7 @@ Local<Value> EntityClass::setFire(const Arguments& args) {
     CATCH("Fail in setFire!")
 }
 
-Local<Value> EntityClass::stopFire(const Arguments& args) {
+Local<Value> EntityClass::stopFire(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -1288,7 +1272,7 @@ Local<Value> EntityClass::setScale(const Arguments& args) {
     CATCH("Fail in setScale!")
 }
 
-Local<Value> EntityClass::getNbt(const Arguments& args) {
+Local<Value> EntityClass::getNbt(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -1356,7 +1340,7 @@ Local<Value> EntityClass::hasTag(const Arguments& args) {
     CATCH("Fail in hasTag!");
 }
 
-Local<Value> EntityClass::getAllTags(const Arguments& args) {
+Local<Value> EntityClass::getAllTags(const Arguments&) {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -1418,7 +1402,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             maxDistance,
             false,
             true,
-            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const& source, Block const& block, bool idk) {
+            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
                 if (solidOnly && !block.isSolid()) {
                     return false;
                 }
@@ -1532,7 +1516,7 @@ Local<Value> EntityClass::removeEffect(const Arguments& args) {
     CATCH("Fail in removeEffect!");
 }
 
-Local<Value> McClass::getAllEntities(const Arguments& args) {
+Local<Value> McClass::getAllEntities(const Arguments&) {
     try {
         auto& entityList = ll::service::getLevel()->getEntities();
         auto  arr        = Array::newArray();

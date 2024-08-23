@@ -2,7 +2,6 @@
 
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
-#include "api/NativeAPI.h"
 #include "ll/api/utils/StringUtils.h"
 #include "mc/world/item/registry/ItemStack.h"
 
@@ -11,8 +10,6 @@
 ClassDefine<ContainerClass> ContainerClassBuilder =
     defineClass<ContainerClass>("LLSE_Container")
         .constructor(nullptr)
-        .instanceFunction("asPointer", &ContainerClass::asPointer)
-
         .instanceProperty("size", &ContainerClass::getSize)
         .instanceProperty("type", &ContainerClass::getType)
 
@@ -61,13 +58,6 @@ Local<Value> ContainerClass::getType() {
         return String::newString(container->getTypeName());
     }
     CATCH("Fail in getType!")
-}
-
-Local<Value> ContainerClass::asPointer(const Arguments&) {
-    try {
-        return NativePointer::newNativePointer(container);
-    }
-    CATCH("Fail in asPointer!")
 }
 
 Local<Value> ContainerClass::addItem(const Arguments& args) {

@@ -28,7 +28,6 @@ public:
     static Local<Object> newBlock(Block const* p, BlockPos const* pos, BlockSource const* bs);
     static Local<Object> newBlock(IntVec4 pos);
     static Block*        extract(Local<Value> v);
-    Local<Value>         asPointer(const Arguments& args);
 
     Local<Value> getName();
     Local<Value> getType();

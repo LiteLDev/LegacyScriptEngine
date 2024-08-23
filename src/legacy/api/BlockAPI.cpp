@@ -7,7 +7,6 @@
 #include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/wrapper/optional_ref.h"
@@ -26,8 +25,6 @@
 ClassDefine<BlockClass> BlockClassBuilder =
     defineClass<BlockClass>("LLSE_Block")
         .constructor(nullptr)
-        .instanceFunction("asPointer", &BlockClass::asPointer)
-
         .instanceProperty("name", &BlockClass::getName)
         .instanceProperty("type", &BlockClass::getType)
         .instanceProperty("id", &BlockClass::getId)
@@ -268,13 +265,6 @@ Local<Value> BlockClass::isWaterBlockingBlock() {
         return Boolean::newBoolean(block->isWaterBlocking());
     }
     CATCH("Fail in isWaterBlockingBlock!");
-}
-
-Local<Value> BlockClass::asPointer(const Arguments&) {
-    try {
-        return NativePointer::newNativePointer(block);
-    }
-    CATCH("Fail in asPointer!");
 }
 
 Local<Value> BlockClass::destroyBlock(const Arguments& args) {

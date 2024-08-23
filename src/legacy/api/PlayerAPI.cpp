@@ -1,7 +1,6 @@
 #include "api/PlayerAPI.h"
 
 #include "EventAPI.h"
-#include "ScriptX/ScriptX.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
@@ -12,15 +11,12 @@
 #include "api/GuiAPI.h"
 #include "api/ItemAPI.h"
 #include "api/McAPI.h"
-#include "api/NativeAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PacketAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacyapi/form/FormPacketHelper.h"
 #include "legacyapi/form/FormUI.h"
-#include "ll/api/form/CustomForm.h"
-#include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
@@ -30,7 +26,6 @@
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
-#include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/deps/core/mce/UUID.h"
 #include "mc/enums/BossBarColor.h"
 #include "mc/enums/MinecraftPacketIds.h"
@@ -108,8 +103,6 @@
 ClassDefine<PlayerClass> PlayerClassBuilder =
     defineClass<PlayerClass>("LLSE_Player")
         .constructor(nullptr)
-        .instanceFunction("asPointer", &PlayerClass::asPointer)
-
         .instanceProperty("name", &PlayerClass::getName)
         .instanceProperty("pos", &PlayerClass::getPos)
         .instanceProperty("feetPos", &PlayerClass::getFeetPos)
@@ -342,7 +335,7 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
             if (playerTag) {
                 std::string serverId = playerTag->at("ServerId");
                 if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
-                    return NbtCompoundClass::pack(std::move(db->getCompoundTag(serverId, DBHelpers::Category::Player)));
+                    return NbtCompoundClass::pack(db->getCompoundTag(serverId, DBHelpers::Category::Player));
                 }
             }
         }
@@ -391,7 +384,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
         if (player && tag) {
             CompoundTag loadedTag;
             player->save(loadedTag);
-            for (int i = 0; i < arr.size(); ++i) {
+            for (size_t i = 0; i < arr.size(); ++i) {
                 auto value = arr.get(i);
                 if (value.getKind() == ValueKind::kString) {
                     std::string tagName = value.asString().toString();
@@ -411,7 +404,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
                     if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
                         auto loadedTag = db->getCompoundTag(serverId, DBHelpers::Category::Player);
                         if (loadedTag) {
-                            for (int i = 0; i < arr.size(); ++i) {
+                            for (size_t i = 0; i < arr.size(); ++i) {
                                 auto value = arr.get(i);
                                 if (value.getKind() == ValueKind::kString) {
                                     std::string tagName = value.asString().toString();
@@ -485,7 +478,6 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
     try {
-        auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
         DBStorage*  db         = MoreGlobal::dbStorage;
@@ -524,7 +516,6 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
     try {
-        auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
         DBStorage*  db         = MoreGlobal::dbStorage;
@@ -563,7 +554,6 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
     try {
-        auto        uuid       = mce::UUID::fromString(args[0].asString().toString());
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
         DBStorage*  db         = MoreGlobal::dbStorage;
@@ -1105,15 +1095,6 @@ Local<Value> PlayerClass::getInClouds() {
     CATCH("Fail in getInClouds!")
 }
 
-Local<Value> PlayerClass::asPointer(const Arguments&) {
-    try {
-        Player* player = get();
-        if (!player) return Local<Value>();
-        else return NativePointer::newNativePointer(player);
-    }
-    CATCH("Fail in asPointer!")
-}
-
 Local<Value> PlayerClass::getUniqueID() {
     try {
         Player* player = get();
@@ -1454,18 +1435,18 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
     CATCH("Fail in TeleportPlayer!")
 }
 
-Local<Value> PlayerClass::kill(const Arguments& args) {
+Local<Value> PlayerClass::kill(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
 
         player->kill();
-        return Boolean::newBoolean(true); //=======???
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in KillPlayer!")
 }
 
-Local<Value> PlayerClass::isOP(const Arguments& args) {
+Local<Value> PlayerClass::isOP(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1516,7 +1497,7 @@ Local<Value> PlayerClass::setGameMode(const Arguments& args) {
 
         bool res     = false;
         int  newMode = args[0].asNumber().toInt32();
-        if (newMode >= 0 || newMode <= 3) {
+        if ((newMode >= 0 && newMode <= 3) || newMode == 7) {
             player->setPlayerGameType((GameType)newMode);
             res = true;
         }
@@ -1671,7 +1652,7 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
     CATCH("Fail in talkTo!");
 }
 
-Local<Value> PlayerClass::getHand(const Arguments& args) {
+Local<Value> PlayerClass::getHand(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1681,7 +1662,7 @@ Local<Value> PlayerClass::getHand(const Arguments& args) {
     CATCH("Fail in getHand!");
 }
 
-Local<Value> PlayerClass::getOffHand(const Arguments& args) {
+Local<Value> PlayerClass::getOffHand(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1691,7 +1672,7 @@ Local<Value> PlayerClass::getOffHand(const Arguments& args) {
     CATCH("Fail in getOffHand!");
 }
 
-Local<Value> PlayerClass::getInventory(const Arguments& args) {
+Local<Value> PlayerClass::getInventory(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1701,7 +1682,7 @@ Local<Value> PlayerClass::getInventory(const Arguments& args) {
     CATCH("Fail in getInventory!");
 }
 
-Local<Value> PlayerClass::getArmor(const Arguments& args) {
+Local<Value> PlayerClass::getArmor(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1711,7 +1692,7 @@ Local<Value> PlayerClass::getArmor(const Arguments& args) {
     CATCH("Fail in getArmor!");
 }
 
-Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
+Local<Value> PlayerClass::getEnderChest(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1724,7 +1705,7 @@ Local<Value> PlayerClass::getEnderChest(const Arguments& args) {
     CATCH("Fail in getEnderChest!");
 }
 
-Local<Value> PlayerClass::getRespawnPosition(const Arguments& args) {
+Local<Value> PlayerClass::getRespawnPosition(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1777,7 +1758,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
     CATCH("Fail in setRespawnPosition!")
 }
 
-Local<Value> PlayerClass::refreshItems(const Arguments& args) {
+Local<Value> PlayerClass::refreshItems(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1832,7 +1813,7 @@ Local<Value> PlayerClass::reduceLevel(const Arguments& args) {
     CATCH("Fail in reduceLevel!");
 }
 
-Local<Value> PlayerClass::getLevel(const Arguments& args) {
+Local<Value> PlayerClass::getLevel(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1870,7 +1851,7 @@ Local<Value> PlayerClass::setScale(const Arguments& args) {
     CATCH("Fail in setScale!");
 }
 
-Local<Value> PlayerClass::resetLevel(const Arguments& args) {
+Local<Value> PlayerClass::resetLevel(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -1934,7 +1915,7 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
     CATCH("Fail in reduceExperience!");
 }
 
-Local<Value> PlayerClass::getCurrentExperience(const Arguments& arg) {
+Local<Value> PlayerClass::getCurrentExperience(const Arguments&) {
     try {
         Player* player = get();
         if (!player) {
@@ -1962,7 +1943,7 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
     CATCH("Fail in setCurrentExperience!");
 }
 
-Local<Value> PlayerClass::getTotalExperience(const Arguments& arg) {
+Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
     try {
         Player* player = get();
         if (!player) {
@@ -1991,7 +1972,7 @@ Local<Value> PlayerClass::setTotalExperience(const Arguments& args) {
     CATCH("Fail in setTotalExperience!");
 }
 
-Local<Value> PlayerClass::getXpNeededForNextLevel(const Arguments& args) {
+Local<Value> PlayerClass::getXpNeededForNextLevel(const Arguments&) {
     try {
         Player* player = get();
         if (!player) {
@@ -2019,7 +2000,7 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
     CATCH("Fail in transServer!");
 }
 
-Local<Value> PlayerClass::crash(const Arguments& args) {
+Local<Value> PlayerClass::crash(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2037,7 +2018,7 @@ Local<Value> PlayerClass::crash(const Arguments& args) {
     CATCH("Fail in crashPlayer!");
 }
 
-Local<Value> PlayerClass::getBlockStandingOn(const Arguments& args) {
+Local<Value> PlayerClass::getBlockStandingOn(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2047,7 +2028,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments& args) {
     CATCH("Fail in getBlockStandingOn!");
 }
 
-Local<Value> PlayerClass::getDevice(const Arguments& args) {
+Local<Value> PlayerClass::getDevice(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2221,7 +2202,7 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
     CATCH("Fail in setSidebar!")
 }
 
-Local<Value> PlayerClass::removeSidebar(const Arguments& args) {
+Local<Value> PlayerClass::removeSidebar(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2370,7 +2351,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
         if (imagesArr.size() != textsArr.size() || !imagesArr.get(0).isString()) return Local<Value>();
 
         lse::form::SimpleForm form(args[0].asString().toString(), args[1].asString().toString());
-        for (int i = 0; i < textsArr.size(); ++i) {
+        for (size_t i = 0; i < textsArr.size(); ++i) {
             Local<Value> img = imagesArr.get(i);
             if (img.isString()) {
                 form.addButton(textsArr.get(i).asString().toString(), img.asString().toString());
@@ -2489,7 +2470,6 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        lse::form::SimpleForm* form = SimpleFormClass::extract(args[0]);
         if (IsInstanceOf<SimpleFormClass>(args[0])) {
             Local<Function> callback = args[1].asFunction();
             SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player, callback);
@@ -2831,7 +2811,7 @@ Local<Value> PlayerClass::setFire(const Arguments& args) {
     CATCH("Fail in setFire!");
 }
 
-Local<Value> PlayerClass::stopFire(const Arguments& args) {
+Local<Value> PlayerClass::stopFire(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2859,7 +2839,7 @@ Local<Value> PlayerClass::setOnFire(const Arguments& args) {
     CATCH("Fail in setOnFire!");
 }
 
-Local<Value> PlayerClass::refreshChunks(const Arguments& args) {
+Local<Value> PlayerClass::refreshChunks(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -2973,7 +2953,7 @@ Local<Value> PlayerClass::setSprinting(const Arguments& args) {
     CATCH("Fail in setSprinting!");
 }
 
-Local<Value> PlayerClass::getNbt(const Arguments& args) {
+Local<Value> PlayerClass::getNbt(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -3040,7 +3020,7 @@ Local<Value> PlayerClass::hasTag(const Arguments& args) {
     CATCH("Fail in hasTag!");
 }
 
-Local<Value> PlayerClass::getAllTags(const Arguments& args) {
+Local<Value> PlayerClass::getAllTags(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -3054,7 +3034,7 @@ Local<Value> PlayerClass::getAllTags(const Arguments& args) {
     CATCH("Fail in getAllTags!");
 }
 
-Local<Value> PlayerClass::getAbilities(const Arguments& args) {
+Local<Value> PlayerClass::getAbilities(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -3070,7 +3050,7 @@ Local<Value> PlayerClass::getAbilities(const Arguments& args) {
     CATCH("Fail in getAbilities!");
 }
 
-Local<Value> PlayerClass::getAttributes(const Arguments& args) {
+Local<Value> PlayerClass::getAttributes(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -3115,11 +3095,10 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        bool  includeLiquid      = false;
-        bool  solidOnly          = false;
-        float maxDistance        = 5.25f;
-        bool  ignoreBorderBlocks = true;
-        bool  fullOnly           = false;
+        bool  includeLiquid = false;
+        bool  solidOnly     = false;
+        float maxDistance   = 5.25f;
+        bool  fullOnly      = false;
         if (args.size() > 0) {
             CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
             includeLiquid = args[0].asBoolean().value();
@@ -3140,7 +3119,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             maxDistance,
             false,
             true,
-            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const& source, Block const& block, bool idk) {
+            [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
                 if (solidOnly && !block.isSolid()) {
                     return false;
                 }
@@ -3169,7 +3148,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
     CATCH("Fail in getBlockFromViewVector!");
 }
 
-Local<Value> PlayerClass::isSimulatedPlayer(const Arguments& args) {
+Local<Value> PlayerClass::isSimulatedPlayer(const Arguments&) {
     try {
         Player* actor = get();
         if (!actor) return Local<Value>();
@@ -3191,7 +3170,7 @@ Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
 
 //////////////////// For LLMoney ////////////////////
 
-Local<Value> PlayerClass::getMoney(const Arguments& args) {
+Local<Value> PlayerClass::getMoney(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
@@ -3286,7 +3265,7 @@ Local<Value> PlayerClass::getMoneyHistory(const Arguments& args) {
 
 //////////////////// For Compatibility ////////////////////
 
-Local<Value> PlayerClass::getAllItems(const Arguments& args) {
+Local<Value> PlayerClass::getAllItems(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();

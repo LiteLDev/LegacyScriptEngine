@@ -116,8 +116,8 @@ Possible return values ​​are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NB
   - tag:  `NBT Object`  
     NBT object to be written (it carries specific NBT data).
     The write data type must be the same as the data type stored in the value corresponding to the key, and the key name may not exist.
-- Return value: Whether the write was successful or not.
-- Return value type: `Boolean`
+- Return value: CompoundTag itself.
+- Return value type: `NBTCompound`
 
 
 

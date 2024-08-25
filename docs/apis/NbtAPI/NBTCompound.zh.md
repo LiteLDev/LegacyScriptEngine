@@ -116,8 +116,8 @@ local nbt = NbtCompound({
   - tag:  `NBT对象`  
     要写入的 NBT 对象（它承载着具体的NBT数据）  
     写入数据类型必须和键对应的值储存的数据类型一致，键名可以不存在
-- 返回值：是否成功写入
-- 返回值类型：`Boolean`
+- 返回值：CompoundTag自身
+- 返回值类型：`NBTCompound`
 
 
 

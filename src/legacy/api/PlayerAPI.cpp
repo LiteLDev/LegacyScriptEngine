@@ -1497,7 +1497,7 @@ Local<Value> PlayerClass::setGameMode(const Arguments& args) {
 
         bool res     = false;
         int  newMode = args[0].asNumber().toInt32();
-        if ((newMode >= 0 && newMode <= 3) || (newMode >= 5 && newMode <= 6)) {
+        if ((newMode >= 0 && newMode <= 2) || (newMode >= 5 && newMode <= 6)) {
             player->setPlayerGameType((GameType)newMode);
             res = true;
         }

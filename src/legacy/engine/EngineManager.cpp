@@ -3,7 +3,6 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/utils/StringUtils.h"
-#include "main/NodeJsHelper.h"
 
 #include <map>
 #include <mutex>

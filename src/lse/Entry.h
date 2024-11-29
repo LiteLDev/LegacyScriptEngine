@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span>
 #include "Config.h"
 #include "PluginManager.h"
 

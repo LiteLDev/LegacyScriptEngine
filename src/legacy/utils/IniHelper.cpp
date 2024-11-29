@@ -1,8 +1,6 @@
 #include "utils/IniHelper.h"
-
 #include "ll/api/Logger.h"
 #include "lse/Entry.h"
-
 #include <filesystem>
 
 SimpleIni* SimpleIni::create(const std::string& path, const std::string& defContent) {

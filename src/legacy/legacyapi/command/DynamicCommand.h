@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span> // For fixing compile
 #include "fmt/core.h"
 #include "ll/api/base/Concepts.h"
 #include "ll/api/base/Macro.h"

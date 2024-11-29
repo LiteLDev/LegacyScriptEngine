@@ -9,18 +9,13 @@
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
-#include <fmt/format.h>
-#include <functional>
 #include <ll/api/Config.h>
-#include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/mod/ModManagerRegistry.h>
 #include <ll/api/mod/NativeMod.h>
 #include <ll/api/utils/ErrorUtils.h>
-#include <ll/api/utils/StringUtils.h>
 #include <memory>
-#include <processenv.h>
 #include <stdexcept>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA

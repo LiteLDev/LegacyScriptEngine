@@ -1,16 +1,13 @@
-#include "PluginManager.h"
-
 #include "Entry.h"
+#include "PluginManager.h"
 #include "Plugin.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
-
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <filesystem>
 #include <fmt/format.h>
-#include <ll/api/Logger.h>
 #include <ll/api/io/FileUtils.h>
 #include <ll/api/mod/Mod.h>
 #include <ll/api/mod/ModManager.h>

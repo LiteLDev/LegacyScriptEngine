@@ -1,6 +1,6 @@
 #pragma once
+#include <span> // For fixing compile
 #include "ll/api/base/Macro.h"
-
 #include <Windows.h>
 #include <ll/api/Expected.h>
 #include <ll/api/Logger.h>

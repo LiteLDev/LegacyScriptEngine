@@ -1,6 +1,7 @@
 #pragma once
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #pragma warning(disable : 4251)
+#include <span> // For fixing compile
 #include "main/Configs.h"
 
 #include <ScriptX/ScriptX.h>

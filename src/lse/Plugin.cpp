@@ -1,6 +1,5 @@
-#include "Plugin.h"
-
 #include "Entry.h"
+#include "Plugin.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/mod/Mod.h"
 

@@ -1,8 +1,5 @@
-#include "PluginMigration.h"
-
 #include "Entry.h"
-#include "legacy/legacyapi/utils/FileHelper.h"
-
+#include "PluginMigration.h"
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>

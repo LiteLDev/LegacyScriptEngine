@@ -60,14 +60,14 @@ Through this function, a new item object is generated using NBT.
 Every item object contains some fixed object properties. For a specific item object `it`, there are the following attributes:
 
 | Attributes          | Meaning                                                  | Data Type                  |
-| ------------------- | -------------------------------------------------------- | -------------------------- |
+|---------------------|----------------------------------------------------------|----------------------------|
 | it.name             | Item's in-game name                                      | `String`                   |
 | it.type             | Item Standard Type Name                                  | `String`                   |
 | it.id               | Item's in-game ID                                        | `Integer`                  |
 | it.count            | Item's count                                             | `Integer`                  |
 | it.aux              | Item's data value (for example, wool color or wood type) | `Integer`                  |
 | it.lore             | Item Lore                                                | `Array<String, String...>` |
-| it.damage           | Item Current Damage                                      | `Integer`                  |
+| it.damage           | Item Consumed Damage                                     | `Integer`                  |
 | it.attackDamage     | Item Attack Damage                                       | `Integer`                  |
 | it.maxDamage        | Item Max Damage                                          | `Integer`                  |
 | it.isArmorItem      | Whether the item is armor item                           | `Boolean`                  |

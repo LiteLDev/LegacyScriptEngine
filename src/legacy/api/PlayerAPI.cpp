@@ -33,7 +33,6 @@
 #include "mc/enums/d_b_helpers/Category.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
-#include "mc/network/NetworkIdentifier.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
@@ -56,7 +55,6 @@
 #include "mc/world/Minecraft.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/player/EnderChestContainer.h"
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BossEventUpdateType.h"
@@ -73,11 +71,9 @@
 #include <algorithm>
 #include <climits>
 #include <list>
-#include <mc/entity/EntityContext.h>
 #include <mc/entity/utilities/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
-#include <mc/world/SimpleContainer.h>
 #include <mc/world/actor/Actor.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
@@ -88,14 +84,12 @@
 #include <mc/world/attribute/SharedAttributes.h>
 #include <mc/world/level/BlockSource.h>
 #include <mc/world/level/Command.h>
-#include <mc/world/level/IConstBlockSource.h>
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/level/material/Material.h>
 #include <mc/world/scores/Objective.h>
 #include <memory>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 //////////////////// Class Definition ////////////////////
@@ -2890,33 +2884,48 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
         int   result         = 0;
         auto& inventorySlots = player->getInventory().getSlots();
         for (unsigned short slot = 0; slot < inventorySlots.size(); ++slot) {
+            if (clearCount <= 0) {
+                break;
+            }
             if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (inventorySlots[slot]->mCount < clearCount) {
                     result += inventorySlots[slot]->mCount;
+                    clearCount -= inventorySlots[slot]->mCount;
                 } else {
                     result += clearCount;
+                    clearCount = 0;
                 }
                 player->getInventory().removeItem(slot, clearCount);
             }
         }
         auto& handSlots = ActorEquipment::getHandContainer(player->getEntityContext()).getSlots();
         for (unsigned short slot = 0; slot < handSlots.size(); ++slot) {
+            if (clearCount <= 0) {
+                break;
+            }
             if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (handSlots[slot]->mCount < clearCount) {
                     result += handSlots[slot]->mCount;
+                    clearCount -= handSlots[slot]->mCount;
                 } else {
                     result += clearCount;
+                    clearCount = 0;
                 }
                 ActorEquipment::getHandContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
         }
         auto& armorSlots = ActorEquipment::getArmorContainer(player->getEntityContext()).getSlots();
         for (unsigned short slot = 0; slot < armorSlots.size(); ++slot) {
+            if (clearCount <= 0) {
+                break;
+            }
             if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (armorSlots[slot]->mCount < clearCount) {
                     result += armorSlots[slot]->mCount;
+                    clearCount -= armorSlots[slot]->mCount;
                 } else {
                     result += clearCount;
+                    clearCount = 0;
                 }
                 ActorEquipment::getArmorContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }

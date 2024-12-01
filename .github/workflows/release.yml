@@ -83,20 +83,10 @@ jobs:
 
       - name: Upload to Gitea
         run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/known_hosts
-          echo "gitea.litebds.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJG08TJjNp1u4YsmSWDAUV3N3msYKJ9xvwvXS+f7Ix1d" >> ~/.ssh/known_hosts
-          echo "gitea.litebds.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDGf514hIOwJtT21OAt0kkkGbqbKUcRm9jjEPvGcufmhtiCmxztmEFd4GAkSLz6PGEqqVqKu74IMi04s0HzXhUJrfeF+Hs44QElkmZr6sYmrM/7vjcznzotkev6K/fKcNgwFhPH63EdeyAv0C4VV6r7v4Jrdhq59/51/D8L/ftaqr3+O5dSdGhP2cv0ObTCTDjxoXAv4MyNWGSFhFdriNdvKFTUcdrOXtfSTrMi61qOhEbTp8nbWMNmRIhpId9kEvt2FGFGgDCGNljfCynTp79yiOtHZShXFEesuWnLsP7zEUSV0PyUOnCGMaBgLf+lCPIu9H/VktE92/btoYlxeBnrvw9yshHyBY8xy+4WFKWFsm+dElLJsVhbJZHNbMRR5AUNH/c4x7/Sm7K4ix9RXiqtBgbWyZbn+JeQv6hl+ygUfZWg0GhJRGg7S+ckc1BnnQapqRYLzctsU4SceSc8q4Z+WrBpPYDRAltM+12yNp66MfwKWc3DpmzR8gcUa/X21GE=" >> ~/.ssh/known_hosts
-          echo "gitea.litebds.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBNCqY/ANtVZDgPoB/KkLVDFj1G5+9XrD0I2bZpvdIjnps7WRFj1uTUc86/yricbWPo4a/FDkPG8TMcnUTw1J7l8=" >> ~/.ssh/known_hosts
-          touch ~/.ssh/id_rsa
-          echo "-----BEGIN OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
-          echo '${{secrets.SSH_KEY}}' >> ~/.ssh/id_rsa
-          echo "-----END OPENSSH PRIVATE KEY-----" >> ~/.ssh/id_rsa
-          chmod 400 ~/.ssh/id_rsa
           git config --global user.name "Actions"
           git config --global user.email "shrbox@liteldev.com"
           rm release/legacy-script-engine-${{ matrix.backend }}/*.pdb
-          git clone --depth=1 git@gitea.litebds.com:LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
+          git clone --depth=1 https://${{ secret.GITEA_USER }}:${{ secret.GITEA_TOKEN }}@gitea.litebds.com/LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
           cd legacy-script-engine-${{ matrix.backend }}
           rm -rf legacy-script-engine-${{ matrix.backend }}
           mv ../release/legacy-script-engine-${{ matrix.backend }} .

@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.20] - 2024-08-04
+## [0.8.20] - 2024-12-01
 
 ### Fixed
 
 - Fix setGameMode
+- Fix clearItem [#186]
 
 ## [0.8.19] - 2024-08-23
 
@@ -595,6 +596,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#154]: https://github.com/LiteLDev/LegacyScriptEngine/issues/154
 [#157]: https://github.com/LiteLDev/LegacyScriptEngine/issues/157
 [#160]: https://github.com/LiteLDev/LegacyScriptEngine/issues/160
+[#186]: https://github.com/LiteLDev/LegacyScriptEngine/issues/186
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.20...HEAD
 [0.8.20]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.19...v0.8.20

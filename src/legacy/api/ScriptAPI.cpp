@@ -24,7 +24,7 @@ Local<Value> Log(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << std::endl;
-        ENGINE_OWN_DATA()->logger.info(sout.str());
+        ENGINE_OWN_DATA()->getModInstance()->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");
@@ -90,7 +90,7 @@ Local<Value> ColorLog(const Arguments& args) {
         sout << prefix;
         for (int i = 1; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << "\x1b[0m" << std::endl;
-        ENGINE_OWN_DATA()->logger.info(sout.str());
+        ENGINE_OWN_DATA()->getModInstance()->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");
@@ -103,9 +103,8 @@ Local<Value> FastLog(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
 
-        pool.addTask([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
-            ll::io::Logger fastLogger(pluginName);
-            fastLogger.info(str);
+        pool.execute([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
+            ll::io::LoggerRegistry::getInstance().getOrCreate(pluginName)->info(str);
         });
         return Boolean::newBoolean(true);
     }

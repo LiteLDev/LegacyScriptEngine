@@ -1318,7 +1318,7 @@ Local<Value> NbtListClass::removeTag(const Arguments& args) {
             return Local<Value>();
         }
 
-        list.erase(index);
+        list.erase(list.begin() + index);
         return this->getScriptObject();
     }
     CATCH("Fail in NBT SetTag!");

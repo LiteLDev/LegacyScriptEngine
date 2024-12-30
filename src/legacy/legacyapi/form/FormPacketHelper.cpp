@@ -7,6 +7,7 @@
 #include "mc/network/PacketHandlerDispatcherInstance.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/ModalFormResponsePacket.h"
+#include "mc/server/ServerPlayer.h"
 #include "mc/world/actor/player/Player.h"
 
 #include <nlohmann/json.hpp>
@@ -171,7 +172,8 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     NetEventCallback&        callback,
     std::shared_ptr<Packet>& packet
 ) {
-    if (auto player = ((ServerNetworkHandler&)callback).getServerPlayer(source, SubClientId::PrimaryClient); player) {
+    auto handle = ll::memory::dAccess<ServerNetworkHandler*>(&callback, -16);
+    if (auto player = handle->_getServerPlayer(source, SubClientId::PrimaryClient); player) {
         auto& modalPacket = (ModalFormResponsePacket&)*packet;
 
         auto data = std::string{"null"};
@@ -186,7 +188,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
             }
         }
 
-        HandleFormPacket(&player.get(), modalPacket.mFormId, data);
+        HandleFormPacket(player, modalPacket.mFormId, data);
     }
     origin(source, callback, packet);
 }

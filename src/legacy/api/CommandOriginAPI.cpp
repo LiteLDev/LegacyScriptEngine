@@ -7,13 +7,14 @@
 #include "api/PlayerAPI.h"
 #include "magic_enum.hpp"
 #include "mc/nbt/CompoundTag.h"
+#include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
-#include "mc/world/level/Command.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <magic_enum.hpp>
+
 
 //////////////////// Class Definition ////////////////////
 ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("OriginType");
@@ -38,7 +39,7 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 CommandOriginClass::CommandOriginClass(CommandOrigin const* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
-  ptr(p) {};
+  ptr(p){};
 
 Local<Object> CommandOriginClass::newCommandOrigin(CommandOrigin const* p) {
     auto newp = new CommandOriginClass(p);

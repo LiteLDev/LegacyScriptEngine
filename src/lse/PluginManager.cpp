@@ -1,9 +1,12 @@
-#include "Entry.h"
 #include "PluginManager.h"
+
+#include "Entry.h"
 #include "Plugin.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "ll/api/service/GamingStatus.h"
+
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <filesystem>
@@ -125,7 +128,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         script::EngineScope engineScope(scriptEngine);
 
         // Set plugins's logger title
-        ENGINE_OWN_DATA()->logger.title = manifest.name;
         ENGINE_OWN_DATA()->pluginName   = manifest.name;
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
@@ -199,7 +201,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
 #endif
-        if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
+        if (ll::getGamingStatus() == ll::GamingStatus::Running) { // Is hot load
             LLSECallEventsOnHotLoad(&scriptEngine);
         }
         ExitEngineScope exit;

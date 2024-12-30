@@ -106,11 +106,11 @@ void initializeLegacyStuff() {
 auto load(ll::mod::NativeMod& self) -> bool {
     auto& logger = self.getLogger();
 #ifdef NDEBUG
-    ll::error_utils::setSehTranslator();
+    ll::error_utils::initExceptionTranslator();
 #endif
 
     try {
-        ll::i18n::load(self.getLangDir());
+        auto result = ll::i18n::getInstance().load(self.getLangDir());
 
         config             = Config();
         pluginManager      = std::make_shared<PluginManager>();

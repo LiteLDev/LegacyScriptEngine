@@ -18,9 +18,8 @@
 #include "lse/Plugin.h"
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
-#include "mc/common/wrapper/GenerateMessageResult.h"
-#include "mc/deps/json/JsonHelpers.h"
-#include "mc/enums/CurrentCmdVersion.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/locale/I18n.h"
 #include "mc/locale/Localization.h"
 #include "mc/server/ServerLevel.h"
@@ -30,8 +29,11 @@
 #include "mc/server/commands/CommandOutputType.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
 #include "mc/server/commands/CommandVersion.h"
+#include "mc/server/commands/CurrentCmdVersion.h"
+#include "mc/server/commands/GenerateMessageResult.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
+#include "mc/util/JsonHelpers.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
@@ -109,9 +111,9 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
         return FloatPos::newPos(result.get<Vec3>(), dim ? (int)dim->getDimensionId() : -1);
     }
     case DynamicCommand::ParameterType::Message:
-        return String::newString(
-            result.getRaw<CommandMessage>().generateMessage(*result.origin, CommandVersion::CurrentVersion).mString
-        );
+        return String::newString(result.getRaw<CommandMessage>()
+                                     .generateMessage(*result.origin, CommandVersion::CurrentVersion())
+                                     .mMessage->c_str());
     case DynamicCommand::ParameterType::RawText:
         return String::newString(result.getRaw<std::string>());
     case DynamicCommand::ParameterType::JsonValue:
@@ -120,13 +122,13 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
         return ItemClass::newItem(
             new ItemStack(result.getRaw<CommandItem>()
                               .createInstance(1, 1, *new CommandOutput(CommandOutputType::None), true)
-                              .value_or(ItemInstance::EMPTY_ITEM)),
+                              .value_or(ItemInstance::EMPTY_ITEM())),
             false
         ); // Not managed by BDS, pointer will be saved as unique_ptr
     case DynamicCommand::ParameterType::Block:
         return BlockClass::newBlock(
             const_cast<Block*>(result.getRaw<CommandBlockName>().resolveBlock(0).getBlock()),
-            &const_cast<BlockPos&>(BlockPos::MIN),
+            &const_cast<BlockPos&>(BlockPos::MIN()),
             -1
         );
     case DynamicCommand::ParameterType::Effect:
@@ -169,10 +171,11 @@ Local<Value> McClass::runcmd(const Arguments& args) {
             ll::service::getLevel()->asServer(),
             CommandPermissionLevel::Owner,
             0
-        )
+        ),
+        CommandVersion::CurrentVersion()
     );
     try {
-        return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, false));
+        return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, false).mSuccess);
     }
     CATCH("Fail in RunCmd!")
 }
@@ -187,7 +190,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         auto command = ll::service::getMinecraft()->getCommands().compileCommand(
             args[0].asString().toString(),
             origin,
-            (CurrentCmdVersion)CommandVersion::CurrentVersion,
+            (CurrentCmdVersion)CommandVersion::CurrentVersion(),
             [&](std::string const& err) { outputStr.append(err).append("\n"); }
         );
         Local<Object> resObj = Object::newObject();
@@ -266,13 +269,13 @@ CommandClass::CommandClass(std::unique_ptr<DynamicCommandInstance>&& p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(std::move(p)),
   ptr(uptr.get()),
-  registered(false) {};
+  registered(false){};
 
 CommandClass::CommandClass(DynamicCommandInstance* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(),
   ptr(p),
-  registered(true) {};
+  registered(true){};
 
 Local<Object> CommandClass::newCommand(std::unique_ptr<DynamicCommandInstance>&& p) {
     auto newp = new CommandClass(std::move(p));

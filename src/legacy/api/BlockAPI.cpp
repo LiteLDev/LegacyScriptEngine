@@ -9,13 +9,14 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/wrapper/optional_ref.h"
 #include "mc/deps/core/string/HashedString.h"
+#include "mc/deps/core/utility/optional_ref.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/components/BlockLiquidDetectionComponent.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <exception>
@@ -262,7 +263,7 @@ Local<Value> BlockClass::isUnbreakable() {
 
 Local<Value> BlockClass::isWaterBlockingBlock() {
     try {
-        return Boolean::newBoolean(block->isWaterBlocking());
+        return Boolean::newBoolean(BlockLiquidDetectionComponent::isLiquidBlocking(*block));
     }
     CATCH("Fail in isWaterBlockingBlock!");
 }
@@ -289,7 +290,7 @@ Local<Value> BlockClass::getNbt(const Arguments&) {
     CATCH("Fail in getNbt!");
 }
 
-#include "mc/world/level/block/utils/BlockSerializationUtils.h"
+#include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 
 Local<Value> BlockClass::setNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -299,7 +300,7 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
         if (!nbt) return Local<Value>(); // Null
 
         // update Pre Data
-        auto         result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt);
+        auto         result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt, nullptr);
         const Block* bl     = result.second;
         if (bl) {
             ll::service::getLevel()
@@ -377,7 +378,6 @@ Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
     }
     CATCH("Fail in removeBlockEntity!");
 }
-
 #include "mc/world/level/ChunkBlockPos.h"
 #include "mc/world/level/chunk/LevelChunk.h"
 

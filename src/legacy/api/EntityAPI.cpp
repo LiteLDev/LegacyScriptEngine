@@ -11,22 +11,23 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
-#include "mc/world/phys/HitDetection.h"
-#include "mc/deps/core/string/HashedString.h"
-#include "mc/world/actor/ActorDamageCause.h"
-#include "mc/world/actor/provider/ActorEquipment.h"
-#include "mc/entity/utilities/ActorMobilityUtils.h"
-#include "mc/world/actor/ActorType.h"
+#include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/math/Vec2.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/SimpleContainer.h"
+#include "mc/world/actor/ActorDamageCause.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
-#include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/provider/ActorEquipment.h"
+#include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/SharedAttributes.h"
+#include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/IConstBlockSource.h"
@@ -35,9 +36,8 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
-#include "mc/common/ActorUniqueID.h"
+#include "mc/world/phys/HitDetection.h"
 #include "mc/world/phys/HitResult.h"
-#include "mc/world/effect/EffectDuration.h"
 
 #include <climits>
 #include <entt/entt.hpp>
@@ -296,7 +296,9 @@ Local<Value> EntityClass::isOnHotBlock() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->getDimensionBlockSource().getBlock(entity->getFeetBlockPos()).getMaterial().isSuperHot()); // TODO: Unsure
+        return Boolean::newBoolean(
+            entity->getDimensionBlockSource().getBlock(entity->getFeetBlockPos()).getMaterial().isSuperHot()
+        ); // TODO: Unsure
     }
     CATCH("Fail in isOnHotBlock!")
 }
@@ -1490,9 +1492,9 @@ Local<Value> EntityClass::addEffect(const Arguments& args) {
         if (!actor) {
             return Boolean::newBoolean(false);
         }
-        unsigned int      id            = args[0].asNumber().toInt32();
-        EffectDuration               duration;
-        duration.mUnk178312.as<int>() = args[1].asNumber().toInt32();
+        unsigned int   id = args[0].asNumber().toInt32();
+        EffectDuration duration{};
+        duration.mValue                 = args[1].asNumber().toInt32();
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
         MobEffectInstance effect        = MobEffectInstance(id, duration, level, false, showParticles, false);

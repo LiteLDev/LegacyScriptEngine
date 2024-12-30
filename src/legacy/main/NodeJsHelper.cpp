@@ -2,24 +2,25 @@
 
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #include "main/NodeJsHelper.h"
-#include "ll/api/chrono/GameChrono.h"
-#include "ll/api/service/ServerInfo.h"
-#include "main/Configs.h"
+
 #include "api/CommandAPI.h"
 #include "api/CommandCompatibleAPI.h"
 #include "api/EventAPI.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
-#include "main/Global.h"
-
-#include <functional>
+#include "ll/api/chrono/GameChrono.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/schedule/Scheduler.h"
 #include "ll/api/schedule/Task.h"
+#include "ll/api/service/ServerInfo.h"
 #include "ll/api/utils/StringUtils.h"
+#include "main/Configs.h"
+#include "main/Global.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
+
+#include <functional>
 
 ll::schedule::ServerTimeScheduler nodeScheduler;
 using ll::chrono_literals::operator""_tick;
@@ -169,11 +170,11 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                 .add<ll::schedule::RepeatTask>(
                     2_tick,
                     [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() {
-                        if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
+                        if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
                             EngineScope enter(engine);
                             uv_run(eventLoop, UV_RUN_NOWAIT);
                         }
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
+                        if ((ll::getGamingStatus() != ll::GamingStatus::Running)) {
                             uv_stop(eventLoop);
                             lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
                         }

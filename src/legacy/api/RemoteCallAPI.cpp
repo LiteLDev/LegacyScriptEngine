@@ -11,6 +11,7 @@
 #include "api/PlayerAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
 
 #include <RemoteCallAPI.h>
@@ -103,7 +104,7 @@ Local<Value> _extractValue(std::nullptr_t) { return Local<Value>(); };
 Local<Value> _extractValue(std::string*) { return Local<Value>(); };
 Local<Value> _extractValue(Player* v) { return PlayerClass::newPlayer(v); };
 Local<Value> _extractValue(Actor* v) { return EntityClass::newEntity(v); };
-Local<Value> _extractValue(Block* v) { return BlockClass::newBlock(v, &BlockPos::ZERO, -1); };
+Local<Value> _extractValue(Block* v) { return BlockClass::newBlock(v, &BlockPos::ZERO(), -1); };
 Local<Value> _extractValue(BlockActor* const& v) { return BlockEntityClass::newBlockEntity(v, -1); };
 Local<Value> _extractValue(Container* v) { return ContainerClass::newContainer(v); };
 Local<Value> _extractValue(RemoteCall::WorldPosType v) { return FloatPos::newPos(v.pos, v.dimId); };
@@ -203,7 +204,7 @@ bool LLSEExportFunc(
     RemoteCall::CallbackFn cb         = [engine, identifier /*, scriptCallback = std::move(callback)*/](
                                     std::vector<RemoteCall::ValueType> params
                                 ) -> RemoteCall::ValueType {
-        if (ll::getServerStatus() == ll::ServerStatus::Stopping || !EngineManager::isValid(engine)
+        if (ll::getGamingStatus() == ll::GamingStatus::Stopping || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return "";
         EngineScope enter(engine);

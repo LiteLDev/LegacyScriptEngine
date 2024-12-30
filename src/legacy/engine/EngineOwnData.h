@@ -1,13 +1,15 @@
 #pragma once
 #include "dyncall/dyncall.h"
 #include "ll/api/base/Macro.h"
+#include "ll/api/mod/Mod.h"
+#include "lse/Entry.h"
 #include "main/Configs.h"
 #include "utils/UsingScriptX.h"
 
 #include <ll/api/Expected.h>
+#include <ll/api/i18n/I18n.h>
 #include <ll/api/io/Logger.h>
 #include <ll/api/io/LoggerRegistry.h>
-#include <ll/api/i18n/I18n.h>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -92,7 +94,7 @@ struct EngineOwnData {
         dcMode(dynamicCallVM, DC_CALL_C_DEFAULT);
     }
 
-    inline std::shared_ptr<ll::mod::Mod> getModInstance() {
+    [[nodiscard]] inline std::shared_ptr<ll::mod::Mod> getModInstance() const {
         return lse::getPluginManager().getMod(pluginName);
     }
 };

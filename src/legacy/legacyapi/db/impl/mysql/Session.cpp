@@ -7,18 +7,17 @@
 // namespace DB {
 
 // MySQLSession::MySQLSession() {
-//     IF_ENDBG dbLogger.info("MySQLSession::MySQLSession: Constructed! this: {}", (void*)this);
-//     conn = mysql_init(nullptr);
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->info("MySQLSession::MySQLSession:
+//     Constructed! this: {}", (void*)this); conn = mysql_init(nullptr);
 // }
 // MySQLSession::MySQLSession(const ConnParams& params) {
-//     IF_ENDBG dbLogger.info("MySQLSession::MySQLSession: Constructed! this: {}", (void*)this);
-//     conn = mysql_init(nullptr);
-//     open(params);
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->info("MySQLSession::MySQLSession:
+//     Constructed! this: {}", (void*)this); conn = mysql_init(nullptr); open(params);
 // }
 
 // MySQLSession::~MySQLSession() {
-//     IF_ENDBG dbLogger.info("MySQLSession::MySQLSession: Destructor: this: {}", (void*)this);
-//     close();
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->info("MySQLSession::MySQLSession:
+//     Destructor: this: {}", (void*)this); close();
 // }
 
 // void MySQLSession::setSSL(const ConnParams& params) {
@@ -69,7 +68,8 @@
 //         "true",
 //         "utf8"
 //     );
-//     // IF_ENDBG dbLogger.debug("MySQLSession::open: MySQL default charset name:
+//     // IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::open: MySQL default
+//     charset name:
 //     // {}", defaultCharset);
 //     mysql_options(conn, MYSQL_SET_CHARSET_NAME, charset.c_str());
 //     auto res = mysql_real_connect(
@@ -87,7 +87,7 @@
 //             "MySQLSession::MySQLSession: Failed to open database: " + std::string(mysql_error(conn))
 //         );
 //     }
-//     IF_ENDBG dbLogger.debug(
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug(
 //         "MySQLSession::open: Opened database: " + std::string(p.getHost()) + ":" + std::to_string(port) + "/" + db
 //     );
 // #if defined(LLDB_DEBUG_MODE)
@@ -96,21 +96,19 @@
 // }
 
 // bool MySQLSession::execute(const std::string& query) {
-//     IF_ENDBG dbLogger.debug("MySQLSession::execute: Executing > " + query);
-//     auto     res = mysql_query(conn, query.c_str());
-//     return res == OK;
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::execute: Executing > "
+//     + query); auto     res = mysql_query(conn, query.c_str()); return res == OK;
 // }
 
 // bool MySQLSession::relogin(const std::string& user, const std::string& password, const std::string& db) {
-//     IF_ENDBG dbLogger.debug("MySQLSession::change: Changing user to {} and database to {}", user, db);
-//     auto     res = mysql_change_user(conn, user.c_str(), password.c_str(), (db.empty() ? nullptr : db.c_str()));
-//     return res == OK;
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::change: Changing user
+//     to {} and database to {}", user, db); auto     res = mysql_change_user(conn, user.c_str(), password.c_str(),
+//     (db.empty() ? nullptr : db.c_str())); return res == OK;
 // }
 
 // Session& MySQLSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
-//     IF_ENDBG dbLogger.debug("MySQLSession::query: Querying > " + query);
-//     auto     res = mysql_query(conn, query.c_str());
-//     if (res != OK) {
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::query: Querying > " +
+//     query); auto     res = mysql_query(conn, query.c_str()); if (res != OK) {
 //         throw std::runtime_error("MySQLSession::query: Failed to query database: " + std::string(mysql_error(conn)));
 //     }
 //     auto result = mysql_store_result(conn);
@@ -122,7 +120,8 @@
 //     auto     numFields = mysql_num_fields(result);
 //     auto     numRows   = mysql_num_rows(result);
 //     auto     fields    = mysql_fetch_fields(result);
-//     IF_ENDBG dbLogger.debug("MySQLSession::query: Query returned {} rows and {} fields", numRows, numFields);
+//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::query: Query returned
+//     {} rows and {} fields", numRows, numFields);
 //     // Fetch column names
 //     RowHeader header;
 //     for (unsigned int i = 0; i < numFields; i++) header.add(std::string(fields[i].name, fields[i].name_length));
@@ -205,7 +204,8 @@
 //     if (conn) {
 //         mysql_close(conn);
 //         conn = nullptr;
-//         IF_ENDBG dbLogger.debug("MySQLSession::close: Closed database");
+//         IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLSession::close: Closed
+//         database");
 //     }
 // }
 

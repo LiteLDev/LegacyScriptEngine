@@ -1,9 +1,9 @@
 #pragma once
 
 #include <ll/api/memory/Memory.h>
-#include <mc/deps/core/common/bedrock/Result.h>
+#include <mc/deps/core/platform/Result.h>
 #include <mc/deps/core/utility/BinaryStream.h>
-#include <mc/enums/MinecraftPacketIds.h>
+#include <mc/network/MinecraftPacketIds.h>
 #include <mc/network/packet/Packet.h>
 #include <string>
 #include <string_view>
@@ -27,7 +27,7 @@ public:
 
     [[nodiscard]] auto getName() const -> std::string override { return "NetworkPacket"; }
 
-    void write(BinaryStream& stream) const override { stream.mBuffer->append(mData); }
+    void write(BinaryStream& stream) const override { stream.mBuffer.append(mData); }
 
     auto _read(class ReadOnlyBinaryStream& /*stream*/) -> Bedrock::Result<void> override {
         return Bedrock::Result<void>{};

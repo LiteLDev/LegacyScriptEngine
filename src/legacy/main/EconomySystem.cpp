@@ -5,8 +5,6 @@
 
 #include <string>
 
-ll::io::Logger economicLogger("EconomicSystem");
-
 ////////////// Helper //////////////
 
 bool EconomySystem::init() {

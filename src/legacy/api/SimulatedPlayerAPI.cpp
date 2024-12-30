@@ -12,9 +12,9 @@
 #include "mc/server/SimulatedPlayer.h"
 
 #include <ll/api/utils/RandomUtils.h>
-#include <mc/external/scripting/gametest/ScriptNavigationResult.h>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/network/ServerNetworkHandler.h>
+#include <mc/scripting/modules/gametest/ScriptNavigationResult.h>
 #include <mc/server/sim/LookDuration.h>
 #include <mc/world/Container.h>
 #include <mc/world/Minecraft.h>
@@ -26,6 +26,7 @@
 #include <mc/world/scores/Objective.h>
 #include <string>
 #include <vector>
+
 
 Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -454,7 +455,7 @@ inline Local<Value> NavigateResultToObject(ScriptModuleGameTest::ScriptNavigatio
     auto obj = Object::newObject();
     obj.set(String::newString("isFullPath"), Boolean::newBoolean(res.mIsFullPath));
     auto path = Array::newArray();
-    for (auto& pos : res.mPath) {
+    for (auto& pos : *res.mPath) {
         path.add(Array::newArray({Number::newNumber(pos.x), Number::newNumber(pos.y), Number::newNumber(pos.z)}));
     }
     obj.set(String::newString("path"), path);

@@ -4,6 +4,7 @@
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/world/scores/DisplayObjective.h"
 #include "mc/world/scores/ScoreInfo.h"
 
 #include <mc/world/actor/player/Player.h>
@@ -241,7 +242,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            obj->_resetPlayer(id);
+            // obj->_resetPlayer(id);
+            scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
@@ -254,7 +256,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            obj->_resetPlayer(id);
+            // obj->_resetPlayer(id);
+            scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else {
             LOG_WRONG_ARG_TYPE();
@@ -275,7 +278,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
                 return {};
             }
-            return Number::newNumber(objective->getPlayerScore(sid).mScore);
+            return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
@@ -283,7 +286,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
                 return {};
             }
-            return Number::newNumber(objective->getPlayerScore(sid).mScore);
+            return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();

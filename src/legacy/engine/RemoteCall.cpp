@@ -128,7 +128,7 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
             return "";
         }
         auto engine = data->second.engine;
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) || engine->isDestroying())
+        if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine) || engine->isDestroying())
             return "";
         EngineScope enter(data->second.engine);
         std::vector<script::Local<Value>> scriptParams;

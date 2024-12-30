@@ -8,8 +8,6 @@
 
 namespace DB {
 
-extern ll::io::Logger dbLogger;
-
 class Session {
 
 protected:

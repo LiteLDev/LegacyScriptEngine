@@ -7,9 +7,10 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
+#include "mc/deps/core/math/Vec3.h"
 #include "mc/deps/core/utility/typeid_t.h"
 #include "mc/deps/json/Value.h"
-#include "mc/deps/core/math/Vec3.h"
+#include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandFlag.h"
 #include "mc/server/commands/CommandItem.h"
@@ -29,7 +30,6 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/effect/MobEffect.h"
 #include "mc/world/level/BlockPos.h"
-#include "mc/server/commands/Command.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -339,12 +339,12 @@ public:
         template <>
         BlockPos get<BlockPos>() const {
             auto& pos = getRaw<CommandPosition>();
-            return pos.getBlockPos(0, *origin, Vec3::ZERO);
+            return pos.getBlockPos(0, *origin, Vec3::ZERO());
         }
         template <>
         Vec3 get<Vec3>() const {
             auto& pos = getRaw<CommandPositionFloat>();
-            return pos.getPosition(0, *origin, Vec3::ZERO);
+            return pos.getPosition(0, *origin, Vec3::ZERO());
         }
     };
 
@@ -427,9 +427,11 @@ public:
                 name,
                 getCommandParameterDataType<type>(),
                 description == "" ? nullptr : description.data(),
+                identifier == "" ? nullptr : identifier.data(),
                 (int)offset,
                 optional,
-                (int)offset + std::max(8, (int)sizeof(T))
+                (int)offset + std::max(8, (int)sizeof(T)),
+                option
             };
             param.addOptions(option);
             return param;

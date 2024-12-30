@@ -1,5 +1,6 @@
 #include "legacyapi/db/ConnParams.h"
 
+#include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
 
 #include <ll/api/io/Logger.h>
@@ -78,18 +79,18 @@ URL ParseURL(const std::string& url) {
     return result;
 }
 
-extern ll::io::Logger dbLogger;
-void              PrintURL(const URL& url) {
-    dbLogger.debug("Parsed URL");
-    dbLogger.debug("scheme: {}", url.scheme);
-    dbLogger.debug("user: {}", url.user);
-    dbLogger.debug("password: {}", url.password);
-    dbLogger.debug("host: {}", url.host);
-    dbLogger.debug("port: {}", url.port);
-    dbLogger.debug("path: {}", url.path);
-    dbLogger.debug("query:");
-    for (auto& pair : url.query) dbLogger.debug("- {}: {}", pair.first, pair.second);
-    dbLogger.debug("fragment: {}", url.fragment);
+void PrintURL(const URL& url) {
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("Parsed URL");
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("scheme: {}", url.scheme);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("user: {}", url.user);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("password: {}", url.password);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("host: {}", url.host);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("port: {}", url.port);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("path: {}", url.path);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("query:");
+    for (auto& pair : url.query)
+        ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("- {}: {}", pair.first, pair.second);
+    ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("fragment: {}", url.fragment);
 }
 
 #pragma endregion

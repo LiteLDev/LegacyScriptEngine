@@ -5,6 +5,7 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/service/GamingStatus.h"
 
 // #include <llapi/SendPacketAPI.h> //todo
 #include "ll/api/service/ServerInfo.h"
@@ -56,7 +57,7 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
     form->sendTo(
         player,
         [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* pl, int chosen) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
@@ -129,7 +130,7 @@ void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, scri
     form->sendToForRawJson(
         player,
         [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* player, std::string data) {
-            if (ll::getServerStatus() != ll::ServerStatus::Running) return;
+            if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 

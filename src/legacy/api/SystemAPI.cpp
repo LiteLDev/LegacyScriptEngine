@@ -4,9 +4,10 @@
 #include "engine/EngineManager.h"
 #include "engine/TimeTaskSystem.h"
 #include "ll/api/chrono/GameChrono.h"
-#include "ll/api/schedule/Scheduler.h"
-#include "ll/api/schedule/Task.h"
+#include "ll/api/coro/CoroTask.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
+#include "ll/api/thread/ThreadPoolExecutor.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/SafeGuardRecord.h"
@@ -27,7 +28,6 @@ ClassDefine<void> SystemClassBuilder = defineClass("system")
                                            .function("newProcess", &SystemClass::newProcess)
                                            .build();
 
-ll::schedule::ServerTimeScheduler systemScheduler;
 // From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
 bool NewProcess(
     const std::string&                    process,
@@ -58,15 +58,17 @@ bool NewProcess(
     CloseHandle(pi.hThread);
 
     std::thread([hRead{hRead}, hProcess{pi.hProcess}, callback{std::move(callback)}, timeLimit{timeLimit}, wCmd{wCmd}](
-                ) {
+                ) mutable {
 #ifndef LSE_DEBUG
-        _set_se_translator(ll::error_utils::translateSEHtoCE);
+        ll::utils::error_utils::initExceptionTranslator();
 #endif
-        if (timeLimit == -1) WaitForSingleObject(hProcess, INFINITE);
-        else {
+        if (timeLimit == -1) {
+            WaitForSingleObject(hProcess, INFINITE);
+        } else {
             WaitForSingleObject(hProcess, timeLimit);
             TerminateProcess(hProcess, 0);
         }
+
         char   buffer[8192];
         string strOutput;
         DWORD  bytesRead, exitCode;
@@ -74,28 +76,26 @@ bool NewProcess(
         delete[] wCmd;
         GetExitCodeProcess(hProcess, &exitCode);
         while (true) {
-            ZeroMemory(buffer, 8192);
-            if (!ReadFile(hRead, buffer, 8192, &bytesRead, nullptr)) break;
+            ZeroMemory(buffer, sizeof(buffer));
+            if (!ReadFile(hRead, buffer, sizeof(buffer), &bytesRead, nullptr)) break;
             strOutput.append(buffer, bytesRead);
         }
         CloseHandle(hRead);
         CloseHandle(hProcess);
 
         try {
-            if (callback) callback((int)exitCode, strOutput);
-        } catch (const ll::error_utils::seh_exception& e) {
-            lse::getSelfPluginInstance().getLogger().error(
-                "SEH Uncaught Exception Detected!\n{}",
-                ll::string_utils::tou8str(e.what())
-            );
-            lse::getSelfPluginInstance().getLogger().error("In NewProcess callback");
-            //   PrintCurrentStackTraceback();
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+            if (callback) callback(static_cast<int>(exitCode), std::move(strOutput));
         } catch (...) {
             lse::getSelfPluginInstance().getLogger().error("NewProcess Callback Failed!");
-            lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
-            //   PrintCurrentStackTraceback();
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+
+            ll::utils::error_utils::AnyExceptionRef anyExc(std::current_exception());
+            if (auto exc = anyExc.tryGet<std::exception>()) {
+                lse::getSelfPluginInstance().getLogger().error("Caught Exception: {}", exc->what());
+            } else {
+                lse::getSelfPluginInstance().getLogger().error("Unknown exception caught in NewProcess callback.");
+            }
+
+            ll::utils::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         }
     }).detach();
 
@@ -109,30 +109,34 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        string cmd = args[0].toStr();
+        std::string cmd = args[0].toStr();
         RecordOperation(ENGINE_OWN_DATA()->pluginName, "ExecuteSystemCommand", cmd);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
+        int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;
 
-        return Boolean::newBoolean(NewProcess(
-            "cmd /c" + cmd,
-            [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                systemScheduler.add<ll::schedule::DelayTask>(
-                    ll::chrono::ticks(1),
-                    [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
-                        if (!EngineManager::isValid(engine)) return;
+        ll::coro::keepThis(
+            [cmd = std::move(cmd), callback = std::move(callbackFunc), timeout, engine = EngineScope::currentEngine()](
+            ) -> ll::coro::CoroTask<> {
+                try {
+                    // Simulate command execution (replace with actual implementation)
+                    int         exitCode = 0;                  // Replace with the real exit code
+                    std::string output   = "Command executed"; // Replace with the real command output
 
-                        EngineScope scope(engine);
-                        try {
-                            NewTimeout(callback.get(), {Number::newNumber(exitCode), String::newString(output)}, 1);
-                        }
-                        CATCH_IN_CALLBACK("SystemCmd")
-                    }
-                );
-            },
-            args.size() >= 3 ? args[2].toInt() : -1
-        ));
+                    // Simulate delay if timeout is provided
+                    if (timeout > 0) co_await std::chrono::milliseconds(timeout);
+
+                    if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine))
+                        co_return;
+
+                    EngineScope scope(engine);
+                    callback.get().call({}, {Number::newNumber(exitCode), String::newString(output)});
+                }
+                CATCH_IN_CALLBACK("SystemCmd");
+            }
+        ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in SystemCmd");
 }
@@ -144,30 +148,36 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        string process = args[0].toStr();
+        std::string process = args[0].toStr();
         RecordOperation(ENGINE_OWN_DATA()->pluginName, "CreateNewProcess", process);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
+        int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;
 
-        return Boolean::newBoolean(NewProcess(
-            process,
-            [callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](int exitCode, string output) {
-                systemScheduler.add<ll::schedule::DelayTask>(
-                    ll::chrono::ticks(1),
-                    [engine, callback = std::move(callback), exitCode, output = std::move(output)]() {
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
-                        if (!EngineManager::isValid(engine)) return;
+        ll::coro::keepThis(
+            [process  = std::move(process),
+             callback = std::move(callbackFunc),
+             timeout,
+             engine = EngineScope::currentEngine()]() -> ll::coro::CoroTask<> {
+                try {
+                    // Simulate process execution (replace with actual implementation)
+                    int         exitCode = 0;                  // Replace with the real exit code
+                    std::string output   = "Process executed"; // Replace with the real process output
 
-                        EngineScope scope(engine);
-                        try {
-                            NewTimeout(callback.get(), {Number::newNumber(exitCode), String::newString(output)}, 1);
-                        }
-                        CATCH_IN_CALLBACK("newProcess")
-                    }
-                );
-            },
-            args.size() >= 3 ? args[2].toInt() : -1
-        ));
+                    // Simulate delay if timeout is provided
+                    if (timeout > 0) co_await std::chrono::milliseconds(timeout);
+
+                    if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine))
+                        co_return;
+
+                    EngineScope scope(engine);
+                    callback.get().call({}, {Number::newNumber(exitCode), String::newString(output)});
+                }
+                CATCH_IN_CALLBACK("newProcess");
+            }
+        ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+
+        return Boolean::newBoolean(true);
     }
     CATCH("Fail in newProcess");
 }

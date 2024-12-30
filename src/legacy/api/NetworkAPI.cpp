@@ -5,9 +5,10 @@
 #include "engine/TimeTaskSystem.h"
 #include "httplib.h"
 #include "ll/api/chrono/GameChrono.h"
-#include "ll/api/schedule/Scheduler.h"
-#include "ll/api/schedule/Task.h"
+#include "ll/api/coro/CoroTask.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
+#include "ll/api/thread/ThreadPoolExecutor.h"
 #include "main/SafeGuardRecord.h"
 
 #include <ll/api/utils/ErrorUtils.h>
@@ -15,7 +16,7 @@
 #include <vector>
 
 using namespace cyanray;
-ll::schedule::GameTickScheduler WSScheduler;
+using namespace ll::coro;
 
 // Some script::Exception have a problem which can crash the server, and I have no idea, so not output message &
 // stacktrace
@@ -34,6 +35,20 @@ ll::schedule::GameTickScheduler WSScheduler;
         return;                                                                                                        \
     }
 
+#define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
+    catch (const Exception& e) {                                                                                       \
+        EngineScope enter(engine);                                                                                     \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
+        PrintException(e);                                                                                             \
+        co_return;                                                                                                     \
+    }                                                                                                                  \
+    catch (...) {                                                                                                      \
+        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        EngineScope enter(engine);                                                                                     \
+        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        co_return;                                                                                                     \
+    }
 //////////////////// Classes ////////////////////
 
 ClassDefine<void> NetworkClassBuilder = defineClass("network")
@@ -170,86 +185,91 @@ void WSClientClass::initListeners() {
 
 void WSClientClass::initListeners_s() {
     ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]},
-                        engine = EngineScope::currentEngine()](WebSocketClient&, string msg) {
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-            || engine->isDestroying())
-            return;
-        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, msg = std::move(msg)]() {
+                        engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
+        ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                co_return;
+
+            co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
-                    return;
+                    co_return;
+
                 EngineScope enter(engine);
-                if (!nowList->empty())
-                    for (auto& listener : *nowList) {
-                        listener.func.get().call({}, {String::newString(msg)});
-                    }
+                for (auto& listener : *nowList) {
+                    listener.func.get().call({}, {String::newString(msg)});
+                }
             }
-            CATCH_CALLBACK("Fail in OnTextReceived")
-        });
+            CATCH_CALLBACK_IN_CORO("Fail in OnTextReceived")
+        }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
     ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]},
-                          engine = EngineScope::currentEngine()](WebSocketClient&, vector<uint8_t> data) {
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-            || engine->isDestroying())
-            return;
-        WSScheduler.add<ll::schedule::DelayTask>(
-            ll::chrono::ticks(1),
-            [nowList, engine, data = std::move(data)]() mutable {
-                try {
-                    if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                        || engine->isDestroying())
-                        return;
-                    EngineScope enter(engine);
-                    if (!nowList->empty())
-                        for (auto& listener : *nowList) {
-                            listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
-                        }
+                          engine = EngineScope::currentEngine()](WebSocketClient&, std::vector<uint8_t> data) {
+        ll::coro::keepThis([nowList, engine, data = std::move(data)]() mutable -> ll::coro::CoroTask<> {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                co_return;
+
+            co_await ll::chrono::ticks(1);
+            try {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    co_return;
+
+                EngineScope enter(engine);
+                for (auto& listener : *nowList) {
+                    listener.func.get().call({}, {ByteBuffer::newByteBuffer(data.data(), data.size())});
                 }
-                CATCH_CALLBACK("Fail in OnBinaryReceived")
             }
-        );
+            CATCH_CALLBACK_IN_CORO("Fail in OnBinaryReceived")
+        }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]},
-                 engine = EngineScope::currentEngine()](WebSocketClient&, string msg) {
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-            || engine->isDestroying())
-            return;
-        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, msg = std::move(msg)]() {
+                 engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
+        ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                co_return;
+
+            co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
-                    return;
+                    co_return;
+
                 EngineScope enter(engine);
-                if (!nowList->empty())
-                    for (auto& listener : *nowList) {
-                        listener.func.get().call({}, {String::newString(msg)});
-                    }
+                for (auto& listener : *nowList) {
+                    listener.func.get().call({}, {String::newString(msg)});
+                }
             }
-            CATCH_CALLBACK("Fail in OnError")
-        });
+            CATCH_CALLBACK_IN_CORO("Fail in OnError")
+        }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
     ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, int code) {
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-            || engine->isDestroying())
-            return;
-        WSScheduler.add<ll::schedule::DelayTask>(ll::chrono::ticks(1), [nowList, engine, code]() {
+        ll::coro::keepThis([nowList, engine, code]() -> ll::coro::CoroTask<> {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                co_return;
+
+            co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
-                    return;
+                    co_return;
+
                 EngineScope enter(engine);
-                if (!nowList->empty())
-                    for (auto& listener : *nowList) {
-                        listener.func.get().call({}, {Number::newNumber(code)});
-                    }
+                for (auto& listener : *nowList) {
+                    listener.func.get().call({}, {Number::newNumber(code)});
+                }
             }
-            CATCH_CALLBACK("Fail in OnLostConnection")
-        });
+            CATCH_CALLBACK_IN_CORO("Fail in OnLostConnection")
+        }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 }
 
@@ -328,7 +348,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                      pluginName{ENGINE_OWN_DATA()->pluginName}]() mutable {
 
 #ifdef NDEBUG
-            ll::error_utils::setSehTranslator();
+            ll::error_utils::initExceptionTranslator();
 #endif
             try {
                 bool result = false;
@@ -338,7 +358,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 } catch (const std::runtime_error&) {
                     result = false;
                 }
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     return;
                 EngineScope enter(engine);
@@ -423,7 +443,7 @@ Local<Value> WSClientClass::errorCode(const Arguments&) {
 
 using namespace httplib;
 
-ll::thread::TickSyncTaskPool taskPool;
+// ll::thread::TickSyncTaskPool taskPool;
 
 #define ADD_CALLBACK(METHOD, path, func)                                                                               \
     callbacks.emplace(make_pair(                                                                                       \
@@ -436,34 +456,33 @@ ll::thread::TickSyncTaskPool taskPool;
         }                                                                                                              \
     ));                                                                                                                \
     svr->METHOD(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {      \
-        if ((ll::getServerStatus() == ll::ServerStatus::Stopping) || !EngineManager::isValid(engine)                   \
+        if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)                   \
             || engine->isDestroying())                                                                                 \
             return;                                                                                                    \
-        taskPool                                                                                                       \
-            .addTask([this, engine, req, &resp] {                                                                      \
-                try {                                                                                                  \
-                    if ((ll::getServerStatus() == ll::ServerStatus::Stopping) || !EngineManager::isValid(engine)       \
-                        || engine->isDestroying())                                                                     \
-                        return;                                                                                        \
-                    EngineScope enter(engine);                                                                         \
-                    for (auto& [k, v] : this->callbacks) {                                                             \
-                        if (v.type != HttpRequestType::METHOD) return;                                                 \
-                        std::regex  rgx(k);                                                                            \
-                        std::smatch matches;                                                                           \
-                        if (std::regex_match(req.path, matches, rgx)) {                                                \
-                            if (matches == req.matches) {                                                              \
-                                auto reqObj  = new HttpRequestClass(req);                                              \
-                                auto respObj = new HttpResponseClass(resp);                                            \
-                                v.func.get().call({}, reqObj, respObj);                                                \
-                                resp = *respObj->get();                                                                \
-                                break;                                                                                 \
-                            }                                                                                          \
+        ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {                                      \
+            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)               \
+                || engine->isDestroying())                                                                             \
+                co_return;                                                                                             \
+                                                                                                                       \
+            EngineScope enter(engine);                                                                                 \
+            try {                                                                                                      \
+                for (auto& [k, v] : this->callbacks) {                                                                 \
+                    if (v.type != HttpRequestType::METHOD) continue;                                                   \
+                    std::regex  rgx(k);                                                                                \
+                    std::smatch matches;                                                                               \
+                    if (std::regex_match(req.path, matches, rgx)) {                                                    \
+                        if (matches == req.matches) {                                                                  \
+                            auto reqObj  = new HttpRequestClass(req);                                                  \
+                            auto respObj = new HttpResponseClass(resp);                                                \
+                            v.func.get().call({}, reqObj, respObj);                                                    \
+                            resp = *respObj->get();                                                                    \
+                            break;                                                                                     \
                         }                                                                                              \
                     }                                                                                                  \
                 }                                                                                                      \
-                CATCH_CALLBACK("Fail in NetworkAPI callback")                                                          \
-            })                                                                                                         \
-            .wait();                                                                                                   \
+            }                                                                                                          \
+            CATCH_CALLBACK_IN_CORO("Fail in NetworkAPI callback")                                                      \
+        }).launch(ll::thread::ThreadPoolExecutor::getDefault());                                                       \
     });
 
 HttpServerClass::HttpServerClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), svr(new Server) {}
@@ -564,28 +583,29 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
     try {
         preRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_pre_routing_handler([this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
-            taskPool
-                .addTask([this, engine, req, &resp, &handled] {
-                    try {
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                            || engine->isDestroying())
-                            return;
-                        EngineScope enter(engine);
-                        auto        reqObj  = new HttpRequestClass(req);
-                        auto        respObj = new HttpResponseClass(resp);
-                        auto        res     = this->preRoutingCallback.func.get().call({}, reqObj, respObj);
-                        if (res.isBoolean() && res.asBoolean().value() == false) {
-                            handled = true;
-                        }
-                        resp = *respObj->get();
+            ll::coro::keepThis([this, engine, req, &resp, &handled]() -> ll::coro::CoroTask<> {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    co_return;
+
+                try {
+                    EngineScope enter(engine);
+                    auto        reqObj  = new HttpRequestClass(req);
+                    auto        respObj = new HttpResponseClass(resp);
+
+                    auto res = this->preRoutingCallback.func.get().call({}, reqObj, respObj);
+                    if (res.isBoolean() && res.asBoolean().value() == false) {
+                        handled = true;
                     }
-                    CATCH_CALLBACK("Fail in onPreRouting");
-                })
-                .wait();
+                    resp = *respObj->get();
+                }
+                CATCH_CALLBACK_IN_CORO("Fail in onPreRouting");
+            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
         });
         return this->getScriptObject();
@@ -601,21 +621,24 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
         postRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_post_routing_handler([this,
                                        engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
-            taskPool
-                .addTask([this, engine, req, &resp] {
-                    if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                        || engine->isDestroying())
-                        return;
-                    EngineScope enter(engine);
-                    auto        reqObj  = new HttpRequestClass(req);
-                    auto        respObj = new HttpResponseClass(resp);
+
+            ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    co_return;
+
+                EngineScope enter(engine);
+                try {
+                    auto reqObj  = new HttpRequestClass(req);
+                    auto respObj = new HttpResponseClass(resp);
                     this->postRoutingCallback.func.get().call({}, reqObj, respObj);
                     resp = *respObj->get();
-                })
-                .wait();
+                }
+                CATCH_CALLBACK_IN_CORO("Fail in onPostRouting");
+            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
     }
@@ -629,19 +652,24 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
     try {
         errorCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_error_handler([this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
-            taskPool.addTask([this, engine, req, &resp] {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+
+            ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
-                    return;
+                    co_return;
+
                 EngineScope enter(engine);
-                auto        reqObj  = new HttpRequestClass(req);
-                auto        respObj = new HttpResponseClass(resp);
-                this->errorCallback.func.get().call({}, reqObj, respObj);
-                resp = *respObj->get();
-            });
+                try {
+                    auto reqObj  = new HttpRequestClass(req);
+                    auto respObj = new HttpResponseClass(resp);
+                    this->errorCallback.func.get().call({}, reqObj, respObj);
+                    resp = *respObj->get();
+                }
+                CATCH_CALLBACK_IN_CORO("Fail in onError");
+            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
     }
@@ -654,31 +682,34 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
 
     try {
         exceptionCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
-        svr->set_exception_handler(
-            [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp, std::exception_ptr e) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+        svr->set_exception_handler([this,
+                                    engine = EngineScope::currentEngine(
+                                    )](const Request& req, Response& resp, std::exception_ptr e) {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                return;
+
+            ll::coro::keepThis([this, engine, req, &resp, e]() -> ll::coro::CoroTask<> {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
-                    return;
-                taskPool
-                    .addTask([this, engine, req, &resp, e] {
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
-                            || engine->isDestroying())
-                            return;
-                        EngineScope enter(engine);
-                        auto        reqObj  = new HttpRequestClass(req);
-                        auto        respObj = new HttpResponseClass(resp);
+                    co_return;
+
+                EngineScope enter(engine);
+                try {
+                    auto reqObj  = new HttpRequestClass(req);
+                    auto respObj = new HttpResponseClass(resp);
+                    if (e) {
                         try {
-                            if (e) {
-                                std::rethrow_exception(e);
-                            }
+                            std::rethrow_exception(e);
                         } catch (const std::exception& exp) {
                             this->exceptionCallback.func.get().call({}, reqObj, respObj, String::newString(exp.what()));
                         }
-                        resp = *respObj->get();
-                    })
-                    .wait();
-            }
-        );
+                    }
+                    resp = *respObj->get();
+                }
+                CATCH_CALLBACK_IN_CORO("Fail in onException");
+            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+        });
         return this->getScriptObject();
     }
     CATCH("Fail in onException!");
@@ -1132,7 +1163,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
 
         auto lambda = [callback{std::move(callbackFunc)},
                        engine{EngineScope::currentEngine()}](int status, string body) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 
@@ -1180,7 +1211,7 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
 
         auto lambda = [callback{std::move(callbackFunc)},
                        engine{EngineScope::currentEngine()}](int status, string body) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine)
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 

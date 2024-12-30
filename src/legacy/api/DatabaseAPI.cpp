@@ -254,10 +254,9 @@ Local<Value> KVDBClass::listKey(const Arguments&) {
         if (!isValid()) return Local<Value>();
 
         Local<Array> array = Array::newArray();
-        kvdb->iter([&array](std::string_view key, std::string_view) {
+        for (auto const& [key, _] : kvdb->iter()) {
             array.add(String::newString(key));
-            return true;
-        });
+        }
         return array;
     }
     CATCH_AND_THROW("Fail in DbListKey!");

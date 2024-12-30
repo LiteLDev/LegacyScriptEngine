@@ -6,6 +6,8 @@
 #include "ll/api/utils/RandomUtils.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/SetTimePacket.h"
+#include "mc/world/level/Tick.h"
+#include "mc/world/level/storage/LevelData.h"
 
 #include <cstdint>
 #include <ll/api/service/ServerInfo.h>
@@ -47,7 +49,7 @@ Local<Value> McClass::getTime(const Arguments& args) {
         return Number::newNumber(ll::service::getLevel()->getTime() % 24000);
         break;
     case 1:
-        return Number::newNumber(static_cast<int64_t>(ll::service::getLevel()->getCurrentTick()));
+        return Number::newNumber(static_cast<int64_t>(ll::service::getLevel()->getCurrentTick().tickID));
         break;
     case 2:
         return Number::newNumber(ll::service::getLevel()->getTime() / 24000);

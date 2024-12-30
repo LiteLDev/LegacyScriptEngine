@@ -6,10 +6,11 @@
 #include "ll/api/utils/ErrorUtils.h"
 #include "lse/Entry.h"
 #include "magic_enum.hpp"
-#include "mc/common/wrapper/GenerateMessageResult.h"
-#include "mc/deps/core/common/bedrock/typeid_t.h"
+#include "mc/deps/core/utility/typeid_t.h"
+#include "mc/nbt/CompoundTag.h"
 #include "mc/network/packet/AvailableCommandsPacket.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
+#include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandFlag.h"
 #include "mc/server/commands/CommandItem.h"
@@ -23,18 +24,18 @@
 #include "mc/server/commands/CommandSelector.h"
 #include "mc/server/commands/CommandUtils.h"
 #include "mc/server/commands/CommandVersion.h"
+#include "mc/server/commands/GenerateMessageResult.h"
 #include "mc/server/commands/WildcardCommandSelector.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/effect/MobEffect.h"
 #include "mc/world/item/ItemInstance.h"
-#include "mc/world/level/Command.h"
 #include "mc/world/level/Level.h"
 
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ll/api/io/Logger.h>
 #include <ll/api/command/CommandRegistrar.h>
+#include <ll/api/io/Logger.h>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -132,7 +133,6 @@ auto const ParameterSizeMap = std::unordered_map<ParameterType, size_t>{
 };
 
 inline void OutputError(const std::string& command, const std::string& func = __builtin_FUNCTION()) {
-    auto lock = ll::io::Logger::lock();
     ll::error_utils::printCurrentException(logger);
     logger.error("In Function ({})", func);
     logger.error("In Command <{}>", command);
@@ -349,7 +349,7 @@ std::string DynamicCommand::Result::toDebugString() const {
             name,
             typeName,
             isSet,
-            getRaw<CommandMessage>().generateMessage(*origin, CommandVersion::CurrentVersion).mString
+            *getRaw<CommandMessage>().generateMessage(*origin, CommandVersion::CurrentVersion()).mMessage
         );
     case ParameterType::JsonValue:
         return fmt::format(
@@ -366,7 +366,7 @@ std::string DynamicCommand::Result::toDebugString() const {
             name,
             typeName,
             isSet,
-            getRaw<CommandItem>().createInstance(1, 1, output, true).value_or(ItemInstance::EMPTY_ITEM).toString()
+            getRaw<CommandItem>().createInstance(1, 1, output, true).value_or(ItemInstance::EMPTY_ITEM()).toString()
         );
     }
     case ParameterType::Block:

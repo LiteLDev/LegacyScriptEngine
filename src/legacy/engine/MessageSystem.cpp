@@ -5,6 +5,7 @@
 #include "engine/LocalShareData.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStoppingEvent.h"
+#include "ll/api/service/GamingStatus.h"
 #include "utils/IniHelper.h"
 #include "utils/Utils.h"
 
@@ -346,7 +347,7 @@ void MessageSystemLoopOnce() {
 
 void InitMessageSystem() {
 #ifdef NDEBUG
-    ll::error_utils::setSehTranslator();
+    ll::error_utils::initExceptionTranslator();
 #endif
     globalShareData->messageSystemHandlers[LLSE_MODULE_TYPE] = {ModuleMessage::handle, ModuleMessage::cleanup};
 
@@ -359,9 +360,9 @@ void InitMessageSystem() {
         globalShareData->messageThreads[LLSE_BACKEND_TYPE] = GetCurrentThread();
         while (true) {
             MessageSystemLoopOnce();
-            if (ll::getServerStatus() != ll::ServerStatus::Stopping) return;
+            if (ll::getGamingStatus() != ll::GamingStatus::Stopping) return;
             SleepEx(5, true);
-            if (ll::getServerStatus() != ll::ServerStatus::Stopping) return;
+            if (ll::getGamingStatus() != ll::GamingStatus::Stopping) return;
         }
     }).detach();
 }

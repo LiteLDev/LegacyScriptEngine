@@ -1,5 +1,11 @@
 #include "api/PlayerAPI.h"
 
+
+#include "mc/world/scores/ScoreboardId.h"
+#include "mc/world/scores/PlayerScoreboardId.h"
+
+
+
 #include "EventAPI.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
@@ -19,6 +25,7 @@
 #include "legacyapi/form/FormUI.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
 #include "lse/api/MoreGlobal.h"
@@ -26,13 +33,13 @@
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
-#include "mc/deps/core/mce/UUID.h"
-#include "mc/enums/BossBarColor.h"
-#include "mc/enums/MinecraftPacketIds.h"
-#include "mc/enums/TextPacketType.h"
-#include "mc/enums/d_b_helpers/Category.h"
+#include "mc/common/ActorUniqueID.h"
+#include "mc/deps/core/math/Vec2.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
+#include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
@@ -43,47 +50,56 @@
 #include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
 #include "mc/network/packet/TextPacket.h"
+#include "mc/network/packet/TextPacketType.h"
 #include "mc/network/packet/ToastRequestPacket.h"
 #include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/network/packet/UpdateAdventureSettingsPacket.h"
+#include "mc/platform/UUID.h"
 #include "mc/server/ServerPlayer.h"
+#include "mc/server/commands/CommandContext.h"
+#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
-#include "mc/world/ActorUniqueID.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/player/PlayerScoreSetFunction.h"
+#include "mc/world/actor/ai/util/BossBarColor.h"
+#include "mc/world/actor/ai/util/BossEventUpdateType.h"
+#include "mc/world/actor/player/LayeredAbilities.h"
+#include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
-#include "mc/world/events/BossEventUpdateType.h"
 #include "mc/world/item/ItemStack.h"
-#include "mc/world/level/LayeredAbilities.h"
+#include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
+#include "mc/world/level/storage/db_helpers/Category.h"
 #include "mc/world/phys/HitResult.h"
+#include "mc/world/scores/PlayerScoreSetFunction.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
 
+
 #include <algorithm>
 #include <climits>
 #include <list>
-#include <mc/world/actor/provider/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
+#include <mc/server/commands/Command.h>
 #include <mc/world/actor/Actor.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
-#include <mc/world/actor/provider/SynchedActorDataAccess.h>
 #include <mc/world/actor/player/Player.h>
+#include <mc/world/actor/provider/ActorEquipment.h>
+#include <mc/world/actor/provider/SynchedActorDataAccess.h>
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>
 #include <mc/world/attribute/SharedAttributes.h>
 #include <mc/world/level/BlockSource.h>
-#include <mc/world/level/Command.h>
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/level/material/Material.h>
 #include <mc/world/scores/Objective.h>
@@ -461,7 +477,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         if (!sid.isValid() || !objective->hasScore(sid)) {
             return Number::newNumber(0);
         }
-        return Number::newNumber(objective->getPlayerScore(sid).mScore);
+        return Number::newNumber(objective->getPlayerScore(sid).mValue);
     }
     CATCH("Fail in getPlayerScore!")
 }
@@ -641,7 +657,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
                   ::tolower); // lower case the string
         size_t delta = INT_MAX;
         ll::service::getLevel()->forEachPlayer([&](Player& player) {
-            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().id) == target) {
+            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().rawID) == target) {
                 found = &player;
                 return false;
             }
@@ -1093,7 +1109,7 @@ Local<Value> PlayerClass::getUniqueID() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        else return String::newString(std::to_string(player->getOrCreateUniqueID().id));
+        else return String::newString(std::to_string(player->getOrCreateUniqueID().rawID));
     }
     CATCH("Fail in getUniqueID!")
 }
@@ -1224,7 +1240,7 @@ Local<Value> PlayerClass::isOnHotBlock() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isOnHotBlock());
+        return Boolean::newBoolean(false); // todo: check IsOnHotBlockTest to get the correct value
     }
     CATCH("Fail in isOnHotBlock!")
 }
@@ -1509,9 +1525,10 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
         if (!player) return Local<Value>();
         CommandContext context = CommandContext(
             args[0].asString().toString(),
-            std::make_unique<PlayerCommandOrigin>(PlayerCommandOrigin(*get()))
+            std::make_unique<PlayerCommandOrigin>(PlayerCommandOrigin(*get())),
+            CommandVersion::CurrentVersion()
         );
-        ll::service::getMinecraft()->getCommands().executeCommand(context);
+        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in runcmd!");
@@ -1586,7 +1603,7 @@ Local<Value> PlayerClass::setTitle(const Arguments& args) {
             fadeOutTime = args[4].toInt();
         }
 
-        SetTitlePacket pkt = SetTitlePacket(type, content);
+        SetTitlePacket pkt = SetTitlePacket(type, content, std::nullopt);
         pkt.mFadeInTime    = fadeInTime;
         pkt.mStayTime      = stayTime;
         pkt.mFadeOutTime   = fadeOutTime;
@@ -1881,7 +1898,7 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
         }
 
         float exp  = args[0].asNumber().toFloat();
-        auto  attr = player->getMutableAttribute(Player::EXPERIENCE);
+        auto  attr = player->getMutableAttribute(Player::EXPERIENCE());
         if (!attr) {
             return Boolean::newBoolean(false);
         }
@@ -1930,7 +1947,7 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        AttributeInstance* attr = player->getMutableAttribute(Player::EXPERIENCE);
+        AttributeInstance* attr = player->getMutableAttribute(Player::EXPERIENCE());
         attr->setCurrentValue(args[0].asNumber().toFloat()); // Not sure about that
         return Boolean::newBoolean(true);
     }
@@ -2048,7 +2065,7 @@ Local<Value> PlayerClass::getScore(const Arguments& args) {
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
-        return Number::newNumber(obj->getPlayerScore(id).mScore);
+        return Number::newNumber(obj->getPlayerScore(id).mValue);
     }
     CATCH("Fail in getScore!");
 }
@@ -2182,11 +2199,11 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         std::vector<ScorePacketInfo> info;
         for (auto& i : data) {
             ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId   = ScoreboardId(i.second);
-            pktInfo.mObjectiveName  = "FakeScoreObj";
-            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
-            pktInfo.mScoreValue     = i.second;
-            pktInfo.mFakePlayerName = i.first;
+            pktInfo.mScoreboardId.get() = ScoreboardId(i.second);
+            pktInfo.mObjectiveName      = "FakeScoreObj";
+            pktInfo.mIdentityType       = IdentityDefinition::Type::FakePlayer;
+            pktInfo.mScoreValue         = i.second;
+            pktInfo.mFakePlayerName     = i.first;
             info.emplace_back(pktInfo);
         }
         SetScorePacket setPkt = SetScorePacket::change(info);
@@ -2256,7 +2273,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeUnsignedVarInt(0);
             // Links
             bs.writeUnsignedVarInt(0);
-            auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(*bs.mBuffer));
+            auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(bs.mBuffer));
 
             BossBarColor    color = (BossBarColor)args[3].toInt();
             BossEventPacket pkt;
@@ -2357,7 +2374,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
             player,
             [engine{EngineScope::currentEngine()},
              callback{script::Global(args[4].asFunction())}](Player* pl, int chosen) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2396,7 +2413,7 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             player,
             [engine{EngineScope::currentEngine()},
              callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2432,7 +2449,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
              callback{script::Global(args[1].asFunction())}](Player* player, string result) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2598,7 +2615,7 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2613,7 +2630,7 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH)->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH())->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2628,7 +2645,7 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ABSORPTION)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ABSORPTION())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2643,7 +2660,7 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2658,7 +2675,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2673,7 +2690,7 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2688,7 +2705,7 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE)
+        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2704,7 +2721,7 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LUCK)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::LUCK())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2719,17 +2736,17 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED())->setCurrentValue(args[0].asNumber().toFloat());
 
         // Unknown why we need to check again after registering attributes
         //
-        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
+        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
         // if (movementSpeedAttribute) {
         //     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
         //     return Boolean::newBoolean(true);
         // } else {
         //     player->_registerPlayerAttributes();
-        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED); // Check again
+        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED()); // Check again
         //     if (movementSpeedAttribute) {
         //         movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
         //         return Boolean::newBoolean(true);
@@ -2748,7 +2765,7 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED)
+        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2764,7 +2781,7 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED)
+        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2780,7 +2797,7 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(Player::HUNGER)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(Player::HUNGER())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2889,11 +2906,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (inventorySlots[slot]->mCount < clearCount) {
-                    result += inventorySlots[slot]->mCount;
+                    result     += inventorySlots[slot]->mCount;
                     clearCount -= inventorySlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 player->getInventory().removeItem(slot, clearCount);
             }
@@ -2905,11 +2922,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (handSlots[slot]->mCount < clearCount) {
-                    result += handSlots[slot]->mCount;
+                    result     += handSlots[slot]->mCount;
                     clearCount -= handSlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 ActorEquipment::getHandContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
@@ -2921,11 +2938,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (armorSlots[slot]->mCount < clearCount) {
-                    result += armorSlots[slot]->mCount;
+                    result     += armorSlots[slot]->mCount;
                     clearCount -= armorSlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 ActorEquipment::getArmorContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
@@ -3146,7 +3163,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         if (includeLiquid && res.mIsHitLiquid) {
             bp = res.mLiquidPos;
         } else {
-            bp = res.mBlockPos;
+            bp = res.mBlock;
         }
         Block const& bl = player->getDimensionBlockSource().getBlock(bp);
         if (bl.isEmpty()) {
@@ -3582,7 +3599,7 @@ Local<Value> PlayerClass::addEffect(const Arguments& args) {
         int               tick          = args[1].asNumber().toInt32();
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect        = MobEffectInstance(id, tick, level, false, showParticles, false);
+        MobEffectInstance effect        = MobEffectInstance(id, {tick}, level, false, showParticles, false);
         player->addEffect(effect);
         return Boolean::newBoolean(true);
     }

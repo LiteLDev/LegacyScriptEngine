@@ -242,7 +242,7 @@ Local<Value> McClass::getBDSVersion(const Arguments&) {
 
 Local<Value> McClass::getServerProtocolVersion(const Arguments&) {
     try {
-        return Number::newNumber(SharedConstants::NetworkProtocolVersion);
+        return Number::newNumber(SharedConstants::NetworkProtocolVersion());
     }
     CATCH("Fail in GetServerProtocolVersion!")
 }

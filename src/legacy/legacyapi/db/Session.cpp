@@ -6,7 +6,7 @@
 
 namespace DB {
 
-ll::Logger dbLogger("LLSEDB");
+ll::io::Logger dbLogger("LLSEDB");
 
 void Session::setDebugOutput(bool enable) { debugOutput = enable; }
 

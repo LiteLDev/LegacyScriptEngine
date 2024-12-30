@@ -2,7 +2,7 @@
 
 #include "api/APIHelp.h"
 #include "legacyapi/command/DynamicCommand.h"
-#include "ll/api/Logger.h"
+#include "ll/api/io/Logger.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/Entry.h"
 #include "mc/server/commands/CommandPermissionLevel.h"

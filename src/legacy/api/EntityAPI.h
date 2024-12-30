@@ -1,6 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/entity/WeakEntityRef.h"
+#include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/world/ActorRuntimeID.h"
 
 //////////////////// Classes ////////////////////

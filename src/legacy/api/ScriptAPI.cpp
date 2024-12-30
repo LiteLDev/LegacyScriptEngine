@@ -104,7 +104,7 @@ Local<Value> FastLog(const Arguments& args) {
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
 
         pool.addTask([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
-            ll::Logger fastLogger(pluginName);
+            ll::io::Logger fastLogger(pluginName);
             fastLogger.info(str);
         });
         return Boolean::newBoolean(true);

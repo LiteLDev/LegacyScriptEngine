@@ -7,12 +7,13 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 #endif
 
-#include "mc/math/Vec3.h"
+#include "mc/deps/core/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
 
 #include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
+#include <ll/api/io/Logger.h>
+#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <vector>
 

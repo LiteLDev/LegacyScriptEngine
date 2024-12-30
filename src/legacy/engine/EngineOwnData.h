@@ -5,7 +5,8 @@
 #include "utils/UsingScriptX.h"
 
 #include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
+#include <ll/api/io/LoggerRegistry.h>
 #include <ll/api/i18n/I18n.h>
 #include <map>
 #include <string>
@@ -68,11 +69,7 @@ struct EngineOwnData {
     */
 
     // I18nAPI
-    ll::i18n::I18N* i18n = nullptr;
-
-    // LoggerAPI
-    ll::Logger logger      = ll::Logger("");
-    int        maxLogLevel = 4;
+    ll::i18n::I18n* i18n = nullptr;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
@@ -93,6 +90,10 @@ struct EngineOwnData {
     EngineOwnData() {
         dynamicCallVM = dcNewCallVM(4096);
         dcMode(dynamicCallVM, DC_CALL_C_DEFAULT);
+    }
+
+    inline std::shared_ptr<ll::mod::Mod> getModInstance() {
+        return lse::getPluginManager().getMod(pluginName);
     }
 };
 

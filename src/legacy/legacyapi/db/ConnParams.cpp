@@ -2,7 +2,7 @@
 
 #include "ll/api/utils/StringUtils.h"
 
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
 
 namespace DB {
 
@@ -78,7 +78,7 @@ URL ParseURL(const std::string& url) {
     return result;
 }
 
-extern ll::Logger dbLogger;
+extern ll::io::Logger dbLogger;
 void              PrintURL(const URL& url) {
     dbLogger.debug("Parsed URL");
     dbLogger.debug("scheme: {}", url.scheme);

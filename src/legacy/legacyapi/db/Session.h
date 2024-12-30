@@ -8,7 +8,7 @@
 
 namespace DB {
 
-extern ll::Logger dbLogger;
+extern ll::io::Logger dbLogger;
 
 class Session {
 

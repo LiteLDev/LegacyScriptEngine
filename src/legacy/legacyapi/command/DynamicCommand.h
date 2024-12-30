@@ -7,9 +7,9 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
-#include "mc/deps/core/common/bedrock/typeid_t.h"
+#include "mc/deps/core/utility/typeid_t.h"
 #include "mc/deps/json/Value.h"
-#include "mc/math/Vec3.h"
+#include "mc/deps/core/math/Vec3.h"
 #include "mc/server/commands/CommandBlockName.h"
 #include "mc/server/commands/CommandFlag.h"
 #include "mc/server/commands/CommandItem.h"
@@ -29,7 +29,7 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/effect/MobEffect.h"
 #include "mc/world/level/BlockPos.h"
-#include "mc/world/level/Command.h"
+#include "mc/server/commands/Command.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -126,7 +126,7 @@ class DynamicCommandInstance;
  */
 class DynamicCommand : public Command {
     template <class T>
-    static constexpr bool valid_type_v = ll::concepts::is_one_of_v<
+    static constexpr bool valid_type_v = ll::traits::is_one_of_v<
         T,
         bool,
         int,

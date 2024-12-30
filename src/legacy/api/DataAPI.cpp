@@ -13,7 +13,7 @@
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
-#include "ll/api/utils/CryptoUtils.h"
+#include "mc/deps/crypto/hash/Hash.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/EconomicSystem.h"
 #include "mc/world/actor/player/Player.h"
@@ -876,7 +876,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        string data;
+        std::string data;
         if (args[0].isString()) data = args[0].toStr();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
@@ -885,7 +885,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
-        return String::newString(ll::crypto_utils::md5(data));
+        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data));
     }
     CATCH("Fail in ToMD5!");
 }
@@ -894,7 +894,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        string data;
+        std::string data;
         if (args[0].isString()) data = args[0].toStr();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
@@ -903,7 +903,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
-        return String::newString(ll::crypto_utils::sha1(data));
+        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data));
     }
     CATCH("Fail in ToSHA1!");
 }

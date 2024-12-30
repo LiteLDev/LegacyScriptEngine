@@ -1,11 +1,11 @@
 #include "LLMoney.h"
 #include "api/EventAPI.h"
-#include "ll/api/Logger.h"
+#include "ll/api/io/Logger.h"
 #include "main/EconomicSystem.h"
 
 #include <string>
 
-ll::Logger economicLogger("EconomicSystem");
+ll::io::Logger economicLogger("EconomicSystem");
 
 ////////////// Helper //////////////
 

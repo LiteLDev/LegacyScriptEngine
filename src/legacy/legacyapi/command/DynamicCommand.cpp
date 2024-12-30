@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
 #include <ll/api/command/CommandRegistrar.h>
 #include <memory>
 #include <sstream>
@@ -132,7 +132,7 @@ auto const ParameterSizeMap = std::unordered_map<ParameterType, size_t>{
 };
 
 inline void OutputError(const std::string& command, const std::string& func = __builtin_FUNCTION()) {
-    auto lock = ll::Logger::lock();
+    auto lock = ll::io::Logger::lock();
     ll::error_utils::printCurrentException(logger);
     logger.error("In Function ({})", func);
     logger.error("In Command <{}>", command);

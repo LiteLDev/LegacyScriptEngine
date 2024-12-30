@@ -21,7 +21,7 @@
 #include <ll/api/memory/Hook.h>
 #include <ll/api/memory/Memory.h>
 #include <mc/common/wrapper/InteractionResult.h>
-#include <mc/entity/WeakEntityRef.h>
+#include <mc/deps/ecs/WeakEntityRef.h>
 #include <mc/entity/components/ProjectileComponent.h>
 #include <mc/entity/utilities/ActorType.h>
 #include <mc/server/module/VanillaServerGameplayEventListener.h>

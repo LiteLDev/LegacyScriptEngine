@@ -34,7 +34,7 @@
 #include "mc/server/commands/ServerCommandOrigin.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/item/ItemInstance.h"
-#include "mc/world/item/registry/ItemStack.h"
+#include "mc/world/item/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <string>

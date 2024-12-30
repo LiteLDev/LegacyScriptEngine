@@ -58,7 +58,7 @@
 #include "mc/world/actor/player/PlayerScoreSetFunction.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BossEventUpdateType.h"
-#include "mc/world/item/registry/ItemStack.h"
+#include "mc/world/item/ItemStack.h"
 #include "mc/world/level/LayeredAbilities.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/storage/DBStorage.h"
@@ -71,13 +71,13 @@
 #include <algorithm>
 #include <climits>
 #include <list>
-#include <mc/entity/utilities/ActorEquipment.h>
+#include <mc/world/actor/provider/ActorEquipment.h>
 #include <mc/entity/utilities/ActorMobilityUtils.h>
 #include <mc/nbt/CompoundTag.h>
 #include <mc/world/actor/Actor.h>
 #include <mc/world/actor/SynchedActorData.h>
 #include <mc/world/actor/SynchedActorDataEntityWrapper.h>
-#include <mc/world/actor/components/SynchedActorDataAccess.h>
+#include <mc/world/actor/provider/SynchedActorDataAccess.h>
 #include <mc/world/actor/player/Player.h>
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>

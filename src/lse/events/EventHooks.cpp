@@ -7,7 +7,7 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/entity/utilities/ActorDamageCause.h"
+#include "mc/world/actor/ActorDamageCause.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
@@ -23,7 +23,7 @@
 #include <mc/common/wrapper/InteractionResult.h>
 #include <mc/deps/ecs/WeakEntityRef.h>
 #include <mc/entity/components/ProjectileComponent.h>
-#include <mc/entity/utilities/ActorType.h>
+#include <mc/world/actor/ActorType.h>
 #include <mc/server/module/VanillaServerGameplayEventListener.h>
 #include <mc/world/actor/ActorDefinitionIdentifier.h>
 #include <mc/world/actor/ArmorStand.h>
@@ -40,7 +40,7 @@
 #include <mc/world/item/CrossbowItem.h>
 #include <mc/world/item/ItemInstance.h>
 #include <mc/world/item/TridentItem.h>
-#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/item/ItemStack.h>
 #include <mc/world/level/BlockEventCoordinator.h>
 #include <mc/world/level/BlockSource.h>
 #include <mc/world/level/ChangeDimensionRequest.h>

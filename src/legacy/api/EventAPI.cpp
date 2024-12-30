@@ -46,7 +46,7 @@
 #include "lse/Entry.h"
 #include "lse/events/EventHooks.h"
 #include "main/Global.h"
-#include "mc/entity/utilities/ActorType.h"
+#include "mc/world/actor/ActorType.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/item/Item.h"

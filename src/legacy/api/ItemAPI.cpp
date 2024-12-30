@@ -13,7 +13,7 @@
 
 #include <mc/nbt/CompoundTag.h>
 #include <mc/world/item/Item.h>
-#include <mc/world/item/registry/ItemStack.h>
+#include <mc/world/item/ItemStack.h>
 #include <string>
 #include <variant>
 #include <vector>

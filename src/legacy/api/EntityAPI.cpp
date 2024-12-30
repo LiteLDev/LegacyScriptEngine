@@ -11,18 +11,18 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
-#include "mc/common/HitDetection.h"
+#include "mc/world/phys/HitDetection.h"
 #include "mc/deps/core/string/HashedString.h"
-#include "mc/entity/utilities/ActorDamageCause.h"
-#include "mc/entity/utilities/ActorEquipment.h"
+#include "mc/world/actor/ActorDamageCause.h"
+#include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
-#include "mc/entity/utilities/ActorType.h"
-#include "mc/math/Vec2.h"
+#include "mc/world/actor/ActorType.h"
+#include "mc/deps/core/math/Vec2.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/Mob.h"
-#include "mc/world/actor/components/SynchedActorDataAccess.h"
+#include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"
@@ -35,6 +35,9 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
+#include "mc/common/ActorUniqueID.h"
+#include "mc/world/phys/HitResult.h"
+#include "mc/world/effect/EffectDuration.h"
 
 #include <climits>
 #include <entt/entt.hpp>
@@ -211,9 +214,6 @@ void EntityClass::set(Actor* actor) {
     }
 }
 
-WeakStorageEntity& WeakStorageEntity::operator=(WeakStorageEntity const&) = default;
-WeakStorageEntity::WeakStorageEntity(WeakStorageEntity const&)            = default;
-
 Actor* EntityClass::get() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Actor>().as_ptr();
@@ -226,7 +226,7 @@ Local<Value> EntityClass::getUniqueID() {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
-        else return String::newString(std::to_string(entity->getOrCreateUniqueID().id));
+        else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
     }
     CATCH("Fail in getUniqueID!")
 }
@@ -296,7 +296,7 @@ Local<Value> EntityClass::isOnHotBlock() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isOnHotBlock());
+        return Boolean::newBoolean(entity->getDimensionBlockSource().getBlock(entity->getFeetBlockPos()).getMaterial().isSuperHot()); // TODO: Unsure
     }
     CATCH("Fail in isOnHotBlock!")
 }
@@ -1029,7 +1029,7 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH);
+        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
 
         healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1046,7 +1046,7 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* absorptionAttribute = entity->getMutableAttribute(SharedAttributes::ABSORPTION);
+        AttributeInstance* absorptionAttribute = entity->getMutableAttribute(SharedAttributes::ABSORPTION());
 
         absorptionAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1063,7 +1063,7 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
+        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
 
         attactDamageAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1080,7 +1080,7 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE);
+        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
 
         attactDamageAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -1097,7 +1097,7 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* followRangeAttribute = entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE);
+        AttributeInstance* followRangeAttribute = entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
 
         followRangeAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1115,7 +1115,7 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         AttributeInstance* knockbackResistanceAttribute =
-            entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE);
+            entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
 
         knockbackResistanceAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1132,7 +1132,7 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* luckAttribute = entity->getMutableAttribute(SharedAttributes::LUCK);
+        AttributeInstance* luckAttribute = entity->getMutableAttribute(SharedAttributes::LUCK());
 
         luckAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1149,7 +1149,7 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* movementSpeedAttribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
+        AttributeInstance* movementSpeedAttribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
         if (movementSpeedAttribute) {
             movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
             return Boolean::newBoolean(true);
@@ -1169,7 +1169,7 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         AttributeInstance* underwaterMovementSpeedAttribute =
-            entity->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED);
+            entity->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
 
         underwaterMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1187,7 +1187,7 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         AttributeInstance* lavaMovementSpeedAttribute =
-            entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED);
+            entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
 
         lavaMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
 
@@ -1204,7 +1204,7 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH);
+        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
 
         healthAttribute->setMaxValue(args[0].asNumber().toFloat());
 
@@ -1420,7 +1420,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         if (includeLiquid && res.mIsHitLiquid) {
             bp = res.mLiquidPos;
         } else {
-            bp = res.mBlockPos;
+            bp = res.mBlock;
         }
         Block const& bl = actor->getDimensionBlockSource().getBlock(bp);
         if (bl.isEmpty()) {
@@ -1491,10 +1491,11 @@ Local<Value> EntityClass::addEffect(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         unsigned int      id            = args[0].asNumber().toInt32();
-        int               tick          = args[1].asNumber().toInt32();
+        EffectDuration               duration;
+        duration.mUnk178312.as<int>() = args[1].asNumber().toInt32();
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect        = MobEffectInstance(id, tick, level, false, showParticles, false);
+        MobEffectInstance effect        = MobEffectInstance(id, duration, level, false, showParticles, false);
         actor->addEffect(effect);
         return Boolean::newBoolean(true);
     }

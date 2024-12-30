@@ -3,7 +3,7 @@
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
 #include "ll/api/utils/StringUtils.h"
-#include "mc/world/item/registry/ItemStack.h"
+#include "mc/world/item/ItemStack.h"
 
 //////////////////// Class Definition ////////////////////
 

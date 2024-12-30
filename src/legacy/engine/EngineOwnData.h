@@ -1,5 +1,4 @@
 #pragma once
-#include <span> // For fixing compile
 #include "dyncall/dyncall.h"
 #include "ll/api/base/Macro.h"
 #include "main/Configs.h"

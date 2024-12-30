@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <span> // For fixing compile
 // #define LLDB_DEBUG_MODE
 
 namespace DB {

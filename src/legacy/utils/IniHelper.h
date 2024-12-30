@@ -1,6 +1,5 @@
 #pragma once
 #include "SimpleIni.h"
-#include <span> // For fixing compile
 #include <string>
 
 using std::string;

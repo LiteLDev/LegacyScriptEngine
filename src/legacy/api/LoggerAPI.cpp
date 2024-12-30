@@ -52,25 +52,7 @@ string& StrReplace(string& str, const string& to_replaced, const string& new_str
 void inline LogDataHelper(LogLevel level, const Arguments& args) {
     std::string res;
     for (int i = 0; i < args.size(); ++i) res += ValueToString(args[i]);
-    switch (level) {
-    case LogLevel::Fatal:
-        ENGINE_OWN_DATA()->getModInstance()->getLogger().fatal(res);
-        break;
-    case LogLevel::Error:
-        ENGINE_OWN_DATA()->getModInstance()->getLogger().error(res);
-        break;
-    case LogLevel::Warn:
-        ENGINE_OWN_DATA()->getModInstance()->getLogger().warn(res);
-        break;
-    case LogLevel::Info:
-        ENGINE_OWN_DATA()->getModInstance()->getLogger().info(res);
-        break;
-    case LogLevel::Debug:
-        ENGINE_OWN_DATA()->getModInstance()->getLogger().debug(res);
-        break;
-    default:
-        break;
-    }
+    ENGINE_OWN_DATA()->getModInstance()->getLogger().log(level, res);
 }
 
 Local<Value> LoggerClass::log(const Arguments& args) {
@@ -206,7 +188,7 @@ Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
 
     try {
         auto conf         = ENGINE_OWN_DATA();
-        conf->getModInstance()->getLogger().setFlushLevel(static_cast<LogLevel>(args[0].toInt() + 1));
+        conf->getModInstance()->getLogger().setLevel(static_cast<LogLevel>(args[0].toInt() + 1));
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in SetLogLevel!")

@@ -2,7 +2,7 @@
 
 #include "main/Configs.h"
 
-#include <ll/api/thread/ThreadPool.h>
+#include <ll/api/thread/ThreadPoolExecutor.h>
 #include <mutex>
 
 // DLL本地共享数据
@@ -12,7 +12,7 @@ LocalDataType* localShareData;
 std::vector<RegCmdQueue> toRegCmdQueue;
 
 // 线程池
-ll::thread::ThreadPool pool(LLSE_POOL_THREAD_COUNT);
+ll::thread::ThreadPoolExecutor pool("LSE_POOL", LLSE_POOL_THREAD_COUNT);
 
 // std::mutex messageLoopLock;
 

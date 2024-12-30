@@ -4,7 +4,7 @@
 #include "engine/EngineManager.h"
 #include "engine/LocalShareData.h"
 #include "engine/TimeTaskSystem.h"
-#include "ll/api/service/ServerInfo.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/utils/StringUtils.h"
 
 #include <corecrt_io.h>
@@ -237,14 +237,14 @@ Local<Value> FileClass::read(const Arguments& args) {
         int                      cnt = args[0].toInt();
         script::Global<Function> callbackFunc{args[1].asFunction()};
 
-        pool.addTask(
+        pool.execute(
             [cnt,
              fp{&file},
              isBinary{isBinary},
              lock{&lock},
              callback{std::move(callbackFunc)},
              engine{EngineScope::currentEngine()}]() -> void {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 char* buf = new char[cnt];
@@ -276,9 +276,9 @@ Local<Value> FileClass::readLine(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.addTask([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
+        pool.execute([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
                      ) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
 
             std::string buf;
@@ -304,12 +304,12 @@ Local<Value> FileClass::readAll(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.addTask([fp{&file},
+        pool.execute([fp{&file},
                       isBinary{isBinary},
                       lock{&lock},
                       callback{std::move(callbackFunc)},
                       engine{EngineScope::currentEngine()}]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
 
             lock->lock();
@@ -351,13 +351,13 @@ Local<Value> FileClass::write(const Arguments& args) {
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
 
-        pool.addTask([fp{&file},
+        pool.execute([fp{&file},
                       lock{&lock},
                       data{std::move(data)},
                       isString,
                       callback{std::move(callbackFunc)},
                       engine{EngineScope::currentEngine()}]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
 
             lock->lock();
@@ -390,12 +390,12 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
 
-        pool.addTask([fp{&file},
+        pool.execute([fp{&file},
                       lock{&lock},
                       data{std::move(data)},
                       callback{std::move(callbackFunc)},
                       engine{EngineScope::currentEngine()}]() {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
 
             lock->lock();
@@ -472,7 +472,7 @@ Local<Value> FileClass::isEOF(const Arguments&) {
 
 Local<Value> FileClass::flush(const Arguments&) {
     try {
-        pool.addTask([fp{&file}, lock{&lock}]() {
+        pool.execute([fp{&file}, lock{&lock}]() {
             lock->lock();
             fp->flush();
             lock->unlock();

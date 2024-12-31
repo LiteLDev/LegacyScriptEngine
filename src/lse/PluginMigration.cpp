@@ -98,8 +98,8 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
         .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
         .type  = pluginType,
         .dependencies =
-            std::unordered_set<ll::mod::Dependency>{
-                                                    ll::mod::Dependency{
+            ll::SmallDenseSet<ll::mod::Dependency>{
+                                                   ll::mod::Dependency{
                     .name = self.getManifest().name,
                 }, },
     };

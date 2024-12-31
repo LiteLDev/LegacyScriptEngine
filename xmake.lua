@@ -91,18 +91,36 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_LUA"
         )
         set_basename("legacy-script-engine-lua")
+        after_build(function(target)
+                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
+                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+                os.mkdir(outputPath)
+                os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "quickjs") then
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
         )
         set_basename("legacy-script-engine-quickjs")
+        after_build(function(target)
+            local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.js")
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+            os.mkdir(outputPath)
+            os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "python") then
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
         )
         set_basename("legacy-script-engine-python")
+        after_build(function(target)
+                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
+                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+                os.mkdir(outputPath)
+                os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "nodejs") then
         add_defines(

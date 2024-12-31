@@ -1,19 +1,19 @@
 {
-    "name": "${pluginName}",
-    "entry": "${pluginFile}",
-    "type": "native",
-    "description": "A plugin engine for running LLSE plugins on LeviLamina",
-    "author": "LiteLDev",
-    "version": "0.9.0-rc.1",
-    "dependencies": [
-        {
-            "name": "LegacyMoney"
-        },
-        {
-            "name": "LegacyParticleAPI"
-        },
-        {
-            "name": "LegacyRemoteCall"
-        }
-    ]
+  "name": "${modName}",
+  "entry": "${modFile}",
+  "version": "${modVersion}",
+  "type": "native",
+  "description": "A plugin engine for running LLSE plugins on LeviLamina",
+  "author": "LiteLDev",
+  "dependencies": [
+    {
+      "name": "LegacyMoney"
+    },
+    {
+      "name": "LegacyParticleAPI"
+    },
+    {
+      "name": "LegacyRemoteCall"
+    }
+  ]
 }

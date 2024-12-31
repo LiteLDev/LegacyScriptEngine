@@ -192,7 +192,7 @@ KVDBClass* KVDBClass::constructor(const Arguments& args) {
     CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
 
     try {
-        auto res = new KVDBClass(args.thiz(), args[0].toStr());
+        auto res = new KVDBClass(args.thiz(), args[0].asString().toString());
         if (res->isValid()) return res;
         else return nullptr;
     }

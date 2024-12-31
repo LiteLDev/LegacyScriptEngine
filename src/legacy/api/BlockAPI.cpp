@@ -16,9 +16,9 @@
 #include "mc/world/level/Level.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 #include "mc/world/level/block/components/BlockLiquidDetectionComponent.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 
 #include <exception>
 
@@ -412,7 +412,12 @@ Local<Value> McClass::getBlock(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-            pos = {args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()};
+            pos = {
+                args[0].asNumber().toInt32(),
+                args[1].asNumber().toInt32(),
+                args[2].asNumber().toInt32(),
+                args[3].asNumber().toInt32()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -450,7 +455,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             if (args.size() == 3) {
                 CHECK_ARG_TYPE(args[1], ValueKind::kString);
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-                tileData = args[2].toInt();
+                tileData = args[2].asNumber().toInt32();
             }
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
@@ -478,12 +483,17 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-            pos   = {args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()};
+            pos = {
+                args[0].asNumber().toInt32(),
+                args[1].asNumber().toInt32(),
+                args[2].asNumber().toInt32(),
+                args[3].asNumber().toInt32()
+            };
             block = args[4];
             if (args.size() == 6) {
                 CHECK_ARG_TYPE(args[4], ValueKind::kString);
                 CHECK_ARG_TYPE(args[5], ValueKind::kNumber);
-                tileData = args[5].toInt();
+                tileData = args[5].asNumber().toInt32();
             }
         } else {
             LOG_WRONG_ARGS_COUNT();
@@ -566,7 +576,7 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
                 args[0].asNumber().toFloat(),
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
-                args[3].toInt()
+                args[3].asNumber().toInt32()
             };
             type = args[4];
         } else {
@@ -574,8 +584,11 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
             return Local<Value>();
         }
 
-        ll::service::getLevel()
-            ->spawnParticleEffect(type.toStr(), pos.getVec3(), ll::service::getLevel()->getDimension(pos.dim).get());
+        ll::service::getLevel()->spawnParticleEffect(
+            type.asString().toString(),
+            pos.getVec3(),
+            ll::service::getLevel()->getDimension(pos.dim).get()
+        );
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in SpawnParticle!")

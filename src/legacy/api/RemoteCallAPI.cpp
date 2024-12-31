@@ -67,7 +67,7 @@ RemoteCall::ValueType pack(Local<Value> value) {
         return pack(value.asObject());
         break;
     case script::ValueKind::kString:
-        return value.toStr();
+        return value.asString().toString();
         break;
     case script::ValueKind::kNumber: {
         auto num = value.asNumber();
@@ -258,11 +258,11 @@ Local<Value> LlClass::exportFunc(const Arguments& args) {
         std::string funcName;
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kString);
-            nameSpace = args[1].toStr();
-            funcName  = args[2].toStr();
+            nameSpace = args[1].asString().toString();
+            funcName  = args[2].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[1].toStr();
+            funcName  = args[1].asString().toString();
         }
         return Boolean::newBoolean(
             LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), nameSpace, funcName)
@@ -280,11 +280,11 @@ Local<Value> LlClass::importFunc(const Arguments& args) {
         std::string funcName;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kString);
-            nameSpace = args[0].toStr();
-            funcName  = args[1].toStr();
+            nameSpace = args[0].asString().toString();
+            funcName  = args[1].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[0].toStr();
+            funcName  = args[0].asString().toString();
         }
 
         // 远程调用
@@ -304,11 +304,11 @@ Local<Value> LlClass::hasFuncExported(const Arguments& args) {
         std::string funcName;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kString);
-            nameSpace = args[0].toStr();
-            funcName  = args[1].toStr();
+            nameSpace = args[0].asString().toString();
+            funcName  = args[1].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[0].toStr();
+            funcName  = args[0].asString().toString();
         }
 
         // 远程调用

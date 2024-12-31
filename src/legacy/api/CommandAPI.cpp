@@ -150,11 +150,11 @@ Local<Value> convertResult(DynamicCommand::Result const& result) {
 template <typename T>
 std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const& value) {
     if (value.isString()) {
-        auto tmp = magic_enum::enum_cast<T>(value.toStr());
+        auto tmp = magic_enum::enum_cast<T>(value.asString().toString());
         if (!tmp.has_value()) throw std::runtime_error("Unable to parse Enum value");
         return tmp.value();
     } else if (value.isNumber()) {
-        return (T)value.toInt();
+        return (T)value.asNumber().toInt32();
     }
     throw std::runtime_error("Unable to parse Enum value");
 }
@@ -225,7 +225,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        auto name     = args[0].toStr();
+        auto name     = args[0].asString().toString();
         auto instance = DynamicCommand::getInstance(name);
         if (instance) {
             lse::getSelfPluginInstance().getLogger().info(
@@ -236,7 +236,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
             return CommandClass::newCommand(instance);
         }
 
-        auto                   desc       = args[1].toStr();
+        auto                   desc       = args[1].asString().toString();
         CommandPermissionLevel permission = CommandPermissionLevel::Admin;
         CommandFlag            flag       = {(CommandFlagValue)0x80};
         std::string            alias;
@@ -244,10 +244,10 @@ Local<Value> McClass::newCommand(const Arguments& args) {
             permission = (CommandPermissionLevel)parseEnum<OldCommandPermissionLevel>(args[2]);
             if (args.size() > 3) {
                 CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-                flag = {(CommandFlagValue)args[3].toInt()};
+                flag = {(CommandFlagValue)args[3].asNumber().toInt32()};
                 if (args.size() > 4) {
                     CHECK_ARG_TYPE(args[4], ValueKind::kString);
-                    alias = args[4].toStr();
+                    alias = args[4].asString().toString();
                 }
             }
         }
@@ -269,13 +269,13 @@ CommandClass::CommandClass(std::unique_ptr<DynamicCommandInstance>&& p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(std::move(p)),
   ptr(uptr.get()),
-  registered(false){};
+  registered(false) {};
 
 CommandClass::CommandClass(DynamicCommandInstance* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   uptr(),
   ptr(p),
-  registered(true){};
+  registered(true) {};
 
 Local<Object> CommandClass::newCommand(std::unique_ptr<DynamicCommandInstance>&& p) {
     auto newp = new CommandClass(std::move(p));
@@ -299,7 +299,7 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     try {
         if (registered) return Boolean::newBoolean(true); // TODO
-        return Boolean::newBoolean(get()->setAlias(args[0].toStr()));
+        return Boolean::newBoolean(get()->setAlias(args[0].asString().toString()));
     }
     CATCH("Fail in setAlias!")
 }
@@ -311,12 +311,12 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kArray)
     try {
         if (registered) return Local<Value>(); // TODO
-        auto enumName = args[0].toStr();
+        auto enumName = args[0].asString().toString();
         auto enumArr  = args[1].asArray();
         if (enumArr.size() == 0 || !enumArr.get(0).isString()) return Local<Value>();
         vector<string> enumValues;
         for (int i = 0; i < enumArr.size(); ++i) {
-            enumValues.push_back(enumArr.get(i).toStr());
+            enumValues.push_back(enumArr.get(i).asString().toString());
         }
         return String::newString(get()->setEnum(enumName, std::move(enumValues)));
     }
@@ -332,7 +332,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         if (registered) return Boolean::newBoolean(true); // TODO
-        auto                          name        = args[0].toStr();
+        auto                          name        = args[0].asString().toString();
         DynamicCommand::ParameterType type        = parseEnum<DynamicCommand::ParameterType>(args[1]);
         std::string                   description = "";
         bool                          optional    = false;
@@ -340,9 +340,10 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
         size_t                        index       = 2;
         CommandParameterOption        option      = (CommandParameterOption)0;
         if (args.size() > index && args[index].isBoolean()) optional = args[index++].asBoolean().value();
-        if (args.size() > index && args[index].isString()) description = args[index++].toStr();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].toStr();
-        if (args.size() > index && args[index].isNumber()) option = (CommandParameterOption)args[index++].toInt();
+        if (args.size() > index && args[index].isString()) description = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
         return Number::newNumber(
             (int64_t)get()->newParameter(name, type, optional, description, identifier, option).index
@@ -358,16 +359,17 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         if (registered) return Boolean::newBoolean(true); // TODO
-        auto                          name        = args[0].toStr();
+        auto                          name        = args[0].asString().toString();
         DynamicCommand::ParameterType type        = parseEnum<DynamicCommand::ParameterType>(args[1]);
         std::string                   description = "";
         bool                          optional    = false;
         std::string                   identifier  = "";
         size_t                        index       = 2;
         CommandParameterOption        option      = (CommandParameterOption)0;
-        if (args.size() > index && args[index].isString()) description = args[index++].toStr();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].toStr();
-        if (args.size() > index && args[index].isNumber()) option = (CommandParameterOption)args[index++].toInt();
+        if (args.size() > index && args[index].isString()) description = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
         return Number::newNumber(
             (int64_t)get()->newParameter(name, type, optional, description, identifier, option).index
@@ -383,16 +385,17 @@ Local<Value> CommandClass::optional(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         if (registered) return Boolean::newBoolean(true); // TODO
-        auto                          name        = args[0].toStr();
+        auto                          name        = args[0].asString().toString();
         DynamicCommand::ParameterType type        = parseEnum<DynamicCommand::ParameterType>(args[1]);
         std::string                   description = "";
         bool                          optional    = true;
         std::string                   identifier  = "";
         size_t                        index       = 2;
         CommandParameterOption        option      = (CommandParameterOption)0;
-        if (args.size() > index && args[index].isString()) description = args[index++].toStr();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].toStr();
-        if (args.size() > index && args[index].isNumber()) option = (CommandParameterOption)args[index++].toInt();
+        if (args.size() > index && args[index].isString()) description = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
         return Number::newNumber(
             (int64_t)get()->newParameter(name, type, optional, description, identifier, option).index
@@ -420,7 +423,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             std::vector<std::string> params;
             for (int i = 0; i < args.size(); ++i) {
                 CHECK_ARG_TYPE(args[i], ValueKind::kString);
-                params.emplace_back(args[i].toStr());
+                params.emplace_back(args[i].asString().toString());
             }
             return Boolean::newBoolean(command->addOverload(std::move(params)));
         } else if (args[0].isArray()) {
@@ -438,7 +441,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 std::vector<std::string> params;
                 for (int i = 0; i < arr.size(); ++i) {
                     CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
-                    params.emplace_back(arr.get(i).toStr());
+                    params.emplace_back(arr.get(i).asString().toString());
                 }
                 return Boolean::newBoolean(command->addOverload(std::move(params)));
             }
@@ -556,7 +559,7 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
     try {
-        auto name  = args[0].toStr();
+        auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
         return String::newString(get()->setSoftEnum(name, std::move(enums)));
     }
@@ -568,7 +571,7 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
     try {
-        auto name  = args[0].toStr();
+        auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
         return Boolean::newBoolean(get()->addSoftEnumValues(name, std::move(enums)));
     }
@@ -580,7 +583,7 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
     try {
-        auto name  = args[0].toStr();
+        auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
         return Boolean::newBoolean(get()->removeSoftEnumValues(name, std::move(enums)));
     }
@@ -591,7 +594,7 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto name = args[0].toStr();
+        auto name = args[0].asString().toString();
         return getStringArray(get()->softEnums[name]);
     }
     CATCH("Fail in getSoftEnumValues");

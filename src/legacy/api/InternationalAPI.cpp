@@ -44,9 +44,9 @@ void FormatHelper(
         }
         case ValueKind::kString: {
             if (!name) {
-                s.push_back(arg.toStr());
+                s.push_back(arg.asString().toString());
             } else {
-                s.push_back(fmt::arg(name, arg.toStr()));
+                s.push_back(fmt::arg(name, arg.asString().toString()));
             }
             break;
         }
@@ -141,7 +141,7 @@ Local<Value> I18nClass::tr(const Arguments& args) {
     CHECK_ARG_TYPE(0, kString);
 
     try {
-        return TrFormat(args, 1ULL, args[0].toStr());
+        return TrFormat(args, 1ULL, args[0].asString().toString());
     }
     CATCH_AND_THROW;
 }
@@ -152,7 +152,7 @@ Local<Value> I18nClass::trl(const Arguments& args) {
     CHECK_ARG_TYPE(1, kString);
 
     try {
-        return TrFormat(args, 2ULL, args[1].toStr(), args[0].toStr());
+        return TrFormat(args, 2ULL, args[1].asString().toString(), args[0].asString().toString());
     }
     CATCH_AND_THROW;
 }
@@ -167,10 +167,10 @@ Local<Value> I18nClass::get(const Arguments& args) {
     }
 
     try {
-        auto        key = args[0].toStr();
+        auto        key = args[0].asString().toString();
         std::string localeName{};
         if (args.size() == 2) {
-            localeName = args[1].toStr();
+            localeName = args[1].asString().toString();
         }
         auto i18n = getEngineOwnData()->i18n;
         if (!i18n) {
@@ -192,11 +192,11 @@ Local<Value> I18nClass::load(const Arguments& args) {
     }
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         // Deprecated because it follows LeviLamina's default locale
         // std::string defaultLocaleName;
         if (args.size() > 1) {
-            // defaultLocaleName = args[1].toStr();
+            // defaultLocaleName = args[1].asString().toString();
         }
 
         if (args.size() > 2) {
@@ -217,7 +217,7 @@ Local<Value> I18nClass::load(const Arguments& args) {
                     if (str.getKind() != ValueKind::kString) {
                         throw Exception("Value in SubLangData must be a string");
                     }
-                    EngineOwnData().i18n->set(localeName, objKeys[j].toString(), str.toStr());
+                    EngineOwnData().i18n->set(localeName, objKeys[j].toString(), str.asString().toString());
                 }
             }
         }

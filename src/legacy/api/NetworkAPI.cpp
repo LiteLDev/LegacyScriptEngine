@@ -320,7 +320,7 @@ Local<Value> WSClientClass::connect(const Arguments& args) {
     //     return connectAsync(args);
     try {
 
-        string target = args[0].toStr();
+        string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
         ws->Connect(target);
         return Boolean::newBoolean(true);
@@ -337,7 +337,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        string target = args[0].toStr();
+        string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
@@ -382,7 +382,7 @@ Local<Value> WSClientClass::send(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        if (args[0].isString()) ws->SendText(args[0].toStr());
+        if (args[0].isString()) ws->SendText(args[0].asString().toString());
         else if (args[0].isByteBuffer())
             ws->SendBinary((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
         else {
@@ -402,7 +402,7 @@ Local<Value> WSClientClass::listen(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        addListener(args[0].toStr(), args[1].asFunction());
+        addListener(args[0].asString().toString(), args[1].asFunction());
         return Boolean::newBoolean(true);
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
@@ -498,7 +498,7 @@ Local<Value> HttpServerClass::onGet(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Get, path, func);
         return this->getScriptObject();
@@ -512,7 +512,7 @@ Local<Value> HttpServerClass::onPut(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Put, path, func);
         return this->getScriptObject();
@@ -526,7 +526,7 @@ Local<Value> HttpServerClass::onPost(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Post, path, func);
         return this->getScriptObject();
@@ -540,7 +540,7 @@ Local<Value> HttpServerClass::onPatch(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Patch, path, func);
         return this->getScriptObject();
@@ -554,7 +554,7 @@ Local<Value> HttpServerClass::onDelete(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Delete, path, func);
         return this->getScriptObject();
@@ -568,7 +568,7 @@ Local<Value> HttpServerClass::onOptions(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        auto path = args[0].toStr();
+        auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
         ADD_CALLBACK(Options, path, func);
         return this->getScriptObject();
@@ -730,7 +730,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         std::string addr = "127.0.0.1";
         int         port = 80;
         if (args.size() == 2) {
-            addr = args[0].toStr();
+            addr = args[0].asString().toString();
             port = args[1].asNumber().toInt32();
         } else {
             port = args[0].asNumber().toInt32();
@@ -822,7 +822,7 @@ Local<Value> HttpRequestClass::getHeader(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key = args[0].toStr();
+        auto key = args[0].asString().toString();
         if (req->headers.count(key) == 0) return Array::newArray();
         auto value = req->headers.equal_range(key);
         auto arr   = Array::newArray();
@@ -909,9 +909,9 @@ Local<Value> HttpResponseClass::setHeader(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto   key = args[0].toStr();
+        auto   key = args[0].asString().toString();
         string value;
-        if (args[1].isString()) value = args[1].toStr();
+        if (args[1].isString()) value = args[1].asString().toString();
         else value = ValueToString(args[1]);
         resp->headers.insert(make_pair(key, value));
         return this->getScriptObject(); // return self
@@ -924,7 +924,7 @@ Local<Value> HttpResponseClass::getHeader(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key = args[0].toStr();
+        auto key = args[0].asString().toString();
         if (resp->headers.count(key) == 0) return Array::newArray();
         auto value = resp->headers.equal_range(key);
         auto arr   = Array::newArray();
@@ -971,7 +971,7 @@ void HttpResponseClass::setStatus(const Local<Value>& status) {
     CHECK_ARG_TYPE_S(status, ValueKind::kNumber);
 
     try {
-        resp->status = status.toInt();
+        resp->status = status.asNumber().toInt32();
     }
     CATCH_S("Fail in setStatus!");
 }
@@ -980,7 +980,7 @@ void HttpResponseClass::setBody(const Local<Value>& body) {
     CHECK_ARG_TYPE_S(body, ValueKind::kString);
 
     try {
-        resp->body = body.toStr();
+        resp->body = body.asString().toString();
     }
     CATCH_S("Fail in setBody!");
 }
@@ -989,7 +989,7 @@ void HttpResponseClass::setReason(const Local<Value>& reason) {
     CHECK_ARG_TYPE_S(reason, ValueKind::kString);
 
     try {
-        resp->reason = reason.toStr();
+        resp->reason = reason.asString().toString();
     }
     CATCH_S("Fail in setReason!");
 }
@@ -998,7 +998,7 @@ void HttpResponseClass::setVersion(const Local<Value>& version) {
     CHECK_ARG_TYPE_S(version, ValueKind::kString);
 
     try {
-        resp->version = version.toStr();
+        resp->version = version.asString().toString();
     }
     CATCH_S("Fail in setVersion!");
 }
@@ -1157,7 +1157,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
     }
 
     try {
-        string target = args[0].toStr();
+        string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "HttpGet", target);
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
@@ -1181,7 +1181,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
             auto             keys = obj.getKeyNames();
             if (keys.size() > 0) {
                 for (size_t i = 0ULL, mEnd = keys.size(); i < mEnd; ++i) {
-                    maps.insert({keys[i], obj.get(keys[i]).toStr()});
+                    maps.insert({keys[i], obj.get(keys[i]).asString().toString()});
                 }
             }
             return Boolean::newBoolean(HttpGet(target, maps, lambda));
@@ -1205,7 +1205,7 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
     }
 
     try {
-        string target = args[0].toStr();
+        string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "HttpPost", target);
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
@@ -1229,13 +1229,17 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
             auto             keys = obj.getKeyNames();
             if (keys.size() > 0) {
                 for (size_t i = 0ULL, mEnd = keys.size(); i < mEnd; ++i) {
-                    maps.insert({keys[i], obj.get(keys[i]).toStr()});
+                    maps.insert({keys[i], obj.get(keys[i]).asString().toString()});
                 }
             }
 
-            return Boolean::newBoolean(HttpPost(target, maps, args[2].toStr(), args[3].toStr(), lambda));
+            return Boolean::newBoolean(
+                HttpPost(target, maps, args[2].asString().toString(), args[3].asString().toString(), lambda)
+            );
         }
-        return Boolean::newBoolean(HttpPost(target, args[1].toStr(), args[2].toStr(), lambda));
+        return Boolean::newBoolean(
+            HttpPost(target, args[1].asString().toString(), args[2].asString().toString(), lambda)
+        );
     }
     CATCH("Fail in HttpPost");
 }
@@ -1245,7 +1249,7 @@ Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string target = args[0].toStr();
+        string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "HttpGetSync", target);
 
         int    status;

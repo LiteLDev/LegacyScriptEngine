@@ -27,13 +27,12 @@
 #include <string>
 #include <vector>
 
-
 Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        std::string name = args[0].toStr();
+        std::string name = args[0].asString().toString();
         if (args.size() == 1) {
             if (auto sp = SimulatedPlayer::create(name)) return PlayerClass::newPlayer(sp);
             else return Local<Value>();
@@ -55,9 +54,10 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
             if (args.size() > 4) {
                 CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
-                dimid = args[4].toInt();
+                dimid = args[4].asNumber().toInt32();
             }
-            bpos = BlockPos(args[1].toInt(), args[2].toInt(), args[3].toInt()).bottomCenter();
+            bpos = BlockPos(args[1].asNumber().toInt32(), args[2].asNumber().toInt32(), args[3].asNumber().toInt32())
+                       .bottomCenter();
         }
         if (auto sp = SimulatedPlayer::create(name, bpos, dimid)) return PlayerClass::newPlayer(sp);
         else return Local<Value>();
@@ -138,7 +138,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            bpos  = {args[0].toInt(), args[1].toInt(), args[2].toInt()};
+            bpos  = {args[0].asNumber().toInt32(), args[1].asNumber().toInt32(), args[2].asNumber().toInt32()};
             index = 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -148,7 +148,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         }
         if (args.size() > index) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[index].toInt();
+            face = (ScriptModuleMinecraft::ScriptFacing)args[index].asNumber().toInt32();
         }
         // TODO
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
@@ -208,7 +208,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            bpos  = {args[0].toInt(), args[1].toInt(), args[2].toInt()};
+            bpos  = {args[0].asNumber().toInt32(), args[1].asNumber().toInt32(), args[2].asNumber().toInt32()};
             index = 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -553,7 +553,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
 
         int        slot = -1;
         ItemStack* item = nullptr;
-        if (args[0].isNumber()) slot = args[0].toInt();
+        if (args[0].isNumber()) slot = args[0].asNumber().toInt32();
         else if (IsInstanceOf<ItemClass>(args[0])) item = ItemClass::extract(args[0]);
         else {
             LOG_WRONG_ARG_TYPE();
@@ -575,7 +575,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         }
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[2].toInt();
+            face = (ScriptModuleMinecraft::ScriptFacing)args[2].asNumber().toInt32();
             if (args.size() > 3) {
                 if (IsInstanceOf<FloatPos>(args[3])) {
                     relativePos = FloatPos::extractPos(args[3])->getVec3();

@@ -13,9 +13,9 @@
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
-#include "mc/deps/crypto/hash/Hash.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/EconomicSystem.h"
+#include "mc/deps/crypto/hash/Hash.h"
 #include "mc/world/actor/player/Player.h"
 #include "utils/JsonHelper.h"
 
@@ -138,10 +138,10 @@ ConfJsonClass* ConfJsonClass::constructor(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE_C(args[1], ValueKind::kString);
 
     try {
-        string path = args[0].toStr();
+        string path = args[0].asString().toString();
         if (path.empty()) return nullptr;
 
-        if (args.size() >= 2) return new ConfJsonClass(args.thiz(), path, args[1].toStr());
+        if (args.size() >= 2) return new ConfJsonClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfJsonClass(args.thiz(), path, "{}");
     }
     CATCH_C("Fail in Open JsonConfigFile!");
@@ -152,13 +152,13 @@ Local<Value> ConfJsonClass::init(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return JsonToValue(jsonConf.at(args[0].toStr()));
+        return JsonToValue(jsonConf.at(args[0].asString().toString()));
     } catch (const std::out_of_range&) {
-        jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
+        jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
     } catch (const ordered_json::exception&) {
-        jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
+        jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
     }
@@ -170,7 +170,7 @@ Local<Value> ConfJsonClass::get(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return JsonToValue(jsonConf.at(args[0].toStr()));
+        return JsonToValue(jsonConf.at(args[0].asString().toString()));
     } catch (const std::out_of_range&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
     } catch (const ordered_json::exception&) {
@@ -184,7 +184,7 @@ Local<Value> ConfJsonClass::set(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        jsonConf[args[0].toStr()] = ordered_json::parse(ValueToJson(args[1]));
+        jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         return Boolean::newBoolean(flush());
     } catch (const ordered_json::exception&) {
         return Boolean::newBoolean(false);
@@ -197,7 +197,7 @@ Local<Value> ConfJsonClass::del(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        if (jsonConf.erase(args[0].toStr()) <= 0) return Boolean::newBoolean(false);
+        if (jsonConf.erase(args[0].asString().toString()) <= 0) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(flush());
     } catch (const ordered_json::exception&) {
@@ -230,7 +230,8 @@ Local<Value> ConfJsonClass::write(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        bool res = ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].toStr(), false);
+        bool res =
+            ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].asString().toString(), false);
         reload();
         return Boolean::newBoolean(res);
     }
@@ -288,10 +289,10 @@ ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE_C(args[1], ValueKind::kString);
 
     try {
-        string path = args[0].toStr();
+        string path = args[0].asString().toString();
         if (path.empty()) return nullptr;
 
-        if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].toStr());
+        if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfIniClass(args.thiz(), path, "");
     }
     CATCH_C("Fail in Open IniConfigFile!");
@@ -323,13 +324,13 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        string       section = args[0].toStr();
-        string       key     = args[1].toStr();
+        string       section = args[0].asString().toString();
+        string       key     = args[1].asString().toString();
         Local<Value> res;
 
         switch (args[2].getKind()) {
         case ValueKind::kString: {
-            string def  = args[2].toStr();
+            string def  = args[2].asString().toString();
             string data = iniConf->getString(section, key, def);
             if (data == def) {
                 iniConf->setString(section, key, def);
@@ -350,7 +351,7 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
                 res = Number::newNumber(data);
             } else {
                 // Int
-                int def  = args[2].toInt();
+                int def  = args[2].asNumber().toInt32();
                 int data = iniConf->getInt(section, key, def);
                 if (data == def) {
                     iniConf->setInt(section, key, def);
@@ -388,15 +389,15 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        string section = args[0].toStr();
-        string key     = args[1].toStr();
+        string section = args[0].asString().toString();
+        string key     = args[1].asString().toString();
         switch (args[2].getKind()) {
         case ValueKind::kString:
-            iniConf->setString(section, key, args[2].toStr());
+            iniConf->setString(section, key, args[2].asString().toString());
             break;
         case ValueKind::kNumber:
             if (CheckIsFloat(args[2])) iniConf->setFloat(section, key, args[2].asNumber().toFloat());
-            else iniConf->setInt(section, key, args[2].toInt());
+            else iniConf->setInt(section, key, args[2].asNumber().toInt32());
             break;
         case ValueKind::kBoolean:
             iniConf->setBool(section, key, args[2].asBoolean().value());
@@ -421,9 +422,11 @@ Local<Value> ConfIniClass::getStr(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        return String::newString(
-            iniConf->getString(args[0].toStr(), args[1].toStr(), args.size() >= 3 ? args[2].toStr() : "")
-        );
+        return String::newString(iniConf->getString(
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            args.size() >= 3 ? args[2].asString().toString() : ""
+        ));
     }
     CATCH("Fail in confIniGetStr!")
 }
@@ -437,9 +440,11 @@ Local<Value> ConfIniClass::getInt(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        return Number::newNumber(
-            iniConf->getInt(args[0].toStr(), args[1].toStr(), args.size() >= 3 ? args[2].asNumber().toInt32() : 0)
-        );
+        return Number::newNumber(iniConf->getInt(
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            args.size() >= 3 ? args[2].asNumber().toInt32() : 0
+        ));
     }
     CATCH("Fail in ConfIniGetInt!");
 }
@@ -453,9 +458,11 @@ Local<Value> ConfIniClass::getFloat(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        return Number::newNumber(
-            iniConf->getFloat(args[0].toStr(), args[1].toStr(), args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0)
-        );
+        return Number::newNumber(iniConf->getFloat(
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0
+        ));
     }
     CATCH("Fail in ConfIniGetFloat!");
 }
@@ -469,9 +476,11 @@ Local<Value> ConfIniClass::getBool(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        return Boolean::newBoolean(
-            iniConf->getBool(args[0].toStr(), args[1].toStr(), args.size() >= 3 ? args[2].asBoolean().value() : false)
-        );
+        return Boolean::newBoolean(iniConf->getBool(
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            args.size() >= 3 ? args[2].asBoolean().value() : false
+        ));
     }
     CATCH("Fail in ConfIniGetBool");
 }
@@ -484,7 +493,7 @@ Local<Value> ConfIniClass::del(const Arguments& args) {
     try {
         if (!isValid()) return Local<Value>();
 
-        bool res = iniConf->deleteKey(args[0].toStr(), args[1].toStr());
+        bool res = iniConf->deleteKey(args[0].asString().toString(), args[1].asString().toString());
         flush();
         return Boolean::newBoolean(res);
     }
@@ -503,7 +512,8 @@ Local<Value> ConfIniClass::write(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        bool res = ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].toStr(), false);
+        bool res =
+            ll::file_utils::writeFile(ll::string_utils::str2u8str(confPath), args[0].asString().toString(), false);
         reload();
         return Boolean::newBoolean(res);
     }
@@ -525,7 +535,8 @@ Local<Value> MoneyClass::set(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::setMoney(args[0].toStr(), args[1].asNumber().toInt64()));
+        return Boolean::newBoolean(EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        );
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneySet!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
@@ -545,7 +556,7 @@ Local<Value> MoneyClass::get(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Number::newNumber(EconomySystem::getMoney(args[0].toStr()));
+        return Number::newNumber(EconomySystem::getMoney(args[0].asString().toString()));
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGet!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
@@ -566,7 +577,8 @@ Local<Value> MoneyClass::add(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::addMoney(args[0].toStr(), args[1].asNumber().toInt64()));
+        return Boolean::newBoolean(EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        );
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyAdd!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
@@ -587,7 +599,9 @@ Local<Value> MoneyClass::reduce(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::reduceMoney(args[0].toStr(), args[1].asNumber().toInt64()));
+        return Boolean::newBoolean(
+            EconomySystem::reduceMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        );
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyReduce!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
@@ -610,10 +624,13 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
 
     try {
         string note = "";
-        if (args.size() >= 4 && args[3].getKind() == ValueKind::kString) note = args[3].toStr();
-        return Boolean::newBoolean(
-            EconomySystem::transMoney(args[0].toStr(), args[1].toStr(), args[2].asNumber().toInt64(), note)
-        );
+        if (args.size() >= 4 && args[3].getKind() == ValueKind::kString) note = args[3].asString().toString();
+        return Boolean::newBoolean(EconomySystem::transMoney(
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            args[2].asNumber().toInt64(),
+            note
+        ));
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyTrans!");
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
@@ -669,7 +686,7 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        string res{EconomySystem::getMoneyHist(args[0].toStr(), args[1].asNumber().toInt32())};
+        string res{EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32())};
         return objectificationMoneyHistory(res);
     } catch (const std::invalid_argument& e) {
         lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
@@ -844,7 +861,7 @@ Local<Value> DataClass::toJson(const Arguments& args) {
     try {
         int spaces = -1;
         if (args.size() >= 2) {
-            int newSpaces = args[1].toInt();
+            int newSpaces = args[1].asNumber().toInt32();
             if (newSpaces > 0) spaces = newSpaces;
         }
         try {
@@ -863,7 +880,7 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
 
     try {
         try {
-            return JsonToValue(args[0].toStr());
+            return JsonToValue(args[0].asString().toString());
         } catch (...) {
             LOG_ERROR_WITH_SCRIPT_INFO("Failed to parse from Json.");
             return Local<Value>();
@@ -877,7 +894,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
 
     try {
         std::string data;
-        if (args[0].isString()) data = args[0].toStr();
+        if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
@@ -895,7 +912,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
 
     try {
         std::string data;
-        if (args[0].isString()) data = args[0].toStr();
+        if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
@@ -913,7 +930,7 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
 
     try {
         string data;
-        if (args[0].isString()) data = args[0].toStr();
+        if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
@@ -936,7 +953,7 @@ Local<Value> DataClass::fromBase64(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
             isBinary = args[1].asBoolean().value();
         }
-        auto data = Base64::Decode(args[0].toStr());
+        auto data = Base64::Decode(args[0].asString().toString());
         if (isBinary) {
             return ByteBuffer::newByteBuffer((void*)data.c_str(), data.size());
         } else {
@@ -978,22 +995,22 @@ Local<Value> DataClass::openConfig(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
 
     try {
-        string         path     = args[0].toStr();
+        string         path     = args[0].asString().toString();
         GlobalConfType confType = GlobalConfType::ini;
 
         if (path.empty()) return Boolean::newBoolean(false);
 
         if (args.size() >= 2) {
-            string fileType = args[1].toStr();
+            string fileType = args[1].asString().toString();
             if (fileType == "json" || fileType == "Json") confType = GlobalConfType::json;
         }
 
         if (confType == GlobalConfType::ini) {
-            if (args.size() >= 3) return ConfIniClass::newConf(path, args[2].toStr());
+            if (args.size() >= 3) return ConfIniClass::newConf(path, args[2].asString().toString());
             else return ConfIniClass::newConf(path);
         } else // json
         {
-            if (args.size() >= 3) return ConfJsonClass::newConf(path, args[2].toStr());
+            if (args.size() >= 3) return ConfJsonClass::newConf(path, args[2].asString().toString());
             else return ConfJsonClass::newConf(path, "{}");
         }
     }
@@ -1004,5 +1021,5 @@ Local<Value> DataClass::openDB(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-    return KVDBClass::newDb(args[0].toStr());
+    return KVDBClass::newDb(args[0].asString().toString());
 }

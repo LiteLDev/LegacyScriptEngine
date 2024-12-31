@@ -73,9 +73,9 @@ Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
         Objective* obj = get();
         if (!obj) return Local<Value>();
 
-        std::string slot = args[0].toStr();
+        std::string slot = args[0].asString().toString();
         int         sort = 0;
-        if (args.size() == 2) sort = args[1].toInt();
+        if (args.size() == 2) sort = args[1].asNumber().toInt32();
         return Boolean::newBoolean(
             ll::service::getLevel()->getScoreboard().setDisplayObjective(slot, *obj, (ObjectiveSortOrder)sort)
         );
@@ -90,10 +90,10 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -137,10 +137,10 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -185,10 +185,10 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -302,7 +302,7 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].toStr();
+        string slot = args[0].asString().toString();
         auto   res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
         if (!res) return Local<Value>();
@@ -316,7 +316,7 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].toStr();
+        string slot = args[0].asString().toString();
         auto   res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
 
         if (!res) return Boolean::newBoolean(false);
@@ -330,7 +330,7 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string name = args[0].toStr();
+        string name = args[0].asString().toString();
         if (ll::service::getLevel().has_value()) {
             auto res = ll::service::getLevel()->getScoreboard().getObjective(name);
             if (!res) {
@@ -349,9 +349,9 @@ Local<Value> McClass::newScoreObjective(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString)
 
     try {
-        std::string name    = args[0].toStr();
+        std::string name    = args[0].asString().toString();
         std::string display = name;
-        if (args.size() >= 2) display = args[1].toStr();
+        if (args.size() >= 2) display = args[1].asString().toString();
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         std::string criteria   = "dummy";
         Objective*  obj =
@@ -366,7 +366,7 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        string name = args[0].toStr();
+        string name = args[0].asString().toString();
         auto   obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
         if (obj) {
             ll::service::getLevel()->getScoreboard().removeObjective(obj);

@@ -77,7 +77,7 @@ Local<Value> McClass::listen(const Arguments& args) {
 
     try {
         return Boolean::newBoolean(
-            LLSEAddEventListener(EngineScope::currentEngine(), args[0].toStr(), args[1].asFunction())
+            LLSEAddEventListener(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction())
         );
     }
     CATCH("Fail to Bind Listener!");

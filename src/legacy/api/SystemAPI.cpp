@@ -109,11 +109,11 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        std::string cmd = args[0].toStr();
+        std::string cmd = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "ExecuteSystemCommand", cmd);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
-        int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;
+        int                      timeout = (args.size() >= 3) ? args[2].asNumber().toInt32() : -1;
 
         ll::coro::keepThis(
             [cmd = std::move(cmd), callback = std::move(callbackFunc), timeout, engine = EngineScope::currentEngine()](
@@ -148,11 +148,11 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        std::string process = args[0].toStr();
+        std::string process = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "CreateNewProcess", process);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
-        int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;
+        int                      timeout = (args.size() >= 3) ? args[2].asNumber().toInt32() : -1;
 
         ll::coro::keepThis(
             [process  = std::move(process),

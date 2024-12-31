@@ -139,7 +139,7 @@ Local<Value> LoggerClass::setConsole(const Arguments& args) {
     try {
         if (args.size() >= 2) {
             getEngineOwnData()->getModInstance()->getLogger().getSink(0)->setFlushLevel(
-                static_cast<ll::io::LogLevel>(args[1].toInt() + 1)
+                static_cast<ll::io::LogLevel>(args[1].asNumber().toInt32() + 1)
             ); // See LSE's definition https://legacy-script-engine.levimc.org/apis/ScriptAPI/Logger/
         }
         if (!args[0].asBoolean().value()) {
@@ -167,7 +167,7 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
             std::ios::app
         );
         if (args.size() >= 2) {
-            sink->setFlushLevel(static_cast<LogLevel>(args[1].toInt() + 1));
+            sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() + 1));
         }
         return Boolean::newBoolean(getEngineOwnData()->getModInstance()->getLogger().addSink(sink));
     }
@@ -183,7 +183,7 @@ Local<Value> LoggerClass::setPlayer(const Arguments& args) {
         }
         std::shared_ptr<lse::io::PlayerSink> sink = std::make_shared<lse::io::PlayerSink>(player->getUuid());
         if (args.size() >= 2) {
-            sink->setFlushLevel(static_cast<LogLevel>(args[1].toInt() + 1));
+            sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() + 1));
         }
         return Boolean::newBoolean(getEngineOwnData()->getModInstance()->getLogger().addSink(sink));
     }
@@ -196,7 +196,7 @@ Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
 
     try {
         auto conf = getEngineOwnData();
-        conf->getModInstance()->getLogger().setLevel(static_cast<LogLevel>(args[0].toInt() + 1));
+        conf->getModInstance()->getLogger().setLevel(static_cast<LogLevel>(args[0].asNumber().toInt32() + 1));
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in SetLogLevel!")

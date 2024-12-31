@@ -693,7 +693,7 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
             if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
                 auto angle      = DirectionAngle::extract(args[4]);
                 ang.x           = angle->pitch;
@@ -766,7 +766,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -832,7 +832,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -1015,7 +1015,7 @@ Local<Value> EntityClass::heal(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        entity->heal(args[0].toInt());
+        entity->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in heal!");
@@ -1222,7 +1222,7 @@ Local<Value> EntityClass::setOnFire(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        int time = args[0].toInt();
+        int time = args[0].asNumber().toInt32();
         entity->setOnFire(time, true);
         return Boolean::newBoolean(true);
     }
@@ -1238,7 +1238,7 @@ Local<Value> EntityClass::setFire(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        int  time     = args[0].toInt();
+        int  time     = args[0].asNumber().toInt32();
         bool isEffect = args[1].asBoolean().value();
 
         entity->setOnFire(time, isEffect);
@@ -1309,7 +1309,7 @@ Local<Value> EntityClass::addTag(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->addTag(args[0].toStr()));
+        return Boolean::newBoolean(entity->addTag(args[0].asString().toString()));
     }
     CATCH("Fail in addTag!");
 }
@@ -1322,7 +1322,7 @@ Local<Value> EntityClass::removeTag(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->removeTag(args[0].toStr()));
+        return Boolean::newBoolean(entity->removeTag(args[0].asString().toString()));
     }
     CATCH("Fail in removeTag!");
 }
@@ -1335,7 +1335,7 @@ Local<Value> EntityClass::hasTag(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->hasTag(args[0].toStr()));
+        return Boolean::newBoolean(entity->hasTag(args[0].asString().toString()));
     }
     CATCH("Fail in hasTag!");
 }
@@ -1437,7 +1437,7 @@ Local<Value> EntityClass::quickEvalMolangScript(const Arguments& args) {
     try {
         Actor* actor = get();
         if (!actor) return Local<Value>();
-        return Number::newNumber(actor->evalMolang(args[0].toStr()));
+        return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
     CATCH("Fail in quickEvalMolangScript!");
 }
@@ -1658,7 +1658,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()
+                args[4].asNumber().toInt32()
             };
         } else {
             LOG_WRONG_ARGS_COUNT();
@@ -1685,7 +1685,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string    name = args[0].toStr();
+        string    name = args[0].asString().toString();
         FloatVec4 pos;
 
         if (args.size() == 2) {
@@ -1720,7 +1720,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()
+                args[4].asNumber().toInt32()
             };
         } else {
             LOG_WRONG_ARGS_COUNT();
@@ -1789,7 +1789,7 @@ Local<Value> McClass::explode(const Arguments& args) {
                 args[0].asNumber().toFloat(),
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
-                args[3].toInt()
+                args[3].asNumber().toInt32()
             };
             break;
         default:

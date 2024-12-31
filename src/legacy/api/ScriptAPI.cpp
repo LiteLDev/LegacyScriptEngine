@@ -123,7 +123,7 @@ Local<Value> SetTimeout(const Arguments& args) {
             return Local<Value>();
         }
 
-        int timeout = args[1].toInt();
+        int timeout = args[1].asNumber().toInt32();
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewTimeout(args[0].asFunction(), {}, timeout));
@@ -143,7 +143,7 @@ Local<Value> SetInterval(const Arguments& args) {
             return Local<Value>();
         }
 
-        int timeout = args[1].toInt();
+        int timeout = args[1].asNumber().toInt32();
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewInterval(args[0].asFunction(), {}, timeout));
@@ -158,7 +158,7 @@ Local<Value> ClearInterval(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
     try {
-        return Boolean::newBoolean(ClearTimeTask(args[0].toInt()));
+        return Boolean::newBoolean(ClearTimeTask(args[0].asNumber().toInt32()));
     }
     CATCH("Fail in ClearInterval!")
 }

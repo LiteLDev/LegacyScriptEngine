@@ -165,7 +165,7 @@ Local<Value> LlClass::exportFunc(const Arguments& args)
 
     try
     {
-        return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].toStr()));
+        return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].asString().toString()));
     }
     CATCH("Fail in LLSEExport!");
 #endif
@@ -180,7 +180,7 @@ Local<Value> LlClass::importFunc(const Arguments &args)
 
     try
     {
-        string funcName = args[0].toStr();
+        string funcName = args[0].asString().toString();
 
         //远程调用
         return Function::newFunction([funcName{ funcName }]

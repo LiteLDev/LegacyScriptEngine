@@ -25,10 +25,6 @@ inline void PrintScriptStackTrace(std::string const& msg = "") {
     }
 }
 
-// 方便提取类型
-#define toStr() asString().toString()
-#define toInt() asNumber().toInt32()
-
 // 实例类类型检查
 template <typename T>
 bool inline IsInstanceOf(Local<Value> v) {
@@ -259,8 +255,10 @@ struct EnumDefineBuilder {
         try {
             if (args.size() < 1) return Local<Value>();
             if (args[0].isString())
-                return magic_enum::enum_cast<Type>(args[0].toStr()).has_value() ? args[0] : Local<Value>();
-            if (args[0].isNumber()) return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].toInt())));
+                return magic_enum::enum_cast<Type>(args[0].asString().toString()).has_value() ? args[0]
+                                                                                              : Local<Value>();
+            if (args[0].isNumber())
+                return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].asNumber().toInt32())));
             return Local<Value>();
         } catch (const std::exception&) {
             lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);

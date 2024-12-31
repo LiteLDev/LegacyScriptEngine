@@ -348,7 +348,7 @@ Local<Value> ItemClass::setAux(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        get()->setAuxValue(args[0].toInt());
+        get()->setAuxValue(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setAux!");
@@ -389,8 +389,8 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        if (get()->isDamageableItem() && args[0].toInt() <= 32767) {
-            get()->setDamageValue(args[0].toInt());
+        if (get()->isDamageableItem() && args[0].asNumber().toInt32() <= 32767) {
+            get()->setDamageValue(args[0].asNumber().toInt32());
             return Boolean::newBoolean(true);
         } else {
             return Boolean::newBoolean(false);
@@ -428,8 +428,8 @@ Local<Value> McClass::newItem(const Arguments& args) {
         if (args[0].isString()) {
             // name & count
             if (args.size() >= 2 && args[1].isNumber()) {
-                string type = args[0].toStr();
-                int    cnt  = args[1].toInt();
+                string type = args[0].asString().toString();
+                int    cnt  = args[1].asNumber().toInt32();
 
                 ItemStack* item = new ItemStack{type, cnt, 0, nullptr};
                 if (!item) return Local<Value>();            // Null
@@ -495,7 +495,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()
+                args[4].asNumber().toInt32()
             };
         } else {
             LOG_WRONG_ARGS_COUNT();

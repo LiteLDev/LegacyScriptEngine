@@ -634,7 +634,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        std::string target = args[0].toStr();
+        std::string target = args[0].asString().toString();
         if (target.empty()) return Local<Value>();
         Player* found = nullptr;
         if (mce::UUID::canParse(target)) { // If target is UUID, then get player by using UUID
@@ -1418,7 +1418,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
             if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
                 auto ang        = DirectionAngle::extract(args[4]);
                 angle.x         = ang->pitch;
@@ -1537,7 +1537,7 @@ Local<Value> PlayerClass::kick(const Arguments& args) {
         if (!player) return Local<Value>();
 
         string msg = "disconnectionScreen.disconnected";
-        if (args.size() >= 1) msg = args[0].toStr();
+        if (args.size() >= 1) msg = args[0].asString().toString();
 
         player->disconnect(msg);
         return Boolean::newBoolean(true); //=======???
@@ -1583,19 +1583,19 @@ Local<Value> PlayerClass::setTitle(const Arguments& args) {
 
         if (args.size() >= 1) {
             CHECK_ARG_TYPE(args[0], ValueKind::kString);
-            content = args[0].toStr();
+            content = args[0].asString().toString();
         }
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            type = (SetTitlePacket::TitleType)args[1].toInt();
+            type = (SetTitlePacket::TitleType)args[1].asNumber().toInt32();
         }
         if (args.size() >= 5) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
-            fadeInTime  = args[2].toInt();
-            stayTime    = args[3].toInt();
-            fadeOutTime = args[4].toInt();
+            fadeInTime  = args[2].asNumber().toInt32();
+            stayTime    = args[3].asNumber().toInt32();
+            fadeOutTime = args[4].asNumber().toInt32();
         }
 
         SetTitlePacket pkt = SetTitlePacket(type, content, std::nullopt);
@@ -1753,7 +1753,12 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-            pos = {args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()};
+            pos = {
+                args[0].asNumber().toInt32(),
+                args[1].asNumber().toInt32(),
+                args[2].asNumber().toInt32(),
+                args[3].asNumber().toInt32()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -1782,7 +1787,7 @@ Local<Value> PlayerClass::rename(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        player->setNameTag(args[0].toStr());
+        player->setNameTag(args[0].asString().toString());
         player->_sendDirtyActorData();
         return Boolean::newBoolean(true);
     }
@@ -1797,7 +1802,7 @@ Local<Value> PlayerClass::addLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].toInt());
+        player->addLevels(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addLevel!");
@@ -1813,7 +1818,7 @@ Local<Value> PlayerClass::reduceLevel(const Arguments& args) {
             return Local<Value>();
         }
 
-        player->addLevels(-args[0].toInt());
+        player->addLevels(-args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in reduceLevel!");
@@ -1837,7 +1842,7 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].toInt() - player->getPlayerLevel());
+        player->addLevels(args[0].asNumber().toInt32() - player->getPlayerLevel());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setLevel!");
@@ -1876,7 +1881,7 @@ Local<Value> PlayerClass::addExperience(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addExperience(args[0].toInt());
+        player->addExperience(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addExperience!");
@@ -1999,7 +2004,7 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TransferPacket pkt = TransferPacket(args[0].toStr(), args[1].toInt());
+        TransferPacket pkt = TransferPacket(args[0].asString().toString(), args[1].asNumber().toInt32());
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -2185,11 +2190,11 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         //        auto                                     source = args[1].asObject();
         //        auto                                     keys   = source.getKeyNames();
         //        for (auto& key : keys) {
-        //            data.push_back(make_pair(key, source.get(key).toInt()));
+        //            data.push_back(make_pair(key, source.get(key).asNumber().toInt32()));
         //        }
         //
         //        int sortOrder = 1;
-        //        if (args.size() >= 3) sortOrder = args[2].toInt();
+        //        if (args.size() >= 3) sortOrder = args[2].asNumber().toInt32();
         //
         //        SetDisplayObjectivePacket
         //            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
@@ -2237,7 +2242,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             if (!player) return Local<Value>();
 
             int64_t uid     = args[0].asNumber().toInt64();
-            int     percent = args[2].toInt();
+            int     percent = args[2].asNumber().toInt32();
             if (percent < 0) percent = 0;
             else if (percent > 100) percent = 100;
             float value = (float)percent / 100;
@@ -2274,7 +2279,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeUnsignedVarInt(0);
             auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(bs.mBuffer));
 
-            BossBarColor    color = (BossBarColor)args[3].toInt();
+            BossBarColor    color = (BossBarColor)args[3].asNumber().toInt32();
             BossEventPacket pkt;
             pkt.mEventType     = BossEventUpdateType::Add;
             pkt.mBossID        = ActorUniqueID(uid);
@@ -2294,13 +2299,13 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int percent = args[1].toInt();
+        int percent = args[1].asNumber().toInt32();
         if (percent < 0) percent = 0;
         else if (percent > 100) percent = 100;
         float value = (float)percent / 100;
 
         BossBarColor color = BossBarColor::Red;
-        if (args.size() >= 3) color = (BossBarColor)args[2].toInt();
+        if (args.size() >= 3) color = (BossBarColor)args[2].asNumber().toInt32();
         BossEventPacket pkt;
         pkt.mEventType     = BossEventUpdateType::Add;
         pkt.mName          = args[0].asString().toString();
@@ -2438,7 +2443,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        std::string data = ordered_json::parse(args[0].toStr()).dump();
+        std::string data = ordered_json::parse(args[0].asString().toString()).dump();
 
         unsigned               formId = lse::form::NewFormId();
         ModalFormRequestPacket packet(formId, data);
@@ -2519,7 +2524,7 @@ Local<Value> PlayerClass::setExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Boolean::newBoolean(false);
 
         getEngineOwnData()->playerDataDB[player->getRealName() + "-" + key] = args[1];
@@ -2536,7 +2541,7 @@ Local<Value> PlayerClass::getExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Local<Value>();
 
         auto& db  = getEngineOwnData()->playerDataDB;
@@ -2555,7 +2560,7 @@ Local<Value> PlayerClass::delExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Boolean::newBoolean(false);
 
         getEngineOwnData()->playerDataDB.erase(player->getRealName() + "-" + key);
@@ -2600,7 +2605,7 @@ Local<Value> PlayerClass::heal(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->heal(args[0].toInt());
+        player->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in heal!");
@@ -2812,7 +2817,7 @@ Local<Value> PlayerClass::setFire(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int  time          = args[0].toInt();
+        int  time          = args[0].asNumber().toInt32();
         bool isEffectValue = args[1].asBoolean().value();
 
         player->setOnFire(time, isEffectValue);
@@ -2841,7 +2846,7 @@ Local<Value> PlayerClass::setOnFire(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int time = args[0].toInt();
+        int time = args[0].asNumber().toInt32();
 
         player->setOnFire(time, true);
         return Boolean::newBoolean(true);
@@ -3014,7 +3019,7 @@ Local<Value> PlayerClass::addTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->addTag(args[0].toStr()));
+        return Boolean::newBoolean(player->addTag(args[0].asString().toString()));
     }
     CATCH("Fail in addTag!");
 }
@@ -3027,7 +3032,7 @@ Local<Value> PlayerClass::removeTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->removeTag(args[0].toStr()));
+        return Boolean::newBoolean(player->removeTag(args[0].asString().toString()));
     }
     CATCH("Fail in removeTag!");
 }
@@ -3040,7 +3045,7 @@ Local<Value> PlayerClass::hasTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->hasTag(args[0].toStr()));
+        return Boolean::newBoolean(player->hasTag(args[0].asString().toString()));
     }
     CATCH("Fail in hasTag!");
 }
@@ -3188,7 +3193,7 @@ Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
     try {
         Player* actor = get();
         if (!actor) return Local<Value>();
-        return Number::newNumber(actor->evalMolang(args[0].toStr()));
+        return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
     CATCH("Fail in quickEvalMolangScript!");
 }
@@ -3259,13 +3264,13 @@ Local<Value> PlayerClass::transMoney(const Arguments& args) {
         std::string targetXuid;
         std::string note;
         if (args[0].getKind() == ValueKind::kString) {
-            targetXuid = args[0].toStr();
+            targetXuid = args[0].asString().toString();
         } else {
             targetXuid = PlayerClass::extract(args[0])->getXuid();
         }
         if (args.size() >= 3) {
             CHECK_ARG_TYPE(args[2], ValueKind::kString);
-            note = args[2].toStr();
+            note = args[2].asString().toString();
         }
         return xuid.empty()
                  ? Local<Value>()
@@ -3282,8 +3287,9 @@ Local<Value> PlayerClass::getMoneyHistory(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         auto xuid = player->getXuid();
-        return xuid.empty() ? Local<Value>()
-                            : objectificationMoneyHistory(EconomySystem::getMoneyHist(xuid, args[0].toInt()));
+        return xuid.empty()
+                 ? Local<Value>()
+                 : objectificationMoneyHistory(EconomySystem::getMoneyHist(xuid, args[0].asNumber().toInt32()));
     }
     CATCH("Fail in getMoneyHistory!");
 }
@@ -3347,8 +3353,8 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int inventoryId = args[0].toInt();
-        int count       = args[1].toInt();
+        int inventoryId = args[0].asNumber().toInt32();
+        int count       = args[1].asNumber().toInt32();
 
         Container& container = player->getInventory();
         if (inventoryId > container.getContainerSize()) return Boolean::newBoolean(false);
@@ -3427,7 +3433,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -3493,7 +3499,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();

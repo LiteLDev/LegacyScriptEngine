@@ -224,7 +224,7 @@ Local<Value> LlClass::eval(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        return EngineScope::currentEngine()->eval(args[0].toStr());
+        return EngineScope::currentEngine()->eval(args[0].asString().toString());
     }
     CATCH("Fail in LLSEEval!")
 }

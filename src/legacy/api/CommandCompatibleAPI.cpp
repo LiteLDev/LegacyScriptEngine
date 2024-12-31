@@ -111,7 +111,7 @@ Local<Value> McClass::sendCmdOutput(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(SendCmdOutput(args[0].toStr()));
+        return Boolean::newBoolean(SendCmdOutput(args[0].asString().toString()));
     }
     CATCH("Fail in SendCmdOutput!");
 }

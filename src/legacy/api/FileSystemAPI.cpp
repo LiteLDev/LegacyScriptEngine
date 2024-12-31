@@ -101,7 +101,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory of " + args[0].asString().toString() + "!\n");
             return nullptr;
         }
-        FileOpenMode fMode = (FileOpenMode)(args[1].toInt());
+        FileOpenMode fMode = (FileOpenMode)(args[1].asNumber().toInt32());
         // Auto Create
         if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
             std::fstream tmp(path, std::ios_base::app);
@@ -130,7 +130,7 @@ FileClass* FileClass::constructor(const Arguments& args) {
             return nullptr;
         }
         return new FileClass(args.thiz(), std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error& ) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return nullptr;
     }
@@ -169,7 +169,7 @@ Local<Value> FileClass::readSync(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        int   cnt = args[0].toInt();
+        int   cnt = args[0].asNumber().toInt32();
         char* buf = new char[cnt];
         file.read(buf, cnt);
         size_t bytes = file.gcount();
@@ -205,7 +205,7 @@ Local<Value> FileClass::writeSync(const Arguments& args) {
 
     try {
         if (args[0].isString()) {
-            file << args[0].toStr();
+            file << args[0].asString().toString();
         } else if (args[0].isByteBuffer()) {
             file.write((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
         } else {
@@ -222,7 +222,7 @@ Local<Value> FileClass::writeLineSync(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        file << args[0].toStr() << "\n";
+        file << args[0].asString().toString() << "\n";
         return Boolean::newBoolean(!file.fail() && !file.bad());
     }
     CATCH("Fail in writeLineSync!");
@@ -234,7 +234,7 @@ Local<Value> FileClass::read(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        int                      cnt = args[0].toInt();
+        int                      cnt = args[0].asNumber().toInt32();
         script::Global<Function> callbackFunc{args[1].asFunction()};
 
         pool.execute(
@@ -337,7 +337,7 @@ Local<Value> FileClass::write(const Arguments& args) {
         std::string data;
         bool        isString = true;
         if (args[0].isString()) {
-            data = std::move(args[0].toStr());
+            data = std::move(args[0].asString().toString());
         } else if (args[0].isByteBuffer()) {
             isString = false;
             data =
@@ -385,7 +385,7 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        std::string data{std::move(args[0].toStr())};
+        std::string data{std::move(args[0].asString().toString())};
 
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();
@@ -422,7 +422,7 @@ Local<Value> FileClass::seekTo(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
 
     try {
-        int pos = args[0].toInt();
+        int pos = args[0].asNumber().toInt32();
         if (args[1].asBoolean().value()) {
             // relative
             std::ios_base::seekdir way = std::ios_base::cur;
@@ -601,11 +601,11 @@ Local<Value> CheckIsDir(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(ll::string_utils::str2wstr(args[0].toStr()));
+        path p(ll::string_utils::str2wstr(args[0].asString().toString()));
         if (!exists(p)) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(directory_entry(p).is_directory());
-    } catch (const filesystem_error& ) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Get Type of " + args[0].asString().toString() + "!\n");
         return {};
     }
@@ -617,13 +617,13 @@ Local<Value> GetFileSize(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        path p(ll::string_utils::str2wstr(args[0].toStr()));
+        path p(ll::string_utils::str2wstr(args[0].asString().toString()));
         if (!exists(p)) return Number::newNumber(0);
         if (directory_entry(p).is_directory()) return Number::newNumber(0);
 
         auto sz = file_size(p);
         return Number::newNumber((int64_t)sz);
-    } catch (const filesystem_error& ) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Get Size of " + args[0].asString().toString() + "!\n");
         return {};
     }
@@ -635,7 +635,7 @@ Local<Value> GetFilesList(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto fileList = lse::legacy::GetFileNameList(args[0].toStr());
+        auto fileList = lse::legacy::GetFileNameList(args[0].asString().toString());
 
         Local<Array> arr = Array::newArray();
         for (auto& file : fileList) arr.add(String::newString(file));
@@ -674,7 +674,7 @@ Local<Value> FileWriteTo(const Arguments& args) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to create directory of " + args[0].asString().toString() + "!\n");
             return Boolean::newBoolean(false);
         }
-        return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].toStr(), false));
+        return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].asString().toString(), false));
     }
     CATCH("Fail in FileWriteAll!");
 }
@@ -700,7 +700,7 @@ Local<Value> FileWriteLine(const Arguments& args) {
 
         std::ofstream fileWrite(path, std::ios::app);
         if (!fileWrite) return Boolean::newBoolean(false);
-        fileWrite << args[1].toStr() << std::endl;
+        fileWrite << args[1].asString().toString() << std::endl;
         return Boolean::newBoolean(fileWrite.good());
     }
     CATCH("Fail in FileWriteLine!");
@@ -728,7 +728,7 @@ Local<Value> OpenFile(const Arguments& args) {
             return {};
         }
 
-        FileOpenMode            fMode = (FileOpenMode)(args[1].toInt());
+        FileOpenMode            fMode = (FileOpenMode)(args[1].asNumber().toInt32());
         std::ios_base::openmode mode  = std::ios_base::in;
         if (fMode == FileOpenMode::WriteMode) {
             std::fstream tmp(path, std::ios_base::app);
@@ -749,7 +749,7 @@ Local<Value> OpenFile(const Arguments& args) {
             return {};
         }
         return FileClass::newFile(std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error& ) {
+    } catch (const filesystem_error&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Fail to Open File " + args[0].asString().toString() + "!\n");
         return {};
     }

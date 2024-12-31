@@ -8,7 +8,9 @@
 
 namespace lse {
 
-Plugin::Plugin(const ll::mod::Manifest& manifest) : ll::mod::Mod(manifest) {}
+Plugin::Plugin(const ll::mod::Manifest& manifest) : ll::mod::Mod(std::move(manifest)) {}
+
+Plugin::~Plugin() { release(); }
 
 std::shared_ptr<ll::mod::Mod> Plugin::current() {
     return lse::getPluginManager().getMod(getEngineOwnData()->pluginName);

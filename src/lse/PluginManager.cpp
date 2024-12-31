@@ -58,6 +58,7 @@ auto LLSERemoveAllExportedFuncs(script::ScriptEngine* engine) -> bool;
 namespace lse {
 
 PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
+PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
@@ -207,9 +208,8 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
         plugin->onUnload([](ll::mod::Mod&) { return true; });
-        plugin->onEnable([](ll::mod::Mod&) { return true; });
-        plugin->onDisable([](ll::mod::Mod&) { return true; });
-        addMod(manifest.name, plugin);
+
+        return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
     } catch (const Exception& e) {
         EngineScope engineScope(scriptEngine);
         auto        error =
@@ -227,7 +227,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         return error;
     }
-    return {};
 }
 
 ll::Expected<> PluginManager::unload(std::string_view name) {

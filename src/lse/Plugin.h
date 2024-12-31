@@ -12,6 +12,7 @@ class Plugin : public ll::mod::Mod {
 
 public:
     Plugin(const ll::mod::Manifest& manifest);
+    ~Plugin();
 
     static std::shared_ptr<ll::mod::Mod> current();
 };

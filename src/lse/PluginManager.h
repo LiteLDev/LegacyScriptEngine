@@ -8,16 +8,10 @@
 
 namespace lse {
 
-class PluginManager : public ll::mod::ModManager {
+class PluginManager final : public ll::mod::ModManager {
 public:
     PluginManager();
-
-    PluginManager(const PluginManager&)                    = delete;
-    PluginManager(PluginManager&&)                         = delete;
-    auto operator=(const PluginManager&) -> PluginManager& = delete;
-    auto operator=(PluginManager&&) -> PluginManager&      = delete;
-
-    ~PluginManager() override = default;
+    ~PluginManager() override;
 
 private:
     ll::Expected<> load(ll::mod::Manifest manifest) override;

@@ -8,7 +8,6 @@
 #include "magic_enum.hpp"
 #include "mc/deps/core/utility/typeid_t.h"
 #include "mc/nbt/CompoundTag.h"
-#include "mc/network/packet/AvailableCommandsPacket.h"
 #include "mc/server/commands/BlockStateCommandParam.h"
 #include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -31,11 +30,8 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/level/Level.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <ll/api/command/CommandRegistrar.h>
-#include <ll/api/io/Logger.h>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -53,8 +49,6 @@ bool CommandRegistry::parse<std::pair<
     *(std::pair<std::string, int>*)p = std::pair<std::string, int>{token.toString(), (int)getEnumData(token)};
     return true;
 }
-
-#define logger lse::getSelfPluginInstance().getLogger()
 
 #define ForEachParameterType(func)                                                                                     \
     func(Bool);                                                                                                        \
@@ -133,9 +127,9 @@ auto const ParameterSizeMap = std::unordered_map<ParameterType, size_t>{
 };
 
 inline void OutputError(const std::string& command, const std::string& func = __builtin_FUNCTION()) {
-    ll::error_utils::printCurrentException(logger);
-    logger.error("In Function ({})", func);
-    logger.error("In Command <{}>", command);
+    ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+    lse::getSelfPluginInstance().getLogger().error("In Function ({})", func);
+    lse::getSelfPluginInstance().getLogger().error("In Command <{}>", command);
 }
 
 } // namespace
@@ -426,7 +420,7 @@ std::string DynamicCommand::Result::toDebugString() const {
             isSet ? getRaw<std::unique_ptr<Command>>()->getCommandName() : "Null"
         );
     default:
-        logger.error("Unknown Parameter Type {}, name: {}", typeName, name);
+        lse::getSelfPluginInstance().getLogger().error("Unknown Parameter Type {}, name: {}", typeName, name);
         return "";
     }
 }
@@ -446,7 +440,7 @@ DynamicCommandInstance*
 DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class DynamicCommandInstance> commandInstance) {
     std::string name = commandInstance->getCommandName();
 #if defined(LEGACYSCRIPTENGINE_DEBUG)
-    logger.debug("Setting up command \"{}\"", name);
+    lse::getSelfPluginInstance().getLogger().debug("Setting up command \"{}\"", name);
 #endif
     // Check if there is another command with the same name
     auto signature = registry.findCommand(name);
@@ -556,7 +550,10 @@ DynamicCommand::~DynamicCommand() {
     std::string commandName = getCommandName();
     auto        iter        = dynamicCommandInstances.find(commandName);
     if (iter == dynamicCommandInstances.end()) {
-        logger.error("Error in DynamicCommand::~DynamicCommand(), command \"{}\" not found", commandName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Error in DynamicCommand::~DynamicCommand(), command \"{}\" not found",
+            commandName
+        );
         return;
     }
     auto& commandIns = *iter->second;
@@ -604,7 +601,7 @@ DynamicCommandInstance const*
 DynamicCommand::setup(CommandRegistry& registry, std::unique_ptr<class DynamicCommandInstance> commandInstance) {
     auto name = commandInstance->getCommandName();
     auto ptr  = preSetup(registry, std::move(commandInstance));
-    if (!ptr) logger.warn("Registering command \"{}\" failed", name);
+    if (!ptr) lse::getSelfPluginInstance().getLogger().warn("Registering command \"{}\" failed", name);
     updateAvailableCommands(registry);
     return ptr;
 }

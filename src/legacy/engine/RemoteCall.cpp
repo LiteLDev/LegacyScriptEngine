@@ -21,7 +21,7 @@ void inline StringTrim(string& str) {
 
 void RemoteSyncCallRequest(ModuleMessage& msg) {
     // lse::getSelfPluginInstance().getLogger().debug("*** Remote call request received.");
-    // lse::getSelfPluginInstance().getLogger().debug("*** Current Module:{}", LLSE_MODULE_TYPE);
+    // lse::getSelfPluginInstance().getLogger().debug("*** Current Module:{}", LLSE_BACKEND_TYPE);
 
     std::istringstream sin(msg.getData());
 
@@ -119,7 +119,7 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
         return false;
     funcData->engine = engine;
     funcData->func = script::Global<Function>(func);
-    funcData->fromEngineType = LLSE_MODULE_TYPE;
+    funcData->fromEngineType = LLSE_BACKEND_TYPE;
     funcData->callback = [exportName](std::vector<std::string> params) -> std::string {
         auto data = globalShareData->exportedFuncs.find(exportName);
         if (data == globalShareData->exportedFuncs.end())

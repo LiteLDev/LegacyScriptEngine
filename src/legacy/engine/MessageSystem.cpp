@@ -98,7 +98,7 @@ ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data,
     for (auto& engine : engines) {
         try {
             engine->messageQueue()->postMessage(
-                PackEngineMessage(LLSE_MODULE_TYPE, type, data, &msgId),
+                PackEngineMessage(LLSE_BACKEND_TYPE, type, data, &msgId),
                 std::chrono::milliseconds(delay)
             );
             engineList.push_back(engine);
@@ -184,7 +184,7 @@ ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, Message
 
 ModuleMessageResult ModuleMessage::sendTo(ScriptEngine* engine, MessageType type, std::string data, int64_t delay) {
     int    msgId        = -1;
-    string toModuleType = LLSE_MODULE_TYPE;
+    string toModuleType = LLSE_BACKEND_TYPE;
 
     try {
         engine->messageQueue()->postMessage(
@@ -342,14 +342,14 @@ void MessageSystemLoopOnce() {
         }
     }
     // messageLoopLock.unlock();
-    // lse::getSelfPluginInstance().getLogger().debug("Engine-{} Message Loop.", LLSE_MODULE_TYPE);
+    // lse::getSelfPluginInstance().getLogger().debug("Engine-{} Message Loop.", LLSE_BACKEND_TYPE);
 }
 
 void InitMessageSystem() {
 #ifdef NDEBUG
     ll::error_utils::initExceptionTranslator();
 #endif
-    globalShareData->messageSystemHandlers[LLSE_MODULE_TYPE] = {ModuleMessage::handle, ModuleMessage::cleanup};
+    globalShareData->messageSystemHandlers[LLSE_BACKEND_TYPE] = {ModuleMessage::handle, ModuleMessage::cleanup};
 
     ll::event::EventBus::getInstance().emplaceListener<ll::event::ServerStoppingEvent>(
         [](ll::event::ServerStoppingEvent&) { EndMessageSystemLoop(); }

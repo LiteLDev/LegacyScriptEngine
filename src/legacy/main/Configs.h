@@ -20,7 +20,6 @@
 #endif
 
 // All backends information
-#define LLSE_MODULE_TYPE          LLSE_BACKEND_TYPE
 #define LLSE_VALID_BACKENDS_COUNT 4
 
 // Debug engine information

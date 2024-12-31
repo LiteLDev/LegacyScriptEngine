@@ -630,7 +630,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         if (!sid.isValid()) {
             return Boolean::newBoolean(false);
         }
-        objective->_resetPlayer(sid);
+        scoreboard.resetPlayerScore(sid, *objective);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deletePlayerScore!")
@@ -1525,7 +1525,7 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
         if (!player) return Local<Value>();
         CommandContext context = CommandContext(
             args[0].asString().toString(),
-            std::make_unique<PlayerCommandOrigin>(PlayerCommandOrigin(*get())),
+            std::make_unique<PlayerCommandOrigin>(*get()),
             CommandVersion::CurrentVersion()
         );
         ll::service::getMinecraft()->getCommands().executeCommand(context, false);
@@ -2021,7 +2021,7 @@ Local<Value> PlayerClass::crash(const Arguments&) {
             "Crash Player",
             "Execute player.crash() to crash player <" + player->getRealName() + ">"
         );
-        LevelChunkPacket pkt = LevelChunkPacket();
+        LevelChunkPacket pkt;
         pkt.mCacheEnabled    = true;
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(false);
@@ -2167,7 +2167,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
         if (!id.isValid()) {
             return Boolean::newBoolean(true);
         }
-        obj->_resetPlayer(id);
+        scoreboard.resetPlayerScore(id, *obj);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deleteScore!");
@@ -2199,7 +2199,7 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         std::vector<ScorePacketInfo> info;
         for (auto& i : data) {
             ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId.get() = ScoreboardId(i.second);
+            pktInfo.mScoreboardId = i.second;
             pktInfo.mObjectiveName      = "FakeScoreObj";
             pktInfo.mIdentityType       = IdentityDefinition::Type::FakePlayer;
             pktInfo.mScoreValue         = i.second;

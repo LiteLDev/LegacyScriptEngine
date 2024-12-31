@@ -296,9 +296,7 @@ Local<Value> EntityClass::isOnHotBlock() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(
-            entity->getDimensionBlockSource().getBlock(entity->getFeetBlockPos()).getMaterial().isSuperHot()
-        ); // TODO: Unsure
+        return Boolean::newBoolean(false); // todo: check IsOnHotBlockTest to get the correct value
     }
     CATCH("Fail in isOnHotBlock!")
 }

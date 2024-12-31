@@ -18,6 +18,7 @@
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/components/BlockLiquidDetectionComponent.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 
 #include <exception>
 
@@ -289,8 +290,6 @@ Local<Value> BlockClass::getNbt(const Arguments&) {
     }
     CATCH("Fail in getNbt!");
 }
-
-#include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 
 Local<Value> BlockClass::setNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);

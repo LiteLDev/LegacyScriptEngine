@@ -1,3 +1,4 @@
+// #include "lse/Entry.h"
 // #include "legacyapi/db/impl/mysql/Stmt.h"
 
 // #include "legacyapi/db/impl/mysql/Session.h"
@@ -171,7 +172,7 @@
 //     if (len) {
 //         auto buffer = std::shared_ptr<char[]>(new char[len]);
 // #if defined(LLDB_DEBUG_MODE)
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("AllocateBuffer: Allocated! Buffer size:
+//         lse::getSelfPluginInstance().getLogger().debug("AllocateBuffer: Allocated! Buffer size:
 //         {}", len);
 // #endif
 //         return std::make_pair(buffer, len);
@@ -235,7 +236,7 @@
 //     // case MYSQL_TYPE_GEOMETRY:
 //     case MYSQL_TYPE_JSON:
 // #if defined(LLDB_DEBUG_MODE)
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("ReceiverToAny: string: length: {}, buffer
+//         lse::getSelfPluginInstance().getLogger().debug("ReceiverToAny: string: length: {}, buffer
 //         {}", rec.length, rec.buffer.get());
 // #endif
 //         return Any(std::string(rec.buffer.get()));
@@ -244,7 +245,7 @@
 //     case MYSQL_TYPE_MEDIUM_BLOB:
 //     case MYSQL_TYPE_LONG_BLOB:
 // #if defined(LLDB_DEBUG_MODE)
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("ReceiverToAny: blob: length: {}, buffer
+//         lse::getSelfPluginInstance().getLogger().debug("ReceiverToAny: blob: length: {}, buffer
 //         {}", rec.length, rec.buffer.get());
 // #endif
 //         // Unknown bug: rec.length is 0
@@ -252,7 +253,7 @@
 //     case MYSQL_TYPE_DECIMAL:
 //     case MYSQL_TYPE_NEWDECIMAL:
 //         // TODO: Decimal
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQL_Decimal: {}",
+//         lse::getSelfPluginInstance().getLogger().debug("MySQL_Decimal: {}",
 //         std::string(rec.buffer.get(), rec.length)); return Any();
 //     default:
 //         throw std::runtime_error("ReceiverToAny: Unsupported MySQL data type: " + std::to_string(rec.field.type));
@@ -278,7 +279,7 @@
 //             result++;
 //         }
 //     }
-//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::getNextParamIndex: The
+//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::getNextParamIndex: The
 //     next param index is {}", result + 1); return result + 1;
 // }
 
@@ -290,7 +291,7 @@
 //         );
 //     }
 //     if (!metadata) {
-//         IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::bindResult: No result
+//         IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::bindResult: No result
 //         metadata"); return;
 //     }
 //     // Set the attribute UPDATE_MAX_LENGTH to true
@@ -301,7 +302,7 @@
 //     // later
 //     mysql_stmt_store_result(stmt);
 //     auto     cnt = mysql_num_fields(metadata);
-//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::bindResult:
+//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::bindResult:
 //     mysql_num_fields: {}", cnt); auto     fields = mysql_fetch_fields(metadata); result.reset(new MYSQL_BIND[cnt]);
 //     // Allocate result bindings resultHeader.reset(new RowHeader); // Allocate result header for (auto i = 0U; i <
 //     cnt; i++) {
@@ -398,7 +399,7 @@
 //         params[index].buffer_length = sz;
 //         params[index].is_null       = 0;
 //         params[index].length        = (unsigned long*)&param.length;
-//         IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::bind: Bound string
+//         IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::bind: Bound string
 //         param at {}: {}", index, param.buffer.get()); break;
 //     }
 //     case Any::Type::Date:
@@ -490,9 +491,9 @@
 //     if (fetched) {
 //         throw std::runtime_error("MySQLStmt::_Fetch: No more rows");
 //     }
-//     IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::_Fetch: Fetching
+//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::_Fetch: Fetching
 //     row..."); Row      row(resultHeader); IF_ENDBG
-//     ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::_Fetch: RowHeader size
+//     lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::_Fetch: RowHeader size
 //     {}", row.header->size()); int      i = 0; for (auto& col : resultValues) {
 //         // Because of the inexplicable problems of MySQL C API,
 //         //  we must set the length of the field manually.
@@ -500,7 +501,7 @@
 //         col.length  = length;
 //         auto v      = ReceiverToAny(col);
 //         row.push_back(v);
-//         IF_ENDBG ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug(
+//         IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
 //             "MySQLStmt::_Fetch: Fetched column `{}`, type {}, value {}",
 //             col.field.name,
 //             Any::type2str(v.type),
@@ -590,11 +591,11 @@
 //     auto query  = sql;
 //     auto params = ParseStmtParams(query);
 //     if (raw->debugOutput && !params.empty()) {
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::create: Parsed named
+//         lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::create: Parsed named
 //         parameters in query: ");
-//         ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::create: - SQL without named
+//         lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::create: - SQL without named
 //         parameters: {}", query); for (auto& [k, v] : params) {
-//             ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::create: - {}: {}", k, v);
+//             lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::create: - {}: {}", k, v);
 //         }
 //     }
 //     auto res = mysql_stmt_prepare(stmt, query.c_str(), query.size());
@@ -605,7 +606,7 @@
 //     result->query        = sql;
 //     result->paramIndexes = params;
 //     result->setDebugOutput(raw->debugOutput);
-//     if (raw->debugOutput) ll::io::LoggerRegistry::getInstance().getOrCreate("LLSEDB")->debug("MySQLStmt::create:
+//     if (raw->debugOutput) lse::getSelfPluginInstance().getLogger().debug("MySQLStmt::create:
 //     Prepared > " + query); auto shared  = SharedPointer<Stmt>(result); result->self = shared; return shared;
 // }
 

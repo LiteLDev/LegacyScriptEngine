@@ -193,9 +193,10 @@ Local<Value> I18nClass::load(const Arguments& args) {
 
     try {
         auto        path = args[0].toStr();
-        std::string defaultLocaleName;
+        // Deprecated because it follows LeviLamina's default locale
+        // std::string defaultLocaleName;
         if (args.size() > 1) {
-            defaultLocaleName = args[1].toStr();
+        // defaultLocaleName = args[1].toStr();
         }
 
         if (args.size() > 2) {
@@ -216,22 +217,16 @@ Local<Value> I18nClass::load(const Arguments& args) {
                     if (str.getKind() != ValueKind::kString) {
                         throw Exception("Value in SubLangData must be a string");
                     }
-                    ll::i18n::getInstance().set(localeName, objKeys[j].toString(), str.toStr());
+                    EngineOwnData().i18n->set(localeName, objKeys[j].toString(), str.toStr());
                 }
             }
         }
 
-        auto& i18nInstance = ll::i18n::getInstance();
-        auto  result       = i18nInstance.load(path);
-
-        if (result.has_value()) {
-            if (!defaultLocaleName.empty()) {
-                ll::i18n::getDefaultLocaleCode() = defaultLocaleName;
-            }
-            return Boolean::newBoolean(true);
+        EngineOwnData().i18n = std::make_shared<ll::i18n::I18n>();;
+        if (auto  result       = EngineOwnData().i18n->load(path); !result) {
+            return Boolean::newBoolean(false);
         }
-
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW;
 }

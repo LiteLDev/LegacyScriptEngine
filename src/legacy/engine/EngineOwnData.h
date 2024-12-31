@@ -71,7 +71,7 @@ struct EngineOwnData {
     */
 
     // I18nAPI
-    ll::i18n::I18n* i18n = nullptr;
+    std::shared_ptr<ll::i18n::I18n> i18n = nullptr;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;

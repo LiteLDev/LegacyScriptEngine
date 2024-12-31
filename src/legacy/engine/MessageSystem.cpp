@@ -29,7 +29,6 @@ using namespace script;
 //////////////////// 消息处理注册 ////////////////////
 
 #include "engine/RemoteCall.h"
-#include "engine/TimeTaskSystem.h"
 
 void ModuleMessage::handle(utils::Message& engineMsg) // Warning: Execute in another thread
 {

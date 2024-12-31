@@ -1,5 +1,4 @@
-#include "RemoteCallAPI.h"
-
+#include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
 #include "api/BlockEntityAPI.h"
@@ -17,10 +16,9 @@
 #include <RemoteCallAPI.h>
 #include <map>
 #include <process.h>
-#include <sstream>
 #include <string>
 
-#define DEFAULT_REMOTE_CALL_NAME_SPACE "LLSEGlobal"
+const std::string DEFAULT_REMOTE_CALL_NAME_SPACE = "LLSEGlobal";
 
 //////////////////// Remote Call ////////////////////
 

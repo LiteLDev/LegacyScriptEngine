@@ -4,11 +4,8 @@
 
 #include "Global.h"
 #include "engine/EngineManager.h"
-#include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
 #include "legacy/api/CommandAPI.h"
-#include "legacy/api/CommandCompatibleAPI.h"
-#include "legacy/api/EventAPI.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
 #include "utils/Utils.h"
@@ -18,7 +15,7 @@
 #include <filesystem>
 #include <toml.h>
 
-#define PIP_EXECUTE_TIMEOUT 1800 * 1000
+const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 
 // pre-declare
 extern void          BindAPIs(ScriptEngine* engine);
@@ -258,60 +255,6 @@ int executePipCommand(std::string cmd) {
     delete[] wCmd;
     return exitCode;
 }
-
-// This fix is used for Python3.10's bug:
-// The thread will freeze when creating a new engine while another thread is
-// blocking to read stdin Side effects: sys.stdin cannot be used after this
-// patch. More info to see: https://github.com/python/cpython/issues/83526
-//
-// Attention! When CPython is upgraded, this fix must be re-adapted or removed!!
-//
-// namespace FixPython310Stdin {
-// // Hard coded function address
-// const uintptr_t create_stdio_func_base_offset = 0xCE0F4;
-
-// create_stdio_func_type create_stdio_original = nullptr;
-
-// PyObject* create_stdio_hooked(
-//     const PyConfig* config,
-//     PyObject*       io,
-//     int             fd,
-//     int             write_mode,
-//     const char*     name,
-//     const wchar_t*  encoding,
-//     const wchar_t*  errors
-// ) {
-//     if (fd == 0) {
-//         Py_RETURN_NONE;
-//     }
-//     return create_stdio_original(config, io, fd, write_mode, name, encoding, errors);
-// }
-
-// bool patchPython310CreateStdio() {
-//     if (create_stdio_original == nullptr) {
-//         HMODULE hModule = GetModuleHandleW(L"python310.dll");
-//         if (hModule == NULL) return false;
-//         create_stdio_original = (create_stdio_func_type)(void*)(((uintptr_t)hModule) +
-//         create_stdio_func_base_offset);
-//     }
-
-//     DetourRestoreAfterWith();
-//     if (DetourTransactionBegin() != NO_ERROR) return false;
-//     else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
-//     else if (DetourAttach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
-//     else if (DetourTransactionCommit() != NO_ERROR) return false;
-//     return true;
-// }
-
-// bool unpatchPython310CreateStdio() {
-//     if (DetourTransactionBegin() != NO_ERROR) return false;
-//     else if (DetourUpdateThread(GetCurrentThread()) != NO_ERROR) return false;
-//     else if (DetourDetach((PVOID*)&create_stdio_original, create_stdio_hooked) != NO_ERROR) return false;
-//     else if (DetourTransactionCommit() != NO_ERROR) return false;
-//     return true;
-// }
-
-// } // namespace FixPython310Stdin
 
 } // namespace PythonHelper
 

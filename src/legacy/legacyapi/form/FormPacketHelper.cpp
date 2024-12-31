@@ -172,8 +172,8 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     NetEventCallback&        callback,
     std::shared_ptr<Packet>& packet
 ) {
-    auto handle = ll::memory::dAccess<ServerNetworkHandler*>(&callback, -16);
-    if (auto player = handle->_getServerPlayer(source, SubClientId::PrimaryClient); player) {
+    auto& handle = ll::memory::dAccess<ServerNetworkHandler>(&callback, -16);
+    if (auto player = handle._getServerPlayer(source, SubClientId::PrimaryClient); player) {
         auto& modalPacket = (ModalFormResponsePacket&)*packet;
 
         auto data = std::string{"null"};

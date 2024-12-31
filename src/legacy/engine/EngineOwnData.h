@@ -35,8 +35,7 @@ struct SimpleCallbackData
 };
 */
 
-class Player;
-
+// It is similar to ll::mod::Mod, it stores data of an engine(usually a plugin).
 struct EngineOwnData {
     // 基础信息
     std::string pluginName          = "";

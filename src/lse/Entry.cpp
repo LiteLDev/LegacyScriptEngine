@@ -5,6 +5,7 @@
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
 #include "lse/api/MoreGlobal.h"
+#include "legacy/engine/EngineOwnData.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -148,6 +149,10 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     auto& scriptEngine = *EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);
+
+    ll::mod::Manifest manifest;
+    manifest.name              = "DebugEngine";
+    getEngineOwnData()->plugin = std::make_shared<lse::Plugin>(manifest);
 
     BindAPIs(&scriptEngine);
 

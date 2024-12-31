@@ -1,11 +1,5 @@
 #include "api/PlayerAPI.h"
 
-
-#include "mc/world/scores/ScoreboardId.h"
-#include "mc/world/scores/PlayerScoreboardId.h"
-
-
-
 #include "EventAPI.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
@@ -82,7 +76,6 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
-
 
 #include <algorithm>
 #include <climits>
@@ -1521,14 +1514,16 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        Player* player = get();
-        if (!player) return Local<Value>();
-        CommandContext context = CommandContext(
-            args[0].asString().toString(),
-            std::make_unique<PlayerCommandOrigin>(*get()),
-            CommandVersion::CurrentVersion()
-        );
-        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
+        // todo: fix this
+
+        //        Player* player = get();
+        //        if (!player) return Local<Value>();
+        //        CommandContext context = CommandContext(
+        //            args[0].asString().toString(),
+        //            std::make_unique<PlayerCommandOrigin>(*get()),
+        //            CommandVersion::CurrentVersion()
+        //        );
+        //        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in runcmd!");
@@ -2015,15 +2010,16 @@ Local<Value> PlayerClass::crash(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
+        // todo: fix this
 
-        RecordOperation(
-            ENGINE_OWN_DATA()->pluginName,
-            "Crash Player",
-            "Execute player.crash() to crash player <" + player->getRealName() + ">"
-        );
-        LevelChunkPacket pkt;
-        pkt.mCacheEnabled    = true;
-        player->sendNetworkPacket(pkt);
+        //        RecordOperation(
+        //            ENGINE_OWN_DATA()->pluginName,
+        //            "Crash Player",
+        //            "Execute player.crash() to crash player <" + player->getRealName() + ">"
+        //        );
+        //        LevelChunkPacket pkt;
+        //        pkt.mCacheEnabled    = true;
+        //        player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in crashPlayer!");
@@ -2180,34 +2176,37 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        Player* player = get();
-        if (!player) return Local<Value>();
+        // todo: fix this
 
-        std::vector<std::pair<std::string, int>> data;
-        auto                                     source = args[1].asObject();
-        auto                                     keys   = source.getKeyNames();
-        for (auto& key : keys) {
-            data.push_back(make_pair(key, source.get(key).toInt()));
-        }
-
-        int sortOrder = 1;
-        if (args.size() >= 3) sortOrder = args[2].toInt();
-
-        SetDisplayObjectivePacket
-            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
-        disObjPkt.sendTo(*player);
-        std::vector<ScorePacketInfo> info;
-        for (auto& i : data) {
-            ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId = i.second;
-            pktInfo.mObjectiveName      = "FakeScoreObj";
-            pktInfo.mIdentityType       = IdentityDefinition::Type::FakePlayer;
-            pktInfo.mScoreValue         = i.second;
-            pktInfo.mFakePlayerName     = i.first;
-            info.emplace_back(pktInfo);
-        }
-        SetScorePacket setPkt = SetScorePacket::change(info);
-        setPkt.sendTo(*player);
+        //        Player* player = get();
+        //        if (!player) return Local<Value>();
+        //
+        //        std::vector<std::pair<std::string, int>> data;
+        //        auto                                     source = args[1].asObject();
+        //        auto                                     keys   = source.getKeyNames();
+        //        for (auto& key : keys) {
+        //            data.push_back(make_pair(key, source.get(key).toInt()));
+        //        }
+        //
+        //        int sortOrder = 1;
+        //        if (args.size() >= 3) sortOrder = args[2].toInt();
+        //
+        //        SetDisplayObjectivePacket
+        //            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
+        //            (ObjectiveSortOrder)sortOrder);
+        //        disObjPkt.sendTo(*player);
+        //        std::vector<ScorePacketInfo> info;
+        //        for (auto& i : data) {
+        //            ScorePacketInfo pktInfo;
+        //            pktInfo.mScoreboardId   = i.second;
+        //            pktInfo.mObjectiveName  = "FakeScoreObj";
+        //            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
+        //            pktInfo.mScoreValue     = i.second;
+        //            pktInfo.mFakePlayerName = i.first;
+        //            info.emplace_back(pktInfo);
+        //        }
+        //        SetScorePacket setPkt = SetScorePacket::change(info);
+        //        setPkt.sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setSidebar!")

@@ -5,6 +5,7 @@
 #include "ll/api/mod/Mod.h"
 #include "lse/Entry.h"
 #include "utils/UsingScriptX.h"
+#include "lse/Plugin.h"
 
 #include <ll/api/Expected.h>
 #include <ll/api/i18n/I18n.h>
@@ -72,6 +73,7 @@ struct EngineOwnData {
 
     // I18nAPI
     std::shared_ptr<ll::i18n::I18n> i18n = nullptr;
+    std::shared_ptr<lse::Plugin>    plugin;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
@@ -92,10 +94,6 @@ struct EngineOwnData {
     EngineOwnData() {
         dynamicCallVM = dcNewCallVM(4096);
         dcMode(dynamicCallVM, DC_CALL_C_DEFAULT);
-    }
-
-    [[nodiscard]] inline std::shared_ptr<ll::mod::Mod> getModInstance() const {
-        return lse::getPluginManager().getMod(pluginName);
     }
 };
 

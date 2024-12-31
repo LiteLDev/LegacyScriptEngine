@@ -171,6 +171,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         auto pluginDir                          = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
         auto entryPath                          = pluginDir / manifest.entry;
         getEngineOwnData()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
+        getEngineOwnData()->plugin              = plugin;
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(
                 &scriptEngine,

@@ -24,7 +24,7 @@ Local<Value> Log(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << std::endl;
-        getEngineOwnData()->getModInstance()->getLogger().info(sout.str());
+        getEngineOwnData()->plugin->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");
@@ -89,7 +89,7 @@ Local<Value> ColorLog(const Arguments& args) {
         sout << prefix;
         for (int i = 1; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << "\x1b[0m" << std::endl;
-        getEngineOwnData()->getModInstance()->getLogger().info(sout.str());
+        getEngineOwnData()->plugin->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");

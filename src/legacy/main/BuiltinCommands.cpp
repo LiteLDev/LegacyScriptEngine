@@ -16,8 +16,6 @@
 extern bool          isInConsoleDebugMode;
 extern ScriptEngine* debugEngine;
 
-#define OUTPUT_DEBUG_SIGN() std::cout << "> " << std::flush
-
 bool ProcessDebugEngine(const std::string& cmd) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     // process python debug seperately
@@ -33,11 +31,11 @@ bool ProcessDebugEngine(const std::string& cmd) {
                 std::ostringstream sout;
                 PrintValue(sout, result);
                 lse::getSelfPluginInstance().getLogger().info(sout.str());
-                OUTPUT_DEBUG_SIGN();
+                std::cout << "> " << std::flush;
             }
         } catch (Exception& e) {
             PrintException(e);
-            OUTPUT_DEBUG_SIGN();
+            std::cout << "> " << std::flush;
         }
         return false;
     }
@@ -72,7 +70,7 @@ void RegisterDebugCommand() {
                 // StartDebug
                 lse::getSelfPluginInstance().getLogger().info("Debug mode begins");
                 isInConsoleDebugMode = true;
-                OUTPUT_DEBUG_SIGN();
+                std::cout << "> " << std::flush;
             }
         }
     });

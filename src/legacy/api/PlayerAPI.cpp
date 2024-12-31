@@ -39,7 +39,6 @@
 #include "mc/network/packet/LevelChunkPacket.h"
 #include "mc/network/packet/ModalFormRequestPacket.h"
 #include "mc/network/packet/RemoveObjectivePacket.h"
-#include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
 #include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
@@ -78,6 +77,7 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+#include "mc/network/packet/ScorePacketInfo.h"
 
 #include <algorithm>
 #include <climits>
@@ -2194,20 +2194,18 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         SetDisplayObjectivePacket
             disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
         disObjPkt.sendTo(*player);
-        // todo: fix it
-        
-        //        std::vector<ScorePacketInfo> info;
-        //        for (auto& i : data) {
-        //            ScorePacketInfo pktInfo;
-        //            pktInfo.mScoreboardId->mRawID = i.second;
-        //            pktInfo.mObjectiveName        = "FakeScoreObj";
-        //            pktInfo.mIdentityType         = IdentityDefinition::Type::FakePlayer;
-        //            pktInfo.mScoreValue           = i.second;
-        //            pktInfo.mFakePlayerName       = i.first;
-        //            info.emplace_back(pktInfo);
-        //        }
-        //        SetScorePacket setPkt = SetScorePacket::change(info);
-        //        setPkt.sendTo(*player);
+        std::vector<ScorePacketInfo> info;
+        for (auto& i : data) {
+            ScorePacketInfo pktInfo;
+            pktInfo.mScoreboardId->mRawID = i.second;
+            pktInfo.mObjectiveName        = "FakeScoreObj";
+            pktInfo.mIdentityType         = IdentityDefinition::Type::FakePlayer;
+            pktInfo.mScoreValue           = i.second;
+            pktInfo.mFakePlayerName       = i.first;
+            info.emplace_back(pktInfo);
+        }
+        SetScorePacket setPkt = SetScorePacket::change(info);
+        setPkt.sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setSidebar!")

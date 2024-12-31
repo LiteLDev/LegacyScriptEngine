@@ -428,8 +428,8 @@ Local<Value> McClass::newItem(const Arguments& args) {
         if (args[0].isString()) {
             // name & count
             if (args.size() >= 2 && args[1].isNumber()) {
-                string type = args[0].asString().toString();
-                int    cnt  = args[1].asNumber().toInt32();
+                std::string type = args[0].asString().toString();
+                int         cnt  = args[1].asNumber().toInt32();
 
                 ItemStack* item = new ItemStack{type, cnt, 0, nullptr};
                 if (!item) return Local<Value>();            // Null

@@ -1,6 +1,5 @@
 #include "Entry.h"
 
-#include "Config.h"
 #include "PluginManager.h"
 #include "PluginMigration.h"
 #include "legacy/engine/EngineManager.h"

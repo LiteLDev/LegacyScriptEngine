@@ -12,8 +12,8 @@ private:
     int                                   unloadCallbackIndex = -1;
 
 public:
-    explicit KVDBClass(const Local<Object>& scriptObj, const string& dir);
-    explicit KVDBClass(const string& dir);
+    explicit KVDBClass(const Local<Object>& scriptObj, const std::string& dir);
+    explicit KVDBClass(const std::string& dir);
     ~KVDBClass();
     static KVDBClass* constructor(const Arguments& args);
 
@@ -26,7 +26,7 @@ public:
     Local<Value> listKey(const Arguments& args);
 
     // For Compatibility
-    static Local<Value> newDb(const string& dir);
+    static Local<Value> newDb(const std::string& dir);
 };
 extern ClassDefine<KVDBClass> KVDBClassBuilder;
 

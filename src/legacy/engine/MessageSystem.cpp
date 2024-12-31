@@ -287,7 +287,7 @@ bool ModuleMessageResult::waitForResultCount(size_t targetCount, int maxWaitTime
     auto fromTime = GetCurrentTimeStampMS();
 
     while (maxWaitTime < 0 ? true : GetCurrentTimeStampMS() - fromTime <= maxWaitTime) {
-        Sleep(LLSE_MESSAGE_SYSTEM_WAIT_CHECK_INTERVAL);
+        Sleep(5);
         if (resultCount.hasReachCount(targetCount)) {
             res = true;
             break;

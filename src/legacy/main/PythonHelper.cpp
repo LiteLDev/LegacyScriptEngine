@@ -1,8 +1,8 @@
 #pragma warning(disable : 4251)
-#include "Configs.h"
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
-#include "Global.h"
 #include "PythonHelper.h"
+
+#include "Global.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"

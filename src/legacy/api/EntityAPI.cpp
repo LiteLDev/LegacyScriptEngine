@@ -1685,8 +1685,8 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string    name = args[0].asString().toString();
-        FloatVec4 pos;
+        std::string name = args[0].asString().toString();
+        FloatVec4   pos;
 
         if (args.size() == 2) {
             if (IsInstanceOf<IntPos>(args[1])) {

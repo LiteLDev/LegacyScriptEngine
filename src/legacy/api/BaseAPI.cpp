@@ -125,7 +125,7 @@ FloatPos* FloatPos::extractPos(Local<Value> v) {
 }
 
 Local<Value> FloatPos::getDim() {
-    string name;
+    std::string name;
     switch (dim) {
     case 0:
         name = "Overworld"_tr();

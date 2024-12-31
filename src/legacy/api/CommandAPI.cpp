@@ -314,7 +314,7 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
         auto enumName = args[0].asString().toString();
         auto enumArr  = args[1].asArray();
         if (enumArr.size() == 0 || !enumArr.get(0).isString()) return Local<Value>();
-        vector<string> enumValues;
+        std::vector<std::string> enumValues;
         for (int i = 0; i < enumArr.size(); ++i) {
             enumValues.push_back(enumArr.get(i).asString().toString());
         }

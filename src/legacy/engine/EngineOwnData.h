@@ -1,9 +1,9 @@
 #pragma once
 #include "dyncall/dyncall.h"
+#include "legacy/main/Global.h"
 #include "ll/api/base/Macro.h"
 #include "ll/api/mod/Mod.h"
 #include "lse/Entry.h"
-#include "main/Configs.h"
 #include "utils/UsingScriptX.h"
 
 #include <ll/api/Expected.h>

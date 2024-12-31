@@ -1,22 +1,11 @@
 #pragma once
 
+#include "ll/api/i18n/I18n.h"
 #include "mc/deps/core/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
 
-#include <ll/api/Expected.h>
-#include <ll/api/i18n/I18n.h>
-#include <ll/api/io/Logger.h>
-#include <nlohmann/json_fwd.hpp>
 #include <string>
 #include <vector>
-
-using std::string;
-using std::vector;
-
-// 全局工具
-extern nlohmann::ordered_json globalConfig;
-
-typedef unsigned long long QWORD;
 
 class IntVec4 {
 public:
@@ -70,4 +59,8 @@ inline std::string DimId2Name(int dimid) {
 }
 
 // 全局变量
-extern bool isCmdRegisterEnabled;
+extern bool              isCmdRegisterEnabled;
+extern const std::string LLSE_BACKEND_TYPE;
+extern const int         LLSE_VALID_BACKENDS_COUNT;
+extern const std::string LLSE_DEBUG_CMD;
+extern const wchar_t*    LLSE_GLOBAL_DATA_NAME;

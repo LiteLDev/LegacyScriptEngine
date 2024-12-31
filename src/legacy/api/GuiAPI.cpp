@@ -6,8 +6,6 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/GamingStatus.h"
-
-// #include <llapi/SendPacketAPI.h> //todo
 #include "ll/api/service/ServerInfo.h"
 
 #include <cstdlib>
@@ -100,7 +98,7 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string image = args.size() >= 2 ? args[1].asString().toString() : "";
+        std::string image = args.size() >= 2 ? args[1].asString().toString() : "";
         form.addButton(args[0].asString().toString(), image);
         return this->getScriptObject();
     }
@@ -172,8 +170,8 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
 
     try {
-        string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
-        string def         = args.size() >= 3 ? args[2].asString().toString() : "";
+        std::string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
+        std::string def         = args.size() >= 3 ? args[2].asString().toString() : "";
 
         form.addInput(args[0].asString().toString(), args[0].asString().toString(), placeholder, def);
         return this->getScriptObject();
@@ -208,8 +206,8 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        auto           optionsArr = args[1].asArray();
-        vector<string> options;
+        auto                     optionsArr = args[1].asArray();
+        std::vector<std::string> options;
         for (int i = 0; i < optionsArr.size(); ++i) options.push_back(optionsArr.get(i).asString().toString());
 
         int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
@@ -257,8 +255,8 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        auto           stepsArr = args[1].asArray();
-        vector<string> steps;
+        auto                     stepsArr = args[1].asArray();
+        std::vector<std::string> steps;
         for (int i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).asString().toString());
 
         int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;

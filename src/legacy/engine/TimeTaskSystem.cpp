@@ -20,12 +20,12 @@ std::mutex                     locker;
 ll::thread::ThreadPoolExecutor taskScheduler{"LSE_TASK", 1};
 
 struct TimeTaskData {
-    uint64                        taskId;
-    script::Global<Function>      func;
-    vector<script::Global<Value>> paras;
-    script::Global<String>        code;
-    ScriptEngine*                 engine;
-    inline void                   swap(TimeTaskData& rhs) {
+    uint64                             taskId;
+    script::Global<Function>           func;
+    std::vector<script::Global<Value>> paras;
+    script::Global<String>             code;
+    ScriptEngine*                      engine;
+    inline void                        swap(TimeTaskData& rhs) {
         std::swap(rhs.taskId, taskId);
         std::swap(rhs.engine, engine);
         rhs.code.swap(code);
@@ -55,7 +55,7 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);        \
     }
 
-int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {
+int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 
@@ -125,7 +125,7 @@ int NewTimeout(Local<String> func, int timeout) {
     return tid;
 }
 
-int NewInterval(Local<Function> func, vector<Local<Value>> paras, int timeout) {
+int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 

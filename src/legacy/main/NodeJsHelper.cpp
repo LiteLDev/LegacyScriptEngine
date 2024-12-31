@@ -15,7 +15,6 @@
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ThreadPoolExecutor.h"
 #include "ll/api/utils/StringUtils.h"
-#include "main/Configs.h"
 #include "main/Global.h"
 #include "uv/uv.h"
 #include "v8/v8.h"

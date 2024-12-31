@@ -302,8 +302,8 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].asString().toString();
-        auto   res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
+        std::string slot = args[0].asString().toString();
+        auto        res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
         if (!res) return Local<Value>();
         return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
@@ -316,8 +316,8 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].asString().toString();
-        auto   res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
+        std::string slot = args[0].asString().toString();
+        auto        res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
 
         if (!res) return Boolean::newBoolean(false);
         return Boolean::newBoolean(true);
@@ -330,7 +330,7 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string name = args[0].asString().toString();
+        std::string name = args[0].asString().toString();
         if (ll::service::getLevel().has_value()) {
             auto res = ll::service::getLevel()->getScoreboard().getObjective(name);
             if (!res) {
@@ -366,8 +366,8 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        string name = args[0].asString().toString();
-        auto   obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
+        std::string name = args[0].asString().toString();
+        auto        obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
         if (obj) {
             ll::service::getLevel()->getScoreboard().removeObjective(obj);
             return Boolean::newBoolean(true);

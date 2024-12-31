@@ -1,7 +1,5 @@
 #include "engine/LocalShareData.h"
 
-#include "main/Configs.h"
-
 #include <ll/api/thread/ThreadPoolExecutor.h>
 #include <mutex>
 
@@ -12,7 +10,7 @@ LocalDataType* localShareData;
 std::vector<RegCmdQueue> toRegCmdQueue;
 
 // 线程池
-ll::thread::ThreadPoolExecutor pool("LSE_POOL", LLSE_POOL_THREAD_COUNT);
+ll::thread::ThreadPoolExecutor pool("LSE_POOL", 4);
 
 // std::mutex messageLoopLock;
 

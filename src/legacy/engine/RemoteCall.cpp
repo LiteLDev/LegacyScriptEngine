@@ -4,7 +4,6 @@
 #include "api/LlAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
-#include "main/Configs.h"
 
 #include <map>
 #include <process.h>
@@ -36,8 +35,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         engine                     = funcData->engine;
         EngineScope enter(engine);
 
-        string               arg;
-        vector<Local<Value>> argsVector;
+        string                    arg;
+        std::vector<Local<Value>> argsVector;
         while (getline(sin, arg)) {
             StringTrim(arg);
             argsVector.push_back(JsonToValue(arg));

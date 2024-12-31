@@ -37,12 +37,12 @@ ClassDefine<void> LoggerClassBuilder = defineClass("logger")
                                            .build();
 
 ////////////////// Helper //////////////////
-string inline GetTimeStrHelper() { return Raw_GetDateTimeStr(); }
+std::string inline GetTimeStrHelper() { return Raw_GetDateTimeStr(); }
 
-string& StrReplace(string& str, const string& to_replaced, const string& new_str) {
-    for (string::size_type pos(0); pos != string::npos; pos += new_str.length()) {
+std::string& StrReplace(std::string& str, const std::string& to_replaced, const std::string& new_str) {
+    for (std::string::size_type pos(0); pos != std::string::npos; pos += new_str.length()) {
         pos = str.find(to_replaced, pos);
-        if (pos != string::npos) str.replace(pos, to_replaced.length(), new_str);
+        if (pos != std::string::npos) str.replace(pos, to_replaced.length(), new_str);
         else break;
     }
     return str;

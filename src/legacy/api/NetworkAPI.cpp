@@ -321,7 +321,7 @@ Local<Value> WSClientClass::connect(const Arguments& args) {
     try {
 
         string target = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "ConnectToWebsocketServer", target);
+        RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
         ws->Connect(target);
         return Boolean::newBoolean(true);
     } catch (const std::runtime_error&) {
@@ -338,14 +338,14 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
 
     try {
         string target = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "ConnectToWebsocketServer", target);
+        RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
         std::thread([ws{this->ws},
                      target,
                      callback{std::move(callbackFunc)},
                      engine{EngineScope::currentEngine()},
-                     pluginName{ENGINE_OWN_DATA()->pluginName}]() mutable {
+                     pluginName{getEngineOwnData()->pluginName}]() mutable {
 
 #ifdef NDEBUG
             ll::error_utils::initExceptionTranslator();
@@ -738,7 +738,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         if (port < 0 || port > 65535) {
             throw script::Exception("Invalid port number! (0~65535)");
         }
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "StartHttpServer", fmt::format("on {}:{}", addr, port));
+        RecordOperation(getEngineOwnData()->pluginName, "StartHttpServer", fmt::format("on {}:{}", addr, port));
         std::thread([this, addr, port]() {
             try {
                 svr->stop();
@@ -756,7 +756,7 @@ Local<Value> HttpServerClass::stop(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 0);
 
     try {
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "StopHttpServer", "");
+        RecordOperation(getEngineOwnData()->pluginName, "StopHttpServer", "");
         svr->stop();
         return Local<Value>();
     }
@@ -1158,7 +1158,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
 
     try {
         string target = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "HttpGet", target);
+        RecordOperation(getEngineOwnData()->pluginName, "HttpGet", target);
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
         auto lambda = [callback{std::move(callbackFunc)},
@@ -1206,7 +1206,7 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
 
     try {
         string target = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "HttpPost", target);
+        RecordOperation(getEngineOwnData()->pluginName, "HttpPost", target);
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
         auto lambda = [callback{std::move(callbackFunc)},
@@ -1246,7 +1246,7 @@ Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
 
     try {
         string target = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "HttpGetSync", target);
+        RecordOperation(getEngineOwnData()->pluginName, "HttpGetSync", target);
 
         int    status;
         string result;

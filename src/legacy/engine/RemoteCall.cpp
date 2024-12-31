@@ -58,7 +58,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         if (engine) {
             EngineScope enter(engine);
             PrintException(e);
-            lse::getSelfPluginInstance().getLogger().error("[Error] In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+            lse::getSelfPluginInstance().getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
         }
 
         // Feedback

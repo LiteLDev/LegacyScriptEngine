@@ -41,18 +41,18 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
         EngineScope scope(data.engine);                                                                                \
         lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
         PrintException(e);                                                                                             \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(data.engine)->pluginName);      \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);        \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
         lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
         lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");                            \
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));                           \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(data.engine)->pluginName);      \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                             \
         lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(data.engine)->pluginName);      \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);        \
     }
 
 int NewTimeout(Local<Function> func, vector<Local<Value>> paras, int timeout) {

@@ -1471,7 +1471,7 @@ Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
         int  newPerm = args[0].asNumber().toInt32();
         if (newPerm >= 0 && newPerm <= 4) {
             RecordOperation(
-                ENGINE_OWN_DATA()->pluginName,
+                getEngineOwnData()->pluginName,
                 "Set Permission Level",
                 fmt::format("Set Player {} Permission Level as {}.", player->getRealName(), newPerm)
             );
@@ -2013,7 +2013,7 @@ Local<Value> PlayerClass::crash(const Arguments&) {
         // todo: fix this
 
         //        RecordOperation(
-        //            ENGINE_OWN_DATA()->pluginName,
+        //            getEngineOwnData()->pluginName,
         //            "Crash Player",
         //            "Execute player.crash() to crash player <" + player->getRealName() + ">"
         //        );
@@ -2522,7 +2522,7 @@ Local<Value> PlayerClass::setExtraData(const Arguments& args) {
         string key = args[0].toStr();
         if (key.empty()) return Boolean::newBoolean(false);
 
-        ENGINE_OWN_DATA()->playerDataDB[player->getRealName() + "-" + key] = args[1];
+        getEngineOwnData()->playerDataDB[player->getRealName() + "-" + key] = args[1];
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setExtraData!");
@@ -2539,7 +2539,7 @@ Local<Value> PlayerClass::getExtraData(const Arguments& args) {
         string key = args[0].toStr();
         if (key.empty()) return Local<Value>();
 
-        auto& db  = ENGINE_OWN_DATA()->playerDataDB;
+        auto& db  = getEngineOwnData()->playerDataDB;
         auto  res = db.find(player->getRealName() + "-" + key);
         if (res == db.end() || res->second.isEmpty()) return Local<Value>();
         else return res->second.get();
@@ -2558,7 +2558,7 @@ Local<Value> PlayerClass::delExtraData(const Arguments& args) {
         string key = args[0].toStr();
         if (key.empty()) return Boolean::newBoolean(false);
 
-        ENGINE_OWN_DATA()->playerDataDB.erase(player->getRealName() + "-" + key);
+        getEngineOwnData()->playerDataDB.erase(player->getRealName() + "-" + key);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in delExtraData!")

@@ -6,7 +6,7 @@ using namespace DB;
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
@@ -16,7 +16,7 @@ using namespace DB;
         lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
         PrintScriptStackTrace();                                                                                       \
         lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                       \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \
     }
 
@@ -173,7 +173,7 @@ KVDBClass::KVDBClass(const Local<Object>& scriptObj, const string& dir) : Script
         kvdb.reset();
     }
 
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
 KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
@@ -182,7 +182,7 @@ KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::Const
     } catch (...) {
         kvdb.reset();
     }
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
 KVDBClass::~KVDBClass() {}
@@ -240,7 +240,7 @@ Local<Value> KVDBClass::del(const Arguments& args) {
 }
 
 Local<Value> KVDBClass::close(const Arguments&) {
-    ENGINE_OWN_DATA()->removeUnloadCallback(unloadCallbackIndex);
+    getEngineOwnData()->removeUnloadCallback(unloadCallbackIndex);
     unloadCallbackIndex = -1;
     try {
         kvdb.reset();

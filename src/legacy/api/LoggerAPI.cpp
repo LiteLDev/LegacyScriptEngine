@@ -3,13 +3,13 @@
 #include "api/APIHelp.h"
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
-#include "ll/api/io/Logger.h"
-#include "ll/api/io/FileSink.h"
-#include "ll/api/io/PatternFormatter.h"
 #include "ll/api/data/IndirectValue.h"
+#include "ll/api/io/FileSink.h"
+#include "ll/api/io/Logger.h"
+#include "ll/api/io/PatternFormatter.h"
+#include "lse/api/PlayerSink.h"
 #include "mc/world/actor/player/Player.h"
 #include "utils/Utils.h"
-#include "lse/api/PlayerSink.h"
 
 #include <fstream>
 #include <iostream>
@@ -52,14 +52,14 @@ string& StrReplace(string& str, const string& to_replaced, const string& new_str
 void inline LogDataHelper(LogLevel level, const Arguments& args) {
     std::string res;
     for (int i = 0; i < args.size(); ++i) res += ValueToString(args[i]);
-    ENGINE_OWN_DATA()->getModInstance()->getLogger().log(level, res);
+    getEngineOwnData()->getModInstance()->getLogger().log(level, res);
 }
 
 Local<Value> LoggerClass::log(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Info, args);
         return Boolean::newBoolean(true);
     }
@@ -70,7 +70,7 @@ Local<Value> LoggerClass::debug(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Debug, args);
         return Boolean::newBoolean(true);
     }
@@ -81,7 +81,7 @@ Local<Value> LoggerClass::info(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Info, args);
         return Boolean::newBoolean(true);
     }
@@ -92,7 +92,7 @@ Local<Value> LoggerClass::warn(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Warn, args);
         return Boolean::newBoolean(true);
     }
@@ -103,7 +103,7 @@ Local<Value> LoggerClass::error(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Error, args);
         return Boolean::newBoolean(true);
     }
@@ -114,7 +114,7 @@ Local<Value> LoggerClass::fatal(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        auto globalConf = ENGINE_OWN_DATA();
+        auto globalConf = getEngineOwnData();
         LogDataHelper(LogLevel::Fatal, args);
         return Boolean::newBoolean(true);
     }
@@ -127,7 +127,6 @@ Local<Value> LoggerClass::setTitle(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     return Boolean::newBoolean(false);
-
 }
 
 ///////////////// Helper /////////////////
@@ -139,11 +138,12 @@ Local<Value> LoggerClass::setConsole(const Arguments& args) {
 
     try {
         if (args.size() >= 2) {
-            ENGINE_OWN_DATA()->getModInstance()->getLogger().getSink(0)->setFlushLevel(static_cast<ll::io::LogLevel>(args[1].toInt() + 1
-            )); // See LSE's definition https://legacy-script-engine.levimc.org/apis/ScriptAPI/Logger/
+            getEngineOwnData()->getModInstance()->getLogger().getSink(0)->setFlushLevel(
+                static_cast<ll::io::LogLevel>(args[1].toInt() + 1)
+            ); // See LSE's definition https://legacy-script-engine.levimc.org/apis/ScriptAPI/Logger/
         }
         if (!args[0].asBoolean().value()) {
-            ENGINE_OWN_DATA()->getModInstance()->getLogger().getSink(0)->setFlushLevel(ll::io::LogLevel::Off);
+            getEngineOwnData()->getModInstance()->getLogger().getSink(0)->setFlushLevel(ll::io::LogLevel::Off);
         }
         return Boolean::newBoolean(true);
     }
@@ -156,12 +156,20 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        std::filesystem::path newFile = std::filesystem::path(args[0].asString().toString());
-        std::shared_ptr<ll::io::FileSink> sink = std::make_shared<ll::io::FileSink>(newFile, ll::makePolymorphic<ll::io::PatternFormatter>("{3:.3%T.} {2} {1} {0}", ll::io::Formatter::supportColorLog(), 0b0010), std::ios::app);
+        std::filesystem::path             newFile = std::filesystem::path(args[0].asString().toString());
+        std::shared_ptr<ll::io::FileSink> sink    = std::make_shared<ll::io::FileSink>(
+            newFile,
+            ll::makePolymorphic<ll::io::PatternFormatter>(
+                "{3:.3%T.} {2} {1} {0}",
+                ll::io::Formatter::supportColorLog(),
+                0b0010
+            ),
+            std::ios::app
+        );
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].toInt() + 1));
         }
-        return Boolean::newBoolean(ENGINE_OWN_DATA()->getModInstance()->getLogger().addSink(sink));
+        return Boolean::newBoolean(getEngineOwnData()->getModInstance()->getLogger().addSink(sink));
     }
     CATCH("Fail in LoggerSetFile!")
 }
@@ -177,7 +185,7 @@ Local<Value> LoggerClass::setPlayer(const Arguments& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].toInt() + 1));
         }
-        return Boolean::newBoolean(ENGINE_OWN_DATA()->getModInstance()->getLogger().addSink(sink));
+        return Boolean::newBoolean(getEngineOwnData()->getModInstance()->getLogger().addSink(sink));
     }
     CATCH("Fail in LoggerSetPlayer!")
 }
@@ -187,7 +195,7 @@ Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
     try {
-        auto conf         = ENGINE_OWN_DATA();
+        auto conf = getEngineOwnData();
         conf->getModInstance()->getLogger().setLevel(static_cast<LogLevel>(args[0].toInt() + 1));
         return Boolean::newBoolean(true);
     }

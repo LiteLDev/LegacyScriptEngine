@@ -97,7 +97,7 @@ bool LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const L
         return true;
     } catch (...) {
         lse::getSelfPluginInstance().getLogger().error(fmt::format("Event /{} / No Found!\n", eventName));
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(engine)->pluginName);
         return false;
     }
 }
@@ -129,10 +129,10 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
         FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
         return true;
     });
-    for (auto& [index, cb] : ENGINE_GET_DATA(engine)->unloadCallbacks) {
+    for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
         cb(engine);
     }
-    ENGINE_GET_DATA(engine)->unloadCallbacks.clear();
+    getEngineData(engine)->unloadCallbacks.clear();
     return true;
 }
 

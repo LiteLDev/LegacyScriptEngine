@@ -1,5 +1,6 @@
-#include "Entry.h"
 #include "Plugin.h"
+
+#include "Entry.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/mod/Mod.h"
 
@@ -10,6 +11,6 @@ namespace lse {
 Plugin::Plugin(const ll::mod::Manifest& manifest) : ll::mod::Mod(manifest) {}
 
 std::shared_ptr<ll::mod::Mod> Plugin::current() {
-    return lse::getPluginManager().getMod(ENGINE_OWN_DATA()->pluginName);
+    return lse::getPluginManager().getMod(getEngineOwnData()->pluginName);
 }
 } // namespace lse

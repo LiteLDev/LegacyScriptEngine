@@ -181,7 +181,7 @@ Local<Value> MakeRemoteCall(const string& nameSpace, const string& funcName, con
     auto& func = RemoteCall::importFunc(nameSpace, funcName);
     if (!func) {
         logger.error("Fail to import! Function [{}::{}] has not been exported!", nameSpace, funcName);
-        logger.error("In plugin <{}>", ENGINE_OWN_DATA()->pluginName);
+        logger.error("In plugin <{}>", getEngineOwnData()->pluginName);
         return Local<Value>();
     }
 
@@ -209,8 +209,8 @@ bool LLSEExportFunc(
             return "";
         EngineScope enter(engine);
         try {
-            auto iter = ENGINE_GET_DATA(engine)->exportFuncs.find(identifier);
-            if (iter == ENGINE_GET_DATA(engine)->exportFuncs.end()) {
+            auto iter = getEngineData(engine)->exportFuncs.find(identifier);
+            if (iter == getEngineData(engine)->exportFuncs.end()) {
                 logger.debug("");
                 return "";
             }
@@ -225,7 +225,7 @@ bool LLSEExportFunc(
         return "";
     };
     if (RemoteCall::exportFunc(nameSpace, funcName, std::move(cb))) {
-        ENGINE_GET_DATA(engine)->exportFuncs.emplace(
+        getEngineData(engine)->exportFuncs.emplace(
             identifier,
             RemoteCallData{nameSpace, funcName, script::Global<Function>(func)}
         );
@@ -238,11 +238,11 @@ bool LLSERemoveAllExportedFuncs(ScriptEngine* engine) {
     // enter scope to prevent crash in script::Global::~Global()
     EngineScope                                      enter(engine);
     std::vector<std::pair<std::string, std::string>> funcs;
-    for (auto& [key, data] : ENGINE_GET_DATA(engine)->exportFuncs) {
+    for (auto& [key, data] : getEngineData(engine)->exportFuncs) {
         funcs.emplace_back(data.nameSpace, data.funcName);
     }
     int count = RemoteCall::removeFuncs(funcs);
-    ENGINE_GET_DATA(engine)->exportFuncs.clear();
+    getEngineData(engine)->exportFuncs.clear();
     return count;
 }
 

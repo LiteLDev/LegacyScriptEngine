@@ -224,7 +224,7 @@ bool stopEngine(node::Environment* env) {
 }
 
 bool stopEngine(script::ScriptEngine* engine) {
-    lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", ENGINE_GET_DATA(engine)->pluginName);
+    lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", getEngineData(engine)->pluginName);
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }

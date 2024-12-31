@@ -43,7 +43,7 @@ std::string ValueKindToString(const ValueKind& kind);
 #define LOG_ERROR_WITH_SCRIPT_INFO(...)                                                                                \
     PrintScriptStackTrace(__VA_ARGS__);                                                                                \
     lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                           \
-    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName)
+    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName)
 
 // 参数类型错误输出
 #define LOG_WRONG_ARG_TYPE() LOG_ERROR_WITH_SCRIPT_INFO("Wrong type of argument!");
@@ -148,7 +148,7 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         PrintException(e);                                                                                             \
         lse::getSelfPluginInstance().getLogger().error(std::string("In callback for ") + callback);                    \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
     }
 
 #else

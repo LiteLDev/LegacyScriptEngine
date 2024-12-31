@@ -110,7 +110,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
 
     try {
         std::string cmd = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "ExecuteSystemCommand", cmd);
+        RecordOperation(getEngineOwnData()->pluginName, "ExecuteSystemCommand", cmd);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
         int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;
@@ -149,7 +149,7 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
 
     try {
         std::string process = args[0].toStr();
-        RecordOperation(ENGINE_OWN_DATA()->pluginName, "CreateNewProcess", process);
+        RecordOperation(getEngineOwnData()->pluginName, "CreateNewProcess", process);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
         int                      timeout = (args.size() >= 3) ? args[2].toInt() : -1;

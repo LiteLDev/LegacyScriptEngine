@@ -102,7 +102,7 @@ void FormatHelper(
 Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, const std::string& localeName = "") {
     try {
         size_t argsLength = args.size() - offset;
-        auto   i18n       = ENGINE_OWN_DATA()->i18n;
+        auto   i18n       = getEngineOwnData()->i18n;
         if (i18n) {
             key = i18n->get(key, localeName);
         }
@@ -172,7 +172,7 @@ Local<Value> I18nClass::get(const Arguments& args) {
         if (args.size() == 2) {
             localeName = args[1].toStr();
         }
-        auto i18n = ENGINE_OWN_DATA()->i18n;
+        auto i18n = getEngineOwnData()->i18n;
         if (!i18n) {
             throw Exception("I18n data has not been loaded yet!");
         }
@@ -192,11 +192,11 @@ Local<Value> I18nClass::load(const Arguments& args) {
     }
 
     try {
-        auto        path = args[0].toStr();
+        auto path = args[0].toStr();
         // Deprecated because it follows LeviLamina's default locale
         // std::string defaultLocaleName;
         if (args.size() > 1) {
-        // defaultLocaleName = args[1].toStr();
+            // defaultLocaleName = args[1].toStr();
         }
 
         if (args.size() > 2) {
@@ -222,8 +222,9 @@ Local<Value> I18nClass::load(const Arguments& args) {
             }
         }
 
-        EngineOwnData().i18n = std::make_shared<ll::i18n::I18n>();;
-        if (auto  result       = EngineOwnData().i18n->load(path); !result) {
+        EngineOwnData().i18n = std::make_shared<ll::i18n::I18n>();
+        ;
+        if (auto result = EngineOwnData().i18n->load(path); !result) {
             return Boolean::newBoolean(false);
         }
         return Boolean::newBoolean(true);

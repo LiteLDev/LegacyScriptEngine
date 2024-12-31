@@ -128,7 +128,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         script::EngineScope engineScope(scriptEngine);
 
         // Set plugins's logger title
-        ENGINE_OWN_DATA()->pluginName   = manifest.name;
+        getEngineOwnData()->pluginName = manifest.name;
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         scriptEngine.eval("import sys as _llse_py_sys_module");
@@ -167,9 +167,9 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         scriptEngine.eval(baseLibContent.value());
 #endif
         // Load the plugin entry.
-        auto pluginDir                         = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
-        auto entryPath                         = pluginDir / manifest.entry;
-        ENGINE_OWN_DATA()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
+        auto pluginDir                          = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
+        auto entryPath                          = pluginDir / manifest.entry;
+        getEngineOwnData()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(
                 &scriptEngine,

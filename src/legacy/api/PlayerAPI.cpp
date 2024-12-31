@@ -66,11 +66,13 @@
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/BlockSource.h"
+#include "mc/world/level/ChunkPos.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/db_helpers/Category.h"
 #include "mc/world/phys/HitResult.h"
+#include "mc/world/scores/IdentityDefinition.h"
 #include "mc/world/scores/PlayerScoreSetFunction.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
@@ -92,7 +94,6 @@
 #include <mc/world/attribute/Attribute.h>
 #include <mc/world/attribute/AttributeInstance.h>
 #include <mc/world/attribute/SharedAttributes.h>
-#include <mc/world/level/BlockSource.h>
 #include <mc/world/level/biome/Biome.h>
 #include <mc/world/level/material/Material.h>
 #include <mc/world/scores/Objective.h>
@@ -1514,16 +1515,14 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        // todo: fix this
-
-        //        Player* player = get();
-        //        if (!player) return Local<Value>();
-        //        CommandContext context = CommandContext(
-        //            args[0].asString().toString(),
-        //            std::make_unique<PlayerCommandOrigin>(*get()),
-        //            CommandVersion::CurrentVersion()
-        //        );
-        //        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
+        Player* player = get();
+        if (!player) return Local<Value>();
+        CommandContext context = CommandContext(
+            args[0].asString().toString(),
+            std::make_unique<PlayerCommandOrigin>(*get()),
+            CommandVersion::CurrentVersion()
+        );
+        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in runcmd!");
@@ -2015,16 +2014,14 @@ Local<Value> PlayerClass::crash(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        // todo: fix this
-
-        //        RecordOperation(
-        //            getEngineOwnData()->pluginName,
-        //            "Crash Player",
-        //            "Execute player.crash() to crash player <" + player->getRealName() + ">"
-        //        );
-        //        LevelChunkPacket pkt;
-        //        pkt.mCacheEnabled    = true;
-        //        player->sendNetworkPacket(pkt);
+        RecordOperation(
+            getEngineOwnData()->pluginName,
+            "Crash Player",
+            "Execute player.crash() to crash player <" + player->getRealName() + ">"
+        );
+        LevelChunkPacket pkt;
+        pkt.mCacheEnabled = true;
+        player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in crashPlayer!");
@@ -2181,33 +2178,32 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        // todo: fix this
+        Player* player = get();
+        if (!player) return Local<Value>();
 
-        //        Player* player = get();
-        //        if (!player) return Local<Value>();
-        //
-        //        std::vector<std::pair<std::string, int>> data;
-        //        auto                                     source = args[1].asObject();
-        //        auto                                     keys   = source.getKeyNames();
-        //        for (auto& key : keys) {
-        //            data.push_back(make_pair(key, source.get(key).asNumber().toInt32()));
-        //        }
-        //
-        //        int sortOrder = 1;
-        //        if (args.size() >= 3) sortOrder = args[2].asNumber().toInt32();
-        //
-        //        SetDisplayObjectivePacket
-        //            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy",
-        //            (ObjectiveSortOrder)sortOrder);
-        //        disObjPkt.sendTo(*player);
+        std::vector<std::pair<std::string, int>> data;
+        auto                                     source = args[1].asObject();
+        auto                                     keys   = source.getKeyNames();
+        for (auto& key : keys) {
+            data.push_back(make_pair(key, source.get(key).asNumber().toInt32()));
+        }
+
+        int sortOrder = 1;
+        if (args.size() >= 3) sortOrder = args[2].asNumber().toInt32();
+
+        SetDisplayObjectivePacket
+            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
+        disObjPkt.sendTo(*player);
+        // todo: fix it
+        
         //        std::vector<ScorePacketInfo> info;
         //        for (auto& i : data) {
         //            ScorePacketInfo pktInfo;
-        //            pktInfo.mScoreboardId   = i.second;
-        //            pktInfo.mObjectiveName  = "FakeScoreObj";
-        //            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
-        //            pktInfo.mScoreValue     = i.second;
-        //            pktInfo.mFakePlayerName = i.first;
+        //            pktInfo.mScoreboardId->mRawID = i.second;
+        //            pktInfo.mObjectiveName        = "FakeScoreObj";
+        //            pktInfo.mIdentityType         = IdentityDefinition::Type::FakePlayer;
+        //            pktInfo.mScoreValue           = i.second;
+        //            pktInfo.mFakePlayerName       = i.first;
         //            info.emplace_back(pktInfo);
         //        }
         //        SetScorePacket setPkt = SetScorePacket::change(info);

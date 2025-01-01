@@ -92,10 +92,13 @@ target("legacy-script-engine")
         )
         set_basename("legacy-script-engine-lua")
         after_build(function(target)
-                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
-                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
-                os.mkdir(outputPath)
-                os.cp(baselibPath, outputPath)
+            local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
+            local langPath = path.join(os.projectdir(), "src/lang")
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local baselibOutputPath = path.join(outputPath, "baselib")
+            os.mkdir(baselibOutputPath)
+            os.cp(baselibPath, baselibOutputPath)
+            os.cp(langPath, outputPath)
         end)
 
     elseif is_config("backend", "quickjs") then
@@ -105,9 +108,12 @@ target("legacy-script-engine")
         set_basename("legacy-script-engine-quickjs")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.js")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
-            os.mkdir(outputPath)
-            os.cp(baselibPath, outputPath)
+            local langPath = path.join(os.projectdir(), "src/lang")
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local baselibOutputPath = path.join(outputPath, "baselib")
+            os.mkdir(baselibOutputPath)
+            os.cp(baselibPath, baselibOutputPath)
+            os.cp(langPath, outputPath)
         end)
 
     elseif is_config("backend", "python") then
@@ -116,10 +122,13 @@ target("legacy-script-engine")
         )
         set_basename("legacy-script-engine-python")
         after_build(function(target)
-                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
-                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
-                os.mkdir(outputPath)
-                os.cp(baselibPath, outputPath)
+            local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
+            local langPath = path.join(os.projectdir(), "src/lang")
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local baselibOutputPath = path.join(outputPath, "baselib")
+            os.mkdir(baselibOutputPath)
+            os.cp(baselibPath, baselibOutputPath)
+            os.cp(langPath, outputPath)
         end)
 
     elseif is_config("backend", "nodejs") then
@@ -127,7 +136,9 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
         )
         set_basename("legacy-script-engine-nodejs")
-
+        local langPath = path.join(os.projectdir(), "src/lang")
+        local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+        os.cp(langPath, outputPath)
     end
 
     add_files(
@@ -137,4 +148,3 @@ target("legacy-script-engine")
         "src",
         "src/legacy"
     )
-

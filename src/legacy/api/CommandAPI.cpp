@@ -449,13 +449,13 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 if (paramMaps.find(paramName) != paramMaps.end()) {
                     ParamInfo& param = paramMaps[paramName];
                     if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum) {
+                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                             cmd.optional(paramName, param.type, param.enumName).option(param.option);
                         } else {
                             cmd.optional(paramName, param.type).option(param.option);
                         }
                     } else {
-                        if (param.type == ParamKind::Kind::Enum) {
+                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                             cmd.required(paramName, param.type, param.enumName).option(param.option);
                         } else {
                             cmd.required(paramName, param.type).option(param.option);
@@ -472,13 +472,13 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 if (paramMaps.find(paramName) != paramMaps.end()) {
                     ParamInfo& param = paramMaps[paramName];
                     if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum) {
+                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                             cmd.optional(paramName, param.type, param.enumName).option(param.option);
                         } else {
                             cmd.optional(paramName, param.type).option(param.option);
                         }
                     } else {
-                        if (param.type == ParamKind::Kind::Enum) {
+                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                             cmd.required(paramName, param.type, param.enumName).option(param.option);
                         } else {
                             cmd.required(paramName, param.type).option(param.option);
@@ -498,13 +498,13 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                     if (paramMaps.find(paramName) != paramMaps.end()) {
                         ParamInfo& param = paramMaps[paramName];
                         if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum) {
+                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                                 cmd.optional(paramName, param.type, param.enumName).option(param.option);
                             } else {
                                 cmd.optional(paramName, param.type).option(param.option);
                             }
                         } else {
-                            if (param.type == ParamKind::Kind::Enum) {
+                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                                 cmd.required(paramName, param.type, param.enumName).option(param.option);
                             } else {
                                 cmd.required(paramName, param.type).option(param.option);
@@ -521,13 +521,13 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                     if (paramMaps.find(paramName) != paramMaps.end()) {
                         ParamInfo& param = paramMaps[paramName];
                         if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum) {
+                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                                 cmd.optional(paramName, param.type, param.enumName).option(param.option);
                             } else {
                                 cmd.optional(paramName, param.type).option(param.option);
                             }
                         } else {
-                            if (param.type == ParamKind::Kind::Enum) {
+                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
                                 cmd.required(paramName, param.type, param.enumName).option(param.option);
                             } else {
                                 cmd.required(paramName, param.type).option(param.option);

@@ -22,6 +22,7 @@ struct ParamInfo {
     ll::command::ParamKind::Kind type;
     bool                         optional;
     std::string                  enumName;
+    CommandParameterOption       option;
 };
 
 class CommandClass : public ScriptClass {

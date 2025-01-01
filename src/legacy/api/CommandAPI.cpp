@@ -41,6 +41,7 @@
 #include "ll/api/command/runtime/RuntimeOverload.h"
 #include "ll/api/command/runtime/RuntimeEnum.h"
 #include "ll/api/command/runtime/RuntimeCommand.h"
+#include "ll/api/service/GamingStatus.h"
 
 #include <string>
 #include <vector>
@@ -231,7 +232,8 @@ Local<Value> McClass::newCommand(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        auto name     = args[0].asString().toString();
+        auto name = args[0].asString().toString();
+
         auto registry = ll::service::getCommandRegistry();
         if (registry) {
             auto instance = registry->findCommand(name);
@@ -316,183 +318,6 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
     CATCH("Fail in setEnum!")
 }
 
-// name, type, optional, description, identifier, option
-// name, type, description, identifier, option
-// name, type, optional, description, option
-// name, type, description, option
-Local<Value> CommandClass::newParameter(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 2);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
-        std::string            enumName   = "";
-        bool                   optional   = false;
-        std::string            identifier = "";
-        size_t                 index      = 2;
-        CommandParameterOption option     = (CommandParameterOption)0;
-        if (args.size() > index && args[index].isBoolean()) optional = args[index++].asBoolean().value();
-        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
-        if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
-        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
-
-        paramMaps[name] = {type, optional, enumName}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
-        ); // Stores the parameter name for onExecute use
-
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in newParameter!")
-}
-
-// name, type, description, identifier, option
-// name, type, description, option
-Local<Value> CommandClass::mandatory(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 2);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
-        std::string            enumName   = "";
-        std::string            identifier = "";
-        size_t                 index      = 2;
-        CommandParameterOption option     = (CommandParameterOption)0;
-        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
-        if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
-        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
-
-        paramMaps[name] = {type, false, enumName}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
-        ); // Stores the parameter name for onExecute use
-
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in newParameter!")
-}
-
-// name, type, description, identifier, option
-// name, type, description, option
-Local<Value> CommandClass::optional(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 2);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
-        std::string            enumName   = "";
-        std::string            identifier = "";
-        size_t                 index      = 2;
-        CommandParameterOption option     = (CommandParameterOption)0;
-        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
-        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
-        if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
-        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
-
-        paramMaps[name] = {type, true, enumName}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
-        ); // Stores the parameter name for onExecute use
-
-        return Boolean::newBoolean(true);
-    }
-    CATCH("Fail in newParameter!")
-}
-
-// vector<identifier>
-// vector<index>
-Local<Value> CommandClass::addOverload(const Arguments& args) {
-    try {
-        if (args.size() == 0) return Boolean::newBoolean(true);
-        if (args[0].isNumber()) {
-            for (int i = 0; i < args.size(); ++i) {
-                CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
-                std::string paramName = std::to_string(args[i].asNumber().toInt32());
-                if (paramMaps.find(paramName) != paramMaps.end()) {
-                    ParamInfo& param = paramMaps[paramName];
-                    if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum) {
-                            auto& overload = get()
-                                                 .runtimeOverload(getEngineOwnData()->plugin)
-                                                 .optional(paramName, param.type, param.enumName);
-                        } else {
-                            auto& overload =
-                                get().runtimeOverload(getEngineOwnData()->plugin).optional(paramName, param.type);
-                        }
-                    }
-                }
-            }
-            return Boolean::newBoolean(true);
-        } else if (args[0].isString()) {
-            for (int i = 0; i < args.size(); ++i) {
-                CHECK_ARG_TYPE(args[i], ValueKind::kString);
-                std::string paramName = args[0].asString().toString();
-                if (paramMaps.find(paramName) != paramMaps.end()) {
-                    ParamInfo& param = paramMaps[paramName];
-                    if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum) {
-                            auto& overload = get()
-                                                 .runtimeOverload(getEngineOwnData()->plugin)
-                                                 .optional(paramName, param.type, param.enumName);
-                        } else {
-                            auto& overload =
-                                get().runtimeOverload(getEngineOwnData()->plugin).optional(paramName, param.type);
-                        }
-                    }
-                }
-            }
-            return Boolean::newBoolean(true);
-        } else if (args[0].isArray()) {
-            auto arr = args[0].asArray();
-            if (arr.size() == 0) return Boolean::newBoolean(true);
-            if (arr.get(0).isNumber()) {
-                for (int i = 0; i < arr.size(); ++i) {
-                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
-                    std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
-                    if (paramMaps.find(paramName) != paramMaps.end()) {
-                        ParamInfo& param = paramMaps[paramName];
-                        if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum) {
-                                auto& overload = get()
-                                                     .runtimeOverload(getEngineOwnData()->plugin)
-                                                     .optional(paramName, param.type, param.enumName);
-                            } else {
-                                auto& overload =
-                                    get().runtimeOverload(getEngineOwnData()->plugin).optional(paramName, param.type);
-                            }
-                        }
-                    }
-                }
-                return Boolean::newBoolean(true);
-            } else if (arr.get(0).isString()) {
-                for (int i = 0; i < arr.size(); ++i) {
-                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
-                    std::string paramName = arr.get(i).asString().toString();
-                    if (paramMaps.find(paramName) != paramMaps.end()) {
-                        ParamInfo& param = paramMaps[paramName];
-                        if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum) {
-                                auto& overload = get()
-                                                     .runtimeOverload(getEngineOwnData()->plugin)
-                                                     .optional(paramName, param.type, param.enumName);
-                            } else {
-                                auto& overload =
-                                    get().runtimeOverload(getEngineOwnData()->plugin).optional(paramName, param.type);
-                            }
-                        }
-                    }
-                }
-                return Boolean::newBoolean(true);
-            }
-        }
-        LOG_WRONG_ARG_TYPE();
-        return Local<Value>();
-    }
-    CATCH("Fail in addOverload!")
-}
-
 void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& runtime) {
     std::string commandName = runtime.getCommandName();
     if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
@@ -522,6 +347,200 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
     CATCH_WITHOUT_RETURN("Fail in executing command \"" + commandName + "\"!")
 }
 
+// name, type, optional, description, identifier, option
+// name, type, description, identifier, option
+// name, type, optional, description, option
+// name, type, description, option
+Local<Value> CommandClass::newParameter(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    try {
+        auto                   name       = args[0].asString().toString();
+        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        std::string            enumName   = "";
+        bool                   optional   = false;
+        std::string            identifier = "";
+        size_t                 index      = 2;
+        CommandParameterOption option     = CommandParameterOption::None;
+        if (args.size() > index && args[index].isBoolean()) optional = args[index++].asBoolean().value();
+        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
+
+        paramMaps[name] = {type, optional, enumName}; // Stores the parameter name for overload use
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        ); // Stores the parameter name for onExecute use
+
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in newParameter!")
+}
+
+// name, type, description, identifier, option
+// name, type, description, option
+Local<Value> CommandClass::mandatory(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    try {
+        auto                   name       = args[0].asString().toString();
+        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        std::string            enumName   = "";
+        std::string            identifier = "";
+        size_t                 index      = 2;
+        CommandParameterOption option     = CommandParameterOption::None;
+        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
+
+        paramMaps[name] = {type, false, enumName, option}; // Stores the parameter name for overload use
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        ); // Stores the parameter name for onExecute use
+
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in newParameter!")
+}
+
+// name, type, description, identifier, option
+// name, type, description, option
+Local<Value> CommandClass::optional(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    try {
+        auto                   name       = args[0].asString().toString();
+        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        std::string            enumName   = "";
+        std::string            identifier = "";
+        size_t                 index      = 2;
+        CommandParameterOption option     = CommandParameterOption::None;
+        if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
+        if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
+        if (args.size() > index && args[index].isNumber())
+            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+        if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
+
+        paramMaps[name] = {type, true, enumName, option}; // Stores the parameter name for overload use
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        ); // Stores the parameter name for onExecute use
+
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in newParameter!")
+}
+
+// vector<identifier>
+// vector<index>
+Local<Value> CommandClass::addOverload(const Arguments& args) {
+    try {
+        if (args.size() == 0) return Boolean::newBoolean(true);
+        auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+        if (args[0].isNumber()) {
+            for (int i = 0; i < args.size(); ++i) {
+                CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
+                std::string paramName = std::to_string(args[i].asNumber().toInt32());
+                if (paramMaps.find(paramName) != paramMaps.end()) {
+                    ParamInfo& param = paramMaps[paramName];
+                    if (param.optional) {
+                        if (param.type == ParamKind::Kind::Enum) {
+                            cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                        } else {
+                            cmd.optional(paramName, param.type).option(param.option);
+                        }
+                    } else {
+                        if (param.type == ParamKind::Kind::Enum) {
+                            cmd.required(paramName, param.type, param.enumName).option(param.option);
+                        } else {
+                            cmd.required(paramName, param.type).option(param.option);
+                        }
+                    }
+                }
+            }
+            cmd.execute(onExecute);
+            return Boolean::newBoolean(true);
+        } else if (args[0].isString()) {
+            for (int i = 0; i < args.size(); ++i) {
+                CHECK_ARG_TYPE(args[i], ValueKind::kString);
+                std::string paramName = args[0].asString().toString();
+                if (paramMaps.find(paramName) != paramMaps.end()) {
+                    ParamInfo& param = paramMaps[paramName];
+                    if (param.optional) {
+                        if (param.type == ParamKind::Kind::Enum) {
+                            cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                        } else {
+                            cmd.optional(paramName, param.type).option(param.option);
+                        }
+                    } else {
+                        if (param.type == ParamKind::Kind::Enum) {
+                            cmd.required(paramName, param.type, param.enumName).option(param.option);
+                        } else {
+                            cmd.required(paramName, param.type).option(param.option);
+                        }
+                    }
+                }
+            }
+            cmd.execute(onExecute);
+            return Boolean::newBoolean(true);
+        } else if (args[0].isArray()) {
+            auto arr = args[0].asArray();
+            if (arr.size() == 0) return Boolean::newBoolean(true);
+            if (arr.get(0).isNumber()) {
+                for (int i = 0; i < arr.size(); ++i) {
+                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
+                    std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
+                    if (paramMaps.find(paramName) != paramMaps.end()) {
+                        ParamInfo& param = paramMaps[paramName];
+                        if (param.optional) {
+                            if (param.type == ParamKind::Kind::Enum) {
+                                cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                            } else {
+                                cmd.optional(paramName, param.type).option(param.option);
+                            }
+                        } else {
+                            if (param.type == ParamKind::Kind::Enum) {
+                                cmd.required(paramName, param.type, param.enumName).option(param.option);
+                            } else {
+                                cmd.required(paramName, param.type).option(param.option);
+                            }
+                        }
+                    }
+                }
+                cmd.execute(onExecute);
+                return Boolean::newBoolean(true);
+            } else if (arr.get(0).isString()) {
+                for (int i = 0; i < arr.size(); ++i) {
+                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
+                    std::string paramName = arr.get(i).asString().toString();
+                    if (paramMaps.find(paramName) != paramMaps.end()) {
+                        ParamInfo& param = paramMaps[paramName];
+                        if (param.optional) {
+                            if (param.type == ParamKind::Kind::Enum) {
+                                cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                            } else {
+                                cmd.optional(paramName, param.type).option(param.option);
+                            }
+                        } else {
+                            if (param.type == ParamKind::Kind::Enum) {
+                                cmd.required(paramName, param.type, param.enumName).option(param.option);
+                            } else {
+                                cmd.required(paramName, param.type).option(param.option);
+                            }
+                        }
+                    }
+                }
+                cmd.execute(onExecute);
+                return Boolean::newBoolean(true);
+            }
+        }
+        LOG_WRONG_ARG_TYPE();
+        return Local<Value>();
+    }
+    CATCH("Fail in addOverload!")
+}
+
 // function (command, origin, output, results){}
 Local<Value> CommandClass::setCallback(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -531,7 +550,6 @@ Local<Value> CommandClass::setCallback(const Arguments& args) {
         auto& command = get();
         localShareData
             ->commandCallbacks[commandName] = {EngineScope::currentEngine(), 0, script::Global<Function>(func)};
-        get().runtimeOverload(getEngineOwnData()->plugin).execute(onExecute);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setCallback!")

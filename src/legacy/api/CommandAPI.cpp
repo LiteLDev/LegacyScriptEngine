@@ -338,10 +338,15 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
             lse::getSelfPluginInstance().getLogger().warn("Could not find {} in registered commands."_tr(commandName));
             return;
         }
-        for (std::string& name : registeredCommands[commandName]) {
+        for (auto& info : registeredCommands[commandName]) {
             try {
-                auto& param = runtime[name];
-                args.set(name, convertResult(param, origin, output));
+                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                    auto& param = runtime[info.enumName];
+                    args.set(info.name, convertResult(param, origin, output));
+                } else {
+                    auto& param = runtime[info.name];
+                    args.set(info.name, convertResult(param, origin, output));
+                }
             } catch (std::out_of_range&) {
                 continue;
             }
@@ -373,8 +378,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        paramMaps[name] = {type, optional, enumName}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, optional, enumName}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -400,8 +404,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        paramMaps[name] = {type, false, enumName, option}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, false, enumName}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -427,8 +430,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        paramMaps[name] = {type, true, enumName, option}; // Stores the parameter name for overload use
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(name
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, true, enumName}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -446,19 +448,21 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             for (int i = 0; i < args.size(); ++i) {
                 CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
                 std::string paramName = std::to_string(args[i].asNumber().toInt32());
-                if (paramMaps.find(paramName) != paramMaps.end()) {
-                    ParamInfo& param = paramMaps[paramName];
-                    if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                            cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+                for (auto& info : paramList) {
+                    if (info.name == paramName || info.enumName == paramName) {
+                        if (info.optional) {
+                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                            } else {
+                                cmd.optional(info.name, info.type).option(info.option);
+                            }
                         } else {
-                            cmd.optional(paramName, param.type).option(param.option);
-                        }
-                    } else {
-                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                            cmd.required(paramName, param.type, param.enumName).option(param.option);
-                        } else {
-                            cmd.required(paramName, param.type).option(param.option);
+                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                            } else {
+                                cmd.required(info.name, info.type).option(info.option);
+                            }
                         }
                     }
                 }
@@ -469,19 +473,21 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             for (int i = 0; i < args.size(); ++i) {
                 CHECK_ARG_TYPE(args[i], ValueKind::kString);
                 std::string paramName = args[0].asString().toString();
-                if (paramMaps.find(paramName) != paramMaps.end()) {
-                    ParamInfo& param = paramMaps[paramName];
-                    if (param.optional) {
-                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                            cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+                for (auto& info : paramList) {
+                    if (info.name == paramName || info.enumName == paramName) {
+                        if (info.optional) {
+                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                            } else {
+                                cmd.optional(info.name, info.type).option(info.option);
+                            }
                         } else {
-                            cmd.optional(paramName, param.type).option(param.option);
-                        }
-                    } else {
-                        if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                            cmd.required(paramName, param.type, param.enumName).option(param.option);
-                        } else {
-                            cmd.required(paramName, param.type).option(param.option);
+                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                            } else {
+                                cmd.required(info.name, info.type).option(info.option);
+                            }
                         }
                     }
                 }
@@ -495,19 +501,21 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 for (int i = 0; i < arr.size(); ++i) {
                     CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
                     std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
-                    if (paramMaps.find(paramName) != paramMaps.end()) {
-                        ParamInfo& param = paramMaps[paramName];
-                        if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                                cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                    auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+                    for (auto& info : paramList) {
+                        if (info.name == paramName || info.enumName == paramName) {
+                            if (info.optional) {
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.optional(info.name, info.type).option(info.option);
+                                }
                             } else {
-                                cmd.optional(paramName, param.type).option(param.option);
-                            }
-                        } else {
-                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                                cmd.required(paramName, param.type, param.enumName).option(param.option);
-                            } else {
-                                cmd.required(paramName, param.type).option(param.option);
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.required(info.name, info.type).option(info.option);
+                                }
                             }
                         }
                     }
@@ -518,19 +526,21 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 for (int i = 0; i < arr.size(); ++i) {
                     CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
                     std::string paramName = arr.get(i).asString().toString();
-                    if (paramMaps.find(paramName) != paramMaps.end()) {
-                        ParamInfo& param = paramMaps[paramName];
-                        if (param.optional) {
-                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                                cmd.optional(paramName, param.type, param.enumName).option(param.option);
+                    auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+                    for (auto& info : paramList) {
+                        if (info.name == paramName || info.enumName == paramName) {
+                            if (info.optional) {
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.optional(info.name, info.type).option(info.option);
+                                }
                             } else {
-                                cmd.optional(paramName, param.type).option(param.option);
-                            }
-                        } else {
-                            if (param.type == ParamKind::Kind::Enum || param.type == ParamKind::Kind::SoftEnum) {
-                                cmd.required(paramName, param.type, param.enumName).option(param.option);
-                            } else {
-                                cmd.required(paramName, param.type).option(param.option);
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.required(info.name, info.type).option(info.option);
+                                }
                             }
                         }
                     }

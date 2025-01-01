@@ -1,7 +1,6 @@
 #pragma once
 #include "api/CommandCompatibleAPI.h"
 #include "ll/api/command/CommandHandle.h"
-#include "ll/api/command/runtime/ParamKind.h"
 
 extern ClassDefine<void> ParamTypeStaticBuilder;
 extern ClassDefine<void> PermissionStaticBuilder;
@@ -18,18 +17,10 @@ enum class OldCommandPermissionLevel : schar {
     Internal    = 0x5,
 };
 
-struct ParamInfo {
-    ll::command::ParamKind::Kind type;
-    bool                         optional;
-    std::string                  enumName;
-    CommandParameterOption       option;
-};
-
 class CommandClass : public ScriptClass {
-    std::string                                commandName;
-    std::string                                description;
-    std::unordered_map<std::string, ParamInfo> paramMaps;
-    inline ll::command::CommandHandle&         get() {
+    std::string                        commandName;
+    std::string                        description;
+    inline ll::command::CommandHandle& get() {
         return ll::command::CommandRegistrar::getInstance().getOrCreateCommand(commandName);
     }
     inline std::vector<std::string> parseStringList(Local<Array> arr) {

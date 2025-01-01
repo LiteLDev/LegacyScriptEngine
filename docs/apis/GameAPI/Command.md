@@ -2,48 +2,53 @@
 
 The following APIs provide interfaces for registering and listening to custom commands in the game:
 
-### Execute a Background Command  
+### Execute a Background Command
 
 `mc.runcmd(cmd)`
 
-- Parameters: 
-  - cmd : `String`  
-    The command to be executed.  
+- Parameters:
+    - cmd : `String`  
+      The command to be executed.
 - Return value: Whether the execution was successful.
 - Return value type:  `Boolean`
 
 [JavaScript]
+
 ```js
 mc.runcmd("say Hello!");
 ```
+
 [Lua]
+
 ```lua
 mc.runcmd("say Hello!")
 ```
 
-### Execute a Background Command (Enhanced Version) 
+### Execute a Background Command (Enhanced Version)
 
 `mc.runcmdEx(cmd)`
 
-- Parameters: 
+- Parameters:
 
-  - cmd : `String`  
-    The command to be executed.  
-- Return value: Command Execution Result `Object` 
+    - cmd : `String`  
+      The command to be executed.
+- Return value: Command Execution Result `Object`
 - Return value type:  `Object<Boolean,String>`
 
-  - For a returned execution result object res, there are the following members:  
+    - For a returned execution result object res, there are the following members:
 
   | Members     | Meaning                                           | Data Type |
-  | ----------- | ------------------------------------------------- | --------- |
+      | ----------- | ------------------------------------------------- | --------- |
   | res.success | Whether the execution was successful.             | `Boolean` |
   | res.output  | The output result after BDS executes the command. | `String`  |
 
-
 !!! note
-    The implementation of runcmdEx is very different from ordinary runcmd. The Enhanced version has a **hidden execution** mechanism, and the execution result will not be output to the console. Therefore, if necessary, you must manually use the log function to output the result.
+The implementation of runcmdEx is very different from ordinary runcmd. The Enhanced version has a **hidden execution**
+mechanism, and the execution result will not be output to the console. Therefore, if necessary, you must manually use
+the log function to output the result.
 
 [JavaScript]
+
 ```js
 var result = mc.runcmdEx("say Hello!");
 log(result.output);
@@ -51,82 +56,90 @@ log(result.output);
 
 ## Command Registration API
 
-An interface for registering custom commands is provided here. By docking with the built-in command system of BDS, the commands you register can be used by players, consoles, command blocks, NPCs and other objects that can execute commands in games. In addon, you can also use the commands registered here.
+An interface for registering custom commands is provided here. By docking with the built-in command system of BDS, the
+commands you register can be used by players, consoles, command blocks, NPCs and other objects that can execute commands
+in games. In addon, you can also use the commands registered here.
 !!! warning
-    Except for variable parameters (String, RawText, Message, etc.), the commands cannot contain non-English lowercase letters!
+Except for variable parameters (String, RawText, Message, etc.), the commands cannot contain non-English lowercase
+letters!
 
 ### Register a Top-Level Command
 
 `mc.newCommand(cmd,description[,permission,flag,alias])`
 
-- Parameters: 
+- Parameters:
 
-  - cmd : `String`  
-    The command that will be registered.
-  - description : `String`  
-    The description text for the command.  
-  - permission : `PermType`  
-    (Optional parameter)   
+    - cmd : `String`  
+      The command that will be registered.
+    - description : `String`  
+      The description text for the command.
+    - permission : `PermType`  
+      (Optional parameter)
 
-    | Execution Permission   | Meaning                                             |
-    | ---------------------- | --------------------------------------------------- |
-    | `PermType.Any`         | Anyone can execute the command.                     |
-    | `PermType.GameMasters` | Only the OP can execute the command.(Default value) |
-    | `PermType.Console`     | Only the console can execute the command.           |
+      | Execution Permission   | Meaning                                             |
+                | ---------------------- | --------------------------------------------------- |
+      | `PermType.Any`         | Anyone can execute the command.                     |
+      | `PermType.GameMasters` | Only the OP can execute the command.(Default value) |
+      | `PermType.Console`     | Only the console can execute the command.           |
 
-  - flag : `Integer`  
-    (Optional parameter) Default value is `0x80`   
-    At present, you can directly press this input, and related modifications will be made in the future.
-  - alias : `String`  
-    (Optional argument) Add an alias for the command.
-    Multiple aliases can be set for a command, which is equivalent to triggering the same command when executed.
+    - flag : `Integer`  
+      (Optional parameter) Default value is `0x80`   
+      At present, you can directly press this input, and related modifications will be made in the future.
+    - alias : `String`  
+      (Optional argument) Add an alias for the command.
+      Multiple aliases can be set for a command, which is equivalent to triggering the same command when executed.
 - Return value: Command Object.
 - Return value type: `Command`
 
 !!! tip
-    Top-level commands, i.e. something like `list` `gamerule`, the first input after the `/` character.
-    
+Top-level commands, i.e. something like `list` `gamerule`, the first input after the `/` character.
+
     After registering the top-level command, this function returns a command object. Next, the function expansion of this command needs to be carried out in this command object.
 
 ### Command Object - Function
 
-Through the command object, you can register various forms and functions for this command. Suppose there is a `Command`. The command object has the following member functions.
+Through the command object, you can register various forms and functions for this command. Suppose there is a `Command`.
+The command object has the following member functions.
 
 #### Set Command Alias
 
 `Command.setAlias(alias)`
-- Parameters: 
-  - alias : `String`  
-    Command alias.
+
+- Parameters:
+    - alias : `String`  
+      Command alias.
 - Return value: Whether creating the alias succeeded or not.
 - Return value type: `Boolean`
 
 #### Add Command Enumerations
 
 `Command.setEnum(name,values)`
-- Parameters: 
-  - name : `String`  
-    Enumeration name, used to distinguish the enumeration when setting parameters.
-  - values : `Array<String>`  
-    Valid values ​​for enumeration.
+
+- Parameters:
+    - name : `String`  
+      Enumeration name, used to distinguish the enumeration when setting parameters.
+    - values : `Array<String>`  
+      Valid values ​​for enumeration.
 - Return value: New enumeration option identification name.
 - Return value type: `String`
 
 #### Add a Required Parameter
 
 `Command.mandatory(name,type[,enumName,identifier,enumOptions])`
-- Parameters: 
-  - name : `String`  
-    Parameter name, used to identify the parameter when executing the command.
-  - type : `ParamType`  
-    Command parameter type.
-  - enumName : `String`  
-    Enumeration name (only valid when `ParamType` is `Enum`, used to distinguish enumeration options).
-  - identifier : `String`  
-    Parameter identifier, used to uniquely identify parameters in special cases, generally can be replaced by `enumName` or `name`.
-  - enumOptions : `Integer`  
-    Parameter options, set to `1` to expand enumeration options in the command prompt.  
-    For example `<action : TagChangeAction>` will become `<add|remove>`.
+
+- Parameters:
+    - name : `String`  
+      Parameter name, used to identify the parameter when executing the command.
+    - type : `ParamType`  
+      Command parameter type.
+    - enumName : `String`  
+      Enumeration name (only valid when `ParamType` is `Enum`, used to distinguish enumeration options).
+    - identifier : `String`  
+      Parameter identifier, used to uniquely identify parameters in special cases, generally can be replaced by
+      `enumName` or `name`.
+    - enumOptions : `Integer`  
+      Parameter options, set to `1` to expand enumeration options in the command prompt.  
+      For example `<action : TagChangeAction>` will become `<add|remove>`.
 - Return value: Whether setting succeeded or not.
 - Return value type: `Boolean`
 
@@ -134,25 +147,26 @@ Through the command object, you can register various forms and functions for thi
 
 `Command.optional(name,type[,enumName,identifier,enumOptions])`
 
-- Parameters: 
-  - name : `String`  
-    Parameter name, used to identify the parameter when executing the command.
-  - type : `ParamType`  
-    Command parameter type.
-  - enumName : `String`  
-    Enumeration name (only valid when `ParamType` is `Enum`, used to distinguish enumeration options).
-  - identifier : `String`  
-    Parameter identifier, used to uniquely identify parameters in special cases, generally can be replaced by `enumName` or `name`.
-  - enumOptions : `Integer`  
-    Parameter options, set to `1` to expand enumeration options in the command prompt.  
-    For example `<action : TagChangeAction>` will become `<add|remove>`.
+- Parameters:
+    - name : `String`  
+      Parameter name, used to identify the parameter when executing the command.
+    - type : `ParamType`  
+      Command parameter type.
+    - enumName : `String`  
+      Enumeration name (only valid when `ParamType` is `Enum`, used to distinguish enumeration options).
+    - identifier : `String`  
+      Parameter identifier, used to uniquely identify parameters in special cases, generally can be replaced by
+      `enumName` or `name`.
+    - enumOptions : `Integer`  
+      Parameter options, set to `1` to expand enumeration options in the command prompt.  
+      For example `<action : TagChangeAction>` will become `<add|remove>`.
 - Return value: Whether setting succeeded or not.
 - Return value type: `Boolean`
 
-#### Valid Command Parameter Types and Explanations 
+#### Valid Command Parameter Types and Explanations
 
 | Command Parameter Type | Meaning                                                                                                         |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
+|------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `ParamType.Bool`       | Boolean Parameter                                                                                               |
 | `ParamType.Int`        | Integer Parameter                                                                                               |
 | `ParamType.Float`      | Floating point Parameter                                                                                        |
@@ -176,32 +190,38 @@ Through the command object, you can register various forms and functions for thi
 
 `Command.overload(params)`
 
-- Parameters: 
-  - params : `Array<String>`  
-    Parameter identifier, parameter list used by overloading, available parameter identifier, enumeration name, parameter name.
-    Note that you cannot use identifiers that cannot distinguish specific parameters. For example, both parameters are called `action` but the enumeration options are different. In this case, the enumeration name should be used instead of the parameter name.
+- Parameters:
+    - params : `Array<String>`  
+      Parameter identifier, parameter list used by overloading, available parameter identifier, enumeration name,
+      parameter name.
+      Note that you cannot use identifiers that cannot distinguish specific parameters. For example, both parameters are
+      called `action` but the enumeration options are different. In this case, the enumeration name should be used
+      instead of the parameter name.
 - Return value: Whether setting succeeded or not.
 - Return value type: `Boolean`
 
 !!! tip
-    Command overloading is the method used by BDS to distinguish different command forms, and each different command form corresponds to a command overloading.
-    As you can see, the parameter names provided in the command overload form a new command form.
+Command overloading is the method used by BDS to distinguish different command forms, and each different command form
+corresponds to a command overloading.
+As you can see, the parameter names provided in the command overload form a new command form.
 
 #### Set Command Callback
 
 `Command.setCallback(callback)`
-- Parameters: 
-  - callback : `Function(cmd,origin,output,results)`  
-    When the registered command is executed, the interface automatically calls the callback function.
+
+- Parameters:
+    - callback : `Function(cmd,origin,output,results)`  
+      When the registered command is executed, the interface automatically calls the callback function.
 - Return value: Whether setting succeeded or not.
 - Return value type: `Boolean`
 
 !!! tip
-    The parameters of the command callback function are relatively complex, which will be explained in detail below.
+The parameters of the command callback function are relatively complex, which will be explained in detail below.
 
 #### Installation Instructions
 
-After all the configuration of the command is completed, use this function to register the command to the BDS command system.
+After all the configuration of the command is completed, use this function to register the command to the BDS command
+system.
 
 `Command.setup()`
 
@@ -210,7 +230,8 @@ After all the configuration of the command is completed, use this function to re
 
 ## Command Callback Function
 
-The **command callback function** mentioned above is a relatively complex callback function, and some explanations of the parameters are given below.
+The **command callback function** mentioned above is a relatively complex callback function, and some explanations of
+the parameters are given below.
 Command callback function prototype: `Function(cmd,origin,output,results)`
 
 #### Parameters `cmd` : Own Command Object
@@ -219,11 +240,12 @@ This parameter gives the directive object with which you registered this command
 
 #### Parameters `origin` : The Executor of the Command
 
-The parameter `origin` is of type `CommandOrigin` object. This object represents the executor of this command. Through this object, some operations can be performed on the executor.
+The parameter `origin` is of type `CommandOrigin` object. This object represents the executor of this command. Through
+this object, some operations can be performed on the executor.
 For a particular `CommandOrigin` object `ori`, there are the following properties:
 
 | Members      | Meaning                                              | Data Types   |
-| ------------ | ---------------------------------------------------- | ------------ |
+|--------------|------------------------------------------------------|--------------|
 | ori.type     | Command Execution Body Type                          | `OriginType` |
 | ori.name     | The name of the command execution body               | `String`     |
 | ori.pos      | The coordinates of the command exection body         | `FloatPos`   |
@@ -233,18 +255,19 @@ For a particular `CommandOrigin` object `ori`, there are the following propertie
 
 #### Parameter `output` : Output the Execution Result of the Command to the Command Executor
 
-Parameter `output` is of type `CommandOutput` object. Through this object, the execution result of the command can be output to the command executor.
+Parameter `output` is of type `CommandOutput` object. Through this object, the execution result of the command can be
+output to the command executor.
 For a particular `CommandOutput` object `outp`, the following member methods are available:
 
 ##### Output a Success Message
 
 `outp.success([msg][, parm])`
 
-- Parameters: 
-  - msg : `String`  
-    The message to output.
-  - parm : `Array`
-    Parameters to be replaced
+- Parameters:
+    - msg : `String`  
+      The message to output.
+    - parm : `Array`
+      Parameters to be replaced
 - Return value: Whether the output is successful.
 - Return value type: `Boolean`
 
@@ -252,11 +275,11 @@ For a particular `CommandOutput` object `outp`, the following member methods are
 
 `outp.error(msg[, parm])`
 
-- Parameters: 
-  - msg : `String`  
-    The message to output.
-  - parm : `Array`
-    Parameters to be replaced
+- Parameters:
+    - msg : `String`  
+      The message to output.
+    - parm : `Array`
+      Parameters to be replaced
 - Return value: Whether the output is successful.
 - Return value type: `Boolean`
 
@@ -264,22 +287,24 @@ For a particular `CommandOutput` object `outp`, the following member methods are
 
 `outp.addMessage(msg[, parm])`
 
-- Parameters: 
-  - msg : `String`  
-    The message to output.
-  - parm : `Array`
-    Parameters to be replaced
+- Parameters:
+    - msg : `String`  
+      The message to output.
+    - parm : `Array`
+      Parameters to be replaced
 - Return value: Whether the output is successful.
 - Return value type: `Boolean`
 
-#### Parameter `result` : The Result Obtained by Each Parameter of the Command 
+#### Parameter `result` : The Result Obtained by Each Parameter of the Command
 
-The content of `results` is `object<command parameter name-data value>` key-value pair. The `command parameter name` is the `name` value of the parameter set when the command is registered, and the `data value` is the content filled in by the executor in the position of the current command parameter.
+The content of `results` is `object<command parameter name-data value>` key-value pair. The `command parameter name` is
+the `name` value of the parameter set when the command is registered, and the `data value` is the content filled in by
+the executor in the position of the current command parameter.
 
 The relationship between command parameter types and data value types is as follows:
 
 | Command Parameter Type | Data Value Type | Meaning                                                                                                         |
-| ---------------------- | --------------- | --------------------------------------------------------------------------------------------------------------- |
+|------------------------|-----------------|-----------------------------------------------------------------------------------------------------------------|
 | `ParamType.Bool`       | `Boolean`       | Boolean Value                                                                                                   |
 | `ParamType.Int`        | `Integer`       | Integer Value                                                                                                   |
 | `ParamType.Float`      | `Float`         | Floating Point Value                                                                                            |
@@ -299,9 +324,10 @@ The relationship between command parameter types and data value types is as foll
 | `ParamType.ActorType`  | `String`        | Entity Type String                                                                                              |
 | `ParamType.Command`    | `String`        | Command Name (For testing only)                                                                                 |
 
-### Command Registration Example 
+### Command Registration Example
 
 [JavaScript]
+
 ```js
 mc.listen("onServerStarted", () => {
     let cmd = mc.newCommand("manager", "Command Description", PermType.GameMasters);
@@ -327,29 +353,32 @@ mc.listen("onServerStarted", () => {
 });
 ```
 
-## Fake Command API 
+## Fake Command API
 
-The fake command API here is reserved for **downward compatibility**. It is recommended to use the **true command** API written in the above document.
+The fake command API here is reserved for **downward compatibility**. It is recommended to use the **true command** API
+written in the above document.
 
 !!! warning
-    Although it looks relatively simple, fake commands have some important disadvantages, including that they can only be executed by the player or console, other objects (such as command blocks, NPCs, etc.) cannot be executed, all parameter data needs to be parsed by themselves, etc.
-    
+Although it looks relatively simple, fake commands have some important disadvantages, including that they can only be
+executed by the player or console, other objects (such as command blocks, NPCs, etc.) cannot be executed, all parameter
+data needs to be parsed by themselves, etc.
+
     Please try to use the real command API.
 
-### Register a New Player Command (Fake Command)  
+### Register a New Player Command (Fake Command)
 
 `mc.regPlayerCmd(cmd,description,callback[,level])`
 
-- Parameters: 
-  - cmd : `String`  
-    The command that will be registered.
-  - description : `String`  
-    Command Description Text.  
-  - callback : `Function(player,args)`  
-    When the registered command is executed, the interface automatically calls the callback function. 
-  - level : `Integer`  
-    (Optional parameter) The registration level of the command, the default is 0, that is, everyone can execute it.
-    If the command registration level is set to 1, only the OP can execute this command.
+- Parameters:
+    - cmd : `String`  
+      The command that will be registered.
+    - description : `String`  
+      Command Description Text.
+    - callback : `Function(player,args)`  
+      When the registered command is executed, the interface automatically calls the callback function.
+    - level : `Integer`  
+      (Optional parameter) The registration level of the command, the default is 0, that is, everyone can execute it.
+      If the command registration level is set to 1, only the OP can execute this command.
 - Return value: Whether the registration was successful.
 - Return value type: `Boolean`
 
@@ -359,30 +388,31 @@ Note: The callback function prototype of the parameter callback: `function(playe
   The player that executes the command.
 - args : `Array<String,String...>`    
   Arguments following the target command. Divide by spaces to form a string array.  
-  If a custom command `land set` is registered, when `/land set abc 2333` is executed, the value of args will be `[ "abc","2333" ]`
+  If a custom command `land set` is registered, when `/land set abc 2333` is executed, the value of args will be
+  `[ "abc","2333" ]`
 
 [JavaScript]
+
 ```js
-mc.regPlayerCmd("fly on","Turn on the fly mode",function(pl,args){
+mc.regPlayerCmd("fly on", "Turn on the fly mode", function (pl, args) {
     pl.tell("Flying enabled.");
     //......
 });
 ```
 
-
-### Register a New Background Console Command (Fake Command)  
+### Register a New Background Console Command (Fake Command)
 
 `mc.regConsoleCmd(cmd,description,callback)`
 
-- Parameters: 
-  - cmd : `String`  
-    The command that will be registered.
+- Parameters:
+    - cmd : `String`  
+      The command that will be registered.
 
-  - description : `String`  
-    Command Description Text.  
+    - description : `String`  
+      Command Description Text.
 
-  - callback : `Function`  
-    When the registered command is executed, the interface automatically calls the callback function.   
+    - callback : `Function`  
+      When the registered command is executed, the interface automatically calls the callback function.
 - Return value: Whether the registration was successful.
 - Return value type: `Boolean`
 
@@ -390,20 +420,23 @@ Note: The callback function prototype of the parameter callback: `function(args)
 
 - args : `Array<String,String...>`      
   Arguments following the target command. Divide by spaces to form a string array.
-   If a custom command `land set` is registered, when `/land set abc 2333` is executed, the value of args will be `['abc','2333']`
+  If a custom command `land set` is registered, when `/land set abc 2333` is executed, the value of args will be
+  `['abc','2333']`
 
 [JavaScript]
+
 ```js
-mc.regConsoleCmd("backup","Start the backup",function(args){
-    log("ID of this backup is:",args[0]);
+mc.regConsoleCmd("backup", "Start the backup", function (args) {
+    log("ID of this backup is:", args[0]);
     //......
 });
 ```
 
 !!! tip "Instructions on Fake Order Registration"
-    After setting the callback function, the callback function will be called when the fake command you registered is executed.  
-    LLSE will automatically split the command arguments into arrays for you before calling them.  
-    
+After setting the callback function, the callback function will be called when the fake command you registered is
+executed.  
+LLSE will automatically split the command arguments into arrays for you before calling them.
+
     Take the JavaScript language as an example:
     
     Execute command
@@ -414,17 +447,15 @@ mc.regConsoleCmd("backup","Start the backup",function(args){
     As you can see, the values contained in `args` are **sequentially split** command arguments.
     If you have quotes in your command (for example to handle player names with spaces in them), LLSE will also do this when splitting.
 
-
-
 ## Other APIs Related to the Command System
 
 ### The Simulation Produces a Console Command Output
 
 `mc.sendCmdOutput(output)`
 
-- Parameters: 
-  - output : `String`  
-    The command output produced by the simulation.
+- Parameters:
+    - output : `String`  
+      The command output produced by the simulation.
 
 - Return value: Whether the exection was successful.
 - Return value type: `Boolean`

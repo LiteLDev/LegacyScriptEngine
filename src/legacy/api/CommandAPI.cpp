@@ -232,12 +232,15 @@ Local<Value> McClass::newCommand(const Arguments& args) {
 
     try {
         auto name     = args[0].asString().toString();
-        auto instance = ll::service::getCommandRegistry()->findCommand(name);
-        if (instance) {
-            lse::getSelfPluginInstance().getLogger().info(
-                "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
-            );
-            return CommandClass::newCommand(name);
+        auto registry = ll::service::getCommandRegistry();
+        if (registry) {
+            auto instance = registry->findCommand(name);
+            if (instance) {
+                lse::getSelfPluginInstance().getLogger().info(
+                    "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
+                );
+                return CommandClass::newCommand(name);
+            }
         }
 
         auto                   desc       = args[1].asString().toString();

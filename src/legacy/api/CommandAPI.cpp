@@ -7,7 +7,6 @@
 #include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
 #include "api/McAPI.h"
-#include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
@@ -47,6 +46,8 @@
 #include <vector>
 
 using namespace ll::command;
+using ll::event::EventBus;
+using ll::event::ServerStartedEvent;
 
 //////////////////// Class Definition ////////////////////
 
@@ -260,9 +261,20 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                 }
             }
         }
-        auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
-        if (!alias.empty()) {
-            command.alias(alias);
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>(
+                [name, desc, permission, flag, alias](ServerStartedEvent&) {
+                    auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
+                    if (!alias.empty()) {
+                        command.alias(alias);
+                    }
+                }
+            );
+        } else {
+            auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
+            if (!alias.empty()) {
+                command.alias(alias);
+            }
         }
         return CommandClass::newCommand(name);
     }
@@ -291,7 +303,16 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     try {
-        get().alias(args[0].asString().toString());
+        std::string alias = args[0].asString().toString();
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([commandName(commandName),
+                                                                         alias](ServerStartedEvent&) {
+                ll::command::CommandRegistrar::getInstance().getOrCreateCommand(commandName).alias(alias);
+            });
+            return Boolean::newBoolean(true);
+        } else {
+            get().alias(alias);
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setAlias!")
@@ -310,8 +331,15 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
         for (int i = 0; i < enumArr.size(); ++i) {
             enumValues.push_back({enumArr.get(i).asString().toString(), i});
         }
-        if (CommandRegistrar::getInstance().tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([enumName, enumValues](ServerStartedEvent&) {
+                CommandRegistrar::getInstance().tryRegisterRuntimeEnum(enumName, std::move(enumValues));
+            });
             return String::newString(enumName);
+        } else {
+            if (CommandRegistrar::getInstance().tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
+                return String::newString(enumName);
+            }
         }
         return {};
     }
@@ -443,7 +471,6 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 Local<Value> CommandClass::addOverload(const Arguments& args) {
     try {
         if (args.size() == 0) return Boolean::newBoolean(true);
-        auto cmd          = get().runtimeOverload(getEngineOwnData()->plugin);
         auto overloadFunc = [](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
             auto& paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
             for (auto& info : paramList) {
@@ -464,40 +491,128 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 }
             }
         };
+        auto delayRegFunc = [this, &overloadFunc](std::vector<std::string>& enumValues) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([enumValues,
+                                                                         commandName(commandName),
+                                                                         overloadFunc,
+                                                                         e(EngineScope::currentEngine()
+                                                                         )](ServerStartedEvent&) {
+                auto cmd = ll::command::CommandRegistrar::getInstance()
+                               .getOrCreateCommand(commandName)
+                               .runtimeOverload(getEngineData(e)->plugin);
+                for (auto& paramName : enumValues) {
+                    auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
+                    for (auto& info : paramList) {
+                        if (info.name == paramName || info.enumName == paramName) {
+                            if (info.optional) {
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.optional(info.name, info.type).option(info.option);
+                                }
+                            } else {
+                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                                } else {
+                                    cmd.required(info.name, info.type).option(info.option);
+                                }
+                            }
+                        }
+                    }
+                }
+                cmd.execute(onExecute);
+            });
+        };
+
         if (args[0].isNumber()) {
-            for (int i = 0; i < args.size(); ++i) {
-                CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
-                std::string paramName = std::to_string(args[i].asNumber().toInt32());
-                overloadFunc(cmd, commandName, paramName);
+            if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                std::vector<std::string> enumValues;
+                for (int i = 0; i < args.size(); ++i) {
+                    CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
+                    enumValues.push_back(std::to_string(args[i].asNumber().toInt32()));
+                }
+                delayRegFunc(enumValues);
+            } else {
+                auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                for (int i = 0; i < args.size(); ++i) {
+                    CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
+                    std::string paramName = std::to_string(args[i].asNumber().toInt32());
+                    overloadFunc(cmd, commandName, paramName);
+                }
+                cmd.execute(onExecute);
             }
-            cmd.execute(onExecute);
             return Boolean::newBoolean(true);
         } else if (args[0].isString()) {
-            for (int i = 0; i < args.size(); ++i) {
-                CHECK_ARG_TYPE(args[i], ValueKind::kString);
-                std::string paramName = args[0].asString().toString();
-                overloadFunc(cmd, commandName, paramName);
+            if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                std::vector<std::string> enumValues;
+                for (int i = 0; i < args.size(); ++i) {
+                    CHECK_ARG_TYPE(args[i], ValueKind::kString);
+                    enumValues.push_back(args[0].asString().toString());
+                }
+                delayRegFunc(enumValues);
+            } else {
+                auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                for (int i = 0; i < args.size(); ++i) {
+                    CHECK_ARG_TYPE(args[i], ValueKind::kString);
+                    std::string paramName = args[0].asString().toString();
+                    overloadFunc(cmd, commandName, paramName);
+                }
+                cmd.execute(onExecute);
             }
-            cmd.execute(onExecute);
             return Boolean::newBoolean(true);
         } else if (args[0].isArray()) {
             auto arr = args[0].asArray();
-            if (arr.size() == 0) return Boolean::newBoolean(true);
-            if (arr.get(0).isNumber()) {
-                for (int i = 0; i < arr.size(); ++i) {
-                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
-                    std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
-                    overloadFunc(cmd, commandName, paramName);
+            if (arr.size() == 0) {
+                if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                    EventBus::getInstance().emplaceListener<ServerStartedEvent>(
+                        [commandName(commandName), e(EngineScope::currentEngine())](ServerStartedEvent&) {
+                            auto cmd = ll::command::CommandRegistrar::getInstance()
+                                           .getOrCreateCommand(commandName)
+                                           .runtimeOverload(getEngineData(e)->plugin);
+                            cmd.execute(onExecute);
+                        }
+                    );
+                } else {
+                    auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                    cmd.execute(onExecute);
                 }
-                cmd.execute(onExecute);
+                return Boolean::newBoolean(true);
+            }
+            if (arr.get(0).isNumber()) {
+                if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                    std::vector<std::string> enumValues;
+                    for (int i = 0; i < arr.size(); ++i) {
+                        CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
+                        enumValues.push_back(std::to_string(arr.get(i).asNumber().toInt32()));
+                    }
+                    delayRegFunc(enumValues);
+                } else {
+                    auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                    for (int i = 0; i < arr.size(); ++i) {
+                        CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
+                        std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
+                        overloadFunc(cmd, commandName, paramName);
+                    }
+                    cmd.execute(onExecute);
+                }
                 return Boolean::newBoolean(true);
             } else if (arr.get(0).isString()) {
-                for (int i = 0; i < arr.size(); ++i) {
-                    CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
-                    std::string paramName = arr.get(i).asString().toString();
-                    overloadFunc(cmd, commandName, paramName);
+                if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                    std::vector<std::string> enumValues;
+                    for (int i = 0; i < arr.size(); ++i) {
+                        CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
+                        enumValues.push_back(arr.get(i).asString().toString());
+                    }
+                    delayRegFunc(enumValues);
+                } else {
+                    auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                    for (int i = 0; i < arr.size(); ++i) {
+                        CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
+                        std::string paramName = arr.get(i).asString().toString();
+                        overloadFunc(cmd, commandName, paramName);
+                    }
+                    cmd.execute(onExecute);
                 }
-                cmd.execute(onExecute);
                 return Boolean::newBoolean(true);
             }
         }
@@ -512,8 +627,7 @@ Local<Value> CommandClass::setCallback(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
     try {
-        auto  func    = args[0].asFunction();
-        auto& command = get();
+        auto func = args[0].asFunction();
         localShareData
             ->commandCallbacks[commandName] = {EngineScope::currentEngine(), 0, script::Global<Function>(func)};
         return Boolean::newBoolean(true);
@@ -548,7 +662,13 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
     try {
         auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
-        CommandRegistrar::getInstance().tryRegisterSoftEnum(name, std::move(enums));
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([name, enums](ServerStartedEvent&) {
+                CommandRegistrar::getInstance().tryRegisterSoftEnum(name, std::move(enums));
+            });
+        } else {
+            CommandRegistrar::getInstance().tryRegisterSoftEnum(name, std::move(enums));
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setSoftEnum!");
@@ -561,7 +681,13 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
     try {
         auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
-        CommandRegistrar::getInstance().addSoftEnumValues(name, std::move(enums));
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([name, enums](ServerStartedEvent&) {
+                CommandRegistrar::getInstance().addSoftEnumValues(name, std::move(enums));
+            });
+        } else {
+            CommandRegistrar::getInstance().addSoftEnumValues(name, std::move(enums));
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addSoftEnumValues!");
@@ -574,7 +700,13 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
     try {
         auto name  = args[0].asString().toString();
         auto enums = parseStringList(args[1].asArray());
-        CommandRegistrar::getInstance().removeSoftEnumValues(name, std::move(enums));
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([name, enums](ServerStartedEvent&) {
+                CommandRegistrar::getInstance().removeSoftEnumValues(name, std::move(enums));
+            });
+        } else {
+            CommandRegistrar::getInstance().removeSoftEnumValues(name, std::move(enums));
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeSoftEnumValues!");
@@ -584,11 +716,14 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto  name      = args[0].asString().toString();
-        auto& lookup    = ll::service::getCommandRegistry()->mSoftEnumLookup;
-        auto& softEnums = ll::service::getCommandRegistry()->mSoftEnums;
-        if (lookup.find(name) != lookup.end()) {
-            return getStringArray(softEnums[lookup[name]].mValues);
+        auto name     = args[0].asString().toString();
+        auto registry = ll::service::getCommandRegistry();
+        if (registry) {
+            auto& lookup    = registry->mSoftEnumLookup;
+            auto& softEnums = registry->mSoftEnums;
+            if (lookup.find(name) != lookup.end()) {
+                return getStringArray(softEnums[lookup[name]].mValues);
+            }
         }
         return {};
     }
@@ -597,7 +732,9 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
 
 Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
     try {
-        auto&                    lookup = ll::service::getCommandRegistry()->mSoftEnums;
+        auto registry = ll::service::getCommandRegistry();
+        if (!registry) return {};
+        auto&                    lookup = registry->mSoftEnums;
         std::vector<std::string> names;
         for (auto& [name, _] : lookup) {
             names.push_back(name);

@@ -443,29 +443,32 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 Local<Value> CommandClass::addOverload(const Arguments& args) {
     try {
         if (args.size() == 0) return Boolean::newBoolean(true);
-        auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+        auto cmd          = get().runtimeOverload(getEngineOwnData()->plugin);
+        auto overloadFunc = [](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
+            auto& paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+            for (auto& info : paramList) {
+                if (info.name == paramName || info.enumName == paramName) {
+                    if (info.optional) {
+                        if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                            cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                        } else {
+                            cmd.optional(info.name, info.type).option(info.option);
+                        }
+                    } else {
+                        if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                            cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                        } else {
+                            cmd.required(info.name, info.type).option(info.option);
+                        }
+                    }
+                }
+            }
+        };
         if (args[0].isNumber()) {
             for (int i = 0; i < args.size(); ++i) {
                 CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
                 std::string paramName = std::to_string(args[i].asNumber().toInt32());
-                auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
-                for (auto& info : paramList) {
-                    if (info.name == paramName || info.enumName == paramName) {
-                        if (info.optional) {
-                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
-                            } else {
-                                cmd.optional(info.name, info.type).option(info.option);
-                            }
-                        } else {
-                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                cmd.required(info.enumName, info.type, info.enumName).option(info.option);
-                            } else {
-                                cmd.required(info.name, info.type).option(info.option);
-                            }
-                        }
-                    }
-                }
+                overloadFunc(cmd, commandName, paramName);
             }
             cmd.execute(onExecute);
             return Boolean::newBoolean(true);
@@ -473,24 +476,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             for (int i = 0; i < args.size(); ++i) {
                 CHECK_ARG_TYPE(args[i], ValueKind::kString);
                 std::string paramName = args[0].asString().toString();
-                auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
-                for (auto& info : paramList) {
-                    if (info.name == paramName || info.enumName == paramName) {
-                        if (info.optional) {
-                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
-                            } else {
-                                cmd.optional(info.name, info.type).option(info.option);
-                            }
-                        } else {
-                            if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                cmd.required(info.enumName, info.type, info.enumName).option(info.option);
-                            } else {
-                                cmd.required(info.name, info.type).option(info.option);
-                            }
-                        }
-                    }
-                }
+                overloadFunc(cmd, commandName, paramName);
             }
             cmd.execute(onExecute);
             return Boolean::newBoolean(true);
@@ -501,24 +487,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 for (int i = 0; i < arr.size(); ++i) {
                     CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
                     std::string paramName = std::to_string(arr.get(i).asNumber().toInt32());
-                    auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
-                    for (auto& info : paramList) {
-                        if (info.name == paramName || info.enumName == paramName) {
-                            if (info.optional) {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.optional(info.name, info.type).option(info.option);
-                                }
-                            } else {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.required(info.name, info.type).option(info.option);
-                                }
-                            }
-                        }
-                    }
+                    overloadFunc(cmd, commandName, paramName);
                 }
                 cmd.execute(onExecute);
                 return Boolean::newBoolean(true);
@@ -526,24 +495,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 for (int i = 0; i < arr.size(); ++i) {
                     CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
                     std::string paramName = arr.get(i).asString().toString();
-                    auto&       paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
-                    for (auto& info : paramList) {
-                        if (info.name == paramName || info.enumName == paramName) {
-                            if (info.optional) {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.optional(info.name, info.type).option(info.option);
-                                }
-                            } else {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.required(info.name, info.type).option(info.option);
-                                }
-                            }
-                        }
-                    }
+                    overloadFunc(cmd, commandName, paramName);
                 }
                 cmd.execute(onExecute);
                 return Boolean::newBoolean(true);

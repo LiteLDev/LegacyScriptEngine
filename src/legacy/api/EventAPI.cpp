@@ -53,8 +53,8 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
-#include "mc/world/level/BlockSource.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 
 #include <list>
 #include <shared_mutex>
@@ -844,7 +844,7 @@ void InitBasicEventListeners() {
 
             // 处理延迟注册
             ProcessRegCmdQueue();
-        }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+        }).launch(ll::thread::ServerThreadExecutor::getDefault());
     });
 
     // 植入tick
@@ -880,7 +880,7 @@ void InitBasicEventListeners() {
             IF_LISTENED(EVENT_TYPES::onTick) { CallEventUncancelable(EVENT_TYPES::onTick); }
             IF_LISTENED_END(EVENT_TYPES::onTick);
         }
-    }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 }
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {

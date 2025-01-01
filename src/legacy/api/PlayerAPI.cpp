@@ -3063,8 +3063,9 @@ Local<Value> PlayerClass::getAbilities(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        CompoundTag tag = CompoundTag();
+        CompoundTag tag;
         player->save(tag);
+
         try {
             return Tag2Value(&tag.at("abilities").get<CompoundTag>(), true);
         } catch (...) {

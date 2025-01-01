@@ -4,7 +4,7 @@
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/thread/ThreadPoolExecutor.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/coro/CoroTask.h"
 
 #include <ll/api/service/ServerInfo.h>
@@ -77,7 +77,7 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
         }
         TIMETASK_CATCH("setTimeout-Function");
         ClearTimeTask(tid);
-    }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
     timeTaskMap[tid] = std::move(data);
@@ -115,7 +115,7 @@ int NewTimeout(Local<String> func, int timeout) {
             }
         }
         TIMETASK_CATCH("setTimeout-String");
-    }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
     timeTaskMap[tid] = std::move(data);
@@ -152,7 +152,7 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
             }
             TIMETASK_CATCH("setInterval-Function");
         }
-    }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
     timeTaskMap[tid] = std::move(data);
@@ -199,7 +199,7 @@ int NewInterval(Local<String> func, int timeout) {
             }
             TIMETASK_CATCH("setInterval-String");
         }
-    }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
     timeTaskMap[tid] = std::move(data);

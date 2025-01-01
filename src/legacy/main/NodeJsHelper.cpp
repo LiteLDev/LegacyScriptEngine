@@ -13,7 +13,7 @@
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/service/ServerInfo.h"
-#include "ll/api/thread/ThreadPoolExecutor.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
 #include "uv/uv.h"
@@ -180,7 +180,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                     }
                 }
             }
-        ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+        ).launch(ll::thread::ServerThreadExecutor::getDefault());
 
         return true;
     } catch (...) {

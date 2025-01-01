@@ -426,8 +426,8 @@ public:
                 &CommandRegistry::parse<T>,
                 name,
                 getCommandParameterDataType<type>(),
-                description == "" ? nullptr : description.data(),
-                identifier == "" ? nullptr : identifier.data(),
+                description.empty() ? nullptr : description.data(),
+                identifier.empty() ? nullptr : identifier.data(),
                 (int)offset,
                 optional,
                 (int)offset + std::max(8, (int)sizeof(T)),
@@ -453,7 +453,7 @@ public:
             std::string const&     identifer       = "",
             CommandParameterOption parameterOption = CommandParameterOption::None
         )
-        : ParameterData(name, type, (std::string const&)enumOptions, identifer, parameterOption){};
+        : ParameterData(name, type, (std::string const&)enumOptions, identifer, parameterOption) {};
     };
 
     using callback_fn = std::function<void(
@@ -581,7 +581,7 @@ public:
     struct ParameterIndex {
         DynamicCommandInstance* instance;
         size_t                  index;
-        ParameterIndex(DynamicCommandInstance* instance, size_t index) : instance(instance), index(index){};
+        ParameterIndex(DynamicCommandInstance* instance, size_t index) : instance(instance), index(index) {};
         operator size_t() const { return index; }
         DynamicCommand::ParameterData& operator->() { return instance->parameterDatas.at(index); }
         bool                           isValid() const {

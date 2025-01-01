@@ -528,9 +528,13 @@ DynamicCommand::preSetup(CommandRegistry& registry, std::unique_ptr<class Dynami
         if (!commandInstance->alias_.empty()) registry.registerAlias(commandInstance->name_, commandInstance->alias_);
         auto builder = commandInstance->builder->get();
         for (auto& overload : commandInstance->overloads) {
-            auto& si                                                    = *registry.findCommand(commandInstance->name_);
-            si.overloads.emplace_back(CommandVersion{}, builder).params = commandInstance->buildOverload(overload);
-            registry.registerOverloadInternal(si, si.overloads.back());
+            auto si = registry.findCommand(commandInstance->name_);
+            if (!si) {
+                OutputError(name);
+                return nullptr;
+            }
+            si->overloads.emplace_back(CommandVersion{}, builder).params = commandInstance->buildOverload(overload);
+            registry.registerOverloadInternal(*si, si->overloads.back());
         }
         // commandInstance->overloads.clear();
         auto res = dynamicCommandInstances.emplace(commandInstance->name_, std::move(commandInstance));

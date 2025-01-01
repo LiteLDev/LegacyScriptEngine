@@ -1,5 +1,4 @@
-#include "RemoteCallAPI.h"
-
+#include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
 #include "api/BlockEntityAPI.h"
@@ -11,16 +10,15 @@
 #include "api/PlayerAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
 
 #include <RemoteCallAPI.h>
 #include <map>
 #include <process.h>
-#include <sstream>
 #include <string>
 
-#define DEFAULT_REMOTE_CALL_NAME_SPACE "LLSEGlobal"
-#define logger                         lse::getSelfPluginInstance().getLogger()
+const std::string DEFAULT_REMOTE_CALL_NAME_SPACE = "LLSEGlobal";
 
 //////////////////// Remote Call ////////////////////
 
@@ -66,7 +64,7 @@ RemoteCall::ValueType pack(Local<Value> value) {
         return pack(value.asObject());
         break;
     case script::ValueKind::kString:
-        return value.toStr();
+        return value.asString().toString();
         break;
     case script::ValueKind::kNumber: {
         auto num = value.asNumber();
@@ -103,7 +101,7 @@ Local<Value> _extractValue(std::nullptr_t) { return Local<Value>(); };
 Local<Value> _extractValue(std::string*) { return Local<Value>(); };
 Local<Value> _extractValue(Player* v) { return PlayerClass::newPlayer(v); };
 Local<Value> _extractValue(Actor* v) { return EntityClass::newEntity(v); };
-Local<Value> _extractValue(Block* v) { return BlockClass::newBlock(v, &BlockPos::ZERO, -1); };
+Local<Value> _extractValue(Block* v) { return BlockClass::newBlock(v, &BlockPos::ZERO(), -1); };
 Local<Value> _extractValue(BlockActor* const& v) { return BlockEntityClass::newBlockEntity(v, -1); };
 Local<Value> _extractValue(Container* v) { return ContainerClass::newContainer(v); };
 Local<Value> _extractValue(RemoteCall::WorldPosType v) { return FloatPos::newPos(v.pos, v.dimId); };
@@ -179,8 +177,12 @@ Local<Value> extract(RemoteCall::ValueType&& val) {
 Local<Value> MakeRemoteCall(const string& nameSpace, const string& funcName, const Arguments& args) {
     auto& func = RemoteCall::importFunc(nameSpace, funcName);
     if (!func) {
-        logger.error("Fail to import! Function [{}::{}] has not been exported!", nameSpace, funcName);
-        logger.error("In plugin <{}>", ENGINE_OWN_DATA()->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(
+            "Fail to import! Function [{}::{}] has not been exported!",
+            nameSpace,
+            funcName
+        );
+        lse::getSelfPluginInstance().getLogger().error("In plugin <{}>", getEngineOwnData()->pluginName);
         return Local<Value>();
     }
 
@@ -203,14 +205,14 @@ bool LLSEExportFunc(
     RemoteCall::CallbackFn cb         = [engine, identifier /*, scriptCallback = std::move(callback)*/](
                                     std::vector<RemoteCall::ValueType> params
                                 ) -> RemoteCall::ValueType {
-        if (ll::getServerStatus() == ll::ServerStatus::Stopping || !EngineManager::isValid(engine)
+        if (ll::getGamingStatus() == ll::GamingStatus::Stopping || !EngineManager::isValid(engine)
             || engine->isDestroying())
             return "";
         EngineScope enter(engine);
         try {
-            auto iter = ENGINE_GET_DATA(engine)->exportFuncs.find(identifier);
-            if (iter == ENGINE_GET_DATA(engine)->exportFuncs.end()) {
-                logger.debug("");
+            auto iter = getEngineData(engine)->exportFuncs.find(identifier);
+            if (iter == getEngineData(engine)->exportFuncs.end()) {
+                lse::getSelfPluginInstance().getLogger().debug("");
                 return "";
             }
             auto                              scriptCallback = iter->second.callback.get();
@@ -224,7 +226,7 @@ bool LLSEExportFunc(
         return "";
     };
     if (RemoteCall::exportFunc(nameSpace, funcName, std::move(cb))) {
-        ENGINE_GET_DATA(engine)->exportFuncs.emplace(
+        getEngineData(engine)->exportFuncs.emplace(
             identifier,
             RemoteCallData{nameSpace, funcName, script::Global<Function>(func)}
         );
@@ -237,11 +239,11 @@ bool LLSERemoveAllExportedFuncs(ScriptEngine* engine) {
     // enter scope to prevent crash in script::Global::~Global()
     EngineScope                                      enter(engine);
     std::vector<std::pair<std::string, std::string>> funcs;
-    for (auto& [key, data] : ENGINE_GET_DATA(engine)->exportFuncs) {
+    for (auto& [key, data] : getEngineData(engine)->exportFuncs) {
         funcs.emplace_back(data.nameSpace, data.funcName);
     }
     int count = RemoteCall::removeFuncs(funcs);
-    ENGINE_GET_DATA(engine)->exportFuncs.clear();
+    getEngineData(engine)->exportFuncs.clear();
     return count;
 }
 
@@ -257,11 +259,11 @@ Local<Value> LlClass::exportFunc(const Arguments& args) {
         std::string funcName;
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kString);
-            nameSpace = args[1].toStr();
-            funcName  = args[2].toStr();
+            nameSpace = args[1].asString().toString();
+            funcName  = args[2].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[1].toStr();
+            funcName  = args[1].asString().toString();
         }
         return Boolean::newBoolean(
             LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), nameSpace, funcName)
@@ -279,11 +281,11 @@ Local<Value> LlClass::importFunc(const Arguments& args) {
         std::string funcName;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kString);
-            nameSpace = args[0].toStr();
-            funcName  = args[1].toStr();
+            nameSpace = args[0].asString().toString();
+            funcName  = args[1].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[0].toStr();
+            funcName  = args[0].asString().toString();
         }
 
         // 远程调用
@@ -303,11 +305,11 @@ Local<Value> LlClass::hasFuncExported(const Arguments& args) {
         std::string funcName;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kString);
-            nameSpace = args[0].toStr();
-            funcName  = args[1].toStr();
+            nameSpace = args[0].asString().toString();
+            funcName  = args[1].asString().toString();
         } else {
             nameSpace = DEFAULT_REMOTE_CALL_NAME_SPACE;
-            funcName  = args[0].toStr();
+            funcName  = args[0].asString().toString();
         }
 
         // 远程调用

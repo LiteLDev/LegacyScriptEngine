@@ -2,7 +2,6 @@
 
 #include "engine/GlobalShareData.h"
 #include "ll/api/mod/ModManager.h"
-#include "main/Configs.h"
 
 #include <vector>
 

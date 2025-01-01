@@ -14,9 +14,9 @@ add_requires(
     "demangler",
     "dyncall",
     "fmt",
-    "legacymoney 0.8.3",
-    "legacyparticleapi 0.8.3",
-    "legacyremotecall 0.8.3",
+    "legacymoney 0.9.0-rc.1",
+    "legacyparticleapi 0.9.0-rc.1",
+    "legacyremotecall 0.9.0-rc.1",
     "lightwebsocketclient",
     "magic_enum",
     "nlohmann_json",
@@ -58,7 +58,7 @@ option("backend")
 target("legacy-script-engine")
     add_rules("@levibuildscript/linkrule")
     add_rules("@levibuildscript/modpacker")
-    add_cxflags("/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204")
+    add_cxflags("/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204","/Zm2000", {force = true})
     add_defines(
         "NOMINMAX",
         "UNICODE",
@@ -91,18 +91,36 @@ target("legacy-script-engine")
             "LEGACY_SCRIPT_ENGINE_BACKEND_LUA"
         )
         set_basename("legacy-script-engine-lua")
+        after_build(function(target)
+                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
+                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+                os.mkdir(outputPath)
+                os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "quickjs") then
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
         )
         set_basename("legacy-script-engine-quickjs")
+        after_build(function(target)
+            local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.js")
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+            os.mkdir(outputPath)
+            os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "python") then
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
         )
         set_basename("legacy-script-engine-python")
+        after_build(function(target)
+                local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
+                local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/baselib")
+                os.mkdir(outputPath)
+                os.cp(baselibPath, outputPath)
+        end)
 
     elseif is_config("backend", "nodejs") then
         add_defines(

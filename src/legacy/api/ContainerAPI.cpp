@@ -3,7 +3,7 @@
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
 #include "ll/api/utils/StringUtils.h"
-#include "mc/world/item/registry/ItemStack.h"
+#include "mc/world/item/ItemStack.h"
 
 //////////////////// Class Definition ////////////////////
 
@@ -116,7 +116,7 @@ Local<Value> ContainerClass::removeItem(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        container->removeItem(args[0].toInt(), args[1].toInt());
+        container->removeItem(args[0].asNumber().toInt32(), args[1].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeItem!");
@@ -127,7 +127,7 @@ Local<Value> ContainerClass::getItem(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].toInt()));
+        ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].asNumber().toInt32()));
         if (!item) {
             LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
             return Local<Value>();

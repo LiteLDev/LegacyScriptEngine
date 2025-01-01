@@ -6,7 +6,7 @@ using namespace DB;
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         PrintException(e);                                                                                             \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
@@ -16,7 +16,7 @@ using namespace DB;
         lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
         PrintScriptStackTrace();                                                                                       \
         lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                       \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \
     }
 
@@ -166,23 +166,23 @@ Local<Value> RowToLocalValue(const Row& row) {
 //////////////////// Classes KVDB ////////////////////
 
 // 生成函数
-KVDBClass::KVDBClass(const Local<Object>& scriptObj, const string& dir) : ScriptClass(scriptObj) {
+KVDBClass::KVDBClass(const Local<Object>& scriptObj, const std::string& dir) : ScriptClass(scriptObj) {
     try {
         kvdb = std::make_unique<ll::data::KeyValueDB>(dir);
     } catch (...) {
         kvdb.reset();
     }
 
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
-KVDBClass::KVDBClass(const string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
+KVDBClass::KVDBClass(const std::string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
     try {
         kvdb = std::make_unique<ll::data::KeyValueDB>(dir);
     } catch (...) {
         kvdb.reset();
     }
-    unloadCallbackIndex = ENGINE_OWN_DATA()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
 }
 
 KVDBClass::~KVDBClass() {}
@@ -192,7 +192,7 @@ KVDBClass* KVDBClass::constructor(const Arguments& args) {
     CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
 
     try {
-        auto res = new KVDBClass(args.thiz(), args[0].toStr());
+        auto res = new KVDBClass(args.thiz(), args[0].asString().toString());
         if (res->isValid()) return res;
         else return nullptr;
     }
@@ -240,7 +240,7 @@ Local<Value> KVDBClass::del(const Arguments& args) {
 }
 
 Local<Value> KVDBClass::close(const Arguments&) {
-    ENGINE_OWN_DATA()->removeUnloadCallback(unloadCallbackIndex);
+    getEngineOwnData()->removeUnloadCallback(unloadCallbackIndex);
     unloadCallbackIndex = -1;
     try {
         kvdb.reset();
@@ -254,10 +254,9 @@ Local<Value> KVDBClass::listKey(const Arguments&) {
         if (!isValid()) return Local<Value>();
 
         Local<Array> array = Array::newArray();
-        kvdb->iter([&array](std::string_view key, std::string_view) {
+        for (auto const& [key, _] : kvdb->iter()) {
             array.add(String::newString(key));
-            return true;
-        });
+        }
         return array;
     }
     CATCH_AND_THROW("Fail in DbListKey!");

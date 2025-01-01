@@ -1,8 +1,8 @@
 #define NEW_DEFINES
 #include "api/InternationalAPI.h"
+#include "ll/api/i18n/I18n.h"
 
 #include <FMT/args.h>
-#include <ll/api/i18n/I18n.h>
 
 void FormatHelper(
     std::vector<Local<Value>>&                          args,
@@ -44,9 +44,9 @@ void FormatHelper(
         }
         case ValueKind::kString: {
             if (!name) {
-                s.push_back(arg.toStr());
+                s.push_back(arg.asString().toString());
             } else {
-                s.push_back(fmt::arg(name, arg.toStr()));
+                s.push_back(fmt::arg(name, arg.asString().toString()));
             }
             break;
         }
@@ -102,7 +102,7 @@ void FormatHelper(
 Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, const std::string& localeName = "") {
     try {
         size_t argsLength = args.size() - offset;
-        auto   i18n       = ENGINE_OWN_DATA()->i18n;
+        auto   i18n       = getEngineOwnData()->i18n;
         if (i18n) {
             key = i18n->get(key, localeName);
         }
@@ -141,7 +141,7 @@ Local<Value> I18nClass::tr(const Arguments& args) {
     CHECK_ARG_TYPE(0, kString);
 
     try {
-        return TrFormat(args, 1ULL, args[0].toStr());
+        return TrFormat(args, 1ULL, args[0].asString().toString());
     }
     CATCH_AND_THROW;
 }
@@ -152,7 +152,7 @@ Local<Value> I18nClass::trl(const Arguments& args) {
     CHECK_ARG_TYPE(1, kString);
 
     try {
-        return TrFormat(args, 2ULL, args[1].toStr(), args[0].toStr());
+        return TrFormat(args, 2ULL, args[1].asString().toString(), args[0].asString().toString());
     }
     CATCH_AND_THROW;
 }
@@ -167,12 +167,12 @@ Local<Value> I18nClass::get(const Arguments& args) {
     }
 
     try {
-        auto        key = args[0].toStr();
+        auto        key = args[0].asString().toString();
         std::string localeName{};
         if (args.size() == 2) {
-            localeName = args[1].toStr();
+            localeName = args[1].asString().toString();
         }
-        auto i18n = ENGINE_OWN_DATA()->i18n;
+        auto i18n = getEngineOwnData()->i18n;
         if (!i18n) {
             throw Exception("I18n data has not been loaded yet!");
         }
@@ -192,46 +192,42 @@ Local<Value> I18nClass::load(const Arguments& args) {
     }
 
     try {
-        auto                     path = args[0].toStr();
-        ll::i18n::I18N::LangData defaultLangData;
-        std::string              defaultLocaleName;
+        auto path = args[0].asString().toString();
+        // Deprecated because it follows LeviLamina's default locale
+        // std::string defaultLocaleName;
         if (args.size() > 1) {
-            defaultLocaleName = args[1].toStr();
+            // defaultLocaleName = args[1].asString().toString();
         }
+
         if (args.size() > 2) {
             auto rawLangData     = args[2].asObject();
             auto rawLangDataKeys = rawLangData.getKeys();
+
             for (auto i = 0ULL; i < rawLangDataKeys.size(); ++i) {
                 auto localeName = rawLangDataKeys[i].toString();
                 auto val        = rawLangData.get(rawLangDataKeys[i]);
                 if (val.getKind() != ValueKind::kObject) {
-                    throw Exception("Value in LangData must be object");
+                    throw Exception("Value in LangData must be an object");
                 }
-                auto                        obj = val.asObject();
-                ll::i18n::I18N::SubLangData data;
-                auto                        objKeys = obj.getKeys();
+
+                auto obj     = val.asObject();
+                auto objKeys = obj.getKeys();
                 for (auto j = 0ULL; j < objKeys.size(); ++j) {
                     auto str = obj.get(objKeys[j]);
                     if (str.getKind() != ValueKind::kString) {
-                        throw Exception("Value in SubLangData must be string");
+                        throw Exception("Value in SubLangData must be a string");
                     }
-                    data.emplace(objKeys[j].toString(), str.toStr());
+                    EngineOwnData().i18n->set(localeName, objKeys[j].toString(), str.asString().toString());
                 }
-                defaultLangData.emplace(localeName, data);
             }
         }
 
-        ll::i18n::I18N* res = nullptr;
-        if (path.ends_with('/') || path.ends_with('\\') || std::filesystem::is_directory(path)) { // Directory
-            res = new ll::i18n::MultiFileI18N(path, defaultLocaleName, defaultLangData);
-        } else {
-            res = new ll::i18n::SingleFileI18N(path, defaultLocaleName, defaultLangData);
+        EngineOwnData().i18n = std::make_shared<ll::i18n::I18n>();
+        ;
+        if (auto result = EngineOwnData().i18n->load(path); !result) {
+            return Boolean::newBoolean(false);
         }
-        ENGINE_OWN_DATA()->i18n = res;
-        if (res) {
-            return Boolean::newBoolean(true);
-        }
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW;
 }

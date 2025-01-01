@@ -2,26 +2,26 @@
 
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #include "main/NodeJsHelper.h"
-#include "ll/api/chrono/GameChrono.h"
-#include "ll/api/service/ServerInfo.h"
-#include "main/Configs.h"
+
 #include "api/CommandAPI.h"
 #include "api/CommandCompatibleAPI.h"
 #include "api/EventAPI.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
-#include "main/Global.h"
-
-#include <functional>
+#include "ll/api/chrono/GameChrono.h"
+#include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h"
-#include "ll/api/schedule/Scheduler.h"
-#include "ll/api/schedule/Task.h"
+#include "ll/api/service/ServerInfo.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/utils/StringUtils.h"
+#include "main/Global.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
+#include "ll/api/service/GamingStatus.h"
 
-ll::schedule::ServerTimeScheduler nodeScheduler;
+#include <functional>
+
 using ll::chrono_literals::operator""_tick;
 
 // pre-declare
@@ -37,8 +37,8 @@ std::unique_ptr<node::MultiIsolatePlatform>                                     
 std::unordered_map<script::ScriptEngine*, node::Environment*>                             environments;
 std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
     new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
-std::unordered_map<node::Environment*, bool>   isRunning;
-std::unordered_map<node::Environment*, uint64> uvLoopTask;
+std::unordered_map<node::Environment*, bool> isRunning;
+std::vector<node::Environment*>              uvLoopTask;
 
 bool initNodeJs() {
     // Init NodeJs
@@ -164,22 +164,23 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         }
 
         // Start libuv event loop
-        uvLoopTask[env] =
-            nodeScheduler
-                .add<ll::schedule::RepeatTask>(
-                    2_tick,
-                    [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() {
-                        if (!(ll::getServerStatus() != ll::ServerStatus::Running) && (*isRunningMap)[env]) {
-                            EngineScope enter(engine);
-                            uv_run(eventLoop, UV_RUN_NOWAIT);
-                        }
-                        if ((ll::getServerStatus() != ll::ServerStatus::Running)) {
-                            uv_stop(eventLoop);
-                            lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
-                        }
+        uvLoopTask.push_back(env);
+        ll::coro::keepThis(
+            [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() -> ll::coro::CoroTask<> {
+                using namespace ll::chrono_literals;
+                while (std::find(uvLoopTask.begin(), uvLoopTask.end(), env) != uvLoopTask.end()) {
+                    co_await 2_tick;
+                    if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
+                        EngineScope enter(engine);
+                        uv_run(eventLoop, UV_RUN_NOWAIT);
                     }
-                )
-                ->getId();
+                    if ((ll::getGamingStatus() != ll::GamingStatus::Running)) {
+                        uv_stop(eventLoop);
+                        lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
+                    }
+                }
+            }
+        ).launch(ll::thread::ServerThreadExecutor::getDefault());
 
         return true;
     } catch (...) {
@@ -209,9 +210,9 @@ bool stopEngine(node::Environment* env) {
         node::Stop(env);
 
         // Stop libuv event loop
-        auto it = uvLoopTask.find(env);
+        auto it = std::find(uvLoopTask.begin(), uvLoopTask.end(), env);
         if (it != uvLoopTask.end()) {
-            nodeScheduler.remove(it->second);
+            uvLoopTask.erase(it);
         }
 
         return true;
@@ -222,7 +223,7 @@ bool stopEngine(node::Environment* env) {
 }
 
 bool stopEngine(script::ScriptEngine* engine) {
-    lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", ENGINE_GET_DATA(engine)->pluginName);
+    lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", getEngineData(engine)->pluginName);
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }

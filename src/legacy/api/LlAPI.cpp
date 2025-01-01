@@ -56,7 +56,7 @@ ClassDefine<void> VersionClassBuilder = defineClass("Version")
 
 Local<Value> LlClass::getLanguage() {
     try {
-        return String::newString(ll::sys_utils::getSystemLocaleName());
+        return String::newString(ll::sys_utils::getSystemLocaleCode());
     }
     CATCH("Fail in LLSEGetLanguage")
 }
@@ -168,53 +168,51 @@ Local<Value> LlClass::requireVersion(const Arguments&) { return Boolean::newBool
 Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
     try {
         Local<Array> plugins = Array::newArray();
-        ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
-            [&](std::string_view type, std::string_view, ll::mod::Mod& plugin) {
-                // Create plugin object
-                auto pluginObject = Object::newObject();
 
-                pluginObject.set("name", plugin.getManifest().name);
-                if (plugin.getManifest().description.has_value()) {
-                    pluginObject.set("desc", plugin.getManifest().description.value());
-                }
-                pluginObject.set("type", type);
+        for (auto& mod : ll::mod::ModManagerRegistry::getInstance().mods()) {
 
-                auto ver = Array::newArray();
-                ver.add(Number::newNumber(plugin.getManifest().version->major));
-                ver.add(Number::newNumber(plugin.getManifest().version->minor));
-                ver.add(Number::newNumber(plugin.getManifest().version->patch));
+            // Create plugin object
+            auto pluginObject = Object::newObject();
 
-                pluginObject.set("version", ver);
-                pluginObject.set("versionStr", plugin.getManifest().version->to_string());
-                pluginObject.set("filePath", plugin.getManifest().entry);
-
-                if (plugin.getManifest().extraInfo.has_value()) {
-                    auto others = Object::newObject();
-                    for (const auto& [k, v] : plugin.getManifest().extraInfo.value()) {
-                        others.set(k, v);
-                    }
-                    pluginObject.set("others", others);
-                }
-
-                // Add plugin object to list
-                plugins.add(pluginObject);
-                return true;
+            pluginObject.set("name", mod.getManifest().name);
+            if (mod.getManifest().description.has_value()) {
+                pluginObject.set("desc", mod.getManifest().description.value());
             }
-        );
+            pluginObject.set("type", mod.getType());
+
+            auto ver = Array::newArray();
+            ver.add(Number::newNumber(mod.getManifest().version->major));
+            ver.add(Number::newNumber(mod.getManifest().version->minor));
+            ver.add(Number::newNumber(mod.getManifest().version->patch));
+
+            pluginObject.set("version", ver);
+            pluginObject.set("versionStr", mod.getManifest().version->to_string());
+            pluginObject.set("filePath", mod.getManifest().entry);
+
+            if (mod.getManifest().extraInfo.has_value()) {
+                auto others = Object::newObject();
+                for (const auto& [k, v] : mod.getManifest().extraInfo.value()) {
+                    others.set(k, v);
+                }
+                pluginObject.set("others", others);
+            }
+
+            // Add plugin object to list
+            plugins.add(pluginObject);
+        }
         return plugins;
     }
     CATCH("Fail in LLAPI");
 }
+
 // For Compatibility
 Local<Value> LlClass::listPlugins(const Arguments&) {
     try {
         Local<Array> plugins = Array::newArray();
-        ll::mod::ModManagerRegistry::getInstance().forEachModWithType(
-            [&](std::string_view, std::string_view name, ll::mod::Mod&) {
-                plugins.add(String::newString(name));
-                return true;
-            }
-        );
+
+        for (auto& mod : ll::mod::ModManagerRegistry::getInstance().mods()) {
+            plugins.add(String::newString(mod.getName()));
+        }
         return plugins;
     }
     CATCH("Fail in LLAPI");
@@ -226,7 +224,7 @@ Local<Value> LlClass::eval(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        return EngineScope::currentEngine()->eval(args[0].toStr());
+        return EngineScope::currentEngine()->eval(args[0].asString().toString());
     }
     CATCH("Fail in LLSEEval!")
 }

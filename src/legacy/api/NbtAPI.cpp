@@ -338,7 +338,7 @@ NbtByteClass::NbtByteClass(std::unique_ptr<ByteTag> p) : ScriptClass(ScriptClass
 
 NbtByteClass* NbtByteClass::constructor(const Arguments& args) {
     try {
-        return new NbtByteClass(args.thiz(), std::make_unique<ByteTag>((char)args[0].toInt()));
+        return new NbtByteClass(args.thiz(), std::make_unique<ByteTag>((char)args[0].asNumber().toInt32()));
     }
     CATCH_C("Fail in Create ByteTag!");
 }
@@ -384,7 +384,7 @@ Local<Value> NbtByteClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -393,7 +393,7 @@ Local<Value> NbtByteClass::set(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        nbt->data = (char)args[0].toInt();
+        nbt->data = (char)args[0].asNumber().toInt32();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in NbtValueSet!")
@@ -411,7 +411,7 @@ NbtIntClass::NbtIntClass(std::unique_ptr<IntTag> p) : ScriptClass(ScriptClass::C
 
 NbtIntClass* NbtIntClass::constructor(const Arguments& args) {
     try {
-        return new NbtIntClass(args.thiz(), std::make_unique<IntTag>(args[0].toInt()));
+        return new NbtIntClass(args.thiz(), std::make_unique<IntTag>(args[0].asNumber().toInt32()));
     }
     CATCH_C("Fail in Create IntTag!");
 }
@@ -454,7 +454,7 @@ Local<Value> NbtIntClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -463,7 +463,7 @@ Local<Value> NbtIntClass::set(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
-        nbt->data = args[0].toInt();
+        nbt->data = args[0].asNumber().toInt32();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in NbtValueSet!")
@@ -482,7 +482,7 @@ NbtShortClass::NbtShortClass(std::unique_ptr<ShortTag> p)
 
 NbtShortClass* NbtShortClass::constructor(const Arguments& args) {
     try {
-        return new NbtShortClass(args.thiz(), std::make_unique<ShortTag>(args[0].toInt()));
+        return new NbtShortClass(args.thiz(), std::make_unique<ShortTag>(args[0].asNumber().toInt32()));
     }
     CATCH_C("Fail in Create ShortTag!");
 }
@@ -526,7 +526,7 @@ Local<Value> NbtShortClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -535,7 +535,7 @@ Local<Value> NbtShortClass::set(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        nbt->data = args[0].toInt();
+        nbt->data = args[0].asNumber().toInt32();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in NbtValueSet!")
@@ -596,7 +596,7 @@ Local<Value> NbtLongClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -668,7 +668,7 @@ Local<Value> NbtFloatClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -741,7 +741,7 @@ Local<Value> NbtDoubleClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -769,7 +769,7 @@ NbtStringClass::NbtStringClass(std::unique_ptr<StringTag> p)
 
 NbtStringClass* NbtStringClass::constructor(const Arguments& args) {
     try {
-        return new NbtStringClass(args.thiz(), std::make_unique<StringTag>(args[0].toStr()));
+        return new NbtStringClass(args.thiz(), std::make_unique<StringTag>(args[0].asString().toString()));
     }
     CATCH_C("Fail in Create StringTag!");
 }
@@ -814,7 +814,7 @@ Local<Value> NbtStringClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -823,7 +823,7 @@ Local<Value> NbtStringClass::set(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        *nbt = args[0].toStr();
+        *nbt = args[0].asString().toString();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in NbtValueSet!")
@@ -899,7 +899,7 @@ Local<Value> NbtByteArrayClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -1026,7 +1026,7 @@ Local<Value> NbtListClass::getTypeOf(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             return Local<Value>();
@@ -1043,7 +1043,7 @@ Local<Value> NbtListClass::setEnd(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1064,14 +1064,14 @@ Local<Value> NbtListClass::setByte(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Byte) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index].as_ptr<ByteTag>()->data = args[1].toInt();
+            list[index].as_ptr<ByteTag>()->data = args[1].asNumber().toInt32();
         }
         return this->getScriptObject();
     }
@@ -1085,14 +1085,14 @@ Local<Value> NbtListClass::setInt(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Int) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index].as_ptr<IntTag>()->data = args[1].toInt();
+            list[index].as_ptr<IntTag>()->data = args[1].asNumber().toInt32();
         }
         return this->getScriptObject();
     }
@@ -1106,14 +1106,14 @@ Local<Value> NbtListClass::setShort(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Short) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index].as_ptr<ShortTag>()->data = args[1].toInt();
+            list[index].as_ptr<ShortTag>()->data = args[1].asNumber().toInt32();
         }
         return this->getScriptObject();
     }
@@ -1127,7 +1127,7 @@ Local<Value> NbtListClass::setLong(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1148,7 +1148,7 @@ Local<Value> NbtListClass::setFloat(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1169,7 +1169,7 @@ Local<Value> NbtListClass::setDouble(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1190,14 +1190,14 @@ Local<Value> NbtListClass::setString(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::String) {
             LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
         } else {
-            list[index].as<StringTag>() = args[1].toStr();
+            list[index].as<StringTag>() = args[1].asString().toString();
         }
 
         return this->getScriptObject();
@@ -1212,7 +1212,7 @@ Local<Value> NbtListClass::setByteArray(const Arguments& args) {
 
     try {
         auto list  = nbt.get();
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1235,7 +1235,7 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
 
     try {
         auto& list  = *nbt;
-        auto  index = args[0].toInt();
+        auto  index = args[0].asNumber().toInt32();
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
@@ -1311,14 +1311,14 @@ Local<Value> NbtListClass::removeTag(const Arguments& args) {
 
     try {
         auto& list  = *nbt;
-        auto  index = args[0].toInt();
+        auto  index = args[0].asNumber().toInt32();
 
         if (index >= list.size() || index < 0) {
             LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
             return Local<Value>();
         }
 
-        list.erase(index);
+        list.erase(list.begin() + index);
         return this->getScriptObject();
     }
     CATCH("Fail in NBT SetTag!");
@@ -1329,7 +1329,7 @@ Local<Value> NbtListClass::getData(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= nbt->size() || index < 0) {
             return Local<Value>();
@@ -1345,7 +1345,7 @@ Local<Value> NbtListClass::getTag(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        auto index = args[0].toInt();
+        auto index = args[0].asNumber().toInt32();
 
         if (index >= nbt->size() || index < 0) {
             return Local<Value>();
@@ -1421,7 +1421,7 @@ Local<Value> NbtListClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -1542,10 +1542,10 @@ Local<Value> NbtCompoundClass::getTypeOf(const Arguments& args) {
 
     try {
         auto& list = nbt->mTags;
-        auto  key  = args[0].toStr();
+        auto  key  = args[0].asString().toString();
 
         return Number::newNumber(int(list.at(key).getId()));
-    } catch (const std::out_of_range& ) {
+    } catch (const std::out_of_range&) {
         return Local<Value>();
     }
     CATCH("Fail in NBT GetTypeOf!");
@@ -1556,7 +1556,7 @@ Local<Value> NbtCompoundClass::setEnd(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key     = args[0].toStr();
+        auto key     = args[0].asString().toString();
         nbt->at(key) = ByteTag(0);
 
         return this->getScriptObject();
@@ -1570,8 +1570,8 @@ Local<Value> NbtCompoundClass::setByte(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        auto key     = args[0].toStr();
-        auto data    = char(args[1].toInt());
+        auto key     = args[0].asString().toString();
+        auto data    = char(args[1].asNumber().toInt32());
         nbt->at(key) = ByteTag(data);
 
         return this->getScriptObject();
@@ -1585,8 +1585,8 @@ Local<Value> NbtCompoundClass::setInt(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        auto key     = args[0].toStr();
-        auto data    = int(args[1].toInt());
+        auto key     = args[0].asString().toString();
+        auto data    = int(args[1].asNumber().toInt32());
         nbt->at(key) = IntTag(data);
 
         return this->getScriptObject();
@@ -1600,8 +1600,8 @@ Local<Value> NbtCompoundClass::setShort(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        auto key     = args[0].toStr();
-        auto data    = short(args[1].toInt());
+        auto key     = args[0].asString().toString();
+        auto data    = short(args[1].asNumber().toInt32());
         nbt->at(key) = ShortTag(data);
 
         return this->getScriptObject();
@@ -1615,7 +1615,7 @@ Local<Value> NbtCompoundClass::setLong(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        auto key     = args[0].toStr();
+        auto key     = args[0].asString().toString();
         auto data    = args[1].asNumber().toInt64();
         nbt->at(key) = Int64Tag(data);
 
@@ -1630,7 +1630,7 @@ Local<Value> NbtCompoundClass::setFloat(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        auto key     = args[0].toStr();
+        auto key     = args[0].asString().toString();
         auto data    = args[1].asNumber().toFloat();
         nbt->at(key) = FloatTag(data);
 
@@ -1646,7 +1646,7 @@ Local<Value> NbtCompoundClass::setDouble(const Arguments& args) {
 
     try {
         auto& list = nbt;
-        auto  key  = args[0].toStr();
+        auto  key  = args[0].asString().toString();
         auto  data = args[1].asNumber().toDouble();
 
         list->at(key) = data;
@@ -1661,8 +1661,8 @@ Local<Value> NbtCompoundClass::setString(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        auto key     = args[0].toStr();
-        auto data    = args[1].toStr();
+        auto key     = args[0].asString().toString();
+        auto data    = args[1].asString().toString();
         nbt->at(key) = StringTag(data);
 
         return this->getScriptObject();
@@ -1676,7 +1676,7 @@ Local<Value> NbtCompoundClass::setByteArray(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kByteBuffer);
 
     try {
-        auto         key  = args[0].toStr();
+        auto         key  = args[0].asString().toString();
         auto         data = args[1].asByteBuffer();
         ByteArrayTag baTag;
         for (char c : data.describeUtf8()) {
@@ -1693,7 +1693,7 @@ Local<Value> NbtCompoundClass::setTag(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key = args[0].toStr();
+        auto key = args[0].asString().toString();
 
         if (IsInstanceOf<NbtByteClass>(args[1]
             )) { // Assignment refers to the rvalue, so the Tag is copied before assignment
@@ -1731,11 +1731,11 @@ Local<Value> NbtCompoundClass::removeTag(const Arguments& args) {
 
     try {
         auto& list = nbt->mTags;
-        auto  key  = args[0].toStr();
+        auto  key  = args[0].asString().toString();
 
         list.erase(key);
         return this->getScriptObject();
-    } catch (const std::out_of_range& ) {
+    } catch (const std::out_of_range&) {
         LOG_ERROR_WITH_SCRIPT_INFO("Key no found in NBT Compound!");
         return Local<Value>();
     }
@@ -1747,10 +1747,10 @@ Local<Value> NbtCompoundClass::getData(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key = args[0].toStr();
+        auto key = args[0].asString().toString();
 
         return Tag2Value(nbt->at(key).get().as_ptr<Tag>());
-    } catch (const std::out_of_range& ) {
+    } catch (const std::out_of_range&) {
         return Local<Value>();
     }
     CATCH("Fail in NBT GetData!")
@@ -1761,7 +1761,7 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto key = args[0].toStr();
+        auto key = args[0].asString().toString();
 
         Local<Value> res;
         // lse::getSelfPluginInstance().getLogger().info(
@@ -1837,7 +1837,7 @@ Local<Value> NbtCompoundClass::toObject(const Arguments&) {
 
 Local<Value> NbtCompoundClass::toSNBT(const Arguments& args) {
     try {
-        int indent = args.size() >= 1 ? args[0].toInt() : -1;
+        int indent = args.size() >= 1 ? args[0].asNumber().toInt32() : -1;
         if (indent == -1) return String::newString(nbt->toSnbt(SnbtFormat::ForceQuote, 0));
         else return String::newString(nbt->toSnbt(SnbtFormat::PartialLineFeed, indent));
     }
@@ -1856,7 +1856,7 @@ Local<Value> NbtCompoundClass::toString(const Arguments& args) {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].toInt() : -1));
+        return String::newString(TagToJson(nbt.get(), args.size() >= 1 ? args[0].asNumber().toInt32() : -1));
     }
     CATCH("Fail in NBTtoJson!");
 }
@@ -1870,14 +1870,14 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        auto type = enum_cast<Tag::Type>(args[0].toInt()).value();
+        auto type = enum_cast<Tag::Type>(args[0].asNumber().toInt32()).value();
 
         Local<Value> res;
         switch (type) {
         case Tag::Type::Byte: {
             auto tag = std::make_unique<ByteTag>(0);
             if (args.size() >= 2 && args[1].isNumber()) {
-                *tag = ByteTag(args[1].toInt());
+                *tag = ByteTag(args[1].asNumber().toInt32());
             }
             res = NbtByteClass::pack(std::move(tag));
             break;
@@ -1885,7 +1885,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
         case Tag::Type::Short: {
             auto tag = std::make_unique<ShortTag>(0);
             if (args.size() >= 2 && args[1].isNumber()) {
-                tag->data = args[1].toInt();
+                tag->data = args[1].asNumber().toInt32();
             }
             res = NbtShortClass::pack(std::move(tag));
             break;
@@ -1893,7 +1893,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
         case Tag::Type::Int: {
             auto tag = std::make_unique<IntTag>(0);
             if (args.size() >= 2 && args[1].isNumber()) {
-                tag->data = args[1].toInt();
+                tag->data = args[1].asNumber().toInt32();
             }
             res = NbtIntClass::pack(std::move(tag));
             break;
@@ -1925,7 +1925,7 @@ Local<Value> NbtStatic::newTag(const Arguments& args) {
         case Tag::Type::String: {
             auto tag = std::make_unique<StringTag>();
             if (args.size() >= 2 && args[1].isString()) {
-                *tag = args[1].toStr();
+                *tag = args[1].asString().toString();
             }
             res = NbtStringClass::pack(std::move(tag));
             break;
@@ -1974,7 +1974,7 @@ Local<Value> NbtStatic::parseSNBT(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto tag = CompoundTag::fromSnbt(args[0].toStr());
+        auto tag = CompoundTag::fromSnbt(args[0].asString().toString());
         if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
         else return Local<Value>();
     }

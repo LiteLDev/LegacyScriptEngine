@@ -1,20 +1,20 @@
 #include "Entry.h"
 
-#include "Config.h"
 #include "PluginManager.h"
 #include "PluginMigration.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/main/EconomicSystem.h"
 #include "lse/api/MoreGlobal.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "ll/api/Config.h"
+#include "ll/api/i18n/I18n.h"
+#include "ll/api/io/FileUtils.h"
+#include "ll/api/mod/ModManagerRegistry.h"
+#include "ll/api/mod/NativeMod.h"
+#include "ll/api/utils/ErrorUtils.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
-#include <ll/api/Config.h>
-#include <ll/api/i18n/I18n.h>
-#include <ll/api/io/FileUtils.h>
-#include <ll/api/mod/ModManagerRegistry.h>
-#include <ll/api/mod/NativeMod.h>
-#include <ll/api/utils/ErrorUtils.h>
 #include <memory>
 #include <stdexcept>
 
@@ -106,11 +106,11 @@ void initializeLegacyStuff() {
 auto load(ll::mod::NativeMod& self) -> bool {
     auto& logger = self.getLogger();
 #ifdef NDEBUG
-    ll::error_utils::setSehTranslator();
+    ll::error_utils::initExceptionTranslator();
 #endif
 
     try {
-        ll::i18n::load(self.getLangDir());
+        auto result = ll::i18n::getInstance().load(self.getLangDir());
 
         config             = Config();
         pluginManager      = std::make_shared<PluginManager>();
@@ -149,6 +149,10 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     auto& scriptEngine = *EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);
+
+    ll::mod::Manifest manifest;
+    manifest.name              = "DebugEngine";
+    getEngineOwnData()->plugin = std::make_shared<lse::Plugin>(manifest);
 
     BindAPIs(&scriptEngine);
 

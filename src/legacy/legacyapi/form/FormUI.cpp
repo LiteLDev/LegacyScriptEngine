@@ -5,7 +5,7 @@
 #include "mc/network/packet/ModalFormRequestPacket.h"
 #include "mc/network/packet/Packet.h"
 
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <utility>

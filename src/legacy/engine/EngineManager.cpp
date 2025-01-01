@@ -7,7 +7,6 @@
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
-
 #include <map>
 #include <mutex>
 #include <shared_mutex>
@@ -33,7 +32,7 @@ bool EngineManager::registerEngine(ScriptEngine* engine) {
     return true;
 }
 
-ScriptEngine* EngineManager::newEngine(string pluginName) {
+ScriptEngine* EngineManager::newEngine(std::string pluginName) {
     ScriptEngine* engine = nullptr;
 
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
@@ -47,7 +46,7 @@ ScriptEngine* EngineManager::newEngine(string pluginName) {
     engine->setData(std::make_shared<EngineOwnData>());
     registerEngine(engine);
     if (!pluginName.empty()) {
-        ENGINE_GET_DATA(engine)->pluginName = pluginName;
+        getEngineData(engine)->pluginName = pluginName;
     }
     return engine;
 }
@@ -85,7 +84,7 @@ ScriptEngine* EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
     std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
-        auto ownerData = ENGINE_GET_DATA(engine);
+        auto ownerData = getEngineData(engine);
         auto filename  = ll::string_utils::u8str2str(
             std::filesystem::path(ll::string_utils::str2wstr(ownerData->pluginFileOrDirPath)).filename().u8string()
         );
@@ -94,4 +93,4 @@ ScriptEngine* EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
     return nullptr;
 }
 
-std::string EngineManager::getEngineType(ScriptEngine* engine) { return ENGINE_GET_DATA(engine)->engineType; }
+std::string EngineManager::getEngineType(ScriptEngine* engine) { return getEngineData(engine)->engineType; }

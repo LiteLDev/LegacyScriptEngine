@@ -5,13 +5,12 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-
-// #include <llapi/SendPacketAPI.h> //todo
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
+#include "mc/world/actor/player/Player.h"
 
 #include <cstdlib>
 #include <iostream>
-#include <mc/world/actor/player/Player.h>
 
 //////////////////// Class Definition ////////////////////
 
@@ -56,7 +55,7 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
     form->sendTo(
         player,
         [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* pl, int chosen) {
-            if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
@@ -76,7 +75,7 @@ Local<Value> SimpleFormClass::setTitle(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        form.setTitle(args[0].toStr());
+        form.setTitle(args[0].asString().toString());
         return this->getScriptObject();
     }
     CATCH("Fail in setTitle!")
@@ -87,7 +86,7 @@ Local<Value> SimpleFormClass::setContent(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        form.setContent(args[0].toStr());
+        form.setContent(args[0].asString().toString());
         return this->getScriptObject();
     }
     CATCH("Fail in setTitle!")
@@ -99,8 +98,8 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        string image = args.size() >= 2 ? args[1].toStr() : "";
-        form.addButton(args[0].toStr(), image);
+        std::string image = args.size() >= 2 ? args[1].asString().toString() : "";
+        form.addButton(args[0].asString().toString(), image);
         return this->getScriptObject();
     }
     CATCH("Fail in addButton!")
@@ -129,7 +128,7 @@ void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, scri
     form->sendToForRawJson(
         player,
         [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* player, std::string data) {
-            if (ll::getServerStatus() != ll::ServerStatus::Running) return;
+            if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
@@ -147,7 +146,7 @@ Local<Value> CustomFormClass::setTitle(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        form.setTitle(args[0].toStr());
+        form.setTitle(args[0].asString().toString());
         return this->getScriptObject();
     }
     CATCH("Fail in setTitle!")
@@ -158,7 +157,7 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        form.addLabel(args[0].toStr(), args[0].toStr());
+        form.addLabel(args[0].asString().toString(), args[0].asString().toString());
         return this->getScriptObject();
     }
     CATCH("Fail in addLabel!")
@@ -171,10 +170,10 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
 
     try {
-        string placeholder = args.size() >= 2 ? args[1].toStr() : "";
-        string def         = args.size() >= 3 ? args[2].toStr() : "";
+        std::string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
+        std::string def         = args.size() >= 3 ? args[2].asString().toString() : "";
 
-        form.addInput(args[0].toStr(), args[0].toStr(), placeholder, def);
+        form.addInput(args[0].asString().toString(), args[0].asString().toString(), placeholder, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addInput!")
@@ -194,7 +193,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
         bool def =
             args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
 
-        form.addToggle(args[0].toStr(), args[0].toStr(), def);
+        form.addToggle(args[0].asString().toString(), args[0].asString().toString(), def);
         return this->getScriptObject();
     }
     CATCH("Fail in addSwitch!")
@@ -207,13 +206,13 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        auto           optionsArr = args[1].asArray();
-        vector<string> options;
-        for (int i = 0; i < optionsArr.size(); ++i) options.push_back(optionsArr.get(i).toStr());
+        auto                     optionsArr = args[1].asArray();
+        std::vector<std::string> options;
+        for (int i = 0; i < optionsArr.size(); ++i) options.push_back(optionsArr.get(i).asString().toString());
 
         int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.addDropdown(args[0].toStr(), args[0].toStr(), options, def);
+        form.addDropdown(args[0].asString().toString(), args[0].asString().toString(), options, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addDropdown!")
@@ -236,7 +235,14 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         int defValue = args.size() >= 5 ? args[4].asNumber().toInt32() : minValue;
         if (defValue < minValue || defValue > maxValue) defValue = minValue;
 
-        form.addSlider(args[0].toStr(), args[0].toStr(), minValue, maxValue, step, defValue);
+        form.addSlider(
+            args[0].asString().toString(),
+            args[0].asString().toString(),
+            minValue,
+            maxValue,
+            step,
+            defValue
+        );
         return this->getScriptObject();
     }
     CATCH("Fail in addSlider!")
@@ -249,13 +255,13 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        auto           stepsArr = args[1].asArray();
-        vector<string> steps;
-        for (int i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).toStr());
+        auto                     stepsArr = args[1].asArray();
+        std::vector<std::string> steps;
+        for (int i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).asString().toString());
 
         int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.addStepSlider(args[0].toStr(), args[0].toStr(), steps, defIndex);
+        form.addStepSlider(args[0].asString().toString(), args[0].asString().toString(), steps, defIndex);
         return this->getScriptObject();
     }
     CATCH("Fail in addStepSlider!")

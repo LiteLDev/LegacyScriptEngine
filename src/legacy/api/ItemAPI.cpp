@@ -6,14 +6,16 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/safety/RedactableString.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/nbt/CompoundTag.h"
+#include "mc/world/item/Item.h"
+#include "mc/world/item/ItemStack.h"
 
-#include <mc/nbt/CompoundTag.h>
-#include <mc/world/item/Item.h>
-#include <mc/world/item/registry/ItemStack.h>
 #include <string>
 #include <variant>
 #include <vector>
@@ -305,7 +307,7 @@ Local<Value> ItemClass::set(const Arguments& args) {
         auto itemNew = ItemClass::extract(args[0]);
         if (!itemNew) return Local<Value>(); // Null
 
-        auto tag = itemNew->save();
+        auto tag = itemNew->save(*SaveContextFactory::createCloneSaveContext());
         if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
             std::get<std::unique_ptr<ItemStack>>(item)->load(*tag);
         } else {
@@ -346,7 +348,7 @@ Local<Value> ItemClass::setAux(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        get()->setAuxValue(args[0].toInt());
+        get()->setAuxValue(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setAux!");
@@ -376,7 +378,7 @@ Local<Value> ItemClass::setDisplayName(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        get()->setCustomName(args[0].asString().toString());
+        get()->setCustomName(Bedrock::Safety::RedactableString(args[0].asString().toString()));
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setDisplayName!");
@@ -387,8 +389,8 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        if (get()->isDamageableItem() && args[0].toInt() <= 32767) {
-            get()->setDamageValue(args[0].toInt());
+        if (get()->isDamageableItem() && args[0].asNumber().toInt32() <= 32767) {
+            get()->setDamageValue(args[0].asNumber().toInt32());
             return Boolean::newBoolean(true);
         } else {
             return Boolean::newBoolean(false);
@@ -399,7 +401,7 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
 
 Local<Value> ItemClass::getNbt(const Arguments&) {
     try {
-        return NbtCompoundClass::pack(std::move(get()->save()));
+        return NbtCompoundClass::pack(std::move(get()->save(*SaveContextFactory::createCloneSaveContext())));
     }
     CATCH("Fail in getNbt!");
 }
@@ -426,10 +428,10 @@ Local<Value> McClass::newItem(const Arguments& args) {
         if (args[0].isString()) {
             // name & count
             if (args.size() >= 2 && args[1].isNumber()) {
-                string type = args[0].toStr();
-                int    cnt  = args[1].toInt();
+                std::string type = args[0].asString().toString();
+                int         cnt  = args[1].asNumber().toInt32();
 
-                ItemStack* item = new ItemStack{type, cnt};
+                ItemStack* item = new ItemStack{type, cnt, 0, nullptr};
                 if (!item) return Local<Value>();            // Null
                 else return ItemClass::newItem(item, false); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
@@ -439,7 +441,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
         } else {
             auto nbt = NbtCompoundClass::extract(args[0]);
             if (nbt) {
-                auto newItem = new ItemStack{ItemStack::EMPTY_ITEM};
+                auto newItem = new ItemStack{ItemStack::EMPTY_ITEM()};
                 newItem->load(*nbt);
                 if (!newItem) return Local<Value>(); // Null
                 else
@@ -493,7 +495,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 args[1].asNumber().toFloat(),
                 args[2].asNumber().toFloat(),
                 args[3].asNumber().toFloat(),
-                args[4].toInt()
+                args[4].asNumber().toInt32()
             };
         } else {
             LOG_WRONG_ARGS_COUNT();

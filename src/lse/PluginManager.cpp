@@ -1,18 +1,20 @@
-#include "Entry.h"
 #include "PluginManager.h"
+
+#include "Entry.h"
 #include "Plugin.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "ll/api/service/GamingStatus.h"
+#include "ll/api/io/FileUtils.h"
+#include "ll/api/mod/Mod.h"
+#include "ll/api/mod/ModManager.h"
+#include "ll/api/utils/StringUtils.h"
+
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <filesystem>
 #include <fmt/format.h>
-#include <ll/api/io/FileUtils.h>
-#include <ll/api/mod/Mod.h>
-#include <ll/api/mod/ModManager.h>
-#include <ll/api/service/ServerInfo.h>
-#include <ll/api/utils/StringUtils.h>
 #include <memory>
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
@@ -55,6 +57,7 @@ auto LLSERemoveAllExportedFuncs(script::ScriptEngine* engine) -> bool;
 namespace lse {
 
 PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
+PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
@@ -125,8 +128,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         script::EngineScope engineScope(scriptEngine);
 
         // Set plugins's logger title
-        ENGINE_OWN_DATA()->logger.title = manifest.name;
-        ENGINE_OWN_DATA()->pluginName   = manifest.name;
+        getEngineOwnData()->pluginName = manifest.name;
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         scriptEngine.eval("import sys as _llse_py_sys_module");
@@ -165,9 +167,10 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         scriptEngine.eval(baseLibContent.value());
 #endif
         // Load the plugin entry.
-        auto pluginDir                         = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
-        auto entryPath                         = pluginDir / manifest.entry;
-        ENGINE_OWN_DATA()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
+        auto pluginDir                          = std::filesystem::canonical(ll::mod::getModsRoot() / manifest.name);
+        auto entryPath                          = pluginDir / manifest.entry;
+        getEngineOwnData()->pluginFileOrDirPath = ll::string_utils::u8str2str(entryPath.u8string());
+        getEngineOwnData()->plugin              = plugin;
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(
                 &scriptEngine,
@@ -199,15 +202,14 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             scriptEngine.eval(pluginEntryContent.value(), entryPath.u8string());
         }
 #endif
-        if (ll::getServerStatus() == ll::ServerStatus::Running) { // Is hot load
+        if (ll::getGamingStatus() == ll::GamingStatus::Running) { // Is hot load
             LLSECallEventsOnHotLoad(&scriptEngine);
         }
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
         plugin->onUnload([](ll::mod::Mod&) { return true; });
-        plugin->onEnable([](ll::mod::Mod&) { return true; });
-        plugin->onDisable([](ll::mod::Mod&) { return true; });
-        addMod(manifest.name, plugin);
+
+        return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
     } catch (const Exception& e) {
         EngineScope engineScope(scriptEngine);
         auto        error =
@@ -225,7 +227,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         return error;
     }
-    return {};
 }
 
 ll::Expected<> PluginManager::unload(std::string_view name) {

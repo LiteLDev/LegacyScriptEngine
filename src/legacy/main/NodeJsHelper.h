@@ -1,8 +1,7 @@
 #pragma once
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #pragma warning(disable : 4251)
-#include "main/Configs.h"
-
+#include "legacy/main/Global.h"
 #include <ScriptX/ScriptX.h>
 #include <map>
 #include <node.h>
@@ -26,7 +25,7 @@ std::string getPluginPackageName(const std::string& dirPath);
 bool        doesPluginPackHasDependency(const std::string& dirPath);
 
 bool processConsoleNpmCmd(const std::string& cmd);
-int  executeNpmCommand(std::string cmd, std::string workingDir = LLSE_PLUGINS_ROOT_DIR);
+int  executeNpmCommand(std::string cmd, std::string workingDir = LLSE_NPM_EXECUTE_PATH);
 
 } // namespace NodeJsHelper
 

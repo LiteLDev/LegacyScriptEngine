@@ -9,6 +9,7 @@
 #include "main/Global.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/nbt/CompoundTag.h"
+#include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
@@ -71,7 +72,7 @@ Local<Value> BlockEntityClass::getType() {
 Local<Value> BlockEntityClass::getNbt(const Arguments&) {
     try {
         CompoundTag* tag = new CompoundTag();
-        blockEntity->save(*tag);
+        blockEntity->save(*tag, *SaveContextFactory::createCloneSaveContext());
         return NbtCompoundClass::pack(std::move(tag)); // Not sure is that will get right value
     }
     CATCH("Fail in getNbt!")

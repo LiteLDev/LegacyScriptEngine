@@ -4,12 +4,13 @@
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/world/scores/DisplayObjective.h"
 #include "mc/world/scores/ScoreInfo.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/scores/Objective.h"
+#include "mc/world/scores/Scoreboard.h"
+#include "mc/world/scores/ScoreboardId.h"
 
-#include <mc/world/actor/player/Player.h>
-#include <mc/world/scores/Objective.h>
-#include <mc/world/scores/Scoreboard.h>
-#include <mc/world/scores/ScoreboardId.h>
 #include <optional>
 
 //////////////////// Class Definition ////////////////////
@@ -72,9 +73,9 @@ Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
         Objective* obj = get();
         if (!obj) return Local<Value>();
 
-        std::string slot = args[0].toStr();
+        std::string slot = args[0].asString().toString();
         int         sort = 0;
-        if (args.size() == 2) sort = args[1].toInt();
+        if (args.size() == 2) sort = args[1].asNumber().toInt32();
         return Boolean::newBoolean(
             ll::service::getLevel()->getScoreboard().setDisplayObjective(slot, *obj, (ObjectiveSortOrder)sort)
         );
@@ -89,10 +90,10 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -136,10 +137,10 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -184,10 +185,10 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        int score = args[1].toInt();
+        int score = args[1].asNumber().toInt32();
 
         if (args[0].isString()) {
-            std::string name       = args[0].toStr();
+            std::string name       = args[0].asString().toString();
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
             if (!obj) {
@@ -241,7 +242,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            obj->_resetPlayer(id);
+            // obj->_resetPlayer(id);
+            scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
@@ -254,7 +256,8 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!id.isValid()) {
                 return Boolean::newBoolean(true);
             }
-            obj->_resetPlayer(id);
+            // obj->_resetPlayer(id);
+            scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else {
             LOG_WRONG_ARG_TYPE();
@@ -275,7 +278,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
                 return {};
             }
-            return Number::newNumber(objective->getPlayerScore(sid).mScore);
+            return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
@@ -283,7 +286,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
                 return {};
             }
-            return Number::newNumber(objective->getPlayerScore(sid).mScore);
+            return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else {
             LOG_WRONG_ARG_TYPE();
             return Local<Value>();
@@ -299,8 +302,8 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].toStr();
-        auto   res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
+        std::string slot = args[0].asString().toString();
+        auto        res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
         if (!res) return Local<Value>();
         return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
@@ -313,8 +316,8 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string slot = args[0].toStr();
-        auto   res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
+        std::string slot = args[0].asString().toString();
+        auto        res  = ll::service::getLevel()->getScoreboard().clearDisplayObjective(slot);
 
         if (!res) return Boolean::newBoolean(false);
         return Boolean::newBoolean(true);
@@ -327,7 +330,7 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        string name = args[0].toStr();
+        std::string name = args[0].asString().toString();
         if (ll::service::getLevel().has_value()) {
             auto res = ll::service::getLevel()->getScoreboard().getObjective(name);
             if (!res) {
@@ -346,9 +349,9 @@ Local<Value> McClass::newScoreObjective(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString)
 
     try {
-        std::string name    = args[0].toStr();
+        std::string name    = args[0].asString().toString();
         std::string display = name;
-        if (args.size() >= 2) display = args[1].toStr();
+        if (args.size() >= 2) display = args[1].asString().toString();
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         std::string criteria   = "dummy";
         Objective*  obj =
@@ -363,8 +366,8 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        string name = args[0].toStr();
-        auto   obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
+        std::string name = args[0].asString().toString();
+        auto        obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
         if (obj) {
             ll::service::getLevel()->getScoreboard().removeObjective(obj);
             return Boolean::newBoolean(true);

@@ -5,7 +5,7 @@
 
 //////////////////// Funcs ////////////////////
 
-bool LLSEExportFunc(ScriptEngine* engine, const Local<Function>& func, const string& exportName);
+bool LLSEExportFunc(ScriptEngine* engine, const Local<Function>& func, const std::string& exportName);
 bool LLSERemoveAllExportedFuncs(ScriptEngine* engine);
 
 class ModuleMessage;

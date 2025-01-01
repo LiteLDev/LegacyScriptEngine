@@ -2,7 +2,7 @@
 #include "ll/api/base/Macro.h"
 #include <Windows.h>
 #include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
 #include <string>
 
 namespace lse::legacy {

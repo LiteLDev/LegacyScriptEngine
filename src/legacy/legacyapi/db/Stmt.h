@@ -4,13 +4,11 @@
 #include "ll/api/base/Macro.h"
 
 #include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
+#include <ll/api/io/Logger.h>
 
 #define IF_ENDBG if (debugOutput)
 
 namespace DB {
-
-extern ll::Logger dbLogger;
 
 class Session;
 

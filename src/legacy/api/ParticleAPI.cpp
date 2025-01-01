@@ -4,7 +4,7 @@
 #include "ParticleAPI.h"
 
 #include "McAPI.h"
-#include "mc/deps/core/mce/Color.h"
+#include "mc/deps/core/math/Color.h"
 
 #define GETVEC3(v, d, u)                                                                                               \
     if (IsInstanceOf<IntPos>(u)) {                                                                                     \

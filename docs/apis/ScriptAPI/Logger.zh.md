@@ -117,29 +117,6 @@
 
 除此之外，还有其他的一些设置项，用来改变输出日志的格式
 
-#### 设置自定义日志消息标头  
-
-`logger.setTitle(title)`
-
-- 参数：
-  - title : `String`  
-    设置的自定义标头
-- 返回值：无
-
-「标头」为日志输出条目开头的文字，用来直观地区分日志的输出源。  
-默认情况下，消息标头默认为空，即输出时没有标头。
-
-例如：设置自定义标头为`logger.setTitle("LeviLamina")`  
-则在接下来的日志输出将变为形如：  
-
-```log
-20:05:26 ERROR [LeviLamina] Fail to transport the player
-```
-
-如果在设置之后想要关闭标头，请执行`logger.setTitle("")`
-
-
-
 #### 统一修改日志输出等级
 
 `logger.setLogLevel(level)`

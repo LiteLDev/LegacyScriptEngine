@@ -19,6 +19,7 @@
 #include "legacyapi/form/FormUI.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/service/ServerInfo.h"
 #include "lse/api/MoreGlobal.h"
@@ -26,67 +27,76 @@
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
-#include "mc/deps/core/mce/UUID.h"
-#include "mc/enums/BossBarColor.h"
-#include "mc/enums/MinecraftPacketIds.h"
-#include "mc/enums/TextPacketType.h"
-#include "mc/enums/d_b_helpers/Category.h"
+#include "mc/common/ActorUniqueID.h"
+#include "mc/deps/core/math/Vec2.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
+#include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
 #include "mc/network/packet/ModalFormRequestPacket.h"
 #include "mc/network/packet/RemoveObjectivePacket.h"
-#include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
 #include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
 #include "mc/network/packet/TextPacket.h"
+#include "mc/network/packet/TextPacketType.h"
 #include "mc/network/packet/ToastRequestPacket.h"
 #include "mc/network/packet/TransferPacket.h"
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/network/packet/UpdateAdventureSettingsPacket.h"
+#include "mc/platform/UUID.h"
 #include "mc/server/ServerPlayer.h"
+#include "mc/server/commands/CommandContext.h"
+#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
-#include "mc/world/ActorUniqueID.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/player/PlayerScoreSetFunction.h"
+#include "mc/world/actor/ai/util/BossBarColor.h"
+#include "mc/world/actor/ai/util/BossEventUpdateType.h"
+#include "mc/world/actor/player/LayeredAbilities.h"
+#include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
-#include "mc/world/events/BossEventUpdateType.h"
-#include "mc/world/item/registry/ItemStack.h"
-#include "mc/world/level/LayeredAbilities.h"
+#include "mc/world/item/ItemStack.h"
+#include "mc/world/level/BlockSource.h"
+#include "mc/world/level/ChunkPos.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
+#include "mc/world/level/storage/db_helpers/Category.h"
 #include "mc/world/phys/HitResult.h"
+#include "mc/world/scores/IdentityDefinition.h"
+#include "mc/world/scores/PlayerScoreSetFunction.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+#include "mc/network/packet/ScorePacketInfo.h"
+#include "mc/entity/utilities/ActorMobilityUtils.h"
+#include "mc/nbt/CompoundTag.h"
+#include "mc/server/commands/Command.h"
+#include "mc/world/actor/Actor.h"
+#include "mc/world/actor/SynchedActorData.h"
+#include "mc/world/actor/SynchedActorDataEntityWrapper.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/provider/ActorEquipment.h"
+#include "mc/world/actor/provider/SynchedActorDataAccess.h"
+#include "mc/world/attribute/Attribute.h"
+#include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/SharedAttributes.h"
+#include "mc/world/level/biome/Biome.h"
+#include "mc/world/level/material/Material.h"
+#include "mc/world/scores/Objective.h"
 
 #include <algorithm>
 #include <climits>
 #include <list>
-#include <mc/entity/utilities/ActorEquipment.h>
-#include <mc/entity/utilities/ActorMobilityUtils.h>
-#include <mc/nbt/CompoundTag.h>
-#include <mc/world/actor/Actor.h>
-#include <mc/world/actor/SynchedActorData.h>
-#include <mc/world/actor/SynchedActorDataEntityWrapper.h>
-#include <mc/world/actor/components/SynchedActorDataAccess.h>
-#include <mc/world/actor/player/Player.h>
-#include <mc/world/attribute/Attribute.h>
-#include <mc/world/attribute/AttributeInstance.h>
-#include <mc/world/attribute/SharedAttributes.h>
-#include <mc/world/level/BlockSource.h>
-#include <mc/world/level/Command.h>
-#include <mc/world/level/biome/Biome.h>
-#include <mc/world/level/material/Material.h>
-#include <mc/world/scores/Objective.h>
 #include <memory>
 #include <optional>
 #include <string>
@@ -461,7 +471,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         if (!sid.isValid() || !objective->hasScore(sid)) {
             return Number::newNumber(0);
         }
-        return Number::newNumber(objective->getPlayerScore(sid).mScore);
+        return Number::newNumber(objective->getPlayerScore(sid).mValue);
     }
     CATCH("Fail in getPlayerScore!")
 }
@@ -614,7 +624,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         if (!sid.isValid()) {
             return Boolean::newBoolean(false);
         }
-        objective->_resetPlayer(sid);
+        scoreboard.resetPlayerScore(sid, *objective);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deletePlayerScore!")
@@ -625,7 +635,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        std::string target = args[0].toStr();
+        std::string target = args[0].asString().toString();
         if (target.empty()) return Local<Value>();
         Player* found = nullptr;
         if (mce::UUID::canParse(target)) { // If target is UUID, then get player by using UUID
@@ -641,7 +651,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
                   ::tolower); // lower case the string
         size_t delta = INT_MAX;
         ll::service::getLevel()->forEachPlayer([&](Player& player) {
-            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().id) == target) {
+            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().rawID) == target) {
                 found = &player;
                 return false;
             }
@@ -1093,7 +1103,7 @@ Local<Value> PlayerClass::getUniqueID() {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        else return String::newString(std::to_string(player->getOrCreateUniqueID().id));
+        else return String::newString(std::to_string(player->getOrCreateUniqueID().rawID));
     }
     CATCH("Fail in getUniqueID!")
 }
@@ -1224,7 +1234,7 @@ Local<Value> PlayerClass::isOnHotBlock() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isOnHotBlock());
+        return Boolean::newBoolean(false); // todo: check IsOnHotBlockTest to get the correct value
     }
     CATCH("Fail in isOnHotBlock!")
 }
@@ -1409,7 +1419,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
             if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
                 auto ang        = DirectionAngle::extract(args[4]);
                 angle.x         = ang->pitch;
@@ -1462,7 +1472,7 @@ Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
         int  newPerm = args[0].asNumber().toInt32();
         if (newPerm >= 0 && newPerm <= 4) {
             RecordOperation(
-                ENGINE_OWN_DATA()->pluginName,
+                getEngineOwnData()->pluginName,
                 "Set Permission Level",
                 fmt::format("Set Player {} Permission Level as {}.", player->getRealName(), newPerm)
             );
@@ -1509,9 +1519,10 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
         if (!player) return Local<Value>();
         CommandContext context = CommandContext(
             args[0].asString().toString(),
-            std::make_unique<PlayerCommandOrigin>(PlayerCommandOrigin(*get()))
+            std::make_unique<PlayerCommandOrigin>(*get()),
+            CommandVersion::CurrentVersion()
         );
-        ll::service::getMinecraft()->getCommands().executeCommand(context);
+        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in runcmd!");
@@ -1525,7 +1536,7 @@ Local<Value> PlayerClass::kick(const Arguments& args) {
         if (!player) return Local<Value>();
 
         string msg = "disconnectionScreen.disconnected";
-        if (args.size() >= 1) msg = args[0].toStr();
+        if (args.size() >= 1) msg = args[0].asString().toString();
 
         player->disconnect(msg);
         return Boolean::newBoolean(true); //=======???
@@ -1571,22 +1582,22 @@ Local<Value> PlayerClass::setTitle(const Arguments& args) {
 
         if (args.size() >= 1) {
             CHECK_ARG_TYPE(args[0], ValueKind::kString);
-            content = args[0].toStr();
+            content = args[0].asString().toString();
         }
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            type = (SetTitlePacket::TitleType)args[1].toInt();
+            type = (SetTitlePacket::TitleType)args[1].asNumber().toInt32();
         }
         if (args.size() >= 5) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
-            fadeInTime  = args[2].toInt();
-            stayTime    = args[3].toInt();
-            fadeOutTime = args[4].toInt();
+            fadeInTime  = args[2].asNumber().toInt32();
+            stayTime    = args[3].asNumber().toInt32();
+            fadeOutTime = args[4].asNumber().toInt32();
         }
 
-        SetTitlePacket pkt = SetTitlePacket(type, content);
+        SetTitlePacket pkt = SetTitlePacket(type, content, std::nullopt);
         pkt.mFadeInTime    = fadeInTime;
         pkt.mStayTime      = stayTime;
         pkt.mFadeOutTime   = fadeOutTime;
@@ -1741,7 +1752,12 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-            pos = {args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()};
+            pos = {
+                args[0].asNumber().toInt32(),
+                args[1].asNumber().toInt32(),
+                args[2].asNumber().toInt32(),
+                args[3].asNumber().toInt32()
+            };
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -1770,7 +1786,7 @@ Local<Value> PlayerClass::rename(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        player->setNameTag(args[0].toStr());
+        player->setNameTag(args[0].asString().toString());
         player->_sendDirtyActorData();
         return Boolean::newBoolean(true);
     }
@@ -1785,7 +1801,7 @@ Local<Value> PlayerClass::addLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].toInt());
+        player->addLevels(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addLevel!");
@@ -1801,7 +1817,7 @@ Local<Value> PlayerClass::reduceLevel(const Arguments& args) {
             return Local<Value>();
         }
 
-        player->addLevels(-args[0].toInt());
+        player->addLevels(-args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in reduceLevel!");
@@ -1825,7 +1841,7 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].toInt() - player->getPlayerLevel());
+        player->addLevels(args[0].asNumber().toInt32() - player->getPlayerLevel());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setLevel!");
@@ -1864,7 +1880,7 @@ Local<Value> PlayerClass::addExperience(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addExperience(args[0].toInt());
+        player->addExperience(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addExperience!");
@@ -1881,7 +1897,7 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
         }
 
         float exp  = args[0].asNumber().toFloat();
-        auto  attr = player->getMutableAttribute(Player::EXPERIENCE);
+        auto  attr = player->getMutableAttribute(Player::EXPERIENCE());
         if (!attr) {
             return Boolean::newBoolean(false);
         }
@@ -1930,7 +1946,7 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        AttributeInstance* attr = player->getMutableAttribute(Player::EXPERIENCE);
+        AttributeInstance* attr = player->getMutableAttribute(Player::EXPERIENCE());
         attr->setCurrentValue(args[0].asNumber().toFloat()); // Not sure about that
         return Boolean::newBoolean(true);
     }
@@ -1987,7 +2003,7 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TransferPacket pkt = TransferPacket(args[0].toStr(), args[1].toInt());
+        TransferPacket pkt = TransferPacket(args[0].asString().toString(), args[1].asNumber().toInt32());
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -1998,14 +2014,13 @@ Local<Value> PlayerClass::crash(const Arguments&) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-
         RecordOperation(
-            ENGINE_OWN_DATA()->pluginName,
+            getEngineOwnData()->pluginName,
             "Crash Player",
             "Execute player.crash() to crash player <" + player->getRealName() + ">"
         );
-        LevelChunkPacket pkt = LevelChunkPacket();
-        pkt.mCacheEnabled    = true;
+        LevelChunkPacket pkt;
+        pkt.mCacheEnabled = true;
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(false);
     }
@@ -2048,7 +2063,7 @@ Local<Value> PlayerClass::getScore(const Arguments& args) {
         if (!id.isValid()) {
             scoreboard.createScoreboardId(*player);
         }
-        return Number::newNumber(obj->getPlayerScore(id).mScore);
+        return Number::newNumber(obj->getPlayerScore(id).mValue);
     }
     CATCH("Fail in getScore!");
 }
@@ -2150,7 +2165,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
         if (!id.isValid()) {
             return Boolean::newBoolean(true);
         }
-        obj->_resetPlayer(id);
+        scoreboard.resetPlayerScore(id, *obj);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deleteScore!");
@@ -2170,11 +2185,11 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         auto                                     source = args[1].asObject();
         auto                                     keys   = source.getKeyNames();
         for (auto& key : keys) {
-            data.push_back(make_pair(key, source.get(key).toInt()));
+            data.push_back(make_pair(key, source.get(key).asNumber().toInt32()));
         }
 
         int sortOrder = 1;
-        if (args.size() >= 3) sortOrder = args[2].toInt();
+        if (args.size() >= 3) sortOrder = args[2].asNumber().toInt32();
 
         SetDisplayObjectivePacket
             disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
@@ -2182,11 +2197,11 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         std::vector<ScorePacketInfo> info;
         for (auto& i : data) {
             ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId   = ScoreboardId(i.second);
-            pktInfo.mObjectiveName  = "FakeScoreObj";
-            pktInfo.mIdentityType   = IdentityDefinition::Type::FakePlayer;
-            pktInfo.mScoreValue     = i.second;
-            pktInfo.mFakePlayerName = i.first;
+            pktInfo.mScoreboardId->mRawID = i.second;
+            pktInfo.mObjectiveName        = "FakeScoreObj";
+            pktInfo.mIdentityType         = IdentityDefinition::Type::FakePlayer;
+            pktInfo.mScoreValue           = i.second;
+            pktInfo.mFakePlayerName       = i.first;
             info.emplace_back(pktInfo);
         }
         SetScorePacket setPkt = SetScorePacket::change(info);
@@ -2221,7 +2236,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             if (!player) return Local<Value>();
 
             int64_t uid     = args[0].asNumber().toInt64();
-            int     percent = args[2].toInt();
+            int     percent = args[2].asNumber().toInt32();
             if (percent < 0) percent = 0;
             else if (percent > 100) percent = 100;
             float value = (float)percent / 100;
@@ -2256,9 +2271,9 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeUnsignedVarInt(0);
             // Links
             bs.writeUnsignedVarInt(0);
-            auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(*bs.mBuffer));
+            auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(bs.mBuffer));
 
-            BossBarColor    color = (BossBarColor)args[3].toInt();
+            BossBarColor    color = (BossBarColor)args[3].asNumber().toInt32();
             BossEventPacket pkt;
             pkt.mEventType     = BossEventUpdateType::Add;
             pkt.mBossID        = ActorUniqueID(uid);
@@ -2278,13 +2293,13 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int percent = args[1].toInt();
+        int percent = args[1].asNumber().toInt32();
         if (percent < 0) percent = 0;
         else if (percent > 100) percent = 100;
         float value = (float)percent / 100;
 
         BossBarColor color = BossBarColor::Red;
-        if (args.size() >= 3) color = (BossBarColor)args[2].toInt();
+        if (args.size() >= 3) color = (BossBarColor)args[2].asNumber().toInt32();
         BossEventPacket pkt;
         pkt.mEventType     = BossEventUpdateType::Add;
         pkt.mName          = args[0].asString().toString();
@@ -2357,7 +2372,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
             player,
             [engine{EngineScope::currentEngine()},
              callback{script::Global(args[4].asFunction())}](Player* pl, int chosen) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2396,7 +2411,7 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             player,
             [engine{EngineScope::currentEngine()},
              callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2422,7 +2437,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        std::string data = ordered_json::parse(args[0].toStr()).dump();
+        std::string data = ordered_json::parse(args[0].asString().toString()).dump();
 
         unsigned               formId = lse::form::NewFormId();
         ModalFormRequestPacket packet(formId, data);
@@ -2432,7 +2447,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
              callback{script::Global(args[1].asFunction())}](Player* player, string result) {
-                if ((ll::getServerStatus() != ll::ServerStatus::Running)) return;
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
@@ -2503,10 +2518,10 @@ Local<Value> PlayerClass::setExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Boolean::newBoolean(false);
 
-        ENGINE_OWN_DATA()->playerDataDB[player->getRealName() + "-" + key] = args[1];
+        getEngineOwnData()->playerDataDB[player->getRealName() + "-" + key] = args[1];
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setExtraData!");
@@ -2520,10 +2535,10 @@ Local<Value> PlayerClass::getExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Local<Value>();
 
-        auto& db  = ENGINE_OWN_DATA()->playerDataDB;
+        auto& db  = getEngineOwnData()->playerDataDB;
         auto  res = db.find(player->getRealName() + "-" + key);
         if (res == db.end() || res->second.isEmpty()) return Local<Value>();
         else return res->second.get();
@@ -2539,10 +2554,10 @@ Local<Value> PlayerClass::delExtraData(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        string key = args[0].toStr();
+        string key = args[0].asString().toString();
         if (key.empty()) return Boolean::newBoolean(false);
 
-        ENGINE_OWN_DATA()->playerDataDB.erase(player->getRealName() + "-" + key);
+        getEngineOwnData()->playerDataDB.erase(player->getRealName() + "-" + key);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in delExtraData!")
@@ -2584,7 +2599,7 @@ Local<Value> PlayerClass::heal(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->heal(args[0].toInt());
+        player->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in heal!");
@@ -2598,7 +2613,7 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2613,7 +2628,7 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH)->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::HEALTH())->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2628,7 +2643,7 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ABSORPTION)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ABSORPTION())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2643,7 +2658,7 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2658,7 +2673,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE)->setMaxValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setMaxValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2673,7 +2688,7 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2688,7 +2703,7 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE)
+        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2704,7 +2719,7 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LUCK)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::LUCK())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2719,17 +2734,17 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED())->setCurrentValue(args[0].asNumber().toFloat());
 
         // Unknown why we need to check again after registering attributes
         //
-        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED);
+        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
         // if (movementSpeedAttribute) {
         //     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
         //     return Boolean::newBoolean(true);
         // } else {
         //     player->_registerPlayerAttributes();
-        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED); // Check again
+        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED()); // Check again
         //     if (movementSpeedAttribute) {
         //         movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
         //         return Boolean::newBoolean(true);
@@ -2748,7 +2763,7 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED)
+        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2764,7 +2779,7 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED)
+        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED())
             ->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -2780,7 +2795,7 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(Player::HUNGER)->setCurrentValue(args[0].asNumber().toFloat());
+        player->getMutableAttribute(Player::HUNGER())->setCurrentValue(args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2796,7 +2811,7 @@ Local<Value> PlayerClass::setFire(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int  time          = args[0].toInt();
+        int  time          = args[0].asNumber().toInt32();
         bool isEffectValue = args[1].asBoolean().value();
 
         player->setOnFire(time, isEffectValue);
@@ -2825,7 +2840,7 @@ Local<Value> PlayerClass::setOnFire(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int time = args[0].toInt();
+        int time = args[0].asNumber().toInt32();
 
         player->setOnFire(time, true);
         return Boolean::newBoolean(true);
@@ -2889,11 +2904,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (inventorySlots[slot]->mCount < clearCount) {
-                    result += inventorySlots[slot]->mCount;
+                    result     += inventorySlots[slot]->mCount;
                     clearCount -= inventorySlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 player->getInventory().removeItem(slot, clearCount);
             }
@@ -2905,11 +2920,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (handSlots[slot]->mCount < clearCount) {
-                    result += handSlots[slot]->mCount;
+                    result     += handSlots[slot]->mCount;
                     clearCount -= handSlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 ActorEquipment::getHandContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
@@ -2921,11 +2936,11 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
             }
             if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
                 if (armorSlots[slot]->mCount < clearCount) {
-                    result += armorSlots[slot]->mCount;
+                    result     += armorSlots[slot]->mCount;
                     clearCount -= armorSlots[slot]->mCount;
                 } else {
-                    result += clearCount;
-                    clearCount = 0;
+                    result     += clearCount;
+                    clearCount  = 0;
                 }
                 ActorEquipment::getArmorContainer(player->getEntityContext()).removeItem(slot, clearCount);
             }
@@ -2998,7 +3013,7 @@ Local<Value> PlayerClass::addTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->addTag(args[0].toStr()));
+        return Boolean::newBoolean(player->addTag(args[0].asString().toString()));
     }
     CATCH("Fail in addTag!");
 }
@@ -3011,7 +3026,7 @@ Local<Value> PlayerClass::removeTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->removeTag(args[0].toStr()));
+        return Boolean::newBoolean(player->removeTag(args[0].asString().toString()));
     }
     CATCH("Fail in removeTag!");
 }
@@ -3024,7 +3039,7 @@ Local<Value> PlayerClass::hasTag(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->hasTag(args[0].toStr()));
+        return Boolean::newBoolean(player->hasTag(args[0].asString().toString()));
     }
     CATCH("Fail in hasTag!");
 }
@@ -3048,8 +3063,9 @@ Local<Value> PlayerClass::getAbilities(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        CompoundTag tag = CompoundTag();
+        CompoundTag tag;
         player->save(tag);
+
         try {
             return Tag2Value(&tag.at("abilities").get<CompoundTag>(), true);
         } catch (...) {
@@ -3146,7 +3162,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         if (includeLiquid && res.mIsHitLiquid) {
             bp = res.mLiquidPos;
         } else {
-            bp = res.mBlockPos;
+            bp = res.mBlock;
         }
         Block const& bl = player->getDimensionBlockSource().getBlock(bp);
         if (bl.isEmpty()) {
@@ -3172,7 +3188,7 @@ Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
     try {
         Player* actor = get();
         if (!actor) return Local<Value>();
-        return Number::newNumber(actor->evalMolang(args[0].toStr()));
+        return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
     CATCH("Fail in quickEvalMolangScript!");
 }
@@ -3243,13 +3259,13 @@ Local<Value> PlayerClass::transMoney(const Arguments& args) {
         std::string targetXuid;
         std::string note;
         if (args[0].getKind() == ValueKind::kString) {
-            targetXuid = args[0].toStr();
+            targetXuid = args[0].asString().toString();
         } else {
             targetXuid = PlayerClass::extract(args[0])->getXuid();
         }
         if (args.size() >= 3) {
             CHECK_ARG_TYPE(args[2], ValueKind::kString);
-            note = args[2].toStr();
+            note = args[2].asString().toString();
         }
         return xuid.empty()
                  ? Local<Value>()
@@ -3266,8 +3282,9 @@ Local<Value> PlayerClass::getMoneyHistory(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         auto xuid = player->getXuid();
-        return xuid.empty() ? Local<Value>()
-                            : objectificationMoneyHistory(EconomySystem::getMoneyHist(xuid, args[0].toInt()));
+        return xuid.empty()
+                 ? Local<Value>()
+                 : objectificationMoneyHistory(EconomySystem::getMoneyHist(xuid, args[0].asNumber().toInt32()));
     }
     CATCH("Fail in getMoneyHistory!");
 }
@@ -3331,8 +3348,8 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        int inventoryId = args[0].toInt();
-        int count       = args[1].toInt();
+        int inventoryId = args[0].asNumber().toInt32();
+        int count       = args[1].asNumber().toInt32();
 
         Container& container = player->getInventory();
         if (inventoryId > container.getContainerSize()) return Boolean::newBoolean(false);
@@ -3411,7 +3428,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -3477,7 +3494,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             pos.x   = args[0].asNumber().toFloat();
             pos.y   = args[1].asNumber().toFloat();
             pos.z   = args[2].asNumber().toFloat();
-            pos.dim = args[3].toInt();
+            pos.dim = args[3].asNumber().toInt32();
         } else {
             LOG_WRONG_ARGS_COUNT();
             return Local<Value>();
@@ -3582,7 +3599,7 @@ Local<Value> PlayerClass::addEffect(const Arguments& args) {
         int               tick          = args[1].asNumber().toInt32();
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect        = MobEffectInstance(id, tick, level, false, showParticles, false);
+        MobEffectInstance effect        = MobEffectInstance(id, {tick}, level, false, showParticles, false);
         player->addEffect(effect);
         return Boolean::newBoolean(true);
     }

@@ -1,12 +1,12 @@
 #include "legacyapi/db/Session.h"
 
+#include "lse/Entry.h"
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/db/impl/sqlite/Session.h"
+#include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
 
 namespace DB {
-
-ll::Logger dbLogger("LLSEDB");
 
 void Session::setDebugOutput(bool enable) { debugOutput = enable; }
 
@@ -27,12 +27,14 @@ ResultSet Session::query(const std::string& query) {
     });
     IF_ENDBG {
         if (result.valid()) {
-            dbLogger.debug("Session::query: Results >");
+            lse::getSelfPluginInstance().getLogger().debug("Session::query: Results >");
             for (auto& str : ll::string_utils::splitByPattern(result.toTableString(), "\n")) {
-                dbLogger.debug(str);
+                lse::getSelfPluginInstance().getLogger().debug(str);
             }
         } else {
-            dbLogger.debug("Session::query: Query returned no result");
+            lse::getSelfPluginInstance().getLogger().debug(
+                "Session::query: Query returned no result"
+            );
         }
     }
     return result;
@@ -42,7 +44,9 @@ std::string Session::getLastError() const { throw std::runtime_error("Session::g
 
 std::weak_ptr<Session> Session::getOrSetSelf() {
     if (self.expired()) {
-        IF_ENDBG dbLogger.debug("Session::getOrSetSelf: `self` expired, trying fetching");
+        IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
+            "Session::getOrSetSelf: `self` expired, trying fetching"
+        );
         return self = getSession(this);
     }
     return self;

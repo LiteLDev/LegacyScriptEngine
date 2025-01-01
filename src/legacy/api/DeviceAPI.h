@@ -1,7 +1,7 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/entity/WeakEntityRef.h"
-#include "mc/world/ActorRuntimeID.h"
+#include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/common/ActorRuntimeID.h"
 
 //////////////////// Classes ////////////////////
 class Player;

@@ -14,20 +14,20 @@ LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
     HookPriority::Normal,
     DBStorage,
-    "??0DBStorage@@QEAA@UDBStorageConfig@@V?$not_null@V?$NonOwnerPointer@VLevelDbEnv@@@Bedrock@@@gsl@@@Z",
-    DBStorage*,
-    struct DBStorageConfig&                        cfg,
-    Bedrock::NotNullNonOwnerPtr<class LevelDbEnv>& dbEnv
+    &DBStorage::$ctor,
+    void*,
+    ::DBStorageConfig                           config,
+    ::Bedrock::NotNullNonOwnerPtr<::LevelDbEnv> levelDbEnv
 ) {
-    DBStorage* ori        = origin(cfg, dbEnv);
-    MoreGlobal::dbStorage = ori;
+    void* ori             = origin(std::move(config), levelDbEnv);
+    MoreGlobal::dbStorage = (DBStorage*)ori;
     return ori;
 };
 
 void onLoad() { DBStorageHook::hook(); }
 
 bool onEnable() {
-    helper = static_cast<DefaultDataLoadHelper*>(ll::memory::resolveSymbol("??_7DefaultDataLoadHelper@@6B@"));
+    helper = (DefaultDataLoadHelper*)DefaultDataLoadHelper::$vftable();
     if (helper && dbStorage && DBStorageHook::unhook()) {
         return true;
     }

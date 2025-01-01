@@ -1,28 +1,11 @@
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-#endif
-
-#include "mc/math/Vec3.h"
+#include "ll/api/i18n/I18n.h"
+#include "mc/deps/core/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
 
-#include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
-#include <ll/api/i18n/I18n.h>
 #include <string>
 #include <vector>
-
-using std::string;
-using std::vector;
-
-// 全局工具
-extern nlohmann::ordered_json globalConfig;
-
-typedef unsigned long long QWORD;
 
 class IntVec4 {
 public:
@@ -77,3 +60,37 @@ inline std::string DimId2Name(int dimid) {
 
 // 全局变量
 extern bool isCmdRegisterEnabled;
+
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS)
+// QuickJs
+constexpr std::string LLSE_BACKEND_TYPE = "Js";
+
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
+// Lua
+constexpr std::string LLSE_BACKEND_TYPE = "Lua";
+
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
+// NodeJs
+const std::string LLSE_BACKEND_TYPE = "NodeJs";
+
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
+// Python
+const std::string LLSE_BACKEND_TYPE = "Python";
+#endif
+
+// Debug engine information
+#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
+constexpr std::string LLSE_DEBUG_CMD = "nodejsdebug";
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS)
+constexpr std::string LLSE_DEBUG_CMD = "jsdebug";
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
+constexpr std::string LLSE_DEBUG_CMD = "luadebug";
+#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
+constexpr std::string LLSE_DEBUG_CMD = "pydebug";
+#endif
+
+constexpr wchar_t       LLSE_GLOBAL_DATA_NAME[]                 = L"LLSE_GLOBAL_DATA_SECTION";
+constexpr unsigned long LLSE_MESSAGE_SYSTEM_WAIT_CHECK_INTERVAL = 5;
+constexpr size_t        LLSE_POOL_THREAD_COUNT                  = 4;
+constexpr int           LLSE_VALID_BACKENDS_COUNT               = 4;
+constexpr auto          LLSE_NPM_EXECUTE_PATH                   = "plugins/legacy-script-engine-nodejs";

@@ -125,7 +125,7 @@ FloatPos* FloatPos::extractPos(Local<Value> v) {
 }
 
 Local<Value> FloatPos::getDim() {
-    string name;
+    std::string name;
     switch (dim) {
     case 0:
         name = "Overworld"_tr();
@@ -210,7 +210,12 @@ Local<Value> McClass::newIntPos(const Arguments& args) {
     CHECK_ARG_TYPE(args[3], ValueKind::kNumber)
 
     try {
-        return IntPos::newPos(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt());
+        return IntPos::newPos(
+            args[0].asNumber().toInt32(),
+            args[1].asNumber().toInt32(),
+            args[2].asNumber().toInt32(),
+            args[3].asNumber().toInt32()
+        );
     }
     CATCH("Fail in NewIntPos!")
 }
@@ -227,7 +232,7 @@ Local<Value> McClass::newFloatPos(const Arguments& args) {
             args[0].asNumber().toFloat(),
             args[1].asNumber().toFloat(),
             args[2].asNumber().toFloat(),
-            args[3].toInt()
+            args[3].asNumber().toInt32()
         );
     }
     CATCH("Fail in NewFloatPos!")
@@ -242,7 +247,7 @@ Local<Value> McClass::getBDSVersion(const Arguments&) {
 
 Local<Value> McClass::getServerProtocolVersion(const Arguments&) {
     try {
-        return Number::newNumber(SharedConstants::NetworkProtocolVersion);
+        return Number::newNumber(SharedConstants::NetworkProtocolVersion());
     }
     CATCH("Fail in GetServerProtocolVersion!")
 }

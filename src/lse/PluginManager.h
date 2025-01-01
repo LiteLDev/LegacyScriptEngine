@@ -1,23 +1,17 @@
 #pragma once
 #include "ll/api/base/Macro.h"
+#include "ll/api/Expected.h"
+#include "ll/api/mod/Manifest.h"
+#include "ll/api/mod/ModManager.h"
 
-#include <ll/api/Expected.h>
-#include <ll/api/mod/Manifest.h>
-#include <ll/api/mod/ModManager.h>
 #include <string_view>
 
 namespace lse {
 
-class PluginManager : public ll::mod::ModManager {
+class PluginManager final : public ll::mod::ModManager {
 public:
     PluginManager();
-
-    PluginManager(const PluginManager&)                    = delete;
-    PluginManager(PluginManager&&)                         = delete;
-    auto operator=(const PluginManager&) -> PluginManager& = delete;
-    auto operator=(PluginManager&&) -> PluginManager&      = delete;
-
-    ~PluginManager() override = default;
+    ~PluginManager() override;
 
 private:
     ll::Expected<> load(ll::mod::Manifest manifest) override;

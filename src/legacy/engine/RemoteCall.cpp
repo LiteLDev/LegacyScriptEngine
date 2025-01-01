@@ -4,7 +4,6 @@
 #include "api/LlAPI.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
-#include "main/Configs.h"
 
 #include <map>
 #include <process.h>
@@ -21,7 +20,7 @@ void inline StringTrim(string& str) {
 
 void RemoteSyncCallRequest(ModuleMessage& msg) {
     // lse::getSelfPluginInstance().getLogger().debug("*** Remote call request received.");
-    // lse::getSelfPluginInstance().getLogger().debug("*** Current Module:{}", LLSE_MODULE_TYPE);
+    // lse::getSelfPluginInstance().getLogger().debug("*** Current Module:{}", LLSE_BACKEND_TYPE);
 
     std::istringstream sin(msg.getData());
 
@@ -36,8 +35,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         engine                     = funcData->engine;
         EngineScope enter(engine);
 
-        string               arg;
-        vector<Local<Value>> argsVector;
+        string                    arg;
+        std::vector<Local<Value>> argsVector;
         while (getline(sin, arg)) {
             StringTrim(arg);
             argsVector.push_back(JsonToValue(arg));
@@ -58,7 +57,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         if (engine) {
             EngineScope enter(engine);
             PrintException(e);
-            lse::getSelfPluginInstance().getLogger().error("[Error] In Plugin: " + ENGINE_OWN_DATA()->pluginName);
+            lse::getSelfPluginInstance().getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
         }
 
         // Feedback
@@ -119,7 +118,7 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
         return false;
     funcData->engine = engine;
     funcData->func = script::Global<Function>(func);
-    funcData->fromEngineType = LLSE_MODULE_TYPE;
+    funcData->fromEngineType = LLSE_BACKEND_TYPE;
     funcData->callback = [exportName](std::vector<std::string> params) -> std::string {
         auto data = globalShareData->exportedFuncs.find(exportName);
         if (data == globalShareData->exportedFuncs.end())
@@ -128,7 +127,7 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
             return "";
         }
         auto engine = data->second.engine;
-        if ((ll::getServerStatus() != ll::ServerStatus::Running) || !EngineManager::isValid(engine) || engine->isDestroying())
+        if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine) || engine->isDestroying())
             return "";
         EngineScope enter(data->second.engine);
         std::vector<script::Local<Value>> scriptParams;
@@ -165,7 +164,7 @@ Local<Value> LlClass::exportFunc(const Arguments& args)
 
     try
     {
-        return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].toStr()));
+        return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].asString().toString()));
     }
     CATCH("Fail in LLSEExport!");
 #endif
@@ -180,7 +179,7 @@ Local<Value> LlClass::importFunc(const Arguments &args)
 
     try
     {
-        string funcName = args[0].toStr();
+        string funcName = args[0].asString().toString();
 
         //远程调用
         return Function::newFunction([funcName{ funcName }]

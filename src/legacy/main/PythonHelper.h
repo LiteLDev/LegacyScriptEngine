@@ -1,7 +1,5 @@
 #pragma once
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-#include "Configs.h"
-
 #include <ScriptX/ScriptX.h>
 #include <filesystem>
 #include <map>

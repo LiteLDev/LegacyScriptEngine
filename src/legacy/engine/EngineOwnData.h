@@ -1,12 +1,16 @@
 #pragma once
 #include "dyncall/dyncall.h"
+#include "legacy/main/Global.h"
 #include "ll/api/base/Macro.h"
-#include "main/Configs.h"
+#include "ll/api/mod/Mod.h"
+#include "lse/Entry.h"
 #include "utils/UsingScriptX.h"
+#include "lse/Plugin.h"
 
 #include <ll/api/Expected.h>
-#include <ll/api/Logger.h>
 #include <ll/api/i18n/I18n.h>
+#include <ll/api/io/Logger.h>
+#include <ll/api/io/LoggerRegistry.h>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -31,8 +35,7 @@ struct SimpleCallbackData
 };
 */
 
-class Player;
-
+// It is similar to ll::mod::Mod, it stores data of an engine(usually a plugin).
 struct EngineOwnData {
     // 基础信息
     std::string pluginName          = "";
@@ -68,11 +71,8 @@ struct EngineOwnData {
     */
 
     // I18nAPI
-    ll::i18n::I18N* i18n = nullptr;
-
-    // LoggerAPI
-    ll::Logger logger      = ll::Logger("");
-    int        maxLogLevel = 4;
+    std::shared_ptr<ll::i18n::I18n> i18n = nullptr;
+    std::shared_ptr<lse::Plugin>    plugin;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
@@ -97,5 +97,10 @@ struct EngineOwnData {
 };
 
 // 引擎附加数据
-#define ENGINE_GET_DATA(e) (std::static_pointer_cast<EngineOwnData>((e)->getData()))
-#define ENGINE_OWN_DATA()  (std::static_pointer_cast<EngineOwnData>(EngineScope::currentEngine()->getData()))
+inline std::shared_ptr<EngineOwnData> getEngineOwnData() {
+    return std::static_pointer_cast<EngineOwnData>(EngineScope::currentEngine()->getData());
+}
+
+inline std::shared_ptr<EngineOwnData> getEngineData(script::ScriptEngine* engine) {
+    return std::static_pointer_cast<EngineOwnData>(engine->getData());
+}

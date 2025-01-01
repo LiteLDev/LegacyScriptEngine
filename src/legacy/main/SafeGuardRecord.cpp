@@ -1,4 +1,4 @@
-#include "main/Configs.h"
+#include "legacy/main/Global.h"
 
 #include <ScriptX/ScriptX.h>
 #include <filesystem>

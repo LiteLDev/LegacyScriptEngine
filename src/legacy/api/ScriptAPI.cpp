@@ -24,13 +24,12 @@ Local<Value> Log(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << std::endl;
-        ENGINE_OWN_DATA()->logger.info(sout.str());
+        getEngineOwnData()->plugin->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");
 }
 
-// #include <LeviLamina/Main/Config.h>
 Local<Value> ColorLog(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
@@ -90,7 +89,7 @@ Local<Value> ColorLog(const Arguments& args) {
         sout << prefix;
         for (int i = 1; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << "\x1b[0m" << std::endl;
-        ENGINE_OWN_DATA()->logger.info(sout.str());
+        getEngineOwnData()->plugin->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");
@@ -103,9 +102,8 @@ Local<Value> FastLog(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
 
-        pool.addTask([str{sout.str()}, pluginName{ENGINE_OWN_DATA()->pluginName}]() {
-            ll::Logger fastLogger(pluginName);
-            fastLogger.info(str);
+        pool.execute([str{sout.str()}, pluginName{getEngineOwnData()->pluginName}]() {
+            ll::io::LoggerRegistry::getInstance().getOrCreate(pluginName)->info(str);
         });
         return Boolean::newBoolean(true);
     }
@@ -124,7 +122,7 @@ Local<Value> SetTimeout(const Arguments& args) {
             return Local<Value>();
         }
 
-        int timeout = args[1].toInt();
+        int timeout = args[1].asNumber().toInt32();
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewTimeout(args[0].asFunction(), {}, timeout));
@@ -144,7 +142,7 @@ Local<Value> SetInterval(const Arguments& args) {
             return Local<Value>();
         }
 
-        int timeout = args[1].toInt();
+        int timeout = args[1].asNumber().toInt32();
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewInterval(args[0].asFunction(), {}, timeout));
@@ -159,7 +157,7 @@ Local<Value> ClearInterval(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
     try {
-        return Boolean::newBoolean(ClearTimeTask(args[0].toInt()));
+        return Boolean::newBoolean(ClearTimeTask(args[0].asNumber().toInt32()));
     }
     CATCH("Fail in ClearInterval!")
 }

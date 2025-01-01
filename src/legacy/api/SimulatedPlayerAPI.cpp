@@ -10,20 +10,20 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/server/SimulatedPlayer.h"
+#include "ll/api/utils/RandomUtils.h"
+#include "mc/nbt/CompoundTag.h"
+#include "mc/network/ServerNetworkHandler.h"
+#include "mc/scripting/modules/gametest/ScriptNavigationResult.h"
+#include "mc/server/sim/LookDuration.h"
+#include "mc/world/Container.h"
+#include "mc/world/Minecraft.h"
+#include "mc/world/SimpleContainer.h"
+#include "mc/world/actor/Actor.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/level/BlockSource.h"
+#include "mc/world/level/block/Block.h"
+#include "mc/world/scores/Objective.h"
 
-#include <ll/api/utils/RandomUtils.h>
-#include <mc/external/scripting/gametest/ScriptNavigationResult.h>
-#include <mc/nbt/CompoundTag.h>
-#include <mc/network/ServerNetworkHandler.h>
-#include <mc/server/sim/LookDuration.h>
-#include <mc/world/Container.h>
-#include <mc/world/Minecraft.h>
-#include <mc/world/SimpleContainer.h>
-#include <mc/world/actor/Actor.h>
-#include <mc/world/actor/player/Player.h>
-#include <mc/world/level/BlockSource.h>
-#include <mc/world/level/block/Block.h>
-#include <mc/world/scores/Objective.h>
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        std::string name = args[0].toStr();
+        std::string name = args[0].asString().toString();
         if (args.size() == 1) {
             if (auto sp = SimulatedPlayer::create(name)) return PlayerClass::newPlayer(sp);
             else return Local<Value>();
@@ -54,9 +54,10 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
             if (args.size() > 4) {
                 CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
-                dimid = args[4].toInt();
+                dimid = args[4].asNumber().toInt32();
             }
-            bpos = BlockPos(args[1].toInt(), args[2].toInt(), args[3].toInt()).bottomCenter();
+            bpos = BlockPos(args[1].asNumber().toInt32(), args[2].asNumber().toInt32(), args[3].asNumber().toInt32())
+                       .bottomCenter();
         }
         if (auto sp = SimulatedPlayer::create(name, bpos, dimid)) return PlayerClass::newPlayer(sp);
         else return Local<Value>();
@@ -137,7 +138,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            bpos  = {args[0].toInt(), args[1].toInt(), args[2].toInt()};
+            bpos  = {args[0].asNumber().toInt32(), args[1].asNumber().toInt32(), args[2].asNumber().toInt32()};
             index = 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -147,7 +148,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         }
         if (args.size() > index) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[index].toInt();
+            face = (ScriptModuleMinecraft::ScriptFacing)args[index].asNumber().toInt32();
         }
         // TODO
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
@@ -207,7 +208,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            bpos  = {args[0].toInt(), args[1].toInt(), args[2].toInt()};
+            bpos  = {args[0].asNumber().toInt32(), args[1].asNumber().toInt32(), args[2].asNumber().toInt32()};
             index = 3;
         }
 #endif // ENABLE_NUMBERS_AS_POS
@@ -454,7 +455,7 @@ inline Local<Value> NavigateResultToObject(ScriptModuleGameTest::ScriptNavigatio
     auto obj = Object::newObject();
     obj.set(String::newString("isFullPath"), Boolean::newBoolean(res.mIsFullPath));
     auto path = Array::newArray();
-    for (auto& pos : res.mPath) {
+    for (auto& pos : *res.mPath) {
         path.add(Array::newArray({Number::newNumber(pos.x), Number::newNumber(pos.y), Number::newNumber(pos.z)}));
     }
     obj.set(String::newString("path"), path);
@@ -552,7 +553,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
 
         int        slot = -1;
         ItemStack* item = nullptr;
-        if (args[0].isNumber()) slot = args[0].toInt();
+        if (args[0].isNumber()) slot = args[0].asNumber().toInt32();
         else if (IsInstanceOf<ItemClass>(args[0])) item = ItemClass::extract(args[0]);
         else {
             LOG_WRONG_ARG_TYPE();
@@ -574,7 +575,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         }
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[2].toInt();
+            face = (ScriptModuleMinecraft::ScriptFacing)args[2].asNumber().toInt32();
             if (args.size() > 3) {
                 if (IsInstanceOf<FloatPos>(args[3])) {
                     relativePos = FloatPos::extractPos(args[3])->getVec3();

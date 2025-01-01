@@ -66,6 +66,7 @@ public:
     Local<Value>         getPath(const Arguments& args);
     Local<Value>         read(const Arguments& args);
     virtual Local<Value> write(const Arguments& args) = 0;
+    virtual ~ConfBaseClass()                          = default;
 };
 
 class ConfJsonClass : public ScriptClass, public ConfBaseClass {

@@ -4,13 +4,13 @@
 #include "main/Global.h"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.h"
+#include "engine/EngineOwnData.h"
+#include "ll/api/utils/ErrorUtils.h"
+#include "mc/world/level/Level.h"
 
-#include <engine/EngineOwnData.h>
-#include <exception>
-#include <ll/api/utils/ErrorUtils.h>
-#include <magic_enum.hpp>
-#include <mc/world/level/Level.h>
 #include <string>
+#include <exception>
+#include <magic_enum.hpp>
 
 // 输出异常信息
 inline void PrintException(const script::Exception& e) {
@@ -24,10 +24,6 @@ inline void PrintScriptStackTrace(std::string const& msg = "") {
         lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).stacktrace());
     }
 }
-
-// 方便提取类型
-#define toStr() asString().toString()
-#define toInt() asNumber().toInt32()
 
 // 实例类类型检查
 template <typename T>
@@ -43,7 +39,7 @@ std::string ValueKindToString(const ValueKind& kind);
 #define LOG_ERROR_WITH_SCRIPT_INFO(...)                                                                                \
     PrintScriptStackTrace(__VA_ARGS__);                                                                                \
     lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                           \
-    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName)
+    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName)
 
 // 参数类型错误输出
 #define LOG_WRONG_ARG_TYPE() LOG_ERROR_WITH_SCRIPT_INFO("Wrong type of argument!");
@@ -148,7 +144,7 @@ std::string ValueKindToString(const ValueKind& kind);
     catch (const Exception& e) {                                                                                       \
         PrintException(e);                                                                                             \
         lse::getSelfPluginInstance().getLogger().error(std::string("In callback for ") + callback);                    \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
     }
 
 #else
@@ -259,8 +255,10 @@ struct EnumDefineBuilder {
         try {
             if (args.size() < 1) return Local<Value>();
             if (args[0].isString())
-                return magic_enum::enum_cast<Type>(args[0].toStr()).has_value() ? args[0] : Local<Value>();
-            if (args[0].isNumber()) return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].toInt())));
+                return magic_enum::enum_cast<Type>(args[0].asString().toString()).has_value() ? args[0]
+                                                                                              : Local<Value>();
+            if (args[0].isNumber())
+                return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].asNumber().toInt32())));
             return Local<Value>();
         } catch (const std::exception&) {
             lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);

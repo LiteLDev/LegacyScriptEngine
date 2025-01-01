@@ -5,11 +5,10 @@
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "ll/api/service/Bedrock.h"
-#include "main/Configs.h"
 #include "main/Global.h"
 #include "utils/Utils.h"
+#include "ll/api/command/CommandRegistrar.h"
 
-#include <ll/api/command/CommandRegistrar.h>
 #include <string>
 #include <vector>
 
@@ -68,9 +67,9 @@ Local<Value> McClass::regPlayerCmd(const Arguments& args) {
     if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
 
     try {
-        string cmd      = args[0].asString().toString();
-        string describe = args[1].asString().toString();
-        int    level    = 0;
+        std::string cmd      = args[0].asString().toString();
+        std::string describe = args[1].asString().toString();
+        int         level    = 0;
 
         if (args.size() >= 4) {
             int newLevel = args[3].asNumber().toInt32();
@@ -90,8 +89,8 @@ Local<Value> McClass::regConsoleCmd(const Arguments& args) {
     CHECK_ARG_TYPE(args[2], ValueKind::kFunction);
 
     try {
-        string cmd      = args[0].asString().toString();
-        string describe = args[1].asString().toString();
+        std::string cmd      = args[0].asString().toString();
+        std::string describe = args[1].asString().toString();
 
         LLSERegisterNewCmd(false, cmd, describe, 4, args[2].asFunction());
         return Boolean::newBoolean(true);
@@ -111,7 +110,7 @@ Local<Value> McClass::sendCmdOutput(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(SendCmdOutput(args[0].toStr()));
+        return Boolean::newBoolean(SendCmdOutput(args[0].asString().toString()));
     }
     CATCH("Fail in SendCmdOutput!");
 }
@@ -123,7 +122,12 @@ void ProcessRegCmdQueue() {
     toRegCmdQueue.clear();
 }
 
-std::string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& receiveParas, bool* fromOtherEngine) {
+std::string LLSEFindCmdReg(
+    bool                      isPlayerCmd,
+    const std::string&        cmd,
+    std::vector<std::string>& receiveParas,
+    bool*                     fromOtherEngine
+) {
     std::unordered_map<std::string, std::string>& registeredMap =
         isPlayerCmd ? globalShareData->playerRegisteredCmd : globalShareData->consoleRegisteredCmd;
     for (auto& [prefix, fromEngine] : registeredMap) {
@@ -133,7 +137,7 @@ std::string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& 
             // Matched
             if (fromEngine != LLSE_BACKEND_TYPE) {
                 *fromOtherEngine = true;
-                return string();
+                return {};
             }
         }
     }
@@ -142,7 +146,7 @@ std::string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& 
         isPlayerCmd ? localShareData->playerCmdCallbacks : localShareData->consoleCmdCallbacks;
 
     for (auto& cmdData : cmdMap) {
-        string prefix = cmdData.first;
+        std::string prefix = cmdData.first;
         if (cmd == prefix || (cmd.find(prefix) == 0 && cmd[prefix.size()] == ' '))
         // 如果命令与注册前缀全匹配，或者目标前缀后面为空格
         {
@@ -150,15 +154,15 @@ std::string LLSEFindCmdReg(bool isPlayerCmd, const string& cmd, vector<string>& 
             if (cmd.size() > prefix.size()) {
                 // 除了注册前缀之外还有额外参数
                 receiveParas = SplitCmdLine(cmd.substr(prefix.size() + 1));
-            } else receiveParas = vector<string>();
+            } else receiveParas = std::vector<std::string>();
 
             return prefix;
         }
     }
-    return string();
+    return {};
 }
 
-bool CallPlayerCmdCallback(Player* player, const string& cmdPrefix, const vector<string>& paras) {
+bool CallPlayerCmdCallback(Player* player, const std::string& cmdPrefix, const std::vector<std::string>& paras) {
     EngineScope  enter(localShareData->playerCmdCallbacks[cmdPrefix].fromEngine);
     auto         cmdData = localShareData->playerCmdCallbacks[cmdPrefix];
     Local<Value> res{};
@@ -173,7 +177,7 @@ bool CallPlayerCmdCallback(Player* player, const string& cmdPrefix, const vector
     return true;
 }
 
-bool CallServerCmdCallback(const string& cmdPrefix, const vector<string>& paras) {
+bool CallServerCmdCallback(const std::string& cmdPrefix, const std::vector<std::string>& paras) {
     EngineScope  enter(localShareData->consoleCmdCallbacks[cmdPrefix].fromEngine);
     auto         cmdData = localShareData->consoleCmdCallbacks[cmdPrefix];
     Local<Value> res{};

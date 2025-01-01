@@ -7,62 +7,69 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/entity/utilities/ActorDamageCause.h"
+#include "mc/common/ActorUniqueID.h"
+#include "mc/deps/core/string/HashedString.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
-#include "mc/world/ActorUniqueID.h"
+#include "mc/world/ContainerID.h"
+#include "mc/world/actor/ActorDamageCause.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/Mob.h"
-#include "mc/world/containers/ContainerID.h"
+#include "mc/world/inventory/transaction/InventoryAction.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
+#include "mc/world/inventory/transaction/InventoryTransaction.h"
+#include "mc/world/phys/HitResult.h"
+#include "mc/world/scores/IdentityDefinition.h"
+#include "mc/world/scores/Objective.h"
+#include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
-
-#include <ll/api/memory/Hook.h>
-#include <ll/api/memory/Memory.h>
-#include <mc/common/wrapper/InteractionResult.h>
-#include <mc/entity/WeakEntityRef.h>
-#include <mc/entity/components/ProjectileComponent.h>
-#include <mc/entity/utilities/ActorType.h>
-#include <mc/server/module/VanillaServerGameplayEventListener.h>
-#include <mc/world/actor/ActorDefinitionIdentifier.h>
-#include <mc/world/actor/ArmorStand.h>
-#include <mc/world/actor/FishingHook.h>
-#include <mc/world/actor/Hopper.h>
-#include <mc/world/actor/VanillaActorRendererId.h>
-#include <mc/world/actor/boss/WitherBoss.h>
-#include <mc/world/actor/item/ItemActor.h>
-#include <mc/world/actor/player/Player.h>
-#include <mc/world/containers/models/LevelContainerModel.h>
-#include <mc/world/events/EventResult.h>
-#include <mc/world/inventory/transaction/ComplexInventoryTransaction.h>
-#include <mc/world/item/BucketItem.h>
-#include <mc/world/item/CrossbowItem.h>
-#include <mc/world/item/ItemInstance.h>
-#include <mc/world/item/TridentItem.h>
-#include <mc/world/item/registry/ItemStack.h>
-#include <mc/world/level/BlockEventCoordinator.h>
-#include <mc/world/level/BlockSource.h>
-#include <mc/world/level/ChangeDimensionRequest.h>
-#include <mc/world/level/Level.h>
-#include <mc/world/level/Spawner.h>
-#include <mc/world/level/block/BasePressurePlateBlock.h>
-#include <mc/world/level/block/Block.h>
-#include <mc/world/level/block/ComparatorBlock.h>
-#include <mc/world/level/block/DiodeBlock.h>
-#include <mc/world/level/block/FarmBlock.h>
-#include <mc/world/level/block/ItemFrameBlock.h>
-#include <mc/world/level/block/LiquidBlockDynamic.h>
-#include <mc/world/level/block/RedStoneWireBlock.h>
-#include <mc/world/level/block/RedstoneTorchBlock.h>
-#include <mc/world/level/block/RespawnAnchorBlock.h>
-#include <mc/world/level/block/actor/BarrelBlockActor.h>
-#include <mc/world/level/block/actor/BaseCommandBlock.h>
-#include <mc/world/level/block/actor/BlockActor.h>
-#include <mc/world/level/block/actor/ChestBlockActor.h>
-#include <mc/world/level/block/actor/PistonBlockActor.h>
-#include <mc/world/phys/AABB.h>
-#include <mc/world/scores/ServerScoreboard.h>
+#include "mc/world/scores/ScoreboardId.h"
+#include "ll/api/memory/Hook.h"
+#include "ll/api/memory/Memory.h"
+#include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/entity/components_json_legacy/ProjectileComponent.h"
+#include "mc/server/module/VanillaServerGameplayEventListener.h"
+#include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorType.h"
+#include "mc/world/actor/ArmorStand.h"
+#include "mc/world/actor/FishingHook.h"
+#include "mc/world/actor/Hopper.h"
+#include "mc/world/actor/VanillaActorRendererId.h"
+#include "mc/world/actor/boss/WitherBoss.h"
+#include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/actor/player/Player.h"
+#include "mc/world/containers/models/LevelContainerModel.h"
+#include "mc/world/events/BlockEventCoordinator.h"
+#include "mc/world/events/EventResult.h"
+#include "mc/world/gamemode/InteractionResult.h"
+#include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
+#include "mc/world/item/BucketItem.h"
+#include "mc/world/item/CrossbowItem.h"
+#include "mc/world/item/ItemInstance.h"
+#include "mc/world/item/ItemStack.h"
+#include "mc/world/item/TridentItem.h"
+#include "mc/world/level/BedrockSpawner.h"
+#include "mc/world/level/BlockSource.h"
+#include "mc/world/level/ChangeDimensionRequest.h"
+#include "mc/world/level/Level.h"
+#include "mc/world/level/block/BasePressurePlateBlock.h"
+#include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/ComparatorBlock.h"
+#include "mc/world/level/block/DiodeBlock.h"
+#include "mc/world/level/block/FarmBlock.h"
+#include "mc/world/level/block/ItemFrameBlock.h"
+#include "mc/world/level/block/LiquidBlockDynamic.h"
+#include "mc/world/level/block/RedStoneWireBlock.h"
+#include "mc/world/level/block/RedstoneTorchBlock.h"
+#include "mc/world/level/block/RespawnAnchorBlock.h"
+#include "mc/world/level/block/actor/BarrelBlockActor.h"
+#include "mc/world/level/block/actor/BaseCommandBlock.h"
+#include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/actor/ChestBlockActor.h"
+#include "mc/world/level/block/actor/PistonBlockActor.h"
+#include "mc/world/phys/AABB.h"
+#include "mc/world/scores/ServerScoreboard.h"
 
 namespace lse::events {
 
@@ -76,27 +83,27 @@ LL_TYPE_INSTANCE_HOOK(
     BlockEventCoordinator,
     &BlockEventCoordinator::sendBlockDestructionStarted,
     void,
-    Player&         player,
-    BlockPos const& blockPos,
-    Block const&    block,
-    uchar           unk_char
+    ::Player&         player,
+    const ::BlockPos& blockPos,
+    const ::Block&    hitBlock,
+    uchar             face
 ) {
     IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
         CallEventVoid(
             EVENT_TYPES::onStartDestroyBlock,
             PlayerClass::newPlayer(&player),
-            BlockClass::newBlock(&block, &blockPos, player.getDimensionId())
+            BlockClass::newBlock(&hitBlock, &blockPos, player.getDimensionId())
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
-    origin(player, blockPos, block, unk_char);
+    origin(player, blockPos, hitBlock, face);
 }
 
 LL_TYPE_INSTANCE_HOOK(
     PlayerDropItemHook1,
     HookPriority::Normal,
     Player,
-    "?drop@Player@@UEAA_NAEBVItemStack@@_N@Z",
+    &Player::$drop,
     bool,
     ItemStack const& item,
     bool             randomly
@@ -117,15 +124,19 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerDropItemHook2,
     HookPriority::Normal,
     ComplexInventoryTransaction,
-    "?handle@ComplexInventoryTransaction@@UEBA?AW4InventoryTransactionError@@AEAVPlayer@@_N@Z",
+    &ComplexInventoryTransaction::$handle,
     InventoryTransactionError,
     Player& player,
     bool    isSenderAuthority
 ) {
-    if (type == ComplexInventoryTransaction::Type::NormalTransaction) {
+    if (mType == ComplexInventoryTransaction::Type::NormalTransaction) {
         IF_LISTENED(EVENT_TYPES::onDropItem) {
-            InventorySource source(InventorySourceType::ContainerInventory, ContainerID::Inventory);
-            auto&           actions = data.getActions(source);
+            InventorySource source{
+                InventorySourceType::ContainerInventory,
+                ContainerID::Inventory,
+                InventorySource::InventorySourceFlags::NoFlag
+            };
+            auto& actions = mTransaction->getActions(source);
             if (actions.size() == 1) {
                 CallEventRtnValue(
                     EVENT_TYPES::onDropItem,
@@ -144,7 +155,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerOpenContainerHook,
     HookPriority::Normal,
     VanillaServerGameplayEventListener,
-    &VanillaServerGameplayEventListener::onEvent,
+    &VanillaServerGameplayEventListener::$onEvent,
     EventResult,
     struct PlayerOpenContainerEvent const& playerOpenContainerEvent
 ) {
@@ -170,7 +181,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook1,
     HookPriority::Normal,
     ChestBlockActor,
-    &ChestBlockActor::stopOpen,
+    &ChestBlockActor::$stopOpen,
     void,
     Player& player
 ) {
@@ -192,7 +203,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerCloseContainerHook2,
     HookPriority::Normal,
     BarrelBlockActor,
-    &BarrelBlockActor::stopOpen,
+    &BarrelBlockActor::$stopOpen,
     void,
     Player& player
 ) {
@@ -239,7 +250,7 @@ LL_TYPE_INSTANCE_HOOK(
     ContainerChangeHook,
     HookPriority::Normal,
     LevelContainerModel,
-    "?_onItemChanged@LevelContainerModel@@MEAAXHAEBVItemStack@@0@Z",
+    &LevelContainerModel::$_onItemChanged,
     void,
     int              slotNumber,
     ItemStack const& oldItem,
@@ -291,8 +302,8 @@ LL_TYPE_INSTANCE_HOOK(
     ArmorStand,
     &ArmorStand::_trySwapItem,
     bool,
-    Player&                    player,
-    Puv::Legacy::EquipmentSlot slot
+    Player&                              player,
+    ::SharedTypes::Legacy::EquipmentSlot slot
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
         CallEventRtnValue(
@@ -311,7 +322,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerUseFrameHook1,
     HookPriority::Normal,
     ItemFrameBlock,
-    "?use@ItemFrameBlock@@UEBA_NAEAVPlayer@@AEBVBlockPos@@E@Z",
+    &ItemFrameBlock::$use,
     bool,
     Player&         player,
     BlockPos const& pos,
@@ -333,7 +344,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerUseFrameHook2,
     HookPriority::Normal,
     ItemFrameBlock,
-    "?attack@ItemFrameBlock@@UEBA_NPEAVPlayer@@AEBVBlockPos@@@Z",
+    &ItemFrameBlock::$attack,
     bool,
     Player*         player,
     BlockPos const& pos
@@ -353,8 +364,8 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook1,
     HookPriority::Normal,
-    Spawner,
-    &Spawner::spawnProjectile,
+    BedrockSpawner,
+    &BedrockSpawner::$spawnProjectile,
     Actor*,
     BlockSource&                     region,
     ActorDefinitionIdentifier const& id,
@@ -409,7 +420,7 @@ LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook3,
     HookPriority::Normal,
     TridentItem,
-    "?releaseUsing@TridentItem@@UEBAXAEAVItemStack@@PEAVPlayer@@H@Z",
+    &TridentItem::$releaseUsing,
     void,
     ItemStack& item,
     Player*    player,
@@ -419,7 +430,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventVoid(
             EVENT_TYPES::onSpawnProjectile,
             EntityClass::newEntity(player),
-            String::newString(VanillaActorRendererId::trident.getString())
+            String::newString(VanillaActorRendererId::trident().getString())
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
@@ -430,7 +441,7 @@ LL_TYPE_INSTANCE_HOOK(
     PressurePlateTriggerHook,
     HookPriority::Normal,
     BasePressurePlateBlock,
-    "?shouldTriggerEntityInside@BasePressurePlateBlock@@UEBA_NAEAVBlockSource@@AEBVBlockPos@@AEAVActor@@@Z",
+    &BasePressurePlateBlock::$shouldTriggerEntityInside,
     bool,
     BlockSource&    region,
     BlockPos const& pos,
@@ -448,14 +459,7 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, pos, entity);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    ActorRideHook,
-    HookPriority::Normal,
-    Actor,
-    "?canAddPassenger@Actor@@UEBA_NAEAV1@@Z",
-    bool,
-    Actor& passenger
-) {
+LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
         CallEventRtnValue(EVENT_TYPES::onRide, false, EntityClass::newEntity(&passenger), EntityClass::newEntity(this));
     }
@@ -491,7 +495,7 @@ LL_TYPE_INSTANCE_HOOK(
     FarmDecayHook,
     HookPriority::Normal,
     FarmBlock,
-    "?transformOnFall@FarmBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@PEAVActor@@M@Z",
+    &FarmBlock::$transformOnFall,
     void,
     BlockSource&    region,
     BlockPos const& pos,
@@ -562,7 +566,7 @@ LL_TYPE_INSTANCE_HOOK(
     ExplodeHook,
     HookPriority::Normal,
     Level,
-    &Level::explode,
+    &Level::$explode,
     bool,
     BlockSource& region,
     Actor*       source,
@@ -672,61 +676,42 @@ LL_TYPE_INSTANCE_HOOK(
         origin(region, pos, strength, isFirstTime);                                                                    \
     }
 
-RedstoneUpdateHookMacro(
-    RedstoneUpdateHook1,
-    RedStoneWireBlock,
-    "?onRedstoneUpdate@RedStoneWireBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
-);
+RedstoneUpdateHookMacro(RedstoneUpdateHook1, RedStoneWireBlock, &RedStoneWireBlock::$onRedstoneUpdate);
 
-RedstoneUpdateHookMacro(
-    RedstoneUpdateHook2,
-    DiodeBlock,
-    "?onRedstoneUpdate@DiodeBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
-);
+RedstoneUpdateHookMacro(RedstoneUpdateHook2, DiodeBlock, &DiodeBlock::$onRedstoneUpdate);
 
-RedstoneUpdateHookMacro(
-    RedstoneUpdateHook3,
-    RedstoneTorchBlock,
-    "?onRedstoneUpdate@RedstoneTorchBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
-);
+RedstoneUpdateHookMacro(RedstoneUpdateHook3, RedstoneTorchBlock, &RedstoneTorchBlock::$onRedstoneUpdate);
 
-RedstoneUpdateHookMacro(
-    RedstoneUpdateHook4,
-    ComparatorBlock,
-    "?onRedstoneUpdate@ComparatorBlock@@UEBAXAEAVBlockSource@@AEBVBlockPos@@H_N@Z"
-);
+RedstoneUpdateHookMacro(RedstoneUpdateHook4, ComparatorBlock, &ComparatorBlock::$onRedstoneUpdate);
 
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
     HookPriority::Normal,
     LiquidBlockDynamic,
-    &LiquidBlockDynamic::_canSpreadTo,
-    bool,
-    BlockSource&    region,
-    BlockPos const& pos,
-    BlockPos const& flowFromPos,
-    uchar           flowFromDirection
+    &LiquidBlockDynamic::_spread,
+    void,
+    BlockSource&      region,
+    const ::BlockPos& pos,
+    int               depth,
+    bool              preserveExisting
 ) {
-    bool res = origin(region, pos, flowFromPos, flowFromDirection);
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        if (res) {
-            CallEventRtnValue(
-                EVENT_TYPES::onLiquidFlow,
-                false,
-                BlockClass::newBlock(pos, region.getDimensionId()),
-                IntPos::newPos(pos, region.getDimensionId())
-            );
-        }
+        CallEventVoid(
+            EVENT_TYPES::onLiquidFlow,
+            false,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            IntPos::newPos(pos, region.getDimensionId())
+        );
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
-    return res;
+    return origin(region, pos, depth, preserveExisting);
 }
 
 LL_TYPE_INSTANCE_HOOK(
     PlayerChangeDimensionHook,
     HookPriority::Normal,
     Level,
-    &Level::requestPlayerChangeDimension,
+    &Level::$requestPlayerChangeDimension,
     void,
     Player&                  player,
     ChangeDimensionRequest&& changeRequest
@@ -735,7 +720,7 @@ LL_TYPE_INSTANCE_HOOK(
         CallEventVoid(
             EVENT_TYPES::onChangeDim,
             PlayerClass::newPlayer(&player),
-            Number::newNumber(changeRequest.mToDimensionId)
+            Number::newNumber(changeRequest.mToDimensionId->id)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onChangeDim);
@@ -816,7 +801,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerSleepHook,
     HookPriority::Normal,
     Player,
-    "?startSleepInBed@Player@@UEAA?AW4BedSleepingResult@@AEBVBlockPos@@@Z",
+    &Player::$startSleepInBed,
     BedSleepingResult,
     BlockPos const& pos
 ) {
@@ -835,7 +820,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerOpenInventoryHook,
     HookPriority::Normal,
     ServerPlayer,
-    "?openInventory@ServerPlayer@@UEAAXXZ",
+    &ServerPlayer::$openInventory,
     void,
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenInventory) {
@@ -871,7 +856,7 @@ LL_TYPE_INSTANCE_HOOK(
     ScoreChangedHook,
     HookPriority::Normal,
     ServerScoreboard,
-    "?onScoreChanged@ServerScoreboard@@UEAAXAEBUScoreboardId@@AEBVObjective@@@Z",
+    &ServerScoreboard::$onScoreChanged,
     void,
     ScoreboardId const& id,
     Objective const&    obj
@@ -883,7 +868,7 @@ LL_TYPE_INSTANCE_HOOK(
                 PlayerClass::newPlayer(
                     ll::service::getLevel()->getPlayer(ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId))
                 ),
-                Number::newNumber(obj.getPlayerScore(id).mScore),
+                Number::newNumber(obj.getPlayerScore(id).mValue),
                 String::newString(obj.getName()),
                 String::newString(obj.getDisplayName())
             );
@@ -998,7 +983,7 @@ LL_TYPE_INSTANCE_HOOK(
 //     return origin(instance, entity, pos, face, clickPos);
 // }
 
-LL_TYPE_INSTANCE_HOOK(PlayerConsumeTotemHook, HookPriority::Normal, Player, "?consumeTotem@Player@@UEAA_NXZ", bool) {
+LL_TYPE_INSTANCE_HOOK(PlayerConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
     IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
         CallEventRtnValue(EVENT_TYPES::onConsumeTotem, false, PlayerClass::newPlayer(this));
     }
@@ -1010,7 +995,7 @@ LL_TYPE_INSTANCE_HOOK(
     PlayerSetArmorHook,
     HookPriority::Normal,
     ServerPlayer,
-    "?setArmor@ServerPlayer@@UEAAXW4ArmorSlot@@AEBVItemStack@@@Z",
+    &ServerPlayer::$setArmor,
     void,
     ArmorSlot        armorSlot,
     ItemStack const& item
@@ -1060,7 +1045,7 @@ LL_TYPE_INSTANCE_HOOK(
     Actor const&    projectile
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-        if (pos != BlockPos::ZERO && !this->isAir()) {
+        if (pos != BlockPos::ZERO() && !this->isAir()) {
             CallEventVoid(
                 EVENT_TYPES::onProjectileHitBlock,
                 BlockClass::newBlock(this, &pos, &region),
@@ -1162,9 +1147,9 @@ LL_TYPE_INSTANCE_HOOK(
             Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
                 if (source.isChildEntitySource()) {
-                    damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID());
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
                 } else {
-                    damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID());
+                    damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
                 }
             }
 

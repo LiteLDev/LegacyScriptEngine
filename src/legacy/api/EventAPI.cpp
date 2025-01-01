@@ -15,6 +15,7 @@
 #include "legacy/main/NodeJsHelper.h"
 #include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
+#include "ll/api/coro/CoroTask.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
 #include "ll/api/event/entity/ActorHurtEvent.h"
@@ -25,10 +26,10 @@
 #include "ll/api/event/player/PlayerConnectEvent.h"
 #include "ll/api/event/player/PlayerDestroyBlockEvent.h"
 #include "ll/api/event/player/PlayerDieEvent.h"
+#include "ll/api/event/player/PlayerDisconnectEvent.h"
 #include "ll/api/event/player/PlayerInteractBlockEvent.h"
 #include "ll/api/event/player/PlayerJoinEvent.h"
 #include "ll/api/event/player/PlayerJumpEvent.h"
-#include "ll/api/event/player/PlayerLeaveEvent.h"
 #include "ll/api/event/player/PlayerPickUpItemEvent.h"
 #include "ll/api/event/player/PlayerPlaceBlockEvent.h"
 #include "ll/api/event/player/PlayerRespawnEvent.h"
@@ -40,19 +41,20 @@
 #include "ll/api/event/world/BlockChangedEvent.h"
 #include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
-#include "ll/api/schedule/Scheduler.h"
-#include "ll/api/schedule/Task.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/Entry.h"
 #include "lse/events/EventHooks.h"
 #include "main/Global.h"
-#include "mc/entity/utilities/ActorType.h"
+#include "mc/common/ActorUniqueID.h"
+#include "mc/deps/core/string/HashedString.h"
+#include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
+#include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
-#include "mc/world/level./BlockSource.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 
 #include <list>
 #include <shared_mutex>
@@ -75,7 +77,7 @@ Local<Value> McClass::listen(const Arguments& args) {
 
     try {
         return Boolean::newBoolean(
-            LLSEAddEventListener(EngineScope::currentEngine(), args[0].toStr(), args[1].asFunction())
+            LLSEAddEventListener(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction())
         );
     }
     CATCH("Fail to Bind Listener!");
@@ -94,8 +96,8 @@ bool LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const L
         }
         return true;
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Event \"" + eventName + "\" No Found!\n");
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_GET_DATA(engine)->pluginName);
+        lse::getSelfPluginInstance().getLogger().error(fmt::format("Event /{} / No Found!\n", eventName));
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineData(engine)->pluginName);
         return false;
     }
 }
@@ -127,10 +129,10 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
         FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
         return true;
     });
-    for (auto& [index, cb] : ENGINE_GET_DATA(engine)->unloadCallbacks) {
+    for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
         cb(engine);
     }
-    ENGINE_GET_DATA(engine)->unloadCallbacks.clear();
+    getEngineData(engine)->unloadCallbacks.clear();
     return true;
 }
 
@@ -158,7 +160,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onLeft:
-        bus.emplaceListener<PlayerLeaveEvent>([](PlayerLeaveEvent& ev) {
+        bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
                 CallEventUncancelable(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self()));
             }
@@ -423,7 +425,7 @@ void EnableEventListener(int eventId) {
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onEat) {
                 if ((ev.item().getItem()->isFood() || ev.item().isPotionItem()
-                     || ev.item().getTypeName() == VanillaItemNames::MilkBucket.c_str())
+                     || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString())
                     && (ev.self().isHungry() || ev.self().forceAllowEating())) {
                     CallEvent(EVENT_TYPES::onEat, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item()));
                 }
@@ -525,10 +527,10 @@ void EnableEventListener(int eventId) {
                     Actor* damageSource = nullptr;
                     if (ev.source().isEntitySource()) {
                         if (ev.source().isChildEntitySource()) {
-                            damageSource = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID());
+                            damageSource = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID(), false);
                         } else {
                             damageSource =
-                                ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
+                                ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
                         }
                     }
 
@@ -555,7 +557,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onMobDie) {
                 Actor* source = nullptr;
                 if (ev.source().isEntitySource()) {
-                    source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID());
+                    source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
                     if (source) {
                         if (ev.source().isChildEntitySource()) source = source->getOwner();
                     }
@@ -736,8 +738,6 @@ void EnableEventListener(int eventId) {
     }
 }
 
-ll::schedule::ServerTimeScheduler eventScheduler;
-
 void InitBasicEventListeners() {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();
@@ -833,44 +833,54 @@ void InitBasicEventListeners() {
 
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent&) {
-        using namespace ll::chrono_literals;
-        eventScheduler.add<ll::schedule::DelayTask>(1_tick, [] {
+        ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
+            using namespace ll::chrono_literals;
+            co_await 1_tick;
+
             IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventUncancelable(EVENT_TYPES::onServerStarted); }
             IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+
             isCmdRegisterEnabled = true;
 
             // 处理延迟注册
             ProcessRegCmdQueue();
-        });
+        }).launch(ll::thread::ServerThreadExecutor::getDefault());
     });
 
     // 植入tick
     using namespace ll::chrono_literals;
 
-    eventScheduler.add<ll::schedule::RepeatTask>(1_tick, [] {
+    ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
+        using namespace ll::chrono_literals;
+
+        while (true) {
+            co_await 1_tick;
+
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-        try {
-            std::list<ScriptEngine*> tmpList;
-            {
-                std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
-                // low efficiency
-                tmpList = globalShareData->globalEngineList;
-            }
-            for (auto engine : tmpList) {
-                if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
-                    EngineScope enter(engine);
-                    engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
+            try {
+                std::list<ScriptEngine*> tmpList;
+                {
+                    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+                    // low efficiency
+                    tmpList = globalShareData->globalEngineList;
                 }
+                for (auto engine : tmpList) {
+                    if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
+                        EngineScope enter(engine);
+                        engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
+                    }
+                }
+            } catch (...) {
+                lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
+                lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
             }
-        } catch (...) {
-            lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
-            lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
-        }
 #endif
-        // Call tick event
-        IF_LISTENED(EVENT_TYPES::onTick) { CallEventUncancelable(EVENT_TYPES::onTick); }
-        IF_LISTENED_END(EVENT_TYPES::onTick);
-    });
+
+            // Call tick event
+            IF_LISTENED(EVENT_TYPES::onTick) { CallEventUncancelable(EVENT_TYPES::onTick); }
+            IF_LISTENED_END(EVENT_TYPES::onTick);
+        }
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 }
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {

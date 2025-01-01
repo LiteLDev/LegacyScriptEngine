@@ -139,7 +139,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
         lse::getSelfPluginInstance().getLogger().error(e.what());                                                      \
         lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
         lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
@@ -147,7 +147,7 @@ inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_e
         lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));                           \
         PrintScriptStackTrace();                                                                                       \
         lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + ENGINE_OWN_DATA()->pluginName);                 \
+        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
     }
 
 // 调用事件监听函数，拦截则取消事件

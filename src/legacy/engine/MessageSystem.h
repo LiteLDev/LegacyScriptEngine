@@ -53,7 +53,7 @@ public:
         MessageHeader() {
             id                   = getNextMessageId();
             fromEngine           = EngineScope::currentEngine();
-            fromEngineModuleType = LLSE_MODULE_TYPE;
+            fromEngineModuleType = LLSE_BACKEND_TYPE;
         }
         int           id;
         ScriptEngine* fromEngine;

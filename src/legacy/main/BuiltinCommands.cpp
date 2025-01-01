@@ -1,7 +1,6 @@
 #include "main/BuiltinCommands.h"
 
 #include "api/APIHelp.h"
-#include "legacyapi/command/DynamicCommand.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/Entry.h"
@@ -9,6 +8,7 @@
 #include "ll/api/command/Command.h"
 #include "ll/api/command/CommandHandle.h"
 #include "ll/api/command/CommandRegistrar.h"
+#include "mc/server/commands/CommandOutput.h"
 
 #include <string>
 
@@ -50,40 +50,6 @@ struct EngineDebugCommand {
 };
 
 void RegisterDebugCommand() {
-    // Old dynamic command, just for testing
-
-    //    auto command =
-    //        DynamicCommand::createCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
-    //    command->optional("eval", DynamicCommand::ParameterType::RawText);
-    //    command->addOverload("eval");
-    //    command->setCallback([](DynamicCommand const&,
-    //                            CommandOrigin const&,
-    //                            CommandOutput&                                           output,
-    //                            std::unordered_map<std::string, DynamicCommand::Result>& results) {
-    //        if (results["eval"].isSet) {
-    //            EngineScope enter(debugEngine);
-    //            try {
-    //                auto               result = debugEngine->eval(results["eval"].getRaw<std::string>());
-    //                std::ostringstream sout;
-    //                PrintValue(sout, result);
-    //                output.success(sout.str());
-    //            } catch (Exception& e) {
-    //                PrintException(e);
-    //            }
-    //        } else {
-    //            if (isInConsoleDebugMode) {
-    //                // EndDebug
-    //                lse::getSelfPluginInstance().getLogger().info("Debug mode ended");
-    //                isInConsoleDebugMode = false;
-    //            } else {
-    //                // StartDebug
-    //                lse::getSelfPluginInstance().getLogger().info("Debug mode begins");
-    //                isInConsoleDebugMode = true;
-    //                std::cout << "> " << std::flush;
-    //            }
-    //        }
-    //    });
-    //    DynamicCommand::setup(ll::service::getCommandRegistry(), std::move(command));
     auto& command = ll::command::CommandRegistrar::getInstance()
                         .getOrCreateCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command.overload<EngineDebugCommand>().optional("eval").execute(

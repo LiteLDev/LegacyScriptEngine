@@ -1,6 +1,7 @@
 #pragma once
 #include "api/CommandCompatibleAPI.h"
-#include "legacyapi/command/DynamicCommand.h"
+#include "ll/api/command/CommandHandle.h"
+#include "ll/api/command/runtime/ParamKind.h"
 
 extern ClassDefine<void> ParamTypeStaticBuilder;
 extern ClassDefine<void> PermissionStaticBuilder;
@@ -17,12 +18,20 @@ enum class OldCommandPermissionLevel : schar {
     Internal    = 0x5,
 };
 
+struct ParamInfo {
+    ll::command::ParamKind::Kind type;
+    bool                         optional;
+    std::string                  enumName;
+};
+
 class CommandClass : public ScriptClass {
-    std::unique_ptr<DynamicCommandInstance> uptr;
-    DynamicCommandInstance*                 ptr;
-    bool                                    registered = false;
-    inline DynamicCommandInstance*          get() { return ptr; }
-    inline std::vector<std::string>         parseStringList(Local<Array> arr) {
+    std::string                                commandName;
+    std::string                                description;
+    std::unordered_map<std::string, ParamInfo> paramMaps;
+    inline ll::command::CommandHandle&         get() {
+        return ll::command::CommandRegistrar::getInstance().getOrCreateCommand(commandName);
+    }
+    inline std::vector<std::string> parseStringList(Local<Array> arr) {
         if (arr.size() == 0 || !arr.get(0).isString()) return {};
         std::vector<std::string> strs;
         for (size_t i = 0; i < arr.size(); ++i) {
@@ -39,10 +48,8 @@ class CommandClass : public ScriptClass {
     }
 
 public:
-    CommandClass(std::unique_ptr<DynamicCommandInstance>&& p);
-    CommandClass(DynamicCommandInstance* p);
-    static Local<Object> newCommand(std::unique_ptr<DynamicCommandInstance>&& p);
-    static Local<Object> newCommand(DynamicCommandInstance* p);
+    CommandClass(std::string& name);
+    static Local<Object> newCommand(std::string& name);
     Local<Value>         getName();
     Local<Value>         setAlias(const Arguments& args);
     Local<Value>         setEnum(const Arguments& args);

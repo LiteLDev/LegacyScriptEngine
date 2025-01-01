@@ -2,8 +2,7 @@
 
 #include "Config.h"
 #include "PluginManager.h"
-
-#include <ll/api/mod/NativeMod.h>
+#include "ll/api/mod/NativeMod.h"
 
 namespace lse {
 

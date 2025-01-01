@@ -90,6 +90,7 @@ namespace lse::form {
 class SimpleFormElement {
 protected:
     virtual std::string serialize() = 0;
+    virtual ~SimpleFormElement()    = default;
     friend class SimpleForm;
 };
 
@@ -117,6 +118,7 @@ class CustomFormElement {
 protected:
     virtual std::string serialize() = 0;
     friend class CustomForm;
+    virtual ~CustomFormElement() = default;
 
 public:
     enum class Type { Label, Input, Toggle, Dropdown, Slider, StepSlider };
@@ -270,6 +272,7 @@ class FormImpl {
 protected:
     // fifo_json json;
     virtual std::string serialize() = 0;
+    virtual ~FormImpl()             = default;
 };
 
 class SimpleForm : public FormImpl {

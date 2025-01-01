@@ -3,8 +3,7 @@
 #include "Entry.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/mod/Mod.h"
-
-#include <ll/api/mod/Manifest.h>
+#include "ll/api/mod/Manifest.h"
 
 namespace lse {
 

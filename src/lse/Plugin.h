@@ -1,9 +1,8 @@
 #pragma once
 
 #include "PluginManager.h"
-
-#include <ll/api/mod/Manifest.h>
-#include <ll/api/mod/Mod.h>
+#include "ll/api/mod/Manifest.h"
+#include "ll/api/mod/Mod.h"
 
 namespace lse {
 

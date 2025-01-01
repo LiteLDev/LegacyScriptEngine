@@ -10,7 +10,7 @@ LocalDataType* localShareData;
 std::vector<RegCmdQueue> toRegCmdQueue;
 
 // 线程池
-ll::thread::ThreadPoolExecutor pool("LSE_POOL", 4);
+ll::thread::ThreadPoolExecutor pool("LSE_POOL", LLSE_POOL_THREAD_COUNT);
 
 // std::mutex messageLoopLock;
 

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ll/api/memory/Memory.h>
-#include <mc/deps/core/platform/Result.h>
-#include <mc/deps/core/utility/BinaryStream.h>
-#include <mc/network/MinecraftPacketIds.h>
-#include <mc/network/packet/Packet.h>
+#include "ll/api/memory/Memory.h"
+#include "mc/deps/core/platform/Result.h"
+#include "mc/deps/core/utility/BinaryStream.h"
+#include "mc/network/MinecraftPacketIds.h"
+#include "mc/network/packet/Packet.h"
+
 #include <string>
 #include <string_view>
 

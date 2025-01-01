@@ -7,10 +7,10 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
+#include "mc/world/actor/player/Player.h"
 
 #include <cstdlib>
 #include <iostream>
-#include <mc/world/actor/player/Player.h>
 
 //////////////////// Class Definition ////////////////////
 

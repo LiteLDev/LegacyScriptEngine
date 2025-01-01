@@ -78,8 +78,6 @@ const std::string LLSE_BACKEND_TYPE = "NodeJs";
 const std::string LLSE_BACKEND_TYPE = "Python";
 #endif
 
-const int LLSE_VALID_BACKENDS_COUNT = 4;
-
 // Debug engine information
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 constexpr std::string LLSE_DEBUG_CMD = "nodejsdebug";
@@ -91,4 +89,8 @@ constexpr std::string LLSE_DEBUG_CMD = "luadebug";
 constexpr std::string LLSE_DEBUG_CMD = "pydebug";
 #endif
 
-constexpr wchar_t LLSE_GLOBAL_DATA_NAME[] = L"LLSE_GLOBAL_DATA_SECTION";
+constexpr wchar_t       LLSE_GLOBAL_DATA_NAME[]                 = L"LLSE_GLOBAL_DATA_SECTION";
+constexpr unsigned long LLSE_MESSAGE_SYSTEM_WAIT_CHECK_INTERVAL = 5;
+constexpr size_t        LLSE_POOL_THREAD_COUNT                  = 4;
+constexpr int           LLSE_VALID_BACKENDS_COUNT               = 4;
+constexpr auto          LLSE_NPM_EXECUTE_PATH                   = "plugins/legacy-script-engine-nodejs";

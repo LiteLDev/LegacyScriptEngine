@@ -18,9 +18,9 @@
 #include "main/Global.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
+#include "ll/api/service/GamingStatus.h"
 
 #include <functional>
-#include <ll/api/service/GamingStatus.h>
 
 using ll::chrono_literals::operator""_tick;
 

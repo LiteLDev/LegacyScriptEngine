@@ -339,8 +339,12 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
             return;
         }
         for (std::string& name : registeredCommands[commandName]) {
-            auto& param = runtime[name];
-            args.set(name, convertResult(param, origin, output));
+            try {
+                auto& param = runtime[name];
+                args.set(name, convertResult(param, origin, output));
+            } catch (std::out_of_range&) {
+                continue;
+            }
         }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);
     }

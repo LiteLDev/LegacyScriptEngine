@@ -779,17 +779,14 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
         auto arr   = Array::newArray();
         auto level = ll::service::getLevel();
         if (level.has_value()) {
-            ll::service::PlayerInfo::getInstance().forEach([&arr](const ll::service::PlayerInfo::PlayerInfoEntry& entry
-                                                           ) {
-                auto obj = Object::newObject();
-                obj.set("name", String::newString(entry.name));
-                obj.set("xuid", String::newString(entry.xuid));
-                obj.set("uuid", String::newString(entry.uuid.asString()));
-                arr.add(obj);
-                return true;
-            });
+            for (auto& entry : ll::service::PlayerInfo::getInstance().entries()) {
+                auto object = Object::newObject();
+                object.set("xuid", entry.xuid);
+                object.set("name", entry.name);
+                object.set("uuid", entry.uuid.asString());
+                arr.add(object);
+            }
         }
-
         return arr;
     }
     CATCH("Fail in getAllPlayerInfo!");

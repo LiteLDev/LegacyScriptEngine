@@ -47,7 +47,6 @@
 #include "main/Global.h"
 #include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/string/HashedString.h"
-#include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/player/Player.h"
@@ -162,7 +161,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
-                CallEventUncancelable(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self()));
+                CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onLeft);
         });
@@ -183,7 +182,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerSwing:
         bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
-                CallEventUncancelable(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self()));
+                CallEvent(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self())); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onPlayerSwing);
         });
@@ -213,11 +212,11 @@ void EnableEventListener(int eventId) {
                 Actor* source = ll::service::getLevel()
                                     ->getDimension(ev.self().getDimensionId())
                                     ->fetchEntity(ev.source().getEntityUniqueID(), false);
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onPlayerDie,
                     PlayerClass::newPlayer(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onPlayerDie);
         });
@@ -226,7 +225,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onRespawn:
         bus.emplaceListener<ll::event::PlayerRespawnEvent>([](ll::event::PlayerRespawnEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
-                CallEventUncancelable(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self()));
+                CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self())); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onRespawn)
         });
@@ -239,11 +238,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onDestroyBlock:
         bus.emplaceListener<PlayerDestroyBlockEvent>([](PlayerDestroyBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onDestroyBlock) {
-                CallEvent(
-                    EVENT_TYPES::onDestroyBlock,
-                    PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onDestroyBlock,
+                        PlayerClass::newPlayer(&ev.self()),
+                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onDestroyBlock);
         });
@@ -287,11 +288,11 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::afterPlaceBlock:
         bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::afterPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
                     BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
         });
@@ -299,7 +300,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onJump:
         bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onJump) {
-                CallEventUncancelable(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self()));
+                CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onJump);
         });
@@ -312,12 +313,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onTakeItem:
         bus.emplaceListener<PlayerPickUpItemEvent>([](PlayerPickUpItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onTakeItem) {
-                CallEvent(
-                    EVENT_TYPES::onTakeItem,
-                    PlayerClass::newPlayer(&ev.self()),
-                    EntityClass::newEntity(&ev.itemActor()),
-                    ItemClass::newItem(&ev.itemActor().item())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onTakeItem,
+                        PlayerClass::newPlayer(&ev.self()),
+                        EntityClass::newEntity(&ev.itemActor()),
+                        ItemClass::newItem(&ev.itemActor().item())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onTakeItem);
         });
@@ -338,7 +341,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItem:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItem) {
-                CallEvent(EVENT_TYPES::onUseItem, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item()));
+                if (!CallEvent(
+                        EVENT_TYPES::onUseItem,
+                        PlayerClass::newPlayer(&ev.self()),
+                        ItemClass::newItem(&ev.item())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onUseItem);
         });
@@ -347,14 +356,16 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItemOn:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItemOn) {
-                CallEvent(
-                    EVENT_TYPES::onUseItemOn,
-                    PlayerClass::newPlayer(&ev.self()),
-                    ItemClass::newItem(&ev.item()),
-                    BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
-                    Number::newNumber((schar)ev.face()),
-                    FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onUseItemOn,
+                        PlayerClass::newPlayer(&ev.self()),
+                        ItemClass::newItem(&ev.item()),
+                        BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
+                        Number::newNumber((schar)ev.face()),
+                        FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onUseItemOn);
         });
@@ -378,21 +389,21 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChangeSprinting:
         bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onChangeSprinting,
                     PlayerClass::newPlayer(&ev.self()),
                     Boolean::newBoolean(true)
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
         });
         bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onChangeSprinting,
                     PlayerClass::newPlayer(&ev.self()),
                     Boolean::newBoolean(false)
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
         });
@@ -401,13 +412,17 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onSneak:
         bus.emplaceListener<PlayerSneakingEvent>([](PlayerSneakingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(true));
+                if (!CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(true))) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onSneak);
         });
         bus.emplaceListener<PlayerSneakedEvent>([](PlayerSneakedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(false));
+                if (!CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(false))) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onSneak);
         });
@@ -427,7 +442,13 @@ void EnableEventListener(int eventId) {
                 if ((ev.item().getItem()->isFood() || ev.item().isPotionItem()
                      || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString())
                     && (ev.self().isHungry() || ev.self().forceAllowEating())) {
-                    CallEvent(EVENT_TYPES::onEat, PlayerClass::newPlayer(&ev.self()), ItemClass::newItem(&ev.item()));
+                    if (!CallEvent(
+                            EVENT_TYPES::onEat,
+                            PlayerClass::newPlayer(&ev.self()),
+                            ItemClass::newItem(&ev.item())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onEat);
@@ -534,13 +555,15 @@ void EnableEventListener(int eventId) {
                         }
                     }
 
-                    CallEvent(
-                        EVENT_TYPES::onMobHurt,
-                        EntityClass::newEntity(&ev.self()),
-                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                        Number::newNumber(ev.damage()),
-                        Number::newNumber((int)ev.source().getCause())
-                    );
+                    if (!CallEvent(
+                            EVENT_TYPES::onMobHurt,
+                            EntityClass::newEntity(&ev.self()),
+                            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                            Number::newNumber(ev.damage()),
+                            Number::newNumber((int)ev.source().getCause())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobHurt)
@@ -563,12 +586,12 @@ void EnableEventListener(int eventId) {
                     }
                 }
 
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onMobDie,
                     EntityClass::newEntity(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>()),
                     Number::newNumber((int)ev.source().getCause())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onMobDie);
         });
@@ -613,11 +636,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockInteracted:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
-                CallEvent(
-                    EVENT_TYPES::onBlockInteracted,
-                    PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onBlockInteracted,
+                        PlayerClass::newPlayer(&ev.self()),
+                        BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
         });
@@ -645,7 +670,12 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onFireSpread:
         bus.emplaceListener<FireSpreadEvent>([](FireSpreadEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onFireSpread) {
-                CallEvent(EVENT_TYPES::onFireSpread, IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId()));
+                if (!CallEvent(
+                        EVENT_TYPES::onFireSpread,
+                        IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onFireSpread);
         });
@@ -654,11 +684,11 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockChanged:
         bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onBlockChanged,
                     BlockClass::newBlock(&ev.previousBlock(), &ev.pos(), &ev.blockSource()),
                     BlockClass::newBlock(&ev.newBlock(), &ev.pos(), &ev.blockSource())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockChanged);
         });
@@ -674,11 +704,11 @@ void EnableEventListener(int eventId) {
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onMobSpawn,
                     String::newString(ev.identifier().getFullName()),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
         });
@@ -687,11 +717,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobTrySpawn:
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-                CallEvent(
-                    EVENT_TYPES::onMobTrySpawn,
-                    String::newString(ev.identifier().getFullName()),
-                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onMobTrySpawn,
+                        String::newString(ev.identifier().getFullName()),
+                        FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
         });
@@ -700,11 +732,11 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobSpawned:
         bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
-                CallEventUncancelable(
+                CallEvent(
                     EVENT_TYPES::onMobSpawned,
                     EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                );
+                ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onMobSpawned);
         });
@@ -713,11 +745,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onExperienceAdd:
         bus.emplaceListener<PlayerAddExperienceEvent>([](PlayerAddExperienceEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onExperienceAdd) {
-                CallEvent(
-                    EVENT_TYPES::onExperienceAdd,
-                    PlayerClass::newPlayer(&ev.self()),
-                    Number::newNumber(ev.experience())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onExperienceAdd,
+                        PlayerClass::newPlayer(&ev.self()),
+                        Number::newNumber(ev.experience())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onExperienceAdd);
         });
@@ -837,7 +871,9 @@ void InitBasicEventListeners() {
             using namespace ll::chrono_literals;
             co_await 1_tick;
 
-            IF_LISTENED(EVENT_TYPES::onServerStarted) { CallEventUncancelable(EVENT_TYPES::onServerStarted); }
+            IF_LISTENED(EVENT_TYPES::onServerStarted) {
+                CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
+            }
             IF_LISTENED_END(EVENT_TYPES::onServerStarted);
 
             isCmdRegisterEnabled = true;
@@ -877,7 +913,9 @@ void InitBasicEventListeners() {
 #endif
 
             // Call tick event
-            IF_LISTENED(EVENT_TYPES::onTick) { CallEventUncancelable(EVENT_TYPES::onTick); }
+            IF_LISTENED(EVENT_TYPES::onTick) {
+                CallEvent(EVENT_TYPES::onTick); // Not cancellable
+            }
             IF_LISTENED_END(EVENT_TYPES::onTick);
         }
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
@@ -887,34 +925,41 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyAdd) {
-            CallEventRtnValue(EVENT_TYPES::beforeMoneyAdd, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::beforeMoneyAdd, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyAdd);
         break;
     }
     case LLMoneyEvent::Reduce: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyReduce) {
-            CallEventRtnValue(EVENT_TYPES::beforeMoneyReduce, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::beforeMoneyReduce, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyReduce);
         break;
     }
     case LLMoneyEvent::Trans: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyTrans) {
-            CallEventRtnValue(
-                EVENT_TYPES::beforeMoneyTrans,
-                false,
-                String::newString(from),
-                String::newString(to),
-                Number::newNumber(value)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::beforeMoneyTrans,
+                    String::newString(from),
+                    String::newString(to),
+                    Number::newNumber(value)
+                )) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyTrans);
         break;
     }
     case LLMoneyEvent::Set: {
         IF_LISTENED(EVENT_TYPES::beforeMoneySet) {
-            CallEventRtnValue(EVENT_TYPES::beforeMoneySet, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::beforeMoneySet, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::beforeMoneySet);
         break;
@@ -929,34 +974,41 @@ bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, lon
     switch (type) {
     case LLMoneyEvent::Add: {
         IF_LISTENED(EVENT_TYPES::onMoneyAdd) {
-            CallEventRtnValue(EVENT_TYPES::onMoneyAdd, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::onMoneyAdd, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneyAdd);
         break;
     }
     case LLMoneyEvent::Reduce: {
         IF_LISTENED(EVENT_TYPES::onMoneyReduce) {
-            CallEventRtnValue(EVENT_TYPES::onMoneyReduce, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::onMoneyReduce, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneyReduce);
         break;
     }
     case LLMoneyEvent::Trans: {
         IF_LISTENED(EVENT_TYPES::onMoneyTrans) {
-            CallEventRtnValue(
-                EVENT_TYPES::onMoneyTrans,
-                false,
-                String::newString(from),
-                String::newString(to),
-                Number::newNumber(value)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onMoneyTrans,
+                    String::newString(from),
+                    String::newString(to),
+                    Number::newNumber(value)
+                )) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneyTrans);
         break;
     }
     case LLMoneyEvent::Set: {
         IF_LISTENED(EVENT_TYPES::onMoneySet) {
-            CallEventRtnValue(EVENT_TYPES::onMoneySet, false, String::newString(to), Number::newNumber(value));
+            if (!CallEvent(EVENT_TYPES::onMoneySet, String::newString(to), Number::newNumber(value))) {
+                return false;
+            }
         }
         IF_LISTENED_END(EVENT_TYPES::onMoneySet);
         break;

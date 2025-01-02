@@ -70,6 +70,7 @@
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/scores/ServerScoreboard.h"
+#include "mc/world/level/Explosion.h"
 
 namespace lse::events {
 
@@ -89,11 +90,13 @@ LL_TYPE_INSTANCE_HOOK(
     uchar             face
 ) {
     IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
-        CallEventVoid(
-            EVENT_TYPES::onStartDestroyBlock,
-            PlayerClass::newPlayer(&player),
-            BlockClass::newBlock(&hitBlock, &blockPos, player.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onStartDestroyBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(&hitBlock, &blockPos, player.getDimensionId())
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
     origin(player, blockPos, hitBlock, face);
@@ -109,12 +112,13 @@ LL_TYPE_INSTANCE_HOOK(
     bool             randomly
 ) {
     IF_LISTENED(EVENT_TYPES::onDropItem) {
-        CallEventRtnValue(
-            EVENT_TYPES::onDropItem,
-            false,
-            PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(item))
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onDropItem,
+                PlayerClass::newPlayer(this),
+                ItemClass::newItem(&const_cast<ItemStack&>(item))
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onDropItem);
     return origin(item, randomly);
@@ -138,12 +142,13 @@ LL_TYPE_INSTANCE_HOOK(
             };
             auto& actions = mTransaction->getActions(source);
             if (actions.size() == 1) {
-                CallEventRtnValue(
-                    EVENT_TYPES::onDropItem,
-                    InventoryTransactionError::NoError,
-                    PlayerClass::newPlayer(&player),
-                    ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)))
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onDropItem,
+                        PlayerClass::newPlayer(&player),
+                        ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)))
+                    )) {
+                    return InventoryTransactionError::NoError;
+                }
             }
         }
         IF_LISTENED_END(EVENT_TYPES::onDropItem);
@@ -162,15 +167,16 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onOpenContainer) {
         Actor* actor = static_cast<WeakEntityRef*>((void*)&playerOpenContainerEvent)->tryUnwrap<Actor>();
         if (actor->isType(ActorType::Player)) {
-            CallEventRtnValue(
-                EVENT_TYPES::onOpenContainer,
-                EventResult::StopProcessing,
-                PlayerClass::newPlayer(static_cast<Player*>(actor)),
-                BlockClass::newBlock(
-                    ll::memory::dAccess<BlockPos>(&playerOpenContainerEvent, 28),
-                    actor->getDimensionId()
-                )
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onOpenContainer,
+                    PlayerClass::newPlayer(static_cast<Player*>(actor)),
+                    BlockClass::newBlock(
+                        ll::memory::dAccess<BlockPos>(&playerOpenContainerEvent, 28),
+                        actor->getDimensionId()
+                    )
+                )) {
+                return EventResult::StopProcessing;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainer);
@@ -186,14 +192,16 @@ LL_TYPE_INSTANCE_HOOK(
     Player& player
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        CallEventVoid(
-            EVENT_TYPES::onCloseContainer,
-            PlayerClass::newPlayer(&const_cast<Player&>(player)),
-            BlockClass::newBlock(
-                ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
-                player.getDimensionId()
-            ) // IDA ChestBlockActor::stopOpen
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onCloseContainer,
+                PlayerClass::newPlayer(&const_cast<Player&>(player)),
+                BlockClass::newBlock(
+                    ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
+                    player.getDimensionId()
+                ) // IDA ChestBlockActor::stopOpen
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
     origin(player);
@@ -208,14 +216,16 @@ LL_TYPE_INSTANCE_HOOK(
     Player& player
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        CallEventVoid(
-            EVENT_TYPES::onCloseContainer,
-            PlayerClass::newPlayer(&const_cast<Player&>(player)),
-            BlockClass::newBlock(
-                ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
-                player.getDimensionId()
-            ) // IDA ChestBlockActor::stopOpen
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onCloseContainer,
+                PlayerClass::newPlayer(&const_cast<Player&>(player)),
+                BlockClass::newBlock(
+                    ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
+                    player.getDimensionId()
+                ) // IDA ChestBlockActor::stopOpen
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
     origin(player);
@@ -234,13 +244,15 @@ LL_TYPE_INSTANCE_HOOK(
     bool             idk
 ) {
     IF_LISTENED(EVENT_TYPES::onInventoryChange) {
-        CallEventVoid(
-            EVENT_TYPES::onInventoryChange,
-            PlayerClass::newPlayer(this),
-            slot,
-            ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-            ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onInventoryChange,
+                PlayerClass::newPlayer(this),
+                slot,
+                ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
     origin(container, slot, oldItem, newItem, idk);
@@ -259,14 +271,16 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
         Player* player = ll::memory::dAccess<Player*>(this, 216); // IDA LevelContainerModel::LevelContainerModel
         if (player->hasOpenContainer()) {
-            CallEventVoid(
-                EVENT_TYPES::onContainerChange,
-                PlayerClass::newPlayer(player),
-                BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
-                Number::newNumber(slotNumber + this->_getContainerOffset()),
-                ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onContainerChange,
+                    PlayerClass::newPlayer(player),
+                    BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
+                    Number::newNumber(slotNumber + this->_getContainerOffset()),
+                    ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                    ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onContainerChange);
@@ -284,13 +298,14 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onAttackBlock) {
         ItemStack const& item = player->getSelectedItem();
-        CallEventRtnValue(
-            EVENT_TYPES::onAttackBlock,
-            false,
-            PlayerClass::newPlayer(player),
-            BlockClass::newBlock(pos, player->getDimensionId()),
-            !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onAttackBlock,
+                PlayerClass::newPlayer(player),
+                BlockClass::newBlock(pos, player->getDimensionId()),
+                !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
     return origin(player, pos);
@@ -306,13 +321,14 @@ LL_TYPE_INSTANCE_HOOK(
     ::SharedTypes::Legacy::EquipmentSlot slot
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
-        CallEventRtnValue(
-            EVENT_TYPES::onChangeArmorStand,
-            false,
-            EntityClass::newEntity(this),
-            PlayerClass::newPlayer(&player),
-            Number::newNumber((int)slot)
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onChangeArmorStand,
+                EntityClass::newEntity(this),
+                PlayerClass::newPlayer(&player),
+                Number::newNumber((int)slot)
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onChangeArmorStand);
     return origin(player, slot);
@@ -329,12 +345,13 @@ LL_TYPE_INSTANCE_HOOK(
     uchar           face
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseFrameBlock,
-            false,
-            PlayerClass::newPlayer(&player),
-            BlockClass::newBlock(pos, player.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseFrameBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
     return origin(player, pos, face);
@@ -350,12 +367,13 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseFrameBlock,
-            false,
-            PlayerClass::newPlayer(player),
-            BlockClass::newBlock(pos, player->getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseFrameBlock,
+                PlayerClass::newPlayer(player),
+                BlockClass::newBlock(pos, player->getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
     return origin(player, pos);
@@ -375,18 +393,19 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
         if (id._getLegacyActorType() != ActorType::Trident) {
-            CallEventRtnValue(
-                EVENT_TYPES::onSpawnProjectile,
-                nullptr,
-                EntityClass::newEntity(spawner),
-                String::newString(id.getCanonicalName())
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onSpawnProjectile,
+                    EntityClass::newEntity(spawner),
+                    String::newString(id.getCanonicalName())
+                )) {
+                return nullptr;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     Actor* projectile = origin(region, id, spawner, position, direction);
     IF_LISTENED(EVENT_TYPES::onProjectileCreated) {
-        CallEventUncancelable(
+        CallEvent( // Not nancellable
             EVENT_TYPES::onProjectileCreated,
             EntityClass::newEntity(spawner),
             EntityClass::newEntity(projectile)
@@ -406,11 +425,13 @@ LL_TYPE_INSTANCE_HOOK(
     Player&             player
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        CallEventVoid(
-            EVENT_TYPES::onSpawnProjectile,
-            EntityClass::newEntity(&player),
-            String::newString(projectileInstance.getTypeName())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onSpawnProjectile,
+                EntityClass::newEntity(&player),
+                String::newString(projectileInstance.getTypeName())
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(projectileInstance, player);
@@ -427,11 +448,13 @@ LL_TYPE_INSTANCE_HOOK(
     int        durationLeft
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        CallEventVoid(
-            EVENT_TYPES::onSpawnProjectile,
-            EntityClass::newEntity(player),
-            String::newString(VanillaActorRendererId::trident().getString())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onSpawnProjectile,
+                EntityClass::newEntity(player),
+                String::newString(VanillaActorRendererId::trident().getString())
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(item, player, durationLeft);
@@ -448,12 +471,13 @@ LL_TYPE_INSTANCE_HOOK(
     Actor&          entity
 ) {
     IF_LISTENED(EVENT_TYPES::onStepOnPressurePlate) {
-        CallEventRtnValue(
-            EVENT_TYPES::onStepOnPressurePlate,
-            false,
-            EntityClass::newEntity(&entity),
-            BlockClass::newBlock(pos, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onStepOnPressurePlate,
+                EntityClass::newEntity(&entity),
+                BlockClass::newBlock(pos, region.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onStepOnPressurePlate);
     return origin(region, pos, entity);
@@ -461,7 +485,9 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
-        CallEventRtnValue(EVENT_TYPES::onRide, false, EntityClass::newEntity(&passenger), EntityClass::newEntity(this));
+        if (!CallEvent(EVENT_TYPES::onRide, EntityClass::newEntity(&passenger), EntityClass::newEntity(this))) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onRide);
     return origin(passenger);
@@ -480,7 +506,7 @@ LL_TYPE_INSTANCE_HOOK(
     WitherBoss::WitherAttackType type
 ) {
     IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        CallEventVoid(
+        CallEvent(
             EVENT_TYPES::onWitherBossDestroy,
             EntityClass::newEntity(this),
             IntPos::newPos(bb.min, region.getDimensionId()),
@@ -503,7 +529,7 @@ LL_TYPE_INSTANCE_HOOK(
     float           fallDistance
 ) {
     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
-        CallEventVoid(
+        CallEvent(
             EVENT_TYPES::onFarmLandDecay,
             IntPos::newPos(pos, region.getDimensionId()),
             EntityClass::newEntity(actor)
@@ -528,18 +554,19 @@ LL_TYPE_INSTANCE_HOOK(
         if (region.getBlock(curPos).isAir()) {
             return origin(region, curPos, curBranchFacing, pistonMoveFacing);
         }
-        CallEventRtnValue(
-            EVENT_TYPES::onPistonTryPush,
-            false,
-            IntPos::newPos(this->getPosition(), region.getDimensionId()),
-            BlockClass::newBlock(curPos, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onPistonTryPush,
+                IntPos::newPos(this->getPosition(), region.getDimensionId()),
+                BlockClass::newBlock(curPos, region.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onPistonTryPush);
     bool shouldPush = origin(region, curPos, curBranchFacing, pistonMoveFacing);
     IF_LISTENED(EVENT_TYPES::onPistonPush) {
         if (shouldPush) {
-            CallEventUncancelable(
+            CallEvent( // Not cancellable
                 EVENT_TYPES::onPistonPush,
                 IntPos::newPos(this->getPosition(), region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
@@ -552,61 +579,64 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat, void, ItemStack const& instance) {
     IF_LISTENED(EVENT_TYPES::onAte) {
-        CallEventVoid(
-            EVENT_TYPES::onAte,
-            PlayerClass::newPlayer(this),
-            ItemClass::newItem(&const_cast<ItemStack&>(instance))
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onAte,
+                PlayerClass::newPlayer(this),
+                ItemClass::newItem(&const_cast<ItemStack&>(instance))
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);
     origin(instance);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    ExplodeHook,
-    HookPriority::Normal,
-    Level,
-    &Level::$explode,
-    bool,
-    BlockSource& region,
-    Actor*       source,
-    Vec3 const&  pos,
-    float        explosionRadius,
-    bool         fire,
-    bool         breaksBlocks,
-    float        maxResistance,
-    bool         allowUnderwater
-) {
-    IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-        if (source) {
-            CallEventRtnValue(
-                EVENT_TYPES::onEntityExplode,
-                false,
-                EntityClass::newEntity(source),
-                FloatPos::newPos(pos, region.getDimensionId()),
-                Number::newNumber(explosionRadius),
-                Number::newNumber(maxResistance),
-                Boolean::newBoolean(breaksBlocks),
-                Boolean::newBoolean(fire)
-            );
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
+LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode, bool, ::Explosion& explosion) {
+    // Todo: broken need to be fixed
 
-    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-        CallEventRtnValue(
-            EVENT_TYPES::onBlockExplode,
-            false,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            IntPos::newPos(pos, region.getDimensionId()),
-            Number::newNumber(explosionRadius),
-            Number::newNumber(maxResistance),
-            Boolean::newBoolean(breaksBlocks),
-            Boolean::newBoolean(fire)
-        );
-    }
-    IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
-    return origin(region, source, pos, explosionRadius, fire, breaksBlocks, maxResistance, allowUnderwater);
+    //    IF_LISTENED(EVENT_TYPES::onEntityExplode) {
+    //        if (explosion.mUnka79c6e.as<ActorUniqueID>().rawID != ActorUniqueID::INVALID_ID().rawID) {
+    //            if (!CallEvent(
+    //                    EVENT_TYPES::onEntityExplode,
+    //                    EntityClass::newEntity(
+    //                        ll::service::getLevel()->fetchEntity(explosion.mUnka79c6e.as<ActorUniqueID>(), false)
+    //                    ),
+    //                    FloatPos::newPos(
+    //                        explosion.mUnkcbb3c1.as<Vec3>(),
+    //                        explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
+    //                    ),
+    //                    Number::newNumber(explosion.mUnk304b6b.as<float>()),
+    //                    Number::newNumber(explosion.mUnk62d2a5.as<float>()),
+    //                    Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
+    //                    Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
+    //                )) {
+    //                return false;
+    //            }
+    //        }
+    //    }
+    //    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
+    //
+    //    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
+    //        if (!CallEvent(
+    //                EVENT_TYPES::onBlockExplode,
+    //                BlockClass::newBlock(
+    //                    explosion.mUnkcbb3c1.as<Vec3>(),
+    //                    explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
+    //                ),
+    //                FloatPos::newPos(
+    //                    explosion.mUnkcbb3c1.as<Vec3>(),
+    //                    explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
+    //                ),
+    //                Number::newNumber(explosion.mUnk304b6b.as<float>()),
+    //                Number::newNumber(explosion.mUnk62d2a5.as<float>()),
+    //                Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
+    //                Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
+    //            )) {
+    //            return false;
+    //        }
+    //    }
+    //    IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
+    return origin(explosion);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -621,11 +651,13 @@ LL_TYPE_STATIC_HOOK(
     Level&          level
 ) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        CallEventVoid(
-            EVENT_TYPES::onRespawnAnchorExplode,
-            IntPos::newPos(pos, region.getDimensionId()),
-            PlayerClass::newPlayer(&player)
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onRespawnAnchorExplode,
+                IntPos::newPos(pos, region.getDimensionId()),
+                PlayerClass::newPlayer(&player)
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
     origin(player, pos, region, level);
@@ -642,47 +674,109 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          entitySource
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        CallEventVoid(
-            EVENT_TYPES::onBlockExploded,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            EntityClass::newEntity(entitySource)
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onBlockExploded,
+                BlockClass::newBlock(pos, region.getDimensionId()),
+                EntityClass::newEntity(entitySource)
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
     origin(region, pos, entitySource);
 }
 
-#define RedstoneUpdateHookMacro(NAME, TYPE, SYMBOL)                                                                    \
-    LL_TYPE_INSTANCE_HOOK(                                                                                             \
-        NAME,                                                                                                          \
-        HookPriority::Normal,                                                                                          \
-        TYPE,                                                                                                          \
-        SYMBOL,                                                                                                        \
-        void,                                                                                                          \
-        BlockSource&    region,                                                                                        \
-        BlockPos const& pos,                                                                                           \
-        int             strength,                                                                                      \
-        bool            isFirstTime                                                                                    \
-    ) {                                                                                                                \
-        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
-            CallEventVoid(                                                                                             \
-                EVENT_TYPES::onRedStoneUpdate,                                                                         \
-                BlockClass::newBlock(pos, region.getDimensionId()),                                                    \
-                Number::newNumber(strength),                                                                           \
-                Boolean::newBoolean(isFirstTime)                                                                       \
-            );                                                                                                         \
-        }                                                                                                              \
-        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
-        origin(region, pos, strength, isFirstTime);                                                                    \
+inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& strength, bool& isFirstTime) {
+    if (!CallEvent(
+            EVENT_TYPES::onRedStoneUpdate,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            Number::newNumber(strength),
+            Boolean::newBoolean(isFirstTime)
+        )) {
+        return false;
     }
+    return true;
+}
 
-RedstoneUpdateHookMacro(RedstoneUpdateHook1, RedStoneWireBlock, &RedStoneWireBlock::$onRedstoneUpdate);
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook1,
+    HookPriority::Normal,
+    RedStoneWireBlock,
+    &RedStoneWireBlock::$onRedstoneUpdate,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
+        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+    origin(region, pos, strength, isFirstTime);
+}
 
-RedstoneUpdateHookMacro(RedstoneUpdateHook2, DiodeBlock, &DiodeBlock::$onRedstoneUpdate);
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook2,
+    HookPriority::Normal,
+    DiodeBlock,
+    &DiodeBlock::$onRedstoneUpdate,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
+        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+    origin(region, pos, strength, isFirstTime);
+}
 
-RedstoneUpdateHookMacro(RedstoneUpdateHook3, RedstoneTorchBlock, &RedstoneTorchBlock::$onRedstoneUpdate);
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook3,
+    HookPriority::Normal,
+    RedstoneTorchBlock,
+    &RedstoneTorchBlock::$onRedstoneUpdate,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
+        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+    origin(region, pos, strength, isFirstTime);
+}
 
-RedstoneUpdateHookMacro(RedstoneUpdateHook4, ComparatorBlock, &ComparatorBlock::$onRedstoneUpdate);
+LL_TYPE_INSTANCE_HOOK(
+    RedstoneUpdateHook4,
+    HookPriority::Normal,
+    ComparatorBlock,
+    &ComparatorBlock::$onRedstoneUpdate,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    int             strength,
+    bool            isFirstTime
+) {
+    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
+        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
+    origin(region, pos, strength, isFirstTime);
+}
 
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
@@ -696,12 +790,14 @@ LL_TYPE_INSTANCE_HOOK(
     bool              preserveExisting
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        CallEventVoid(
-            EVENT_TYPES::onLiquidFlow,
-            false,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            IntPos::newPos(pos, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onLiquidFlow,
+                false,
+                BlockClass::newBlock(pos, region.getDimensionId()),
+                IntPos::newPos(pos, region.getDimensionId())
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
     return origin(region, pos, depth, preserveExisting);
@@ -717,11 +813,13 @@ LL_TYPE_INSTANCE_HOOK(
     ChangeDimensionRequest&& changeRequest
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeDim) {
-        CallEventVoid(
-            EVENT_TYPES::onChangeDim,
-            PlayerClass::newPlayer(&player),
-            Number::newNumber(changeRequest.mToDimensionId->id)
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onChangeDim,
+                PlayerClass::newPlayer(&player),
+                Number::newNumber(changeRequest.mToDimensionId->id)
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onChangeDim);
     origin(player, std::move(changeRequest));
@@ -735,7 +833,9 @@ LL_TYPE_INSTANCE_HOOK(
     bool
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        CallEventRtnValue(EVENT_TYPES::onOpenContainerScreen, false, PlayerClass::newPlayer(this));
+        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(this))) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
     return origin();
@@ -753,21 +853,23 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onCmdBlockExecute) {
         if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
-            CallEventRtnValue(
-                EVENT_TYPES::onCmdBlockExecute,
-                false,
-                String::newString(this->getCommand()),
-                FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
-                Boolean::newBoolean(true)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onCmdBlockExecute,
+                    String::newString(this->getCommand()),
+                    FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
+                    Boolean::newBoolean(true)
+                )) {
+                return false;
+            }
         } else {
-            CallEventRtnValue(
-                EVENT_TYPES::onCmdBlockExecute,
-                false,
-                String::newString(this->getCommand()),
-                FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
-                Boolean::newBoolean(false)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onCmdBlockExecute,
+                    String::newString(this->getCommand()),
+                    FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
+                    Boolean::newBoolean(false)
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onCmdBlockExecute);
@@ -786,12 +888,13 @@ LL_TYPE_STATIC_HOOK(
     class Level&    level
 ) {
     IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseRespawnAnchor,
-            false,
-            PlayerClass::newPlayer(&player),
-            IntPos::newPos(pos, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseRespawnAnchor,
+                PlayerClass::newPlayer(&player),
+                IntPos::newPos(pos, region.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseRespawnAnchor);
     return origin(player, pos, region, level);
@@ -806,12 +909,13 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onBedEnter) {
-        CallEventRtnValue(
-            EVENT_TYPES::onBedEnter,
-            (BedSleepingResult)0,
-            PlayerClass::newPlayer(this),
-            IntPos::newPos(pos, this->getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onBedEnter,
+                PlayerClass::newPlayer(this),
+                IntPos::newPos(pos, this->getDimensionId())
+            )) {
+            return BedSleepingResult::Ok;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onBedEnter);
     return origin(pos);
@@ -824,7 +928,9 @@ LL_TYPE_INSTANCE_HOOK(
     void,
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenInventory) {
-        CallEventVoid(EVENT_TYPES::onOpenInventory, PlayerClass::newPlayer(this));
+        if (!CallEvent(EVENT_TYPES::onOpenInventory, PlayerClass::newPlayer(this))) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenInventory);
     origin();
@@ -840,13 +946,15 @@ LL_TYPE_INSTANCE_HOOK(
     float  inSpeed
 ) {
     IF_LISTENED(EVENT_TYPES::onPlayerPullFishingHook) {
-        CallEventVoid(
-            EVENT_TYPES::onPlayerPullFishingHook,
-            PlayerClass::newPlayer(this->getPlayerOwner()),
-            EntityClass::newEntity(&inEntity),
-            inEntity.isType(ActorType::ItemEntity) ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item())
-                                                   : Local<Value>()
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onPlayerPullFishingHook,
+                PlayerClass::newPlayer(this->getPlayerOwner()),
+                EntityClass::newEntity(&inEntity),
+                inEntity.isType(ActorType::ItemEntity) ? ItemClass::newItem(&static_cast<ItemActor&>(inEntity).item())
+                                                       : Local<Value>()
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onPlayerPullFishingHook);
     origin(inEntity, inSpeed);
@@ -863,15 +971,17 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onScoreChanged) {
         if (id.getIdentityDef().isPlayerType()) {
-            CallEventVoid(
-                EVENT_TYPES::onScoreChanged,
-                PlayerClass::newPlayer(
-                    ll::service::getLevel()->getPlayer(ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId))
-                ),
-                Number::newNumber(obj.getPlayerScore(id).mValue),
-                String::newString(obj.getName()),
-                String::newString(obj.getDisplayName())
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onScoreChanged,
+                    PlayerClass::newPlayer(ll::service::getLevel()->getPlayer(
+                        ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId)
+                    )),
+                    Number::newNumber(obj.getPlayerScore(id).mValue),
+                    String::newString(obj.getName()),
+                    String::newString(obj.getDisplayName())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onScoreChanged);
@@ -892,15 +1002,16 @@ LL_TYPE_INSTANCE_HOOK(
     uchar            face
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketPlace) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseBucketPlace,
-            false,
-            PlayerClass::newPlayer(static_cast<Player*>(placer)),
-            ItemClass::newItem(&const_cast<ItemStack&>(instance)),
-            BlockClass::newBlock(&contents, &pos, &region),
-            Number::newNumber(face),
-            FloatPos::newPos(pos, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseBucketPlace,
+                PlayerClass::newPlayer(static_cast<Player*>(placer)),
+                ItemClass::newItem(&const_cast<ItemStack&>(instance)),
+                BlockClass::newBlock(&contents, &pos, &region),
+                Number::newNumber(face),
+                FloatPos::newPos(pos, region.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketPlace);
     return origin(region, contents, pos, placer, instance, face);
@@ -917,15 +1028,16 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseBucketTake,
-            false,
-            PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-            ItemClass::newItem(&item),
-            BlockClass::newBlock(&pos, entity.getDimensionId()),
-            Number::newNumber(-1),
-            FloatPos::newPos(pos, entity.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseBucketTake,
+                PlayerClass::newPlayer(&static_cast<Player&>(entity)),
+                ItemClass::newItem(&item),
+                BlockClass::newBlock(&pos, entity.getDimensionId()),
+                Number::newNumber(-1),
+                FloatPos::newPos(pos, entity.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
     return origin(item, entity, pos);
@@ -942,15 +1054,16 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        CallEventRtnValue(
-            EVENT_TYPES::onUseBucketTake,
-            false,
-            PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-            ItemClass::newItem(&item),
-            BlockClass::newBlock(&pos, entity.getDimensionId()),
-            Number::newNumber(-1),
-            FloatPos::newPos(pos, entity.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onUseBucketTake,
+                PlayerClass::newPlayer(&static_cast<Player&>(entity)),
+                ItemClass::newItem(&item),
+                BlockClass::newBlock(&pos, entity.getDimensionId()),
+                Number::newNumber(-1),
+                FloatPos::newPos(pos, entity.getDimensionId())
+            )) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
     return origin(item, entity, pos);
@@ -985,7 +1098,9 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(PlayerConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
     IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
-        CallEventRtnValue(EVENT_TYPES::onConsumeTotem, false, PlayerClass::newPlayer(this));
+        if (!CallEvent(EVENT_TYPES::onConsumeTotem, PlayerClass::newPlayer(this))) {
+            return false;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onConsumeTotem);
     return origin();
@@ -1001,12 +1116,14 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& item
 ) {
     IF_LISTENED(EVENT_TYPES::onSetArmor) {
-        CallEventVoid(
-            EVENT_TYPES::onSetArmor,
-            PlayerClass::newPlayer(this),
-            Number::newNumber((int)armorSlot),
-            ItemClass::newItem(&const_cast<ItemStack&>(item))
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onSetArmor,
+                PlayerClass::newPlayer(this),
+                Number::newNumber((int)armorSlot),
+                ItemClass::newItem(&const_cast<ItemStack&>(item))
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onSetArmor);
     origin(std::move(armorSlot), item);
@@ -1023,11 +1140,13 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitEntity) {
         if (res.getEntity()) {
-            CallEventVoid(
-                EVENT_TYPES::onProjectileHitEntity,
-                EntityClass::newEntity(res.getEntity()),
-                EntityClass::newEntity(&owner)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onProjectileHitEntity,
+                    EntityClass::newEntity(res.getEntity()),
+                    EntityClass::newEntity(&owner)
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onProjectileHitEntity);
@@ -1046,11 +1165,13 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         if (pos != BlockPos::ZERO() && !this->isAir()) {
-            CallEventVoid(
-                EVENT_TYPES::onProjectileHitBlock,
-                BlockClass::newBlock(this, &pos, &region),
-                EntityClass::newEntity(&const_cast<Actor&>(projectile))
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onProjectileHitBlock,
+                    BlockClass::newBlock(this, &pos, &region),
+                    EntityClass::newEntity(&const_cast<Actor&>(projectile))
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
@@ -1106,25 +1227,27 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onHopperSearchItem) {
         if (hopperStatus == HopperStatus::PullIn) {
-            CallEventRtnValue(
-                EVENT_TYPES::onHopperSearchItem,
-                false,
-                FloatPos::newPos(hopperPos, region.getDimensionId()),
-                Boolean::newBoolean(this->mIsEntity),
-                ItemClass::newItem(&item)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onHopperSearchItem,
+                    FloatPos::newPos(hopperPos, region.getDimensionId()),
+                    Boolean::newBoolean(this->mIsEntity),
+                    ItemClass::newItem(&item)
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onHopperSearchItem);
     IF_LISTENED(EVENT_TYPES::onHopperPushOut) {
         if (hopperStatus == HopperStatus::PullOut) {
-            CallEventRtnValue(
-                EVENT_TYPES::onHopperPushOut,
-                false,
-                FloatPos::newPos(hopperPos, region.getDimensionId()),
-                Boolean::newBoolean(this->mIsEntity),
-                ItemClass::newItem(&item)
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onHopperPushOut,
+                    FloatPos::newPos(hopperPos, region.getDimensionId()),
+                    Boolean::newBoolean(this->mIsEntity),
+                    ItemClass::newItem(&item)
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onHopperPushOut);
@@ -1153,14 +1276,15 @@ LL_TYPE_INSTANCE_HOOK(
                 }
             }
 
-            CallEventRtnValue(
-                EVENT_TYPES::onMobHurt,
-                0.0f,
-                EntityClass::newEntity(this),
-                damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                Number::newNumber(damage < 0.0f ? -damage : damage),
-                Number::newNumber((int)source.getCause())
-            );
+            if (!CallEvent(
+                    EVENT_TYPES::onMobHurt,
+                    EntityClass::newEntity(this),
+                    damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                    Number::newNumber(damage < 0.0f ? -damage : damage),
+                    Number::newNumber((int)source.getCause())
+                )) {
+                return 0.0f;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onMobHurt)

@@ -1619,12 +1619,13 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
             TextPacket::createChat(player->getName(), args[0].asString().toString(), player->getXuid(), "", "");
         if (ll::service::getLevel().has_value()) {
             IF_LISTENED(EVENT_TYPES::onChat) {
-                CallEventRtnValue(
-                    EVENT_TYPES::onChat,
-                    Boolean::newBoolean(false),
-                    PlayerClass::newPlayer(player),
-                    String::newString(args[0].asString().toString())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onChat,
+                        PlayerClass::newPlayer(player),
+                        String::newString(args[0].asString().toString())
+                    )) {
+                    return Boolean::newBoolean(false);
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onChat);
             ll::service::getLevel()->forEachPlayer([&pkt](Player& player) {

@@ -134,101 +134,65 @@ extern bool hasListened[int(EVENT_TYPES::EVENT_COUNT)];
 // 监听器异常拦截
 inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_enum::enum_name(e)); }
 
-#define LISTENER_CATCH(TYPE)                                                                                           \
-    catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
-        lse::getSelfPluginInstance().getLogger().error(e.what());                                                      \
-        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
-    }                                                                                                                  \
-    catch (const std::exception& e) {                                                                                  \
-        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
-        lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");                            \
-        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));                           \
-        PrintScriptStackTrace();                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
-    }
+template <typename... T>
+bool CallEvent(EVENT_TYPES type, T const&... args) {
+    std::list<ListenerListType>& nowList     = listenerList[(int)type];
+    bool                         returnValue = true;
+    for (auto& listener : nowList) {
+        EngineScope enter(listener.engine);
+        try {
+            auto result = listener.func.get().call({}, args...);
+            if (result.isBoolean() && result.asBoolean().value() == false) {
+                returnValue = false;
+            }
+        } catch (const Exception& e) {
+            lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
+            lse::getSelfPluginInstance().getLogger().error(e.what());
 
-// 调用事件监听函数，拦截则取消事件
-#define CallEvent(TYPE, ...)                                                                                           \
-    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
-                ev.cancel();                                                                                           \
-            }                                                                                                          \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
+            lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
+            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+        } catch (const std::exception& e) {
+            lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
+            lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");
+            lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
+            PrintScriptStackTrace();
+            lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
+            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+        }
     }
+    return returnValue;
+}
 
-// 调用事件监听函数，拦截则返回RETURN_VALUE
-#define CallEventRtnValue(TYPE, RETURN_VALUE, ...)                                                                     \
-    std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
-    bool                         isCancelled = false;                                                                  \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
-                isCancelled = true;                                                                                    \
-            }                                                                                                          \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
-    }                                                                                                                  \
-    if (isCancelled) {                                                                                                 \
-        return RETURN_VALUE;                                                                                           \
-    }
+template <typename... T>
+void FakeCallEvent(ScriptEngine* engine, EVENT_TYPES type, T&&... args) {
+    std::list<ListenerListType>& nowList = listenerList[int(type)];
+    for (auto& listener : nowList) {
+        if (listener.engine == engine) {
+            EngineScope enter(listener.engine);
+            try {
+                listener.func.get().call({}, args...);
+            } catch (const Exception& e) {
+                lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
+                lse::getSelfPluginInstance().getLogger().error(e.what());
 
-// 调用事件监听函数，拦截则返回
-#define CallEventVoid(TYPE, ...)                                                                                       \
-    std::list<ListenerListType>& nowList     = listenerList[int(TYPE)];                                                \
-    bool                         isCancelled = false;                                                                  \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-            if (result.isBoolean() && result.asBoolean().value() == false) {                                           \
-                isCancelled = true;                                                                                    \
-            }                                                                                                          \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
-    }                                                                                                                  \
-    if (isCancelled) {                                                                                                 \
-        return;                                                                                                        \
+                lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
+                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+            } catch (const std::exception& e) {
+                lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
+                lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");
+                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
+                PrintScriptStackTrace();
+                lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
+                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+            }
+        }
     }
-
-// 调用事件监听函数，不可拦截
-#define CallEventUncancelable(TYPE, ...)                                                                               \
-    std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                    \
-    for (auto& listener : nowList) {                                                                                   \
-        EngineScope enter(listener.engine);                                                                            \
-        try {                                                                                                          \
-            auto result = listener.func.get().call({}, __VA_ARGS__);                                                   \
-        }                                                                                                              \
-        LISTENER_CATCH(TYPE)                                                                                           \
-    }
-
-// 模拟事件调用监听
-#define FakeCallEvent(ENGINE, TYPE, ...)                                                                               \
-    {                                                                                                                  \
-        std::list<ListenerListType>& nowList = listenerList[int(TYPE)];                                                \
-        for (auto& listener : nowList) {                                                                               \
-            if (listener.engine == ENGINE) {                                                                           \
-                EngineScope enter(listener.engine);                                                                    \
-                try {                                                                                                  \
-                    listener.func.get().call({}, __VA_ARGS__);                                                         \
-                }                                                                                                      \
-                LISTENER_CATCH(TYPE)                                                                                   \
-            }                                                                                                          \
-        }                                                                                                              \
-    }
+}
 
 // 异常检查
 #define IF_LISTENED(TYPE)                                                                                              \
     if (!listenerList[int(TYPE)].empty()) {                                                                            \
+        EngineScope enter(listenerList[int(TYPE)].front().engine);                                                     \
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \

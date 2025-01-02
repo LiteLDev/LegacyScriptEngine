@@ -71,8 +71,8 @@ struct EngineOwnData {
     */
 
     // I18nAPI
-    std::shared_ptr<ll::i18n::I18n> i18n = std::make_shared<ll::i18n::I18n>();
-    std::string                     defaultLocaleName;
+    ll::i18n::I18n i18n;
+    std::string    defaultLocaleName;
 
     std::shared_ptr<lse::Plugin> plugin;
 

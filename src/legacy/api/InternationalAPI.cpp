@@ -102,10 +102,7 @@ void FormatHelper(
 Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, const std::string& localeName = "") {
     try {
         size_t argsLength = args.size() - offset;
-        auto   i18n       = getEngineOwnData()->i18n;
-        if (i18n) {
-            key = i18n->get(key, localeName);
-        }
+        key               = getEngineOwnData()->i18n.get(key, localeName);
         // realFormatStr = FixCurlyBracket(realFormatStr);
         if (0ULL == argsLength) {
             // Avoid fmt if only one argument
@@ -172,11 +169,7 @@ Local<Value> I18nClass::get(const Arguments& args) {
         if (args.size() == 2) {
             localeName = args[1].asString().toString();
         }
-        auto i18n = getEngineOwnData()->i18n;
-        if (!i18n) {
-            throw Exception("I18n data has not been loaded yet!");
-        }
-        return String::newString(i18n->get(key, localeName));
+        return String::newString(getEngineOwnData()->i18n.get(key, localeName));
     }
     CATCH_AND_THROW;
 }
@@ -215,12 +208,12 @@ Local<Value> I18nClass::load(const Arguments& args) {
                     if (str.getKind() != ValueKind::kString) {
                         throw Exception("Value in SubLangData must be a string");
                     }
-                    EngineOwnData().i18n->set(localeName, objKeys[j].toString(), str.asString().toString());
+                    getEngineOwnData()->i18n.set(localeName, objKeys[j].toString(), str.asString().toString());
                 }
             }
         }
 
-        if (auto result = EngineOwnData().i18n->load(path); !result) {
+        if (auto result = getEngineOwnData()->i18n.load(path); !result) {
             return Boolean::newBoolean(false);
         }
         return Boolean::newBoolean(true);

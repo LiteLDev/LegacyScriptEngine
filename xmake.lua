@@ -138,7 +138,7 @@ target("legacy-script-engine")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:name() .. "/lang")
             os.cp(langPath, outputPath)
         end)
     end

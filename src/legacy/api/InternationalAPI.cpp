@@ -167,8 +167,8 @@ Local<Value> I18nClass::get(const Arguments& args) {
     }
 
     try {
-        auto        key = args[0].asString().toString();
-        std::string localeName{};
+        auto        key        = args[0].asString().toString();
+        std::string localeName = getEngineOwnData()->defaultLocaleName;
         if (args.size() == 2) {
             localeName = args[1].asString().toString();
         }
@@ -193,10 +193,8 @@ Local<Value> I18nClass::load(const Arguments& args) {
 
     try {
         auto path = args[0].asString().toString();
-        // Deprecated because it follows LeviLamina's default locale
-        // std::string defaultLocaleName;
         if (args.size() > 1) {
-            // defaultLocaleName = args[1].asString().toString();
+            getEngineOwnData()->defaultLocaleName = args[1].asString().toString();
         }
 
         if (args.size() > 2) {
@@ -222,8 +220,6 @@ Local<Value> I18nClass::load(const Arguments& args) {
             }
         }
 
-        EngineOwnData().i18n = std::make_shared<ll::i18n::I18n>();
-        ;
         if (auto result = EngineOwnData().i18n->load(path); !result) {
             return Boolean::newBoolean(false);
         }

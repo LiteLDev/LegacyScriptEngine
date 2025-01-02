@@ -71,8 +71,10 @@ struct EngineOwnData {
     */
 
     // I18nAPI
-    std::shared_ptr<ll::i18n::I18n> i18n = nullptr;
-    std::shared_ptr<lse::Plugin>    plugin;
+    std::shared_ptr<ll::i18n::I18n> i18n = std::make_shared<ll::i18n::I18n>();
+    std::string                     defaultLocaleName;
+
+    std::shared_ptr<lse::Plugin> plugin;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;

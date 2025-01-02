@@ -594,48 +594,48 @@ LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat,
 LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode, bool, ::Explosion& explosion) {
     // Todo: broken need to be fixed
 
-    //    IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-    //        if (explosion.mUnka79c6e.as<ActorUniqueID>().rawID != ActorUniqueID::INVALID_ID().rawID) {
-    //            if (!CallEvent(
-    //                    EVENT_TYPES::onEntityExplode,
-    //                    EntityClass::newEntity(
-    //                        ll::service::getLevel()->fetchEntity(explosion.mUnka79c6e.as<ActorUniqueID>(), false)
-    //                    ),
-    //                    FloatPos::newPos(
-    //                        explosion.mUnkcbb3c1.as<Vec3>(),
-    //                        explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
-    //                    ),
-    //                    Number::newNumber(explosion.mUnk304b6b.as<float>()),
-    //                    Number::newNumber(explosion.mUnk62d2a5.as<float>()),
-    //                    Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
-    //                    Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
-    //                )) {
-    //                return false;
-    //            }
-    //        }
-    //    }
-    //    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
-    //
-    //    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-    //        if (!CallEvent(
-    //                EVENT_TYPES::onBlockExplode,
-    //                BlockClass::newBlock(
-    //                    explosion.mUnkcbb3c1.as<Vec3>(),
-    //                    explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
-    //                ),
-    //                FloatPos::newPos(
-    //                    explosion.mUnkcbb3c1.as<Vec3>(),
-    //                    explosion.mUnk2a21f8.as<BlockSource>().getDimensionId()
-    //                ),
-    //                Number::newNumber(explosion.mUnk304b6b.as<float>()),
-    //                Number::newNumber(explosion.mUnk62d2a5.as<float>()),
-    //                Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
-    //                Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
-    //            )) {
-    //            return false;
-    //        }
-    //    }
-    //    IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
+    IF_LISTENED(EVENT_TYPES::onEntityExplode) {
+        if (explosion.mUnka79c6e.as<ActorUniqueID>().rawID != ActorUniqueID::INVALID_ID().rawID) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEntityExplode,
+                    EntityClass::newEntity(
+                        ll::service::getLevel()->fetchEntity(explosion.mUnka79c6e.as<ActorUniqueID>(), false)
+                    ),
+                    FloatPos::newPos(
+                        explosion.mUnkcbb3c1.as<Vec3>(),
+                        explosion.mUnk2a21f8.as<BlockSource*>()->getDimensionId()
+                    ),
+                    Number::newNumber(explosion.mUnk304b6b.as<float>()),
+                    Number::newNumber(explosion.mUnk62d2a5.as<float>()),
+                    Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
+                    Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
+                )) {
+                return false;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
+
+    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
+        if (!CallEvent(
+                EVENT_TYPES::onBlockExplode,
+                BlockClass::newBlock(
+                    explosion.mUnkcbb3c1.as<Vec3>(),
+                    explosion.mUnk2a21f8.as<BlockSource*>()->getDimensionId()
+                ),
+                FloatPos::newPos(
+                    explosion.mUnkcbb3c1.as<Vec3>(),
+                    explosion.mUnk2a21f8.as<BlockSource*>()->getDimensionId()
+                ),
+                Number::newNumber(explosion.mUnk304b6b.as<float>()),
+                Number::newNumber(explosion.mUnk62d2a5.as<float>()),
+                Boolean::newBoolean(explosion.mUnke8bdf7.as<bool>()),
+                Boolean::newBoolean(explosion.mUnk501acf.as<bool>())
+            )) {
+            return false;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
     return origin(explosion);
 }
 

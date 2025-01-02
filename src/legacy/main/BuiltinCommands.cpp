@@ -46,7 +46,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
 }
 
 struct EngineDebugCommand {
-    std::string eval;
+    CommandRawText eval;
 };
 
 void RegisterDebugCommand() {
@@ -54,10 +54,10 @@ void RegisterDebugCommand() {
                         .getOrCreateCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
-            if (!param.eval.empty()) {
+            if (!param.eval.getText().empty()) {
                 EngineScope enter(debugEngine);
                 try {
-                    auto               result = debugEngine->eval(param.eval);
+                    auto               result = debugEngine->eval(param.eval.getText());
                     std::ostringstream sout;
                     PrintValue(sout, result);
                     output.success(sout.str());

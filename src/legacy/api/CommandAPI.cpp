@@ -235,17 +235,6 @@ Local<Value> McClass::newCommand(const Arguments& args) {
     try {
         auto name = args[0].asString().toString();
 
-        auto registry = ll::service::getCommandRegistry();
-        if (registry) {
-            auto instance = registry->findCommand(name);
-            if (instance) {
-                lse::getSelfPluginInstance().getLogger().info(
-                    "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
-                );
-                return CommandClass::newCommand(name);
-            }
-        }
-
         auto                   desc       = args[1].asString().toString();
         CommandPermissionLevel permission = CommandPermissionLevel::Admin;
         CommandFlag            flag       = {(CommandFlagValue)0x80};
@@ -261,20 +250,33 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                 }
             }
         }
-        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
-            EventBus::getInstance().emplaceListener<ServerStartedEvent>(
-                [name, desc, permission, flag, alias](ServerStartedEvent&) {
-                    auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
-                    if (!alias.empty()) {
-                        command.alias(alias);
-                    }
+        auto newCommandFunc = [](std::string const&            name,
+                                 std::string const&            desc,
+                                 CommandPermissionLevel const& permission,
+                                 CommandFlag const&            flag,
+                                 std::string const&            alias) {
+            auto registry = ll::service::getCommandRegistry();
+            if (registry) {
+                auto instance = registry->findCommand(name);
+                if (instance) {
+                    lse::getSelfPluginInstance().getLogger().info(
+                        "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
+                    );
                 }
-            );
-        } else {
+            }
             auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
             if (!alias.empty()) {
                 command.alias(alias);
             }
+        };
+        if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>(
+                [name, desc, permission, flag, alias, newCommandFunc](ServerStartedEvent&) {
+                    newCommandFunc(name, desc, permission, flag, alias);
+                }
+            );
+        } else {
+            newCommandFunc(name, desc, permission, flag, alias);
         }
         return CommandClass::newCommand(name);
     }
@@ -471,8 +473,9 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 Local<Value> CommandClass::addOverload(const Arguments& args) {
     try {
         if (args.size() == 0) return Boolean::newBoolean(true);
-        auto overloadFunc = [](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
-            auto& paramList = getEngineOwnData()->plugin->registeredCommands[commandName];
+        auto overloadFunc = [e(EngineScope::currentEngine()
+                            )](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
+            auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
             for (auto& info : paramList) {
                 if (info.name == paramName || info.enumName == paramName) {
                     if (info.optional) {
@@ -501,24 +504,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                                .getOrCreateCommand(commandName)
                                .runtimeOverload(getEngineData(e)->plugin);
                 for (auto& paramName : enumValues) {
-                    auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
-                    for (auto& info : paramList) {
-                        if (info.name == paramName || info.enumName == paramName) {
-                            if (info.optional) {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.optional(info.name, info.type).option(info.option);
-                                }
-                            } else {
-                                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                                    cmd.required(info.enumName, info.type, info.enumName).option(info.option);
-                                } else {
-                                    cmd.required(info.name, info.type).option(info.option);
-                                }
-                            }
-                        }
-                    }
+                    overloadFunc(cmd, commandName, paramName);
                 }
                 cmd.execute(onExecute);
             });

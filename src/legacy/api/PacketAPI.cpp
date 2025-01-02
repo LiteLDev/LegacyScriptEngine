@@ -391,7 +391,7 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
             return Local<Value>();
         }
         if (!IsInstanceOf<FloatPos>(args[0])) {
-            LOG_WRONG_ARG_TYPE()
+            LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
         FloatPos* posObj = FloatPos::extractPos(args[0]);
@@ -412,7 +412,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
         }
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
-            LOG_WRONG_ARG_TYPE()
+            LOG_WRONG_ARG_TYPE();
             return Local<Value>();
         }
         pkt->writeType(*nbt);

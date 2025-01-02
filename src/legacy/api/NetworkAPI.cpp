@@ -445,45 +445,69 @@ using namespace httplib;
 
 // ll::thread::TickSyncTaskPool taskPool;
 
-#define ADD_CALLBACK(METHOD, path, func)                                                                               \
-    callbacks.emplace(make_pair(                                                                                       \
-        path,                                                                                                          \
-        HttpServerCallback{                                                                                            \
-            EngineScope::currentEngine(),                                                                              \
-            script::Global<Function>{func},                                                                            \
-            HttpRequestType::METHOD,                                                                                   \
-            path                                                                                                       \
-        }                                                                                                              \
-    ));                                                                                                                \
-    svr->METHOD(path.c_str(), [this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {      \
-        if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)                   \
-            || engine->isDestroying())                                                                                 \
-            return;                                                                                                    \
-        ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {                                      \
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)               \
-                || engine->isDestroying())                                                                             \
-                co_return;                                                                                             \
-                                                                                                                       \
-            EngineScope enter(engine);                                                                                 \
-            try {                                                                                                      \
-                for (auto& [k, v] : this->callbacks) {                                                                 \
-                    if (v.type != HttpRequestType::METHOD) continue;                                                   \
-                    std::regex  rgx(k);                                                                                \
-                    std::smatch matches;                                                                               \
-                    if (std::regex_match(req.path, matches, rgx)) {                                                    \
-                        if (matches == req.matches) {                                                                  \
-                            auto reqObj  = new HttpRequestClass(req);                                                  \
-                            auto respObj = new HttpResponseClass(resp);                                                \
-                            v.func.get().call({}, reqObj, respObj);                                                    \
-                            resp = *respObj->get();                                                                    \
-                            break;                                                                                     \
-                        }                                                                                              \
-                    }                                                                                                  \
-                }                                                                                                      \
-            }                                                                                                          \
-            CATCH_CALLBACK_IN_CORO("Fail in NetworkAPI callback")                                                      \
-        }).launch(ll::thread::ThreadPoolExecutor::getDefault());                                                       \
-    });
+void ADD_CALLBACK(
+    std::shared_ptr<httplib::Server>                svr,
+    std::multimap<std::string, HttpServerCallback>& callbacks,
+    HttpRequestType const&                          method,
+    std::string const&                              path,
+    Local<Function> const&                          func
+) {
+    callbacks.emplace(
+        make_pair(path, HttpServerCallback{EngineScope::currentEngine(), script::Global<Function>{func}, method, path})
+    );
+    auto receiveMethod =
+        [engine = EngineScope::currentEngine(), method, callbacks](const Request& req, Response& resp) {
+            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
+                || engine->isDestroying())
+                return;
+            ll::coro::keepThis([engine, req, &resp, method, callbacks]() -> ll::coro::CoroTask<> {
+                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
+                    || engine->isDestroying())
+                    co_return;
+
+                EngineScope enter(engine);
+                try {
+                    for (auto& [k, v] : callbacks) {
+                        if (v.type != method) continue;
+                        std::regex  rgx(k);
+                        std::smatch matches;
+                        if (std::regex_match(req.path, matches, rgx)) {
+                            if (matches == req.matches) {
+                                auto reqObj  = new HttpRequestClass(req);
+                                auto respObj = new HttpResponseClass(resp);
+                                v.func.get().call({}, reqObj, respObj);
+                                resp = *respObj->get();
+                                break;
+                            }
+                        }
+                    }
+                }
+                CATCH_CALLBACK_IN_CORO("Fail in NetworkAPI callback")
+            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+        };
+    switch (method) {
+    case HttpRequestType::Get:
+        svr->Get(path.c_str(), receiveMethod);
+        break;
+    case HttpRequestType::Post:
+        svr->Post(path.c_str(), receiveMethod);
+        break;
+    case HttpRequestType::Put:
+        svr->Put(path.c_str(), receiveMethod);
+        break;
+    case HttpRequestType::Delete:
+        svr->Delete(path.c_str(), receiveMethod);
+        break;
+    case HttpRequestType::Options:
+        svr->Options(path.c_str(), receiveMethod);
+        break;
+    case HttpRequestType::Patch:
+        svr->Patch(path.c_str(), receiveMethod);
+        break;
+    default:
+        break;
+    }
+}
 
 HttpServerClass::HttpServerClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), svr(new Server) {}
 HttpServerClass::HttpServerClass() : ScriptClass(ScriptClass::ConstructFromCpp<HttpServerClass>{}), svr(new Server) {}
@@ -500,7 +524,7 @@ Local<Value> HttpServerClass::onGet(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Get, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Get, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onGet")
@@ -514,7 +538,7 @@ Local<Value> HttpServerClass::onPut(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Put, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Put, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onPut!");
@@ -528,7 +552,7 @@ Local<Value> HttpServerClass::onPost(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Post, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Post, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onPost!");
@@ -542,7 +566,7 @@ Local<Value> HttpServerClass::onPatch(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Patch, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Patch, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onPatch!");
@@ -556,7 +580,7 @@ Local<Value> HttpServerClass::onDelete(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Delete, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Delete, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onDelete!");
@@ -570,7 +594,7 @@ Local<Value> HttpServerClass::onOptions(const Arguments& args) {
     try {
         auto path = args[0].asString().toString();
         auto func = args[1].asFunction();
-        ADD_CALLBACK(Options, path, func);
+        ADD_CALLBACK(svr, callbacks, HttpRequestType::Options, path, func);
         return this->getScriptObject();
     }
     CATCH("Fail in onOptions!");

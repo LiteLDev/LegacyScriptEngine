@@ -19,12 +19,14 @@
 
 using namespace script;
 
-#define GET_MESSAGE_TYPE(ENGINE)     (ModuleMessage::MessageType) ENGINE.data0
-#define GET_MESSAGE_HEADER(ENGINE)   (ModuleMessage::MessageHeader*)ENGINE.ptr0
-#define GET_MESSAGE_DATA_PTR(ENGINE) (std::string*)ENGINE.ptr1
-#define MESSAGE_TYPE                 data0
-#define MESSAGE_HEADER               ptr0
-#define MESSAGE_DATA_PTR             ptr1
+inline ModuleMessage::MessageType    GET_MESSAGE_TYPE(utils::Message& e) { return (ModuleMessage::MessageType)e.data0; }
+inline ModuleMessage::MessageHeader* GET_MESSAGE_HEADER(utils::Message& e) {
+    return (ModuleMessage::MessageHeader*)e.ptr0;
+}
+inline std::string* GET_MESSAGE_DATA_PTR(utils::Message& e) { return (std::string*)e.ptr1; }
+#define MESSAGE_TYPE     data0
+#define MESSAGE_HEADER   ptr0
+#define MESSAGE_DATA_PTR ptr1
 
 //////////////////// 消息处理注册 ////////////////////
 

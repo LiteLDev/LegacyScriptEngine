@@ -349,7 +349,6 @@ Local<Value> DBSessionClass::prepare(const Arguments& args) {
 }
 
 Local<Value> DBSessionClass::close(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
 
     try {
         session->close();
@@ -359,7 +358,6 @@ Local<Value> DBSessionClass::close(const Arguments& args) {
     return Boolean::newBoolean(false);
 }
 Local<Value> DBSessionClass::isOpen(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
 
     try {
         return Boolean::newBoolean(session->isOpen());
@@ -436,8 +434,6 @@ Local<Value> DBStmtClass::bind(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::execute(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         stmt->execute();
         return this->getScriptObject();
@@ -446,8 +442,6 @@ Local<Value> DBStmtClass::execute(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::step(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         return Boolean::newBoolean(stmt->step());
     }
@@ -456,8 +450,6 @@ Local<Value> DBStmtClass::step(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::fetch(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         return RowToLocalValue(stmt->fetch());
     }
@@ -487,8 +479,6 @@ Local<Value> DBStmtClass::fetchAll(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::reset(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         stmt->reset();
         return this->getScriptObject();
@@ -497,8 +487,6 @@ Local<Value> DBStmtClass::reset(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::reexec(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         stmt->reexec();
         return this->getScriptObject();
@@ -507,8 +495,6 @@ Local<Value> DBStmtClass::reexec(const Arguments& args) {
 }
 
 Local<Value> DBStmtClass::clear(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         stmt->clear();
         return this->getScriptObject();

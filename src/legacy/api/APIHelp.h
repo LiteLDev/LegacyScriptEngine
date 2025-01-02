@@ -36,19 +36,20 @@ std::string ValueKindToString(const ValueKind& kind);
 #if !defined(NEW_DEFINES)
 
 // 输出脚本调用堆栈，API名称，以及插件名
-#define LOG_ERROR_WITH_SCRIPT_INFO(...)                                                                                \
-    PrintScriptStackTrace(__VA_ARGS__);                                                                                \
-    lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                           \
-    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName)
+inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& msg = "") {
+    PrintScriptStackTrace(msg);
+    lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);
+    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+}
 
 // 参数类型错误输出
-#define LOG_WRONG_ARG_TYPE() LOG_ERROR_WITH_SCRIPT_INFO("Wrong type of argument!");
+inline void LOG_WRONG_ARG_TYPE() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong type of argument!"); }
 
 // 参数数量错误输出
-#define LOG_TOO_FEW_ARGS() LOG_ERROR_WITH_SCRIPT_INFO("Too Few arguments!");
+inline void LOG_TOO_FEW_ARGS() { LOG_ERROR_WITH_SCRIPT_INFO("Too Few arguments!"); }
 
 // 参数数量错误输出
-#define LOG_WRONG_ARGS_COUNT() LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of arguments!");
+inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of arguments!"); }
 
 // 至少COUNT个参数
 #define CHECK_ARGS_COUNT(ARGS, COUNT)                                                                                  \

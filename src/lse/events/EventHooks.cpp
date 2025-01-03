@@ -71,6 +71,7 @@
 #include "mc/world/phys/AABB.h"
 #include "mc/world/scores/ServerScoreboard.h"
 #include "mc/world/level/Explosion.h"
+#include "mc/world/events/PlayerOpenContainerEvent.h"
 
 namespace lse::events {
 
@@ -166,14 +167,11 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainer) {
         Actor* actor = static_cast<WeakEntityRef*>((void*)&playerOpenContainerEvent)->tryUnwrap<Actor>();
-        if (actor->isType(ActorType::Player)) {
+        if (actor && actor->isType(ActorType::Player)) {
             if (!CallEvent(
                     EVENT_TYPES::onOpenContainer,
                     PlayerClass::newPlayer(static_cast<Player*>(actor)),
-                    BlockClass::newBlock(
-                        ll::memory::dAccess<BlockPos>(&playerOpenContainerEvent, 28),
-                        actor->getDimensionId()
-                    )
+                    BlockClass::newBlock(playerOpenContainerEvent.mUnkb08e33.as<BlockPos>(), actor->getDimensionId())
                 )) {
                 return EventResult::StopProcessing;
             }
@@ -194,11 +192,8 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
-                PlayerClass::newPlayer(&const_cast<Player&>(player)),
-                BlockClass::newBlock(
-                    ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
-                    player.getDimensionId()
-                ) // IDA ChestBlockActor::stopOpen
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(getPosition(), player.getDimensionId())
             )) {
             return;
         }
@@ -218,11 +213,8 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
-                PlayerClass::newPlayer(&const_cast<Player&>(player)),
-                BlockClass::newBlock(
-                    ll::memory::dAccess<BlockActor>(this, -240).getPosition(),
-                    player.getDimensionId()
-                ) // IDA ChestBlockActor::stopOpen
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(getPosition(), player.getDimensionId())
             )) {
             return;
         }
@@ -276,7 +268,7 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onContainerChange,
                         PlayerClass::newPlayer(player),
-                        BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
+                        BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player->getDimensionId()),
                         Number::newNumber(slotNumber + this->_getContainerOffset()),
                         ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
                         ItemClass::newItem(&const_cast<ItemStack&>(newItem))

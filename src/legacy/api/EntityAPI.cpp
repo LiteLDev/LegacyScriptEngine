@@ -30,18 +30,14 @@
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/IConstBlockSource.h"
-#include "mc/world/level/Level.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
-#include "mc/world/phys/HitDetection.h"
 #include "mc/world/phys/HitResult.h"
+#include "mc/world/level/biome/Biome.h"
 
 #include <climits>
-#include <entt/entt.hpp>
-#include <magic_enum.hpp>
 #include <memory>
 
 using magic_enum::enum_integer;
@@ -1447,7 +1443,7 @@ Local<Value> EntityClass::getBiomeId() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return Number::newNumber(ll::memory::dAccess<int>(&bio, 0x80));
+        return Number::newNumber(bio.mId);
     }
     CATCH("Fail in getBiomeId!");
 }
@@ -1457,7 +1453,7 @@ Local<Value> EntityClass::getBiomeName() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return String::newString(ll::memory::dAccess<HashedString>(&bio, 0x08).getString());
+        return String::newString(bio.mHash->getString());
     }
     CATCH("Fail in getBiomeName!");
 }

@@ -96,7 +96,6 @@
 
 #include <algorithm>
 #include <climits>
-#include <list>
 #include <memory>
 #include <optional>
 #include <string>
@@ -3553,7 +3552,7 @@ Local<Value> PlayerClass::getBiomeId() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return Number::newNumber(ll::memory::dAccess<int>(&bio, 0x80));
+        return Number::newNumber(bio.mId);
     }
     CATCH("Fail in getBiomeId!");
 }
@@ -3563,7 +3562,7 @@ Local<Value> PlayerClass::getBiomeName() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return String::newString(ll::memory::dAccess<HashedString>(&bio, 0x08).getString());
+        return String::newString(bio.mHash->getString());
     }
     CATCH("Fail in getBiomeName!");
 }

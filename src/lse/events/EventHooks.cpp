@@ -269,17 +269,20 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& newItem
 ) {
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        Player* player = ll::memory::dAccess<Player*>(this, 216); // IDA LevelContainerModel::LevelContainerModel
-        if (player->hasOpenContainer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onContainerChange,
-                    PlayerClass::newPlayer(player),
-                    BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
-                    Number::newNumber(slotNumber + this->_getContainerOffset()),
-                    ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                    ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-                )) {
-                return;
+        Actor* actor = _getEntity();
+        if (actor && actor->isType(ActorType::Player)) {
+            Player* player = static_cast<Player*>(actor);
+            if (player->hasOpenContainer()) {
+                if (!CallEvent(
+                        EVENT_TYPES::onContainerChange,
+                        PlayerClass::newPlayer(player),
+                        BlockClass::newBlock(ll::memory::dAccess<BlockPos>(this, 224), player->getDimensionId()),
+                        Number::newNumber(slotNumber + this->_getContainerOffset()),
+                        ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                        ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                    )) {
+                    return;
+                }
             }
         }
     }

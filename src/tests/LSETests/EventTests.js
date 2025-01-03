@@ -1,4 +1,4 @@
-const events = [
+export const events = [
     "onPreJoin",
     "onJoin",
     "onLeft",
@@ -78,23 +78,17 @@ const events = [
     "onMobSpawned"
 ];
 
-const triggeredEvents = new Set();
+export const triggeredEvents = new Set();
 
-events.forEach(event => {
-    mc.listen(event, () => {
-        if (triggeredEvents.has(event)) {
-            return;
-        }
-        logger.info(`Event ${event} triggered`);
-        triggeredEvents.add(event);
-        logger.info(`${triggeredEvents.size}/${events.length} events called`);
+export function RegisterEvents() {
+    events.forEach(event => {
+        mc.listen(event, () => {
+            if (triggeredEvents.has(event)) {
+                return;
+            }
+            logger.info(`Event ${event} triggered`);
+            triggeredEvents.add(event);
+            logger.info(`${triggeredEvents.size}/${events.length} events called`);
+        });
     });
-});
-
-// Output which events have not been triggered
-let cmd = mc.newCommand('lsetests', "LegacyScriptEngine tests", PermType.Console)
-cmd.overload([])
-cmd.setCallback((cmd, origin, output, results) => {
-    const notTriggeredEvents = events.filter(event => !triggeredEvents.has(event));
-    logger.info(`Events not triggered: ${notTriggeredEvents.join(', ')}`);
-})
+}

@@ -17,7 +17,7 @@ enum class OldCommandPermissionLevel : schar {
     Internal    = 0x5,
 };
 
-enum class OldParameterType {
+enum class OldParameterType : size_t {
     Int,
     Bool,
     Float,

@@ -1,6 +1,6 @@
 {
-  "entry": "EventTests.js",
-  "name": "EventTests",
+  "entry": "main.js",
+  "name": "LSETests",
   "type": "lse-quickjs",
   "author": "LiteLDev",
   "version": "1.0.0",

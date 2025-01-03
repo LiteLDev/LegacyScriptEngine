@@ -410,7 +410,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, optional, enumName}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, optional, enumName, option}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -436,7 +436,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, false, enumName}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, false, enumName, option}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -462,7 +462,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, true, enumName}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, true, enumName, option}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -495,8 +495,8 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 }
             }
         };
-        auto delayRegFunc = [this, &overloadFunc](std::vector<std::string>& enumValues) {
-            EventBus::getInstance().emplaceListener<ServerStartedEvent>([enumValues,
+        auto delayRegFunc = [this, &overloadFunc](std::vector<std::string>& paramNames) {
+            EventBus::getInstance().emplaceListener<ServerStartedEvent>([paramNames,
                                                                          commandName(commandName),
                                                                          overloadFunc,
                                                                          e(EngineScope::currentEngine()
@@ -504,7 +504,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 auto cmd = ll::command::CommandRegistrar::getInstance()
                                .getOrCreateCommand(commandName)
                                .runtimeOverload(getEngineData(e)->plugin);
-                for (auto& paramName : enumValues) {
+                for (auto& paramName : paramNames) {
                     overloadFunc(cmd, commandName, paramName);
                 }
                 cmd.execute(onExecute);
@@ -513,12 +513,12 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
 
         if (args[0].isNumber()) {
             if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
-                std::vector<std::string> enumValues;
+                std::vector<std::string> paramNames;
                 for (int i = 0; i < args.size(); ++i) {
                     CHECK_ARG_TYPE(args[i], ValueKind::kNumber);
-                    enumValues.push_back(std::to_string(args[i].asNumber().toInt32()));
+                    paramNames.push_back(std::to_string(args[i].asNumber().toInt32()));
                 }
-                delayRegFunc(enumValues);
+                delayRegFunc(paramNames);
             } else {
                 auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
                 for (int i = 0; i < args.size(); ++i) {
@@ -531,17 +531,17 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             return Boolean::newBoolean(true);
         } else if (args[0].isString()) {
             if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
-                std::vector<std::string> enumValues;
+                std::vector<std::string> paramNames;
                 for (int i = 0; i < args.size(); ++i) {
                     CHECK_ARG_TYPE(args[i], ValueKind::kString);
-                    enumValues.push_back(args[0].asString().toString());
+                    paramNames.push_back(args[i].asString().toString());
                 }
-                delayRegFunc(enumValues);
+                delayRegFunc(paramNames);
             } else {
                 auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
                 for (int i = 0; i < args.size(); ++i) {
                     CHECK_ARG_TYPE(args[i], ValueKind::kString);
-                    std::string paramName = args[0].asString().toString();
+                    std::string paramName = args[i].asString().toString();
                     overloadFunc(cmd, commandName, paramName);
                 }
                 cmd.execute(onExecute);
@@ -569,12 +569,12 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             }
             if (arr.get(0).isNumber()) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
-                    std::vector<std::string> enumValues;
+                    std::vector<std::string> paramNames;
                     for (int i = 0; i < arr.size(); ++i) {
                         CHECK_ARG_TYPE(arr.get(i), ValueKind::kNumber);
-                        enumValues.push_back(std::to_string(arr.get(i).asNumber().toInt32()));
+                        paramNames.push_back(std::to_string(arr.get(i).asNumber().toInt32()));
                     }
-                    delayRegFunc(enumValues);
+                    delayRegFunc(paramNames);
                 } else {
                     auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
                     for (int i = 0; i < arr.size(); ++i) {
@@ -587,12 +587,12 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 return Boolean::newBoolean(true);
             } else if (arr.get(0).isString()) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
-                    std::vector<std::string> enumValues;
+                    std::vector<std::string> paramNames;
                     for (int i = 0; i < arr.size(); ++i) {
                         CHECK_ARG_TYPE(arr.get(i), ValueKind::kString);
-                        enumValues.push_back(arr.get(i).asString().toString());
+                        paramNames.push_back(arr.get(i).asString().toString());
                     }
-                    delayRegFunc(enumValues);
+                    delayRegFunc(paramNames);
                 } else {
                     auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
                     for (int i = 0; i < arr.size(); ++i) {

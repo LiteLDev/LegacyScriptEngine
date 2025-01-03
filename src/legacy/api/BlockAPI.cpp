@@ -403,7 +403,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
                     pos = posObj->toIntVec4();
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 4) {
@@ -419,7 +419,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
                 args[3].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 
@@ -435,7 +435,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         ChunkBlockPos cbpos = ChunkBlockPos(pos.getBlockPos(), minHeight);
         auto          block = &const_cast<Block&>(lc->getBlock(cbpos));
         if (!block) {
-            // LOG_WRONG_ARG_TYPE();
+            // LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return {};
         }
         BlockPos bp{pos.x, pos.y, pos.z};
@@ -474,7 +474,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
                     block = args[1];
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 5 || args.size() == 6) {
@@ -496,7 +496,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
                 tileData = args[5].asNumber().toInt32();
             }
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 
@@ -520,7 +520,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             // other block object
             Block* bl = BlockClass::extract(block);
             if (!bl) {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
             BlockSource& bs = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
@@ -561,7 +561,7 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
                     type = args[1];
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 5) {
@@ -580,7 +580,7 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
             };
             type = args[4];
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 

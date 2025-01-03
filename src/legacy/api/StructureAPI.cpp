@@ -13,12 +13,12 @@
 Local<Value> McClass::getStructure(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     if (!IsInstanceOf<IntPos>(args[0])) {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
 
     if (!IsInstanceOf<IntPos>(args[1])) {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     auto argsSize       = args.size();
@@ -36,7 +36,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
         IntPos* pos1 = IntPos::extractPos(args[0]);
         IntPos* pos2 = IntPos::extractPos(args[1]);
         if (pos1->getDimensionId() != pos2->getDimensionId()) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Pos should in the same dimension!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
             return Local<Value>();
         }
 
@@ -57,11 +57,11 @@ Local<Value> McClass::setStructure(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     auto nbt = NbtCompoundClass::extract(args[0]);
     if (!nbt) {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     if (!IsInstanceOf<IntPos>(args[1])) {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     auto     argsSize = args.size();

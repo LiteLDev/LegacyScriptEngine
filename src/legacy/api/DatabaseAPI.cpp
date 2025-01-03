@@ -292,7 +292,7 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
                 for (auto& key : obj.getKeys()) params[key.toString()] = LocalValueToAny(obj.get(key));
                 result = new DBSessionClass(args.thiz(), params);
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
             }
             break;
         }
@@ -307,7 +307,7 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
             break;
         }
         default:
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             break;
         }
         return result;
@@ -424,7 +424,7 @@ Local<Value> DBStmtClass::bind(const Arguments& args) {
             } else if (args[1].isString()) {
                 stmt->bind(LocalValueToAny(args[0]), args[1].asString().toString());
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
             }
         }
         }

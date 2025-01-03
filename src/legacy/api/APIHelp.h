@@ -36,32 +36,36 @@ std::string ValueKindToString(const ValueKind& kind);
 #if !defined(NEW_DEFINES)
 
 // 输出脚本调用堆栈，API名称，以及插件名
-inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& msg = "") {
+inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = "", std::string const& msg = "") {
     PrintScriptStackTrace(msg);
-    lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);
+    lse::getSelfPluginInstance().getLogger().error("In API: " + func);
     lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
 }
 
 // 参数类型错误输出
-inline void LOG_WRONG_ARG_TYPE() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong type of argument!"); }
+inline void LOG_WRONG_ARG_TYPE(std::string const& func = "") {
+    LOG_ERROR_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
+}
 
 // 参数数量错误输出
-inline void LOG_TOO_FEW_ARGS() { LOG_ERROR_WITH_SCRIPT_INFO("Too Few arguments!"); }
+inline void LOG_TOO_FEW_ARGS(std::string const& func = "") { LOG_ERROR_WITH_SCRIPT_INFO(func, "Too Few arguments!"); }
 
 // 参数数量错误输出
-inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of arguments!"); }
+inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
+    LOG_ERROR_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
+}
 
 // 至少COUNT个参数
 #define CHECK_ARGS_COUNT(ARGS, COUNT)                                                                                  \
     if (ARGS.size() < COUNT) {                                                                                         \
-        LOG_TOO_FEW_ARGS();                                                                                            \
+        LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
         return Local<Value>();                                                                                         \
     }
 
 // 检查是否TYPE类型
 #define CHECK_ARG_TYPE(ARG, TYPE)                                                                                      \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE();                                                                                          \
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
         return Local<Value>();                                                                                         \
     }
 
@@ -75,28 +79,28 @@ inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return Local<Value>();                                                                                         \
     }
 
 // 至少COUNT个参数_Constructor
 #define CHECK_ARGS_COUNT_C(ARGS, COUNT)                                                                                \
     if (ARGS.size() < COUNT) {                                                                                         \
-        LOG_TOO_FEW_ARGS();                                                                                            \
+        LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
         return nullptr;                                                                                                \
     }
 
 // 检查是否TYPE类型_Constructor
 #define CHECK_ARG_TYPE_C(ARG, TYPE)                                                                                    \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE();                                                                                          \
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
         return nullptr;                                                                                                \
     }
 
 // 检查是否TYPE类型_Setter
 #define CHECK_ARG_TYPE_S(ARG, TYPE)                                                                                    \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE();                                                                                          \
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
         return;                                                                                                        \
     }
 
@@ -110,7 +114,7 @@ inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return nullptr;                                                                                                \
     }
 
@@ -124,7 +128,7 @@ inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return;                                                                                                        \
     }
 
@@ -137,7 +141,7 @@ inline void LOG_WRONG_ARGS_COUNT() { LOG_ERROR_WITH_SCRIPT_INFO("Wrong number of
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }
 
 // 截获回调函数异常

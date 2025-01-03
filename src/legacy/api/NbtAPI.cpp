@@ -1046,9 +1046,9 @@ Local<Value> NbtListClass::setEnd(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::End) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<EndTag>();
         }
@@ -1067,9 +1067,9 @@ Local<Value> NbtListClass::setByte(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Byte) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<ByteTag>()->data = args[1].asNumber().toInt32();
         }
@@ -1088,9 +1088,9 @@ Local<Value> NbtListClass::setInt(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Int) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<IntTag>()->data = args[1].asNumber().toInt32();
         }
@@ -1109,9 +1109,9 @@ Local<Value> NbtListClass::setShort(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Short) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<ShortTag>()->data = args[1].asNumber().toInt32();
         }
@@ -1130,9 +1130,9 @@ Local<Value> NbtListClass::setLong(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Int64) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<Int64Tag>()->data = args[1].asNumber().toInt64();
         }
@@ -1151,9 +1151,9 @@ Local<Value> NbtListClass::setFloat(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Float) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<FloatTag>()->data = args[1].asNumber().toFloat();
         }
@@ -1172,9 +1172,9 @@ Local<Value> NbtListClass::setDouble(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::Double) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as_ptr<DoubleTag>()->data = args[1].asNumber().toDouble();
         }
@@ -1193,9 +1193,9 @@ Local<Value> NbtListClass::setString(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::String) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             list[index].as<StringTag>() = args[1].asString().toString();
         }
@@ -1215,9 +1215,9 @@ Local<Value> NbtListClass::setByteArray(const Arguments& args) {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
         } else if (list[0].getId() != Tag::Type::ByteArray) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Set wrong type of element into NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Set wrong type of element into NBT List!");
         } else {
             auto data = args[1].asByteBuffer();
             for (char c : data.describeUtf8()) {
@@ -1238,7 +1238,7 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
         auto  index = args[0].asNumber().toInt32();
 
         if (index >= list.size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
             return Local<Value>();
         }
 
@@ -1264,7 +1264,7 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
         } else if (IsInstanceOf<NbtCompoundClass>(args[1])) {
             list[index] = NbtCompoundClass::extract(args[1])->clone();
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Unknown type! Cannot set Tag into List");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot set Tag into List");
             return Local<Value>();
         }
         return this->getScriptObject();
@@ -1297,7 +1297,7 @@ Local<Value> NbtListClass::addTag(const Arguments& args) {
         } else if (IsInstanceOf<NbtCompoundClass>(args[0])) {
             nbt->add(*NbtCompoundClass::extract(args[0])->clone());
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Unknown type! Cannot add Tag into List");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot add Tag into List");
             return Local<Value>();
         }
         return this->getScriptObject();
@@ -1314,7 +1314,7 @@ Local<Value> NbtListClass::removeTag(const Arguments& args) {
         auto  index = args[0].asNumber().toInt32();
 
         if (index >= list.size() || index < 0) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Bad Index of NBT List!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
             return Local<Value>();
         }
 
@@ -1476,7 +1476,7 @@ void NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj) {
                 NbtCompoundClassAddHelper(&objTag, data);
                 tag->at(keys[i]) = std::move(objTag);
             } else {
-                LOG_ERROR_WITH_SCRIPT_INFO("Wrong Type of data to set into NBT Compound!");
+                LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Type of data to set into NBT Compound!");
             }
         }
     }
@@ -1717,7 +1717,7 @@ Local<Value> NbtCompoundClass::setTag(const Arguments& args) {
         } else if (IsInstanceOf<NbtCompoundClass>(args[1])) {
             nbt->at(key) = *NbtCompoundClass::extract(args[1])->clone();
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO("Unknown type! Cannot set Tag into Compound");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot set Tag into Compound");
             return Local<Value>();
         }
         return this->getScriptObject();
@@ -1736,7 +1736,7 @@ Local<Value> NbtCompoundClass::removeTag(const Arguments& args) {
         list.erase(key);
         return this->getScriptObject();
     } catch (const std::out_of_range&) {
-        LOG_ERROR_WITH_SCRIPT_INFO("Key no found in NBT Compound!");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Key no found in NBT Compound!");
         return Local<Value>();
     }
     CATCH("Fail in NBT RemoveTag!");

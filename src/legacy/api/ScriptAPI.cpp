@@ -82,7 +82,7 @@ Local<Value> ColorLog(const Arguments& args) {
             prefix = "\x1b[97m";
             break;
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO("Invalid color!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Invalid color!");
             break;
         }
         std::ostringstream sout;
@@ -118,7 +118,7 @@ Local<Value> SetTimeout(const Arguments& args) {
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
 
@@ -138,7 +138,7 @@ Local<Value> SetInterval(const Arguments& args) {
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
 

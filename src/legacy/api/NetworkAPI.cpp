@@ -31,7 +31,7 @@ using namespace ll::coro;
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         EngineScope enter(engine);                                                                                     \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return;                                                                                                        \
     }
 
@@ -46,7 +46,7 @@ using namespace ll::coro;
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         EngineScope enter(engine);                                                                                     \
-        LOG_ERROR_WITH_SCRIPT_INFO();                                                                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         co_return;                                                                                                     \
     }
 //////////////////// Classes ////////////////////
@@ -300,7 +300,7 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        LOG_ERROR_WITH_SCRIPT_INFO("WSClient Event \"" + event + "\" No Found!\n");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!\n");
     }
 }
 
@@ -386,7 +386,7 @@ Local<Value> WSClientClass::send(const Arguments& args) {
         else if (args[0].isByteBuffer())
             ws->SendBinary((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
         else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Boolean::newBoolean(true);
@@ -746,7 +746,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
         CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
     } else {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
 

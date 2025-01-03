@@ -1,0 +1,12 @@
+{
+  "entry": "EventTests.js",
+  "name": "EventTests",
+  "type": "lse-quickjs",
+  "author": "LiteLDev",
+  "version": "1.0.0",
+  "dependencies": [
+    {
+      "name": "legacy-script-engine-quickjs"
+    }
+  ]
+}

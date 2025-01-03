@@ -371,7 +371,7 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
             break;
         }
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO("Ini file don't support this type of data!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
             return Local<Value>();
             break;
         }
@@ -402,7 +402,7 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
             iniConf->setBool(section, key, args[2].asBoolean().value());
             break;
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO("Ini file don't support this type of data!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
             return Local<Value>();
             break;
         }
@@ -863,7 +863,7 @@ Local<Value> DataClass::toJson(const Arguments& args) {
         try {
             return String::newString(ValueToJson(args[0], spaces));
         } catch (...) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Failed to transform into Json.");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
             return Local<Value>();
         }
     }
@@ -878,7 +878,7 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
         try {
             return JsonToValue(args[0].asString().toString());
         } catch (...) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Failed to parse from Json.");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
             return Local<Value>();
         }
     }
@@ -895,7 +895,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data));
@@ -913,7 +913,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data));
@@ -931,7 +931,7 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return String::newString(Base64::Encode(data));

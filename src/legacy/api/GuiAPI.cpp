@@ -184,7 +184,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) {
         if (!args[1].isBoolean() && !args[1].isNumber()) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
     }

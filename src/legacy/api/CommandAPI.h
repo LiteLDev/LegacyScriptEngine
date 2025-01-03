@@ -17,6 +17,36 @@ enum class OldCommandPermissionLevel : schar {
     Internal    = 0x5,
 };
 
+enum class OldParameterType {
+    Int,
+    Bool,
+    Float,
+    Dimension,
+    String,
+    Enum,
+    SoftEnum,
+    Actor,
+    Player,
+    BlockPos,
+    Vec3,
+    RawText,
+    Message,
+    JsonValue,
+    Item,
+    Block,
+    BlockState,
+    Effect,
+    ActorType,
+    Command,
+    RelativeFloat,
+    IntegerRange,
+    FilePath,
+    WildcardInt,
+    WildcardActor,
+    // New types can
+    Count,
+};
+
 class CommandClass : public ScriptClass {
     std::string                        commandName;
     std::string                        description;

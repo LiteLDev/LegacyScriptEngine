@@ -1400,7 +1400,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Boolean::newBoolean(false);
             }
             if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
@@ -1427,7 +1427,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
                 rotationIsValid = true;
             }
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Boolean::newBoolean(false);
         }
         if (!rotationIsValid) {
@@ -1744,7 +1744,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
                     pos = posObj->toIntVec4();
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 4) {
@@ -1760,7 +1760,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
                 args[3].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
         player->setRespawnPosition(pos.getBlockPos(), pos.dim);
@@ -2487,7 +2487,7 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
             Local<Function> callback = args[1].asFunction();
             CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player, callback);
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Boolean::newBoolean(true);
@@ -3416,7 +3416,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId();
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 4) { // x, y, z, dimId
@@ -3431,7 +3431,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 
@@ -3482,7 +3482,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId();
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 4) {
@@ -3497,7 +3497,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 

@@ -124,7 +124,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Local<Value>();
@@ -172,7 +172,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Local<Value>();
@@ -220,7 +220,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (isSuccess) return Number::newNumber(score);
             return Local<Value>();
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Local<Value>();
@@ -260,7 +260,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
     }
@@ -288,7 +288,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
     }

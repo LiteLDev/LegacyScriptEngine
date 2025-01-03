@@ -66,7 +66,7 @@ Local<Value> ContainerClass::addItem(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         if (args.size() >= 2) {
@@ -88,7 +88,7 @@ Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
@@ -102,7 +102,7 @@ Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
         return Boolean::newBoolean(container->hasRoomForItem(*item));
@@ -129,7 +129,7 @@ Local<Value> ContainerClass::getItem(const Arguments& args) {
     try {
         ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].asNumber().toInt32()));
         if (!item) {
-            LOG_ERROR_WITH_SCRIPT_INFO("Fail to get slot from container!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to get slot from container!");
             return Local<Value>();
         }
         return ItemClass::newItem(item);
@@ -144,7 +144,7 @@ Local<Value> ContainerClass::setItem(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[1]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
 

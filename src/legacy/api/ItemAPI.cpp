@@ -435,7 +435,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 if (!item) return Local<Value>();            // Null
                 else return ItemClass::newItem(item, false); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
-                LOG_TOO_FEW_ARGS();
+                LOG_TOO_FEW_ARGS(__FUNCTION__);
                 return Local<Value>();
             }
         } else {
@@ -450,7 +450,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                         false
                     ); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         }
@@ -482,7 +482,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE();
+                LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
             }
         } else if (args.size() == 5) {
@@ -498,7 +498,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT();
+            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
             return Local<Value>();
         }
 
@@ -516,7 +516,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
             if (!entity) return Local<Value>(); // Null
             else return EntityClass::newEntity(entity);
         } else {
-            LOG_WRONG_ARG_TYPE();
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
     }
@@ -527,7 +527,7 @@ Local<Value> ItemClass::match(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kObject)
     if (!IsInstanceOf<ItemClass>(args[0])) {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Boolean::newBoolean(false);
     }
 

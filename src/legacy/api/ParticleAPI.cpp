@@ -8,16 +8,16 @@
 
 #define GETVEC3(v, d, u)                                                                                               \
     if (IsInstanceOf<IntPos>(u)) {                                                                                     \
-        auto pos2  = EngineScope::currentEngine() -> getNativeInstance<IntPos>(u);                                     \
+        auto pos2  = EngineScope::currentEngine()->getNativeInstance<IntPos>(u);                                       \
         v          = Vec3(pos2->x, pos2->y, pos2->z);                                                                  \
         v         += 0.5f;                                                                                             \
         d          = pos2->dim;                                                                                        \
     } else if (IsInstanceOf<FloatPos>(u)) {                                                                            \
-        auto pos2 = EngineScope::currentEngine() -> getNativeInstance<FloatPos>(u);                                    \
+        auto pos2 = EngineScope::currentEngine()->getNativeInstance<FloatPos>(u);                                      \
         v         = Vec3(pos2->x, pos2->y, pos2->z);                                                                   \
         d         = pos2->dim;                                                                                         \
     } else {                                                                                                           \
-        LOG_WRONG_ARG_TYPE();                                                                                          \
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
         return Local<Value>();                                                                                         \
     }
 
@@ -165,7 +165,7 @@ Local<Value> ParticleSpawner::drawNumber(const Arguments& args) {
     } else if (args[1].getKind() == ValueKind::kString) {
         numName = args[1].asString().toString();
     } else {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     ParticleCUI::spawnParticle(pos, std::string("ll:num") + numName + color, dimId);
@@ -203,7 +203,7 @@ Local<Value> ParticleSpawner::drawOrientedLine(const Arguments& args) {
     GETVEC3(start, dimId1, args[0])
     GETVEC3(end, dimId2, args[1])
     if (dimId1 != dimId2) {
-        LOG_ERROR_WITH_SCRIPT_INFO("Pos should in the same dimension!");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
         return Local<Value>();
     }
 
@@ -250,7 +250,7 @@ Local<Value> ParticleSpawner::drawCuboid(const Arguments& args) {
         min       = Vec3(pos2->x, pos2->y, pos2->z);
         dimId1    = pos2->dim;
     } else {
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     if (size > 1) {
@@ -272,7 +272,7 @@ Local<Value> ParticleSpawner::drawCuboid(const Arguments& args) {
     }
 
     if (dimId2 != -1 && dimId1 != dimId2) {
-        LOG_ERROR_WITH_SCRIPT_INFO("Pos should in the same dimension!");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
         return Local<Value>();
     }
 

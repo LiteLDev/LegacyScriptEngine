@@ -52,7 +52,7 @@ using ll::event::ServerStartedEvent;
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<void> PermissionStaticBuilder  = EnumDefineBuilder<OldCommandPermissionLevel>::build("PermType");
-ClassDefine<void> ParamTypeStaticBuilder   = EnumDefineBuilder<ParamKind::Kind>::build("ParamType");
+ClassDefine<void> ParamTypeStaticBuilder   = EnumDefineBuilder<OldParameterType>::build("ParamType");
 ClassDefine<void> ParamOptionStaticBuilder = EnumDefineBuilder<CommandParameterOption>::build("ParamOption");
 
 ClassDefine<CommandClass> CommandClassBuilder =
@@ -370,12 +370,14 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
         }
         for (auto& info : registeredCommands[commandName]) {
             try {
-                if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                    auto& param = runtime[info.enumName];
-                    args.set(info.name, convertResult(param, origin, output));
-                } else {
-                    auto& param = runtime[info.name];
-                    args.set(info.name, convertResult(param, origin, output));
+                if (!info.name.empty()) {
+                    if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
+                        auto& param = runtime[info.enumName];
+                        args.set(info.name, convertResult(param, origin, output));
+                    } else {
+                        auto& param = runtime[info.name];
+                        args.set(info.name, convertResult(param, origin, output));
+                    }
                 }
             } catch (std::out_of_range&) {
                 continue;
@@ -395,7 +397,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
         std::string            enumName   = "";
         bool                   optional   = false;
         std::string            identifier = "";
@@ -423,7 +425,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
         std::string            enumName   = "";
         std::string            identifier = "";
         size_t                 index      = 2;
@@ -449,7 +451,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = parseEnum<ParamKind::Kind>(args[1]);
+        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
         std::string            enumName   = "";
         std::string            identifier = "";
         size_t                 index      = 2;
@@ -472,7 +474,6 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 // vector<index>
 Local<Value> CommandClass::addOverload(const Arguments& args) {
     try {
-        if (args.size() == 0) return Boolean::newBoolean(true);
         auto overloadFunc = [e(EngineScope::currentEngine()
                             )](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
             auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
@@ -552,6 +553,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                     EventBus::getInstance().emplaceListener<ServerStartedEvent>(
                         [commandName(commandName), e(EngineScope::currentEngine())](ServerStartedEvent&) {
+                            getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
                             auto cmd = ll::command::CommandRegistrar::getInstance()
                                            .getOrCreateCommand(commandName)
                                            .runtimeOverload(getEngineData(e)->plugin);
@@ -559,6 +561,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                         }
                     );
                 } else {
+                    getEngineOwnData()->plugin->registeredCommands[commandName].push_back({});
                     auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
                     cmd.execute(onExecute);
                 }
@@ -602,7 +605,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 return Boolean::newBoolean(true);
             }
         }
-        LOG_WRONG_ARG_TYPE();
+        LOG_WRONG_ARG_TYPE(__FUNCTION__);
         return Local<Value>();
     }
     CATCH("Fail in addOverload!")

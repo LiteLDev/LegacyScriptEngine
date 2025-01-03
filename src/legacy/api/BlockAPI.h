@@ -8,26 +8,25 @@
 class Block;
 class BlockClass : public ScriptClass {
 private:
-    Block* block;
+    Block const* block;
 
     // Pre data
-    std::string name, type;
-    int         id;
-    IntVec4     pos;
+    std::string   name, type;
+    DimensionType id;
+    IntVec4       blockPos;
 
 public:
-    explicit BlockClass(Block const* p);
-    BlockClass(Block const* p, BlockPos bp, int dim);
+    explicit BlockClass(Block const& block);
+    BlockClass(Block const& block, BlockPos const& pos, DimensionType dim);
 
-    void   preloadData(BlockPos bp, int dim);
-    Block* get() { return block; }
+    void         preloadData(BlockPos bp, DimensionType dim);
+    Block const* get() { return block; }
 
-    static Local<Object> newBlock(Block const* p, BlockPos const* pos, int dim);
-    static Local<Object> newBlock(BlockPos const* pos, int dim);
-    static Local<Object> newBlock(const BlockPos& pos, int dim);
-    static Local<Object> newBlock(Block const* p, BlockPos const* pos, BlockSource const* bs);
+    static Local<Object> newBlock(Block const& block, BlockPos const& pos, DimensionType dim);
+    static Local<Object> newBlock(BlockPos const& pos, DimensionType dim);
+    static Local<Object> newBlock(Block const& block, BlockPos const& pos, BlockSource const& bs);
     static Local<Object> newBlock(IntVec4 pos);
-    static Block*        extract(Local<Value> v);
+    static Block const*  extract(Local<Value> v);
 
     Local<Value> getName();
     Local<Value> getType();

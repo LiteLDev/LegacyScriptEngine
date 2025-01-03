@@ -92,8 +92,8 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return String::newString(std::get<RuntimeSoftEnum>(result.value()));
     } else if (result.hold(ParamKind::Kind::BlockName)) {
         return BlockClass::newBlock(
-            std::get<CommandBlockName>(result.value()).resolveBlock(0).getBlock(),
-            &BlockPos::MIN(),
+            *std::get<CommandBlockName>(result.value()).resolveBlock(0).getBlock(),
+            BlockPos::MIN(),
             -1
         );
     } else if (result.hold(ParamKind::Kind::Item)) {

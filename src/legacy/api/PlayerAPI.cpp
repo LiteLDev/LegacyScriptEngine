@@ -3169,7 +3169,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         if (bl.isEmpty()) {
             return Local<Value>();
         }
-        return BlockClass::newBlock(std::move(&bl), std::move(&bp), &player->getDimensionBlockSource());
+        return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

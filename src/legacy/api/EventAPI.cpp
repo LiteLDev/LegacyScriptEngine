@@ -360,7 +360,7 @@ void EnableEventListener(int eventId) {
                         EVENT_TYPES::onUseItemOn,
                         PlayerClass::newPlayer(&ev.self()),
                         ItemClass::newItem(&ev.item()),
-                        BlockClass::newBlock(&ev.block().get(), &ev.blockPos(), ev.self().getDimensionId()),
+                        BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId()),
                         Number::newNumber((schar)ev.face()),
                         FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
                     )) {
@@ -686,8 +686,8 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
                 CallEvent(
                     EVENT_TYPES::onBlockChanged,
-                    BlockClass::newBlock(&ev.previousBlock(), &ev.pos(), &ev.blockSource()),
-                    BlockClass::newBlock(&ev.newBlock(), &ev.pos(), &ev.blockSource())
+                    BlockClass::newBlock(ev.previousBlock(), ev.pos(), ev.blockSource()),
+                    BlockClass::newBlock(ev.newBlock(), ev.pos(), ev.blockSource())
                 ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockChanged);

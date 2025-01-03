@@ -96,7 +96,7 @@ Local<Value> BlockEntityClass::getBlock(const Arguments&) {
     try {
         BlockPos bp = blockEntity->getPosition();
         auto&    bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
-        return BlockClass::newBlock(&bl, &bp, dim);
+        return BlockClass::newBlock(bl, bp, dim);
     }
     CATCH("Fail in getBlock!")
 }

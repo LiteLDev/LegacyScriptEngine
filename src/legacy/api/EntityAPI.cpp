@@ -925,7 +925,7 @@ Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), (int)entity->getDimensionId());
+        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId());
     }
     CATCH("Fail in getBlockStandingOn!");
 }
@@ -1426,7 +1426,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         if (bl.isEmpty()) {
             return Local<Value>();
         }
-        return BlockClass::newBlock(std::move(&bl), &bp, actor->getDimensionId().id);
+        return BlockClass::newBlock(bl, bp, actor->getDimensionId());
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

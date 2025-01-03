@@ -19,6 +19,7 @@
 #include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 #include "mc/world/level/block/components/BlockLiquidDetectionComponent.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/world/level/block/BedrockBlockNames.h"
 
 #include <exception>
 
@@ -67,54 +68,64 @@ ClassDefine<BlockClass> BlockClassBuilder =
 
 //////////////////// Classes ////////////////////
 
-BlockClass::BlockClass(Block const* p)
-: ScriptClass(ScriptClass::ConstructFromCpp<BlockClass>{}),
-  block(const_cast<Block*>(p)) {
-    preloadData({0, 0, 0}, -1);
+BlockClass::BlockClass(Block const& block) : ScriptClass(ScriptClass::ConstructFromCpp<BlockClass>{}), block(&block) {
+    preloadData(BlockPos::ZERO(), -1);
 }
 
-BlockClass::BlockClass(Block const* p, BlockPos bp, int dim)
+BlockClass::BlockClass(Block const& block, BlockPos const& pos, DimensionType dim)
 : ScriptClass(ScriptClass::ConstructFromCpp<BlockClass>{}),
-  block(const_cast<Block*>(p)) {
-    preloadData(bp, dim);
+  block(&block) {
+    preloadData(pos, dim);
 }
 
 // generating function
-Local<Object> BlockClass::newBlock(Block const* p, BlockPos const* pos, int dim) {
-    auto newp = new BlockClass(p, *pos, dim);
+Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, DimensionType dim) {
+    auto newp = new BlockClass(block, pos, dim);
     return newp->getScriptObject();
 }
 
-Local<Object> BlockClass::newBlock(BlockPos const* pos, int dim) {
-    auto& bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(*pos);
-    return BlockClass::newBlock(&bl, pos, dim);
+Local<Object> BlockClass::newBlock(const BlockPos& pos, DimensionType dim) {
+    if (pos.y < 320 && pos.y >= -64) {
+        auto& bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(pos);
+        return BlockClass::newBlock(bl, pos, dim);
+    }
+    auto block = Block::tryGetFromRegistry(BedrockBlockNames::Air());
+    if (!block) {
+        return Object::newObject();
+    }
+    return BlockClass::newBlock(block, pos, dim);
 }
 
-Local<Object> BlockClass::newBlock(const BlockPos& pos, int dim) { return newBlock(&pos, dim); }
-
-Local<Object> BlockClass::newBlock(Block const* p, BlockPos const* pos, BlockSource const* bs) {
-    auto newp = new BlockClass(p, *pos, bs->getDimensionId());
+Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, BlockSource const& bs) {
+    auto newp = new BlockClass(block, pos, bs.getDimensionId());
     return newp->getScriptObject();
 }
 
 Local<Object> BlockClass::newBlock(IntVec4 pos) {
     BlockPos bp = {(float)pos.x, (float)pos.y, (float)pos.z};
-    auto&    bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
-    return BlockClass::newBlock(&bl, &bp, pos.dim);
+    if (bp.y < 320 && bp.y >= -64) {
+        auto& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
+        return BlockClass::newBlock(bl, bp, pos.dim);
+    }
+    auto block = Block::tryGetFromRegistry(BedrockBlockNames::Air());
+    if (!block) {
+        return Object::newObject();
+    }
+    return BlockClass::newBlock(block, bp, pos.dim);
 }
 
-Block* BlockClass::extract(Local<Value> v) {
+Block const* BlockClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<BlockClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<BlockClass>(v)->get();
     else return nullptr;
 }
 
 // member function
-void BlockClass::preloadData(BlockPos bp, int dim) {
-    name = block->buildDescriptionName();
-    type = block->getTypeName();
-    id   = block->getBlockItemId();
-    pos  = {bp.x, bp.y, bp.z, dim};
+void BlockClass::preloadData(BlockPos pos, DimensionType dim) {
+    name     = block->buildDescriptionName();
+    type     = block->getTypeName();
+    id       = block->getBlockItemId();
+    blockPos = {pos.x, pos.y, pos.z, dim};
 }
 
 Local<Value> BlockClass::getName() {
@@ -144,7 +155,7 @@ Local<Value> BlockClass::getId() {
 Local<Value> BlockClass::getPos() {
     try {
         // preloaded
-        return IntPos::newPos(pos);
+        return IntPos::newPos(blockPos);
     }
     CATCH("Fail in getBlockPos!");
 }
@@ -276,9 +287,9 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
     try {
         // same as `Level::getBlockInstance(pos.getBlockPos(),
         // pos.dim).breakNaturally()` when drop
-        BlockSource& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource();
+        BlockSource& bl = ll::service::getLevel()->getDimension(blockPos.dim)->getBlockSourceFromMainChunkSource();
         return Boolean::newBoolean(
-            ll::service::getLevel()->destroyBlock(bl, pos.getBlockPos(), args[0].asBoolean().value())
+            ll::service::getLevel()->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value())
         );
     }
     CATCH("Fail in destroyBlock!");
@@ -303,11 +314,11 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
         const Block* bl     = result.second;
         if (bl) {
             ll::service::getLevel()
-                ->getDimension(pos.dim)
+                ->getDimension(blockPos.dim)
                 ->getBlockSourceFromMainChunkSource()
-                .setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr);
+                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr);
         }
-        preloadData(pos.getBlockPos(), pos.getDimensionId());
+        preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setNbt!")
@@ -330,9 +341,10 @@ Local<Value> BlockClass::getBlockState(const Arguments&) {
 
 Local<Value> BlockClass::hasContainer(const Arguments&) {
     try {
-        auto& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(
-            pos.getBlockPos()
-        );
+        auto& bl = ll::service::getLevel()
+                       ->getDimension(blockPos.dim)
+                       ->getBlockSourceFromMainChunkSource()
+                       .getBlock(blockPos.getBlockPos());
         return Boolean::newBoolean(bl.isContainerBlock());
     }
     CATCH("Fail in hasContainer!");
@@ -341,9 +353,9 @@ Local<Value> BlockClass::hasContainer(const Arguments&) {
 Local<Value> BlockClass::getContainer(const Arguments&) {
     try {
         Container* container = ll::service::getLevel()
-                                   ->getDimension(pos.dim)
+                                   ->getDimension(blockPos.dim)
                                    ->getBlockSourceFromMainChunkSource()
-                                   .getBlockEntity(pos.getBlockPos())
+                                   .getBlockEntity(blockPos.getBlockPos())
                                    ->getContainer();
         return container ? ContainerClass::newContainer(container) : Local<Value>();
     }
@@ -359,20 +371,21 @@ Local<Value> BlockClass::hasBlockEntity(const Arguments&) {
 
 Local<Value> BlockClass::getBlockEntity(const Arguments&) {
     try {
-        BlockActor* be =
-            ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlockEntity(
-                pos.getBlockPos()
-            );
-        return be ? BlockEntityClass::newBlockEntity(be, pos.dim) : Local<Value>();
+        BlockActor* be = ll::service::getLevel()
+                             ->getDimension(blockPos.dim)
+                             ->getBlockSourceFromMainChunkSource()
+                             .getBlockEntity(blockPos.getBlockPos());
+        return be ? BlockEntityClass::newBlockEntity(be, blockPos.dim) : Local<Value>();
     }
     CATCH("Fail in getBlockEntity!");
 }
 
 Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
     try {
-        ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().removeBlockEntity(
-            pos.getBlockPos()
-        ); //==========???
+        ll::service::getLevel()
+            ->getDimension(blockPos.dim)
+            ->getBlockSourceFromMainChunkSource()
+            .removeBlockEntity(blockPos.getBlockPos());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeBlockEntity!");
@@ -433,13 +446,9 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         short minHeight = dimPtr->getMinHeight();
         if (pos.y < minHeight || pos.y > dimPtr->getHeight()) return {};
         ChunkBlockPos cbpos = ChunkBlockPos(pos.getBlockPos(), minHeight);
-        auto          block = &const_cast<Block&>(lc->getBlock(cbpos));
-        if (!block) {
-            // LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return {};
-        }
-        BlockPos bp{pos.x, pos.y, pos.z};
-        return BlockClass::newBlock(block, &bp, pos.dim);
+        auto&         block = lc->getBlock(cbpos);
+        BlockPos      bp{pos.x, pos.y, pos.z};
+        return BlockClass::newBlock(block, bp, pos.dim);
     }
     CATCH("Fail in GetBlock!")
 }
@@ -518,7 +527,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
         } else {
             // other block object
-            Block* bl = BlockClass::extract(block);
+            Block const* bl = BlockClass::extract(block);
             if (!bl) {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();

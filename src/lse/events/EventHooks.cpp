@@ -93,7 +93,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onStartDestroyBlock,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(&hitBlock, &blockPos, player.getDimensionId())
+                BlockClass::newBlock(hitBlock, blockPos, player.getDimensionId())
             )) {
             return;
         }
@@ -1006,7 +1006,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onUseBucketPlace,
                 PlayerClass::newPlayer(static_cast<Player*>(placer)),
                 ItemClass::newItem(&const_cast<ItemStack&>(instance)),
-                BlockClass::newBlock(&contents, &pos, &region),
+                BlockClass::newBlock(contents, pos, region),
                 Number::newNumber(face),
                 FloatPos::newPos(pos, region.getDimensionId())
             )) {
@@ -1032,7 +1032,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onUseBucketTake,
                 PlayerClass::newPlayer(&static_cast<Player&>(entity)),
                 ItemClass::newItem(&item),
-                BlockClass::newBlock(&pos, entity.getDimensionId()),
+                BlockClass::newBlock(pos, entity.getDimensionId()),
                 Number::newNumber(-1),
                 FloatPos::newPos(pos, entity.getDimensionId())
             )) {
@@ -1058,7 +1058,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EVENT_TYPES::onUseBucketTake,
                 PlayerClass::newPlayer(&static_cast<Player&>(entity)),
                 ItemClass::newItem(&item),
-                BlockClass::newBlock(&pos, entity.getDimensionId()),
+                BlockClass::newBlock(pos, entity.getDimensionId()),
                 Number::newNumber(-1),
                 FloatPos::newPos(pos, entity.getDimensionId())
             )) {
@@ -1167,7 +1167,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (pos != BlockPos::ZERO() && !this->isAir()) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitBlock,
-                    BlockClass::newBlock(this, &pos, &region),
+                    BlockClass::newBlock(*this, pos, region),
                     EntityClass::newEntity(&const_cast<Actor&>(projectile))
                 )) {
                 return;

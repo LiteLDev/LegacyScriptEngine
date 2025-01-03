@@ -84,7 +84,7 @@ Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, Dime
     return newp->getScriptObject();
 }
 
-Local<Object> BlockClass::newBlock(const BlockPos& pos, DimensionType dim) {
+Local<Object> BlockClass::newBlock(BlockPos const& pos, DimensionType dim) {
     if (pos.y < 320 && pos.y >= -64) {
         auto& bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(pos);
         return BlockClass::newBlock(bl, pos, dim);

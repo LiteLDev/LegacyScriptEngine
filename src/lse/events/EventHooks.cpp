@@ -72,6 +72,7 @@
 #include "mc/world/scores/ServerScoreboard.h"
 #include "mc/world/level/Explosion.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
+#include "mc/world/level/material/Material.h"
 
 namespace lse::events {
 
@@ -759,7 +760,6 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, strength, isFirstTime);
 }
 
-// TODO: It is broken, need to be fixed
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
     HookPriority::Normal,
@@ -775,7 +775,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
         if (!CallEvent(
                 EVENT_TYPES::onLiquidFlow,
-                BlockClass::newBlock(pos, region.getDimensionId()),
+                region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),
                 IntPos::newPos(pos, region.getDimensionId())
             )) {
             return;

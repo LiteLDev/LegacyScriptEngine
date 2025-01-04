@@ -144,7 +144,11 @@ void EnableEventListener(int eventId) {
     switch ((EVENT_TYPES)eventId) {
     case EVENT_TYPES::onJoin:
         bus.emplaceListener<PlayerJoinEvent>([](PlayerJoinEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onJoin) { CallEvent(EVENT_TYPES::onJoin, PlayerClass::newPlayer(&ev.self())); }
+            IF_LISTENED(EVENT_TYPES::onJoin) {
+                if (!CallEvent(EVENT_TYPES::onJoin, PlayerClass::newPlayer(&ev.self()))) {
+                    ev.cancel();
+                }
+            }
             IF_LISTENED_END(EVENT_TYPES::onJoin);
         });
         break;
@@ -152,7 +156,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPreJoin:
         bus.emplaceListener<PlayerConnectEvent>([](PlayerConnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPreJoin) {
-                CallEvent(EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&ev.self()));
+                if (!CallEvent(EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&ev.self()))) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onPreJoin);
         });
@@ -170,7 +176,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChat:
         bus.emplaceListener<PlayerChatEvent>([](PlayerChatEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChat) {
-                CallEvent(EVENT_TYPES::onChat, PlayerClass::newPlayer(&ev.self()), String::newString(ev.message()));
+                if (!CallEvent(
+                        EVENT_TYPES::onChat,
+                        PlayerClass::newPlayer(&ev.self()),
+                        String::newString(ev.message())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onChat);
         });
@@ -191,11 +203,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onAttackEntity:
         bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onAttackEntity) {
-                CallEvent(
-                    EVENT_TYPES::onAttackEntity,
-                    PlayerClass::newPlayer(&ev.self()),
-                    EntityClass::newEntity(&ev.target())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onAttackEntity,
+                        PlayerClass::newPlayer(&ev.self()),
+                        EntityClass::newEntity(&ev.target())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onAttackEntity);
         });

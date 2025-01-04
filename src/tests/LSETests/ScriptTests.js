@@ -1,7 +1,5 @@
 export function loggerTest(player) {
-    if (player) {
-        logger.setPlayer(player)
-    }
+    logger.setPlayer(player)
     logger.setFile("logs/LegacyScriptEngine/ScriptTests.log");
     logger.log("This is a log message");
     logger.warn("This is a warning message");

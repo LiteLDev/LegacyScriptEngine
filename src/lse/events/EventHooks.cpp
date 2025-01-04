@@ -261,20 +261,17 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& newItem
 ) {
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        Actor* actor = _getEntity();
-        if (actor && actor->isType(ActorType::Player)) {
-            Player* player = static_cast<Player*>(actor);
-            if (player->hasOpenContainer()) {
-                if (!CallEvent(
-                        EVENT_TYPES::onContainerChange,
-                        PlayerClass::newPlayer(player),
-                        BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player->getDimensionId()),
-                        Number::newNumber(slotNumber + this->_getContainerOffset()),
-                        ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                        ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-                    )) {
-                    return;
-                }
+        Player& player = mUnk84d147.as<Player&>();
+        if (player.hasOpenContainer()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onContainerChange,
+                    PlayerClass::newPlayer(&player),
+                    BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player.getDimensionId()),
+                    Number::newNumber(slotNumber + this->_getContainerOffset()),
+                    ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                    ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                )) {
+                return;
             }
         }
     }
@@ -501,12 +498,14 @@ LL_TYPE_INSTANCE_HOOK(
     WitherBoss::WitherAttackType type
 ) {
     IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        CallEvent(
-            EVENT_TYPES::onWitherBossDestroy,
-            EntityClass::newEntity(this),
-            IntPos::newPos(bb.min, region.getDimensionId()),
-            IntPos::newPos(bb.max, region.getDimensionId())
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onWitherBossDestroy,
+                EntityClass::newEntity(this),
+                IntPos::newPos(bb.min, region.getDimensionId()),
+                IntPos::newPos(bb.max, region.getDimensionId())
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
     origin(level, bb, region, range, type);

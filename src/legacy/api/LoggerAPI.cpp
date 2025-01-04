@@ -159,11 +159,7 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
         std::filesystem::path             newFile = std::filesystem::path(args[0].asString().toString());
         std::shared_ptr<ll::io::FileSink> sink    = std::make_shared<ll::io::FileSink>(
             newFile,
-            ll::makePolymorphic<ll::io::PatternFormatter>(
-                "{3:.3%T.} {2} {1} {0}",
-                ll::io::Formatter::supportColorLog(),
-                0b0010
-            ),
+            ll::makePolymorphic<ll::io::PatternFormatter>("{3:.3%T.} {2} {1} {0}", false),
             std::ios::app
         );
         if (args.size() >= 2) {

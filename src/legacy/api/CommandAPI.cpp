@@ -7,6 +7,7 @@
 #include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
 #include "api/McAPI.h"
+#include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
@@ -112,7 +113,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     } else if (result.hold(ParamKind::Kind::Player)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Player>>(result.value()).results(origin)) {
-            arr.add(EntityClass::newEntity(i));
+            arr.add(PlayerClass::newPlayer(i));
         }
         return arr;
     } else if (result.hold(ParamKind::Kind::BlockPos)) {

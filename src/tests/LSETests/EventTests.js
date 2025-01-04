@@ -82,11 +82,11 @@ export const triggeredEvents = new Set();
 
 export function RegisterEvents() {
     events.forEach(event => {
-        mc.listen(event, () => {
+        mc.listen(event, (...args) => {
             if (triggeredEvents.has(event)) {
                 return;
             }
-            logger.info(`Event ${event} triggered`);
+            logger.info(`Event ${event} triggered with parameters: ${args}`);
             triggeredEvents.add(event);
             logger.info(`${triggeredEvents.size}/${events.length} events called`);
         });

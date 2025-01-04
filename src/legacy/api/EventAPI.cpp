@@ -137,7 +137,7 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
 
 //////////////////// Events ////////////////////
 
-// Todo
+// TODO:
 void EnableEventListener(int eventId) {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();
@@ -626,7 +626,8 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onLiquidFlow:
-        lse::events::LiquidFlowEvent();
+        // TODO:
+        //        lse::events::LiquidFlowEvent();
         break;
 
     case EVENT_TYPES::onUseFrameBlock:

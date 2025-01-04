@@ -587,8 +587,6 @@ LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat,
 }
 
 LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode, bool, ::Explosion& explosion) {
-    // Todo: broken need to be fixed
-
     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
         if (explosion.mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
             if (!CallEvent(
@@ -762,21 +760,22 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, strength, isFirstTime);
 }
 
+// TODO: It is broken, need to be fixed
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
     HookPriority::Normal,
     LiquidBlockDynamic,
-    &LiquidBlockDynamic::_spread,
+    &LiquidBlockDynamic::_trySpreadTo,
     void,
-    BlockSource&      region,
-    const ::BlockPos& pos,
-    int               depth,
-    bool              preserveExisting
+    ::BlockSource&    region,
+    ::BlockPos const& pos,
+    int               neighbor,
+    ::BlockPos const& flowFromPos,
+    uchar             flowFromDirection
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
         if (!CallEvent(
                 EVENT_TYPES::onLiquidFlow,
-                false,
                 BlockClass::newBlock(pos, region.getDimensionId()),
                 IntPos::newPos(pos, region.getDimensionId())
             )) {
@@ -784,7 +783,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);
-    return origin(region, pos, depth, preserveExisting);
+    return origin(region, pos, neighbor, flowFromPos, flowFromDirection);
 }
 
 LL_TYPE_INSTANCE_HOOK(

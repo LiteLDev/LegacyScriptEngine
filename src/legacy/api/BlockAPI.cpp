@@ -11,15 +11,15 @@
 #include "ll/api/service/Bedrock.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/core/utility/optional_ref.h"
-#include "mc/nbt/CompoundTag.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/Level.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 #include "mc/world/level/block/components/BlockLiquidDetectionComponent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/block/BedrockBlockNames.h"
+#include "mc/world/level/ChunkBlockPos.h"
+#include "mc/world/level/chunk/LevelChunk.h"
 
 #include <exception>
 
@@ -66,6 +66,24 @@ ClassDefine<BlockClass> BlockClassBuilder =
         .instanceFunction("getTag", &BlockClass::getNbt)
         .build();
 
+namespace lse::BlockAPI {
+inline bool isValidHeight(WeakRef<Dimension> dim, std::variant<int, float> height) {
+    if (dim) {
+        if (std::holds_alternative<int>(height)) {
+            int y = std::get<int>(height);
+            return dim->getMinHeight() <= y && dim->getHeight() >= y;
+        } else {
+            float y = std::get<float>(height);
+            return dim->getMinHeight() <= y && dim->getHeight() >= y;
+        }
+    }
+
+    return false;
+}
+} // namespace lse::BlockAPI
+
+using lse::BlockAPI::isValidHeight;
+
 //////////////////// Classes ////////////////////
 
 BlockClass::BlockClass(Block const& block) : ScriptClass(ScriptClass::ConstructFromCpp<BlockClass>{}), block(&block) {
@@ -85,9 +103,11 @@ Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, Dime
 }
 
 Local<Object> BlockClass::newBlock(BlockPos const& pos, DimensionType dim) {
-    if (pos.y < 320 && pos.y >= -64) {
-        auto& bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(pos);
-        return BlockClass::newBlock(bl, pos, dim);
+    if (auto dimension = ll::service::getLevel()->getDimension(dim)) {
+        if (isValidHeight(dimension, pos.y)) {
+            auto& bl = dimension->getBlockSourceFromMainChunkSource().getBlock(pos);
+            return BlockClass::newBlock(bl, pos, dim);
+        }
     }
     auto block = Block::tryGetFromRegistry(BedrockBlockNames::Air());
     if (!block) {
@@ -103,9 +123,11 @@ Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, Bloc
 
 Local<Object> BlockClass::newBlock(IntVec4 pos) {
     BlockPos bp = {(float)pos.x, (float)pos.y, (float)pos.z};
-    if (bp.y < 320 && bp.y >= -64) {
-        auto& bl = ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
-        return BlockClass::newBlock(bl, bp, pos.dim);
+    if (auto dimension = ll::service::getLevel()->getDimension(pos.dim)) {
+        if (isValidHeight(dimension, pos.y)) {
+            auto& bl = dimension->getBlockSourceFromMainChunkSource().getBlock(bp);
+            return BlockClass::newBlock(bl, bp, pos.dim);
+        }
     }
     auto block = Block::tryGetFromRegistry(BedrockBlockNames::Air());
     if (!block) {
@@ -390,8 +412,6 @@ Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
     }
     CATCH("Fail in removeBlockEntity!");
 }
-#include "mc/world/level/ChunkBlockPos.h"
-#include "mc/world/level/chunk/LevelChunk.h"
 
 // public API
 Local<Value> McClass::getBlock(const Arguments& args) {
@@ -440,11 +460,15 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         if (!dimPtr) {
             return {};
         }
-        BlockSource& bs = dimPtr->getBlockSourceFromMainChunkSource();
-        auto         lc = bs.getChunkAt(pos.getBlockPos());
-        if (!lc) return {};
-        short minHeight = dimPtr->getMinHeight();
-        if (pos.y < minHeight || pos.y > dimPtr->getHeight()) return {};
+        BlockSource& bs        = dimPtr->getBlockSourceFromMainChunkSource();
+        short        minHeight = dimPtr->getMinHeight();
+        if (pos.y < minHeight || pos.y > dimPtr->getHeight()) {
+            return {};
+        }
+        auto lc = bs.getChunkAt(pos.getBlockPos());
+        if (!lc) {
+            return {};
+        }
         ChunkBlockPos cbpos = ChunkBlockPos(pos.getBlockPos(), minHeight);
         auto&         block = lc->getBlock(cbpos);
         BlockPos      bp{pos.x, pos.y, pos.z};

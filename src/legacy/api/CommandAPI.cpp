@@ -511,7 +511,24 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 cmd.execute(onExecute);
             });
         };
-
+        if (args.size() == 0) {
+            if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
+                EventBus::getInstance().emplaceListener<ServerStartedEvent>(
+                    [commandName(commandName), e(EngineScope::currentEngine())](ServerStartedEvent&) {
+                        getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
+                        auto cmd = ll::command::CommandRegistrar::getInstance()
+                                       .getOrCreateCommand(commandName)
+                                       .runtimeOverload(getEngineData(e)->plugin);
+                        cmd.execute(onExecute);
+                    }
+                );
+            } else {
+                getEngineOwnData()->plugin->registeredCommands[commandName].push_back({});
+                auto cmd = get().runtimeOverload(getEngineOwnData()->plugin);
+                cmd.execute(onExecute);
+            }
+            return Boolean::newBoolean(true);
+        }
         if (args[0].isNumber()) {
             if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                 std::vector<std::string> paramNames;

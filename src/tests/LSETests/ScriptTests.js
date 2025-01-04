@@ -1,5 +1,7 @@
-export function loggerTest(player) {
-    logger.setPlayer(player)
+export function loggerTest(players) {
+    for (let player of players) {
+        logger.setPlayer(player)
+    }
     logger.setFile("logs/LegacyScriptEngine/ScriptTests.log");
     logger.log("This is a log message");
     logger.warn("This is a warning message");

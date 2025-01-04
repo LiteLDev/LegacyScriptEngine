@@ -898,8 +898,6 @@ void InitBasicEventListeners() {
     });
 
     // 植入tick
-    using namespace ll::chrono_literals;
-
     ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
         using namespace ll::chrono_literals;
 

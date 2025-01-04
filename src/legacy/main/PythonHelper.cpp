@@ -40,12 +40,18 @@ bool pythonInited = false;
 bool initPythonRuntime() {
     if (!pythonInited) {
         script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getModDir());
-        script::py_interop::setModuleSearchPaths({
-            lse::getSelfPluginInstance().getModDir() / "python310.zip",
-            lse::getSelfPluginInstance().getModDir() / "DLLs",
-            lse::getSelfPluginInstance().getModDir() / "Lib",
-            lse::getSelfPluginInstance().getModDir() / "site-packages",
-        });
+        const char*               pathEnv = std::getenv("PATH");
+        auto                      paths   = ll::string_utils::splitByPattern(pathEnv, ";");
+        std::vector<std::wstring> modulePaths;
+        for (const auto& p : paths) {
+            if (p.find("Python") != std::string::npos) {
+                std::wstring wstr = ll::string_utils::str2wstr(p);
+                modulePaths.push_back(wstr + L"\\DLLs");
+                modulePaths.push_back(wstr + L"\\Lib");
+                modulePaths.push_back(wstr + L"\\site-packages");
+            }
+        }
+        script::py_interop::setModuleSearchPaths(modulePaths);
         pythonInited = true;
     }
     return true;

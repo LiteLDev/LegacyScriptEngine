@@ -288,12 +288,14 @@ void EnableEventListener(int eventId) {
                     ++truePos.x;
                     break;
                 }
-                CallEvent(
-                    EVENT_TYPES::onPlaceBlock,
-                    PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(truePos, ev.self().getDimensionId()),
-                    Number::newNumber((schar)ev.face())
-                );
+                if (!CallEvent(
+                        EVENT_TYPES::onPlaceBlock,
+                        PlayerClass::newPlayer(&ev.self()),
+                        BlockClass::newBlock(truePos, ev.self().getDimensionId()),
+                        Number::newNumber((schar)ev.face())
+                    )) {
+                    ev.cancel();
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);
         });
@@ -884,7 +886,9 @@ void InitBasicEventListeners() {
 
                 // Other Cmd
                 IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-                    CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd));
+                    if (!CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd))) {
+                        ev.cancel();
+                    }
                 }
                 IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
             }

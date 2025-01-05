@@ -838,7 +838,11 @@ void InitBasicEventListeners() {
                 }
 
                 // Other Cmd
-                IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
+                IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
+                    if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
+                        ev.cancel();
+                    }
+                }
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
             }
         } else if (ev.commandContext().mOrigin->getOriginType() == CommandOriginType::Player) {

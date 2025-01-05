@@ -10,6 +10,10 @@
 lip install github.com/LiteLDev/LegacyScriptEngine
 ```
 
+### 注意
+
+在安装Python引擎之前，你需要先安装[Python 3.12.8](https://www.python.org/downloads/release/python-3128/)
+
 要安装特定的引擎，您可以使用以下命令：
 
 ```shell
@@ -30,9 +34,11 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 
 ## 使用
 
-1. 直接将 LLSE 插件放在 `/path/to/bedrock_dedicated_server/plugins/` 中
+1. 直接将 LLSE 插件放在 `plugins/` 中
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
 3. 重启服务器后，插件就会被加载
+
+更多信息请参见[文档](https://legacy-script-engine.levimc.org)
 
 ## 贡献
 

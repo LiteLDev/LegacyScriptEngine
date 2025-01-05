@@ -1,32 +1,32 @@
 {
-    "format_version": 2,
-    "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs",
-    "version": "0.9.0-rc.1",
-    "info": {
-        "name": "LegacyScriptEngine with NodeJs backend",
-        "description": "A plugin engine for running LLSE plugins on LeviLamina",
-        "author": "LiteLDev",
-        "tags": [
-            "levilamina",
-            "plugin-engine"
-        ]
-    },
-    "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.1",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.1",
-        "gitea.litebds.com/ShrBox/7-zip": "23.x",
-        "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
-    },
-    "prerequisites": {
-        "github.com/LiteLDev/LeviLamina": "1.0.x"
-    },
-    "files": {
-        "place": [
-            {
-                "src": "legacy-script-engine-nodejs/*",
-                "dest": "plugins/legacy-script-engine-nodejs/"
-            }
-        ]
-    }
+  "format_version": 2,
+  "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs",
+  "version": "0.9.0-rc.1",
+  "info": {
+    "name": "LegacyScriptEngine with NodeJs backend",
+    "description": "A plugin engine for running LLSE plugins on LeviLamina",
+    "author": "LiteLDev",
+    "tags": [
+      "levilamina",
+      "plugin-engine"
+    ]
+  },
+  "dependencies": {
+    "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.2",
+    "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.2",
+    "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.2",
+    "gitea.litebds.com/ShrBox/7-zip": "23.x",
+    "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
+  },
+  "prerequisites": {
+    "github.com/LiteLDev/LeviLamina": "1.0.0-rc.1"
+  },
+  "files": {
+    "place": [
+      {
+        "src": "legacy-script-engine-nodejs/*",
+        "dest": "plugins/legacy-script-engine-nodejs/"
+      }
+    ]
+  }
 }

@@ -821,7 +821,11 @@ void InitBasicEventListeners() {
                 // LLSE Registered Cmd
 
                 bool callbackRes = CallServerCmdCallback(prefix, paras);
-                IF_LISTENED(EVENT_TYPES::onConsoleCmd) { CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd)); }
+                IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
+                    if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
+                        ev.cancel();
+                    }
+                }
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
                 if (!callbackRes) {
                     ev.cancel();
@@ -854,7 +858,13 @@ void InitBasicEventListeners() {
                 if (static_cast<int>(permission_level) >= perm) {
                     bool callbackRes = CallPlayerCmdCallback(player, prefix, paras);
                     IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-                        CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd));
+                        if (!CallEvent(
+                                EVENT_TYPES::onPlayerCmd,
+                                PlayerClass::newPlayer(player),
+                                String::newString(cmd)
+                            )) {
+                            ev.cancel();
+                        }
                     }
                     IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
                     if (!callbackRes) {

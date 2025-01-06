@@ -65,7 +65,6 @@
 #include "mc/world/level/block/RespawnAnchorBlock.h"
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
-#include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/phys/AABB.h"
@@ -73,6 +72,8 @@
 #include "mc/world/level/Explosion.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/level/material/Material.h"
+#include "mc/world/level/dimension/Dimension.h"
+#include "ll/api/thread/ThreadName.h"
 
 namespace lse::events {
 
@@ -234,7 +235,7 @@ LL_TYPE_INSTANCE_HOOK(
     int              slot,
     ItemStack const& oldItem,
     ItemStack const& newItem,
-    bool             idk
+    bool             forceBalanced
 ) {
     IF_LISTENED(EVENT_TYPES::onInventoryChange) {
         if (!CallEvent(
@@ -248,7 +249,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
-    origin(container, slot, oldItem, newItem, idk);
+    origin(container, slot, oldItem, newItem, forceBalanced);
 }
 
 LL_TYPE_INSTANCE_HOOK(

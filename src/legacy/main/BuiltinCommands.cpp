@@ -37,7 +37,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
                 std::cout << "> " << std::flush;
             }
         } catch (Exception& e) {
-            PrintException(e);
+            ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
             std::cout << "> " << std::flush;
         }
         return false;
@@ -62,7 +62,7 @@ void RegisterDebugCommand() {
                     PrintValue(sout, result);
                     output.success(sout.str());
                 } catch (Exception& e) {
-                    PrintException(e);
+                    ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
                 }
             } else {
                 if (isInConsoleDebugMode) {

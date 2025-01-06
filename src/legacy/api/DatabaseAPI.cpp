@@ -5,7 +5,7 @@ using namespace DB;
 #define CATCH_AND_THROW(LOG)                                                                                           \
     catch (const Exception& e) {                                                                                       \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
@@ -14,7 +14,7 @@ using namespace DB;
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
-        PrintScriptStackTrace();                                                                                       \
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         lse::getSelfPluginInstance().getLogger().error("In API: " __FUNCTION__);                                       \
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
         return Local<Value>();                                                                                         \

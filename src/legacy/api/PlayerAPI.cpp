@@ -2464,8 +2464,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         return Number::newNumber(3);
     } catch (const ordered_json::exception& e) {
         lse::getSelfPluginInstance().getLogger().error("Fail to parse Json string in sendCustomForm!");
-        lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
-        PrintScriptStackTrace();
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
         return {};
     }
     CATCH("Fail in sendCustomForm!");

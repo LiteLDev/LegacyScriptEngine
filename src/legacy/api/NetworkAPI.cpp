@@ -24,7 +24,7 @@ using namespace ll::coro;
     catch (const Exception& e) {                                                                                       \
         EngineScope enter(engine);                                                                                     \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
@@ -39,7 +39,7 @@ using namespace ll::coro;
     catch (const Exception& e) {                                                                                       \
         EngineScope enter(engine);                                                                                     \
         lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
         co_return;                                                                                                     \
     }                                                                                                                  \
     catch (...) {                                                                                                      \

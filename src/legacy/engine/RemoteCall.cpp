@@ -56,7 +56,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         lse::getSelfPluginInstance().getLogger().error("Error occurred in remote engine!\n");
         if (engine) {
             EngineScope enter(engine);
-            PrintException(e);
+            ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
             lse::getSelfPluginInstance().getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
         }
 

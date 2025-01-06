@@ -146,16 +146,13 @@ bool CallEvent(EVENT_TYPES type, T const&... args) {
                 returnValue = false;
             }
         } catch (const Exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
-            lse::getSelfPluginInstance().getLogger().error(e.what());
-
+            lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
+            ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
             lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
             lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
-        } catch (const std::exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
-            lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");
-            lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
-            PrintScriptStackTrace();
+        } catch (...) {
+            lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
             lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
             lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
         }
@@ -172,16 +169,13 @@ void FakeCallEvent(ScriptEngine* engine, EVENT_TYPES type, T&&... args) {
             try {
                 listener.func.get().call({}, args...);
             } catch (const Exception& e) {
-                lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
-                lse::getSelfPluginInstance().getLogger().error(e.what());
-
+                lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
+                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
                 lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
                 lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
-            } catch (const std::exception& e) {
-                lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");
-                lse::getSelfPluginInstance().getLogger().error("C++ Uncaught Exception Detected!");
-                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
-                PrintScriptStackTrace();
+            } catch (...) {
+                lse::getSelfPluginInstance().getLogger().error("FakeCallEvent Callback Failed!");
+                ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
                 lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
                 lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
             }
@@ -197,7 +191,7 @@ void FakeCallEvent(ScriptEngine* engine, EVENT_TYPES type, T&&... args) {
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
         lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
-        lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");                                \
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
         lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
     }                                                                                                                  \
     }

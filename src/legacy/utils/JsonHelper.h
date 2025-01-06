@@ -4,6 +4,7 @@
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/utils/StringUtils.h"
+#include "ll/api/utils/ErrorUtils.h"
 #include "lse/Entry.h"
 
 #include <Nlohmann/json.hpp>
@@ -38,7 +39,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
                 jsonConf = ordered_json::parse(defContent, nullptr, true, allowComment);
             } catch (std::exception& e) {
                 lse::getSelfPluginInstance().getLogger().error("Fail to parse default json content!");
-                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
+                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
                 jsonConf = ordered_json::object();
             }
         } else {
@@ -58,7 +59,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
                 jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, allowComment);
             } catch (std::exception& e) {
                 lse::getSelfPluginInstance().getLogger().error("Fail to parse json content in file!");
-                lse::getSelfPluginInstance().getLogger().error(ll::string_utils::tou8str(e.what()));
+                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
                 jsonConf = ordered_json::object();
             }
         }

@@ -12,19 +12,6 @@
 #include <exception>
 #include <magic_enum.hpp>
 
-// 输出异常信息
-inline void PrintException(const script::Exception& e) {
-    lse::getSelfPluginInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());
-}
-
-inline void PrintScriptStackTrace(std::string const& msg = "") {
-    if (!msg.empty()) {
-        PrintException(script::Exception(msg));
-    } else {
-        lse::getSelfPluginInstance().getLogger().error(script::Exception(msg).stacktrace());
-    }
-}
-
 // 实例类类型检查
 template <typename T>
 bool inline IsInstanceOf(Local<Value> v) {
@@ -37,7 +24,8 @@ std::string ValueKindToString(const ValueKind& kind);
 
 // 输出脚本调用堆栈，API名称，以及插件名
 inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = "", std::string const& msg = "") {
-    PrintScriptStackTrace(msg);
+    auto e = script::Exception(msg);
+    lse::getSelfPluginInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());
     lse::getSelfPluginInstance().getLogger().error("In API: " + func);
     lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
 }
@@ -72,14 +60,13 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常
 #define CATCH(LOG)                                                                                                     \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return Local<Value>();                                                                                         \
     }
 
@@ -107,47 +94,44 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常_Constructor
 #define CATCH_C(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }
 
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }
 
 // 截获引擎异常_Constructor
 #define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfPluginInstance().getLogger().error(LOG);                                                           \
         ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \
     catch (const Exception& e) {                                                                                       \
-        PrintException(e);                                                                                             \
+        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
         lse::getSelfPluginInstance().getLogger().error(std::string("In callback for ") + callback);                    \
         lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
     }

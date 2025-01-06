@@ -58,14 +58,13 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
     data.engine = EngineScope::currentEngine();
     for (auto& para : paras) data.paras.emplace_back(std::move(para));
 
-    ll::coro::keepThis([timeout, tid, data = std::move(data)]() -> ll::coro::CoroTask<> {
+    ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         co_await std::chrono::milliseconds(timeout);
         try {
             if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine))
                 co_return;
 
             EngineScope scope(data.engine);
-
             if (!data.func.isEmpty()) {
                 std::vector<Local<Value>> args;
                 for (auto& para : data.paras) {
@@ -80,7 +79,7 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = std::move(data);
+    timeTaskMap[tid] = data;
     return tid;
 }
 
@@ -91,34 +90,24 @@ int NewTimeout(Local<String> func, int timeout) {
     data.code   = func;
     data.engine = EngineScope::currentEngine();
 
-    ll::coro::keepThis([timeout, tid, data = std::move(data)]() -> ll::coro::CoroTask<> {
+    ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         co_await std::chrono::milliseconds(timeout);
         try {
             if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine))
                 co_return;
 
             EngineScope scope(data.engine);
-            {
-                std::lock_guard lock(locker);
-                auto            it = timeTaskMap.find(tid);
-                if (it == timeTaskMap.end()) co_return;
-
-                auto& taskData = it->second;
-
-                if (!taskData.code.isEmpty()) {
-                    auto code = taskData.code.get().toString();
-                    data.engine->eval(code);
-                }
-
-                // 清理任务
-                timeTaskMap.erase(tid);
+            if (!data.code.isEmpty()) {
+                auto code = data.code.get().toString();
+                data.engine->eval(code);
             }
         }
         TIMETASK_CATCH("setTimeout-String");
+        ClearTimeTask(tid);
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = std::move(data);
+    timeTaskMap[tid] = data;
     return tid;
 }
 
@@ -130,10 +119,14 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
     data.engine = EngineScope::currentEngine();
     for (auto& para : paras) data.paras.emplace_back(std::move(para));
 
-    ll::coro::keepThis([timeout, tid, data = std::move(data)]() -> ll::coro::CoroTask<> {
+    ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         while (true) {
             co_await std::chrono::milliseconds(timeout);
             try {
+                if (!CheckTimeTask(tid)) {
+                    co_return;
+                }
+
                 if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
                     ClearTimeTask(tid);
                     co_return;
@@ -155,7 +148,7 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = std::move(data);
+    timeTaskMap[tid] = data;
     return tid;
 }
 
@@ -166,35 +159,21 @@ int NewInterval(Local<String> func, int timeout) {
     data.code   = func;
     data.engine = EngineScope::currentEngine();
 
-    ll::coro::keepThis([timeout, tid, data = std::move(data)]() -> ll::coro::CoroTask<> {
+    ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         while (true) {
             co_await std::chrono::milliseconds(timeout);
             try {
-                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping)) {
-                    ClearTimeTask(tid);
+                if (!CheckTimeTask(tid)) {
                     co_return;
                 }
-
-                if (!EngineManager::isValid(data.engine)) {
+                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
                     ClearTimeTask(tid);
                     co_return;
                 }
 
                 EngineScope scope(data.engine);
-                std::string code;
-                {
-                    std::lock_guard lock(locker);
-
-                    auto it = timeTaskMap.find(tid);
-                    if (it == timeTaskMap.end()) co_return;
-
-                    auto& taskData = it->second;
-
-                    if (taskData.code.isEmpty()) co_return;
-                    code = taskData.code.get().toString();
-                }
-                if (!code.empty()) {
-                    data.engine->eval(code);
+                if (!data.code.isEmpty()) {
+                    data.engine->eval(data.code.get().toString());
                 }
             }
             TIMETASK_CATCH("setInterval-String");
@@ -202,15 +181,19 @@ int NewInterval(Local<String> func, int timeout) {
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = std::move(data);
+    timeTaskMap[tid] = data;
     return tid;
 }
 
-bool ClearTimeTask(int id) {
+bool CheckTimeTask(int const& id) {
+    std::lock_guard lock(locker);
+    return timeTaskMap.find(id) != timeTaskMap.end();
+}
+
+bool ClearTimeTask(int const& id) {
     try {
         std::lock_guard lock(locker);
-        auto            it = timeTaskMap.find(id);
-        if (it != timeTaskMap.end()) {
+        if (timeTaskMap.find(id) != timeTaskMap.end()) {
             timeTaskMap.erase(id);
         }
     } catch (...) {

@@ -17,7 +17,8 @@ int  NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeo
 int  NewTimeout(Local<String> func, int timeout);
 int  NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeout);
 int  NewInterval(Local<String> func, int timeout);
-bool ClearTimeTask(int id);
+bool ClearTimeTask(int const& id);
+bool CheckTimeTask(int const& id);
 
 ///////////////////////// Func /////////////////////////
 

@@ -1108,7 +1108,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onSetArmor);
-    origin(std::move(armorSlot), item);
+    origin(armorSlot, item);
 }
 
 LL_TYPE_INSTANCE_HOOK(

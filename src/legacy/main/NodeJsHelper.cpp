@@ -218,6 +218,7 @@ bool stopEngine(node::Environment* env) {
         return true;
     } catch (...) {
         lse::getSelfPluginInstance().getLogger().error("Fail to stop engine {}", (void*)env);
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         return false;
     }
 }
@@ -355,6 +356,7 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
             exit_code = node::SpinEventLoop(env).FromMaybe(1);
         } catch (...) {
             lse::getSelfPluginInstance().getLogger().error("Fail to execute NPM command. Error occurs");
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         }
     }
 

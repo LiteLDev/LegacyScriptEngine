@@ -208,7 +208,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
             } catch (const Exception& e) {
                 isInsideCodeBlock = false;
                 codeBuffer.clear();
-                lse::getSelfPluginInstance().getLogger().error("Exception:\n" + e.stacktrace() + "\n" + e.message());
+                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
             }
         }
         OUTPUT_DEBUG_SIGN();

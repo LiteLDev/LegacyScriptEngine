@@ -192,6 +192,7 @@ bool ClearTimeTask(int const& id) {
         }
     } catch (...) {
         lse::getSelfPluginInstance().getLogger().error("Fail in ClearTimeTask");
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
     }
     return true;
 }
@@ -209,5 +210,6 @@ void LLSERemoveTimeTaskData(ScriptEngine* engine) {
         }
     } catch (...) {
         lse::getSelfPluginInstance().getLogger().info("Fail in LLSERemoveTimeTaskData");
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
     }
 }

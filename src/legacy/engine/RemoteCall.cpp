@@ -72,15 +72,14 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
             lse::getSelfPluginInstance().getLogger().error("Fail to post remote call result return!");
-            ;
         }
     } catch (...) {
         lse::getSelfPluginInstance().getLogger().error("Error occurred in remote engine!");
+        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
             lse::getSelfPluginInstance().getLogger().error("Fail to post remote call result return!");
-            ;
         }
     }
 }

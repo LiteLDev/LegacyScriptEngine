@@ -851,6 +851,7 @@ Local<Value> DataClass::toJson(const Arguments& args) {
         try {
             return String::newString(ValueToJson(args[0], spaces));
         } catch (...) {
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
             return Local<Value>();
         }
@@ -866,6 +867,7 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
         try {
             return JsonToValue(args[0].asString().toString());
         } catch (...) {
+            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
             return Local<Value>();
         }

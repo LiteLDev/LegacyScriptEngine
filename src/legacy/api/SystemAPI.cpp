@@ -87,14 +87,6 @@ bool NewProcess(
             if (callback) callback(static_cast<int>(exitCode), std::move(strOutput));
         } catch (...) {
             lse::getSelfPluginInstance().getLogger().error("NewProcess Callback Failed!");
-
-            ll::utils::error_utils::AnyExceptionRef anyExc(std::current_exception());
-            if (auto exc = anyExc.tryGet<std::exception>()) {
-                lse::getSelfPluginInstance().getLogger().error("Caught Exception: {}", exc->what());
-            } else {
-                lse::getSelfPluginInstance().getLogger().error("Unknown exception caught in NewProcess callback.");
-            }
-
             ll::utils::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
         }
     }).detach();

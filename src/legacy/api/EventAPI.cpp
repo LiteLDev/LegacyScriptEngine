@@ -938,7 +938,7 @@ void InitBasicEventListeners() {
                 }
             } catch (...) {
                 lse::getSelfPluginInstance().getLogger().error("Error occurred in Engine Message Loop!");
-                lse::getSelfPluginInstance().getLogger().error("Uncaught Exception Detected!");
+                ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
             }
 #endif
 

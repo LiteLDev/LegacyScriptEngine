@@ -13,7 +13,7 @@
 
 #include <Python.h>
 #include <filesystem>
-#include <toml.h>
+#include <toml++/toml.h>
 
 const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 

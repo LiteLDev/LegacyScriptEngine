@@ -74,7 +74,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             PythonHelper::getPluginPackDependencyFilePath(ll::string_utils::u8str2str(dirPath.u8string()));
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
-            lse::getSelfPluginInstance().getLogger().info("Executing \"pip install\" for plugin {name}..."_tr(
+            lse::getSelfModInstance().getLogger().info("Executing \"pip install\" for plugin {name}..."_tr(
                 fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
             ));
 
@@ -83,9 +83,9 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                      + ll::string_utils::u8str2str(realPackageInstallDir.u8string()) + "\" --disable-pip-version-check "
                  ))
                 == 0) {
-                lse::getSelfPluginInstance().getLogger().info("Pip finished successfully."_tr());
+                lse::getSelfModInstance().getLogger().info("Pip finished successfully."_tr());
             } else
-                lse::getSelfPluginInstance().getLogger().error(
+                lse::getSelfModInstance().getLogger().error(
                     "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))
                 );
 
@@ -105,14 +105,14 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     if (NodeJsHelper::doesPluginPackHasDependency(ll::string_utils::u8str2str(dirPath.u8string()))
         && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
         int exitCode = 0;
-        lse::getSelfPluginInstance().getLogger().info("Executing \"npm install\" for plugin {name}..."_tr(
+        lse::getSelfModInstance().getLogger().info("Executing \"npm install\" for plugin {name}..."_tr(
             fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
         ));
         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", ll::string_utils::u8str2str(dirPath.u8string())))
             == 0)
-            lse::getSelfPluginInstance().getLogger().info(""_tr());
+            lse::getSelfModInstance().getLogger().info(""_tr());
         else
-            lse::getSelfPluginInstance().getLogger().error(
+            lse::getSelfModInstance().getLogger().error(
                 "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))
             );
     }
@@ -156,7 +156,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         BindAPIs(&scriptEngine);
 
-        auto& self = getSelfPluginInstance();
+        auto& self = getSelfModInstance();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         // Load BaseLib.
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;

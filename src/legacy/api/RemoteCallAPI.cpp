@@ -177,12 +177,12 @@ Local<Value> extract(RemoteCall::ValueType&& val) {
 Local<Value> MakeRemoteCall(const string& nameSpace, const string& funcName, const Arguments& args) {
     auto& func = RemoteCall::importFunc(nameSpace, funcName);
     if (!func) {
-        lse::getSelfPluginInstance().getLogger().error(
+        lse::getSelfModInstance().getLogger().error(
             "Fail to import! Function [{}::{}] has not been exported!",
             nameSpace,
             funcName
         );
-        lse::getSelfPluginInstance().getLogger().error("In plugin <{}>", getEngineOwnData()->pluginName);
+        lse::getSelfModInstance().getLogger().error("In plugin <{}>", getEngineOwnData()->pluginName);
         return Local<Value>();
     }
 
@@ -212,7 +212,7 @@ bool LLSEExportFunc(
         try {
             auto iter = getEngineData(engine)->exportFuncs.find(identifier);
             if (iter == getEngineData(engine)->exportFuncs.end()) {
-                lse::getSelfPluginInstance().getLogger().debug("");
+                lse::getSelfModInstance().getLogger().debug("");
                 return "";
             }
             auto                              scriptCallback = iter->second.callback.get();

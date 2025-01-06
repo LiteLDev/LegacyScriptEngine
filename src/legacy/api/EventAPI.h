@@ -146,15 +146,15 @@ bool CallEvent(EVENT_TYPES type, T const&... args) {
                 returnValue = false;
             }
         } catch (const Exception& e) {
-            lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
-            ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
-            lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
-            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+            lse::getSelfModInstance().getLogger().error("CallEvent Callback Failed!");
+            ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
+            lse::getSelfModInstance().getLogger().error("In Event: " + EventTypeToString(type));
+            lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
         } catch (...) {
-            lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
-            lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
-            lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+            lse::getSelfModInstance().getLogger().error("CallEvent Callback Failed!");
+            ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+            lse::getSelfModInstance().getLogger().error("In Event: " + EventTypeToString(type));
+            lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
         }
     }
     return returnValue;
@@ -169,15 +169,15 @@ void FakeCallEvent(ScriptEngine* engine, EVENT_TYPES type, T&&... args) {
             try {
                 listener.func.get().call({}, args...);
             } catch (const Exception& e) {
-                lse::getSelfPluginInstance().getLogger().error("CallEvent Callback Failed!");
-                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
-                lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
-                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+                lse::getSelfModInstance().getLogger().error("CallEvent Callback Failed!");
+                ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
+                lse::getSelfModInstance().getLogger().error("In Event: " + EventTypeToString(type));
+                lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
             } catch (...) {
-                lse::getSelfPluginInstance().getLogger().error("FakeCallEvent Callback Failed!");
-                ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
-                lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(type));
-                lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+                lse::getSelfModInstance().getLogger().error("FakeCallEvent Callback Failed!");
+                ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+                lse::getSelfModInstance().getLogger().error("In Event: " + EventTypeToString(type));
+                lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
             }
         }
     }
@@ -190,8 +190,8 @@ void FakeCallEvent(ScriptEngine* engine, EVENT_TYPES type, T&&... args) {
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
-        lse::getSelfPluginInstance().getLogger().error("Event Callback Failed!");                                      \
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
-        lse::getSelfPluginInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                        \
+        lse::getSelfModInstance().getLogger().error("Event Callback Failed!");                                         \
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
+        lse::getSelfModInstance().getLogger().error("In Event: " + EventTypeToString(TYPE));                           \
     }                                                                                                                  \
     }

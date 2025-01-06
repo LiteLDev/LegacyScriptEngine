@@ -796,7 +796,7 @@ Local<Value> PlayerClass::getXuid() {
         try {
             xuid = player->getXuid();
         } catch (...) {
-            lse::getSelfPluginInstance().getLogger().debug("Fail in getXuid!");
+            lse::getSelfModInstance().getLogger().debug("Fail in getXuid!");
             xuid = ll::service::PlayerInfo::getInstance().fromName(player->getRealName())->xuid;
         }
         return String::newString(xuid);
@@ -813,7 +813,7 @@ Local<Value> PlayerClass::getUuid() {
         try {
             uuid = player->getUuid().asString();
         } catch (...) {
-            lse::getSelfPluginInstance().getLogger().debug("Fail in getUuid!");
+            lse::getSelfModInstance().getLogger().debug("Fail in getUuid!");
             uuid = ll::service::PlayerInfo::getInstance().fromName(player->getRealName())->uuid.asString();
         }
         return String::newString(uuid);
@@ -2463,8 +2463,8 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         );
         return Number::newNumber(3);
     } catch (const ordered_json::exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to parse Json string in sendCustomForm!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Fail to parse Json string in sendCustomForm!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return {};
     }
     CATCH("Fail in sendCustomForm!");

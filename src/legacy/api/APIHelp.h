@@ -25,9 +25,9 @@ std::string ValueKindToString(const ValueKind& kind);
 // 输出脚本调用堆栈，API名称，以及插件名
 inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = "", std::string const& msg = "") {
     auto e = script::Exception(msg);
-    lse::getSelfPluginInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());
-    lse::getSelfPluginInstance().getLogger().error("In API: " + func);
-    lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+    lse::getSelfModInstance().getLogger().error("script::Exception: {0}\n{1}", e.message(), e.stacktrace());
+    lse::getSelfModInstance().getLogger().error("In API: " + func);
+    lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
 }
 
 // 参数类型错误输出
@@ -60,12 +60,12 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常
 #define CATCH(LOG)                                                                                                     \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return Local<Value>();                                                                                         \
     }
@@ -94,12 +94,12 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常_Constructor
 #define CATCH_C(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }
@@ -107,12 +107,12 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }
@@ -120,20 +120,20 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 // 截获引擎异常_Constructor
 #define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());                              \
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());                                  \
-        lse::getSelfPluginInstance().getLogger().error(std::string("In callback for ") + callback);                    \
-        lse::getSelfPluginInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                \
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
+        lse::getSelfModInstance().getLogger().error(std::string("In callback for ") + callback);                       \
+        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                   \
     }
 
 #else
@@ -222,7 +222,7 @@ struct EnumDefineBuilder {
             }
             return arr;
         } catch (const std::exception&) {
-            lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);
+            lse::getSelfModInstance().getLogger().error("Error in " __FUNCTION__);
         }
         return Local<Value>();
     }
@@ -235,7 +235,7 @@ struct EnumDefineBuilder {
             }
             return obj;
         } catch (const std::exception&) {
-            lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);
+            lse::getSelfModInstance().getLogger().error("Error in " __FUNCTION__);
         }
         return Local<Value>();
     }
@@ -250,7 +250,7 @@ struct EnumDefineBuilder {
                 return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].asNumber().toInt32())));
             return Local<Value>();
         } catch (const std::exception&) {
-            lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);
+            lse::getSelfModInstance().getLogger().error("Error in " __FUNCTION__);
         }
         return Local<Value>();
     }
@@ -259,7 +259,7 @@ struct EnumDefineBuilder {
         try {
             return String::newString(typeid(Type).name() + 5);
         } catch (const std::exception&) {
-            lse::getSelfPluginInstance().getLogger().error("Error in " __FUNCTION__);
+            lse::getSelfModInstance().getLogger().error("Error in " __FUNCTION__);
         }
         return Local<Value>();
     }
@@ -291,7 +291,7 @@ struct EnumDefineBuilder {
                 try {
                     return Number::newNumber(static_cast<int>(_val));
                 } catch (const std::exception&) {
-                    lse::getSelfPluginInstance().getLogger().error("Error in get {}.{}", enumName, _name);
+                    lse::getSelfModInstance().getLogger().error("Error in get {}.{}", enumName, _name);
                 }
                 return Local<Value>();
             });

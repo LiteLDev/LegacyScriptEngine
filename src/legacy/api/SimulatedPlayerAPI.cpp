@@ -403,7 +403,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
+            lse::getSelfModInstance().getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[0]);
@@ -412,7 +412,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
+            lse::getSelfModInstance().getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
         } else if (IsInstanceOf<BlockClass>(args[0])) {
             auto block = EngineScope::currentEngine()->getNativeInstance<BlockClass>(args[0]);
@@ -422,7 +422,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::getSelfPluginInstance().getLogger().debug("Can't simulate look at other dimension!");
+            lse::getSelfModInstance().getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
             if (!actor) return Local<Value>();

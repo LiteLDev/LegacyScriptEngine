@@ -23,14 +23,14 @@ void InitGlobalShareData() {
         (LLSE_GLOBAL_DATA_NAME + std::to_wstring(GetCurrentProcessId())).c_str()
     );
     if (hGlobalData == NULL) {
-        lse::getSelfPluginInstance().getLogger().error("init.fileMapping.fail"_tr());
+        lse::getSelfModInstance().getLogger().error("init.fileMapping.fail"_tr());
         localShareData->isFirstInstance = true;
         return;
     }
 
     LPVOID address = MapViewOfFile(hGlobalData, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0);
     if (address == NULL) {
-        lse::getSelfPluginInstance().getLogger().error("init.mapFile.fail"_tr());
+        lse::getSelfModInstance().getLogger().error("init.mapFile.fail"_tr());
         localShareData->isFirstInstance = true;
         return;
     }

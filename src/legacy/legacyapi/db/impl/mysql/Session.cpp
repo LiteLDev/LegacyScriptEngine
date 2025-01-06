@@ -8,16 +8,16 @@
 // namespace DB {
 
 // MySQLSession::MySQLSession() {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().info("MySQLSession::MySQLSession:
+//     IF_ENDBG lse::getSelfModInstance().getLogger().info("MySQLSession::MySQLSession:
 //     Constructed! this: {}", (void*)this); conn = mysql_init(nullptr);
 // }
 // MySQLSession::MySQLSession(const ConnParams& params) {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().info("MySQLSession::MySQLSession:
+//     IF_ENDBG lse::getSelfModInstance().getLogger().info("MySQLSession::MySQLSession:
 //     Constructed! this: {}", (void*)this); conn = mysql_init(nullptr); open(params);
 // }
 
 // MySQLSession::~MySQLSession() {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().info("MySQLSession::MySQLSession:
+//     IF_ENDBG lse::getSelfModInstance().getLogger().info("MySQLSession::MySQLSession:
 //     Destructor: this: {}", (void*)this); close();
 // }
 
@@ -69,7 +69,7 @@
 //         "true",
 //         "utf8"
 //     );
-//     // IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::open: MySQL default
+//     // IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::open: MySQL default
 //     charset name:
 //     // {}", defaultCharset);
 //     mysql_options(conn, MYSQL_SET_CHARSET_NAME, charset.c_str());
@@ -88,7 +88,7 @@
 //             "MySQLSession::MySQLSession: Failed to open database: " + std::string(mysql_error(conn))
 //         );
 //     }
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
+//     IF_ENDBG lse::getSelfModInstance().getLogger().debug(
 //         "MySQLSession::open: Opened database: " + std::string(p.getHost()) + ":" + std::to_string(port) + "/" + db
 //     );
 // #if defined(LLDB_DEBUG_MODE)
@@ -97,18 +97,18 @@
 // }
 
 // bool MySQLSession::execute(const std::string& query) {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::execute: Executing > "
+//     IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::execute: Executing > "
 //     + query); auto     res = mysql_query(conn, query.c_str()); return res == OK;
 // }
 
 // bool MySQLSession::relogin(const std::string& user, const std::string& password, const std::string& db) {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::change: Changing user
+//     IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::change: Changing user
 //     to {} and database to {}", user, db); auto     res = mysql_change_user(conn, user.c_str(), password.c_str(),
 //     (db.empty() ? nullptr : db.c_str())); return res == OK;
 // }
 
 // Session& MySQLSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::query: Querying > " +
+//     IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::query: Querying > " +
 //     query); auto     res = mysql_query(conn, query.c_str()); if (res != OK) {
 //         throw std::runtime_error("MySQLSession::query: Failed to query database: " + std::string(mysql_error(conn)));
 //     }
@@ -121,7 +121,7 @@
 //     auto     numFields = mysql_num_fields(result);
 //     auto     numRows   = mysql_num_rows(result);
 //     auto     fields    = mysql_fetch_fields(result);
-//     IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::query: Query returned
+//     IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::query: Query returned
 //     {} rows and {} fields", numRows, numFields);
 //     // Fetch column names
 //     RowHeader header;
@@ -205,7 +205,7 @@
 //     if (conn) {
 //         mysql_close(conn);
 //         conn = nullptr;
-//         IF_ENDBG lse::getSelfPluginInstance().getLogger().debug("MySQLSession::close: Closed
+//         IF_ENDBG lse::getSelfModInstance().getLogger().debug("MySQLSession::close: Closed
 //         database");
 //     }
 // }

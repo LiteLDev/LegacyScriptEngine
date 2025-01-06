@@ -39,7 +39,7 @@ bool pythonInited = false;
 
 bool initPythonRuntime() {
     if (!pythonInited) {
-        script::py_interop::setPythonHomePath(lse::getSelfPluginInstance().getModDir());
+        script::py_interop::setPythonHomePath(lse::getSelfModInstance().getModDir());
         const char*               pathEnv = std::getenv("PATH");
         auto                      paths   = ll::string_utils::splitByPattern(pathEnv, ";");
         std::vector<std::wstring> modulePaths;
@@ -63,7 +63,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         engine->loadFile(String::newString(entryScriptPath));
     } catch (const Exception& e1) {
         // Fail
-        lse::getSelfPluginInstance().getLogger().error("Fail in Loading Script Plugin!\n");
+        lse::getSelfModInstance().getLogger().error("Fail in Loading Script Plugin!\n");
         throw e1;
     }
     return true;
@@ -157,11 +157,11 @@ bool processPythonDebugEngine(const std::string& cmd) {
     if (cmd == LLSE_DEBUG_CMD) {
         if (isInConsoleDebugMode) {
             // EndDebug
-            lse::getSelfPluginInstance().getLogger().info("Debug mode ended");
+            lse::getSelfModInstance().getLogger().info("Debug mode ended");
             isInConsoleDebugMode = false;
         } else {
             // StartDebug
-            lse::getSelfPluginInstance().getLogger().info("Debug mode begins");
+            lse::getSelfModInstance().getLogger().info("Debug mode begins");
             codeBuffer.clear();
             isInsideCodeBlock    = false;
             isInConsoleDebugMode = true;
@@ -208,7 +208,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
             } catch (const Exception& e) {
                 isInsideCodeBlock = false;
                 codeBuffer.clear();
-                ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+                ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
             }
         }
         OUTPUT_DEBUG_SIGN();
@@ -233,8 +233,7 @@ bool processConsolePipCmd(const std::string& cmd) {
 // (./plugins/legacy-script-engine/lib/python-env/Lib/site-packages)
 int executePipCommand(std::string cmd) {
     if (cmd.find("--disable-pip-version-check") == std::string::npos) cmd += " --disable-pip-version-check";
-    cmd =
-        ll::string_utils::u8str2str((lse::getSelfPluginInstance().getModDir() / "python.exe").u8string()) + " -m" + cmd;
+    cmd = ll::string_utils::u8str2str((lse::getSelfModInstance().getModDir() / "python.exe").u8string()) + " -m" + cmd;
 
     SECURITY_ATTRIBUTES sa;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);

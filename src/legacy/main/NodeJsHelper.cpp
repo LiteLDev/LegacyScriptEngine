@@ -51,7 +51,7 @@ bool initNodeJs() {
     std::vector<std::string> errors;
     auto                     exitCode = node::InitializeNodeWithArgs(&args, &exec_args, &errors);
     if (exitCode != 0) {
-        lse::getSelfPluginInstance().getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
+        lse::getSelfModInstance().getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
         return false;
     }
 
@@ -87,7 +87,7 @@ script::ScriptEngine* newEngine() {
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
+            lse::getSelfModInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return nullptr;
     }
     v8::Isolate*       isolate = setup->isolate();
@@ -100,7 +100,7 @@ script::ScriptEngine* newEngine() {
 
     script::ScriptEngine* engine = new script::ScriptEngineImpl({}, isolate, setup->context(), false);
 
-    lse::getSelfPluginInstance().getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine);
+    lse::getSelfModInstance().getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine);
     environments[engine] = env;
     (*setups)[engine]    = std::move(setup);
     isRunning[env]       = true;
@@ -109,8 +109,8 @@ script::ScriptEngine* newEngine() {
         isolate,
         [](void* arg) {
             static_cast<script::ScriptEngine*>(arg)->destroy();
-            lse::getSelfPluginInstance().getLogger().debug("Destory ScriptEngine for node.js [{}]", arg);
-            lse::getSelfPluginInstance().getLogger().debug("Destroy EnvironmentCleanupHook");
+            lse::getSelfModInstance().getLogger().debug("Destory ScriptEngine for node.js [{}]", arg);
+            lse::getSelfModInstance().getLogger().debug("Destroy EnvironmentCleanupHook");
         },
         engine
     );
@@ -176,7 +176,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                     }
                     if ((ll::getGamingStatus() != ll::GamingStatus::Running)) {
                         uv_stop(eventLoop);
-                        lse::getSelfPluginInstance().getLogger().debug("Destroy ServerStopping");
+                        lse::getSelfModInstance().getLogger().debug("Destroy ServerStopping");
                     }
                 }
             }
@@ -217,14 +217,14 @@ bool stopEngine(node::Environment* env) {
 
         return true;
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to stop engine {}", (void*)env);
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Fail to stop engine {}", (void*)env);
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
         return false;
     }
 }
 
 bool stopEngine(script::ScriptEngine* engine) {
-    lse::getSelfPluginInstance().getLogger().info("NodeJs plugin {} exited.", getEngineData(engine)->pluginName);
+    lse::getSelfModInstance().getLogger().info("NodeJs plugin {} exited.", getEngineData(engine)->pluginName);
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }
@@ -324,7 +324,7 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::getSelfPluginInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
+            lse::getSelfModInstance().getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return -1;
     }
     v8::Isolate*       isolate   = setup->isolate();
@@ -355,8 +355,8 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
                 throw "error";
             exit_code = node::SpinEventLoop(env).FromMaybe(1);
         } catch (...) {
-            lse::getSelfPluginInstance().getLogger().error("Fail to execute NPM command. Error occurs");
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+            lse::getSelfModInstance().getLogger().error("Fail to execute NPM command. Error occurs");
+            ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
         }
     }
 

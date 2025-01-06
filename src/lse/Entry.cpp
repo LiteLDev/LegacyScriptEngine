@@ -72,7 +72,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self);
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 
 auto enable(ll::mod::NativeMod& /*self*/) -> bool {
-    auto& logger = getSelfPluginInstance().getLogger();
+    auto& logger = getSelfModInstance().getLogger();
     if (!MoreGlobal::onEnable()) {
         logger.error("Failed to enable MoreGlobal"_tr());
     }
@@ -178,9 +178,9 @@ void registerPluginManager(const std::shared_ptr<PluginManager>& pm) {
 
 } // namespace
 
-auto getConfig() -> const Config& { return config; }
+Config const& getConfig() { return config; }
 
-auto getPluginManager() -> PluginManager& {
+PluginManager& getPluginManager() {
     if (!pluginManager) {
         throw std::runtime_error("pluginManager is null");
     }
@@ -188,7 +188,7 @@ auto getPluginManager() -> PluginManager& {
     return *pluginManager;
 }
 
-auto getSelfPluginInstance() -> ll::mod::NativeMod& {
+ll::mod::NativeMod& getSelfModInstance() {
     if (!selfPluginInstance) {
         throw std::runtime_error("selfPluginInstance is null");
     }
@@ -199,9 +199,9 @@ auto getSelfPluginInstance() -> ll::mod::NativeMod& {
 } // namespace lse
 
 extern "C" {
-_declspec(dllexport) auto ll_mod_load(ll::mod::NativeMod& self) -> bool { return lse::load(self); }
+_declspec(dllexport) bool ll_mod_load(ll::mod::NativeMod& self) { return lse::load(self); }
 
-_declspec(dllexport) auto ll_mod_enable(ll::mod::NativeMod& self) -> bool { return lse::enable(self); }
+_declspec(dllexport) bool ll_mod_enable(ll::mod::NativeMod& self) { return lse::enable(self); }
 
 // LegacyScriptEngine  should not be disabled or unloaded currently.
 }

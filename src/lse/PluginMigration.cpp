@@ -46,7 +46,7 @@ namespace lse {
 namespace {
 
 auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::path& path) -> void {
-    auto& self = getSelfPluginInstance();
+    auto& self = getSelfModInstance();
 
     auto& logger = self.getLogger();
 
@@ -116,7 +116,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 } // namespace
 
 auto migratePlugins(const PluginManager& pluginManager) -> void {
-    auto& self = getSelfPluginInstance();
+    auto& self = getSelfModInstance();
 
     auto& logger = self.getLogger();
 

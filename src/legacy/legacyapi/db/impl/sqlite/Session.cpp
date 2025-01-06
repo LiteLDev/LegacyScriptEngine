@@ -8,21 +8,15 @@
 namespace DB {
 
 SQLiteSession::SQLiteSession() {
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-        "SQLiteSession: Constructed! this: {}",
-        (void*)this
-    );
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession: Constructed! this: {}", (void*)this);
 }
 SQLiteSession::SQLiteSession(const ConnParams& params) {
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-        "SQLiteSession: Constructed! this: {}",
-        (void*)this
-    );
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession: Constructed! this: {}", (void*)this);
     open(params);
 }
 
 SQLiteSession::~SQLiteSession() {
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug(
         "SQLiteSession::~SQLiteSession: Destructor: this: {}",
         (void*)this
     );
@@ -73,24 +67,18 @@ void SQLiteSession::open(const ConnParams& params) {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteSession::open: Failed to open database: " + std::string(sqlite3_errmsg(conn)));
     }
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-        "SQLiteSession::open: Opened database: " + std::string(path)
-    );
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession::open: Opened database: " + std::string(path));
 }
 
 bool SQLiteSession::execute(const std::string& query) {
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-        "SQLiteSession::execute: Executing > " + query
-    );
-    auto res = sqlite3_exec(conn, query.c_str(), nullptr, nullptr, nullptr);
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession::execute: Executing > " + query);
+    auto     res = sqlite3_exec(conn, query.c_str(), nullptr, nullptr, nullptr);
     return res == SQLITE_OK;
 }
 
 Session& SQLiteSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
-    IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-        "SQLiteSession::query: Querying > " + query
-    );
-    auto stmt = prepare(query);
+    IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession::query: Querying > " + query);
+    auto     stmt = prepare(query);
     stmt->fetchAll(callback);
     return *this;
 }
@@ -125,9 +113,7 @@ void SQLiteSession::close() {
             );
         }
         conn = nullptr;
-        IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-            "SQLiteSession::close: Closed database"
-        );
+        IF_ENDBG lse::getSelfModInstance().getLogger().debug("SQLiteSession::close: Closed database");
     }
 }
 

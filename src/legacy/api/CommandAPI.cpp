@@ -260,7 +260,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
             if (registry) {
                 auto instance = registry->findCommand(name);
                 if (instance) {
-                    lse::getSelfPluginInstance().getLogger().info(
+                    lse::getSelfModInstance().getLogger().info(
                         "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
                     );
                 }
@@ -352,7 +352,7 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
 void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& runtime) {
     std::string commandName = runtime.getCommandName();
     if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
-        lse::getSelfPluginInstance().getLogger().warn(
+        lse::getSelfModInstance().getLogger().warn(
             "Command {} failed to execute, is the plugin unloaded?"_tr(commandName)
         );
         return;
@@ -366,7 +366,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
 
         auto& registeredCommands = getEngineOwnData()->plugin->registeredCommands;
         if (registeredCommands.find(commandName) == registeredCommands.end()) {
-            lse::getSelfPluginInstance().getLogger().warn("Could not find {} in registered commands."_tr(commandName));
+            lse::getSelfModInstance().getLogger().warn("Could not find {} in registered commands."_tr(commandName));
             return;
         }
         for (auto& info : registeredCommands[commandName]) {

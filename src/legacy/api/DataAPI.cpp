@@ -209,8 +209,8 @@ Local<Value> ConfJsonClass::reload(const Arguments&) {
     try {
         return Boolean::newBoolean(reload());
     } catch (const ordered_json::exception& e) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to parse json content in file!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Fail to parse json content in file!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in confJsonReload!");
@@ -257,8 +257,8 @@ bool ConfJsonClass::reload() {
     try {
         jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, true);
     } catch (...) {
-        lse::getSelfPluginInstance().getLogger().error("Fail in confJsonReload!");
-        ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Fail in confJsonReload!");
+        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
         return false;
     }
 
@@ -537,12 +537,12 @@ Local<Value> MoneyClass::set(const Arguments& args) {
         return Boolean::newBoolean(EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneySet!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneySet!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneySet!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneySet!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in MoneySet!");
@@ -555,12 +555,12 @@ Local<Value> MoneyClass::get(const Arguments& args) {
     try {
         return Number::newNumber(EconomySystem::getMoney(args[0].asString().toString()));
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGet!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyGet!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Number::newNumber(0);
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGet!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyGet!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Number::newNumber(0);
     }
     CATCH("Fail in MoneyGet!");
@@ -575,12 +575,12 @@ Local<Value> MoneyClass::add(const Arguments& args) {
         return Boolean::newBoolean(EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyAdd!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyAdd!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyAdd!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyAdd!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in MoneyAdd!");
@@ -596,12 +596,12 @@ Local<Value> MoneyClass::reduce(const Arguments& args) {
             EconomySystem::reduceMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyReduce!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyReduce!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyReduce!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyReduce!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in MoneyReduce!");
@@ -623,12 +623,12 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
             note
         ));
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyTrans!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyTrans!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyTrans!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyTrans!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in MoneyTrans!");
@@ -678,12 +678,12 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
         string res{EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32())};
         return objectificationMoneyHistory(res);
     } catch (const std::invalid_argument& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyGetHintory!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Local<Value>();
     } catch (const std::out_of_range& e) {
-        lse::getSelfPluginInstance().getLogger().error("Bad argument in MoneyGetHintory!");
-        ll::error_utils::printException(e, lse::getSelfPluginInstance().getLogger());
+        lse::getSelfModInstance().getLogger().error("Bad argument in MoneyGetHintory!");
+        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
         return Local<Value>();
     }
     CATCH("Fail in MoneyGetHintory!");
@@ -851,7 +851,7 @@ Local<Value> DataClass::toJson(const Arguments& args) {
         try {
             return String::newString(ValueToJson(args[0], spaces));
         } catch (...) {
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+            ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
             return Local<Value>();
         }
@@ -867,7 +867,7 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
         try {
             return JsonToValue(args[0].asString().toString());
         } catch (...) {
-            ll::error_utils::printCurrentException(lse::getSelfPluginInstance().getLogger());
+            ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
             return Local<Value>();
         }

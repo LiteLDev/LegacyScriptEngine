@@ -27,14 +27,12 @@ ResultSet Session::query(const std::string& query) {
     });
     IF_ENDBG {
         if (result.valid()) {
-            lse::getSelfPluginInstance().getLogger().debug("Session::query: Results >");
+            lse::getSelfModInstance().getLogger().debug("Session::query: Results >");
             for (auto& str : ll::string_utils::splitByPattern(result.toTableString(), "\n")) {
-                lse::getSelfPluginInstance().getLogger().debug(str);
+                lse::getSelfModInstance().getLogger().debug(str);
             }
         } else {
-            lse::getSelfPluginInstance().getLogger().debug(
-                "Session::query: Query returned no result"
-            );
+            lse::getSelfModInstance().getLogger().debug("Session::query: Query returned no result");
         }
     }
     return result;
@@ -44,9 +42,7 @@ std::string Session::getLastError() const { throw std::runtime_error("Session::g
 
 std::weak_ptr<Session> Session::getOrSetSelf() {
     if (self.expired()) {
-        IF_ENDBG lse::getSelfPluginInstance().getLogger().debug(
-            "Session::getOrSetSelf: `self` expired, trying fetching"
-        );
+        IF_ENDBG lse::getSelfModInstance().getLogger().debug("Session::getOrSetSelf: `self` expired, trying fetching");
         return self = getSession(this);
     }
     return self;

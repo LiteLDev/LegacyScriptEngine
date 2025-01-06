@@ -6,10 +6,10 @@
 
 namespace lse {
 
-[[nodiscard]] auto getConfig() -> const Config&;
+[[nodiscard]] Config const& getConfig();
 
-[[nodiscard]] auto getPluginManager() -> PluginManager&;
+[[nodiscard]] PluginManager& getPluginManager();
 
-[[nodiscard]] auto getSelfPluginInstance() -> ll::mod::NativeMod&;
+[[nodiscard]] ll::mod::NativeMod& getSelfModInstance();
 
 } // namespace lse

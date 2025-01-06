@@ -20,8 +20,8 @@ SimpleIni* SimpleIni::create(const std::string& path, const std::string& defCont
     root->SetUnicode(true);
     auto res = root->LoadFile(path.c_str());
     if (res < 0) {
-        lse::getSelfPluginInstance().getLogger().error("Failed in loading ini file");
-        lse::getSelfPluginInstance().getLogger().error(string("Error Code:") + std::to_string((int)res));
+        lse::getSelfModInstance().getLogger().error("Failed in loading ini file");
+        lse::getSelfModInstance().getLogger().error(string("Error Code:") + std::to_string((int)res));
         delete root;
         return nullptr;
     } else {

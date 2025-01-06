@@ -24,7 +24,7 @@ std::string Button::serialize() {
         }
         return button.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Button in Simple Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Button in Simple Form serialize!");
         return "";
     }
 }
@@ -59,7 +59,7 @@ std::string SimpleForm::serialize() {
         }
         return form.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Simple Form in serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Simple Form in serialize!");
         return "";
     }
 }
@@ -108,7 +108,7 @@ std::string ModalForm::serialize() {
         form["button2"] = cancelButton;
         return form.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Modal Form in serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Modal Form in serialize!");
         return "";
     }
 }
@@ -167,7 +167,7 @@ std::string Label::serialize() {
         itemAdd["text"] = text;
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Label in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Label in Custom Form serialize!");
         return "";
     }
 }
@@ -181,7 +181,7 @@ std::string Input::serialize() {
         if (!def.empty()) itemAdd["default"] = def;
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Input in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Input in Custom Form serialize!");
         return "";
     }
 }
@@ -194,7 +194,7 @@ std::string Toggle::serialize() {
         if (def) itemAdd["default"] = def;
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Toggle in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Toggle in Custom Form serialize!");
         return "";
     }
 }
@@ -212,7 +212,7 @@ std::string Dropdown::serialize() {
         if (def > 0) itemAdd["default"] = def;
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Dropdown in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Dropdown in Custom Form serialize!");
         return "";
     }
 }
@@ -235,7 +235,7 @@ std::string Slider::serialize() {
 
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Slider in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Slider in Custom Form serialize!");
         return "";
     }
 }
@@ -256,7 +256,7 @@ std::string StepSlider::serialize() {
         }
         return itemAdd.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate StepSlider in Custom Form serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate StepSlider in Custom Form serialize!");
         return "";
     }
 }
@@ -341,7 +341,7 @@ std::string CustomForm::serialize() {
         }
         return form.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::getSelfPluginInstance().getLogger().error("Fail to generate Custom Form in serialize!");
+        lse::getSelfModInstance().getLogger().error("Fail to generate Custom Form in serialize!");
         return "";
     }
 }

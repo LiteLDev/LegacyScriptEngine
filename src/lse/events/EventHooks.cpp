@@ -263,12 +263,20 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& newItem
 ) {
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        Player& player = mUnk84d147.as<Player&>();
-        if (player.hasOpenContainer()) {
+        if (this->getContainerSize() == 64) { // Skipping bundle, bundle's container size is 64
+            Container* container = this->_getContainer();
+            if (container) {
+                if (container->getContainerType() == ContainerType::Container) {
+                    return origin(slotNumber, oldItem, newItem);
+                }
+            }
+        }
+        Player* player = mUnk84d147.as<Player*>();
+        if (player && player->hasOpenContainer()) {
             if (!CallEvent(
                     EVENT_TYPES::onContainerChange,
-                    PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player.getDimensionId()),
+                    PlayerClass::newPlayer(player),
+                    BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player->getDimensionId()),
                     Number::newNumber(slotNumber + this->_getContainerOffset()),
                     ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
                     ItemClass::newItem(&const_cast<ItemStack&>(newItem))

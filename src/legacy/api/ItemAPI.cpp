@@ -401,7 +401,7 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
 
 Local<Value> ItemClass::getNbt(const Arguments&) {
     try {
-        return NbtCompoundClass::pack(std::move(get()->save(*SaveContextFactory::createCloneSaveContext())));
+        return NbtCompoundClass::pack(get()->save(*SaveContextFactory::createCloneSaveContext()));
     }
     CATCH("Fail in getNbt!");
 }

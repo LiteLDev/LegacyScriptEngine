@@ -319,7 +319,7 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
 
 Local<Value> BlockClass::getNbt(const Arguments&) {
     try {
-        return NbtCompoundClass::pack(std::move(block->getSerializationId().clone()));
+        return NbtCompoundClass::pack(block->getSerializationId().clone());
     }
     CATCH("Fail in getNbt!");
 }

@@ -388,7 +388,7 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        std::string data{std::move(args[0].asString().toString())};
+        std::string data{args[0].asString().toString()};
 
         script::Global<Function> callbackFunc;
         if (args.size() >= 2) callbackFunc = args[1].asFunction();

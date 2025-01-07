@@ -47,10 +47,16 @@ bool initNodeJs() {
     auto  path  = ll::string_utils::wstr2str(buf) + "\\bedrock_server_mod.exe";
     char* cPath = (char*)path.c_str();
     uv_setup_args(1, &cPath);
-    args = {path};
-    std::vector<std::string> errors;
-    auto                     exitCode = node::InitializeNodeWithArgs(&args, &exec_args, &errors);
-    if (exitCode != 0) {
+    args        = {path};
+    auto result = node::InitializeOncePerProcess(
+        args,
+        node::ProcessInitializationFlags::Flags(
+            node::ProcessInitializationFlags::kNoInitializeV8
+            | node::ProcessInitializationFlags::kNoInitializeNodeV8Platform
+        )
+    );
+    exec_args = result->exec_args();
+    if (result->exit_code() != 0) {
         lse::getSelfModInstance().getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
         return false;
     }
@@ -67,7 +73,7 @@ bool initNodeJs() {
 
 void shutdownNodeJs() {
     v8::V8::Dispose();
-    v8::V8::ShutdownPlatform();
+    v8::V8::DisposePlatform();
 }
 
 script::ScriptEngine* newEngine() {
@@ -132,8 +138,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
     auto it = setups->find(engine);
     if (it == setups->end()) return false;
 
-    auto isolate = it->second->isolate();
-    auto env     = it->second->env();
+    auto env = it->second->env();
 
     try {
         using namespace v8;

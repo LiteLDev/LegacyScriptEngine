@@ -48,7 +48,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
             ignoreEntities
         );
 
-        return NbtCompoundClass::pack(std::move(structure->save()));
+        return NbtCompoundClass::pack(structure->save());
     }
     CATCH("Fail in getStructure!");
 }

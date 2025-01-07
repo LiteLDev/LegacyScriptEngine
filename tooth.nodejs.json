@@ -12,14 +12,14 @@
     ]
   },
   "dependencies": {
-    "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.2",
-    "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.2",
-    "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.2",
+    "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.3",
+    "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.3",
+    "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.3",
     "gitea.litebds.com/ShrBox/7-zip": "23.x",
-    "gitea.litebds.com/LiteLDev/node-binaries": "16.16.0"
+    "gitea.litebds.com/LiteLDev/node-binaries": "22.12.0"
   },
   "prerequisites": {
-    "github.com/LiteLDev/LeviLamina": "1.0.0-rc.1"
+    "github.com/LiteLDev/LeviLamina": "1.0.0-rc.2"
   },
   "files": {
     "place": [

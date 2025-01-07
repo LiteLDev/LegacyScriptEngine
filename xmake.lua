@@ -133,8 +133,7 @@ target("legacy-script-engine")
 
     elseif is_config("backend", "nodejs") then
         add_defines(
-            "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS",
-            "USING_V8_PLATFORM_SHARED"
+            "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
         )
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)

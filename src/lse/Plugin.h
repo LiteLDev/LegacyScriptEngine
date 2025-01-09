@@ -17,6 +17,7 @@ public:
         bool                         optional;
         std::string                  enumName;
         CommandParameterOption       option;
+        std::string                  identifier;
     };
 
     std::unordered_map<std::string, std::vector<ParamInfo>> registeredCommands;

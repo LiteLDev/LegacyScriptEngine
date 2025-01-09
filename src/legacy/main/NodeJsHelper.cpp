@@ -363,9 +363,8 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
             lse::getSelfModInstance().getLogger().error("Fail to execute NPM command. Error occurs");
             ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
         }
+        node::Stop(env);
     }
-
-    node::Stop(env);
     return exit_code;
 }
 

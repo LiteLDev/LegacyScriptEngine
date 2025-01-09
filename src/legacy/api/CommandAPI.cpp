@@ -375,9 +375,17 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
                     if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
                         auto& param = runtime[info.enumName];
                         args.set(info.name, convertResult(param, origin, output));
+                        if (!info.identifier.empty()
+                            && info.identifier != info.name) { // Keep compatibility with old plugins
+                            args.set(info.identifier, convertResult(param, origin, output));
+                        }
                     } else {
                         auto& param = runtime[info.name];
                         args.set(info.name, convertResult(param, origin, output));
+                        if (!info.identifier.empty()
+                            && info.identifier != info.name) { // Keep compatibility with old plugins
+                            args.set(info.identifier, convertResult(param, origin, output));
+                        }
                     }
                 }
             } catch (std::out_of_range&) {
@@ -411,7 +419,8 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, optional, enumName, option}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
+            {name, type, optional, enumName, option, identifier}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -437,7 +446,8 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, false, enumName, option}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
+            {name, type, false, enumName, option, identifier}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -463,7 +473,8 @@ Local<Value> CommandClass::optional(const Arguments& args) {
             option = (CommandParameterOption)args[index++].asNumber().toInt32();
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
-        getEngineOwnData()->plugin->registeredCommands[commandName].push_back({name, type, true, enumName, option}
+        getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
+            {name, type, true, enumName, option, identifier}
         ); // Stores the parameter name for onExecute use
 
         return Boolean::newBoolean(true);
@@ -479,7 +490,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                             )](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
             auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
             for (auto& info : paramList) {
-                if (info.name == paramName || info.enumName == paramName) {
+                if (info.name == paramName || info.enumName == paramName || info.identifier == paramName) {
                     if (info.optional) {
                         if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
                             cmd.optional(info.enumName, info.type, info.enumName).option(info.option);

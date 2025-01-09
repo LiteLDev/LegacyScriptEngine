@@ -4,19 +4,23 @@ using namespace DB;
 
 #define CATCH_AND_THROW(LOG)                                                                                           \
     catch (const Exception& e) {                                                                                       \
-        lse::getSelfModInstance().getLogger().error(LOG);                                                              \
-        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
-        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                   \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
+        );                                                                                                             \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
         throw Exception(ll::string_utils::tou8str(e.what()));                                                          \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfModInstance().getLogger().error("Uncaught Exception Detected!");                                   \
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
-        lse::getSelfModInstance().getLogger().error("In API: " __FUNCTION__);                                          \
-        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                   \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Uncaught Exception Detected!");            \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In API: " __FUNCTION__);                   \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
+        );                                                                                                             \
         return Local<Value>();                                                                                         \
     }
 

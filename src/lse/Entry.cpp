@@ -12,6 +12,7 @@
 #include "ll/api/mod/ModManagerRegistry.h"
 #include "ll/api/mod/NativeMod.h"
 #include "ll/api/utils/ErrorUtils.h"
+#include "ll/api/mod/RegisterHelper.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -58,35 +59,29 @@ script::ScriptEngine* debugEngine;          // NOLINT(cppcoreguidelines-avoid-no
 
 namespace lse {
 
-namespace {
-
-Config config; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-
-std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-
-std::unique_ptr<std::reference_wrapper<ll::mod::NativeMod>>
-    selfPluginInstance; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-
 void loadConfig(const ll::mod::NativeMod& self, Config& config);
 void loadDebugEngine(const ll::mod::NativeMod& self);
 void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
 
-auto enable(ll::mod::NativeMod& /*self*/) -> bool {
-    auto& logger = getSelfModInstance().getLogger();
+LegacyScriptEngine& LegacyScriptEngine::getInstance() {
+    static LegacyScriptEngine instance;
+    return instance;
+}
+
+bool LegacyScriptEngine::enable() {
+    auto& logger = getSelf().getLogger();
     if (!MoreGlobal::onEnable()) {
         logger.error("Failed to enable MoreGlobal"_tr());
     }
-    try {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+    try {
         RegisterDebugCommand();
-#endif
-
-        return true;
-
     } catch (const std::exception& error) {
         logger.error("Failed to enable: {0}"_tr(error.what()));
         return false;
     }
+#endif
+    return true;
 }
 
 void initializeLegacyStuff() {
@@ -103,20 +98,19 @@ void initializeLegacyStuff() {
     MoreGlobal::onLoad();
 }
 
-auto load(ll::mod::NativeMod& self) -> bool {
-    auto& logger = self.getLogger();
+bool LegacyScriptEngine::load() {
+    auto& logger = getSelf().getLogger();
 #ifdef NDEBUG
     ll::error_utils::initExceptionTranslator();
 #endif
 
     try {
-        auto result = ll::i18n::getInstance().load(self.getLangDir());
+        auto result = ll::i18n::getInstance().load(getSelf().getLangDir());
 
-        config             = Config();
-        pluginManager      = std::make_shared<PluginManager>();
-        selfPluginInstance = std::make_unique<std::reference_wrapper<ll::mod::NativeMod>>(self);
+        config        = Config();
+        pluginManager = std::make_shared<PluginManager>();
 
-        loadConfig(self, config);
+        loadConfig(getSelf(), config);
 
         if (config.migratePlugins) {
             migratePlugins(*pluginManager);
@@ -127,7 +121,7 @@ auto load(ll::mod::NativeMod& self) -> bool {
         // Legacy stuff should be initialized before any possible call to legacy code.
         initializeLegacyStuff();
 
-        loadDebugEngine(self);
+        loadDebugEngine(getSelf());
 
         return true;
 
@@ -135,6 +129,23 @@ auto load(ll::mod::NativeMod& self) -> bool {
         logger.error("Failed to load: {0}"_tr(error.what()));
         return false;
     }
+}
+
+bool LegacyScriptEngine::disable() {
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+    NodeJsHelper::shutdownNodeJs();
+#endif
+    return true;
+}
+
+Config const& LegacyScriptEngine::getConfig() { return config; }
+
+PluginManager& LegacyScriptEngine::getManager() {
+    if (!pluginManager) {
+        throw std::runtime_error("pluginManager is null");
+    }
+
+    return *pluginManager;
 }
 
 void loadConfig(const ll::mod::NativeMod& self, Config& cfg) {
@@ -176,32 +187,6 @@ void registerPluginManager(const std::shared_ptr<PluginManager>& pm) {
     }
 }
 
-} // namespace
-
-Config const& getConfig() { return config; }
-
-PluginManager& getPluginManager() {
-    if (!pluginManager) {
-        throw std::runtime_error("pluginManager is null");
-    }
-
-    return *pluginManager;
-}
-
-ll::mod::NativeMod& getSelfModInstance() {
-    if (!selfPluginInstance) {
-        throw std::runtime_error("selfPluginInstance is null");
-    }
-
-    return *selfPluginInstance;
-}
-
 } // namespace lse
 
-extern "C" {
-_declspec(dllexport) bool ll_mod_load(ll::mod::NativeMod& self) { return lse::load(self); }
-
-_declspec(dllexport) bool ll_mod_enable(ll::mod::NativeMod& self) { return lse::enable(self); }
-
-// LegacyScriptEngine  should not be disabled or unloaded currently.
-}
+LL_REGISTER_MOD(lse::LegacyScriptEngine, lse::LegacyScriptEngine::getInstance());

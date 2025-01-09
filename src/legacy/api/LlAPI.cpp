@@ -125,7 +125,7 @@ Local<Value> LlClass::getVersionStatus() { return Number::newNumber(0); }
 Local<Value> LlClass::registerPlugin(const Arguments&) { return Boolean::newBoolean(true); }
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
-        auto plugin = lse::getPluginManager().getMod(args[0].asString().toString());
+        auto plugin = lse::LegacyScriptEngine::getInstance().getManager().getMod(args[0].asString().toString());
         if (plugin) {
             auto result = Object::newObject();
 

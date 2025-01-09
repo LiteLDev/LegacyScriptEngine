@@ -95,8 +95,12 @@ bool LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const L
         }
         return true;
     } catch (...) {
-        lse::getSelfModInstance().getLogger().error(fmt::format("Event /{} / No Found!\n", eventName));
-        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineData(engine)->pluginName);
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            fmt::format("Event /{} / No Found!\n", eventName)
+        );
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            "In Plugin: " + getEngineData(engine)->pluginName
+        );
         return false;
     }
 }
@@ -715,7 +719,8 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobSpawn:
-        lse::getSelfModInstance().getLogger().warn("Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().warn(
+            "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
@@ -936,8 +941,10 @@ void InitBasicEventListeners() {
                     }
                 }
             } catch (...) {
-                lse::getSelfModInstance().getLogger().error("Error occurred in Engine Message Loop!");
-                ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                    "Error occurred in Engine Message Loop!"
+                );
+                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             }
 #endif
 

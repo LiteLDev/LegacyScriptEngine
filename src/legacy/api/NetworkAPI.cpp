@@ -23,13 +23,13 @@ using namespace ll::coro;
 #define CATCH_CALLBACK(LOG)                                                                                            \
     catch (const Exception& e) {                                                                                       \
         EngineScope enter(engine);                                                                                     \
-        lse::getSelfModInstance().getLogger().error(LOG);                                                              \
-        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfModInstance().getLogger().error(LOG);                                                              \
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
         EngineScope enter(engine);                                                                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return;                                                                                                        \
@@ -38,13 +38,13 @@ using namespace ll::coro;
 #define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
     catch (const Exception& e) {                                                                                       \
         EngineScope enter(engine);                                                                                     \
-        lse::getSelfModInstance().getLogger().error(LOG);                                                              \
-        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
         co_return;                                                                                                     \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfModInstance().getLogger().error(LOG);                                                              \
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
         EngineScope enter(engine);                                                                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         co_return;                                                                                                     \
@@ -366,9 +366,10 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 if (callback.isEmpty()) return;
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
-                lse::getSelfModInstance().getLogger().error("WSClientClass::connectAsync Failed!");
-                ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
-                lse::getSelfModInstance().getLogger().error("In Plugin: " + pluginName);
+                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("WSClientClass::connectAsync Failed!"
+                );
+                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In Plugin: " + pluginName);
             }
         }).detach();
         return Boolean::newBoolean(true);
@@ -768,7 +769,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
                 svr->stop();
                 svr->listen(addr, port);
             } catch (...) {
-                ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             }
         }).detach();
         return this->getScriptObject(); // return self

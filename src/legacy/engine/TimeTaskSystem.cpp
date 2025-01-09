@@ -34,14 +34,18 @@ std::unordered_map<int, TimeTaskData> timeTaskMap;
 #define TIMETASK_CATCH(TASK_TYPE)                                                                                      \
     catch (const Exception& e) {                                                                                       \
         EngineScope scope(data.engine);                                                                                \
-        lse::getSelfModInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                                \
-        ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());                                     \
-        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);           \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in {}", TASK_TYPE);         \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            "In Plugin: " + getEngineData(data.engine)->pluginName                                                     \
+        );                                                                                                             \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::getSelfModInstance().getLogger().error("Error occurred in {}", TASK_TYPE);                                \
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());                                 \
-        lse::getSelfModInstance().getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);           \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in {}", TASK_TYPE);         \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            "In Plugin: " + getEngineData(data.engine)->pluginName                                                     \
+        );                                                                                                             \
     }
 
 int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
@@ -191,8 +195,8 @@ bool ClearTimeTask(int const& id) {
             timeTaskMap.erase(id);
         }
     } catch (...) {
-        lse::getSelfModInstance().getLogger().error("Fail in ClearTimeTask");
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail in ClearTimeTask");
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
     }
     return true;
 }
@@ -209,7 +213,7 @@ void LLSERemoveTimeTaskData(ScriptEngine* engine) {
             }
         }
     } catch (...) {
-        lse::getSelfModInstance().getLogger().info("Fail in LLSERemoveTimeTaskData");
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Fail in LLSERemoveTimeTaskData");
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
     }
 }

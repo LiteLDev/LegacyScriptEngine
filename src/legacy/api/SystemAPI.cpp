@@ -82,8 +82,8 @@ bool NewProcess(
         try {
             if (callback) callback(static_cast<int>(exitCode), std::move(strOutput));
         } catch (...) {
-            lse::getSelfModInstance().getLogger().error("NewProcess Callback Failed!");
-            ll::utils::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("NewProcess Callback Failed!");
+            ll::utils::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
         }
     }).detach();
 

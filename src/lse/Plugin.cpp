@@ -12,6 +12,6 @@ Plugin::Plugin(const ll::mod::Manifest& manifest) : ll::mod::Mod(std::move(manif
 Plugin::~Plugin() { release(); }
 
 std::shared_ptr<ll::mod::Mod> Plugin::current() {
-    return lse::getPluginManager().getMod(getEngineOwnData()->pluginName);
+    return lse::LegacyScriptEngine::getInstance().getManager().getMod(getEngineOwnData()->pluginName);
 }
 } // namespace lse

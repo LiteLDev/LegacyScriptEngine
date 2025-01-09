@@ -19,8 +19,8 @@ void inline StringTrim(string& str) {
 }
 
 void RemoteSyncCallRequest(ModuleMessage& msg) {
-    // lse::getSelfModInstance().getLogger().debug("*** Remote call request received.");
-    // lse::getSelfModInstance().getLogger().debug("*** Current Module:{}", LLSE_BACKEND_TYPE);
+    // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Remote call request received.");
+    // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Current Module:{}", LLSE_BACKEND_TYPE);
 
     std::istringstream sin(msg.getData());
 
@@ -42,51 +42,57 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
             argsVector.push_back(JsonToValue(arg));
         }
 
-        // lse::getSelfModInstance().getLogger().debug("*** Before remote call execute");
+        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Before remote call execute");
         Local<Value> result = funcData->func.get().call({}, argsVector);
-        // lse::getSelfModInstance().getLogger().debug("*** After remote call execute");
+        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** After remote call execute");
 
         // Feedback
-        // lse::getSelfModInstance().getLogger().debug("*** Before remote call result return");
+        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Before remote call result return");
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, ValueToJson(result))) {
-            lse::getSelfModInstance().getLogger().error("Fail to post remote call result return!");
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            );
         }
-        // lse::getSelfModInstance().getLogger().debug("*** After remote call result return");
+        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** After remote call result return");
     } catch (const Exception& e) {
-        lse::getSelfModInstance().getLogger().error("Error occurred in remote engine!\n");
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in remote engine!\n");
         if (engine) {
             EngineScope enter(engine);
-            ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
-            lse::getSelfModInstance().getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
+            ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                "[Error] In Plugin: " + getEngineOwnData()->pluginName
+            );
         }
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::getSelfModInstance().getLogger().error("Fail to post remote call result return!");
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            );
         }
     } catch (const std::out_of_range&) {
-        lse::getSelfModInstance().getLogger().error(
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
             string("Fail to import! Function [") + funcName + "] has not been exported!"
         );
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::getSelfModInstance().getLogger().error("Fail to post remote call result return!");
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            );
         }
     } catch (...) {
-        lse::getSelfModInstance().getLogger().error("Error occurred in remote engine!");
-        ll::error_utils::printCurrentException(lse::getSelfModInstance().getLogger());
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in remote engine!");
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::getSelfModInstance().getLogger().error("Fail to post remote call result return!");
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            );
         }
     }
 }
 
 void RemoteSyncCallReturn(ModuleMessage& msg) {
-    // lse::getSelfModInstance().getLogger().debug("*** Remote call result message received.");
-    // lse::getSelfModInstance().getLogger().debug("*** Result: {}", msg.getData());
+    // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Remote call result message received.");
+    // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Result: {}", msg.getData());
     remoteResultMap[msg.getId()] = msg.getData();
     OperationCount(std::to_string(msg.getId())).done();
 }
@@ -98,7 +104,7 @@ Local<Value> MakeRemoteCall(const string& funcName, const Arguments& args)
     auto data = globalShareData->exportedFuncs.find(funcName);
     if (data == globalShareData->exportedFuncs.end())
     {
-        lse::getSelfModInstance().getLogger().error("Fail to import! Function [{}] has not been exported!", funcName);
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to import! Function [{}] has not been exported!", funcName);
         return Local<Value>();
     }
 
@@ -122,7 +128,7 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
         auto data = globalShareData->exportedFuncs.find(exportName);
         if (data == globalShareData->exportedFuncs.end())
         {
-            lse::getSelfModInstance().getLogger().error("Exported function \"{}\" not found", exportName);
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Exported function \"{}\" not found", exportName);
             return "";
         }
         auto engine = data->second.engine;
@@ -186,7 +192,7 @@ Local<Value> LlClass::importFunc(const Arguments &args)
 #ifdef DEBUG
             auto startTime = clock();
             auto res = MakeRemoteCall(funcName, args);
-            lse::getSelfModInstance().getLogger().info("MakeRemoteCall time: {}s", (clock() - startTime) / 1000.0);
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("MakeRemoteCall time: {}s", (clock() - startTime) / 1000.0);
             return res;
 #endif // DEBUG
             return MakeRemoteCall(funcName, args);

@@ -100,7 +100,7 @@ Local<Value> McClass::regConsoleCmd(const Arguments& args) {
 
 // Helper
 bool SendCmdOutput(const std::string& output) {
-    lse::getSelfModInstance().getLogger().info(output);
+    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(output);
     return true;
 }
 // Helper

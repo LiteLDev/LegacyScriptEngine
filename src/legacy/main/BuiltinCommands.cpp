@@ -33,11 +33,11 @@ bool ProcessDebugEngine(const std::string& cmd) {
                 auto               result = debugEngine->eval(cmd);
                 std::ostringstream sout;
                 PrintValue(sout, result);
-                lse::getSelfModInstance().getLogger().info(sout.str());
+                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(sout.str());
                 std::cout << "> " << std::flush;
             }
         } catch (Exception& e) {
-            ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
+            ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             std::cout << "> " << std::flush;
         }
         return false;
@@ -62,16 +62,16 @@ void RegisterDebugCommand() {
                     PrintValue(sout, result);
                     output.success(sout.str());
                 } catch (Exception& e) {
-                    ll::error_utils::printException(e, lse::getSelfModInstance().getLogger());
+                    ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
                 }
             } else {
                 if (isInConsoleDebugMode) {
                     // EndDebug
-                    lse::getSelfModInstance().getLogger().info("Debug mode ended");
+                    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Debug mode ended");
                     isInConsoleDebugMode = false;
                 } else {
                     // StartDebug
-                    lse::getSelfModInstance().getLogger().info("Debug mode begins");
+                    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Debug mode begins");
                     isInConsoleDebugMode = true;
                     std::cout << "> " << std::flush;
                 }

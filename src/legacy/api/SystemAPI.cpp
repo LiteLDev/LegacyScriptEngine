@@ -9,12 +9,8 @@
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ThreadPoolExecutor.h"
 #include "ll/api/utils/ErrorUtils.h"
-#include "ll/api/utils/StringUtils.h"
 #include "main/SafeGuardRecord.h"
 #include "utils/Utils.h"
-
-#include <filesystem>
-#include <fstream>
 
 using namespace std::filesystem;
 
@@ -30,7 +26,7 @@ ClassDefine<void> SystemClassBuilder = defineClass("system")
 
 // From LiteLoaderBDSv2 llapi/utils/WinHelper.cpp
 bool NewProcess(
-    const std::string&                    process,
+    std::string const&                    process,
     std::function<void(int, std::string)> callback  = nullptr,
     int                                   timeLimit = -1
 ) {
@@ -69,9 +65,9 @@ bool NewProcess(
             TerminateProcess(hProcess, 0);
         }
 
-        char   buffer[8192];
-        string strOutput;
-        DWORD  bytesRead, exitCode;
+        char        buffer[8192];
+        std::string strOutput;
+        DWORD       bytesRead, exitCode;
 
         delete[] wCmd;
         GetExitCodeProcess(hProcess, &exitCode);
@@ -95,6 +91,7 @@ bool NewProcess(
 }
 
 Local<Value> SystemClass::cmd(const Arguments& args) {
+    using namespace ll::chrono_literals;
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -105,28 +102,28 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
         RecordOperation(getEngineOwnData()->pluginName, "ExecuteSystemCommand", cmd);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
-        int                      timeout = (args.size() >= 3) ? args[2].asNumber().toInt32() : -1;
 
-        ll::coro::keepThis(
-            [cmd = std::move(cmd), callback = std::move(callbackFunc), timeout, engine = EngineScope::currentEngine()](
-            ) -> ll::coro::CoroTask<> {
-                try {
-                    // Simulate command execution (replace with actual implementation)
-                    int         exitCode = 0;                  // Replace with the real exit code
-                    std::string output   = "Command executed"; // Replace with the real command output
+        return Boolean::newBoolean(NewProcess(
+            "cmd /c" + cmd,
+            [callback{std::move(callbackFunc)},
+             engine{EngineScope::currentEngine()}](int exitCode, std::string output) {
+                ll::coro::keepThis(
+                    [engine, callback = std::move(callback), exitCode, output = std::move(output)](
+                    ) -> ll::coro::CoroTask<> {
+                        co_await 1_tick;
+                        if ((ll::getGamingStatus() != ll::GamingStatus::Running)) co_return;
+                        if (!EngineManager::isValid(engine)) co_return;
 
-                    // Simulate delay if timeout is provided
-                    if (timeout > 0) co_await std::chrono::milliseconds(timeout);
-
-                    if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine))
-                        co_return;
-
-                    EngineScope scope(engine);
-                    callback.get().call({}, {Number::newNumber(exitCode), String::newString(output)});
-                }
-                CATCH_IN_CALLBACK("SystemCmd");
-            }
-        ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+                        EngineScope scope(engine);
+                        try {
+                            NewTimeout(callback.get(), {Number::newNumber(exitCode), String::newString(output)}, 1);
+                        }
+                        CATCH_IN_CALLBACK("SystemCmd")
+                    }
+                ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            },
+            args.size() >= 3 ? args[2].asNumber().toInt32() : -1
+        ));
 
         return Boolean::newBoolean(true);
     }
@@ -134,6 +131,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
 }
 
 Local<Value> SystemClass::newProcess(const Arguments& args) {
+    using namespace ll::chrono_literals;
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -144,32 +142,28 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
         RecordOperation(getEngineOwnData()->pluginName, "CreateNewProcess", process);
 
         script::Global<Function> callbackFunc{args[1].asFunction()};
-        int                      timeout = (args.size() >= 3) ? args[2].asNumber().toInt32() : -1;
 
-        ll::coro::keepThis(
-            [process  = std::move(process),
-             callback = std::move(callbackFunc),
-             timeout,
-             engine = EngineScope::currentEngine()]() -> ll::coro::CoroTask<> {
-                try {
-                    // Simulate process execution (replace with actual implementation)
-                    int         exitCode = 0;                  // Replace with the real exit code
-                    std::string output   = "Process executed"; // Replace with the real process output
+        return Boolean::newBoolean(NewProcess(
+            process,
+            [callback{std::move(callbackFunc)},
+             engine{EngineScope::currentEngine()}](int exitCode, std::string output) {
+                ll::coro::keepThis(
+                    [engine, callback = std::move(callback), exitCode, output = std::move(output)](
+                    ) -> ll::coro::CoroTask<> {
+                        co_await 1_tick;
+                        if ((ll::getGamingStatus() != ll::GamingStatus::Running)) co_return;
+                        if (!EngineManager::isValid(engine)) co_return;
 
-                    // Simulate delay if timeout is provided
-                    if (timeout > 0) co_await std::chrono::milliseconds(timeout);
-
-                    if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine))
-                        co_return;
-
-                    EngineScope scope(engine);
-                    callback.get().call({}, {Number::newNumber(exitCode), String::newString(output)});
-                }
-                CATCH_IN_CALLBACK("newProcess");
-            }
-        ).launch(ll::thread::ThreadPoolExecutor::getDefault());
-
-        return Boolean::newBoolean(true);
+                        EngineScope scope(engine);
+                        try {
+                            NewTimeout(callback.get(), {Number::newNumber(exitCode), String::newString(output)}, 1);
+                        }
+                        CATCH_IN_CALLBACK("newProcess")
+                    }
+                ).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            },
+            args.size() >= 3 ? args[2].asNumber().toInt32() : -1
+        ));
     }
     CATCH("Fail in newProcess");
 }

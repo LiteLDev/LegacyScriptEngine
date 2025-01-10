@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0-rc.2] - 2025-01-10
+
+### Fixed
+
+- Fix command compatibility
+- Fix System::cmd and System::newProcess [#203]
+- Fix npm & pip command
+
 ## [0.9.0-rc.1] - 2025-01-09
 
 ### Changed
@@ -662,7 +670,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#186]: https://github.com/LiteLDev/LegacyScriptEngine/issues/186
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.1...HEAD
+[#203]: https://github.com/LiteLDev/LegacyScriptEngine/issues/203
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.2...HEAD
+
+[0.9.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.1...v0.9.0-rc.2
 
 [0.9.0-rc.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.8.20...v0.9.0-rc.1
 

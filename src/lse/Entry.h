@@ -7,9 +7,6 @@
 namespace lse {
 
 class LegacyScriptEngine {
-    Config                         config;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-    std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-
 public:
     static LegacyScriptEngine& getInstance();
 
@@ -30,7 +27,9 @@ public:
     // bool unload();
 
 private:
-    ll::mod::NativeMod& mSelf;
+    ll::mod::NativeMod&            mSelf;
+    Config                         config;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+    std::shared_ptr<PluginManager> pluginManager; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 };
 
 } // namespace lse

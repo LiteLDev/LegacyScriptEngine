@@ -160,7 +160,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         BindAPIs(&scriptEngine);
 
-        auto& self = LegacyScriptEngine::getInstance();
+        auto& self = LegacyScriptEngine::getInstance().getSelf();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         // Load BaseLib.
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;

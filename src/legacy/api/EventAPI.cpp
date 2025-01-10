@@ -808,12 +808,12 @@ void InitBasicEventListeners() {
                 return;
             }
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-            if (!NodeJsHelper::processConsoleNpmCmd(ev.commandContext().mCommand)) {
+            if (!NodeJsHelper::processConsoleNpmCmd(cmd)) {
                 ev.cancel();
                 return;
             }
 #elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
-            if (!PythonHelper::processConsolePipCmd(ev.commandContext().mCommand)) {
+            if (!PythonHelper::processConsolePipCmd(cmd)) {
                 ev.cancel();
                 return;
             }

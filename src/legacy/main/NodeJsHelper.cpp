@@ -3,8 +3,6 @@
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #include "main/NodeJsHelper.h"
 
-#include "api/CommandAPI.h"
-#include "api/CommandCompatibleAPI.h"
 #include "api/EventAPI.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
@@ -319,7 +317,9 @@ bool processConsoleNpmCmd(const std::string& cmd) {
     if (cmd.starts_with("npm ")) {
         executeNpmCommand(cmd);
         return false;
-    } else return true;
+    } else {
+        return true;
+    }
 #else
     return true;
 #endif

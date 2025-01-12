@@ -13,6 +13,7 @@
 #include "ll/api/mod/NativeMod.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/mod/RegisterHelper.h"
+#include "ll/api/service/PlayerInfo.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -73,6 +74,7 @@ bool LegacyScriptEngine::enable() {
     if (!MoreGlobal::onEnable()) {
         logger.error("Failed to enable MoreGlobal"_tr());
     }
+    ll::service::PlayerInfo::getInstance();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
     try {
         RegisterDebugCommand();

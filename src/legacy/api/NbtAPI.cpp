@@ -933,37 +933,37 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
         > 0) { // ListTag::add deletes the Tag which is provided as argument, so make a copy of Tag before using it.
         Local<Value> t = arr.get(0);
         if (IsInstanceOf<NbtByteClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtByteClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtByteClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtShortClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtShortClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtShortClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtIntClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtIntClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtIntClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtLongClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtLongClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtLongClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtFloatClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtFloatClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtFloatClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtDoubleClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtDoubleClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtDoubleClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtStringClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtStringClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtStringClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtByteArrayClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtByteArrayClass::extract(arr.get(i))->copy());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtByteArrayClass::extract(arr.get(i))->copy());
         else if (IsInstanceOf<NbtListClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtListClass::extract(arr.get(i))->copyList());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtListClass::extract(arr.get(i))->copyList());
         else if (IsInstanceOf<NbtCompoundClass>(t))
-            for (size_t i = 0; i < arr.size(); ++i) tag->add(*NbtCompoundClass::extract(arr.get(i))->clone());
+            for (size_t i = 0; i < arr.size(); ++i) tag->add(NbtCompoundClass::extract(arr.get(i))->clone());
         else if (t.isArray()) {
             for (size_t i = 0; i < arr.size(); ++i) {
-                auto arrTag = ListTag();
+                auto arrTag = std::make_unique<ListTag>();
                 auto data   = arr.get(i).asArray();
-                NbtListClassAddHelper(&arrTag, data);
+                NbtListClassAddHelper(arrTag.get(), data);
                 tag->add(std::move(arrTag));
             }
         } else if (t.isObject()) {
             for (size_t i = 0; i < arr.size(); ++i) {
-                auto objTag = CompoundTag();
+                auto objTag = std::make_unique<CompoundTag>();
                 auto data   = arr.get(i).asObject();
-                NbtCompoundClassAddHelper(&objTag, data);
+                NbtCompoundClassAddHelper(objTag.get(), data);
                 tag->add(std::move(objTag));
             }
         } else {
@@ -1277,25 +1277,25 @@ Local<Value> NbtListClass::addTag(const Arguments& args) {
 
     try { // ListTag::add deletes the Tag which is provided as argument, so make a copy of Tag before using it.
         if (IsInstanceOf<NbtByteClass>(args[0])) {
-            nbt->add(*NbtByteClass::extract(args[0])->copy());
+            nbt->add(NbtByteClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtShortClass>(args[0])) {
-            nbt->add(*NbtShortClass::extract(args[0])->copy());
+            nbt->add(NbtShortClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtIntClass>(args[0])) {
-            nbt->add(*NbtIntClass::extract(args[0])->copy());
+            nbt->add(NbtIntClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtLongClass>(args[0])) {
-            nbt->add(*NbtLongClass::extract(args[0])->copy());
+            nbt->add(NbtLongClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtFloatClass>(args[0])) {
-            nbt->add(*NbtFloatClass::extract(args[0])->copy());
+            nbt->add(NbtFloatClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtDoubleClass>(args[0])) {
-            nbt->add(*NbtDoubleClass::extract(args[0])->copy());
+            nbt->add(NbtDoubleClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtStringClass>(args[0])) {
-            nbt->add(*NbtStringClass::extract(args[0])->copy());
+            nbt->add(NbtStringClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtByteArrayClass>(args[0])) {
-            nbt->add(*NbtByteArrayClass::extract(args[0])->copy());
+            nbt->add(NbtByteArrayClass::extract(args[0])->copy());
         } else if (IsInstanceOf<NbtListClass>(args[0])) {
-            nbt->add(*NbtListClass::extract(args[0])->copyList());
+            nbt->add(NbtListClass::extract(args[0])->copyList());
         } else if (IsInstanceOf<NbtCompoundClass>(args[0])) {
-            nbt->add(*NbtCompoundClass::extract(args[0])->clone());
+            nbt->add(NbtCompoundClass::extract(args[0])->clone());
         } else {
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot add Tag into List");
             return Local<Value>();

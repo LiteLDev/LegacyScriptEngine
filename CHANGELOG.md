@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0-rc.3] - 2025-01-12
+
+### Changed
+
+- Support LeviLamina 1.0.0-rc.3
+
 ## [0.9.0-rc.2] - 2025-01-10
 
 ### Fixed
@@ -672,7 +678,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#203]: https://github.com/LiteLDev/LegacyScriptEngine/issues/203
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.2...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.3...HEAD
+
+[0.9.0-rc.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.2...v0.9.0-rc.3
 
 [0.9.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.1...v0.9.0-rc.2
 

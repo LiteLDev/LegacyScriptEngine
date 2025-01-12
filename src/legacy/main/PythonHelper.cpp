@@ -43,6 +43,9 @@ bool initPythonRuntime() {
         const char*               pathEnv = std::getenv("PATH");
         auto                      paths   = ll::string_utils::splitByPattern(pathEnv, ";");
         std::vector<std::wstring> modulePaths;
+        modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "lib");
+        modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "DLLs");
+        modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "site-packages");
         for (const auto& p : paths) {
             if (p.find("Python") != std::string::npos) {
                 std::wstring wstr = ll::string_utils::str2wstr(p);

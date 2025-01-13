@@ -169,11 +169,11 @@ void CallEventImpl(ListenerListType& listener, bool& returnValue, EVENT_TYPES ty
     }
 }
 
-#define FakeCallEvent(type, ...)                                                                                       \
+#define FakeCallEvent(engine, type, ...)                                                                               \
     std::list<ListenerListType>& nowList = listenerList[(int)type];                                                    \
     for (auto& listener : nowList) {                                                                                   \
         EngineScope enter(listener.engine);                                                                            \
-        FakeCallEventImpl(listener, type, __VA_ARGS__);                                                                \
+        FakeCallEventImpl(listener, engine, type, __VA_ARGS__);                                                        \
     }
 
 template <typename... T>
@@ -182,7 +182,7 @@ void FakeCallEventImpl(ListenerListType& listener, ScriptEngine* engine, EVENT_T
         try {
             listener.func.get().call({}, args...);
         } catch (const Exception& e) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("CallEvent Callback Failed!");
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("FakeCallEvent Callback Failed!");
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In Event: " + EventTypeToString(type));
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(

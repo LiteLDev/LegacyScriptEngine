@@ -267,15 +267,17 @@ LL_TYPE_INSTANCE_HOOK(
             return origin(slotNumber, oldItem, newItem);
 
         Player& player = mUnk84d147.as<Player&>();
-        if (!CallEvent(
-                EVENT_TYPES::onContainerChange,
-                PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player.getDimensionId()),
-                Number::newNumber(slotNumber + this->_getContainerOffset()),
-                ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-            )) {
-            return;
+        if (player.hasOpenContainer()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onContainerChange,
+                    PlayerClass::newPlayer(&player),
+                    BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player.getDimensionId()),
+                    Number::newNumber(slotNumber + this->_getContainerOffset()),
+                    ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                    ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onContainerChange);

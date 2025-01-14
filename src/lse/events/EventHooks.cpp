@@ -528,11 +528,13 @@ LL_TYPE_INSTANCE_HOOK(
     float           fallDistance
 ) {
     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
-        CallEvent(
-            EVENT_TYPES::onFarmLandDecay,
-            IntPos::newPos(pos, region.getDimensionId()),
-            EntityClass::newEntity(actor)
-        );
+        if (!CallEvent(
+                EVENT_TYPES::onFarmLandDecay,
+                IntPos::newPos(pos, region.getDimensionId()),
+                EntityClass::newEntity(actor)
+            )) {
+            return;
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onFarmLandDecay);
     origin(region, pos, actor, fallDistance);

@@ -3516,33 +3516,7 @@ Local<Value> PlayerClass::setAbility(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-        bool           value     = args[1].asBoolean().value();
-        AbilitiesIndex index     = AbilitiesIndex(args[0].asNumber().toInt32());
-        ActorUniqueID  uid       = player->getOrCreateUniqueID();
-        auto&          abilities = player->getAbilities();
-        bool           flying    = abilities.getAbility(AbilitiesIndex::Flying).getBool();
-        if (index == AbilitiesIndex::Flying && value && player->isOnGround()) {
-            abilities.setAbility(AbilitiesIndex::MayFly, value);
-        }
-        if (index == AbilitiesIndex::MayFly && value == false && flying) {
-            abilities.setAbility(AbilitiesIndex::Flying, false);
-        }
-        abilities.setAbility(index, value);
-        auto mayfly = abilities.getAbility(AbilitiesIndex::MayFly).getBool();
-        auto noclip = abilities.getAbility(AbilitiesIndex::NoClip).getBool();
-        player->setCanFly(mayfly || noclip);
-        if (index == AbilitiesIndex::NoClip) {
-            abilities.setAbility(AbilitiesIndex::Flying, value);
-        }
-        flying      = abilities.getAbility(AbilitiesIndex::Flying).getBool();
-        Ability& ab = abilities.getAbility(AbilitiesLayer(1), AbilitiesIndex::Flying);
-        ab.setBool(0);
-        if (flying) ab.setBool(1);
-        UpdateAbilitiesPacket         pkt(uid, abilities);
-        UpdateAdventureSettingsPacket pkt2 = UpdateAdventureSettingsPacket(AdventureSettings());
-        abilities.setAbility(AbilitiesIndex::Flying, flying);
-        player->sendNetworkPacket(pkt2);
-        player->sendNetworkPacket(pkt);
+        player->setAbility(AbilitiesIndex(args[0].asNumber().toInt32()), args[1].asBoolean().value());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setAbility!");

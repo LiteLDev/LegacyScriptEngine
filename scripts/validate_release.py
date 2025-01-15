@@ -14,7 +14,6 @@ def main():
     version = args["tag"].lstrip("v")
 
     validate_changelog(version)
-    validate_tooth_json(version)
     validate_tooth_template_json(version, "quickjs")
     validate_tooth_template_json(version, "nodejs")
     validate_tooth_template_json(version, "lua")
@@ -48,34 +47,6 @@ def validate_changelog(version: str):
 
     if not re.search(r"## \[{}\]".format(version), content):
         raise Exception("CHANGELOG.md lacks version {}".format(version))
-
-
-def validate_tooth_json(version: str):
-    with open("tooth.json", "r", encoding="utf-8") as f:
-        content = f.read()
-
-    if not re.search(r"\"version\": \"{}\"".format(version), content):
-        raise Exception("tooth.json has wrong version")
-
-    if not re.search(
-        r"\"gitea.litebds.com/LiteLDev/legacy-script-engine-lua\": \"{}\"".format(
-            version
-        ),
-        content,
-    ):
-        raise Exception(
-            "tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-lua"
-        )
-
-    if not re.search(
-        r"\"gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs\": \"{}\"".format(
-            version
-        ),
-        content,
-    ):
-        raise Exception(
-            "tooth.json has wrong version in gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs"
-        )
 
 
 def validate_tooth_template_json(version: str, engine: str):

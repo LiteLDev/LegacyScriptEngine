@@ -222,7 +222,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
 
 bool processConsolePipCmd(const std::string& cmd) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
-    if (ll::string_utils::splitByPattern(cmd, " ")[0] == "pip") {
+    if (cmd == "pip" || cmd.starts_with("pip ")) {
         PythonHelper::executePipCommand(cmd);
         return false;
     } else return true;

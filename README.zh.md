@@ -6,12 +6,6 @@
 
 ## 安装
 
-要一次性安装QuickJs和Lua引擎，您可以使用以下命令：
-
-```sh
-lip install github.com/LiteLDev/LegacyScriptEngine
-```
-
 ### 注意
 
 在安装Python引擎之前，你需要先安装[Python 3.12.8](https://www.python.org/downloads/release/python-3128/)

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0-rc.5] - 2025-01-15
+
+### Fixed
+
+- Add missing condition for onContainerChange
+- Fix onFarmLandDecay cancellation
+- Fix processConsolePipCmd [#208]
+- Fix NodeJs engine disabling
+
 ## [0.9.0-rc.4] - 2025-01-13
 
 ### Changed
@@ -693,7 +702,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#207]: https://github.com/LiteLDev/LegacyScriptEngine/issues/207
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.4...HEAD
+[#208]: https://github.com/LiteLDev/LegacyScriptEngine/issues/208
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.5...HEAD
+
+[0.9.0-rc.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.4...v0.9.0-rc.5
 
 [0.9.0-rc.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.3...v0.9.0-rc.4
 

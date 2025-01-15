@@ -133,12 +133,7 @@ bool LegacyScriptEngine::load() {
     }
 }
 
-bool LegacyScriptEngine::disable() {
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    NodeJsHelper::shutdownNodeJs();
-#endif
-    return true;
-}
+bool LegacyScriptEngine::disable() { return true; }
 
 Config const& LegacyScriptEngine::getConfig() { return config; }
 

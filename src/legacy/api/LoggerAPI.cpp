@@ -52,7 +52,7 @@ std::string& StrReplace(std::string& str, const std::string& to_replaced, const 
 void inline LogDataHelper(LogLevel level, const Arguments& args) {
     std::string res;
     for (int i = 0; i < args.size(); ++i) res += ValueToString(args[i]);
-    getEngineOwnData()->plugin->getLogger().log(level, res);
+    getEngineOwnData()->logger->log(level, res);
 }
 
 Local<Value> LoggerClass::log(const Arguments& args) {
@@ -126,6 +126,7 @@ Local<Value> LoggerClass::setTitle(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
+    getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(args[0].asString().toString());
     return Boolean::newBoolean(false);
 }
 
@@ -138,12 +139,12 @@ Local<Value> LoggerClass::setConsole(const Arguments& args) {
 
     try {
         if (args.size() >= 2) {
-            getEngineOwnData()->plugin->getLogger().getSink(0)->setFlushLevel(
+            getEngineOwnData()->logger->getSink(0)->setFlushLevel(
                 static_cast<LogLevel>(args[1].asNumber().toInt32() - 1)
             ); // See LSE's definition https://legacy-script-engine.levimc.org/apis/ScriptAPI/Logger/
         }
         if (!args[0].asBoolean().value()) {
-            getEngineOwnData()->plugin->getLogger().getSink(0)->setFlushLevel(LogLevel::Off);
+            getEngineOwnData()->logger->getSink(0)->setFlushLevel(LogLevel::Off);
         }
         return Boolean::newBoolean(true);
     }
@@ -165,7 +166,7 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        return Boolean::newBoolean(getEngineOwnData()->plugin->getLogger().addSink(sink));
+        return Boolean::newBoolean(getEngineOwnData()->logger->addSink(sink));
     }
     CATCH("Fail in LoggerSetFile!")
 }
@@ -181,7 +182,7 @@ Local<Value> LoggerClass::setPlayer(const Arguments& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        return Boolean::newBoolean(getEngineOwnData()->plugin->getLogger().addSink(sink));
+        return Boolean::newBoolean(getEngineOwnData()->logger->addSink(sink));
     }
     CATCH("Fail in LoggerSetPlayer!")
 }

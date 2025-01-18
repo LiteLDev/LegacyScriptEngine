@@ -74,7 +74,8 @@ struct EngineOwnData {
     ll::i18n::I18n i18n;
     std::string    defaultLocaleName;
 
-    std::shared_ptr<lse::Plugin> plugin;
+    std::shared_ptr<lse::Plugin>    plugin;
+    std::shared_ptr<ll::io::Logger> logger = ll::io::LoggerRegistry::getInstance().getOrCreate(pluginName);
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;

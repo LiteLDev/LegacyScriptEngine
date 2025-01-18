@@ -36,6 +36,11 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 
 更多信息请参见[文档](https://legacy-script-engine.levimc.org)
 
+## 一些对插件开发有帮助的项目
+
+- [HelperLib](https://github.com/LiteLDev/HelperLib)
+- [LiteLoaderSE-Aids](https://github.com/LiteLDev/LiteLoaderSE-Aids)
+
 ## 贡献
 
 如果您有任何问题，请开启一个 issue 来讨论  

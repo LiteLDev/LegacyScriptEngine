@@ -43,8 +43,10 @@ For more information, please refer to [the documentation](https://legacy-script-
 
 ## Some helpful project for plugin development
 
-- [HelperLib](https://github.com/LiteLDev/HelperLib)
 - [LiteLoaderSE-Aids](https://github.com/LiteLDev/LiteLoaderSE-Aids)
+- [LiteLoaderSE-Aids-Magic-Revision](https://github.com/luoqing510/LiteLoaderSE-Aids-Magic-Revision)
+- [HelperLib](https://github.com/LiteLDev/HelperLib)
+- [llpy-helper-lib](https://github.com/LiteLDev/llpy-helper-lib)
 
 ## Contributing
 

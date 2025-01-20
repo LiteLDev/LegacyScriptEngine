@@ -4,12 +4,6 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Installation
 
-To install QuickJs and Lua engine, you can use the following command:
-
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine
-```
-
 ### Attention
 
 Before installing the Python engine, you need to
@@ -38,8 +32,6 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 1. Put LLSE plugins directly in `plugins/`
 2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically
 3. To load them, you need to restart the server
-
-For more information, please refer to [the documentation](https://legacy-script-engine.levimc.org)
 
 ## Some helpful project for plugin development
 

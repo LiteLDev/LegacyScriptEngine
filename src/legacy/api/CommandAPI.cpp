@@ -260,7 +260,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
             if (registry) {
                 auto instance = registry->findCommand(name);
                 if (instance) {
-                    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+                    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().warn(
                         "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
                     );
                 }

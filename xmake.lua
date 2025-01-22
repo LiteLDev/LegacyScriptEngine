@@ -23,10 +23,9 @@ add_requires(
     "simpleini",
     "sqlite3 3.43.0+200",
     "toml++",
-    "mysql 8.0.39"
+    "mariadb-connector-c 3.3.9"
 )
-add_requires("openssl 1.1.1-w", {configs = {shared = false}})
-add_requires("cpp-httplib 0.14.3", {configs = {ssl = true}})
+add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
 
 if is_config("backend", "lua") then
     add_requires("scriptx main", {configs={backend="Lua"}})
@@ -81,7 +80,7 @@ target("legacy-script-engine")
         "simpleini",
         "sqlite3",
         "toml++",
-        "mysql"
+        "mariadb-connector-c"
     )
     set_exceptions("none")
     set_kind("shared")

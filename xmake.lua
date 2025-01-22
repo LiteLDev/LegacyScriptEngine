@@ -22,18 +22,21 @@ add_requires(
     "nlohmann_json",
     "simpleini",
     "sqlite3 3.43.0+200",
-    "toml++",
-    "mariadb-connector-c 3.3.9"
+    "toml++"
 )
+
 add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
 
 if is_config("backend", "lua") then
+    add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
+    add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
+    add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Python"}})
 
 elseif is_config("backend", "nodejs") then
@@ -86,6 +89,13 @@ target("legacy-script-engine")
     set_kind("shared")
     set_languages("cxx20")
     set_symbols("debug")
+    add_files(
+        "src/**.cpp"
+    )
+    add_includedirs(
+        "src",
+        "src/legacy"
+    )
 
     if is_config("backend", "lua") then
         add_defines(
@@ -136,6 +146,7 @@ target("legacy-script-engine")
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
         )
+        remove_files("src/legacy/legacyapi/db/impl/mysql/*.cpp")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang")
@@ -143,11 +154,3 @@ target("legacy-script-engine")
             os.cp(langPath, outputPath)
         end)
     end
-
-    add_files(
-        "src/**.cpp"
-    )
-    add_includedirs(
-        "src",
-        "src/legacy"
-    )

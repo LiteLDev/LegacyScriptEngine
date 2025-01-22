@@ -3,6 +3,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/utils/StringUtils.h"
+
 #if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #include "legacy/main/NodeJsHelper.h"
 #endif

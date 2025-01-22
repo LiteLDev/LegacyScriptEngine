@@ -1,7 +1,7 @@
 #include "api/EventAPI.h"
 
-#include "../engine/LocalShareData.h"
-#include "../main/BuiltinCommands.h"
+#include "legacy/engine/LocalShareData.h"
+#include "legacy/main/BuiltinCommands.h"
 #include "BaseAPI.h"
 #include "BlockAPI.h"
 #include "CommandCompatibleAPI.h"
@@ -12,8 +12,6 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "legacy/main/NodeJsHelper.h"
-#include "legacy/main/PythonHelper.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/event/EventBus.h"
@@ -54,6 +52,14 @@
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#include "legacy/main/NodeJsHelper.h"
+#endif
+
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#include "legacy/main/PythonHelper.h"
+#endif
 
 #include <list>
 #include <shared_mutex>

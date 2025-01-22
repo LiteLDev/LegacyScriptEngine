@@ -1,5 +1,4 @@
 #pragma once
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
 #include <ScriptX/ScriptX.h>
 #include <filesystem>
 #include <map>
@@ -22,5 +21,3 @@ bool processConsolePipCmd(const std::string& cmd);
 int  executePipCommand(std::string cmd);
 
 } // namespace PythonHelper
-
-#endif

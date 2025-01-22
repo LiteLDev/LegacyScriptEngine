@@ -1,6 +1,5 @@
 #pragma warning(disable : 4251)
 
-#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #include "main/NodeJsHelper.h"
 
 #include "api/EventAPI.h"
@@ -387,5 +386,3 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
 }
 
 } // namespace NodeJsHelper
-
-#endif

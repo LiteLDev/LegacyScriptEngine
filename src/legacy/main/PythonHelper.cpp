@@ -1,5 +1,4 @@
 #pragma warning(disable : 4251)
-#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
 #include "PythonHelper.h"
 
 #include "Global.h"
@@ -268,5 +267,3 @@ int executePipCommand(std::string cmd) {
 }
 
 } // namespace PythonHelper
-
-#endif

@@ -101,6 +101,8 @@ target("legacy-script-engine")
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_LUA"
         )
+        remove_files("src/legacy/main/NodeJsHelper.cpp")
+        remove_files("src/legacy/main/PythonHelper.cpp")
         set_basename("legacy-script-engine-lua")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
@@ -116,6 +118,8 @@ target("legacy-script-engine")
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
         )
+        remove_files("src/legacy/main/NodeJsHelper.cpp")
+        remove_files("src/legacy/main/PythonHelper.cpp")
         set_basename("legacy-script-engine-quickjs")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.js")
@@ -131,6 +135,7 @@ target("legacy-script-engine")
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
         )
+        remove_files("src/legacy/main/NodeJsHelper.cpp")
         set_basename("legacy-script-engine-python")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
@@ -146,6 +151,7 @@ target("legacy-script-engine")
         add_defines(
             "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
         )
+        remove_files("src/legacy/main/PythonHelper.cpp")
         remove_files("src/legacy/legacyapi/db/impl/mysql/*.cpp")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)

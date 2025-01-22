@@ -1,5 +1,4 @@
 #pragma once
-#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
 #pragma warning(disable : 4251)
 #include "legacy/main/Global.h"
 #include <ScriptX/ScriptX.h>
@@ -28,5 +27,3 @@ bool processConsoleNpmCmd(const std::string& cmd);
 int  executeNpmCommand(std::string cmd, std::string workingDir = LLSE_NPM_EXECUTE_PATH);
 
 } // namespace NodeJsHelper
-
-#endif

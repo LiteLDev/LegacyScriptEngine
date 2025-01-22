@@ -65,6 +65,7 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 #define CATCH(LOG)                                                                                                     \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger("Stacktrace: {0}", e.stacktrace());                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
@@ -99,6 +100,7 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 #define CATCH_C(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger("Stacktrace: {0}", e.stacktrace());                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }                                                                                                                  \
@@ -112,6 +114,7 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 #define CATCH_S(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger("Stacktrace: {0}", e.stacktrace());                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }                                                                                                                  \
@@ -125,6 +128,7 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 #define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger("Stacktrace: {0}", e.stacktrace());                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
@@ -136,6 +140,16 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
 #define CATCH_IN_CALLBACK(callback)                                                                                    \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger("Stacktrace: {0}", e.stacktrace());                 \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            std::string("In callback for ") + callback                                                                 \
+        );                                                                                                             \
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
+            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
+        );                                                                                                             \
+    }                                                                                                                  \
+    catch (...) {                                                                                                      \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(                                            \
             std::string("In callback for ") + callback                                                                 \
         );                                                                                                             \
@@ -143,7 +157,6 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
             "In Plugin: " + getEngineOwnData()->pluginName                                                             \
         );                                                                                                             \
     }
-
 #else
 
 // 新的宏定义, 把异常抛入脚本层处理

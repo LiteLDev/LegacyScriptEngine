@@ -1,7 +1,7 @@
 ﻿#include "api/NbtAPI.h"
 
 #include "api/APIHelp.h"
-#include "legacyapi/Base64.h"
+#include "ll/api/utils/Base64Utils.h"
 #include "mc/nbt/ByteArrayTag.h"
 #include "mc/nbt/ByteTag.h"
 #include "mc/nbt/CompoundTag.h"
@@ -16,7 +16,6 @@
 #include "mc/nbt/StringTag.h"
 
 #include <magic_enum.hpp>
-#include <mc/nbt/CompoundTag.h>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -193,7 +192,7 @@ void TagToJson_List_Helper(ordered_json& res, ListTag* nbt) {
             for (unsigned int i = 0; i < bytes.size(); ++i) {
                 tmpData[i] = bytes[i];
             }
-            res.push_back(Base64::Encode(tmpData));
+            res.push_back(ll::base64_utils::encode(tmpData));
             break;
         }
         case Tag::Type::List: {
@@ -248,7 +247,7 @@ void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt) {
             for (unsigned int i = 0; i < bytes.size(); ++i) {
                 tmpData[i] = bytes[i];
             }
-            res.push_back(Base64::Encode(tmpData));
+            res.push_back(ll::base64_utils::encode(tmpData));
             break;
         }
         case Tag::Type::List: {
@@ -304,7 +303,7 @@ std::string TagToJson(Tag* nbt, int formatIndent) {
         for (uchar data : bytes) {
             tmpData.push_back(data);
         }
-        result = Base64::Encode(tmpData);
+        result = ll::base64_utils::encode(tmpData);
         break;
     }
     case Tag::Type::List: {

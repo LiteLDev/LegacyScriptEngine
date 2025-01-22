@@ -612,7 +612,7 @@ Local<Value> CheckIsDir(const Arguments& args) {
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Type of " + args[0].asString().toString() + "!\n");
         return {};
     }
-    CATCH("Fail in GetFilesList!");
+    CATCH("Fail in CheckIsDir!");
 }
 
 Local<Value> GetFileSize(const Arguments& args) {
@@ -630,7 +630,7 @@ Local<Value> GetFileSize(const Arguments& args) {
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Size of " + args[0].asString().toString() + "!\n");
         return {};
     }
-    CATCH("Fail in GetFilesList!");
+    CATCH("Fail in GetFileSize!");
 }
 
 Local<Value> GetFilesList(const Arguments& args) {
@@ -638,7 +638,14 @@ Local<Value> GetFilesList(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto fileList = lse::legacy::GetFileNameList(args[0].asString().toString());
+        std::filesystem::directory_entry directory(args[0].asString().toU8string());
+        if (!directory.is_directory()) return {};
+
+        std::vector<std::string>            fileList;
+        std::filesystem::directory_iterator deps(directory);
+        for (auto& i : deps) {
+            fileList.push_back(ll::string_utils::u8str2str(i.path().filename().u8string()));
+        }
 
         Local<Array> arr = Array::newArray();
         for (auto& file : fileList) arr.add(String::newString(file));

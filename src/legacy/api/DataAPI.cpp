@@ -7,15 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "legacyapi/Base64.h"
-#include "legacyapi/utils/FileHelper.h"
+#include "ll/api/utils/Base64Utils.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/EconomicSystem.h"
 #include "mc/deps/crypto/hash/Hash.h"
-#include "mc/world/actor/player/Player.h"
 #include "utils/JsonHelper.h"
 
 //////////////////// Class Definition ////////////////////
@@ -924,7 +922,7 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Base64::Encode(data));
+        return String::newString(ll::base64_utils::encode(data));
     }
     CATCH("Fail in ToBase64!");
 }
@@ -939,7 +937,7 @@ Local<Value> DataClass::fromBase64(const Arguments& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
             isBinary = args[1].asBoolean().value();
         }
-        auto data = Base64::Decode(args[0].asString().toString());
+        auto data = ll::base64_utils::decode(args[0].asString().toString());
         if (isBinary) {
             return ByteBuffer::newByteBuffer((void*)data.c_str(), data.size());
         } else {

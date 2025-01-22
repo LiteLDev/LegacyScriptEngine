@@ -107,9 +107,9 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
     case DBType::SQLite:
         session = params.empty() ? new SQLiteSession() : new SQLiteSession(params);
         break;
-    // case DBType::MySQL:
-    //     session = params.empty() ? new MySQLSession() : new MySQLSession(params);
-    //     break;
+    case DBType::MySQL:
+        session = params.empty() ? new MySQLSession() : new MySQLSession(params);
+        break;
     default:
         throw std::runtime_error("Session::_Create: Unknown/Unsupported database type");
     }

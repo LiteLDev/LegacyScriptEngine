@@ -22,7 +22,8 @@ add_requires(
     "nlohmann_json",
     "simpleini",
     "sqlite3 3.43.0+200",
-    "toml++"
+    "toml++",
+    "mysql 8.0.39"
 )
 add_requires("openssl 1.1.1-w", {configs = {shared = false}})
 add_requires("cpp-httplib 0.14.3", {configs = {ssl = true}})
@@ -79,7 +80,8 @@ target("legacy-script-engine")
         "scriptx",
         "simpleini",
         "sqlite3",
-        "toml++"
+        "toml++",
+        "mysql"
     )
     set_exceptions("none")
     set_kind("shared")

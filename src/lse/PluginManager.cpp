@@ -2,7 +2,6 @@
 
 #include "Entry.h"
 #include "Plugin.h"
-#include "legacy/api/EventAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/service/GamingStatus.h"
@@ -10,6 +9,9 @@
 #include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManager.h"
 #include "ll/api/utils/StringUtils.h"
+#include "ll/api/chrono/GameChrono.h"
+#include "ll/api/coro/CoroTask.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -49,10 +51,12 @@ constexpr auto PluginManagerName = "lse-nodejs";
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void BindAPIs(script::ScriptEngine* engine);
 void LLSERemoveTimeTaskData(script::ScriptEngine* engine);
-auto LLSERemoveAllEventListeners(script::ScriptEngine* engine) -> bool;
-auto LLSERemoveCmdRegister(script::ScriptEngine* engine) -> bool;
-auto LLSERemoveCmdCallback(script::ScriptEngine* engine) -> bool;
-auto LLSERemoveAllExportedFuncs(script::ScriptEngine* engine) -> bool;
+bool LLSERemoveAllEventListeners(script::ScriptEngine* engine);
+bool LLSERemoveCmdRegister(script::ScriptEngine* engine);
+bool LLSERemoveCmdCallback(script::ScriptEngine* engine);
+bool LLSERemoveAllExportedFuncs(script::ScriptEngine* engine);
+bool LLSECallEventsOnHotLoad(ScriptEngine* engine);
+bool LLSECallEventsOnHotUnload(ScriptEngine* engine);
 
 namespace lse {
 
@@ -235,26 +239,32 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
 ll::Expected<> PluginManager::unload(std::string_view name) {
     try {
-
-        auto plugin = std::static_pointer_cast<Plugin>(getMod(name));
-
-        auto& scriptEngine = *EngineManager::getEngine(std::string(name));
+        auto plugin       = std::static_pointer_cast<Plugin>(getMod(name));
+        auto scriptEngine = EngineManager::getEngine(std::string(name));
 
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-        LLSERemoveTimeTaskData(&scriptEngine);
+        LLSERemoveTimeTaskData(scriptEngine);
 #endif
-        LLSERemoveAllEventListeners(&scriptEngine);
-        LLSERemoveCmdRegister(&scriptEngine);
-        LLSERemoveCmdCallback(&scriptEngine);
-        LLSERemoveAllExportedFuncs(&scriptEngine);
+        LLSECallEventsOnHotUnload(scriptEngine);
+        LLSERemoveAllEventListeners(scriptEngine);
+        LLSERemoveCmdRegister(scriptEngine);
+        LLSERemoveCmdCallback(scriptEngine);
+        LLSERemoveAllExportedFuncs(scriptEngine);
 
-        scriptEngine.getData().reset();
-        EngineManager::unregisterEngine(&scriptEngine);
+        scriptEngine->getData().reset();
+        EngineManager::unregisterEngine(scriptEngine);
+
+        ll::coro::keepThis([scriptEngine]() -> ll::coro::CoroTask<> {
+            using namespace ll::chrono_literals;
+            co_await 1_tick;
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-        NodeJsHelper::stopEngine(&scriptEngine);
+            NodeJsHelper::stopEngine(scriptEngine);
 #else
-        scriptEngine.destroy(); // TODO: use unique_ptr to manage the engine.
+            scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
 #endif
+            co_return;
+        }).launch(ll::thread::ServerThreadExecutor::getDefault());
+
         eraseMod(name);
 
         return {};

@@ -143,19 +143,19 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         std::error_code ec;
 
         // add plugin-own site-packages to sys.path
-        string pluginSitePackageFormatted = ll::string_utils::u8str2str(
+        std::string pluginSitePackageFormatted = ll::string_utils::u8str2str(
             std::filesystem::canonical(realPackageInstallDir.make_preferred(), ec).u8string()
         );
         if (!ec) {
             scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + pluginSitePackageFormatted + "')");
         }
         // add plugin source dir to sys.path
-        string sourceDirFormatted =
+        std::string sourceDirFormatted =
             ll::string_utils::u8str2str(std::filesystem::canonical(dirPath.make_preferred()).u8string());
         scriptEngine.eval("_llse_py_sys_module.path.insert(0, r'" + sourceDirFormatted + "')");
 
         // set __file__ and __name__
-        string entryPathFormatted = ll::string_utils::u8str2str(
+        std::string entryPathFormatted = ll::string_utils::u8str2str(
             std::filesystem::canonical(std::filesystem::path(entryPath).make_preferred()).u8string()
         );
         scriptEngine.set("__file__", entryPathFormatted);

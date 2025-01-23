@@ -27,9 +27,10 @@ enum class FormType {
 
 std::unordered_map<unsigned, FormType> formTypes;
 
-std::unordered_map<unsigned, std::function<void(Player*, int)>>         simpleFormPacketCallbacks;
-std::unordered_map<unsigned, std::function<void(Player*, bool)>>        modalFormPacketCallbacks;
-std::unordered_map<unsigned, std::function<void(Player*, std::string)>> customFormPacketCallbacks;
+std::unordered_map<unsigned, std::function<void(Player*, int, FormCancelReason reason)>>  simpleFormPacketCallbacks;
+std::unordered_map<unsigned, std::function<void(Player*, bool, FormCancelReason reason)>> modalFormPacketCallbacks;
+std::unordered_map<unsigned, std::function<void(Player*, std::string, FormCancelReason reason)>>
+    customFormPacketCallbacks;
 
 std::unordered_map<unsigned, std::shared_ptr<SimpleForm>> simpleFormBuilders;
 std::unordered_map<unsigned, std::shared_ptr<ModalForm>>  modalFormBuilders;
@@ -45,17 +46,20 @@ unsigned NewFormId() {
     return formId;
 }
 
-void SetSimpleFormPacketCallback(unsigned formId, std::function<void(Player*, int)> callback) {
+void SetSimpleFormPacketCallback(unsigned formId, std::function<void(Player*, int, FormCancelReason reason)> callback) {
     formTypes[formId]                 = FormType::SimpleFormPacket;
     simpleFormPacketCallbacks[formId] = callback;
 }
 
-void SetModalFormPacketCallback(unsigned formId, std::function<void(Player*, bool)> callback) {
+void SetModalFormPacketCallback(unsigned formId, std::function<void(Player*, bool, FormCancelReason reason)> callback) {
     formTypes[formId]                = FormType::ModalFormPacket;
     modalFormPacketCallbacks[formId] = callback;
 }
 
-void SetCustomFormPacketCallback(unsigned formId, std::function<void(Player*, std::string)> callback) {
+void SetCustomFormPacketCallback(
+    unsigned                                                           formId,
+    std::function<void(Player*, std::string, FormCancelReason reason)> callback
+) {
     formTypes[formId]                 = FormType::CustomFormPacket;
     customFormPacketCallbacks[formId] = callback;
 }
@@ -75,7 +79,7 @@ void SetCustomFormBuilderData(unsigned formId, std::shared_ptr<CustomForm> data)
     customFormBuilders[formId] = data;
 }
 
-void HandleFormPacket(Player* player, unsigned formId, const std::string& data) {
+void HandleFormPacket(Player* player, unsigned formId, const std::string& data, FormCancelReason reason) {
     if (formTypes.find(formId) == formTypes.end()) return;
 
     if (formTypes[formId] == FormType::SimpleFormBuilder) {
@@ -83,12 +87,12 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
 
         // Simple Form Builder
         auto form = simpleFormBuilders[formId];
-        if (form->callback) form->callback(player, chosen);
+        if (form->callback) form->callback(player, chosen, reason);
         // Button Callback
         if (chosen >= 0) {
             if (chosen >= form->elements.size()) return;
             auto button = dynamic_pointer_cast<Button>(form->elements[chosen]);
-            if (button->callback) button->callback(player);
+            if (button->callback) button->callback(player, reason);
         }
         simpleFormBuilders.erase(formId);
     } else if (formTypes[formId] == FormType::ModalFormBuilder) {
@@ -96,7 +100,7 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
 
         // Modal Form Builder
         auto form = modalFormBuilders[formId];
-        if (form->callback) form->callback(player, chosen);
+        if (form->callback) form->callback(player, chosen, reason);
         modalFormBuilders.erase(formId);
     } else if (formTypes[formId] == FormType::CustomFormBuilder) {
         // Custom Form Builder
@@ -104,7 +108,7 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
 
         if (data == "null") {
             customFormBuilders.erase(formId);
-            if (form->callback) form->callback(player, {});
+            if (form->callback) form->callback(player, {}, reason);
             return;
         }
 
@@ -143,20 +147,20 @@ void HandleFormPacket(Player* player, unsigned formId, const std::string& data) 
             std::map<std::string, std::shared_ptr<CustomFormElement>> callbackData;
             for (auto& [k, v] : form->elements) callbackData[k] = v;
 
-            form->callback(player, callbackData);
+            form->callback(player, callbackData, reason);
         }
 
         customFormBuilders.erase(formId);
     } else if (formTypes[formId] == FormType::SimpleFormPacket) {
         int chosen = data != "null" ? stoi(data) : -1;
-        simpleFormPacketCallbacks[formId](player, chosen);
+        simpleFormPacketCallbacks[formId](player, chosen, reason);
         simpleFormPacketCallbacks.erase(formId);
     } else if (formTypes[formId] == FormType::CustomFormPacket) {
-        customFormPacketCallbacks[formId](player, data);
+        customFormPacketCallbacks[formId](player, data, reason);
         customFormPacketCallbacks.erase(formId);
     } else if (formTypes[formId] == FormType::ModalFormPacket) {
         int chosen = data == "true" ? 1 : 0;
-        modalFormPacketCallbacks[formId](player, chosen);
+        modalFormPacketCallbacks[formId](player, chosen, reason);
         modalFormPacketCallbacks.erase(formId);
     }
     formTypes.erase(formId);
@@ -188,7 +192,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
             }
         }
 
-        HandleFormPacket(player, modalPacket.mFormId, data);
+        HandleFormPacket(player, modalPacket.mFormId, data, modalPacket.mFormCancelReason);
     }
     origin(source, callback, packet);
 }

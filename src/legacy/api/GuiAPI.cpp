@@ -11,6 +11,8 @@
 
 #include <iostream>
 
+using lse::form::FormCancelReason;
+
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<SimpleFormClass> SimpleFormClassBuilder = defineClass<SimpleFormClass>("LLSE_SimpleForm")
@@ -53,7 +55,8 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
 
     form->sendTo(
         player,
-        [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* pl, int chosen) {
+        [engine{EngineScope::currentEngine()},
+         callback{std::move(callbackFunc)}](Player* pl, int chosen, FormCancelReason reason) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
@@ -61,7 +64,13 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
             EngineScope scope(engine);
             try {
                 if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl), Local<Value>());
-                else callback.get().call({}, PlayerClass::newPlayer(pl), Number::newNumber(chosen));
+                else
+                    callback.get().call(
+                        {},
+                        PlayerClass::newPlayer(pl),
+                        Number::newNumber(chosen),
+                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                    );
             }
             CATCH_IN_CALLBACK("sendForm")
         }
@@ -126,14 +135,20 @@ void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, scri
 
     form->sendToForRawJson(
         player,
-        [engine{EngineScope::currentEngine()}, callback{std::move(callbackFunc)}](Player* player, std::string data) {
+        [engine{EngineScope::currentEngine()},
+         callback{std::move(callbackFunc)}](Player* player, std::string data, FormCancelReason reason) {
             if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
             EngineScope scope(engine);
             try {
-                callback.get().call({}, PlayerClass::newPlayer(player), JsonToValue(data));
+                callback.get().call(
+                    {},
+                    PlayerClass::newPlayer(player),
+                    JsonToValue(data),
+                    reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                );
             }
             CATCH_IN_CALLBACK("sendForm")
         }

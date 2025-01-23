@@ -101,6 +101,8 @@
 #include <string>
 #include <vector>
 
+using lse::form::FormCancelReason;
+
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<PlayerClass> PlayerClassBuilder =
@@ -2371,14 +2373,18 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
         form.sendTo(
             player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player* pl, int chosen) {
+             callback{script::Global(args[4].asFunction())}](Player* pl, int chosen, FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
                 try {
-                    callback.get()
-                        .call({}, PlayerClass::newPlayer(pl), chosen >= 0 ? Number::newNumber(chosen) : Local<Value>());
+                    callback.get().call(
+                        {},
+                        PlayerClass::newPlayer(pl),
+                        chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
+                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                    );
                 }
                 CATCH_IN_CALLBACK("sendSimpleForm")
             }
@@ -2410,14 +2416,18 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
         form.sendTo(
             player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen) {
+             callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen, FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
                 EngineScope scope(engine);
                 try {
-                    callback.get()
-                        .call({}, PlayerClass::newPlayer(pl), chosen ? Boolean::newBoolean(chosen) : Local<Value>());
+                    callback.get().call(
+                        {},
+                        PlayerClass::newPlayer(pl),
+                        chosen ? Boolean::newBoolean(chosen) : Local<Value>(),
+                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                    );
                 }
                 CATCH_IN_CALLBACK("sendModalForm")
             }
@@ -2446,7 +2456,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
             formId,
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
-             callback{script::Global(args[1].asFunction())}](Player* player, string result) {
+             callback{script::Global(args[1].asFunction())}](Player* player, string result, FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
@@ -2455,7 +2465,8 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
                     callback.get().call(
                         {},
                         PlayerClass::newPlayer(player),
-                        result != "null" ? JsonToValue(result) : Local<Value>()
+                        result != "null" ? JsonToValue(result) : Local<Value>(),
+                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
                     );
                 }
                 CATCH_IN_CALLBACK("sendCustomForm")

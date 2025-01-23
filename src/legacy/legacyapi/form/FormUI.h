@@ -76,6 +76,8 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "mc/network/packet/ModalFormCancelReason.h"
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -86,6 +88,9 @@ class ServerPlayer;
 class Player;
 
 namespace lse::form {
+
+using FormCancelReason = std::optional<ModalFormCancelReason>;
+
 //////////////////////////////// Simple Form Elements ////////////////////////////////
 class SimpleFormElement {
 protected:
@@ -99,7 +104,7 @@ protected:
     std::string serialize() override;
 
 public:
-    using ButtonCallback = std::function<void(Player*)>;
+    using ButtonCallback = std::function<void(Player*, FormCancelReason reason)>;
     std::string    text, image;
     ButtonCallback callback;
 
@@ -280,7 +285,7 @@ protected:
     std::string serialize() override;
 
 public:
-    using Callback = std::function<void(Player*, int)>;
+    using Callback = std::function<void(Player*, int, FormCancelReason reason)>;
     std::string                                     title, content;
     std::vector<std::shared_ptr<SimpleFormElement>> elements;
     Callback                                        callback;
@@ -305,7 +310,7 @@ protected:
     std::string serialize() override;
 
 public:
-    using Callback = std::function<void(Player*, bool)>;
+    using Callback = std::function<void(Player*, bool, FormCancelReason reason)>;
     std::string title, content, confirmButton, cancelButton;
     Callback    callback;
 
@@ -337,8 +342,9 @@ protected:
     std::string serialize() override;
 
 public:
-    using Callback  = std::function<void(Player*, std::map<std::string, std::shared_ptr<CustomFormElement>>)>;
-    using Callback2 = std::function<void(Player*, std::string)>;
+    using Callback = std::function<
+        void(Player*, std::map<std::string, std::shared_ptr<CustomFormElement>>, FormCancelReason reason)>;
+    using Callback2 = std::function<void(Player*, std::string, FormCancelReason reason)>;
     std::string                                                             title;
     std::vector<std::pair<std::string, std::shared_ptr<CustomFormElement>>> elements;
     Callback                                                                callback;

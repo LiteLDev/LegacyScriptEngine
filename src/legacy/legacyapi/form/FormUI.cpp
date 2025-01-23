@@ -3,9 +3,8 @@
 #include "FormPacketHelper.h"
 #include "lse/Entry.h"
 #include "mc/network/packet/ModalFormRequestPacket.h"
-#include "mc/network/packet/Packet.h"
+#include "mc/world/actor/player/Player.h"
 
-#include <ll/api/io/Logger.h>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <utility>

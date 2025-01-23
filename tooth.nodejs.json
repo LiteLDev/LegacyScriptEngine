@@ -15,7 +15,7 @@
     "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.4",
     "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.4",
     "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.4",
-    "gitea.litebds.com/ShrBox/7-zip": "23.x",
+    "gitea.litebds.com/ShrBox/7-zip": "24.x",
     "gitea.litebds.com/LiteLDev/node-binaries": "22.12.0-rc.1"
   },
   "prerequisites": {

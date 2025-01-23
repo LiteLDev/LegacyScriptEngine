@@ -37,12 +37,11 @@ struct SimpleCallbackData
 
 // It is similar to ll::mod::Mod, it stores data of an engine(usually a plugin).
 struct EngineOwnData {
-    // 基础信息
-    std::string pluginName          = {};
-    std::string pluginFileOrDirPath = {};
-    std::string engineType          = LLSE_BACKEND_TYPE;
+    // Basic information
+    std::string pluginName = {};
+    std::string engineType = LLSE_BACKEND_TYPE;
 
-    // 表单回调
+    // Form callbacks
     std::map<unsigned, FormCallbackData> formCallbacks;
 
     // RemoteCall Exported Functions: unordered_map<nameSpace, funcName>
@@ -74,10 +73,12 @@ struct EngineOwnData {
     ll::i18n::I18n i18n;
     std::string    defaultLocaleName;
 
-    std::shared_ptr<lse::Plugin>    plugin;
+    std::shared_ptr<lse::Plugin> plugin;
+
+    // Use standalone logger in EngineOwnData instead of plugin.getLogger() for allowing modify logger title.
     std::shared_ptr<ll::io::Logger> logger;
 
-    // 玩家绑定数据
+    // Player binding data
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
 
     // Dynamic Call vm for NativeFFI
@@ -99,7 +100,7 @@ struct EngineOwnData {
     }
 };
 
-// 引擎附加数据
+// Engine additional data
 inline std::shared_ptr<EngineOwnData> getEngineOwnData() {
     return std::static_pointer_cast<EngineOwnData>(EngineScope::currentEngine()->getData());
 }

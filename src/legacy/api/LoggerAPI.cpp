@@ -127,7 +127,7 @@ Local<Value> LoggerClass::setTitle(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(args[0].asString().toString());
-    return Boolean::newBoolean(false);
+    return Boolean::newBoolean(true);
 }
 
 ///////////////// Helper /////////////////

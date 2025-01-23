@@ -38,8 +38,8 @@ struct SimpleCallbackData
 // It is similar to ll::mod::Mod, it stores data of an engine(usually a plugin).
 struct EngineOwnData {
     // 基础信息
-    std::string pluginName          = "";
-    std::string pluginFileOrDirPath = "";
+    std::string pluginName          = {};
+    std::string pluginFileOrDirPath = {};
     std::string engineType          = LLSE_BACKEND_TYPE;
 
     // 表单回调
@@ -75,7 +75,7 @@ struct EngineOwnData {
     std::string    defaultLocaleName;
 
     std::shared_ptr<lse::Plugin>    plugin;
-    std::shared_ptr<ll::io::Logger> logger = ll::io::LoggerRegistry::getInstance().getOrCreate(pluginName);
+    std::shared_ptr<ll::io::Logger> logger;
 
     // 玩家绑定数据
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;

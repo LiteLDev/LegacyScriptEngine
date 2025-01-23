@@ -24,7 +24,7 @@ Local<Value> Log(const Arguments& args) {
         std::ostringstream sout;
         for (int i = 0; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << std::endl;
-        getEngineOwnData()->plugin->getLogger().info(sout.str());
+        getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in Log!");

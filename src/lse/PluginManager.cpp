@@ -135,8 +135,8 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     try {
         script::EngineScope engineScope(scriptEngine);
 
-        // Set plugins's logger title
-        getEngineOwnData()->pluginName = manifest.name;
+        // Init plugin logger
+        getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(manifest.name);
 
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
         scriptEngine.eval("import sys as _llse_py_sys_module");

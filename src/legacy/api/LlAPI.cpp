@@ -3,11 +3,10 @@
 #include "api/APIHelp.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/Versions.h"
-#include "ll/api/mod/Mod.h"
-#include "ll/api/mod/ModManager.h"
 #include "ll/api/mod/ModManagerRegistry.h"
 #include "ll/api/utils/SystemUtils.h"
-#include "lse/PluginManager.h"
+#include "ll/api/data/Version.h"
+#include "ll/api/reflection/Serialization.h"
 
 #include <string>
 
@@ -41,7 +40,7 @@ ClassDefine<void> LlClassBuilder = defineClass("ll")
 
                                        // For Compatibility
                                        .function("version", &LlClass::version)
-                                       .function("versionStatus", &LlClass::getVersionStatusFunction)
+                                       .function("versionStatus", &LlClass::getVersionStatus)
                                        .function("scriptEngineVersion", &LlClass::getScriptEngineVersionFunction)
 
                                        .build();
@@ -58,17 +57,17 @@ Local<Value> LlClass::getLanguage() {
     try {
         return String::newString(ll::sys_utils::getSystemLocaleCode());
     }
-    CATCH("Fail in LLSEGetLanguage")
+    CATCH("Fail in getLanguage")
 }
 
 Local<Value> LlClass::isWine() {
     try {
         return Boolean::newBoolean(ll::sys_utils::isWine());
     }
-    CATCH("Fail in LLSEIsWine")
+    CATCH("Fail in isWine")
 }
 
-auto LlClass::isDebugMode() -> Local<Value> {
+Local<Value> LlClass::isDebugMode() {
 #ifdef NDEBUG
     return Boolean::newBoolean(false);
 #else
@@ -80,49 +79,167 @@ Local<Value> LlClass::isRelease() {
     try {
         return Boolean::newBoolean(!ll::getLoaderVersion().preRelease.has_value());
     }
-    CATCH("Fail in LLSEIsRelease")
+    CATCH("Fail in isRelease")
 }
 
 Local<Value> LlClass::isBeta() {
     try {
         return Boolean::newBoolean(ll::getLoaderVersion().preRelease.has_value());
     }
-    CATCH("Fail in LLSEIsBeta")
+    CATCH("Fail in isBeta")
 }
 
-Local<Value> LlClass::isDev() { return Boolean::newBoolean(false); }
+Local<Value> LlClass::isDev() {
+    try {
+        return Boolean::newBoolean(ll::getLoaderVersion().to_string().find("+") != std::string::npos);
+    }
+    CATCH("Fail in isDev");
+}
 
 Local<Value> LlClass::getMajorVersion() {
     try {
         return Number::newNumber(ll::getLoaderVersion().major);
     }
-    CATCH("Fail in LLSEGetMajorVersion")
+    CATCH("Fail in getMajorVersion")
 }
 
 Local<Value> LlClass::getMinorVersion() {
     try {
         return Number::newNumber(ll::getLoaderVersion().minor);
     }
-    CATCH("Fail in LLSEGetMinorVersion")
+    CATCH("Fail in getMinorVersion")
 }
 
 Local<Value> LlClass::getRevisionVersion() {
     try {
         return Number::newNumber(ll::getLoaderVersion().patch);
     }
-    CATCH("Fail in LLSEGetRevisionVersion")
+    CATCH("Fail in getRevisionVersion")
 }
 
 Local<Value> LlClass::getScriptEngineVersion() {
     try {
         return String::newString(EngineScope::currentEngine()->getEngineVersion());
     }
-    CATCH("Fail in LLSEGetScriptEngineVerison")
+    CATCH("Fail in getScriptEngineVersion")
 }
 
-Local<Value> LlClass::getVersionStatus() { return Number::newNumber(0); }
+Local<Value> LlClass::getVersionStatus() {
+    if (ll::getLoaderVersion().to_string().find("+") != std::string::npos) {
+        return Number::newNumber(0);
+    } else if (ll::getLoaderVersion().preRelease.has_value()) {
+        return Number::newNumber(1);
+    } else {
+        return Number::newNumber(2);
+    }
+}
 
-Local<Value> LlClass::registerPlugin(const Arguments&) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::registerPlugin(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
+    // if (args.size() >= 3)
+    //     CHECK_ARG_TYPE(args[2], ValueKind::kObject);
+    if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kObject);
+
+    try {
+        std::string desc = args.size() >= 2 ? args[1].asString().toString() : "";
+
+        ll::data::Version ver = ll::data::Version(1, 0, 0);
+        if (args.size() >= 3) {
+            if (args[2].isArray()) { // like [1,0,0].
+                Local<Array> verInfo = args[2].asArray();
+                if (verInfo.size() >= 1) {
+                    Local<Value> major = verInfo.get(0);
+                    if (major.isNumber()) ver.major = major.asNumber().toInt32();
+                }
+                if (verInfo.size() >= 2) {
+                    Local<Value> minor = verInfo.get(1);
+                    if (minor.isNumber()) ver.minor = minor.asNumber().toInt32();
+                }
+                if (verInfo.size() >= 3) {
+                    Local<Value> revision = verInfo.get(2);
+                    if (revision.isNumber()) ver.patch = revision.asNumber().toInt32();
+                }
+                if (verInfo.size() >= 4) { // script: Version Enum.
+                    Local<Value> status = verInfo.get(3);
+                    if (status.isNumber()) {
+                        switch (status.asNumber().toInt32()) {
+                        case 0:
+                            ver.preRelease->from_string("dev");
+                            break;
+                        case 1:
+                            ver.preRelease->from_string("beta");
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+            } else if (args[2].isObject()) { // like { major: 1, minor:0, revision:0 }
+                Local<Object> verInfo = args[2].asObject();
+                if (verInfo.has("major")) {
+                    Local<Value> major = verInfo.get("major");
+                    if (major.isNumber()) ver.major = major.asNumber().toInt32();
+                }
+                if (verInfo.has("minor")) {
+                    Local<Value> minor = verInfo.get("minor");
+                    if (minor.isNumber()) ver.minor = minor.asNumber().toInt32();
+                }
+                if (verInfo.has("revision")) {
+                    Local<Value> revision = verInfo.get("revision");
+                    if (revision.isNumber()) ver.patch = revision.asNumber().toInt32();
+                }
+                if (verInfo.has("status")) {
+                    Local<Value> status = verInfo.get("status");
+                    if (status.isNumber()) {
+                        switch (status.asNumber().toInt32()) {
+                        case 0:
+                            ver.preRelease->from_string("dev");
+                            break;
+                        case 1:
+                            ver.preRelease->from_string("beta");
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+            } else {
+                LOG_WRONG_ARG_TYPE();
+                return Boolean::newBoolean(false);
+            }
+        }
+
+        if (getEngineOwnData()->plugin->getManifest().version.value_or(ll::data::Version(0, 0, 0)) != ver) {
+            auto newManifest        = getEngineOwnData()->plugin->getManifest();
+            newManifest.description = desc;
+            newManifest.version     = ver;
+            if (args.size() >= 4) {
+                Local<Object> otherInfo = args[3].asObject();
+                auto          keys      = otherInfo.getKeyNames();
+                if (!newManifest.extraInfo) {
+                    newManifest.extraInfo = ll::SmallDenseMap<std::string, std::string>();
+                }
+                for (auto& key : keys) {
+                    if (ll::string_utils::toLowerCase(key) == "author") {
+                        newManifest.author = otherInfo.get(key).asString().toString();
+                        continue;
+                    }
+                    newManifest.extraInfo->insert({key, otherInfo.get(key).asString().toString()});
+                }
+            }
+            ll::file_utils::writeFile(
+                getEngineOwnData()->plugin->getModDir() / "manifest.json",
+                ll::reflection::serialize<nlohmann::ordered_json>(newManifest)->dump(4)
+            );
+        }
+
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in registerPlugin");
+}
+
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     try {
         auto plugin = lse::LegacyScriptEngine::getInstance().getManager().getMod(args[0].asString().toString());
@@ -154,13 +271,13 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in LLAPI");
+    CATCH("Fail in getPluginInfo");
 }
 Local<Value> LlClass::versionString(const Arguments&) {
     try {
         return String::newString(ll::getLoaderVersion().to_string());
     }
-    CATCH("Fail in LLSEGetVersionString!")
+    CATCH("Fail in versionString!")
 }
 
 Local<Value> LlClass::requireVersion(const Arguments&) { return Boolean::newBoolean(true); }
@@ -202,7 +319,7 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
         }
         return plugins;
     }
-    CATCH("Fail in LLAPI");
+    CATCH("Fail in getAllPluginInfo");
 }
 
 // For Compatibility
@@ -215,7 +332,7 @@ Local<Value> LlClass::listPlugins(const Arguments&) {
         }
         return plugins;
     }
-    CATCH("Fail in LLAPI");
+    CATCH("Fail in listPlugins");
 }
 
 Local<Value> LlClass::require(const Arguments&) { return Boolean::newBoolean(true); }
@@ -226,11 +343,8 @@ Local<Value> LlClass::eval(const Arguments& args) {
     try {
         return EngineScope::currentEngine()->eval(args[0].asString().toString());
     }
-    CATCH("Fail in LLSEEval!")
+    CATCH("Fail in eval!")
 }
-
-// For Compatibility
-Local<Value> LlClass::getVersionStatusFunction(const Arguments&) { return Number::newNumber(0); }
 
 // For Compatibility
 Local<Value> LlClass::version(const Arguments&) {
@@ -241,19 +355,10 @@ Local<Value> LlClass::version(const Arguments&) {
         ver.set("revision", ll::getLoaderVersion().patch);
         ver.set("isBeta", !ll::getLoaderVersion().preRelease.has_value());
         ver.set("isRelease", ll::getLoaderVersion().preRelease.has_value());
-        ver.set("isDev", false);
+        ver.set("isDev", ll::getLoaderVersion().to_string().find("+") != std::string::npos);
         return ver;
     }
-    CATCH("Fail in LLSEGetVersion!")
-}
-
-// For Compatibility
-Local<Value> LlClass::isDebugModeFunction(const Arguments&) {
-#ifdef LEGACYSCRIPTENGINE_DEBUG
-    return Boolean::newBoolean(true);
-#else
-    return Boolean::newBoolean(false);
-#endif
+    CATCH("Fail in version!")
 }
 
 // For Compatibility
@@ -261,5 +366,5 @@ Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments&) {
     try {
         return String::newString(EngineScope::currentEngine()->getEngineVersion());
     }
-    CATCH("Fail in LLSEGetScriptEngineVerison")
+    CATCH("Fail in getScriptEngineVersion")
 }

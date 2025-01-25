@@ -1,23 +1,23 @@
 {
   "format_version": 2,
   "tooth": "gitea.litebds.com/LiteLDev/legacy-script-engine-python",
-  "version": "0.9.0-rc.5",
+  "version": "0.9.0",
   "info": {
     "name": "LegacyScriptEngine with Python backend",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
     "author": "LiteLDev",
     "tags": [
-      "levilamina",
+      "platform:levilamina",
       "plugin-engine"
     ]
   },
   "dependencies": {
-    "github.com/LiteLDev/LegacyRemoteCall": "0.9.0-rc.4",
-    "github.com/LiteLDev/LegacyParticleAPI": "0.9.0-rc.4",
-    "github.com/LiteLDev/LegacyMoney": "0.9.0-rc.4"
+    "github.com/LiteLDev/LegacyRemoteCall": "0.9.x",
+    "github.com/LiteLDev/LegacyParticleAPI": "0.9.x",
+    "github.com/LiteLDev/LegacyMoney": "0.9.x"
   },
   "prerequisites": {
-    "github.com/LiteLDev/LeviLamina": "1.0.0-rc.3"
+    "github.com/LiteLDev/LeviLamina": "1.0.x"
   },
   "files": {
     "place": [

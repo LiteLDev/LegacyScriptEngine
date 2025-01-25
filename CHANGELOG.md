@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-01-25
+
+### Added
+
+- Implemented Logger::setTitle
+- Added mysql support except for Node.js engine
+- Add FormCancelReason for GuiAPI
+- Implemented registerPlugin for old plugins
+
+### Fixed
+
+- Fix setAbility
+- Fix runtime command warning
+- Add missing stacktrace in catch
+- Add missing LLSECallEventsOnHotUnload and fix unload
+
 ## [0.9.0-rc.5] - 2025-01-15
 
 ### Fixed
@@ -704,7 +720,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#208]: https://github.com/LiteLDev/LegacyScriptEngine/issues/208
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.5...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0...HEAD
+
+[0.9.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.5...v0.9.0
 
 [0.9.0-rc.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.4...v0.9.0-rc.5
 

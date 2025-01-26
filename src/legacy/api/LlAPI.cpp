@@ -135,11 +135,12 @@ Local<Value> LlClass::getVersionStatus() {
 }
 
 Local<Value> LlClass::registerPlugin(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (args.size() == 0) {
+        return Boolean::newBoolean(true);
+    } else {
+        CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    }
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
-    // if (args.size() >= 3)
-    //     CHECK_ARG_TYPE(args[2], ValueKind::kObject);
     if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kObject);
 
     try {
@@ -166,9 +167,11 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
                     if (status.isNumber()) {
                         switch (status.asNumber().toInt32()) {
                         case 0:
+                            ver.preRelease = ll::data::PreRelease();
                             ver.preRelease->from_string("dev");
                             break;
                         case 1:
+                            ver.preRelease = ll::data::PreRelease();
                             ver.preRelease->from_string("beta");
                             break;
                         default:
@@ -195,9 +198,11 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
                     if (status.isNumber()) {
                         switch (status.asNumber().toInt32()) {
                         case 0:
+                            ver.preRelease = ll::data::PreRelease();
                             ver.preRelease->from_string("dev");
                             break;
                         case 1:
+                            ver.preRelease = ll::data::PreRelease();
                             ver.preRelease->from_string("beta");
                             break;
                         default:

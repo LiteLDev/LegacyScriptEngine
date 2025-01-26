@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-01-26
+
+### Fixed
+
+- Fix issue of preRelease in registerPlugin
+
 ## [0.9.0] - 2025-01-25
 
 ### Added
@@ -721,6 +727,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#208]: https://github.com/LiteLDev/LegacyScriptEngine/issues/208
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0...HEAD
+
+[0.9.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0...v0.9.0
 
 [0.9.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0-rc.5...v0.9.0
 

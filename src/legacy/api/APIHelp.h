@@ -23,7 +23,7 @@ std::string ValueKindToString(const ValueKind& kind);
 #if !defined(NEW_DEFINES)
 
 // 输出脚本调用堆栈，API名称，以及插件名
-inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = "", std::string const& msg = "") {
+inline void CREATE_EXCEPTION_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
     auto e = script::Exception(msg);
     lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
         "script::Exception: {0}\n{1}",
@@ -34,17 +34,25 @@ inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = "", std::string
     lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
 }
 
+inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
+    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(msg);
+    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In API: " + func);
+    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+}
+
 // 参数类型错误输出
-inline void LOG_WRONG_ARG_TYPE(std::string const& func = "") {
-    LOG_ERROR_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
+inline void LOG_WRONG_ARG_TYPE(std::string const& func = {}) {
+    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
 }
 
 // 参数数量错误输出
-inline void LOG_TOO_FEW_ARGS(std::string const& func = "") { LOG_ERROR_WITH_SCRIPT_INFO(func, "Too Few arguments!"); }
+inline void LOG_TOO_FEW_ARGS(std::string const& func = {}) {
+    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Too Few arguments!");
+}
 
 // 参数数量错误输出
-inline void LOG_WRONG_ARGS_COUNT(std::string const& func = "") {
-    LOG_ERROR_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
+inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
+    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
 }
 
 // 至少COUNT个参数

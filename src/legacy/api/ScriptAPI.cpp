@@ -34,7 +34,7 @@ Local<Value> ColorLog(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
-        std::string prefix = "";
+        std::string prefix;
         switch (doHash(args[0].asString().toString())) {
         case doHash("dk_blue"):
             prefix = "\x1b[34m";
@@ -88,7 +88,7 @@ Local<Value> ColorLog(const Arguments& args) {
         std::ostringstream sout;
         sout << prefix;
         for (int i = 1; i < args.size(); ++i) PrintValue(sout, args[i]);
-        sout << "\x1b[0m" << std::endl;
+        sout << "\x1b[0m";
         getEngineOwnData()->plugin->getLogger().info(sout.str());
         return Boolean::newBoolean(true);
     }

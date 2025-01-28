@@ -141,7 +141,7 @@ Local<Value> LoggerClass::setConsole(const Arguments& args) {
         if (args.size() >= 2) {
             getEngineOwnData()->logger->getSink(0)->setFlushLevel(
                 static_cast<LogLevel>(args[1].asNumber().toInt32() - 1)
-            ); // See LSE's definition https://legacy-script-engine.levimc.org/apis/ScriptAPI/Logger/
+            ); // See LSE's definition https://lse.levimc.org/apis/ScriptAPI/Logger/
         }
         if (!args[0].asBoolean().value()) {
             getEngineOwnData()->logger->getSink(0)->setFlushLevel(LogLevel::Off);

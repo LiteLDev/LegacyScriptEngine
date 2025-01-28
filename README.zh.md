@@ -34,7 +34,7 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
 3. 重启服务器后，插件就会被加载
 
-更多信息请参见[文档](https://legacy-script-engine.levimc.org)
+更多信息请参见[文档](https://lse.levimc.org)
 
 ## 一些对插件开发有帮助的项目
 

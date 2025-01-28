@@ -35,7 +35,7 @@ lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
 2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically
 3. To load them, you need to restart the server
 
-For more information, please refer to [the documentation](https://legacy-script-engine.levimc.org)
+For more information, please refer to [the documentation](https://lse.levimc.org)
 
 ## Some helpful project for plugin development
 

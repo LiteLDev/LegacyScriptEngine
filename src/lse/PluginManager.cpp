@@ -117,12 +117,11 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             )
         );
         if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", ll::string_utils::u8str2str(dirPath.u8string())))
-            == 0)
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(""_tr());
-        else
+            != 0) {
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))
             );
+        }
     }
 #endif
     if (hasMod(manifest.name)) {

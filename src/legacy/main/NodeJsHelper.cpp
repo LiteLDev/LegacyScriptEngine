@@ -373,7 +373,7 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
             MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, executeJs.c_str());
             if (loadenv_ret.IsEmpty()) // There has been a JS exception.
                 throw "error";
-            exit_code = node::SpinEventLoop(env).FromMaybe(1);
+            exit_code = node::SpinEventLoop(env).FromMaybe(0);
         } catch (...) {
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to execute NPM command. Error occurs"

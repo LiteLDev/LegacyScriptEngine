@@ -16,7 +16,7 @@
     "github.com/LiteLDev/LegacyParticleAPI": "0.9.x",
     "github.com/LiteLDev/LegacyMoney": "0.9.x",
     "gitea.litebds.com/ShrBox/7-zip": "24.x",
-    "gitea.litebds.com/LiteLDev/node-binaries": "22.12.0-rc.1"
+    "gitea.litebds.com/LiteLDev/node-binaries": "22.12.0-rc.2"
   },
   "prerequisites": {
     "github.com/LiteLDev/LeviLamina": "1.0.x"

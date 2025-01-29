@@ -93,6 +93,7 @@
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/scores/Objective.h"
+#include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 
 #include <algorithm>
 #include <climits>
@@ -1235,7 +1236,7 @@ Local<Value> PlayerClass::isOnHotBlock() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(false); // TODO: check IsOnHotBlockTest to get the correct value
+        return Boolean::newBoolean(player->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
     }
     CATCH("Fail in isOnHotBlock!")
 }

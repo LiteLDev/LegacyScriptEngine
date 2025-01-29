@@ -36,6 +36,7 @@
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
 #include "mc/world/level/biome/Biome.h"
+#include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 
 #include <climits>
 #include <memory>
@@ -292,7 +293,7 @@ Local<Value> EntityClass::isOnHotBlock() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(false); // TODO: check IsOnHotBlockTest to get the correct value
+        return Boolean::newBoolean(entity->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
     }
     CATCH("Fail in isOnHotBlock!")
 }

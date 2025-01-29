@@ -15,21 +15,13 @@ std::atomic_uint timeTaskId = 0;
 std::mutex       locker;
 
 struct TimeTaskData {
-    uint64                             taskId;
     script::Global<Function>           func;
     std::vector<script::Global<Value>> paras;
     script::Global<String>             code;
     ScriptEngine*                      engine;
-    inline void                        swap(TimeTaskData& rhs) {
-        std::swap(rhs.taskId, taskId);
-        std::swap(rhs.engine, engine);
-        rhs.code.swap(code);
-        rhs.paras.swap(paras);
-        rhs.func.swap(func);
-    }
 };
 
-std::unordered_map<int, TimeTaskData> timeTaskMap;
+std::unordered_map<uint64, ScriptEngine*> timeTaskMap;
 
 #define TIMETASK_CATCH(TASK_TYPE)                                                                                      \
     catch (const Exception& e) {                                                                                       \
@@ -77,7 +69,7 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = data;
+    timeTaskMap[tid] = data.engine;
     return tid;
 }
 
@@ -105,7 +97,7 @@ int NewTimeout(Local<String> func, int timeout) {
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = data;
+    timeTaskMap[tid] = data.engine;
     return tid;
 }
 
@@ -146,7 +138,7 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = data;
+    timeTaskMap[tid] = data.engine;
     return tid;
 }
 
@@ -179,7 +171,7 @@ int NewInterval(Local<String> func, int timeout) {
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
     std::lock_guard lock(locker);
-    timeTaskMap[tid] = data;
+    timeTaskMap[tid] = data.engine;
     return tid;
 }
 
@@ -202,11 +194,12 @@ bool ClearTimeTask(int const& id) {
 }
 
 void LLSERemoveTimeTaskData(ScriptEngine* engine) {
+    // enter scope to prevent script::Global::~Global() from crashing
     EngineScope enter(engine);
     try {
         std::lock_guard lock(locker);
         for (auto it = timeTaskMap.begin(); it != timeTaskMap.end();) {
-            if (it->second.engine == engine) {
+            if (it->second == engine) {
                 it = timeTaskMap.erase(it);
             } else {
                 ++it;

@@ -154,15 +154,18 @@ void loadConfig(const ll::mod::NativeMod& self, Config& cfg) {
 
 void loadDebugEngine(const ll::mod::NativeMod& self) {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
-    auto& scriptEngine = *EngineManager::newEngine();
+    auto scriptEngine = EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);
 
+    // Init plugin instance for debug engine to prevent something unexpected.
     ll::mod::Manifest manifest;
     manifest.name              = "DebugEngine";
     getEngineOwnData()->plugin = std::make_shared<lse::Plugin>(manifest);
+    // Init logger
+    getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 
-    BindAPIs(&scriptEngine);
+    BindAPIs(scriptEngine);
 
     // Load BaseLib.
     auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
@@ -170,9 +173,9 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     if (!baseLibContent) {
         throw std::runtime_error("Failed to read BaseLib at {0}"_tr(baseLibPath.string()));
     }
-    scriptEngine.eval(baseLibContent.value());
+    scriptEngine->eval(baseLibContent.value());
 
-    debugEngine = &scriptEngine;
+    debugEngine = scriptEngine;
 #endif
 }
 

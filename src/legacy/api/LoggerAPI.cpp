@@ -193,7 +193,7 @@ Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
 
     try {
         auto conf = getEngineOwnData();
-        conf->plugin->getLogger().setLevel(static_cast<LogLevel>(args[0].asNumber().toInt32() - 1));
+        conf->logger->setLevel(static_cast<LogLevel>(args[0].asNumber().toInt32() - 1));
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in SetLogLevel!")

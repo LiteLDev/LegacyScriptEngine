@@ -89,10 +89,10 @@ Local<Value> ColorLog(const Arguments& args) {
         sout << prefix;
         for (int i = 1; i < args.size(); ++i) PrintValue(sout, args[i]);
         sout << "\x1b[0m";
-        getEngineOwnData()->plugin->getLogger().info(sout.str());
+        getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in Log!");
+    CATCH("Fail in ColorLog!");
 }
 
 Local<Value> FastLog(const Arguments& args) {

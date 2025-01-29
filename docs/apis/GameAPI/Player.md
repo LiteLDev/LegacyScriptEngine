@@ -12,19 +12,20 @@ For details, see [Event listener documentation - EventAPI](../EventAPI/Listen.md
 #### Acquired From Existing Players
 
 Manually generate player objects by **player information**
-Use this function to manually generate objects. Note that the player you want to get must be online, otherwise the generation will fail.
+Use this function to manually generate objects. Note that the player you want to get must be online, otherwise the
+generation will fail.
 
 `mc.getPlayer(info)`
 
 !!! tip
-    Versions before 0.8.13 could not get player by UUID
+Versions before 0.8.13 could not get player by UUID
 
-- Parameters: 
-  - info : `String`  
-    Player's name, XUID or UniqueId or UUID.
-- Return value: The generated player object. 
+- Parameters:
+    - info : `String`  
+      Player's name, XUID or UniqueId or UUID.
+- Return value: The generated player object.
 - Return value type: `Player`
-  - If the return value is `Null`, it means that getting the player failed.
+    - If the return value is `Null`, it means that getting the player failed.
 
 #### Get All Online Players
 
@@ -36,16 +37,16 @@ This function returns an array of player objects, each of which corresponds to a
 - Return value type: `Array<Player,Player,...>`
 
 > Note: Do not save a `Player` object **long-term**.
-> When the player exits the server, the corresponding player object will become invalid. Therefore, if there is a need to operate a player for a long time, please obtain the real-time player object through the above methods.
-
-
+> When the player exits the server, the corresponding player object will become invalid. Therefore, if there is a need
+> to operate a player for a long time, please obtain the real-time player object through the above methods.
 
 ### Player Object - Properties
 
-Each player object contains some fixed object properties. For a particular player object `pl`, there are these properties.
+Each player object contains some fixed object properties. For a particular player object `pl`, there are these
+properties.
 
 | Attributes               | Meaning                                                      | Data Type        |
-| ------------------------ | ------------------------------------------------------------ | ---------------- |
+|--------------------------|--------------------------------------------------------------|------------------|
 | pl.name                  | Player's name                                                | `String`         |
 | pl.pos                   | Player's coordinates                                         | `FloatPos`       |
 | pl.feetPos               | The coordinates of the player's leg                          | `FloatPos`       |
@@ -103,155 +104,164 @@ Each player object contains some fixed object properties. For a particular playe
 
 These object properties are read-only and cannot be modified. in:
 
-- **coordinates** and **leg coordinates**: player is two blocks high, and `pos` are the coordinates of the player's view's height, `feetPos` are the coordinates of the block position displayed in the game
-- The value of the **Player Game Mode** attribute is: `0` for survival mode, `1` for creative mode, `2` for adventure mode, `3` for spectator mode
+- **coordinates** and **leg coordinates**: player is two blocks high, and `pos` are the coordinates of the player's
+  view's height, `feetPos` are the coordinates of the block position displayed in the game
+- The value of the **Player Game Mode** attribute is: `0` for survival mode, `1` for creative mode, `2` for adventure
+  mode, `3` for spectator mode
 - **Player's real name** attribute stored strings can be considered reliable, they will not be changed by name changes
-- **Player device IP address** attribute stores the player's device IP and port number, the format is similar to `12.34.567.89:1111`
-- For a detailed explanation of the **player's current orientation** attribute, see [Basic Game Interface Documentation](./Basic.md)
+- **Player device IP address** attribute stores the player's device IP and port number, the format is similar to
+  `12.34.567.89:1111`
+- For a detailed explanation of the **player's current orientation** attribute,
+  see [Basic Game Interface Documentation](./Basic.md)
 - The comparison table of **operation authority level** attributes is as follows:
 
 | Permission Level | Corresponding Authority  |
-| ---------------- | ------------------------ |
+|------------------|--------------------------|
 | 0                | Ordinary Member          |
 | 1                | OP permissions           |
 | 4                | OP + Console permissions |
 
-
-
 ### Player Object - Function
 
-Each player object contains some member functions (member methods) that can be executed. For a specific player object `pl`, you can perform some operations on this player through the following functions.
+Each player object contains some member functions (member methods) that can be executed. For a specific player object
+`pl`, you can perform some operations on this player through the following functions.
 
-#### Determine if the Player Is OP  
+#### Determine if the Player Is OP
 
 `pl.isOP()`
 
 - Return value: Whether the player is an OP.
-- Return value type: `Boolean`  
+- Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 // For a `Player` object pl
 var open = pl.isOP();
 ```
 
-#### Disconnect Player  
+#### Disconnect Player
 
 `pl.kick([msg])`  
 `pl.disconnect([msg])`
 
-- Parameters: 
-  - msg : `String`  
-    (Optional parameter) The reason for the disconnection displayed to the kicked player.
-    Defaults to "disconnecting from server".  
+- Parameters:
+    - msg : `String`  
+      (Optional parameter) The reason for the disconnection displayed to the kicked player.
+      Defaults to "disconnecting from server".
 - Return value: Whether the connection was successfully disconnected.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.kick();
 ```
+
 [Lua]
+
 ```lua
 pl:kick()
 ```
 
-#### Send a Text Message to the Player  
+#### Send a Text Message to the Player
 
 `pl.tell(msg[,type])`  
 `pl.sendText(msg[,type])`
 
-- Parameters: 
+- Parameters:
 
-  - msg : `String`  
-    The message to be sent.  
+    - msg : `String`  
+      The message to be sent.
 
-  - type : `Integer`  
-    (Optional parameter) The type of text message to send, default is `0`.
+    - type : `Integer`  
+      (Optional parameter) The type of text message to send, default is `0`.
 
-    | Type Parameter | Message Type                      |
-    | -------------- | --------------------------------- |
-    | 0              | Normal Message (Raw)              |
-    | 1              | Chat Message (Chat)               |
-    | 4              | Music Box Message (Popup)         |
-    | 5              | Message Above the Inventory (Tip) |
-    | 9              | JSON format message (JSON)        |
+      | Type Parameter | Message Type                      |
+                | -------------- | --------------------------------- |
+      | 0              | Normal Message (Raw)              |
+      | 1              | Chat Message (Chat)               |
+      | 4              | Music Box Message (Popup)         |
+      | 5              | Message Above the Inventory (Tip) |
+      | 9              | JSON format message (JSON)        |
 
 - Return value: Whether the message was sent successfully.
 
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
-pl.tell("Welcome back ~ ",5);
+pl.tell("Welcome back ~ ", 5);
 ```
 
-#### Set Title Message to the Player 
+#### Set Title Message to the Player
 
 `pl.setTitle(content[,type[,fadeInTime,stayTime,fadeOutTime]])`
 
-- Parameter: 
+- Parameter:
 
-  - content : `String`  
-    The title content. 
+    - content : `String`  
+      The title content.
 
-  - type : `Integer`  
-    (optional) The title type, default = 2.
+    - type : `Integer`  
+      (optional) The title type, default = 2.
 
-    | Types | Description         |
-    | ----- | ------------------- |
-    | 0     | Clear               |
-    | 1     | Reset               |
-    | 2     | SetTitle            |
-    | 3     | SetSubTitle         |
-    | 4     | SetActionBar        |
-    | 5     | SetDurations        |
-    | 6     | TitleTextObject     |
-    | 7     | SubtitleTextObject  |
-    | 8     | ActionbarTextObject |
+      | Types | Description         |
+                | ----- | ------------------- |
+      | 0     | Clear               |
+      | 1     | Reset               |
+      | 2     | SetTitle            |
+      | 3     | SetSubTitle         |
+      | 4     | SetActionBar        |
+      | 5     | SetDurations        |
+      | 6     | TitleTextObject     |
+      | 7     | SubtitleTextObject  |
+      | 8     | ActionbarTextObject |
 
-  - fadeInTime : `Integer`  
-    (optional) Fade in time, in `Tick` , default is 10
+    - fadeInTime : `Integer`  
+      (optional) Fade in time, in `Tick` , default is 10
 
-  - stayTime: `Integer`
+    - stayTime: `Integer`
 
-    (optional) Stay time, in `Tick` , default is 10
+      (optional) Stay time, in `Tick` , default is 10
 
-  - fadeOutTime:`Integer`
+    - fadeOutTime:`Integer`
 
-    (optional) Fade out time, in `Tick` , default is 10
+      (optional) Fade out time, in `Tick` , default is 10
 
 - Return value: Is send successfully?
 
 - Return value type: `Boolean`
 
-#### Broadcast a Text Message to All Players  
+#### Broadcast a Text Message to All Players
 
 `mc.broadcast(msg[,type])`
 
-- Parameters: 
+- Parameters:
 
-  - msg : `String`  
-    The message to be sent.  
+    - msg : `String`  
+      The message to be sent.
 
-  - type : `Integer`  
-    (Optional parameter) The type of text message to send, default is `0`.
+    - type : `Integer`  
+      (Optional parameter) The type of text message to send, default is `0`.
 
-    | Type Parameter | Message Type                      |
-    | -------------- | --------------------------------- |
-    | 0              | Normal Message (Raw)              |
-    | 1              | Chat Message (Chat)               |
-    | 4              | Music Box Message (Popup)         |
-    | 5              | Message Above the Inventory (Tip) |
-    | 9              | JSON format message (JSON)        |
+      | Type Parameter | Message Type                      |
+                | -------------- | --------------------------------- |
+      | 0              | Normal Message (Raw)              |
+      | 1              | Chat Message (Chat)               |
+      | 4              | Music Box Message (Popup)         |
+      | 5              | Message Above the Inventory (Tip) |
+      | 9              | JSON format message (JSON)        |
 
 - Return value: Whether the message was sent successfully.
 
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 mc.broadcast("Hello everyone ~ ");
 ```
@@ -260,34 +270,35 @@ mc.broadcast("Hello everyone ~ ");
 
 `pl.sendToast(title,message)`
 
-- Parameters: 
+- Parameters:
 
-  - title : `String`  
-    The title of the toast.  
+    - title : `String`  
+      The title of the toast.
 
-  - message : `string`  
-    the message that the toast may contain alongside the title.
+    - message : `string`  
+      the message that the toast may contain alongside the title.
 
 - Return value: Whether the message was sent successfully.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
-pl.sendToast("Hello","everyone ~");
+pl.sendToast("Hello", "everyone ~");
 ```
 
-
-#### Execute a Command as a Player 
+#### Execute a Command as a Player
 
 `pl.runcmd(cmd)`
 
-- Parameters: 
-  - cmd : `String`  
-    The command to be executed.  
+- Parameters:
+    - cmd : `String`  
+      The command to be executed.
 - Return value: Whether the execution was successful.
-- Return value type:  `Boolean`   
+- Return value type:  `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 var open = pl.runcmd("tp ~ ~+50 ~");
@@ -297,65 +308,60 @@ var open = pl.runcmd("tp ~ ~+50 ~");
 
 `pl.talkAs(text)`
 
-- Parameters: 
-  - text : `String`  
-    The text the player will be made to say. 
+- Parameters:
+    - text : `String`  
+      The text the player will be made to say.
 - Return value: Whether the execution was successful.
-- Return value type:  `Boolean`   
-
-
+- Return value type:  `Boolean`
 
 #### Get Player Distance To Pos
 
 `pl.distanceTo(pos)`
 `pl.distanceToSqr(pos)`
 
-- Parameters: 
-  - pos : `Entity` / `Player` / `IntPos` / `FloatPos`
-    The target position. 
+- Parameters:
+    - pos : `Entity` / `Player` / `IntPos` / `FloatPos`
+      The target position.
 - Return value: Distance to coordinates (in blocks).
-- Return value type:  `Number`   
-
-
+- Return value type:  `Number`
 
 #### Speak to a Player as a Player
 
 `pl.talkAs(target,text)`
 
-- Parameters: 
-  - target : `Player`  
-    The player who will be spoken to. 
-  - text : `String`  
-    The text the player will be made to say. 
+- Parameters:
+    - target : `Player`  
+      The player who will be spoken to.
+    - text : `String`  
+      The text the player will be made to say.
 - Return value: Whether the execution was successful.
-- Return value type:  `Boolean`   
+- Return value type:  `Boolean`
 
-
-
-#### Teleport the Player to the Specified Location  
+#### Teleport the Player to the Specified Location
 
 `pl.teleport(pos[,rot])`  
 `pl.teleport(x,y,z,dimid[,rot])`
 
-- Parameters: 
-  - pos: `IntPos `/ `FloatPos`  
-    Target position coordinates (or use x, y, z, dimid to determine player position)
-    
-  - rot: `DirectionAngle`
-  
-    (Optional) The orientation of the player after teleport, or the same orientation as before teleport if default
-  
+- Parameters:
+    - pos: `IntPos `/ `FloatPos`  
+      Target position coordinates (or use x, y, z, dimid to determine player position)
+
+    - rot: `DirectionAngle`
+
+      (Optional) The orientation of the player after teleport, or the same orientation as before teleport if default
+
 - Return value: Whether the teleport was successful or not.
 
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl, a coordinate object pos
 pl.teleport(pos);
 ```
 
-#### Kill the Player  
+#### Kill the Player
 
 `pl.kill()`
 
@@ -363,6 +369,7 @@ pl.teleport(pos);
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 [JavaScript]
 //For a `Player` object pl
@@ -375,20 +382,20 @@ pl.kill();
 
 `pl.hurt(damage,type,source)`
 
-- Parameters: 
-  - damage : `Float`  
-    The amount of damage to deal to the player.
-  - type : `Integer`  
-    Actor Damage Cause
-  - source: `Entity`  
-    Source of damage
+- Parameters:
+    - damage : `Float`  
+      The amount of damage to deal to the player.
+    - type : `Integer`  
+      Actor Damage Cause
+    - source: `Entity`  
+      Source of damage
 - Return value: Whether the damage was dealt.
 - Return value type:  `Boolean`
 
 Note that the damage dealt here is real damage and cannot be reduced by protective equipment such as armor.
 
 | ActorDamageCause ENUM              |
-| ---------------------------------- |
+|------------------------------------|
 | `ActorDamageCause.Override`        |
 | `ActorDamageCause.Contact `        |
 | `ActorDamageCause.EntityAttack`    |
@@ -424,171 +431,143 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 
 `pl.heal(health)`
 
-- Parameters: 
-  - health : `Integer`  
-    Number of hearts to heal.
+- Parameters:
+    - health : `Integer`  
+      Number of hearts to heal.
 - Return value: Whether heal was dealt.
 - Return value type: `Boolean`
-
-
 
 #### Set Health for Player
 
 `pl.setHealth(health)`
 
-- Parameters: 
-  - health : `Integer`  
-    Number of hearts.
+- Parameters:
+    - health : `Integer`  
+      Number of hearts.
 - Return value: Whether set health for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Absorption Attribute for Player
 
 `pl.setAbsorption(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Attack Damage Attribute for Player
 
 `pl.setAttackDamage(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Maximal Attack Damage Attribute for Player
 
 `pl.setMaxAttackDamage(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Follow Range Attribute for Player
 
 `pl.setFollowRange(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Knockback Resistance Attribute for Player
 
 `pl.setKnockbackResistance(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value (0 or 1)
+- Parameters:
+    - value : `Integer`  
+      New value (0 or 1)
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Luck Attribute for Player
 
 `pl.setLuck(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Movement Speed for Player
 
 `pl.setMovementSpeed(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Underwater Movement Speed for Player
 
 `pl.setUnderwaterMovementSpeed(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Lava Movement Speed for Player
 
 `pl.setLavaMovementSpeed(value)`
 
-- Parameters: 
-  - value : `Integer`  
-    New value
+- Parameters:
+    - value : `Integer`  
+      New value
 - Return value: Whether set attribute value for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Max Health for Player
 
 `pl.setMaxHealth(health)`
 
-- Parameters: 
-  - health : `Integer`  
-    Number of hearts.
+- Parameters:
+    - health : `Integer`  
+      Number of hearts.
 - Return value: Whether set max health for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set Hunger for Player
 
 `pl.setHungry(hunger)`
 
-- Parameters: 
-  - hunger : `Integer`  
-    Number of hunger.
+- Parameters:
+    - hunger : `Integer`  
+      Number of hunger.
 - Return value: Whether set hunger for player was success.
 - Return value type: `Boolean`
-
-
 
 #### Set the Specified Player on Fire
 
 `pl.setFire(time,isEffect)`
 
-- Parameters: 
-  - time : `Integer`  
-    Fire time, in seconds.
-  - isEffect : `Boolean`
-    Will there be a fire effect?
+- Parameters:
+    - time : `Integer`  
+      Fire time, in seconds.
+    - isEffect : `Boolean`
+      Will there be a fire effect?
 - Return value: Whether the player was set on fire.
 - Return value type: `Boolean`
-
-
 
 #### Put Out The Player
 
@@ -597,31 +576,28 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 - Return value: Has been extinguished.
 - Return value type: `Boolean`
 
-
-
 #### Scale Player
 
 `pl.setScale(scale)`
 
-- Parameters: 
-  - scale : `Float`  
-    New player size
+- Parameters:
+    - scale : `Float`  
+      New player size
 - Return value: Whether the player was scaled.
 - Return value type: `Boolean`
 
-
-
-#### Rename Player  
+#### Rename Player
 
 `pl.rename(newname)`
 
-- Parameters: 
-  - newname : `String`  
-    Player's new name.  
+- Parameters:
+    - newname : `String`  
+      Player's new name.
 - Return value: WHether the rename was successful.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.rename("newname");
@@ -634,8 +610,6 @@ pl.rename("newname");
 - Return value: The `Block` object currently standing on.
 - Return value type: `Block`
 
-
-
 #### Get the Player's Device Information Object
 
 `pl.getDevice()`
@@ -643,10 +617,10 @@ pl.rename("newname");
 - Return value: Device information object corresponding to the player
 - Return value type: `Device`
 
-The device information object stores certain information about the player's device, such as device IP address, device type, network latency, etc.  
-For additional information about device information objects, please refer to [Device Information Objects API](./Device.md)
-
-
+The device information object stores certain information about the player's device, such as device IP address, device
+type, network latency, etc.  
+For additional information about device information objects, please refer
+to [Device Information Objects API](./Device.md)
 
 #### Get the Item Object in the Player’s Main Hand
 
@@ -655,9 +629,8 @@ For additional information about device information objects, please refer to [De
 - Return value: The item object in the player's main hand.
 - Return value type: `Item`
 
-The item object obtained here is a reference. That is to say, modifying the item object returned here, or using its API, is equivalent to directly operating the corresponding item in the player's main hand.
-
-
+The item object obtained here is a reference. That is to say, modifying the item object returned here, or using its API,
+is equivalent to directly operating the corresponding item in the player's main hand.
 
 #### Get the Item Object of the Player’s Off-Hand
 
@@ -666,11 +639,10 @@ The item object obtained here is a reference. That is to say, modifying the item
 - Return value: The item object in the player's off-hand
 - Return value type: `Item`
 
-The item object obtained here is a reference. That is to say, modifying the item object returned here, or using its API, is equivalent to directly operating the corresponding item in the player's off hand.
+The item object obtained here is a reference. That is to say, modifying the item object returned here, or using its API,
+is equivalent to directly operating the corresponding item in the player's off hand.
 
-
-
-#### Get the Container Object of the Player’s Inventory  
+#### Get the Container Object of the Player’s Inventory
 
 `pl.getInventory()`
 
@@ -679,9 +651,7 @@ The item object obtained here is a reference. That is to say, modifying the item
 
 For more usage of container objects, please refer to [Container Object API Documentation](./Container.md)
 
-
-
-#### Gets the Container Object for the Player’s Armor Bar  
+#### Gets the Container Object for the Player’s Armor Bar
 
 `pl.getArmor()`
 
@@ -690,9 +660,7 @@ For more usage of container objects, please refer to [Container Object API Docum
 
 For more usage of container objects, please refer to [Container Object API Documentation](./Container.md)
 
-
-
-#### Get the Container Object of the Player’s Ender Chest  
+#### Get the Container Object of the Player’s Ender Chest
 
 `pl.getEnderChest()`
 
@@ -701,64 +669,55 @@ For more usage of container objects, please refer to [Container Object API Docum
 
 For more usage of container objects, please refer to [Container Object API Documentation](./Container.md)
 
-
-
-#### Get the Player’s Respawn Coordinates  
+#### Get the Player’s Respawn Coordinates
 
 `pl.getRespawnPosition()`
 
 - Return value: Respawn point coordinates
 - Return value type: `IntPos`
 
-
-
-#### Modify the Player’s Respawn Coordinates  
+#### Modify the Player’s Respawn Coordinates
 
 `pl.setRespawnPosition(pos)`  
 `pl.setRespawnPosition(x,y,z,dimid)`
 
-- Parameters: 
-  - pos : `IntPos` or `FloatPos`  
-    Respawn coordinates (or use x, y, z, dimid to determine respawn position)
+- Parameters:
+    - pos : `IntPos` or `FloatPos`  
+      Respawn coordinates (or use x, y, z, dimid to determine respawn position)
 - Return value: Whether the modification was successful.
 - Return value type: `Boolean`
-
-
 
 #### Give the Player an Item
 
 `pl.giveItem(item[, amount])`
 
-- Parameters: 
-  - item : `Item`  
-    The item being given.
-    
-  - amount: `Integer`
-  
-    (Optional) The number of item given. If this parameter is provided, the Count property of the item object itself will be ignored.
+- Parameters:
+    - item : `Item`  
+      The item being given.
+
+    - amount: `Integer`
+
+      (Optional) The number of item given. If this parameter is provided, the Count property of the item object itself
+      will be ignored.
 - Return value: Whether the item was given.
 - Return value type: `Boolean`
 
 If the player's inventory is full, excess items will be drop.
 
-
-
 #### Clears All Items of the Specified Type From the Player’s Backpack
 
 `pl.clearItem(type[, count)`
 
-- Parameters: 
-  - type : `String`  
-    Item object type name to clear
-  - count : `Integer`  
-    (Optional)Item count to be clear
+- Parameters:
+    - type : `String`  
+      Item object type name to clear
+    - count : `Integer`  
+      (Optional)Item count to be clear
 - Return value: The number of items cleared
 - Return value type: `Integer`
 
 Compares the type attribute of all items in the player's inventory, main hand, off-hand, and armor to this string.
 If found, clear this item.
-
-
 
 #### Refresh Player Inventory, Armor Bar
 
@@ -767,9 +726,8 @@ If found, clear this item.
 - Return value: Whether the refresh was successful
 - Return value type: `Boolean`
 
-After modifying the player's items, in order for the client to take effect, it is necessary to refresh all the player's items.
-
-
+After modifying the player's items, in order for the client to take effect, it is necessary to refresh all the player's
+items.
 
 #### Refresh All Chunks Loaded by the Player
 
@@ -778,28 +736,27 @@ After modifying the player's items, in order for the client to take effect, it i
 - Return value: Whether the refresh was successful.
 - Return value type: `Boolean`
 
-
-
-#### Modify Player Operation Permissions  
+#### Modify Player Operation Permissions
 
 `pl.setPermLevel(level)`
 
-- Parameters: 
+- Parameters:
 
-  - level : `Integer`  
-    Target operation authority level  
+    - level : `Integer`  
+      Target operation authority level
 
-    | Player Permission Level | Corresponding Permission Authority |
-    | ----------------------- | ---------------------------------- |
-    | 0                       | Ordinary Member Permissions        |
-    | 1                       | OP Permissions                     |
-    | 4                       | OP + Console Permissions           |
+      | Player Permission Level | Corresponding Permission Authority |
+                | ----------------------- | ---------------------------------- |
+      | 0                       | Ordinary Member Permissions        |
+      | 1                       | OP Permissions                     |
+      | 4                       | OP + Console Permissions           |
 
 - Return value: Whether the modification was successful.
 
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.setPermLevel(1);
@@ -809,47 +766,48 @@ pl.setPermLevel(1);
 
 `pl.setGameMode(mode)`
 
-- Parameters: 
+- Parameters:
 
-  - mode : `Integer`  
-    Target game mode, `0` is survival mode, `1` is creative mode, `2` is adventure mode. `6` is spectator mode.
+    - mode : `Integer`  
+      Target game mode, `0` is survival mode, `1` is creative mode, `2` is adventure mode. `6` is spectator mode.
 - Return value: Whether the modification was successful.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.setGameMode(1);
 ```
 
-#### Increase Player Experience Level 
+#### Increase Player Experience Level
 
 `pl.addLevel(count)`
 
-- Parameters: 
-  - count : `Integer`  
-    The number of experience levels to add.
+- Parameters:
+    - count : `Integer`  
+      The number of experience levels to add.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.addLevel(6);
 ```
+
 #### Decreases Player Experience Level
 
 `pl.reduceLevel(count)`
 
-- Parameters: 
-  - count : `Integer`  
-    The number of experience levels to reduce.
+- Parameters:
+    - count : `Integer`  
+      The number of experience levels to reduce.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
 
-
-
-#### Get Player Experience Level 
+#### Get Player Experience Level
 
 `pl.getLevel()`
 
@@ -857,26 +815,28 @@ pl.addLevel(6);
 - Return value type: `Integer`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.getLevel();
 ```
+
 [Lua]
+
 ```lua
 --For a `Player` object pl
 pl.getLevel()
 ```
+
 #### Set Player Experience Level
 
 `pl.setLevel(count)`
 
 - Parameters
-  - count : `Integer`  
-    The number of experience levels to set.
+    - count : `Integer`  
+      The number of experience levels to set.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Reset Player Experience
 
@@ -886,36 +846,35 @@ pl.getLevel()
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.resetLevel();
 ```
+
 [Lua]
+
 ```lua
 --For a `Player` object pl
 pl:resetLevel()
 ```
 
-#### Get Player Current Experience Points 
+#### Get Player Current Experience Points
 
 `pl.getCurrentExperience()`
 
 - Return value: The player's current experience points.
 - Return value type: `Integer`
 
-
-
 #### Set Player Current Experience Points
 
 `pl.setCurrentExperience(count)`
 
 - Parameters
-  - count : `Integer`  
-    The number of experience points to set.
+    - count : `Integer`  
+      The number of experience points to set.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Get Player Total Experience Points
 
@@ -924,36 +883,35 @@ pl:resetLevel()
 - Return value: The player's total experience points.
 - Return value type: `Integer`
 
-
-
 #### Set Player Total Experience Points
 
 `pl.getTotalExperience(count)`
 
 - Parameters
-  - count : `Integer`  
-    The number of experience points to set.
+    - count : `Integer`  
+      The number of experience points to set.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Increase Player Experience Points
 
 `pl.addExperience(count)`
 
-- Parameters: 
-  - count : `Integer`
-    The amount of experience points to give to the player.
+- Parameters:
+    - count : `Integer`
+      The amount of experience points to give to the player.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.addExperience(6);
 ```
+
 [Lua]
+
 ```lua
 --For a `Player` object pl
 pl:addExperience(6)
@@ -963,13 +921,11 @@ pl:addExperience(6)
 
 `pl.reduceExperience(count)`
 
-- Parameters: 
-  - count : `Integer`  
-    The number of experience points to reduce.
+- Parameters:
+    - count : `Integer`  
+      The number of experience points to reduce.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Get the Experience Points Needed for Players to Level Up
 
@@ -981,33 +937,37 @@ pl:addExperience(6)
 Note that this method ignores the experience value that exceeds the level when calculating.
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.getXpNeededForNextLevel();
 ```
+
 [Lua]
+
 ```lua
 --For a `Player` object pl
 pl.getXpNeededForNextLevel()
 ```
 
-#### Send the Player to the Specified Server  
+#### Send the Player to the Specified Server
 
 `pl.transServer(server,port)`
 
-- Parameters: 
-  - server : `String`  
-    Target server IP / domain name
+- Parameters:
+    - server : `String`  
+      Target server IP / domain name
 
-  - port : `Integer`  
-    Target server port  
+    - port : `Integer`  
+      Target server port
 - Return value: Whether the transfer was successful or not.
-- Return value type: `Boolean` 
+- Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
-pl.transServer("123.45.67.89",23333);
+pl.transServer("123.45.67.89", 23333);
 ```
 
 #### Crash the Player Client
@@ -1015,44 +975,50 @@ pl.transServer("123.45.67.89",23333);
 `pl.crash()`
 
 - Return value: Whether the execution was successful.
-- Return value type: `Boolean` 
+- Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.crash();
 ```
+
 [Lua]
+
 ```lua
 --For a `Player` object pl
 pl:crash()
 
 ```
+
 #### Set Player Custom Sidebar
 
 `pl.setSidebar(title,data[,sortOrder])`
 
-- Parameters: 
+- Parameters:
 
-  - title : `String`  
-    Sidebar Title  
-  - data : `Object<String-Integer>`  
-    Sidebar Object Content Object  
-    Each key-value pair in the object will be set as a row of the sidebar content.
-  - sortOrder : `Number`  
-    (Optional) Sort order for sidebar content. `0` In ascending order of scores, `1` in descending order by score. Default is `1`.
+    - title : `String`  
+      Sidebar Title
+    - data : `Object<String-Integer>`  
+      Sidebar Object Content Object  
+      Each key-value pair in the object will be set as a row of the sidebar content.
+    - sortOrder : `Number`  
+      (Optional) Sort order for sidebar content. `0` In ascending order of scores, `1` in descending order by score.
+      Default is `1`.
 
 - Return value: Whether the setting was successful or not.
 
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
-pl.setSidebar("title",{"aaaa":3,"bbb":12,"cc":7});
+pl.setSidebar("title", {"aaaa": 3, "bbb": 12, "cc": 7});
 ```
 
-#### Remove Player Customization Sidebar 
+#### Remove Player Customization Sidebar
 
 `pl.removeSidebar()`
 
@@ -1060,44 +1026,47 @@ pl.setSidebar("title",{"aaaa":3,"bbb":12,"cc":7});
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.removeSidebar();
 ```
 
-#### Sets the Custom Boss Health Bar That the Player Sees  
+#### Sets the Custom Boss Health Bar That the Player Sees
 
 `pl.setBossBar(uid,title,percent,colour)`
 
-- Parameters: 
-  - uid : `Number`   
-    Unique identifier, no conflicting duplicates! One uid for one line of bar
-  - title : `String`  
-    Custom Health Bar Title  
-  - percent : `Integer`  
-    The percentage of health in the boss bar, the valid range is 0~100. `0` is empty boss bar, `100` is full.
-  - colour : `Integer`
-     Health bar color (default is 2 (RED))
+- Parameters:
+    - uid : `Number`   
+      Unique identifier, no conflicting duplicates! One uid for one line of bar
+    - title : `String`  
+      Custom Health Bar Title
+    - percent : `Integer`  
+      The percentage of health in the boss bar, the valid range is 0~100. `0` is empty boss bar, `100` is full.
+    - colour : `Integer`
+      Health bar color (default is 2 (RED))
 - Return value: Whether the setting was successful or not.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
-pl.setBossBar(1145141919,"Hello ~ ",80,0);
+pl.setBossBar(1145141919, "Hello ~ ", 80, 0);
 ```
 
-#### Remove the Player’s Custom Boss Health Bar  
+#### Remove the Player’s Custom Boss Health Bar
 
 `pl.removeBossBar(uid)`
 
-- Parameters: 
-  - uid : `Number`  
-    Identifier, corresponding to setBossBar!
+- Parameters:
+    - uid : `Number`  
+      Identifier, corresponding to setBossBar!
 - Return value: Whether the removal was successful.
 - Return value type: `Boolean`
 
 [JavaScript]
+
 ```js
 //For a `Player` object pl
 pl.removeBossBar(1145141919);
@@ -1110,119 +1079,101 @@ pl.removeBossBar(1145141919);
 - Return value: Player's NBT object.
 - Return value type: `NbtCompound`
 
-
-
 #### Write to an Online Player's NBT Object
 
 `pl.setNbt(nbt)`
 
-- Parameters: 
-  - nbt : `NbtCompound`  
-    NBT objects
+- Parameters:
+    - nbt : `NbtCompound`  
+      NBT objects
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
 For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI/NBT.md)
 
-
-
 #### Get an Player's NBT Object
 
 `mc.getPlayerNbt(uuid)`
 
-- Parameters: 
-  - uuid : `String`  
-    Player`s UUID
+- Parameters:
+    - uuid : `String`  
+      Player`s UUID
 - Return value: Player's NBT object.
 - Return value type: `NbtCompound`
 
-Using this API, you can operate offline player`s nbt. 
-
-
+Using this API, you can operate offline player`s nbt.
 
 #### Write to an Player's NBT Object
 
 `mc.setPlayerNbt(uuid,nbt)`
 
-- Parameters: 
-  - uuid : `String`  
-    Player`s UUID
-  - nbt : `NbtCompound`  
-    NBT objects
+- Parameters:
+    - uuid : `String`  
+      Player`s UUID
+    - nbt : `NbtCompound`  
+      NBT objects
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-Using this API, you can operate offline player`s nbt. 
-
-
+Using this API, you can operate offline player`s nbt.
 
 #### Write Data to Some Special Tags of an Player's NBT Object
 
 `mc.setPlayerNbtTags(uuid,nbt,tags)`
 
-- Parameters: 
-  - uuid : `String`  
-    Player`s UUID
-  - nbt : `NbtCompound`  
-    NBT objects
-  - tags : `Array`  
-    Tags need to write
+- Parameters:
+    - uuid : `String`  
+      Player`s UUID
+    - nbt : `NbtCompound`  
+      NBT objects
+    - tags : `Array`  
+      Tags need to write
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-Using this API, you can operate offline player`s nbt. 
-
-
+Using this API, you can operate offline player`s nbt.
 
 #### Delete an Player's NBT Object
 
 `mc.deletePlayerNbt(uuid)`
 
-- Parameters: 
-  - uuid : `String`  
-    Player`s UUID
+- Parameters:
+    - uuid : `String`  
+      Player`s UUID
 - Return value: Whether the delete was successful or not.
 - Return value type: `Boolean`
 
-Using this API, you can operate offline player`s nbt. 
-
-
+Using this API, you can operate offline player`s nbt.
 
 #### Add a Tag for the Player
 
 `pl.addTag(tag)`
 
-- Parameters: 
-  - tag: `String`  
-    The tag string to be added.
+- Parameters:
+    - tag: `String`  
+      The tag string to be added.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Remove a Tag for a player
 
 `pl.removeTag(tag)`
 
-- Parameters: 
-  - tag: `String`  
-    The tag string to remove.
+- Parameters:
+    - tag: `String`  
+      The tag string to remove.
 - Return value: Whether the removal was successful.
 - Return value type: `Boolean`
 
-
-
-#### Check if the Player Has a Tag 
+#### Check if the Player Has a Tag
 
 `pl.hasTag(tag)`
 
-- Parameters: 
-  - tag: `String`  
-    Tag string to check
+- Parameters:
+    - tag: `String`  
+      Tag string to check
 - Return value: Whether the player has the tag.
 - Return value type: `Boolean`
-
-
 
 #### Get a List of All Tags Player the Player Has
 
@@ -1230,8 +1181,6 @@ Using this API, you can operate offline player`s nbt.
 
 - Return value: List of all tag strings of the player.
 - Return value type: `Array<String,String,...>`
-
-
 
 #### Get a List of the Player’s Abilities (From the Player’s NBT)
 
@@ -1242,7 +1191,6 @@ Using this API, you can operate offline player`s nbt.
 
 Each item in the list of key-value pairs looks like: `"mayfly": 1` etc.
 
-
 #### Get a list of the player's Attributes (from the player's NBT)
 
 `pl.getAttributes()`
@@ -1250,22 +1198,22 @@ Each item in the list of key-value pairs looks like: `"mayfly": 1` etc.
 - Return value: An array of all property objects of the player.
 - Return value type: `Array<Object,Object,...>`
 
-Each item in the array is a key-value pair list object `Object`, and the Attributes object contains several contents such as `Base` `Current` `DefaultMax` `DefaultMin` `Max` `Min` `Name` by default. Its content looks like:
+Each item in the array is a key-value pair list object `Object`, and the Attributes object contains several contents
+such as `Base` `Current` `DefaultMax` `DefaultMin` `Max` `Min` `Name` by default. Its content looks like:
+
 ```json
 {
-    "Base": 0, 
-    "Current": 0, 
-    "DefaultMax": 1024, 
-    "DefaultMin": -1024, 
-    "Max": 1024, 
-    "Min": -1024, 
-    "Name": "minecraft:luck"
+  "Base": 0,
+  "Current": 0,
+  "DefaultMax": 1024,
+  "DefaultMin": -1024,
+  "Max": 1024,
+  "Min": -1024,
+  "Name": "minecraft:luck"
 }
 ```
 
 (Here it's displayed visually using JSON format)
-
-
 
 #### Get Player Sprint Status
 
@@ -1274,58 +1222,49 @@ Each item in the array is a key-value pair list object `Object`, and the Attribu
 - Return value: Player's sprint state
 - Return value type: `Boolean`
 
-
-
-#### Set Player Sprint State 
+#### Set Player Sprint State
 
 `pl.setSprinting(sprinting)`
 
-- Parameters: 
-  - sprinting : `Boolean`  
-    Sprinting state.
+- Parameters:
+    - sprinting : `Boolean`  
+      Sprinting state.
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
-
-
 
 #### Sending packets to the player
 
-`pl.sendPacket(packet)`  
+`pl.sendPacket(packet)`
 
 - Parameters:
-  - packet : `Packet`  
-    Packet
+    - packet : `Packet`  
+      Packet
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
 
-
-
 #### Get the player's Biome ID
 
-`pl.getBiomeId()`  
+`pl.getBiomeId()`
 
 - Return value: Biome ID
 - Return value type: `Integer`
 
-
-
 #### Get the player's Biome Name
 
-`pl.getBiomeName()`  
+`pl.getBiomeName()`
 
 - Return value: Biome Name
 - Return value type: `String`
 
-
-
 #### Set Player Ability
 
-`pl.setAbility(AbilityID,Value)`  
+`pl.setAbility(AbilityID,Value)`
+
 - Parameters:
-  - AbilityID : `Integer`  
-    Ability's ID   
-  - Value : `Boolean`  
-    Whether to turn on
+    - AbilityID : `Integer`  
+      Ability's ID
+    - Value : `Boolean`  
+      Whether to turn on
 - Return value: None
 - Return value type: `Boolean`
 
@@ -1336,66 +1275,64 @@ Each item in the array is a key-value pair list object `Object`, and the Attribu
 - Return value: effect ID which is player owned
 - Return type: `Array<number,number,...>`
 
-
-
 #### Add an effect for player
 
 `pl.addEffect(id, tick, level, showParticles)`
-- Parameter: 
-  - id : `Number`
-    Effect ID
-  - tick : `Number`
-    Lasting time
-  - level : `Number`
-    Effect's level
-  - showParticles : `Boolean`
-    Whether to show particles
+
+- Parameter:
+    - id : `Number`
+      Effect ID
+    - tick : `Number`
+      Lasting time
+    - level : `Number`
+      Effect's level
+    - showParticles : `Boolean`
+      Whether to show particles
 - Return value: Whether succeed
 - Return type: `Boolean`
-
-
 
 #### Remove an effect for player
 
 `pl.removeEffect(id)`
-- Parameter: 
-  - id : `Number`
-    Effect ID
+
+- Parameter:
+    - id : `Number`
+      Effect ID
 - Return value: Whether succeed
 - Return type: `Boolean`
 
-| Name            | ID  |
-| --------------- | --- |
-| speed           | 1   |
-| slowness        | 2   |
-| haste           | 3   |
-| mining_fatigue  | 4   |
-| strength        | 5   |
-| instant_health  | 6   |
-| instant_damage  | 7   |
-| jump_boost      | 8   |
-| nausea          | 9   |
-| regeneration    | 10  |
-| resistance      | 11  |
-| fire_resistance | 12  |
-| water_breathing | 13  |
-| invisibility    | 14  |
-| blindness       | 15  |
-| night_vision    | 16  |
-| hunger          | 17  |
-| weakness        | 18  |
-| poison          | 19  |
-| wither          | 20  |
-| health_boost    | 21  |
-| absorption      | 22  |
-| saturation      | 23  |
-| levitation      | 24  |
-| fatal_poison    | 25  |
-| conduit_power   | 26  |
-| slow_falling    | 27  |
-| bad_omen        | 28  |
-| village_hero    | 29  |
-| darkness        | 30  |
+| Name            | ID |
+|-----------------|----|
+| speed           | 1  |
+| slowness        | 2  |
+| haste           | 3  |
+| mining_fatigue  | 4  |
+| strength        | 5  |
+| instant_health  | 6  |
+| instant_damage  | 7  |
+| jump_boost      | 8  |
+| nausea          | 9  |
+| regeneration    | 10 |
+| resistance      | 11 |
+| fire_resistance | 12 |
+| water_breathing | 13 |
+| invisibility    | 14 |
+| blindness       | 15 |
+| night_vision    | 16 |
+| hunger          | 17 |
+| weakness        | 18 |
+| poison          | 19 |
+| wither          | 20 |
+| health_boost    | 21 |
+| absorption      | 22 |
+| saturation      | 23 |
+| levitation      | 24 |
+| fatal_poison    | 25 |
+| conduit_power   | 26 |
+| slow_falling    | 27 |
+| bad_omen        | 28 |
+| village_hero    | 29 |
+| darkness        | 30 |
 
 ### Determine whether it is a simulated player
 
@@ -1403,8 +1340,6 @@ Each item in the array is a key-value pair list object `Object`, and the Attribu
 
 - Return value: Is player a simulated player
 - Return type: `Boolean`
-
-
 
 ## Simulated player (due to too much overlap with the player API, no new simulated player class was generated)
 
@@ -1414,17 +1349,19 @@ Each item in the array is a key-value pair list object `Object`, and the Attribu
 `mc.spawnSimulatedPlayer(name,x,y,z,dimid)`
 
 - Parameters:
-  - name : `String`  
-    Name of simulted player
-  - pos : `IntPos `/ `FloatPos`  
-    The coordinate object of the position of the spawned creature (or use x, y, z, dimid to determine the spawning position)
+    - name : `String`  
+      Name of simulted player
+    - pos : `IntPos `/ `FloatPos`  
+      The coordinate object of the position of the spawned creature (or use x, y, z, dimid to determine the spawning
+      position)
 - Return value: Generated (simulated) player object
 - Return type: `Player`
-  - If the return value is `Null`, it means the generation failed.
+    - If the return value is `Null`, it means the generation failed.
 
 ### Simulated Player - Functions
 
-Each simulated player object contains some member functions (member methods) that can be executed. For a specific simulated player object `sp`, you can use the following functions to perform some operations on this simulated player.
+Each simulated player object contains some member functions (member methods) that can be executed. For a specific
+simulated player object `sp`, you can use the following functions to perform some operations on this simulated player.
 
 #### Simulate Respawn
 
@@ -1441,33 +1378,32 @@ Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/cr
 
 - Parameters:
 
-  - target : `Entity`  
-    (Optional parameter) Attack target, default is the entity in the line of sight
+    - target : `Entity`  
+      (Optional parameter) Attack target, default is the entity in the line of sight
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#attack)
 
-
 #### Simulate Destroy
 
 `sp.simulateDestroy([pos,face])`
 `sp.simulateDestroy([block,face])`
+
 - Parameters:
 
-  - pos :`IntPos`  
-    (Optional parameter) The coordinates of the block to be destroyed, default is the block in the line of sight
-  - block :`Block`  
-    (Optional parameter) The block to be destroyed, default is the block in the line of sight
-  - face :`Integer`  
-    (Optional parameter) Which face to destroy from
+    - pos :`IntPos`  
+      (Optional parameter) The coordinates of the block to be destroyed, default is the block in the line of sight
+    - block :`Block`  
+      (Optional parameter) The block to be destroyed, default is the block in the line of sight
+    - face :`Integer`  
+      (Optional parameter) Which face to destroy from
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#breakblock)
-
 
 #### Simulate Disconnect
 
@@ -1477,26 +1413,26 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return type: `Boolean`
 
 #### Simulate Interact
+
 `sp.simulateInteract([target])`
 `sp.simulateInteract([pos,face])`
 `sp.simulateInteract([block,face])`
 
 - Parameters:
 
-  - target : `Entity`  
-    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
-  - pos :`IntPos`  
-    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
-  - block :`Block`  
-    (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
-  - face :`Number`  
-    (Optional parameter) Simulated interaction target block face
+    - target : `Entity`  
+      (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+    - pos :`IntPos`  
+      (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+    - block :`Block`  
+      (Optional parameter) Simulated interaction target, default is the block or entity in the line of sight
+    - face :`Number`  
+      (Optional parameter) Simulated interaction target block face
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#interact)
-
 
 #### Simulate Jump
 
@@ -1507,7 +1443,6 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#jump)
 
-
 #### Simulate Look At a Block or Entity
 
 `sp.simulateLookAt(pos, [lookDuration])`
@@ -1515,25 +1450,24 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 `sp.simulateLookAt(block, [lookDuration])`
 
 !!! tip
-  `lookDuration` parameter not available in versions prior to 0.8.13
+`lookDuration` parameter not available in versions prior to 0.8.13
 
 - Parameters:
 
-  - target : `Entity`  
-    The entity to look at
-  - pos :`IntPos` / `FloatPos`  
-    The coordinates to look at
-  - block :`Block`  
-    The block to look at
-  - lookDuration: `Int`  
-    The duration SimulatedPlayer look  
-    0 = Instant, 1 = Continuous, 2 = UntilMove
+    - target : `Entity`  
+      The entity to look at
+    - pos :`IntPos` / `FloatPos`  
+      The coordinates to look at
+    - block :`Block`  
+      The block to look at
+    - lookDuration: `Int`  
+      The duration SimulatedPlayer look  
+      0 = Instant, 1 = Continuous, 2 = UntilMove
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#lookatblock)
-
 
 #### Simulate Set Body Rotation
 
@@ -1541,52 +1475,49 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 - Parameters:
 
-  - rot : `Number`  
-    The angle to set
+    - rot : `Number`  
+      The angle to set
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#rotatebody)
 
-
 #### Move Relative to Player Coordinate System
 
 `sp.simulateLocalMove()`
 
 - Parameters:
-  - pos : `IntPos` / `FloatPos`  
-    Move direction
-  - speed : `Number`  
-    (Optional parameter) Move speed, default is 1
+    - pos : `IntPos` / `FloatPos`  
+      Move direction
+    - speed : `Number`  
+      (Optional parameter) Move speed, default is 1
 
 - Return value: Whether the move request was successful
 - Return type: `Boolean`
-
 
 #### Move Relative to World Coordinate System
 
 `sp.simulateWorldMove()`
 
 - Parameters:
-  - pos : `IntPos` / `FloatPos`  
-    Move direction
-  - speed : `Number`  
-    (Optional parameter) Move speed, default is 1
+    - pos : `IntPos` / `FloatPos`  
+      Move direction
+    - speed : `Number`  
+      (Optional parameter) Move speed, default is 1
 
 - Return value: Whether the move request was successful
 - Return type: `Boolean`
-
 
 #### Move Straight to Coordinate
 
 `sp.simulateMoveTo()`
 
 - Parameters:
-  - pos : `IntPos` / `FloatPos`  
-    Target position
-  - speed : `Number`  
-    (Optional parameter) Move speed, default is 1
+    - pos : `IntPos` / `FloatPos`  
+      Target position
+    - speed : `Number`  
+      (Optional parameter) Move speed, default is 1
 
 - Return value: Whether the move request was successful
 - Return type: `Boolean`
@@ -1601,22 +1532,26 @@ Note: If you need automatic pathfinding, consider using `Simulate Navigate Move`
 
 - Parameters:
 
-  - entity : `Entity`  
-    Navigation target
-  - pos : `IntPos` / `FloatPos`  
-    Navigation target
-  - speed : `Number`  
-    (Optional parameter) Move speed, default is 1
+    - entity : `Entity`  
+      Navigation target
+    - pos : `IntPos` / `FloatPos`  
+      Navigation target
+    - speed : `Number`  
+      (Optional parameter) Move speed, default is 1
 
-- Return value: Whether the specified location can be reached and the navigation path, structure: {isFullPath:`Boolean`,path:`Number[3][]`}
+- Return value: Whether the specified location can be reached and the navigation path, structure: {isFullPath:`Boolean`
+  ,path:`Number[3][]`}
 - Return type: `Object`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetoblock)  
 Return value example:
+
 ```js
 {
     isFullPath: false,
-    path: [
+        path
+:
+    [
         [
             -8,
             0,
@@ -1657,11 +1592,12 @@ Return value example:
             0,
             0
         ]
-      ]
+    ]
 }
 ```
-This data has a target coordinate of (0,2,0), and the path endpoint is (-1,0,0), so isFullPath is false, but since the path is not empty, the simulated player will move to the (-1,0,0) coordinate.
 
+This data has a target coordinate of (0,2,0), and the path endpoint is (-1,0,0), so isFullPath is false, but since the
+path is not empty, the simulated player will move to the (-1,0,0) coordinate.
 
 #### Simulate Navigate Move (Multiple Targets)
 
@@ -1669,16 +1605,15 @@ This data has a target coordinate of (0,2,0), and the path endpoint is (-1,0,0),
 
 - Parameters:
 
-  - posArray : `IntPos[]` / `FloatPos[]`  
-    Navigation targets
-  - speed : `Number`  
-    (Optional parameter) Move speed, default is 1
+    - posArray : `IntPos[]` / `FloatPos[]`  
+      Navigation targets
+    - speed : `Number`  
+      (Optional parameter) Move speed, default is 1
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetolocations)
-
 
 #### Simulate Use Item
 
@@ -1687,22 +1622,21 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 - Parameters:
 
-  - item : `Item`  
-    (Optional parameter) The item to use, default is the selected item
-  - slot : `Number`  
-    (Optional parameter) The slot where the item is located, default is the selected item
-  - pos : `IntPos`  
-    (Optional parameter) Target coordinate, default is the facing block coordinate
-  - face : `Number`  
-    (Optional parameter) Target block face, default is 0
-  - relative : `FloatPos`  
-    (Optional parameter) Relative block offset coordinate, default is {0.5,0.5,0.5}
+    - item : `Item`  
+      (Optional parameter) The item to use, default is the selected item
+    - slot : `Number`  
+      (Optional parameter) The slot where the item is located, default is the selected item
+    - pos : `IntPos`  
+      (Optional parameter) Target coordinate, default is the facing block coordinate
+    - face : `Number`  
+      (Optional parameter) Target block face, default is 0
+    - relative : `FloatPos`  
+      (Optional parameter) Relative block offset coordinate, default is {0.5,0.5,0.5}
 
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#useitem)
-
 
 #### Simulate Stop Destroying Block
 
@@ -1713,7 +1647,6 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopbreakingblock)
 
-
 #### Simulate Stop Interacting
 
 `sp.simulateStopInteracting()`
@@ -1723,7 +1656,6 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopinteracting)
 
-
 #### Simulate Stop Moving
 
 `sp.simulateStopMoving()`
@@ -1732,7 +1664,6 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return type: `Boolean`
 
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopmoving)
-
 
 #### Simulate Stop Using Item
 

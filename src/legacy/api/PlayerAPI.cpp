@@ -17,7 +17,6 @@
 #include "engine/GlobalShareData.h"
 #include "legacyapi/form/FormPacketHelper.h"
 #include "legacyapi/form/FormUI.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/PlayerInfo.h"
@@ -94,6 +93,9 @@
 #include "mc/world/level/material/Material.h"
 #include "mc/world/scores/Objective.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
+#include "ll/api/chrono/GameChrono.h"
+#include "ll/api/coro/CoroTask.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 
 #include <algorithm>
 #include <climits>
@@ -3531,8 +3533,19 @@ Local<Value> PlayerClass::setAbility(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         player->setAbility(AbilitiesIndex(args[0].asNumber().toInt32()), args[1].asBoolean().value());
+        if (!player->isPlayerInitialized()) {
+            ll::coro::keepThis([uuid(player->getOrCreateUniqueID())]() -> ll::coro::CoroTask<> {
+                using namespace ll::chrono_literals;
+                co_await 1_tick;
+                auto player = ll::service::getLevel()->getPlayer(uuid);
+                if (!player) co_return;
+                UpdateAbilitiesPacket(uuid, player->getAbilities()).sendTo(*player);
+                UpdateAdventureSettingsPacket{}.sendTo(*player);
+            }).launch(ll::thread::ServerThreadExecutor::getDefault());
+        }
         return Boolean::newBoolean(true);
     }
+
     CATCH("Fail in setAbility!");
 }
 

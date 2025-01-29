@@ -3120,7 +3120,7 @@ Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
         }
         HitResult result = player->traceRay(maxDistance, true, false);
         Actor*    entity = result.getEntity();
-        if (entity) {
+        if (result.mType != HitResultType::NoHit && entity) {
             return EntityClass::newEntity(entity);
         }
         return Local<Value>();
@@ -3169,7 +3169,9 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
                 return true;
             }
         );
-
+        if (res.mType == HitResultType::NoHit) {
+            return Local<Value>();
+        }
         BlockPos bp;
         if (includeLiquid && res.mIsHitLiquid) {
             bp = res.mLiquidPos;
@@ -3177,7 +3179,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             bp = res.mBlock;
         }
         Block const& bl = player->getDimensionBlockSource().getBlock(bp);
-        if (bl.isEmpty()) {
+        if (bl.isAir() || bl.isEmpty()) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());

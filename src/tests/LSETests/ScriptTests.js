@@ -1,4 +1,4 @@
-export function loggerTest(players) {
+export function TestLogger(players) {
     for (let player of players) {
         logger.setPlayer(player)
     }

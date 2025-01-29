@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2025-01-29
+
+### Fixed
+
+- Removed redundant endl in ColorLog
+- Add missing destroy engine when load failed
+- Fixed Player/Entity::getBlockFromViewVector [#214]
+- Fixed Player/Entity::isOnHotBlock
+- Fixed Player::setAbility [#213]
+- Fixed Logger::setLogLevel & ColorLog
+- Fixed debug engine's logger
+- Fixed npm executing [#204]
+
 ## [0.9.1] - 2025-01-26
 
 ### Fixed
@@ -720,13 +733,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#203]: https://github.com/LiteLDev/LegacyScriptEngine/issues/203
 
+[#204]: https://github.com/LiteLDev/LegacyScriptEngine/issues/204
+
 [#206]: https://github.com/LiteLDev/LegacyScriptEngine/issues/206
 
 [#207]: https://github.com/LiteLDev/LegacyScriptEngine/issues/207
 
 [#208]: https://github.com/LiteLDev/LegacyScriptEngine/issues/208
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.1...HEAD
+[#213]: https://github.com/LiteLDev/LegacyScriptEngine/issues/213
+
+[#214]: https://github.com/LiteLDev/LegacyScriptEngine/issues/214
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.2...HEAD
+
+[0.9.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.1...v0.9.2
 
 [0.9.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.0...v0.9.1
 

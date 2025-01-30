@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2025-01-30
+
+### Fixed
+
+- Fixed Player::clearItem [#216]
+
 ## [0.9.2] - 2025-01-29
 
 ### Fixed
@@ -745,7 +751,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#214]: https://github.com/LiteLDev/LegacyScriptEngine/issues/214
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.2...HEAD
+[#216]: https://github.com/LiteLDev/LegacyScriptEngine/issues/216
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.3...HEAD
+
+[0.9.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.2...v0.9.3
 
 [0.9.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.1...v0.9.2
 

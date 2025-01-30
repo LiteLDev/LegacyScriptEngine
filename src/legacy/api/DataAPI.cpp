@@ -532,7 +532,8 @@ Local<Value> MoneyClass::set(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneySet!");
@@ -570,7 +571,8 @@ Local<Value> MoneyClass::add(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyAdd!");
@@ -614,12 +616,14 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
     try {
         string note = "";
         if (args.size() >= 4 && args[3].getKind() == ValueKind::kString) note = args[3].asString().toString();
-        return Boolean::newBoolean(EconomySystem::transMoney(
-            args[0].asString().toString(),
-            args[1].asString().toString(),
-            args[2].asNumber().toInt64(),
-            note
-        ));
+        return Boolean::newBoolean(
+            EconomySystem::transMoney(
+                args[0].asString().toString(),
+                args[1].asString().toString(),
+                args[2].asNumber().toInt64(),
+                note
+            )
+        );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyTrans!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
@@ -759,8 +763,6 @@ Local<Value> DataClass::xuid2uuid(const Arguments& args) {
 }
 
 Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         auto arr   = Array::newArray();
         auto level = ll::service::getLevel();

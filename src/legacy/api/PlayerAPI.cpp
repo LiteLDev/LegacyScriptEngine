@@ -2906,60 +2906,33 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
         if (!player) {
             return {};
         }
-        unsigned int clearCount = 1;
+        int clearCount = 1;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             clearCount = args[1].asNumber().toInt32();
         }
-        int   result         = 0;
-        auto& inventorySlots = player->getInventory().getSlots();
-        for (unsigned short slot = 0; slot < inventorySlots.size(); ++slot) {
-            if (clearCount <= 0) {
-                break;
-            }
-            if (inventorySlots[slot]->getTypeName() == args[0].asString().toString()) {
-                if (inventorySlots[slot]->mCount < clearCount) {
-                    result     += inventorySlots[slot]->mCount;
-                    clearCount -= inventorySlots[slot]->mCount;
-                } else {
-                    result     += clearCount;
-                    clearCount  = 0;
+        int         result        = 0;
+        std::string typeName      = args[0].asString().toString();
+        auto        clearFunction = [&result, &typeName, &clearCount](Container& container) {
+            auto slots = container.getSlots();
+            for (size_t slot = 0; slot < slots.size() && clearCount > 0; ++slot) {
+                if (slots[slot]->getTypeName() == typeName) {
+                    auto count = slots[slot]->mCount;
+                    if (count <= clearCount) {
+                        result     += count;
+                        clearCount -= count;
+                        container.setItem(slot, ItemStack::EMPTY_ITEM());
+                    } else {
+                        result += clearCount;
+                        container.removeItem(slot, clearCount);
+                        clearCount = 0;
+                    }
                 }
-                player->getInventory().removeItem(slot, clearCount);
             }
-        }
-        auto& handSlots = ActorEquipment::getHandContainer(player->getEntityContext()).getSlots();
-        for (unsigned short slot = 0; slot < handSlots.size(); ++slot) {
-            if (clearCount <= 0) {
-                break;
-            }
-            if (handSlots[slot]->getTypeName() == args[0].asString().toString()) {
-                if (handSlots[slot]->mCount < clearCount) {
-                    result     += handSlots[slot]->mCount;
-                    clearCount -= handSlots[slot]->mCount;
-                } else {
-                    result     += clearCount;
-                    clearCount  = 0;
-                }
-                ActorEquipment::getHandContainer(player->getEntityContext()).removeItem(slot, clearCount);
-            }
-        }
-        auto& armorSlots = ActorEquipment::getArmorContainer(player->getEntityContext()).getSlots();
-        for (unsigned short slot = 0; slot < armorSlots.size(); ++slot) {
-            if (clearCount <= 0) {
-                break;
-            }
-            if (armorSlots[slot]->getTypeName() == args[0].asString().toString()) {
-                if (armorSlots[slot]->mCount < clearCount) {
-                    result     += armorSlots[slot]->mCount;
-                    clearCount -= armorSlots[slot]->mCount;
-                } else {
-                    result     += clearCount;
-                    clearCount  = 0;
-                }
-                ActorEquipment::getArmorContainer(player->getEntityContext()).removeItem(slot, clearCount);
-            }
-        }
+        };
+        clearFunction(player->getInventory());
+        clearFunction(ActorEquipment::getHandContainer(player->getEntityContext()));
+        clearFunction(ActorEquipment::getArmorContainer(player->getEntityContext()));
         player->refreshInventory();
         return Number::newNumber(result);
     }
@@ -2967,8 +2940,6 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
 }
 
 Local<Value> PlayerClass::isSprinting(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         Player* player = get();
         if (!player) return Local<Value>();

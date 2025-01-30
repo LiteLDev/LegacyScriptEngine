@@ -154,15 +154,16 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]
-                         }](WebSocketClient&, vector<uint8_t> data) {
-        if (!nowList->empty())
-            for (auto& listener : *nowList) {
-                if (!EngineManager::isValid(listener.engine)) return;
-                EngineScope enter(listener.engine);
-                NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
-            }
-    });
+    ws->OnBinaryReceived(
+        [nowList{&listeners[int(WSClientEvents::onBinaryReceived)]}](WebSocketClient&, vector<uint8_t> data) {
+            if (!nowList->empty())
+                for (auto& listener : *nowList) {
+                    if (!EngineManager::isValid(listener.engine)) return;
+                    EngineScope enter(listener.engine);
+                    NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+                }
+        }
+    );
 
     ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]}](WebSocketClient&, string msg) {
         if (!nowList->empty())
@@ -366,7 +367,8 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 if (callback.isEmpty()) return;
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("WSClientClass::connectAsync Failed!"
+                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                    "WSClientClass::connectAsync Failed!"
                 );
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("In Plugin: " + pluginName);
@@ -778,8 +780,6 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
 }
 
 Local<Value> HttpServerClass::stop(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         RecordOperation(getEngineOwnData()->pluginName, "StopHttpServer", "");
         svr->stop();
@@ -789,8 +789,6 @@ Local<Value> HttpServerClass::stop(const Arguments& args) {
 }
 
 Local<Value> HttpServerClass::isRunning(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         return Boolean::newBoolean(svr->is_running());
     }

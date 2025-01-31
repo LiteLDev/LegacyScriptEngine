@@ -343,9 +343,9 @@ Local<Value> FileClass::write(const Arguments& args) {
             data = std::move(args[0].asString().toString());
         } else if (args[0].isByteBuffer()) {
             isString = false;
-            data =
-                std::move(std::string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength())
-                );
+            data     = std::move(
+                std::string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength())
+            );
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return {};
@@ -641,14 +641,12 @@ Local<Value> GetFilesList(const Arguments& args) {
         std::filesystem::directory_entry directory(args[0].asString().toU8string());
         if (!directory.is_directory()) return {};
 
-        std::vector<std::string>            fileList;
+        Local<Array>                        arr = Array::newArray();
         std::filesystem::directory_iterator deps(directory);
         for (auto& i : deps) {
-            fileList.push_back(ll::string_utils::u8str2str(i.path().filename().u8string()));
+            arr.add(String::newString(ll::string_utils::u8str2str(i.path().filename().u8string())));
         }
 
-        Local<Array> arr = Array::newArray();
-        for (auto& file : fileList) arr.add(String::newString(file));
         return arr;
     }
     CATCH("Fail in GetFilesList!");

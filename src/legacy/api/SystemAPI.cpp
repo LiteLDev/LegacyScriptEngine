@@ -55,9 +55,6 @@ bool NewProcess(
 
     std::thread([hRead{hRead}, hProcess{pi.hProcess}, callback{std::move(callback)}, timeLimit{timeLimit}, wCmd{wCmd}](
                 ) mutable {
-#ifndef LSE_DEBUG
-        ll::utils::error_utils::initExceptionTranslator();
-#endif
         if (timeLimit == -1) {
             WaitForSingleObject(hProcess, INFINITE);
         } else {

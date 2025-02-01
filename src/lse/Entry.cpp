@@ -102,9 +102,6 @@ void initializeLegacyStuff() {
 
 bool LegacyScriptEngine::load() {
     auto& logger = getSelf().getLogger();
-#ifdef NDEBUG
-    ll::error_utils::initExceptionTranslator();
-#endif
 
     try {
         auto result = ll::i18n::getInstance().load(getSelf().getLangDir());

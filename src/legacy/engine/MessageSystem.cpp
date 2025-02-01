@@ -358,9 +358,6 @@ void MessageSystemLoopOnce() {
 }
 
 void InitMessageSystem() {
-#ifdef NDEBUG
-    ll::error_utils::initExceptionTranslator();
-#endif
     globalShareData->messageSystemHandlers[LLSE_BACKEND_TYPE] = {ModuleMessage::handle, ModuleMessage::cleanup};
 
     ll::event::EventBus::getInstance().emplaceListener<ll::event::ServerStoppingEvent>(

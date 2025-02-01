@@ -347,10 +347,6 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                      callback{std::move(callbackFunc)},
                      engine{EngineScope::currentEngine()},
                      pluginName{getEngineOwnData()->pluginName}]() mutable {
-
-#ifdef NDEBUG
-            ll::error_utils::initExceptionTranslator();
-#endif
             try {
                 bool result = false;
                 try {

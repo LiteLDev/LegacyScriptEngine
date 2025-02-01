@@ -249,6 +249,10 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
     try {
         auto scriptEngine = EngineManager::getEngine(std::string(name));
 
+        if (!scriptEngine) {
+            return ll::makeStringError("Plugin {0} not found"_tr(name));
+        }
+
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         LLSERemoveTimeTaskData(scriptEngine);
 #endif
@@ -263,15 +267,23 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         eraseMod(name);
 
-        ll::coro::keepThis([scriptEngine]() -> ll::coro::CoroTask<> {
-            using namespace ll::chrono_literals;
-            co_await 1_tick;
+        if (ll::getGamingStatus() != ll::GamingStatus::Running) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
 #else
             scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
 #endif
-        }).launch(ll::thread::ServerThreadExecutor::getDefault());
+        } else {
+            ll::coro::keepThis([scriptEngine]() -> ll::coro::CoroTask<> {
+                using namespace ll::chrono_literals;
+                co_await 1_tick;
+#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+                NodeJsHelper::stopEngine(scriptEngine);
+#else
+                scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
+#endif
+            }).launch(ll::thread::ServerThreadExecutor::getDefault());
+        }
 
         return {};
     } catch (const std::exception& e) {

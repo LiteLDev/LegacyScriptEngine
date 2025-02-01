@@ -769,7 +769,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (actor->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->distanceTo(pos.getVec3()));
     }
@@ -835,7 +835,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (actor->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->distanceToSqr(pos.getVec3()));
     }

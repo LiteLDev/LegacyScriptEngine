@@ -784,7 +784,7 @@ Local<Value> PlayerClass::getLastDeathPos() {
         }
         auto pos = player->getLastDeathPos();
         auto dim = player->getLastDeathDimension();
-        if (!pos.has_value() || !dim.has_value() || dim == -1) {
+        if (!pos.has_value() || !dim.has_value() || dim->id == -1) {
             return Local<Value>();
         }
         return IntPos::newPos(pos.value(), dim->id);
@@ -3422,7 +3422,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->distanceTo(pos.getVec3()));
     }
@@ -3488,7 +3488,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->distanceToSqr(pos.getVec3()));
     }

@@ -51,8 +51,14 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
     ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         co_await std::chrono::milliseconds(timeout);
         try {
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine))
+            if (!CheckTimeTask(tid)) {
                 co_return;
+            }
+
+            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+                ClearTimeTask(tid);
+                co_return;
+            }
 
             EngineScope scope(data.engine);
             if (!data.func.isEmpty()) {
@@ -83,8 +89,14 @@ int NewTimeout(Local<String> func, int timeout) {
     ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         co_await std::chrono::milliseconds(timeout);
         try {
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine))
+            if (!CheckTimeTask(tid)) {
                 co_return;
+            }
+
+            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+                ClearTimeTask(tid);
+                co_return;
+            }
 
             EngineScope scope(data.engine);
             if (!data.code.isEmpty()) {

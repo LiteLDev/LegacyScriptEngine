@@ -256,7 +256,9 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
         LLSERemoveTimeTaskData(scriptEngine);
 #endif
-        LLSECallEventsOnHotUnload(scriptEngine);
+        if (ll::getGamingStatus() == ll::GamingStatus::Running) {
+            LLSECallEventsOnHotUnload(scriptEngine);
+        }
         LLSERemoveAllEventListeners(scriptEngine);
         LLSERemoveCmdRegister(scriptEngine);
         LLSERemoveCmdCallback(scriptEngine);
@@ -267,22 +269,22 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         eraseMod(name);
 
-        if (ll::getGamingStatus() != ll::GamingStatus::Running) {
+        auto destroyEngine = [scriptEngine]() {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
 #else
             scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
 #endif
-        } else {
-            ll::coro::keepThis([scriptEngine]() -> ll::coro::CoroTask<> {
+        };
+
+        if (ll::getGamingStatus() == ll::GamingStatus::Running) {
+            ll::coro::keepThis([destroyEngine]() -> ll::coro::CoroTask<> {
                 using namespace ll::chrono_literals;
                 co_await 1_tick;
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-                NodeJsHelper::stopEngine(scriptEngine);
-#else
-                scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
-#endif
+                destroyEngine();
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
+        } else {
+            destroyEngine();
         }
 
         return {};

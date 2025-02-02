@@ -18,7 +18,7 @@
 - 返回值：实体对象列表
 - 返回值类型：`Array<Entity,Entity,...>`
 
-### 获取在特定范围内的尸体
+### 获取在特定范围内的实体
 
 `mc.getEntities(startPos[,endPos],range)`
 

@@ -1536,7 +1536,6 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         float dis = 2.0f;
         AABB  aabb;
         if (args.size() > 0) {
-
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
                 IntPos* posObj = IntPos::extractPos(args[0]);
@@ -1598,13 +1597,14 @@ Local<Value> McClass::getEntities(const Arguments& args) {
             return Local<Value>();
         }
 
-        auto         arr = Array::newArray();
-        BlockSource& bs  = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource();
-        // if (!bs) {
-        //   LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__,"Wrong Dimension!");
-        //   return Local<Value>();
-        // }
-        auto entityList = bs.getEntities(aabb, dis);
+        auto arr       = Array::newArray();
+        auto dimension = ll::service::getLevel()->getDimension(dim);
+        if (!dimension) {
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+            return Local<Value>();
+        }
+        BlockSource& bs         = dimension->getBlockSourceFromMainChunkSource();
+        auto         entityList = bs.getEntities(aabb, dis);
         for (auto i : entityList) {
             arr.add(EntityClass::newEntity(i));
         }

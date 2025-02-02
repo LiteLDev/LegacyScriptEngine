@@ -72,6 +72,7 @@ ClassDefine<EntityClass> EntityClassBuilder =
         .instanceProperty("speed", &EntityClass::getSpeed)
         .instanceProperty("direction", &EntityClass::getDirection)
         .instanceProperty("uniqueId", &EntityClass::getUniqueID)
+        .instanceProperty("runtimeId", &EntityClass::getRuntimeID)
         .instanceProperty("isInvisible", &EntityClass::isInvisible)
         .instanceProperty("isInsidePortal", &EntityClass::isInsidePortal)
         .instanceProperty("isTrusting", &EntityClass::isTrusting)
@@ -224,6 +225,15 @@ Local<Value> EntityClass::getUniqueID() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
         else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
+    }
+    CATCH("Fail in getUniqueID!")
+}
+
+Local<Value> EntityClass::getRuntimeID() {
+    try {
+        Actor* entity = get();
+        if (!entity) return Local<Value>();
+        else return String::newString(std::to_string(entity->getRuntimeID().rawID));
     }
     CATCH("Fail in getUniqueID!")
 }
@@ -1611,6 +1621,24 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         return arr;
     }
     CATCH("Fail in GetAllEntities");
+}
+
+Local<Value> McClass::getEntity(const Arguments& args) {
+    try {
+        CHECK_ARGS_COUNT(args, 1)
+        CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
+
+        auto level = ll::service::getLevel();
+
+        if (auto* entity = level->fetchEntity(ActorUniqueID(args[0].asNumber().toInt64()), false)) {
+            return EntityClass::newEntity(entity);
+        }
+        if (auto* entity = level->getRuntimeEntity(ActorRuntimeID(args[0].asNumber().toInt64()), false)) {
+            return EntityClass::newEntity(entity);
+        }
+        return Local<Value>();
+    }
+    CATCH("Fail in getEntity");
 }
 
 Local<Value> McClass::cloneMob(const Arguments& args) {

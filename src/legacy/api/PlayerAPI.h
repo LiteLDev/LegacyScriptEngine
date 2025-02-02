@@ -54,6 +54,7 @@ public:
     Local<Value> getSpeed();
     Local<Value> getDirection();
     Local<Value> getUniqueID();
+    Local<Value> getRuntimeID();
     Local<Value> getLangCode();
     Local<Value> getBiomeName();
     Local<Value> getBiomeId();

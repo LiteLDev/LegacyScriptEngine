@@ -47,6 +47,7 @@ public:
     Local<Value> getBiomeId();
     Local<Value> getDirection();
     Local<Value> getUniqueID();
+    Local<Value> getRuntimeID();
     Local<Value> isInvisible();
     Local<Value> isInsidePortal();
     Local<Value> isTrusting();

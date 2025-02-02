@@ -793,6 +793,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerPullFishingHook:
         lse::events::PlayerPullFishingHookEvent();
         break;
+    case EVENT_TYPES::onPlayerInteractEntity:
+        lse::events::PlayerInteractEntityEvent();
+        break;
     default:
         break;
     }

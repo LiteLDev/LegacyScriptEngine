@@ -143,6 +143,7 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceProperty("speed", &PlayerClass::getSpeed)
         .instanceProperty("direction", &PlayerClass::getDirection)
         .instanceProperty("uniqueId", &PlayerClass::getUniqueID)
+        .instanceProperty("runtimeId", &PlayerClass::getRuntimeID)
         .instanceProperty("langCode", &PlayerClass::getLangCode)
         .instanceProperty("isLoading", &PlayerClass::isLoading)
         .instanceProperty("isInvisible", &PlayerClass::isInvisible)
@@ -655,7 +656,8 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
                   ::tolower); // lower case the string
         size_t delta = INT_MAX;
         ll::service::getLevel()->forEachPlayer([&](Player& player) {
-            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().rawID) == target) {
+            if (player.getXuid() == target || std::to_string(player.getOrCreateUniqueID().rawID) == target
+                || std::to_string(player.getRuntimeID().rawID) == target) {
                 found = &player;
                 return false;
             }
@@ -1108,6 +1110,15 @@ Local<Value> PlayerClass::getUniqueID() {
         Player* player = get();
         if (!player) return Local<Value>();
         else return String::newString(std::to_string(player->getOrCreateUniqueID().rawID));
+    }
+    CATCH("Fail in getUniqueID!")
+}
+
+Local<Value> PlayerClass::getRuntimeID() {
+    try {
+        Player* player = get();
+        if (!player) return Local<Value>();
+        else return String::newString(std::to_string(player->getRuntimeID().rawID));
     }
     CATCH("Fail in getUniqueID!")
 }

@@ -33,6 +33,23 @@ This function returns an array of entity objects, each of which corresponds to a
 - Return value: List of entity objects
 - Return value type:  `Array<Entity,Entity,...>`
 
+#### Acquired From Existing Entitys
+
+Manually generate entity objects by **entity information**
+Use this function to manually generate objects. Note that the entity you want to get must be online, otherwise the
+generation will fail.
+
+!!! tip "Added in 0.9.4"
+
+`mc.getEntity(info)`
+
+- Parameters:
+    - info : `Number`  
+      Entity's UniqueId or RuntimeId.
+- Return value: The generated entity object.
+- Return value type: `Entity`
+    - If the return value is `Null`, it means that getting the entity failed.
+
 #### Spawn New Creature and Get Its Entity Object
 
 Through this function, generate a new creature at the specified location and get its corresponding entity object.
@@ -105,6 +122,7 @@ properties:
 | en.speed                 | Entity's current speed                                 | `Float`          |
 | en.direction             | Entity's orientation                                   | `DirectionAngle` |
 | en.uniqueId              | Entity's unique identifier                             | `String`         |
+| en.runtimeId             | Entity's runtime identifier (Added in 0.9.4)           | `String`         |
 | en.isInvisible           | Whether the entity is invisible                        | `Boolean`        |
 | en.isInsidePortal        | Whether the entity is inside the portal                | `Boolean`        |
 | en.isTrusting            | Whether the entity is trusted                          | `Boolean`        |
@@ -372,28 +390,28 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 `en.distanceToSqr(pos)`
 
 - Parameters:
-    - pos : `Entity` / `Player` / `IntPos` / `FloatPos`
+    - pos : `Entity` / `Entity` / `IntPos` / `FloatPos`
       The target position.
 - Return value: Distance to coordinates (in blocks).
 - Return value type:  `Number`
 
-#### Determine if an Entity Object Is a Player
+#### Determine if an Entity Object Is a Entity
 
-`en.isPlayer()`
+`en.isEntity()`
 
-- Return value: Whether the current entity object is a player.
+- Return value: Whether the current entity object is a entity.
 - Return value type:  `Boolean`
 
-#### Convert Entity Object to Player Object
+#### Convert Entity Object to Entity Object
 
-`en.toPlayer()`
+`en.toEntity()`
 
-- Return value: The converted `Player` object.
-- Return value type:  `Player`
-    - Returns `Null` if this entity object does not point to a player, or if the transition fails.
+- Return value: The converted `Entity` object.
+- Return value type:  `Entity`
+    - Returns `Null` if this entity object does not point to a entity, or if the transition fails.
 
-If the current entity object points to a player, you can use this function to convert the entity object to a player
-object to use more player-related APIs.
+If the current entity object points to a entity, you can use this function to convert the entity object to a entity
+object to use more entity-related APIs.
 
 #### Determine Whether an Entity Object Is a Dropped Item Entity
 

@@ -17,12 +17,11 @@ generation will fail.
 
 `mc.getPlayer(info)`
 
-!!! tip
-Versions before 0.8.13 could not get player by UUID
+!!! tip "Versions before 0.8.13 could not get player by UUID<br>Versions before 0.9.5 could not get player by RuntimeId"
 
 - Parameters:
     - info : `String`  
-      Player's name, XUID or UniqueId or UUID.
+      Player's name, XUID or UniqueId or RuntimeId or UUID.
 - Return value: The generated player object.
 - Return value type: `Player`
     - If the return value is `Null`, it means that getting the player failed.
@@ -79,6 +78,7 @@ properties.
 | pl.speed                 | Player's current speed                                       | `Float`          |
 | pl.direction             | Player's current orientation                                 | `DirectionAngle` |
 | pl.uniqueId              | Player's (entity's) unique identifier                        | `String`         |
+| pl.runtimeId             | Player's (entity's) runtime identifier (Added in 0.9.4)      | `String`         |
 | pl.isLoading             | Player is loading                                            | `Boolean`        |
 | pl.isInvisible           | Player is invisible                                          | `Boolean`        |
 | pl.isInsidePortal        | Player is inside portal                                      | `Boolean`        |

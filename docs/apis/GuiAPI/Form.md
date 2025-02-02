@@ -31,15 +31,16 @@ A modal form contains a title, a text display, and two buttons.
     - If the return value is `Null`, it means the sending failed.
 
 Parameter `callback` The callback function prototype: `function(player,result,reason)`
+
 - player : `Player`  
-The player object that interacts with the form.
+  The player object that interacts with the form.
 - result : `Boolean`    
-Player clicks **Confirm** button is `true`, **Cancel** button is `false`.  
-If the id is `Null`, the player cancels the form.
-- reason : `Integer`
-The reason why the form is closed.
-0 = UserClosed, 1 = UserBusy
-The reason may be `null`.
+  Player clicks **Confirm** button is `true`, **Cancel** button is `false`.  
+  If the id is `Null`, the player cancels the form.
+- reason : `Integer`(Added in 0.9.0)
+  The reason why the form is closed.
+  0 = UserClosed, 1 = UserBusy
+  The reason may be `null`.
 
 ### Send a Normal Form to the Player
 
@@ -51,7 +52,6 @@ section to better accomplish this task.
 `pl.sendSimpleForm(title,content,buttons,images,callback)`
 
 - Parameters:
-
     - title : `String`  
       Form title.
     - content : `String`  
@@ -67,15 +67,16 @@ section to better accomplish this task.
     - If the return value is `Null`, it means the sending failed.
 
 Parameter `callback` The callback function prototype: `function(player,id,reason)`
+
 - player : `Player`  
-The player object that interacts with the form.
+  The player object that interacts with the form.
 - id : `Integer`    
-The serial number of the form button that the player clicked, starting from 0.  
-If the id is `Null`, the player cancels the form.
-- reason : `Integer`
-The reason why the form is closed.
-0 = UserClosed, 1 = UserBusy
-The reason may be `null`.
+  The serial number of the form button that the player clicked, starting from 0.  
+  If the id is `Null`, the player cancels the form.
+- reason : `Integer`(Added in 0.9.0)
+  The reason why the form is closed.
+  0 = UserClosed, 1 = UserBusy
+  The reason may be `null`.
 
 Use the texture pack path or URL `images` to identify the icon corresponding to the button.   
 For each button on the form, set the corresponding icon as follows:
@@ -102,15 +103,16 @@ next section to better accomplish this task.
     - If the return value is Null, it means the sending failed.
 
 Parameter `callback` The callback function prototype: `function(player,data)`
+
 - player : `Player`  
-The player object that interacts with the form.
+  The player object that interacts with the form.
 - data : `Array<...>`    
-The returned form content array.  
-In the array, the first item must be `Null`, starting from the second item, the content of each control is stored
-in
-the order of the controls on the form.  
-If data is only `Null`, the player cancels the form.
-- reason : `Integer`
-The reason why the form is closed.
-0 = UserClosed, 1 = UserBusy
-The reason may be `null`.
+  The returned form content array.  
+  In the array, the first item must be `Null`, starting from the second item, the content of each control is stored
+  in
+  the order of the controls on the form.  
+  If data is only `Null`, the player cancels the form.
+- reason : `Integer`(Added in 0.9.0)
+  The reason why the form is closed.
+  0 = UserClosed, 1 = UserBusy
+  The reason may be `null`.

@@ -30,15 +30,16 @@
     - 如果返回值为`Null`，则代表发送失败
 
 参数`callback`的回调函数原型：`function(player,result,reason)`
+
 - player : `Player`  
-与表单互动的玩家对象
+  与表单互动的玩家对象
 - result : `Boolean`    
-玩家点击**确定**按钮为`true`，**取消**按钮为`false`  
-如果id为`Null`，则代表玩家取消了表单
-- reason : `Integer`
-表单被取消的原因
-0 = UserClosed, 1 = UserBusy
-reason可能会是`null`.
+  玩家点击**确定**按钮为`true`，**取消**按钮为`false`  
+  如果id为`Null`，则代表玩家取消了表单
+- reason : `Integer`(在0.9.0中加入)
+  表单被取消的原因
+  0 = UserClosed, 1 = UserBusy
+  reason可能会是`null`.
 
 ### 向玩家发送普通表单
 
@@ -48,7 +49,6 @@ reason可能会是`null`.
 `pl.sendSimpleForm(title,content,buttons,images,callback)`
 
 - 参数：
-
     - title : `String`  
       表单标题
     - content : `String`  
@@ -64,15 +64,16 @@ reason可能会是`null`.
     - 如果返回值为`Null`，则代表发送失败
 
 参数`callback`的回调函数原型：`function(player,id,reason)`
+
 - player : `Player`  
-与表单互动的玩家对象
+  与表单互动的玩家对象
 - id : `Integer`    
-玩家点击的表单按钮的序号，从0开始编号  
-如果id为`Null`，则代表玩家取消了表单
-- reason : `Integer`
-表单被取消的原因
-0 = UserClosed, 1 = UserBusy
-reason可能会是`null`.
+  玩家点击的表单按钮的序号，从0开始编号  
+  如果id为`Null`，则代表玩家取消了表单
+- reason : `Integer`(在0.9.0中加入)
+  表单被取消的原因
+  0 = UserClosed, 1 = UserBusy
+  reason可能会是`null`.
 
 图片路径参数 `images` 使用材质包路径或者URL来标识按钮对应的图标。  
 对于表单上的每个按钮，如下设置对应的图标
@@ -105,7 +106,7 @@ reason可能会是`null`.
   返回的表单内容数组  
   数组中，第一项一定为`Null`，从第二项开始，按表单上的控件顺序储存了每一个控件的内容  
   如果data只为`Null`，则代表玩家取消了表单
-- reason : `Integer`
+- reason : `Integer`(在0.9.0中加入)
   表单被取消的原因
   0 = UserClosed, 1 = UserBusy
   reason可能会是`null`.

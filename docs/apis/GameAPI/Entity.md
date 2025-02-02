@@ -390,28 +390,28 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 `en.distanceToSqr(pos)`
 
 - Parameters:
-    - pos : `Entity` / `Entity` / `IntPos` / `FloatPos`
+    - pos : `Entity` / `Player` / `IntPos` / `FloatPos`
       The target position.
 - Return value: Distance to coordinates (in blocks).
 - Return value type:  `Number`
 
-#### Determine if an Entity Object Is a Entity
+#### Determine if an Entity Object Is a Player
 
-`en.isEntity()`
+`en.isPlayer()`
 
 - Return value: Whether the current entity object is a entity.
 - Return value type:  `Boolean`
 
-#### Convert Entity Object to Entity Object
+#### Convert Entity Object to Player Object
 
-`en.toEntity()`
+`en.toPlayer()`
 
-- Return value: The converted `Entity` object.
-- Return value type:  `Entity`
-    - Returns `Null` if this entity object does not point to a entity, or if the transition fails.
+- Return value: The converted `Player` object.
+- Return value type:  `Player`
+    - Returns `Null` if this entity object does not point to a player, or if the transition fails.
 
-If the current entity object points to a entity, you can use this function to convert the entity object to a entity
-object to use more entity-related APIs.
+If the current entity object points to a player, you can use this function to convert the entity object to a player
+object to use more player-related APIs.
 
 #### Determine Whether an Entity Object Is a Dropped Item Entity
 

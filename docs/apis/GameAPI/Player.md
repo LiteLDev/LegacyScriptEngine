@@ -1334,6 +1334,17 @@ such as `Base` `Current` `DefaultMax` `DefaultMin` `Max` `Min` `Name` by default
 | village_hero    | 29 |
 | darkness        | 30 |
 
+#### Convert Player Object to Entity Object
+
+`en.toEntity()`
+
+- Return value: The converted `Entity` object.
+- Return value type:  `Entity`
+    - Returns `Null` if the transition fails.
+
+If the current entity object points to a player, you can use this function to convert the entity object to a player
+object to use more player-related APIs.
+
 ### Determine whether it is a simulated player
 
 `pl.isSimulatedPlayer()`

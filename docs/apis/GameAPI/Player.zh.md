@@ -1693,38 +1693,46 @@
 - 返回值：操作是否成功
 - 返回值类型：`Boolean`
 
-| 效果     | 名称              | 数字id |
-|--------|-----------------|------|
-| 迅捷     | speed           | 1    |
-| 缓慢     | slowness        | 2    |
-| 急迫     | haste           | 3    |
-| 挖掘疲劳   | mining_fatigue  | 4    |
-| 力量     | strength        | 5    |
-| 瞬间治疗   | instant_health  | 6    |
-| 瞬间伤害   | instant_damage  | 7    |
-| 跳跃提升   | jump_boost      | 8    |
-| 反胃     | nausea          | 9    |
-| 生命恢复   | regeneration    | 10   |
-| 抗性提升   | resistance      | 11   |
-| 抗火     | fire_resistance | 12   |
-| 水下呼吸   | water_breathing | 13   |
-| 隐身     | invisibility    | 14   |
-| 失明     | blindness       | 15   |
-| 夜视     | night_vision    | 16   |
-| 饥饿     | hunger          | 17   |
-| 虚弱     | weakness        | 18   |
-| 中毒     | poison          | 19   |
-| 凋零     | wither          | 20   |
-| 生命提升   | health_boost    | 21   |
-| 伤害吸收   | absorption      | 22   |
-| 饱和     | saturation      | 23   |
-| 飘浮     | levitation      | 24   |
-| 中毒（致命） | fatal_poison    | 25   |
-| 潮涌能量   | conduit_power   | 26   |
-| 缓降     | slow_falling    | 27   |
-| 不祥之兆   | bad_omen        | 28   |
-| 村庄英雄   | village_hero    | 29   |
-| 黑暗     | darkness        | 30   |
+| 效果         | 名称            | 数字 id |
+| ------------ | --------------- | ------- |
+| 迅捷         | speed           | 1       |
+| 缓慢         | slowness        | 2       |
+| 急迫         | haste           | 3       |
+| 挖掘疲劳     | mining_fatigue  | 4       |
+| 力量         | strength        | 5       |
+| 瞬间治疗     | instant_health  | 6       |
+| 瞬间伤害     | instant_damage  | 7       |
+| 跳跃提升     | jump_boost      | 8       |
+| 反胃         | nausea          | 9       |
+| 生命恢复     | regeneration    | 10      |
+| 抗性提升     | resistance      | 11      |
+| 抗火         | fire_resistance | 12      |
+| 水下呼吸     | water_breathing | 13      |
+| 隐身         | invisibility    | 14      |
+| 失明         | blindness       | 15      |
+| 夜视         | night_vision    | 16      |
+| 饥饿         | hunger          | 17      |
+| 虚弱         | weakness        | 18      |
+| 中毒         | poison          | 19      |
+| 凋零         | wither          | 20      |
+| 生命提升     | health_boost    | 21      |
+| 伤害吸收     | absorption      | 22      |
+| 饱和         | saturation      | 23      |
+| 飘浮         | levitation      | 24      |
+| 中毒（致命） | fatal_poison    | 25      |
+| 潮涌能量     | conduit_power   | 26      |
+| 缓降         | slow_falling    | 27      |
+| 不祥之兆     | bad_omen        | 28      |
+| 村庄英雄     | village_hero    | 29      |
+| 黑暗         | darkness        | 30      |
+
+#### 将玩家对象转换实体对象
+
+`en.toEntity()`
+
+- 返回值：转换成的实体对象
+- 返回值类型：`Entity`
+    - 如果转换失败，则返回 `Null`
 
 #### 判断是否为模拟玩家
 

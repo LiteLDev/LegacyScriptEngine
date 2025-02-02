@@ -224,5 +224,7 @@ public:
     Local<Value> removeItem(const Arguments& args);
 
     Local<Value> setAbility(const Arguments& args);
+
+    Local<Value> toEntity(const Arguments& args);
 };
 extern ClassDefine<PlayerClass> PlayerClassBuilder;

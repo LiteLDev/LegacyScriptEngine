@@ -313,6 +313,8 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceFunction("getAllItems", &PlayerClass::getAllItems)
         .instanceFunction("removeScore", &PlayerClass::deleteScore)
         .instanceFunction("distanceToPos", &PlayerClass::distanceTo)
+
+        .instanceFunction("toEntity", &PlayerClass::toEntity)
         .build();
 
 //////////////////// Classes ////////////////////
@@ -3603,4 +3605,11 @@ Local<Value> PlayerClass::removeEffect(const Arguments& args) {
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeEffect!");
+}
+
+Local<Value> PlayerClass::toEntity(const Arguments&) {
+    try {
+        return EntityClass::newEntity(get());
+    }
+    CATCH("Fail in toEntity!");
 }

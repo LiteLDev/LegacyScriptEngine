@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2025-02-02
+
+### Changed
+
+- Disabled LLSECallEventsOnHotUnload when server stops
+
 ### Fixed
 
-- Fixed setTimeout can't be cancelled #219
+- Fixed setTimeout can't be cancelled [#219]
+- Fixed crash on unload
 
 ## [0.9.3] - 2025-01-30
 
@@ -757,7 +764,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#216]: https://github.com/LiteLDev/LegacyScriptEngine/issues/216
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.3...HEAD
+[#219]: https://github.com/LiteLDev/LegacyScriptEngine/issues/219
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.4...HEAD
+
+[0.9.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.3...v0.9.4
 
 [0.9.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.2...v0.9.3
 

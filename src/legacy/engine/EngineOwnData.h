@@ -1,5 +1,4 @@
 #pragma once
-#include "dyncall/dyncall.h"
 #include "legacy/main/Global.h"
 #include "ll/api/base/Macro.h"
 #include "ll/api/mod/Mod.h"
@@ -81,9 +80,6 @@ struct EngineOwnData {
     // Player binding data
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
 
-    // Dynamic Call vm for NativeFFI
-    DCCallVM* dynamicCallVM;
-
     // Unload Callbacks, use for close database...
     int                                                         index = 0;
     std::unordered_map<int, std::function<void(ScriptEngine*)>> unloadCallbacks;
@@ -92,12 +88,6 @@ struct EngineOwnData {
         return index;
     }
     inline bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
-
-    // Init
-    EngineOwnData() {
-        dynamicCallVM = dcNewCallVM(4096);
-        dcMode(dynamicCallVM, DC_CALL_C_DEFAULT);
-    }
 };
 
 // Engine additional data

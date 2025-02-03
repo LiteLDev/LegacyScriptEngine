@@ -78,7 +78,7 @@ properties.
 | pl.speed                 | Player's current speed                                       | `Float`          |
 | pl.direction             | Player's current orientation                                 | `DirectionAngle` |
 | pl.uniqueId              | Player's (entity's) unique identifier                        | `String`         |
-| pl.runtimeId             | Player's (entity's) runtime identifier (Added in 0.9.4)      | `String`         |
+| pl.runtimeId             | Player's (entity's) runtime identifier (Added in 0.9.5)      | `String`         |
 | pl.isLoading             | Player is loading                                            | `Boolean`        |
 | pl.isInvisible           | Player is invisible                                          | `Boolean`        |
 | pl.isInsidePortal        | Player is inside portal                                      | `Boolean`        |

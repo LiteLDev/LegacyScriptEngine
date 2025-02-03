@@ -103,9 +103,9 @@
 | writeVarInt                  | `Number`      |
 | writeVarInt64                | `Number`      |
 | writeVec3                    | `FloatPos`    |
-| writeBlockPos (0.9.4 时加入) | `BlockPos`    |
+| writeBlockPos (0.9.5 时加入) | `BlockPos`    |
 | writeCompoundTag             | `NbtCompound` |
-| writeItem (0.9.4 时加入)     | `Item`        |
+| writeItem (0.9.5 时加入)     | `Item`        |
 
 
 

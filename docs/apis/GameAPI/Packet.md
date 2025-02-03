@@ -103,9 +103,9 @@ Every binary stream object contains some member functions (member methods) that 
 | writeVarInt                    | `Number`       |
 | writeVarInt64                  | `Number`       |
 | writeVec3                      | `FloatPos`     |
-| writeBlockPos (Added in 0.9.4) | `BlockPos`     |
+| writeBlockPos (Added in 0.9.5) | `BlockPos`     |
 | writeCompoundTag               | `NbtCompound`  |
-| writeItem (Added in 0.9.4)     | `Item`         |
+| writeItem (Added in 0.9.5)     | `Item`         |
 
 
 

@@ -597,7 +597,7 @@
 
 #### `"onPlayerInteractEntity"` - 玩家交互实体
 
-!!! tip "此事件在 0.9.4 中加入"
+!!! tip "此事件在 0.9.5 中加入"
 
 - 监听函数原型
   `function(player, entity, pos)`

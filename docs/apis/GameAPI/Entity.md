@@ -39,7 +39,7 @@ Manually generate entity objects by **entity information**
 Use this function to manually generate objects. Note that the entity you want to get must be online, otherwise the
 generation will fail.
 
-!!! tip "Added in 0.9.4"
+!!! tip "Added in 0.9.5"
 
 `mc.getEntity(info)`
 
@@ -122,7 +122,7 @@ properties:
 | en.speed                 | Entity's current speed                                 | `Float`          |
 | en.direction             | Entity's orientation                                   | `DirectionAngle` |
 | en.uniqueId              | Entity's unique identifier                             | `String`         |
-| en.runtimeId             | Entity's runtime identifier (Added in 0.9.4)           | `String`         |
+| en.runtimeId             | Entity's runtime identifier (Added in 0.9.5)           | `String`         |
 | en.isInvisible           | Whether the entity is invisible                        | `Boolean`        |
 | en.isInsidePortal        | Whether the entity is inside the portal                | `Boolean`        |
 | en.isTrusting            | Whether the entity is trusted                          | `Boolean`        |
@@ -399,7 +399,7 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 
 `en.isPlayer()`
 
-- Return value: Whether the current entity object is a entity.
+- Return value: Whether the current entity object is a player.
 - Return value type:  `Boolean`
 
 #### Convert Entity Object to Player Object

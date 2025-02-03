@@ -37,7 +37,7 @@
 通过**实体信息**手动生成实体对象  
 通过此函数来手动生成对象，注意，你要获取的实体必须是在线状态，否则会生成失败
 
-!!! tip "此接口在 0.9.4 版本加入"
+!!! tip "此接口在 0.9.5 版本加入"
 
 `mc.getEntity(info)`
 
@@ -115,7 +115,7 @@
 | en.speed                 | 实体当前速度                        | `Float`          |
 | en.direction             | 实体当前朝向                        | `DirectionAngle` |
 | en.uniqueId              | 实体唯一标识符                      | `String`         |
-| en.runtimeId             | 实体运行时标识符(在 0.9.4 时被加入) | `String`         |
+| en.runtimeId             | 实体运行时标识符(在 0.9.5 时被加入) | `String`         |
 | en.isInvisible           | 实体是否不可见                      | `Boolean`        |
 | en.isInsidePortal        | 实体是否在门户内                    | `Boolean`        |
 | en.isTrusting            | 实体是否信任                        | `Boolean`        |

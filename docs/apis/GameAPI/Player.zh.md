@@ -16,7 +16,7 @@
 
 `mc.getPlayer(info)`
 
-!!! tip "0.8.13之前的版本无法使用UUID获取玩家<br>0.9.4之前的版本无法使用RuntimeId获取玩家"
+!!! tip "0.8.13之前的版本无法使用UUID获取玩家<br>0.9.5之前的版本无法使用RuntimeId获取玩家"
 
 - 参数：
     - info : `String`  
@@ -75,7 +75,7 @@
 | pl.speed                 | 玩家当前速度                                  | `Float`          |
 | pl.direction             | 玩家当前朝向                                  | `DirectionAngle` |
 | pl.uniqueId              | 玩家（实体的）唯一标识符                      | `String`         |
-| pl.runtimeId             | 玩家（实体的）运行时标识符(在 0.9.4 时被加入) | `String`         |
+| pl.runtimeId             | 玩家（实体的）运行时标识符(在 0.9.5 时被加入) | `String`         |
 | pl.langCode              | 玩家设置的语言的标识符(形如 zh_CN)            | `String`         |
 | pl.isLoading             | 玩家是否正在加载                              | `Boolean`        |
 | pl.isInvisible           | 玩家是否隐身中                                | `Boolean`        |

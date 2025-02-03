@@ -11,18 +11,15 @@ end
 add_requires("levibuildscript")
 
 add_requires(
-    "demangler",
-    "dyncall",
-    "fmt",
     "legacymoney 0.9.0-rc.1",
     "legacyparticleapi 0.9.0-rc.1",
     "legacyremotecall 0.9.0-rc.1",
-    "lightwebsocketclient",
-    "magic_enum",
-    "nlohmann_json",
-    "simpleini",
+    "lightwebsocketclient 1.0.1",
+    "magic_enum v0.9.7",
+    "nlohmann_json v3.11.3",
+    "simpleini v4.22",
     "sqlite3 3.43.0+200",
-    "toml++"
+    "toml++ v3.4.0"
 )
 
 add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
@@ -69,9 +66,6 @@ target("legacy-script-engine")
     )
     add_packages(
         "cpp-httplib",
-        "demangler",
-        "dyncall",
-        "fmt",
         "legacymoney",
         "legacyparticleapi",
         "legacyremotecall",

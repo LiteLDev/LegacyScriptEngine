@@ -33,6 +33,23 @@ This function returns an array of entity objects, each of which corresponds to a
 - Return value: List of entity objects
 - Return value type:  `Array<Entity,Entity,...>`
 
+#### Acquired From Existing Entitys
+
+Manually generate entity objects by **entity information**
+Use this function to manually generate objects. Note that the entity you want to get must be online, otherwise the
+generation will fail.
+
+!!! tip "Added in 0.9.5"
+
+`mc.getEntity(info)`
+
+- Parameters:
+    - info : `Number`  
+      Entity's UniqueId or RuntimeId.
+- Return value: The generated entity object.
+- Return value type: `Entity`
+    - If the return value is `Null`, it means that getting the entity failed.
+
 #### Spawn New Creature and Get Its Entity Object
 
 Through this function, generate a new creature at the specified location and get its corresponding entity object.
@@ -105,6 +122,7 @@ properties:
 | en.speed                 | Entity's current speed                                 | `Float`          |
 | en.direction             | Entity's orientation                                   | `DirectionAngle` |
 | en.uniqueId              | Entity's unique identifier                             | `String`         |
+| en.runtimeId             | Entity's runtime identifier (Added in 0.9.5)           | `String`         |
 | en.isInvisible           | Whether the entity is invisible                        | `Boolean`        |
 | en.isInsidePortal        | Whether the entity is inside the portal                | `Boolean`        |
 | en.isTrusting            | Whether the entity is trusted                          | `Boolean`        |

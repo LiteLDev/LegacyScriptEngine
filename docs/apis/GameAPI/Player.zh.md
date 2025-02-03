@@ -16,12 +16,11 @@
 
 `mc.getPlayer(info)`
 
-!!! tip
-0.8.13之前的版本无法使用UUID获取玩家
+!!! tip "0.8.13之前的版本无法使用UUID获取玩家<br>0.9.5之前的版本无法使用RuntimeId获取玩家"
 
 - 参数：
     - info : `String`  
-      玩家的名字、XUID、UniqueId或者UUID
+      玩家的名字、XUID、UniqueId、RuntimeId或者UUID
 - 返回值：生成的玩家对象
 - 返回值类型：`Player`
     - 如返回值为 `Null` 则表示获取玩家失败
@@ -42,63 +41,66 @@
 
 每一个玩家对象都包含一些固定的对象属性。对于某个特定的玩家对象`pl`，有以下这些属性
 
-| 属性                       | 含义                   | 类型               |
-|--------------------------|----------------------|------------------|
-| pl.name                  | 玩家名                  | `String`         |
-| pl.pos                   | 玩家所在坐标               | `FloatPos`       |
-| pl.feetPos               | 玩家腿部所在坐标             | `FloatPos`       |
-| pl.blockPos              | 玩家所在的方块坐标            | `IntPos`         |
-| pl.lastDeathPos          | 玩家上次死亡的坐标            | `IntPos`         |
-| pl.realName              | 玩家的真实名字              | `String`         |
-| pl.xuid                  | 玩家XUID字符串            | `String`         |
-| pl.uuid                  | 玩家Uuid字符串            | `String`         |
-| pl.permLevel             | 玩家的操作权限等级（0 - 4）     | `Integer`        |
-| pl.gameMode              | 玩家的游戏模式（0 - 2, 6）    | `Integer`        |
-| pl.canFly                | 玩家是否可以飞行             | `Boolean`        |
-| pl.canSleep              | 玩家是否可以睡觉             | `Boolean`        |
-| pl.canBeSeenOnMap        | 玩家是否可以在地图上看到         | `Boolean`        |
-| pl.canFreeze             | 玩家是否可以冻结             | `Boolean`        |
-| pl.canSeeDaylight        | 玩家是否能看到日光            | `Boolean`        |
-| pl.canShowNameTag        | 玩家是否可以显示姓名标签         | `Boolean`        |
-| pl.canStartSleepInBed    | 玩家是否可以开始在床上睡觉        | `Boolean`        |
-| pl.canPickupItems        | 玩家是否可以拾取物品           | `Boolean`        |
-| pl.maxHealth             | 玩家最大生命值              | `Integer`        |
-| pl.health                | 玩家当前生命值              | `Integer`        |
-| pl.inAir                 | 玩家当前是否悬空             | `Boolean`        |
-| pl.inWater               | 玩家当前是否在水中            | `Boolean`        |
-| pl.inLava                | 玩家是否在熔岩中             | `Boolean`        |
-| pl.inRain                | 玩家是否下雨               | `Boolean`        |
-| pl.inSnow                | 玩家是否在雪中              | `Boolean`        |
-| pl.inWall                | 玩家是否在墙上              | `Boolean`        |
-| pl.inWaterOrRain         | 玩家是否在水中或雨中           | `Boolean`        |
-| pl.inWorld               | 玩家是否在世界              | `Boolean`        |
-| pl.inClouds              | 玩家是否在云端              | `Boolean`        |
-| pl.speed                 | 玩家当前速度               | `Float`          |
-| pl.direction             | 玩家当前朝向               | `DirectionAngle` |
-| pl.uniqueId              | 玩家（实体的）唯一标识符         | `String`         |
-| pl.langCode              | 玩家设置的语言的标识符(形如zh_CN) | `String`         |
-| pl.isLoading             | 玩家是否正在加载             | `Boolean`        |
-| pl.isInvisible           | 玩家是否隐身中              | `Boolean`        |
-| pl.isInsidePortal        | 玩家在传送门中              | `Boolean`        |
-| pl.isHurt                | 玩家是否受伤               | `Boolean`        |
-| pl.isTrusting            | 未知                   | `Boolean`        |
-| pl.isTouchingDamageBlock | 玩家是否在能造成伤害的方块上       | `Boolean`        |
-| pl.isHungry              | 玩家是否饿了               | `Boolean`        |
-| pl.isOnFire              | 玩家是否着火               | `Boolean`        |
-| pl.isOnGround            | 玩家是否在地上              | `Boolean`        |
-| pl.isOnHotBlock          | 玩家是否在高温方块上（岩浆等）      | `Boolean`        |
-| pl.isTrading             | 玩家在交易                | `Boolean`        |
-| pl.isAdventure           | 玩家是否是冒险模式            | `Boolean`        |
-| pl.isGliding             | 玩家在滑行                | `Boolean`        |
-| pl.isSurvival            | 玩家是否是生存模式            | `Boolean`        |
-| pl.isSpectator           | 玩家是否是观众模式            | `Boolean`        |
-| pl.isRiding              | 玩家是否在骑行              | `Boolean`        |
-| pl.isDancing             | 玩家在跳舞？               | `Boolean`        |
-| pl.isCreative            | 玩家是否是创造模式            | `Boolean`        |
-| pl.isFlying              | 玩家是否在飞行              | `Boolean`        |
-| pl.isSleeping            | 玩家是否正在睡觉             | `Boolean`        |
-| pl.isMoving              | 玩家是否正在移动             | `Boolean`        |
-| pl.isSneaking            | 玩家是否正在潜行             | `Boolean`        |
+| 属性                     | 含义                                          | 类型             |
+| ------------------------ | --------------------------------------------- | ---------------- |
+| pl.name                  | 玩家名                                        | `String`         |
+| pl.pos                   | 玩家所在坐标                                  | `FloatPos`       |
+| pl.feetPos               | 玩家腿部所在坐标                              | `FloatPos`       |
+| pl.blockPos              | 玩家所在的方块坐标                            | `IntPos`         |
+| pl.lastDeathPos          | 玩家上次死亡的坐标                            | `IntPos`         |
+| pl.realName              | 玩家的真实名字                                | `String`         |
+| pl.xuid                  | 玩家 XUID 字符串                              | `String`         |
+| pl.uuid                  | 玩家 Uuid 字符串                              | `String`         |
+| pl.permLevel             | 玩家的操作权限等级（0 - 4）                   | `Integer`        |
+| pl.gameMode              | 玩家的游戏模式（0 - 2, 6）                    | `Integer`        |
+| pl.canFly                | 玩家是否可以飞行                              | `Boolean`        |
+| pl.canSleep              | 玩家是否可以睡觉                              | `Boolean`        |
+| pl.canBeSeenOnMap        | 玩家是否可以在地图上看到                      | `Boolean`        |
+| pl.canFreeze             | 玩家是否可以冻结                              | `Boolean`        |
+| pl.canSeeDaylight        | 玩家是否能看到日光                            | `Boolean`        |
+| pl.canShowNameTag        | 玩家是否可以显示姓名标签                      | `Boolean`        |
+| pl.canStartSleepInBed    | 玩家是否可以开始在床上睡觉                    | `Boolean`        |
+| pl.canPickupItems        | 玩家是否可以拾取物品                          | `Boolean`        |
+| pl.maxHealth             | 玩家最大生命值                                | `Integer`        |
+| pl.health                | 玩家当前生命值                                | `Integer`        |
+| pl.inAir                 | 玩家当前是否悬空                              | `Boolean`        |
+| pl.inWater               | 玩家当前是否在水中                            | `Boolean`        |
+| pl.inLava                | 玩家是否在熔岩中                              | `Boolean`        |
+| pl.inRain                | 玩家是否下雨                                  | `Boolean`        |
+| pl.inSnow                | 玩家是否在雪中                                | `Boolean`        |
+| pl.inWall                | 玩家是否在墙上                                | `Boolean`        |
+| pl.inWaterOrRain         | 玩家是否在水中或雨中                          | `Boolean`        |
+| pl.inWorld               | 玩家是否在世界                                | `Boolean`        |
+| pl.inClouds              | 玩家是否在云端                                | `Boolean`        |
+| pl.speed                 | 玩家当前速度                                  | `Float`          |
+| pl.direction             | 玩家当前朝向                                  | `DirectionAngle` |
+| pl.uniqueId              | 玩家（实体的）唯一标识符                      | `String`         |
+| pl.runtimeId             | 玩家（实体的）运行时标识符(在 0.9.5 时被加入) | `String`         |
+| pl.langCode              | 玩家设置的语言的标识符(形如 zh_CN)            | `String`         |
+| pl.isLoading             | 玩家是否正在加载                              | `Boolean`        |
+| pl.isInvisible           | 玩家是否隐身中                                | `Boolean`        |
+| pl.isInsidePortal        | 玩家在传送门中                                | `Boolean`        |
+| pl.isHurt                | 玩家是否受伤                                  | `Boolean`        |
+| pl.isTrusting            | 未知                                          | `Boolean`        |
+| pl.isTouchingDamageBlock | 玩家是否在能造成伤害的方块上                  | `Boolean`        |
+| pl.isHungry              | 玩家是否饿了                                  | `Boolean`        |
+| pl.isOnFire              | 玩家是否着火                                  | `Boolean`        |
+| pl.isOnGround            | 玩家是否在地上                                | `Boolean`        |
+| pl.isOnHotBlock          | 玩家是否在高温方块上（岩浆等）                | `Boolean`        |
+| pl.isTrading             | 玩家在交易                                    | `Boolean`        |
+| pl.isAdventure           | 玩家是否是冒险模式                            | `Boolean`        |
+| pl.isGliding             | 玩家在滑行                                    | `Boolean`        |
+| pl.isSurvival            | 玩家是否是生存模式                            | `Boolean`        |
+| pl.isSpectator           | 玩家是否是观众模式                            | `Boolean`        |
+| pl.isRiding              | 玩家是否在骑行                                | `Boolean`        |
+| pl.isDancing             | 玩家在跳舞？                                  | `Boolean`        |
+| pl.isCreative            | 玩家是否是创造模式                            | `Boolean`        |
+| pl.isFlying              | 玩家是否在飞行                                | `Boolean`        |
+| pl.isSleeping            | 玩家是否正在睡觉                              | `Boolean`        |
+| pl.isMoving              | 玩家是否正在移动                              | `Boolean`        |
+| pl.isSneaking            | 玩家是否正在潜行                              | `Boolean`        |
+
+
 
 这些对象属性都是只读的，无法被修改。其中：
 
@@ -1691,38 +1693,46 @@
 - 返回值：操作是否成功
 - 返回值类型：`Boolean`
 
-| 效果     | 名称              | 数字id |
-|--------|-----------------|------|
-| 迅捷     | speed           | 1    |
-| 缓慢     | slowness        | 2    |
-| 急迫     | haste           | 3    |
-| 挖掘疲劳   | mining_fatigue  | 4    |
-| 力量     | strength        | 5    |
-| 瞬间治疗   | instant_health  | 6    |
-| 瞬间伤害   | instant_damage  | 7    |
-| 跳跃提升   | jump_boost      | 8    |
-| 反胃     | nausea          | 9    |
-| 生命恢复   | regeneration    | 10   |
-| 抗性提升   | resistance      | 11   |
-| 抗火     | fire_resistance | 12   |
-| 水下呼吸   | water_breathing | 13   |
-| 隐身     | invisibility    | 14   |
-| 失明     | blindness       | 15   |
-| 夜视     | night_vision    | 16   |
-| 饥饿     | hunger          | 17   |
-| 虚弱     | weakness        | 18   |
-| 中毒     | poison          | 19   |
-| 凋零     | wither          | 20   |
-| 生命提升   | health_boost    | 21   |
-| 伤害吸收   | absorption      | 22   |
-| 饱和     | saturation      | 23   |
-| 飘浮     | levitation      | 24   |
-| 中毒（致命） | fatal_poison    | 25   |
-| 潮涌能量   | conduit_power   | 26   |
-| 缓降     | slow_falling    | 27   |
-| 不祥之兆   | bad_omen        | 28   |
-| 村庄英雄   | village_hero    | 29   |
-| 黑暗     | darkness        | 30   |
+| 效果         | 名称            | 数字 id |
+| ------------ | --------------- | ------- |
+| 迅捷         | speed           | 1       |
+| 缓慢         | slowness        | 2       |
+| 急迫         | haste           | 3       |
+| 挖掘疲劳     | mining_fatigue  | 4       |
+| 力量         | strength        | 5       |
+| 瞬间治疗     | instant_health  | 6       |
+| 瞬间伤害     | instant_damage  | 7       |
+| 跳跃提升     | jump_boost      | 8       |
+| 反胃         | nausea          | 9       |
+| 生命恢复     | regeneration    | 10      |
+| 抗性提升     | resistance      | 11      |
+| 抗火         | fire_resistance | 12      |
+| 水下呼吸     | water_breathing | 13      |
+| 隐身         | invisibility    | 14      |
+| 失明         | blindness       | 15      |
+| 夜视         | night_vision    | 16      |
+| 饥饿         | hunger          | 17      |
+| 虚弱         | weakness        | 18      |
+| 中毒         | poison          | 19      |
+| 凋零         | wither          | 20      |
+| 生命提升     | health_boost    | 21      |
+| 伤害吸收     | absorption      | 22      |
+| 饱和         | saturation      | 23      |
+| 飘浮         | levitation      | 24      |
+| 中毒（致命） | fatal_poison    | 25      |
+| 潮涌能量     | conduit_power   | 26      |
+| 缓降         | slow_falling    | 27      |
+| 不祥之兆     | bad_omen        | 28      |
+| 村庄英雄     | village_hero    | 29      |
+| 黑暗         | darkness        | 30      |
+
+#### 将玩家对象转换实体对象
+
+`en.toEntity()`
+
+- 返回值：转换成的实体对象
+- 返回值类型：`Entity`
+    - 如果转换失败，则返回 `Null`
 
 #### 判断是否为模拟玩家
 

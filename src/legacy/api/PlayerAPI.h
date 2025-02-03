@@ -54,6 +54,7 @@ public:
     Local<Value> getSpeed();
     Local<Value> getDirection();
     Local<Value> getUniqueID();
+    Local<Value> getRuntimeID();
     Local<Value> getLangCode();
     Local<Value> getBiomeName();
     Local<Value> getBiomeId();
@@ -223,5 +224,7 @@ public:
     Local<Value> removeItem(const Arguments& args);
 
     Local<Value> setAbility(const Arguments& args);
+
+    Local<Value> toEntity(const Arguments& args);
 };
 extern ClassDefine<PlayerClass> PlayerClassBuilder;

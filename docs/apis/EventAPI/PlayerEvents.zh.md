@@ -592,3 +592,20 @@
   - pos : `IntPos`  
     床的位置
 - 拦截事件：函数返回`false`
+
+
+
+#### `"onPlayerInteractEntity"` - 玩家交互实体
+
+!!! tip "此事件在 0.9.5 中加入"
+
+- 监听函数原型
+  `function(player, entity, pos)`
+- 参数：
+  - player : `Player`  
+    交互实体的玩家对象
+  - entity : `Entity`  
+    被交互的实体对象
+  - pos : `FloatPos`  
+    交互坐标
+- 拦截事件：函数返回`false`

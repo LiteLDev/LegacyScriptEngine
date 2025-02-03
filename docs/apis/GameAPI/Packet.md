@@ -83,27 +83,29 @@ Every binary stream object contains some member functions (member methods) that 
 - Return value：success or not
 - Return value type： `Boolean`
 
-| Available functions     | Parameter Type |
-| ----------------------- | -------------- |
-| writeBool               | `Boolean`      |
-| writeByte               | `Integer`      |
-| writeDouble             | `Number`       |
-| writeFloat              | `Float`        |
-| writeSignedBigEndianInt | `Number`       |
-| writeSignedInt          | `Number`       |
-| writeSignedInt64        | `Number`       |
-| writeSignedShort        | `Integer`      |
-| writeString             | `String`       |
-| writeUnsignedChar       | `Integer`      |
-| writeUnsignedInt        | `Number`       |
-| writeUnsignedInt64      | `Number`       |
-| writeUnsignedShort      | `Integer`      |
-| writeUnsignedVarInt     | `Number`       |
-| writeUnsignedVarInt64   | `Number`       |
-| writeVarInt             | `Number`       |
-| writeVarInt64           | `Number`       |
-| writeVec3               | `FloatPos`     |
-| writeCompoundTag        | `NbtCompound`  |
+| Available functions            | Parameter Type |
+| ------------------------------ | -------------- |
+| writeBool                      | `Boolean`      |
+| writeByte                      | `Integer`      |
+| writeDouble                    | `Number`       |
+| writeFloat                     | `Float`        |
+| writeSignedBigEndianInt        | `Number`       |
+| writeSignedInt                 | `Number`       |
+| writeSignedInt64               | `Number`       |
+| writeSignedShort               | `Integer`      |
+| writeString                    | `String`       |
+| writeUnsignedChar              | `Integer`      |
+| writeUnsignedInt               | `Number`       |
+| writeUnsignedInt64             | `Number`       |
+| writeUnsignedShort             | `Integer`      |
+| writeUnsignedVarInt            | `Number`       |
+| writeUnsignedVarInt64          | `Number`       |
+| writeVarInt                    | `Number`       |
+| writeVarInt64                  | `Number`       |
+| writeVec3                      | `FloatPos`     |
+| writeBlockPos (Added in 0.9.5) | `BlockPos`     |
+| writeCompoundTag               | `NbtCompound`  |
+| writeItem (Added in 0.9.5)     | `Item`         |
 
 
 

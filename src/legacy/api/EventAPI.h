@@ -53,6 +53,7 @@ enum class EVENT_TYPES : int {
     onCloseContainer,
     onInventoryChange,
     onPlayerPullFishingHook,
+    onPlayerInteractEntity,
     // onMove,
     onChangeSprinting,
     onSetArmor,

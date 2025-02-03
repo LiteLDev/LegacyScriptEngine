@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added some api and event [#220]
+
 ## [0.9.4] - 2025-02-02
 
 ### Changed
@@ -765,6 +769,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#216]: https://github.com/LiteLDev/LegacyScriptEngine/issues/216
 
 [#219]: https://github.com/LiteLDev/LegacyScriptEngine/issues/219
+
+[#220]: https://github.com/LiteLDev/LegacyScriptEngine/issues/220
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.4...HEAD
 

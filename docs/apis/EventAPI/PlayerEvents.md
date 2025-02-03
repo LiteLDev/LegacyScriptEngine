@@ -576,3 +576,20 @@ Note: This event is so powerful that it can even intercept and open backpacks.
   - pos : `IntPos`  
     The position of the bed used.
 - Intercept events: function returns `false`
+
+
+
+#### `"onPlayerInteractEntity"` - Player Interact with Entity
+
+!!! tip "Added in 0.9.5"
+
+- Listener function prototype 
+  `function(player, entity, pos)`
+- Parameters：
+  - player : `Player`  
+    Players who interact with entity
+  - entity : `Entity`
+    Entity that player interact with
+  - pos : `FloatPos`  
+    Interaction position
+- Intercept events: function returns `false`

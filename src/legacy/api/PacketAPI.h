@@ -65,7 +65,9 @@ public:
     Local<Value> writeVarInt(const Arguments& args);
     Local<Value> writeVarInt64(const Arguments& args);
     Local<Value> writeVec3(const Arguments& args);
+    Local<Value> writeBlockPos(const Arguments& args);
     Local<Value> writeCompoundTag(const Arguments& args);
+    Local<Value> writeItem(const Arguments& args);
 
     Local<Value> createPacket(const Arguments& args);
 };

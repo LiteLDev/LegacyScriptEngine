@@ -6,10 +6,12 @@
 #include "api/BlockEntityAPI.h"
 #include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
+#include "api/ItemAPI.h"
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPackets.h"
+#include "mc/world/item/NetworkItemStackDescriptor.h"
 #include "mc/network/packet/Packet.h"
 
 //////////////////// Class Definition ////////////////////
@@ -45,7 +47,9 @@ ClassDefine<BinaryStreamClass> BinaryStreamClassBuilder =
         .instanceFunction("writeVarInt", &BinaryStreamClass::writeVarInt)
         .instanceFunction("writeVarInt64", &BinaryStreamClass::writeVarInt64)
         .instanceFunction("writeVec3", &BinaryStreamClass::writeVec3)
+        .instanceFunction("writeBlockPos", &BinaryStreamClass::writeBlockPos)
         .instanceFunction("writeCompoundTag", &BinaryStreamClass::writeCompoundTag)
+        .instanceFunction("writeItem", &BinaryStreamClass::writeItem)
         .instanceFunction("createPacket", &BinaryStreamClass::createPacket)
 
         .build();
@@ -403,6 +407,26 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
     CATCH("Fail in BinaryStream writeVec3!");
 }
 
+Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    try {
+        BinaryStream* pkt = get();
+        if (!pkt) {
+            return Local<Value>();
+        }
+        if (!IsInstanceOf<IntPos>(args[0])) {
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
+            return Local<Value>();
+        }
+        IntPos* posObj = IntPos::extractPos(args[0]);
+        pkt->writeVarInt(posObj->getBlockPos().x);
+        pkt->writeUnsignedVarInt(posObj->getBlockPos().y);
+        pkt->writeVarInt(posObj->getBlockPos().z);
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in BinaryStream writeVec3!");
+}
+
 Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
@@ -416,6 +440,24 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
             return Local<Value>();
         }
         pkt->writeType(*nbt);
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in BinaryStream writeCompoundTag!");
+}
+
+Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    try {
+        BinaryStream* pkt = get();
+        if (!pkt) {
+            return Local<Value>();
+        }
+        auto item = ItemClass::extract(args[0]);
+        if (!item) {
+            LOG_WRONG_ARG_TYPE(__FUNCTION__);
+            return Local<Value>();
+        }
+        pkt->writeType(NetworkItemStackDescriptor(*item));
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in BinaryStream writeCompoundTag!");

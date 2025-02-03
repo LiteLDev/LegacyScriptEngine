@@ -1280,6 +1280,29 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(source, damage);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    PlayerInteractEntityHook,
+    HookPriority::Normal,
+    Player,
+    &Player::interact,
+    bool,
+    Actor&      actor,
+    Vec3 const& location
+) {
+    IF_LISTENED(EVENT_TYPES::onPlayerInteractEntity) {
+        if (!CallEvent(
+                EVENT_TYPES::onPlayerInteractEntity,
+                EntityClass::newEntity(this),
+                EntityClass::newEntity(&actor),
+                FloatPos::newPos(location, getDimensionId())
+            )) {
+            return false;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPlayerInteractEntity)
+    return origin(actor, location);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() {
     PlayerDropItemHook1::hook();
@@ -1346,6 +1369,7 @@ void HopperEvent(bool pullIn) {
     }
 }
 void MobHurtEvent() { MobHurtEffectHook::hook(); }
+void PlayerInteractEntityEvent() { PlayerInteractEntityHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

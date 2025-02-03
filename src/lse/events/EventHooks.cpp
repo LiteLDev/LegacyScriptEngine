@@ -73,6 +73,7 @@
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/world/actor/player/PlayerItemInUse.h"
 #include "ll/api/thread/ThreadName.h"
 
 namespace lse::events {
@@ -578,7 +579,7 @@ LL_TYPE_INSTANCE_HOOK(
     return shouldPush;
 }
 
-LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat, void, ItemStack const& instance) {
+LL_TYPE_INSTANCE_HOOK(PlayerEatHook1, HookPriority::Normal, Player, &Player::eat, void, ItemStack const& instance) {
     IF_LISTENED(EVENT_TYPES::onAte) {
         if (!CallEvent(
                 EVENT_TYPES::onAte,
@@ -590,6 +591,26 @@ LL_TYPE_INSTANCE_HOOK(PlayerEatHook, HookPriority::Normal, Player, &Player::eat,
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);
     origin(instance);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    PlayerEatHook2,
+    HookPriority::Normal,
+    ItemStack,
+    &ItemStack::useTimeDepleted,
+    ::ItemUseMethod,
+    Level*  level,
+    Player* player
+) {
+    IF_LISTENED(EVENT_TYPES::onAte) {
+        if (isPotionItem() || getTypeName() == "minecraft:milk_bucket") {
+            if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(this))) {
+                return ItemUseMethod::Unknown;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAte);
+    return origin(level, player);
 }
 
 LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode, bool, ::Explosion& explosion) {
@@ -1332,7 +1353,10 @@ void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
-void PlayerEatEvent() { PlayerEatHook::hook(); }
+void PlayerEatEvent() {
+    PlayerEatHook1::hook();
+    PlayerEatHook2::hook();
+}
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
 void BlockExplodedEvent() { BlockExplodedHook ::hook(); }

@@ -53,5 +53,6 @@
   "Command {} failed to execute, is the plugin unloaded?": "Befehl {} konnte nicht ausgeführt werden, wird das Plugin entladen?",
   "Could not find {} in registered commands": {
     "": "Konnte {} in registrierten Befehlen nicht finden."
-  }
+  },
+  "Event {} not found!": "Event {} nicht gefunden!"
 }

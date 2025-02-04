@@ -53,5 +53,6 @@
   "Command {} failed to execute, is the plugin unloaded?": "コマンド {} の実行に失敗しました。プラグインがアンロードされていますか？",
   "Could not find {} in registered commands": {
     "": "登録されたコマンドで {} が見つかりませんでした。"
-  }
+  },
+  "Event {} not found!": "イベント {} が見つかりません！"
 }

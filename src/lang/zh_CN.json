@@ -53,5 +53,6 @@
   "Command {} failed to execute, is the plugin unloaded?": "命令 {} 执行失败，是否已卸载该插件？",
   "Could not find {} in registered commands": {
     "": "在已注册的命令中找不到 {} 。"
-  }
+  },
+  "Event {} not found!": "找不到事件 {} ！"
 }

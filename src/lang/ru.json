@@ -53,5 +53,6 @@
   "Command {} failed to execute, is the plugin unloaded?": "Не удалось выполнить команду {}, не загружен ли плагин?",
   "Could not find {} in registered commands": {
     "": "Не удалось найти {} в зарегистрированных командах."
-  }
+  },
+  "Event {} not found!": "Событие {} не найдено!"
 }

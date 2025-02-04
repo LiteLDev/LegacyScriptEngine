@@ -46,5 +46,12 @@
   },
   "Pip finished successfully": {
     "": "ピップは正常に終了しました。"
+  },
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "ランタイムコマンド {} が既に存在します。変更は setOverload 以外は適用されません。",
+  "Failed to initialize file mapping": "ファイルマッピングの初期化に失敗しました",
+  "Failed to initialize map file": "マップファイルの初期化に失敗しました",
+  "Command {} failed to execute, is the plugin unloaded?": "コマンド {} の実行に失敗しました。プラグインがアンロードされていますか？",
+  "Could not find {} in registered commands": {
+    "": "登録されたコマンドで {} が見つかりませんでした。"
   }
 }

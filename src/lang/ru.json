@@ -46,5 +46,12 @@
   },
   "Pip finished successfully": {
     "": "Pip успешно выполнено."
+  },
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Команда Runtime {} уже существует, изменения не будут работать, кроме setOverload!",
+  "Failed to initialize file mapping": "Не удалось инициализировать сопоставление файлов",
+  "Failed to initialize map file": "Не удалось инициализировать файл карты",
+  "Command {} failed to execute, is the plugin unloaded?": "Не удалось выполнить команду {}, не загружен ли плагин?",
+  "Could not find {} in registered commands": {
+    "": "Не удалось найти {} в зарегистрированных командах."
   }
 }

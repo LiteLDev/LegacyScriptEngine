@@ -46,5 +46,12 @@
   },
   "Pip finished successfully": {
     "": "Pip 命令成功完成"
+  },
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "运行时命令 {} 已经存在，除 setOverload 外的更改将不会被应用！",
+  "Failed to initialize file mapping": "初始化文件映射失败",
+  "Failed to initialize map file": "初始化映射文件失败",
+  "Command {} failed to execute, is the plugin unloaded?": "命令 {} 执行失败，是否已卸载该插件？",
+  "Could not find {} in registered commands": {
+    "": "在已注册的命令中找不到 {} 。"
   }
 }

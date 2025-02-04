@@ -46,5 +46,12 @@
   },
   "Pip finished successfully": {
     "": "Pip 命令已成功完成"
+  },
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
+  "Failed to initialize file mapping": "Failed to initialize file mapping",
+  "Failed to initialize map file": "Failed to initialize map file",
+  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Could not find {} in registered commands": {
+    "": "Could not find {} in registered commands."
   }
 }

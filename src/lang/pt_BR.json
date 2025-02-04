@@ -46,5 +46,12 @@
   },
   "Pip finished successfully": {
     "": "Pip concluído com sucesso."
+  },
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Comando de execução {} já existe, as alterações não serão aplicadas exceto para setOverload!",
+  "Failed to initialize file mapping": "Falha ao inicializar o mapeamento de arquivos",
+  "Failed to initialize map file": "Falha ao inicializar arquivo de mapa",
+  "Command {} failed to execute, is the plugin unloaded?": "Comando {} falha ao executar, o plugin está descarregado?",
+  "Could not find {} in registered commands": {
+    "": "Não foi possível encontrar {} nos comandos registrados."
   }
 }

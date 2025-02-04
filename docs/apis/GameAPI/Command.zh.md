@@ -39,10 +39,10 @@ mc.runcmd("say Hello!")
 
     - 对于返回的某个执行结果对象res，有如下这些成员：
 
-  | 成员        | 含义                    | 类型      |
-      | ----------- | ----------------------- | --------- |
-  | res.success | 是否执行成功            | `Boolean` |
-  | res.output  | BDS执行命令后的输出结果 | `String`  |
+| 成员          | 含义            | 类型        |
+|-------------|---------------|-----------|
+| res.success | 是否执行成功        | `Boolean` |
+| res.output  | BDS执行命令后的输出结果 | `String`  |
 
 !!! note
 runcmdEx 与普通 runcmd 实现区别非常大，在于 Ex 版本拥有**隐藏输出**的机制，执行结果不会输出至控制台，因此如果有需要，要手动用
@@ -67,32 +67,26 @@ addon 中，也可以使用这里所注册的命令。
 `mc.newCommand(cmd,description[,permission,flag,alias])`
 
 - 参数：
-
     - cmd : `String`  
       待注册的命令
-
     - description : `String`  
       命令描述文本
-
-    - permission : `PermType`  
+    - permission : `PermType`
       （可选参数）指令执行所需权限
-
-      | 执行权限               | 含义                             |
-                | ---------------------- | -------------------------------- |
-      | `PermType.Any`         | 任何人都可以执行这条指令         |
-      | `PermType.GameMasters` | 只有OP可以执行这条指令（默认值） |
-      | `PermType.Console`     | 只有控制台可以执行这条指令       |
-
     - flag : `Integer`  
       （可选参数）默认值 `0x80`   
       目前直接按此输入即可，后续会进行相关修改
-
     - alias : `String`  
       （可选参数）命令的别名  
       可以为命令设置多个别名，执行的时候相当于触发同一条命令
 
-- 返回值：指令对象
+| 执行权限                   | 含义                |
+|------------------------|-------------------|
+| `PermType.Any`         | 任何人都可以执行这条指令      |
+| `PermType.GameMasters` | 只有OP可以执行这条指令（默认值） |
+| `PermType.Console`     | 只有控制台可以执行这条指令     |
 
+- 返回值：指令对象
 - 返回值类型：`Command`
 
 !!! tip

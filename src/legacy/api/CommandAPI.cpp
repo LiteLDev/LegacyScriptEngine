@@ -99,9 +99,11 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         );
     } else if (result.hold(ParamKind::Kind::Item)) {
         return ItemClass::newItem(
-            new ItemStack(std::get<CommandItem>(result.value())
-                              .createInstance(1, 1, output, true)
-                              .value_or(ItemInstance::EMPTY_ITEM())),
+            new ItemStack(
+                std::get<CommandItem>(result.value())
+                    .createInstance(1, 1, output, true)
+                    .value_or(ItemInstance::EMPTY_ITEM())
+            ),
             false
         ); // Not managed by BDS, pointer will be saved as unique_ptr
     } else if (result.hold(ParamKind::Kind::Actor)) {
@@ -131,9 +133,11 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
             dim ? dim->getDimensionId().id : -1
         );
     } else if (result.hold(ParamKind::Kind::Message)) {
-        return String::newString(std::get<CommandMessage>(result.value())
-                                     .generateMessage(origin, CommandVersion::CurrentVersion())
-                                     .mMessage->c_str());
+        return String::newString(
+            std::get<CommandMessage>(result.value())
+                .generateMessage(origin, CommandVersion::CurrentVersion())
+                .mMessage->c_str()
+        );
     } else if (result.hold(ParamKind::Kind::RawText)) {
         return String::newString(std::get<CommandRawText>(result.value()).getText());
     } else if (result.hold(ParamKind::Kind::JsonValue)) {

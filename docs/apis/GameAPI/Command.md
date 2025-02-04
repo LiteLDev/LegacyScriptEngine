@@ -38,7 +38,7 @@ mc.runcmd("say Hello!")
     - For a returned execution result object res, there are the following members:
 
   | Members     | Meaning                                           | Data Type |
-      | ----------- | ------------------------------------------------- | --------- |
+                      | ----------- | ------------------------------------------------- | --------- |
   | res.success | Whether the execution was successful.             | `Boolean` |
   | res.output  | The output result after BDS executes the command. | `String`  |
 
@@ -75,19 +75,19 @@ letters!
       The description text for the command.
     - permission : `PermType`  
       (Optional parameter)
-
-      | Execution Permission   | Meaning                                             |
-                | ---------------------- | --------------------------------------------------- |
-      | `PermType.Any`         | Anyone can execute the command.                     |
-      | `PermType.GameMasters` | Only the OP can execute the command.(Default value) |
-      | `PermType.Console`     | Only the console can execute the command.           |
-
     - flag : `Integer`  
       (Optional parameter) Default value is `0x80`   
       At present, you can directly press this input, and related modifications will be made in the future.
     - alias : `String`  
       (Optional argument) Add an alias for the command.
       Multiple aliases can be set for a command, which is equivalent to triggering the same command when executed.
+
+| Execution Permission   | Meaning                                             |
+|------------------------|-----------------------------------------------------|
+| `PermType.Any`         | Anyone can execute the command.                     |
+| `PermType.GameMasters` | Only the OP can execute the command.(Default value) |
+| `PermType.Console`     | Only the console can execute the command.           |
+
 - Return value: Command Object.
 - Return value type: `Command`
 

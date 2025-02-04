@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] - 2025-02-04
+
 ### Added
 
 - Added some api and event [#220]
+
+### Changed
+
+- Updated translation
+- Updated lightwebsocketclient [#221]
+
+### Fixed
+
+- Fixed onAte event [#222] (#223)
 
 ## [0.9.4] - 2025-02-02
 
@@ -772,7 +783,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#220]: https://github.com/LiteLDev/LegacyScriptEngine/issues/220
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.4...HEAD
+[#221]: https://github.com/LiteLDev/LegacyScriptEngine/issues/221
+
+[#222]: https://github.com/LiteLDev/LegacyScriptEngine/issues/222
+
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.5...HEAD
+
+[0.9.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.4...v0.9.5
 
 [0.9.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.3...v0.9.4
 

@@ -22,7 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed onPlayerInteractEntity [#231] ShrBox 20 分钟之前
+- Fixed onPlayerInteractEntity [#231]
+- Fixed onEntityExplode [#225]
 
 ## [0.9.5] - 2025-02-04
 
@@ -738,6 +739,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#220]: https://github.com/LiteLDev/LegacyScriptEngine/issues/220
 [#221]: https://github.com/LiteLDev/LegacyScriptEngine/issues/221
 [#222]: https://github.com/LiteLDev/LegacyScriptEngine/issues/222
+[#225]: https://github.com/LiteLDev/LegacyScriptEngine/issues/225
 [#226]: https://github.com/LiteLDev/LegacyScriptEngine/issues/226
 [#227]: https://github.com/LiteLDev/LegacyScriptEngine/issues/227
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231

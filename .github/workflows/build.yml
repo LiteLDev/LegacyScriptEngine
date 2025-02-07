@@ -42,8 +42,6 @@ jobs:
 
       - run: |
           xmake -y
-          sed -i 's/\"name\": \"legacy-script-engine\"/\"name\": \"legacy-script-engine-${{ matrix.backend }}\"/g' bin/legacy-script-engine/manifest.json
-          mv bin/legacy-script-engine bin/legacy-script-engine-${{ matrix.backend }}
 
       - uses: actions/upload-artifact@v4
         with:

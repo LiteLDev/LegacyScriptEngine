@@ -17,8 +17,8 @@ Currently, LSE supports writing plugins in the following languages：
 | `Python`         | Using CPython engine, with support for pip package management                  |
 
 !!! tip
-If you need to write plugins in native languages such as C++, Go, Rust, etc., please go
-to [Home](https://levilamina.liteldev.com) for other language documentation
+    If you need to write plugins in native languages such as C++, Go, Rust, etc., please go 
+    to [Home](https://lamina.liteldev.com) for other language documentation
 
 ## JavaScript language support description
 

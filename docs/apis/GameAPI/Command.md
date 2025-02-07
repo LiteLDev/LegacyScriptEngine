@@ -43,9 +43,9 @@ mc.runcmd("say Hello!")
   | res.output  | The output result after BDS executes the command. | `String`  |
 
 !!! note
-The implementation of runcmdEx is very different from ordinary runcmd. The Enhanced version has a **hidden execution**
-mechanism, and the execution result will not be output to the console. Therefore, if necessary, you must manually use
-the log function to output the result.
+    The implementation of runcmdEx is very different from ordinary runcmd. The Enhanced version has a **hidden execution**
+    mechanism, and the execution result will not be output to the console. Therefore, if necessary, you must manually use
+    the log function to output the result.
 
 [JavaScript]
 
@@ -60,8 +60,8 @@ An interface for registering custom commands is provided here. By docking with t
 commands you register can be used by players, consoles, command blocks, NPCs and other objects that can execute commands
 in games. In addon, you can also use the commands registered here.
 !!! warning
-Except for variable parameters (String, RawText, Message, etc.), the commands cannot contain non-English lowercase
-letters!
+    Except for variable parameters (String, RawText, Message, etc.), the commands cannot contain non-English lowercase
+    letters!
 
 ### Register a Top-Level Command
 
@@ -92,8 +92,7 @@ letters!
 - Return value type: `Command`
 
 !!! tip
-Top-level commands, i.e. something like `list` `gamerule`, the first input after the `/` character.
-
+    Top-level commands, i.e. something like `list` `gamerule`, the first input after the `/` character.  
     After registering the top-level command, this function returns a command object. Next, the function expansion of this command needs to be carried out in this command object.
 
 ### Command Object - Function
@@ -201,9 +200,9 @@ The command object has the following member functions.
 - Return value type: `Boolean`
 
 !!! tip
-Command overloading is the method used by BDS to distinguish different command forms, and each different command form
-corresponds to a command overloading.
-As you can see, the parameter names provided in the command overload form a new command form.
+    Command overloading is the method used by BDS to distinguish different command forms, and each different command form
+    corresponds to a command overloading.  
+    As you can see, the parameter names provided in the command overload form a new command form.
 
 #### Set Command Callback
 
@@ -216,7 +215,7 @@ As you can see, the parameter names provided in the command overload form a new 
 - Return value type: `Boolean`
 
 !!! tip
-The parameters of the command callback function are relatively complex, which will be explained in detail below.
+    The parameters of the command callback function are relatively complex, which will be explained in detail below.
 
 #### Installation Instructions
 
@@ -359,10 +358,9 @@ The fake command API here is reserved for **downward compatibility**. It is reco
 written in the above document.
 
 !!! warning
-Although it looks relatively simple, fake commands have some important disadvantages, including that they can only be
-executed by the player or console, other objects (such as command blocks, NPCs, etc.) cannot be executed, all parameter
-data needs to be parsed by themselves, etc.
-
+    Although it looks relatively simple, fake commands have some important disadvantages, including that they can only be
+    executed by the player or console, other objects (such as command blocks, NPCs, etc.) cannot be executed, all parameter
+    data needs to be parsed by themselves, etc.  
     Please try to use the real command API.
 
 ### Register a New Player Command (Fake Command)
@@ -433,18 +431,16 @@ mc.regConsoleCmd("backup", "Start the backup", function (args) {
 ```
 
 !!! tip "Instructions on Fake Order Registration"
-After setting the callback function, the callback function will be called when the fake command you registered is
-executed.  
-LLSE will automatically split the command arguments into arrays for you before calling them.
-
-    Take the JavaScript language as an example:
-    
-    Execute command
-    `mc.regPlayerCmd("land buy", "land buy", function(pl,args){ .... }, 0 );`
-    after that,
-    This callback function will be called when you use the command `/land buy abcde 12345`.
-    The parameter args of the callback function is passed in an array: [ "abcde" , "12345" ]
-    As you can see, the values contained in `args` are **sequentially split** command arguments.
+    After setting the callback function, the callback function will be called when the fake command you registered is
+    executed.  
+    LLSE will automatically split the command arguments into arrays for you before calling them.  
+    Take the JavaScript language as an example:  
+    Execute command  
+    `mc.regPlayerCmd("land buy", "land buy", function(pl,args){ .... }, 0 );`  
+    after that,  
+    This callback function will be called when you use the command `/land buy abcde 12345`.  
+    The parameter args of the callback function is passed in an array: [ "abcde" , "12345" ]  
+    As you can see, the values contained in `args` are **sequentially split** command arguments.  
     If you have quotes in your command (for example to handle player names with spaces in them), LLSE will also do this when splitting.
 
 ## Other APIs Related to the Command System

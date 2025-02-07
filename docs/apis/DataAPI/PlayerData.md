@@ -107,7 +107,7 @@ When a player enters the server for the first time, his name and XUID are automa
 Tip: The player name stored in the XUID database is named corresponding to the player object. `realName` field.
 
 !!! warning
-    APIs below are added in LSE 0.8.13, using these API will make plugin not compitable with older version.
+    APIs below are added in 0.8.13, using these API will make plugin not compitable with older version.
 #### Query player information by XUID
 
 `data.fromXuid(xuid)`

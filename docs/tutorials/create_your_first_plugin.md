@@ -12,7 +12,7 @@ editor that works well for this tutorial, otherwise [VSCode](https://code.visual
 editor with a lot of powerful features.
 
 You will also need to set up a clean LeviLamina installation, details on how to install LeviLamina can be
-found [here](https://levilamina.liteldev.com/install/). This server will be used to test your plugin.
+found [here](https://lamina.liteldev.com/install/). This server will be used to test your plugin.
 
 With your IDE in hand, and the server installation complete, you are ready to begin!
 

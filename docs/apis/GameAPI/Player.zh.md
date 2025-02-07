@@ -16,7 +16,9 @@
 
 `mc.getPlayer(info)`
 
-!!! tip "0.8.13之前的版本无法使用UUID获取玩家<br>0.9.5之前的版本无法使用RuntimeId获取玩家"
+!!! warning
+    0.8.13之前的版本无法使用UUID获取玩家  
+    0.9.5之前的版本无法使用RuntimeId获取玩家
 
 - 参数：
     - info : `String`  
@@ -1847,8 +1849,8 @@
 `sp.simulateLookAt(entity, [lookDuration])`
 `sp.simulateLookAt(block, [lookDurration])`
 
-!!! tip
-`lookDurration`在0.8.13之前的版本不可用
+!!! warning
+    `lookDurration`仅在0.8.13以及之后的版本中可用
 
 - 参数：
 

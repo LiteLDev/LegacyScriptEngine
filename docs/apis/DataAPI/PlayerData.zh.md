@@ -107,7 +107,7 @@ XUID数据库让你可以即使在玩家离线的时候，也可以查询玩家�
 提示：XUID数据库中储存的玩家名为玩家对象对应的`realName`字段
 
 !!! warning
-    以下API均为LSE 0.8.13新API，使用以下API将导致插件无法兼容旧版
+    以下API均为0.8.13新API，使用以下API将导致插件无法兼容旧版
 #### 根据XUID查询玩家信息
 
 `data.fromXuid(xuid)`

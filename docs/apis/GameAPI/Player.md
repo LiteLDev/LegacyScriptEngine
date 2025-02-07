@@ -17,7 +17,9 @@ generation will fail.
 
 `mc.getPlayer(info)`
 
-!!! tip "Versions before 0.8.13 could not get player by UUID<br>Versions before 0.9.5 could not get player by RuntimeId"
+!!! warning 
+    Versions before 0.8.13 could not get player by UUID  
+    Versions before 0.9.5 could not get player by RuntimeId
 
 - Parameters:
     - info : `String`  
@@ -1460,8 +1462,8 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 `sp.simulateLookAt(entity, [lookDuration])`
 `sp.simulateLookAt(block, [lookDuration])`
 
-!!! tip
-`lookDuration` parameter not available in versions prior to 0.8.13
+!!! warning
+    `lookDuration` parameter is only available in 0.8.13 and later.
 
 - Parameters:
 

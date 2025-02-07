@@ -39,7 +39,8 @@ Manually generate entity objects by **entity information**
 Use this function to manually generate objects. Note that the entity you want to get must be online, otherwise the
 generation will fail.
 
-!!! tip "Added in 0.9.5"
+!!! warning
+    This function is only available in 0.9.5 and later.
 
 `mc.getEntity(info)`
 

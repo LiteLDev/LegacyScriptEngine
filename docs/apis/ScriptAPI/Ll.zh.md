@@ -21,7 +21,7 @@
 ### 获取 LegacyScriptEngine 版本字符串
 
 !!! warning
-    在LSE 0.9.6之前的版本中，该函数返回的是LeviLamina的版本。
+    在0.9.6之前的版本中，该函数返回的是LeviLamina的版本。
 
 `ll.versionString()`
 
@@ -66,7 +66,7 @@
 ### 设置插件卸载时调用的函数
 
 !!! warning
-    该函数仅在LSE 0.9.6及更高版本中可用。
+    该函数仅在0.9.6及更高版本中可用。
 
 `ll.onUnload(func)`
 

@@ -581,7 +581,8 @@ Note: This event is so powerful that it can even intercept and open backpacks.
 
 #### `"onPlayerInteractEntity"` - Player Interact with Entity
 
-!!! tip "Added in 0.9.5"
+!!! warning
+    This event is only available in 0.9.5 and later.
 
 - Listener function prototype 
   `function(player, entity, pos)`

@@ -21,7 +21,7 @@ Some interfaces related to loader operations are provided here.
 ### Get LegacyScriptEngine loader version string
 
 !!! warning
-    Before LSE 0.9.6, this function returns the version of LeviLamina.
+    Before 0.9.6, this function returns the version of LeviLamina.
 
 `ll.versionString()`
 
@@ -66,7 +66,7 @@ Some interfaces related to loader operations are provided here.
 ### Set the function called while the plugin is unloading
 
 !!! warning
-    This function is only available in LSE 0.9.6 and later.
+    This function is only available in 0.9.6 and later.
 
 `ll.onUnload(func)`
 

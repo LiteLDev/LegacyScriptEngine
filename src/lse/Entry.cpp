@@ -3,17 +3,17 @@
 #include "PluginManager.h"
 #include "PluginMigration.h"
 #include "legacy/engine/EngineManager.h"
-#include "legacy/main/EconomicSystem.h"
-#include "lse/api/MoreGlobal.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/main/EconomicSystem.h"
 #include "ll/api/Config.h"
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/mod/ModManagerRegistry.h"
 #include "ll/api/mod/NativeMod.h"
-#include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/mod/RegisterHelper.h"
 #include "ll/api/service/PlayerInfo.h"
+#include "ll/api/utils/ErrorUtils.h"
+#include "lse/api/MoreGlobal.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>

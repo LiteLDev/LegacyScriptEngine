@@ -6,15 +6,15 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "mc/nbt/CompoundTag.h"
 #include "mc/safety/RedactableString.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/item/Item.h"
+#include "mc/world/item/ItemStack.h"
 #include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/nbt/CompoundTag.h"
-#include "mc/world/item/Item.h"
-#include "mc/world/item/ItemStack.h"
 
 #include <string>
 #include <variant>

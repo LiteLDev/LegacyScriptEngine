@@ -1,16 +1,16 @@
 ﻿#pragma once
 
-#include "lse/Entry.h"
-#include "main/Global.h"
-#include "utils/JsonHelper.h"
-#include "utils/UsingScriptX.h"
 #include "engine/EngineOwnData.h"
 #include "ll/api/utils/ErrorUtils.h"
+#include "lse/Entry.h"
+#include "main/Global.h"
 #include "mc/world/level/Level.h"
+#include "utils/JsonHelper.h"
+#include "utils/UsingScriptX.h"
 
-#include <string>
 #include <exception>
 #include <magic_enum.hpp>
+#include <string>
 
 // 实例类类型检查
 template <typename T>
@@ -189,33 +189,39 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
 
 #define CHECK_ARGS_LEAST_COUNT(count)                                                                                  \
     if (args.size() < count) {                                                                                         \
-        throw Exception(fmt::format(                                                                                   \
-            "Invalid arguments count: {}, expect at least {}, in API {}",                                              \
-            args.size(),                                                                                               \
-            count,                                                                                                     \
-            __FUNCTION__                                                                                               \
-        ));                                                                                                            \
+        throw Exception(                                                                                               \
+            fmt::format(                                                                                               \
+                "Invalid arguments count: {}, expect at least {}, in API {}",                                          \
+                args.size(),                                                                                           \
+                count,                                                                                                 \
+                __FUNCTION__                                                                                           \
+            )                                                                                                          \
+        );                                                                                                             \
     }
 
 #define CHECK_ARG_TYPE(index, type)                                                                                    \
     if (args[index].getKind() != ValueKind::type) {                                                                    \
-        throw Exception(fmt::format(                                                                                   \
-            "Wrong type of arguments[{}]: {}, expect {}, in API {}",                                                   \
-            index,                                                                                                     \
-            ValueKindToString(args[index].getKind()),                                                                  \
-            ValueKindToString(ValueKind::type),                                                                        \
-            __FUNCTION__                                                                                               \
-        ));                                                                                                            \
+        throw Exception(                                                                                               \
+            fmt::format(                                                                                               \
+                "Wrong type of arguments[{}]: {}, expect {}, in API {}",                                               \
+                index,                                                                                                 \
+                ValueKindToString(args[index].getKind()),                                                              \
+                ValueKindToString(ValueKind::type),                                                                    \
+                __FUNCTION__                                                                                           \
+            )                                                                                                          \
+        );                                                                                                             \
     }
 
 #define CHECK_VAL_TYPE(val, type)                                                                                      \
     if (val.getKind() != ValueKind::type) {                                                                            \
-        throw Exception(fmt::format(                                                                                   \
-            "Wrong type of value: {}, expect {}, in API {}",                                                           \
-            ValueKindToString(val.getKind()),                                                                          \
-            ValueKindToString(ValueKind::type),                                                                        \
-            __FUNCTION__                                                                                               \
-        ));                                                                                                            \
+        throw Exception(                                                                                               \
+            fmt::format(                                                                                               \
+                "Wrong type of value: {}, expect {}, in API {}",                                                       \
+                ValueKindToString(val.getKind()),                                                                      \
+                ValueKindToString(ValueKind::type),                                                                    \
+                __FUNCTION__                                                                                           \
+            )                                                                                                          \
+        );                                                                                                             \
     }
 
 #endif

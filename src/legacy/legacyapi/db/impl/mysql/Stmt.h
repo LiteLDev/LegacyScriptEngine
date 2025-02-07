@@ -1,5 +1,6 @@
 #pragma once
 #include "legacyapi/db/Stmt.h"
+
 #include <mariadb/mysql.h>
 
 namespace DB {

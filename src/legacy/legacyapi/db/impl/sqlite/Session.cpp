@@ -1,8 +1,8 @@
-#include "lse/Entry.h"
 #include "legacyapi/db/impl/sqlite/Session.h"
 
 #include "legacyapi/db/impl/sqlite/Stmt.h"
 #include "ll/api/io/LoggerRegistry.h"
+#include "lse/Entry.h"
 #include "sqlite3.h"
 
 namespace DB {

@@ -9,11 +9,11 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/server/SimulatedPlayer.h"
 #include "ll/api/utils/RandomUtils.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/scripting/modules/gametest/ScriptNavigationResult.h"
+#include "mc/server/SimulatedPlayer.h"
 #include "mc/server/sim/LookDuration.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
@@ -403,7 +403,8 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Can't simulate look at other dimension!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+                "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);
         } else if (IsInstanceOf<FloatPos>(args[0])) {
@@ -413,7 +414,8 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Can't simulate look at other dimension!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+                "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);
         } else if (IsInstanceOf<BlockClass>(args[0])) {
@@ -424,7 +426,8 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Can't simulate look at other dimension!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+                "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {

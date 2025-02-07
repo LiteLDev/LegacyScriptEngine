@@ -1,5 +1,6 @@
 #pragma once
 #include "SimpleIni.h"
+
 #include <string>
 
 using std::string;

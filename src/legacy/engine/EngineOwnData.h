@@ -3,8 +3,8 @@
 #include "ll/api/base/Macro.h"
 #include "ll/api/mod/Mod.h"
 #include "lse/Entry.h"
-#include "utils/UsingScriptX.h"
 #include "lse/Plugin.h"
+#include "utils/UsingScriptX.h"
 
 #include <ll/api/Expected.h>
 #include <ll/api/i18n/I18n.h>

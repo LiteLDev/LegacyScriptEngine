@@ -11,9 +11,14 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
+#include "ll/api/command/CommandHandle.h"
+#include "ll/api/command/runtime/RuntimeCommand.h"
+#include "ll/api/command/runtime/RuntimeEnum.h"
+#include "ll/api/command/runtime/RuntimeOverload.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStartedEvent.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "lse/Plugin.h"
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
@@ -37,11 +42,6 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "ll/api/command/CommandHandle.h"
-#include "ll/api/command/runtime/RuntimeOverload.h"
-#include "ll/api/command/runtime/RuntimeEnum.h"
-#include "ll/api/command/runtime/RuntimeCommand.h"
-#include "ll/api/service/GamingStatus.h"
 
 #include <string>
 #include <vector>

@@ -1,8 +1,9 @@
-#include "lse/Entry.h"
 #include "legacyapi/db/impl/mysql/Stmt.h"
+
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/utils/StringReader.h"
 #include "ll/api/io/Logger.h"
+#include "lse/Entry.h"
 
 #define Wptr2MySQLSession(x) ((MySQLSession*)x.lock().get())
 #pragma warning(disable : 4267)

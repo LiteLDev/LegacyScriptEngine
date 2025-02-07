@@ -1,9 +1,9 @@
 #pragma once
 
 #include "PluginManager.h"
+#include "ll/api/command/runtime/ParamKind.h"
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"
-#include "ll/api/command/runtime/ParamKind.h"
 
 namespace lse {
 

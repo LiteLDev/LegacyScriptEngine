@@ -60,7 +60,8 @@ std::string SimpleForm::serialize() {
         }
         return form.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to generate Simple Form in serialize!"
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            "Fail to generate Simple Form in serialize!"
         );
         return "";
     }
@@ -355,7 +356,8 @@ std::string CustomForm::serialize() {
         }
         return form.dump();
     } catch (const nlohmann::json::exception&) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to generate Custom Form in serialize!"
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            "Fail to generate Custom Form in serialize!"
         );
         return "";
     }

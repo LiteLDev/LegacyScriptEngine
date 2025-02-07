@@ -15,7 +15,6 @@
 
 #include <magic_enum.hpp>
 
-
 //////////////////// Class Definition ////////////////////
 ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("OriginType");
 
@@ -39,7 +38,7 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 CommandOriginClass::CommandOriginClass(CommandOrigin const* p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
-  ptr(p){};
+  ptr(p) {};
 
 Local<Object> CommandOriginClass::newCommandOrigin(CommandOrigin const* p) {
     auto newp = new CommandOriginClass(p);

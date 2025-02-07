@@ -49,7 +49,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         // Feedback
         // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** Before remote call result return");
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, ValueToJson(result))) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                "Fail to post remote call result return!"
             );
         }
         // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** After remote call result return");
@@ -65,7 +66,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                "Fail to post remote call result return!"
             );
         }
     } catch (const std::out_of_range&) {
@@ -75,7 +77,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                "Fail to post remote call result return!"
             );
         }
     } catch (...) {
@@ -84,7 +87,8 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to post remote call result return!"
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                "Fail to post remote call result return!"
             );
         }
     }

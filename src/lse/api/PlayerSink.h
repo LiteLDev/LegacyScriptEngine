@@ -1,14 +1,14 @@
 #pragma once
 
-#include <mutex>
-
 #include "ll/api/io/Sink.h"
 #include "mc/platform/UUID.h"
 
+#include <mutex>
+
 namespace lse::io {
 class PlayerSink : public ll::io::Sink {
-    std::mutex       mutex;
-    mce::UUID playerUuid;
+    std::mutex mutex;
+    mce::UUID  playerUuid;
 
 public:
     PlayerSink(mce::UUID const& uuid);
@@ -21,4 +21,4 @@ public:
 
     void setUUID(mce::UUID const& uuid);
 };
-} // namespace ll::io
+} // namespace lse::io

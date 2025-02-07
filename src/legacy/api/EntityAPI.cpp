@@ -14,6 +14,7 @@
 #include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/string/HashedString.h"
+#include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/SimpleContainer.h"
@@ -31,12 +32,11 @@
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Spawner.h"
+#include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
-#include "mc/world/level/biome/Biome.h"
-#include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 
 #include <climits>
 #include <memory>

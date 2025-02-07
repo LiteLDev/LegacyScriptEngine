@@ -43,5 +43,5 @@ PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
 TabWidth: 4
 UseTab: Never
-SortIncludes: Never
+SortIncludes: CaseSensitive
 IncludeBlocks: Regroup

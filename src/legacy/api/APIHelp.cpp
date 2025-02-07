@@ -12,8 +12,8 @@
 #include "api/NbtAPI.h"
 #include "api/NetworkAPI.h"
 #include "api/PlayerAPI.h"
-#include "main/Global.h"
 #include "ll/api/utils/StringUtils.h"
+#include "main/Global.h"
 
 #include <cmath>
 #include <iostream>

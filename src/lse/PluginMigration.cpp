@@ -59,10 +59,12 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     const auto& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
-        throw std::runtime_error("Failed to migrate legacy plugin at {0}: {1} already exists"_tr(
-            ll::string_utils::u8str2str(path.u8string()),
-            ll::string_utils::u8str2str(pluginDir.u8string())
-        ));
+        throw std::runtime_error(
+            "Failed to migrate legacy plugin at {0}: {1} already exists"_tr(
+                ll::string_utils::u8str2str(path.u8string()),
+                ll::string_utils::u8str2str(pluginDir.u8string())
+            )
+        );
     }
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
     if (!std::filesystem::exists(pluginDir)) {
@@ -77,14 +79,13 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
     std::filesystem::rename(path, pluginDir / pluginFileName);
 
     ll::mod::Manifest manifest{
-        .entry = ll::string_utils::u8str2str(pluginFileName.u8string()),
-        .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
-        .type  = pluginType,
-        .dependencies =
-            ll::SmallDenseSet<ll::mod::Dependency>{
-                                                   ll::mod::Dependency{
-                    .name = self.getManifest().name,
-                }, },
+        .entry        = ll::string_utils::u8str2str(pluginFileName.u8string()),
+        .name         = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
+        .type         = pluginType,
+        .dependencies = ll::SmallDenseSet<ll::mod::Dependency>{
+                                                               ll::mod::Dependency{
+                .name = self.getManifest().name,
+            }, },
     };
 #endif
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
@@ -94,14 +95,13 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
         30000
     );
     ll::mod::Manifest manifest{
-        .entry = NodeJsHelper::findEntryScript(ll::string_utils::u8str2str(path.u8string())),
-        .name  = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
-        .type  = pluginType,
-        .dependencies =
-            ll::SmallDenseSet<ll::mod::Dependency>{
-                                                   ll::mod::Dependency{
-                    .name = self.getManifest().name,
-                }, },
+        .entry        = NodeJsHelper::findEntryScript(ll::string_utils::u8str2str(path.u8string())),
+        .name         = ll::string_utils::u8str2str(pluginFileBaseName.u8string()),
+        .type         = pluginType,
+        .dependencies = ll::SmallDenseSet<ll::mod::Dependency>{
+                                                               ll::mod::Dependency{
+                .name = self.getManifest().name,
+            }, },
     };
     std::filesystem::remove(path);
 #endif

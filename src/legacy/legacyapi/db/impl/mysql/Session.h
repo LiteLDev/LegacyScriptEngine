@@ -1,5 +1,6 @@
 #pragma once
 #include "legacyapi/db/Session.h"
+
 #include <mariadb/mysql.h>
 
 namespace DB {

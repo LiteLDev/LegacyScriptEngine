@@ -1,10 +1,10 @@
-#include "lse/Entry.h"
 #include "legacyapi/db/impl/sqlite/Stmt.h"
 
 #include "legacyapi/db/impl/sqlite/Session.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 #include "sqlite3.h"
 
 namespace DB {
@@ -242,7 +242,8 @@ Stmt& SQLiteStmt::reset() {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::reexec: Failed to reset");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("SQLiteStmt::reexec: Reset successfully"
+    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+        "SQLiteStmt::reexec: Reset successfully"
     );
     resultHeader.reset();
     steps            = 0;
@@ -264,7 +265,8 @@ Stmt& SQLiteStmt::clear() {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::clear: Failed to reset");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("SQLiteStmt::clear: Reset successfully"
+    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+        "SQLiteStmt::clear: Reset successfully"
     );
     res = sqlite3_clear_bindings(stmt);
     if (res != SQLITE_OK) {

@@ -93,13 +93,11 @@ enum class EVENT_TYPES : int {
     onLiquidFlow,
     onStepOnPressurePlate,
     onChangeArmorStand,
-    onContainerChangeSlot,
     /* Other Events */
     onScoreChanged,
     onTick,
     onServerStarted,
     onConsoleCmd,
-    onConsoleOutput,
     /* Economic Events */
     onMoneyAdd,
     onMoneyReduce,
@@ -109,7 +107,6 @@ enum class EVENT_TYPES : int {
     beforeMoneyReduce,
     beforeMoneyTrans,
     beforeMoneySet,
-    onFormResponsePacket,
     /* Outdated Events */
     onAttack,
     onExplode,

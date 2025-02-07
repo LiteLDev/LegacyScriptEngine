@@ -40,8 +40,6 @@ jobs:
 
       - run: |
           xmake -y
-          sed -i 's/\"name\": \"legacy-script-engine\"/\"name\": \"legacy-script-engine-${{ matrix.backend }}\"/g' bin/legacy-script-engine/manifest.json
-          mv bin/legacy-script-engine bin/legacy-script-engine-${{ matrix.backend }}
 
       - run: |
           sentry-cli debug-files upload --include-sources bin/legacy-script-engine-${{ matrix.backend }}

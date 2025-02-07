@@ -95,28 +95,29 @@ target("legacy-script-engine")
         "src/legacy"
     )
     on_load(function (target)
-            local tag = os.iorun("git describe --tags --abbrev=0 --always")
-            local major, minor, patch, suffix = tag:match("v(%d+)%.(%d+)%.(%d+)(.*)")
-            if not major then
-                print("Failed to parse version tag, using 0.0.0")
-                major, minor, patch = 0, 0, 0
+        local tag = os.iorun("git describe --tags --abbrev=0 --always")
+        local major, minor, patch, suffix = tag:match("v(%d+)%.(%d+)%.(%d+)(.*)")
+        if not major then
+            print("Failed to parse version tag, using 0.0.0")
+            major, minor, patch = 0, 0, 0
+        end
+        local versionStr =  major.."."..minor.."."..patch
+        if suffix then
+            prerelease = suffix:match("-(.*)")
+            if prerelease then
+                prerelease = prerelease:gsub("\n", "")
             end
-            local versionStr =  major.."."..minor.."."..patch
-            if suffix then
-                prerelease = suffix:match("-(.*)")
-                if prerelease then
-                    prerelease = prerelease:gsub("\n", "")
-                end
-            end
+        end
 
-            if not has_config("publish") then
-                local hash = os.iorun("git rev-parse --short HEAD")
-                versionStr = versionStr.."+"..hash:gsub("\n", "")
-            end
+        if not has_config("publish") then
+            local hash = os.iorun("git rev-parse --short HEAD")
+            versionStr = versionStr.."+"..hash:gsub("\n", "")
+        end
 
-            target:add("rules", "@levibuildscript/modpacker",{
-                   modVersion = versionStr
-               })
+        target:add("rules", "@levibuildscript/modpacker",{
+            modName = target:basename(),
+            modVersion = versionStr
+        })
     end)
 
     if is_config("backend", "lua") then
@@ -129,7 +130,7 @@ target("legacy-script-engine")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.lua")
             local langPath = path.join(os.projectdir(), "src/lang/")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:basename())
             local baselibOutputPath = path.join(outputPath, "baselib")
             os.mkdir(baselibOutputPath)
             os.cp(baselibPath, baselibOutputPath)
@@ -146,7 +147,7 @@ target("legacy-script-engine")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.js")
             local langPath = path.join(os.projectdir(), "src/lang/")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:basename())
             local baselibOutputPath = path.join(outputPath, "baselib")
             os.mkdir(baselibOutputPath)
             os.cp(baselibPath, baselibOutputPath)
@@ -162,7 +163,7 @@ target("legacy-script-engine")
         after_build(function(target)
             local baselibPath = path.join(os.projectdir(), "src/baselib/BaseLib.py")
             local langPath = path.join(os.projectdir(), "src/lang/")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:basename())
             local baselibOutputPath = path.join(outputPath, "baselib")
             os.mkdir(baselibOutputPath)
             os.cp(baselibPath, baselibOutputPath)
@@ -178,7 +179,7 @@ target("legacy-script-engine")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang/")
-            local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            local outputPath = path.join(os.projectdir(), "bin/" .. target:basename())
             os.mkdir(outputPath)
             os.cp(langPath, outputPath)
         end)

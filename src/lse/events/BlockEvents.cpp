@@ -173,17 +173,17 @@ LL_TYPE_INSTANCE_HOOK(
     return shouldPush;
 }
 
-LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode, bool, ::Explosion& explosion) {
+LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::explode, bool) {
     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-        if (explosion.mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
+        if (mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
             if (!CallEvent(
                     EVENT_TYPES::onEntityExplode,
-                    EntityClass::newEntity(ll::service::getLevel()->fetchEntity(explosion.mSourceID, false)),
-                    FloatPos::newPos(explosion.mPos, explosion.mRegion.getDimensionId()),
-                    Number::newNumber(explosion.mRadius),
-                    Number::newNumber(explosion.mMaxResistance),
-                    Boolean::newBoolean(explosion.mBreaking),
-                    Boolean::newBoolean(explosion.mFire)
+                    EntityClass::newEntity(ll::service::getLevel()->fetchEntity(mSourceID, false)),
+                    FloatPos::newPos(mPos, mRegion.getDimensionId()),
+                    Number::newNumber(mRadius),
+                    Number::newNumber(mMaxResistance),
+                    Boolean::newBoolean(mBreaking),
+                    Boolean::newBoolean(mFire)
                 )) {
                 return false;
             }
@@ -194,18 +194,18 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Level, &Level::$explode
     IF_LISTENED(EVENT_TYPES::onBlockExplode) {
         if (!CallEvent(
                 EVENT_TYPES::onBlockExplode,
-                BlockClass::newBlock(*explosion.mPos, explosion.mRegion.getDimensionId()),
-                FloatPos::newPos(explosion.mPos, explosion.mRegion.getDimensionId()),
-                Number::newNumber(explosion.mRadius),
-                Number::newNumber(explosion.mMaxResistance),
-                Boolean::newBoolean(explosion.mBreaking),
-                Boolean::newBoolean(explosion.mFire)
+                BlockClass::newBlock(*mPos, mRegion.getDimensionId()),
+                FloatPos::newPos(mPos, mRegion.getDimensionId()),
+                Number::newNumber(mRadius),
+                Number::newNumber(mMaxResistance),
+                Boolean::newBoolean(mBreaking),
+                Boolean::newBoolean(mFire)
             )) {
             return false;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
-    return origin(explosion);
+    return origin();
 }
 
 LL_TYPE_STATIC_HOOK(

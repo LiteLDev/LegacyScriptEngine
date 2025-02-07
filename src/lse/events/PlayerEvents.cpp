@@ -4,35 +4,36 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
-#include "ll/api/service/Bedrock.h"
-#include "mc/common/ActorUniqueID.h"
-#include "mc/deps/core/string/HashedString.h"
-#include "mc/server/ServerPlayer.h"
-#include "mc/world/ContainerID.h"
-#include "mc/world/actor/ActorDamageSource.h"
-#include "mc/world/inventory/transaction/InventoryAction.h"
-#include "mc/world/inventory/transaction/InventorySource.h"
-#include "mc/world/inventory/transaction/InventoryTransaction.h"
-#include "mc/world/phys/HitResult.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
+#include "ll/api/service/Bedrock.h"
+#include "mc/common/ActorUniqueID.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
+#include "mc/world/ContainerID.h"
+#include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/FishingHook.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/player/PlayerItemInUse.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
+#include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
+#include "mc/world/inventory/transaction/InventoryAction.h"
+#include "mc/world/inventory/transaction/InventorySource.h"
+#include "mc/world/inventory/transaction/InventoryTransaction.h"
 #include "mc/world/item/BucketItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChangeDimensionRequest.h"
+#include "mc/world/level/Explosion.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/block/BasePressurePlateBlock.h"
 #include "mc/world/level/block/Block.h"
@@ -41,13 +42,10 @@
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
-#include "mc/world/phys/AABB.h"
-#include "mc/world/scores/ServerScoreboard.h"
-#include "mc/world/level/Explosion.h"
-#include "mc/world/events/PlayerOpenContainerEvent.h"
-#include "mc/world/level/material/Material.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/actor/player/PlayerItemInUse.h"
+#include "mc/world/level/material/Material.h"
+#include "mc/world/phys/AABB.h"
+#include "mc/world/phys/HitResult.h"
 
 namespace lse::events::player {
 LL_TYPE_INSTANCE_HOOK(
@@ -346,13 +344,7 @@ LL_TYPE_INSTANCE_HOOK(
     origin(player, std::move(changeRequest));
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    OpenContainerScreenHook,
-    HookPriority::Normal,
-    Player,
-    &Player::canOpenContainerScreen,
-    bool
-) {
+LL_TYPE_INSTANCE_HOOK(OpenContainerScreenHook, HookPriority::Normal, Player, &Player::canOpenContainerScreen, bool) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
         if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(this))) {
             return false;
@@ -406,13 +398,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onBedEnter);
     return origin(pos);
 }
-LL_TYPE_INSTANCE_HOOK(
-    OpenInventoryHook,
-    HookPriority::Normal,
-    ServerPlayer,
-    &ServerPlayer::$openInventory,
-    void,
-) {
+LL_TYPE_INSTANCE_HOOK(OpenInventoryHook, HookPriority::Normal, ServerPlayer, &ServerPlayer::$openInventory, void, ) {
     IF_LISTENED(EVENT_TYPES::onOpenInventory) {
         if (!CallEvent(EVENT_TYPES::onOpenInventory, PlayerClass::newPlayer(this))) {
             return;

@@ -3,12 +3,12 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/ActorUniqueID.h"
-#include "mc/world/scores/ServerScoreboard.h"
+#include "mc/world/scores/IdentityDefinition.h"
 #include "mc/world/scores/Objective.h"
-#include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
-#include "mc/world/scores/IdentityDefinition.h"
+#include "mc/world/scores/ScoreboardId.h"
+#include "mc/world/scores/ServerScoreboard.h"
 
 namespace lse::events::other {
 LL_TYPE_INSTANCE_HOOK(

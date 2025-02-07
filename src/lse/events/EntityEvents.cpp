@@ -3,54 +3,34 @@
 #include "legacy/api/EntityAPI.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "ll/api/memory/Hook.h"
+#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/string/HashedString.h"
+#include "mc/entity/components_json_legacy/NpcComponent.h"
+#include "mc/entity/components_json_legacy/ProjectileComponent.h"
 #include "mc/world/actor/ActorDamageCause.h"
 #include "mc/world/actor/ActorDamageSource.h"
-#include "mc/world/actor/Mob.h"
-#include "mc/world/inventory/transaction/InventoryAction.h"
-#include "mc/world/inventory/transaction/InventorySource.h"
-#include "mc/world/inventory/transaction/InventoryTransaction.h"
-#include "mc/world/phys/HitResult.h"
-#include "mc/world/scores/IdentityDefinition.h"
-#include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
-#include "mc/entity/components_json_legacy/ProjectileComponent.h"
-#include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ActorType.h"
-#include "mc/world/actor/FishingHook.h"
+#include "mc/world/actor/Mob.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
 #include "mc/world/actor/boss/WitherBoss.h"
-#include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/actor/npc/ActionContainer.h"
+#include "mc/world/actor/npc/CommandAction.h"
+#include "mc/world/actor/npc/StoredCommand.h"
+#include "mc/world/actor/npc/UrlAction.h"
 #include "mc/world/actor/player/Player.h"
-#include "mc/world/containers/models/LevelContainerModel.h"
-#include "mc/world/events/BlockEventCoordinator.h"
-#include "mc/world/gamemode/InteractionResult.h"
-#include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/item/CrossbowItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/item/TridentItem.h"
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/ChangeDimensionRequest.h"
 #include "mc/world/level/Level.h"
-#include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/actor/ChestBlockActor.h"
-#include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/phys/AABB.h"
-#include "mc/world/scores/ServerScoreboard.h"
-#include "mc/world/level/Explosion.h"
-#include "mc/world/level/material/Material.h"
-#include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/actor/player/PlayerItemInUse.h"
-#include "mc/entity/components_json_legacy/NpcComponent.h"
-#include "mc/world/actor/npc/ActionContainer.h"
-#include "mc/world/actor/npc/CommandAction.h"
-#include "mc/world/actor/npc/UrlAction.h"
-#include "mc/world/actor/npc/StoredCommand.h"
+#include "mc/world/phys/HitResult.h"
 
 namespace lse::events::entity {
 LL_TYPE_INSTANCE_HOOK(
@@ -268,7 +248,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
         auto action = this->getActionsContainer().at(actionIndex);
         if (std::holds_alternative<npc::CommandAction>(*action)) {
-            auto& commands   = std::get<npc::CommandAction>(*action).commands;
+            auto&       commands = std::get<npc::CommandAction>(*action).commands;
             std::string command;
             for (auto& cmd : commands.get()) {
                 command += cmd.mUnk879303.as<std::string>() + ";";
@@ -302,4 +282,4 @@ void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
 void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
 void MobHurtEvent() { MobHurtEffectHook::hook(); }
 void NpcCommandEvent() { NpcCommandHook::hook(); }
-}
+} // namespace lse::events::entity

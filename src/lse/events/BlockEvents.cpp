@@ -243,13 +243,11 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          entitySource
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        if (!CallEvent(
-                EVENT_TYPES::onBlockExploded,
-                BlockClass::newBlock(pos, region.getDimensionId()),
-                EntityClass::newEntity(entitySource)
-            )) {
-            return;
-        }
+        CallEvent(
+            EVENT_TYPES::onBlockExploded,
+            BlockClass::newBlock(pos, region.getDimensionId()),
+            EntityClass::newEntity(entitySource)
+        );
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
     origin(region, pos, entitySource);

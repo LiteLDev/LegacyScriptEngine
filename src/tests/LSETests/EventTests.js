@@ -75,7 +75,8 @@ export const events = [
     "beforeMoneyTrans",
     "beforeMoneySet",
     "onMobTrySpawn",
-    "onMobSpawned"
+    "onMobSpawned",
+    "onNpcCmd"
 ];
 
 export const triggeredEvents = new Set();

@@ -75,6 +75,11 @@
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/actor/player/PlayerItemInUse.h"
 #include "ll/api/thread/ThreadName.h"
+#include "mc/entity/components_json_legacy/NpcComponent.h"
+#include "mc/world/actor/npc/ActionContainer.h"
+#include "mc/world/actor/npc/CommandAction.h"
+#include "mc/world/actor/npc/UrlAction.h"
+#include "mc/world/actor/npc/StoredCommand.h"
 
 namespace lse::events {
 
@@ -982,9 +987,11 @@ LL_TYPE_INSTANCE_HOOK(
         if (id.getIdentityDef().isPlayerType()) {
             if (!CallEvent(
                     EVENT_TYPES::onScoreChanged,
-                    PlayerClass::newPlayer(ll::service::getLevel()->getPlayer(
-                        ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId)
-                    )),
+                    PlayerClass::newPlayer(
+                        ll::service::getLevel()->getPlayer(
+                            ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId)
+                        )
+                    ),
                     Number::newNumber(obj.getPlayerScore(id).mValue),
                     String::newString(obj.getName()),
                     String::newString(obj.getDisplayName())
@@ -1324,6 +1331,42 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(actor, location);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    NpcCommandHook,
+    HookPriority::Normal,
+    NpcComponent,
+    &NpcComponent::executeCommandAction,
+    void,
+    ::Actor&             owner,
+    ::Player&            sourcePlayer,
+    int                  actionIndex,
+    ::std::string const& sceneName
+) {
+    IF_LISTENED(EVENT_TYPES::onNpcCmd) {
+        auto action = this->getActionsContainer().at(actionIndex);
+        if (std::holds_alternative<npc::CommandAction>(*action)) {
+            auto& commands   = std::get<npc::CommandAction>(*action).commands;
+            std::string command;
+            for (auto& cmd : commands.get()) {
+                command += cmd.mUnk879303.as<std::string>() + ";";
+            }
+            if (!commands->empty()) {
+                command.pop_back();
+            }
+            if (!CallEvent(
+                    EVENT_TYPES::onNpcCmd,
+                    EntityClass::newEntity(&owner),
+                    PlayerClass::newPlayer(&sourcePlayer),
+                    String::newString(command)
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onNpcCmd);
+    origin(owner, sourcePlayer, actionIndex, sceneName);
+}
+
 void PlayerStartDestroyBlock() { PlayerStartDestroyHook::hook(); }
 void PlayerDropItem() {
     PlayerDropItemHook1::hook();
@@ -1394,6 +1437,7 @@ void HopperEvent(bool pullIn) {
 }
 void MobHurtEvent() { MobHurtEffectHook::hook(); }
 void PlayerInteractEntityEvent() { PlayerInteractEntityHook::hook(); }
+void NpcCommandEvent() { NpcCommandHook::hook(); }
 
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)

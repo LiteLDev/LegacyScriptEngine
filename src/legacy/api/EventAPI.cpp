@@ -794,6 +794,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerInteractEntity:
         lse::events::PlayerInteractEntityEvent();
         break;
+    case EVENT_TYPES::onNpcCmd:
+        lse::events::NpcCommandEvent();
+        break;
     default:
         break;
     }

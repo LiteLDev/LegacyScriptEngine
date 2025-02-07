@@ -41,5 +41,6 @@ void ProjectileHitBlockEvent();
 void HopperEvent(bool pullIn);
 void MobHurtEvent();
 void PlayerInteractEntityEvent();
+void NpcCommandEvent();
 
 } // namespace lse::events

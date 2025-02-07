@@ -19,7 +19,6 @@ bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, lon
 
 enum class EVENT_TYPES : int {
     /* Player Events */
-
     onPreJoin = 0,
     onJoin,
     onLeft,
@@ -54,7 +53,6 @@ enum class EVENT_TYPES : int {
     onInventoryChange,
     onPlayerPullFishingHook,
     onPlayerInteractEntity,
-    // onMove,
     onChangeSprinting,
     onSetArmor,
     onUseRespawnAnchor,
@@ -74,6 +72,9 @@ enum class EVENT_TYPES : int {
     onProjectileCreated,
     onChangeArmorStand,
     onEntityTransformation,
+    onMobTrySpawn,
+    onMobSpawned,
+    onNpcCmd,
     /* Block Events */
     onBlockInteracted,
     onBlockChanged,
@@ -92,6 +93,7 @@ enum class EVENT_TYPES : int {
     onFarmLandDecay,
     onUseFrameBlock,
     onLiquidFlow,
+    onContainerChangeSlot,
     /* Other Events */
     onScoreChanged,
     onTick,
@@ -113,9 +115,6 @@ enum class EVENT_TYPES : int {
     onExplode,
     onBedExplode,
     onMobSpawn,
-    onMobTrySpawn,
-    onMobSpawned,
-    onContainerChangeSlot,
     EVENT_COUNT
 };
 

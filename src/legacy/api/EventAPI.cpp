@@ -491,46 +491,15 @@ void EnableEventListener(int eventId) {
         lse::events::player::ConsumeTotemEvent();
         break;
 
-        // case EVENT_TYPES::onEffectAdded:
-        // case EVENT_TYPES::onEffectRemoved:
-        // case EVENT_TYPES::onEffectUpdated:
-        //   Event::PlayerEffectChangedEvent::subscribe([](const
-        //   PlayerEffectChangedEvent
-        //                                                     &ev) {
-        //     if (ev.mEventType == PlayerEffectChangedEvent::EventType::Add) {
-        //       IF_LISTENED(EVENT_TYPES::onEffectAdded) {
-        //         CallEvent(
-        //             EVENT_TYPES::onEffectAdded,
-        //             PlayerClass::newPlayer(ev.mPlayer),
-        //             String::newString(ev.mEffect->getComponentName().getString()),
-        //             Number::newNumber(ev.mEffect->getAmplifier()),
-        //             Number::newNumber(ev.mEffect->getDuration()));
-        //       }
-        //       IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
-        //     } else if (ev.mEventType ==
-        //     PlayerEffectChangedEvent::EventType::Remove) {
-        //       IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
-        //         CallEvent(
-        //             EVENT_TYPES::onEffectRemoved,
-        //             PlayerClass::newPlayer(ev.mPlayer),
-        //             String::newString(ev.mEffect->getComponentName().getString()));
-        //       }
-        //       IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
-        //     } else if (ev.mEventType ==
-        //     PlayerEffectChangedEvent::EventType::Update) {
-        //       IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        //         CallEvent(
-        //             EVENT_TYPES::onEffectUpdated,
-        //             PlayerClass::newPlayer(ev.mPlayer),
-        //             String::newString(ev.mEffect->getComponentName().getString()),
-        //             Number::newNumber(ev.mEffect->getAmplifier()),
-        //             Number::newNumber(ev.mEffect->getDuration()));
-        //       }
-        //       IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
-        //     }
-        //     return true;
-        //   });
-        //   break;
+    case EVENT_TYPES::onEffectAdded:
+        lse::events::entity::EffectApplyEvent();
+        break;
+    case EVENT_TYPES::onEffectRemoved:
+        lse::events::entity::EffectExpiredEvent();
+        break;
+    case EVENT_TYPES::onEffectUpdated:
+        lse::events::entity::EffectUpdateEvent();
+        break;
 
     case EVENT_TYPES::onUseRespawnAnchor:
         lse::events::player::UseRespawnAnchorEvent();

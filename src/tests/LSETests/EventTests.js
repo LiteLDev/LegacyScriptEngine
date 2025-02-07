@@ -76,7 +76,10 @@ export const events = [
     "beforeMoneySet",
     "onMobTrySpawn",
     "onMobSpawned",
-    "onNpcCmd"
+    "onNpcCmd",
+    "onEffectAdded",
+    "onEffectRemoved",
+    "onEffectUpdated"
 ];
 
 export const triggeredEvents = new Set();

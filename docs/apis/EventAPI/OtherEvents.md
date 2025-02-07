@@ -46,15 +46,3 @@
     The console command being executed.
 
 - Intercept events: function returns `false`
-
-
-
-#### `"onConsoleOutput"` - Console Output Event
-
-- Listener function prototype
-  `function(cmd)`
-- Parameters: 
-  - cmd : `String`  
-    The console output.
-
-- Intercept events: function returns `false`

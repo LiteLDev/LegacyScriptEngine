@@ -6,6 +6,7 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
@@ -22,6 +23,8 @@
 #include "mc/world/actor/npc/StoredCommand.h"
 #include "mc/world/actor/npc/UrlAction.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/effect/EffectDuration.h"
+#include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/item/CrossbowItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
@@ -270,6 +273,79 @@ LL_TYPE_INSTANCE_HOOK(
     origin(owner, sourcePlayer, actionIndex, sceneName);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    EffectApplyHook,
+    HookPriority::Normal,
+    MobEffectInstance,
+    &MobEffectInstance::applyEffects,
+    void,
+    ::Actor& mob
+) {
+    IF_LISTENED(EVENT_TYPES::onEffectAdded) {
+        if (mob.isPlayer()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEffectAdded,
+                    PlayerClass::newPlayer(&static_cast<Player&>(mob)),
+                    String::newString(getComponentName().getString()),
+                    Number::newNumber(getAmplifier()),
+                    Number::newNumber(getDuration().getValueForSerialization())
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
+    origin(mob);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    EffectExpiredHook,
+    HookPriority::Normal,
+    MobEffectInstance,
+    &MobEffectInstance::onEffectsExpired,
+    void,
+    ::Actor& mob
+) {
+    IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
+        if (mob.isPlayer()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEffectRemoved,
+                    PlayerClass::newPlayer(&static_cast<Player&>(mob)),
+                    String::newString(getComponentName().getString())
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
+    origin(mob);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    EffectUpdateHook,
+    HookPriority::Normal,
+    MobEffectInstance,
+    &MobEffectInstance::updateEffects,
+    void,
+    ::Actor* mob
+) {
+    IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
+        if (mob->isPlayer()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEffectUpdated,
+                    PlayerClass::newPlayer(static_cast<Player*>(mob)),
+                    String::newString(getComponentName().getString()),
+                    Number::newNumber(getAmplifier()),
+                    Number::newNumber(getDuration().getValueForSerialization())
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
+    origin(mob);
+}
+
 void ProjectileSpawnEvent() {
     ProjectileSpawnHook1::hook();
     ProjectileSpawnHook2::hook();
@@ -282,4 +358,7 @@ void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
 void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
 void MobHurtEvent() { MobHurtEffectHook::hook(); }
 void NpcCommandEvent() { NpcCommandHook::hook(); }
+void EffectApplyEvent() { EffectApplyHook::hook(); }
+void EffectExpiredEvent() { EffectExpiredHook::hook(); }
+void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 } // namespace lse::events::entity

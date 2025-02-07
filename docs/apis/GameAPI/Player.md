@@ -180,13 +180,13 @@ pl:kick()
     - type : `Integer`  
       (Optional parameter) The type of text message to send, default is `0`.
 
-      | Type Parameter | Message Type                      |
-                | -------------- | --------------------------------- |
-      | 0              | Normal Message (Raw)              |
-      | 1              | Chat Message (Chat)               |
-      | 4              | Music Box Message (Popup)         |
-      | 5              | Message Above the Inventory (Tip) |
-      | 9              | JSON format message (JSON)        |
+| Type Parameter | Message Type                      |
+|----------------|-----------------------------------|
+| 0              | Normal Message (Raw)              |
+| 1              | Chat Message (Chat)               |
+| 4              | Music Box Message (Popup)         |
+| 5              | Message Above the Inventory (Tip) |
+| 9              | JSON format message (JSON)        |
 
 - Return value: Whether the message was sent successfully.
 
@@ -211,17 +211,17 @@ pl.tell("Welcome back ~ ", 5);
     - type : `Integer`  
       (optional) The title type, default = 2.
 
-      | Types | Description         |
-                | ----- | ------------------- |
-      | 0     | Clear               |
-      | 1     | Reset               |
-      | 2     | SetTitle            |
-      | 3     | SetSubTitle         |
-      | 4     | SetActionBar        |
-      | 5     | SetDurations        |
-      | 6     | TitleTextObject     |
-      | 7     | SubtitleTextObject  |
-      | 8     | ActionbarTextObject |
+    | Types | Description         |
+    |-------|---------------------|
+    | 0     | Clear               |
+    | 1     | Reset               |
+    | 2     | SetTitle            |
+    | 3     | SetSubTitle         |
+    | 4     | SetActionBar        |
+    | 5     | SetDurations        |
+    | 6     | TitleTextObject     |
+    | 7     | SubtitleTextObject  |
+    | 8     | ActionbarTextObject |
 
     - fadeInTime : `Integer`  
       (optional) Fade in time, in `Tick` , default is 10
@@ -250,13 +250,13 @@ pl.tell("Welcome back ~ ", 5);
     - type : `Integer`  
       (Optional parameter) The type of text message to send, default is `0`.
 
-      | Type Parameter | Message Type                      |
-                | -------------- | --------------------------------- |
-      | 0              | Normal Message (Raw)              |
-      | 1              | Chat Message (Chat)               |
-      | 4              | Music Box Message (Popup)         |
-      | 5              | Message Above the Inventory (Tip) |
-      | 9              | JSON format message (JSON)        |
+| Type Parameter | Message Type                      |
+|----------------|-----------------------------------|
+| 0              | Normal Message (Raw)              |
+| 1              | Chat Message (Chat)               |
+| 4              | Music Box Message (Popup)         |
+| 5              | Message Above the Inventory (Tip) |
+| 9              | JSON format message (JSON)        |
 
 - Return value: Whether the message was sent successfully.
 
@@ -747,11 +747,11 @@ items.
     - level : `Integer`  
       Target operation authority level
 
-      | Player Permission Level | Corresponding Permission Authority |
-                | ----------------------- | ---------------------------------- |
-      | 0                       | Ordinary Member Permissions        |
-      | 1                       | OP Permissions                     |
-      | 4                       | OP + Console Permissions           |
+| Player Permission Level | Corresponding Permission Authority |
+|-------------------------|------------------------------------|
+| 0                       | Ordinary Member Permissions        |
+| 1                       | OP Permissions                     |
+| 4                       | OP + Console Permissions           |
 
 - Return value: Whether the modification was successful.
 
@@ -1559,53 +1559,51 @@ Note: If you need automatic pathfinding, consider using `Simulate Navigate Move`
 Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetoblock)  
 Return value example:
 
-```js
+```json
 {
-    isFullPath: false,
-        path
-:
+  isFullPath: false,
+  path: [
     [
-        [
-            -8,
-            0,
-            -3
-        ],
-        [
-            -7,
-            0,
-            -2
-        ],
-        [
-            -6,
-            0,
-            -2
-        ],
-        [
-            -5,
-            0,
-            -2
-        ],
-        [
-            -4,
-            0,
-            -1
-        ],
-        [
-            -3,
-            0,
-            -1
-        ],
-        [
-            -2,
-            0,
-            -1
-        ],
-        [
-            -1,
-            0,
-            0
-        ]
+      -8,
+      0,
+      -3
+    ],
+    [
+      -7,
+      0,
+      -2
+    ],
+    [
+      -6,
+      0,
+      -2
+    ],
+    [
+      -5,
+      0,
+      -2
+    ],
+    [
+      -4,
+      0,
+      -1
+    ],
+    [
+      -3,
+      0,
+      -1
+    ],
+    [
+      -2,
+      0,
+      -1
+    ],
+    [
+      -1,
+      0,
+      0
     ]
+  ]
 }
 ```
 

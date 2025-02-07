@@ -31,11 +31,10 @@ public:
     static Local<Value> require(const Arguments& args);
     static Local<Value> eval(const Arguments& args);
     static Local<Value> getPluginInfo(const Arguments& args);
+    static Local<Value> onUnload(const Arguments& args);
 
     // For Compatibility
     static Local<Value> version(const Arguments& args);
-    static Local<Value> isDebugModeFunction(const Arguments& args);
-    static Local<Value> getScriptEngineVersionFunction(const Arguments& args);
 };
 extern ClassDefine<void> LlClassBuilder;
 extern ClassDefine<void> VersionClassBuilder;

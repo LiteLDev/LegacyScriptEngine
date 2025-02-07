@@ -45,6 +45,11 @@ if not has_config("vs_runtime") then
     set_runtimes("MD")
 end
 
+option("publish")
+    set_default(false)
+    set_showmenu(true)
+option_end()
+
 option("target_type")
     set_default("server")
     set_showmenu(true)
@@ -57,7 +62,6 @@ option("backend")
 
 target("legacy-script-engine")
     add_rules("@levibuildscript/linkrule")
-    add_rules("@levibuildscript/modpacker")
     add_cxflags("/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204","/Zm2000", {force = true})
     add_defines(
         "NOMINMAX",
@@ -90,6 +94,30 @@ target("legacy-script-engine")
         "src",
         "src/legacy"
     )
+    on_load(function (target)
+            local tag = os.iorun("git describe --tags --abbrev=0 --always")
+            local major, minor, patch, suffix = tag:match("v(%d+)%.(%d+)%.(%d+)(.*)")
+            if not major then
+                print("Failed to parse version tag, using 0.0.0")
+                major, minor, patch = 0, 0, 0
+            end
+            local versionStr =  major.."."..minor.."."..patch
+            if suffix then
+                prerelease = suffix:match("-(.*)")
+                if prerelease then
+                    prerelease = prerelease:gsub("\n", "")
+                end
+            end
+
+            if not has_config("publish") then
+                local hash = os.iorun("git rev-parse --short HEAD")
+                versionStr = versionStr.."+"..hash:gsub("\n", "")
+            end
+
+            target:add("rules", "@levibuildscript/modpacker",{
+                   modVersion = versionStr
+               })
+    end)
 
     if is_config("backend", "lua") then
         add_defines(

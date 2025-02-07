@@ -212,7 +212,6 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
-        plugin->onUnload([](ll::mod::Mod&) { return true; });
 
         return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
     } catch (const Exception& e) {

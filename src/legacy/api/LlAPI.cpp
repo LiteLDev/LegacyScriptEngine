@@ -37,11 +37,11 @@ ClassDefine<void> LlClassBuilder = defineClass("ll")
                                        .function("registerPlugin", &LlClass::registerPlugin)
                                        .function("getPluginInfo", &LlClass::getPluginInfo)
                                        .function("checkVersion", &LlClass::requireVersion)
+                                       .function("onUnload", &LlClass::onUnload)
 
                                        // For Compatibility
                                        .function("version", &LlClass::version)
                                        .function("versionStatus", &LlClass::getVersionStatus)
-                                       .function("scriptEngineVersion", &LlClass::getScriptEngineVersionFunction)
 
                                        .build();
 
@@ -55,7 +55,7 @@ ClassDefine<void> VersionClassBuilder = defineClass("Version")
 
 Local<Value> LlClass::getLanguage() {
     try {
-        return String::newString(ll::sys_utils::getSystemLocaleCode());
+        return String::newString(ll::i18n::getDefaultLocaleCode());
     }
     CATCH("Fail in getLanguage")
 }
@@ -77,42 +77,72 @@ Local<Value> LlClass::isDebugMode() {
 
 Local<Value> LlClass::isRelease() {
     try {
-        return Boolean::newBoolean(!ll::getLoaderVersion().preRelease.has_value());
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Boolean::newBoolean(!ver->preRelease.has_value());
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isRelease")
 }
 
 Local<Value> LlClass::isBeta() {
     try {
-        return Boolean::newBoolean(ll::getLoaderVersion().preRelease.has_value());
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Boolean::newBoolean(ver->preRelease.has_value());
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isBeta")
 }
 
 Local<Value> LlClass::isDev() {
     try {
-        return Boolean::newBoolean(ll::getLoaderVersion().to_string().find("+") != std::string::npos);
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Boolean::newBoolean(ver->to_string().find("+") != std::string::npos);
+        } else {
+            return Boolean::newBoolean(true);
+        }
     }
     CATCH("Fail in isDev");
 }
 
 Local<Value> LlClass::getMajorVersion() {
     try {
-        return Number::newNumber(ll::getLoaderVersion().major);
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Number::newNumber(ver->major);
+        } else {
+            return Number::newNumber(0);
+        }
     }
     CATCH("Fail in getMajorVersion")
 }
 
 Local<Value> LlClass::getMinorVersion() {
     try {
-        return Number::newNumber(ll::getLoaderVersion().minor);
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Number::newNumber(ver->minor);
+        } else {
+            return Number::newNumber(0);
+        }
     }
     CATCH("Fail in getMinorVersion")
 }
 
 Local<Value> LlClass::getRevisionVersion() {
     try {
-        return Number::newNumber(ll::getLoaderVersion().patch);
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return Number::newNumber(ver->patch);
+        } else {
+            return Number::newNumber(0);
+        }
     }
     CATCH("Fail in getRevisionVersion")
 }
@@ -125,12 +155,17 @@ Local<Value> LlClass::getScriptEngineVersion() {
 }
 
 Local<Value> LlClass::getVersionStatus() {
-    if (ll::getLoaderVersion().to_string().find("+") != std::string::npos) {
-        return Number::newNumber(0);
-    } else if (ll::getLoaderVersion().preRelease.has_value()) {
-        return Number::newNumber(1);
+    auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+    if (ver) {
+        if (ver->to_string().find("+") != std::string::npos) {
+            return Number::newNumber(0);
+        } else if (ver->preRelease.has_value()) {
+            return Number::newNumber(1);
+        } else {
+            return Number::newNumber(2);
+        }
     } else {
-        return Number::newNumber(2);
+        return Number::newNumber(0);
     }
 }
 
@@ -280,7 +315,12 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
 }
 Local<Value> LlClass::versionString(const Arguments&) {
     try {
-        return String::newString(ll::getLoaderVersion().to_string());
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            return String::newString(ver->to_string());
+        } else {
+            return String::newString("0.0.0");
+        }
     }
     CATCH("Fail in versionString!")
 }
@@ -327,7 +367,20 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
     CATCH("Fail in getAllPluginInfo");
 }
 
-// For Compatibility
+Local<Value> LlClass::onUnload(const script::Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
+
+    try {
+        getEngineOwnData()->addUnloadCallback([func = script::Global<Function>(args[0].asFunction()
+                                               )](ScriptEngine* engine) {
+            EngineScope enter(engine);
+            func.get().call();
+        });
+    }
+    CATCH("Fail in onUnload");
+}
+
 Local<Value> LlClass::listPlugins(const Arguments&) {
     try {
         Local<Array> plugins = Array::newArray();
@@ -354,22 +407,19 @@ Local<Value> LlClass::eval(const Arguments& args) {
 // For Compatibility
 Local<Value> LlClass::version(const Arguments&) {
     try {
-        Local<Object> ver = Object::newObject();
-        ver.set("major", ll::getLoaderVersion().major);
-        ver.set("minor", ll::getLoaderVersion().minor);
-        ver.set("revision", ll::getLoaderVersion().patch);
-        ver.set("isBeta", !ll::getLoaderVersion().preRelease.has_value());
-        ver.set("isRelease", ll::getLoaderVersion().preRelease.has_value());
-        ver.set("isDev", ll::getLoaderVersion().to_string().find("+") != std::string::npos);
-        return ver;
+        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
+        if (ver) {
+            auto version = Object::newObject();
+            version.set("major", ver->major);
+            version.set("minor", ver->minor);
+            version.set("revision", ver->patch);
+            version.set("isBeta", ver->preRelease.has_value());
+            version.set("isRelease", !ver->preRelease.has_value());
+            version.set("isDev", ver->to_string().find("+") != std::string::npos);
+            return version;
+        } else {
+            return Object::newObject();
+        }
     }
     CATCH("Fail in version!")
-}
-
-// For Compatibility
-Local<Value> LlClass::getScriptEngineVersionFunction(const Arguments&) {
-    try {
-        return String::newString(EngineScope::currentEngine()->getEngineVersion());
-    }
-    CATCH("Fail in getScriptEngineVersion")
 }

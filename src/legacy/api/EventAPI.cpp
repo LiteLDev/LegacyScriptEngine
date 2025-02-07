@@ -41,7 +41,10 @@
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/Entry.h"
-#include "lse/events/EventHooks.h"
+#include "lse/events/PlayerEvents.h"
+#include "lse/events/EntityEvents.h"
+#include "lse/events/BlockEvents.h"
+#include "lse/events/OtherEvents.h"
 #include "main/Global.h"
 #include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/string/HashedString.h"
@@ -196,7 +199,7 @@ void EnableEventListener(int eventId) {
         });
 
     case EVENT_TYPES::onChangeDim:
-        lse::events::PlayerChangeDimensionEvent();
+        lse::events::player::ChangeDimensionEvent();
         break;
 
     case EVENT_TYPES::onPlayerSwing:
@@ -225,7 +228,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onAttackBlock:
-        lse::events::PlayerAttackBlockEvent();
+        lse::events::player::AttackBlockEvent();
         break;
 
     case EVENT_TYPES::onPlayerDie:
@@ -254,7 +257,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onStartDestroyBlock:
-        lse::events::PlayerStartDestroyBlock();
+        lse::events::player::StartDestroyBlock();
         break;
 
     case EVENT_TYPES::onDestroyBlock:
@@ -331,7 +334,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onDropItem:
-        lse::events::PlayerDropItem();
+        lse::events::player::DropItem();
         break;
 
     case EVENT_TYPES::onTakeItem:
@@ -351,15 +354,15 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onOpenContainer:
-        lse::events::PlayerOpenContainerEvent();
+        lse::events::player::OpenContainerEvent();
         break;
 
     case EVENT_TYPES::onCloseContainer:
-        lse::events::PlayerCloseContainerEvent();
+        lse::events::player::CloseContainerEvent();
         break;
 
     case EVENT_TYPES::onInventoryChange:
-        lse::events::PlayerChangeSlotEvent();
+        lse::events::player::ChangeSlotEvent();
         break;
 
     case EVENT_TYPES::onUseItem:
@@ -396,18 +399,18 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onUseBucketPlace:
-        lse::events::PlayerUseBucketPlaceEvent();
+        lse::events::player::UseBucketPlaceEvent();
         break;
     case EVENT_TYPES::onUseBucketTake:
-        lse::events::PlayerUseBucketTakeEvent();
+        lse::events::player::UseBucketTakeEvent();
         break;
 
     case EVENT_TYPES::onContainerChange:
-        lse::events::ContainerChangeEvent();
+        lse::events::block::ContainerChangeEvent();
         break;
 
     case EVENT_TYPES::onChangeArmorStand:
-        lse::events::ArmorStandSwapItemEvent();
+        lse::events::block::ArmorStandSwapItemEvent();
         break;
 
     case EVENT_TYPES::onChangeSprinting:
@@ -453,11 +456,11 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onOpenContainerScreen:
-        lse::events::PlayerOpenContainerScreenEvent();
+        lse::events::player::OpenContainerScreenEvent();
         break;
 
     case EVENT_TYPES::onSetArmor:
-        lse::events::PlayerSetArmorEvent();
+        lse::events::player::SetArmorEvent();
         break;
 
     case EVENT_TYPES::onEat:
@@ -481,11 +484,11 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onAte:
-        lse::events::PlayerEatEvent();
+        lse::events::player::EatEvent();
         break;
 
     case EVENT_TYPES::onConsumeTotem:
-        lse::events::PlayerConsumeTotemEvent();
+        lse::events::player::ConsumeTotemEvent();
         break;
 
         // case EVENT_TYPES::onEffectAdded:
@@ -530,39 +533,39 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onUseRespawnAnchor:
-        lse::events::PlayerUseRespawnAnchorEvent();
+        lse::events::player::UseRespawnAnchorEvent();
         break;
 
     case EVENT_TYPES::onRide:
-        lse::events::ActorRideEvent();
+        lse::events::entity::ActorRideEvent();
         break;
 
     case EVENT_TYPES::onEntityExplode:
-        lse::events::ExplodeEvent();
+        lse::events::block::ExplodeEvent();
         break;
 
     case EVENT_TYPES::onBlockExplode:
-        lse::events::ExplodeEvent();
+        lse::events::block::ExplodeEvent();
         break;
 
     case EVENT_TYPES::onRespawnAnchorExplode:
-        lse::events::RespawnAnchorExplodeEvent();
+        lse::events::block::RespawnAnchorExplodeEvent();
         break;
 
     case EVENT_TYPES::onBlockExploded:
-        lse::events::BlockExplodedEvent();
+        lse::events::block::BlockExplodedEvent();
         break;
 
     case EVENT_TYPES::onCmdBlockExecute:
-        lse::events::CommandBlockExecuteEvent();
+        lse::events::block::CommandBlockExecuteEvent();
         break;
 
     case EVENT_TYPES::onRedStoneUpdate:
-        lse::events::RedstoneupdateEvent();
+        lse::events::block::RedstoneupdateEvent();
         break;
 
     case EVENT_TYPES::onWitherBossDestroy:
-        lse::events::WitherDestroyEvent();
+        lse::events::entity::WitherDestroyEvent();
         break;
 
     case EVENT_TYPES::onMobHurt:
@@ -592,11 +595,11 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onMobHurt)
         });
-        lse::events::MobHurtEvent();
+        lse::events::entity::MobHurtEvent();
         break;
 
     case EVENT_TYPES::onStepOnPressurePlate:
-        lse::events::PressurePlateTriggerEvent();
+        lse::events::block::PressurePlateTriggerEvent();
         break;
 
     case EVENT_TYPES::onMobDie:
@@ -622,15 +625,15 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onSpawnProjectile:
-        lse::events::ProjectileSpawnEvent();
+        lse::events::entity::ProjectileSpawnEvent();
         break;
 
     case EVENT_TYPES::onProjectileCreated:
-        lse::events::ProjectileCreatedEvent();
+        lse::events::entity::ProjectileCreatedEvent();
         break;
 
     case EVENT_TYPES::onProjectileHitEntity:
-        lse::events::ProjectileHitEntityEvent();
+        lse::events::entity::ProjectileHitEntityEvent();
         break;
 
         // case EVENT_TYPES::onEntityTransformation:
@@ -646,15 +649,15 @@ void EnableEventListener(int eventId) {
         //   break;
 
     case EVENT_TYPES::onProjectileHitBlock:
-        lse::events::ProjectileHitBlockEvent();
+        lse::events::entity::ProjectileHitBlockEvent();
         break;
 
     case EVENT_TYPES::onLiquidFlow:
-        lse::events::LiquidFlowEvent();
+        lse::events::block::LiquidFlowEvent();
         break;
 
     case EVENT_TYPES::onUseFrameBlock:
-        lse::events::PlayerUseFrameEvent();
+        lse::events::player::UseFrameEvent();
         break;
 
     case EVENT_TYPES::onBlockInteracted:
@@ -672,23 +675,23 @@ void EnableEventListener(int eventId) {
         });
 
     case EVENT_TYPES::onFarmLandDecay:
-        lse::events::FarmDecayEvent();
+        lse::events::block::FarmDecayEvent();
         break;
 
     case EVENT_TYPES::onPistonTryPush:
-        lse::events::PistonPushEvent();
+        lse::events::block::PistonPushEvent();
         break;
 
     case EVENT_TYPES::onPistonPush:
-        lse::events::PistonPushEvent();
+        lse::events::block::PistonPushEvent();
         break;
 
     case EVENT_TYPES::onHopperSearchItem:
-        lse::events::HopperEvent(true);
+        lse::events::block::HopperEvent(true);
         break;
 
     case EVENT_TYPES::onHopperPushOut:
-        lse::events::HopperEvent(false);
+        lse::events::block::HopperEvent(false);
         break;
 
     case EVENT_TYPES::onFireSpread:
@@ -719,7 +722,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onScoreChanged:
-        lse::events::ScoreChangedEvent();
+        lse::events::other::ScoreChangedEvent();
         break;
 
     case EVENT_TYPES::onMobSpawn:
@@ -782,20 +785,20 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onBedEnter:
-        lse::events::PlayerSleepEvent();
+        lse::events::player::SleepEvent();
         break;
 
     case EVENT_TYPES::onOpenInventory:
-        lse::events::PlayerOpenInventoryEvent();
+        lse::events::player::OpenInventoryEvent();
         break;
     case EVENT_TYPES::onPlayerPullFishingHook:
-        lse::events::PlayerPullFishingHookEvent();
+        lse::events::player::PullFishingHookEvent();
         break;
     case EVENT_TYPES::onPlayerInteractEntity:
-        lse::events::PlayerInteractEntityEvent();
+        lse::events::player::InteractEntityEvent();
         break;
     case EVENT_TYPES::onNpcCmd:
-        lse::events::NpcCommandEvent();
+        lse::events::entity::NpcCommandEvent();
         break;
     default:
         break;

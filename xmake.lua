@@ -22,8 +22,6 @@ add_requires(
     "toml++ v3.4.0"
 )
 
-add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
-
 if is_config("backend", "lua") then
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Lua"}})
@@ -40,6 +38,8 @@ elseif is_config("backend", "nodejs") then
     add_requires("scriptx main", {configs={backend="V8"}})
 
 end
+
+add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")

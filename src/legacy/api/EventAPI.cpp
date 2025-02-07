@@ -804,12 +804,12 @@ void InitBasicEventListeners() {
     EventBus& bus = EventBus::getInstance();
 
     bus.emplaceListener<ExecutingCommandEvent>([](ExecutingCommandEvent& ev) {
-        if (ev.commandContext().getCommandOrigin().getOriginType() == CommandOriginType::DedicatedServer) {
+        auto originType = ev.commandContext().getCommandOrigin().getOriginType();
+        if (originType == CommandOriginType::DedicatedServer) {
             std::string cmd = ev.commandContext().mCommand;
             if (cmd.starts_with("/")) {
                 cmd.erase(0, 1);
             }
-
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();
                 return;
@@ -831,8 +831,7 @@ void InitBasicEventListeners() {
             std::string              prefix            = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
 
             if (!prefix.empty()) {
-                // LLSE Registered Cmd
-
+                // LSE Registered Cmd
                 bool callbackRes = CallServerCmdCallback(prefix, paras);
                 IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
                     if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
@@ -858,7 +857,7 @@ void InitBasicEventListeners() {
                 }
                 IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
             }
-        } else if (ev.commandContext().mOrigin->getOriginType() == CommandOriginType::Player) {
+        } else if (originType == CommandOriginType::Player) {
             std::string cmd = ev.commandContext().mCommand;
             if (cmd.starts_with("/")) {
                 cmd.erase(0, 1);
@@ -903,9 +902,7 @@ void InitBasicEventListeners() {
                 }
                 IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
             }
-            return;
         }
-        return;
     });
 
     // ===== onServerStarted =====

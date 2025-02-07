@@ -377,6 +377,7 @@ Local<Value> LlClass::onUnload(const script::Arguments& args) {
             EngineScope enter(engine);
             func.get().call();
         });
+        return {};
     }
     CATCH("Fail in onUnload");
 }

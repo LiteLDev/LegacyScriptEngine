@@ -151,6 +151,7 @@ target("legacy-script-engine")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang/")
             local outputPath = path.join(os.projectdir(), "bin/" .. target:name())
+            os.mkdir(outputPath)
             os.cp(langPath, outputPath)
         end)
     end

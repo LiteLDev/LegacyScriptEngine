@@ -585,7 +585,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onPlayerInteractEntity) {
         if (!CallEvent(
                 EVENT_TYPES::onPlayerInteractEntity,
-                EntityClass::newEntity(this),
+                PlayerClass::newPlayer(this),
                 EntityClass::newEntity(&actor),
                 FloatPos::newPos(location, getDimensionId())
             )) {

@@ -11,6 +11,7 @@
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
 #include "mc/entity/components_json_legacy/ProjectileComponent.h"
+#include "mc/entity/components_json_legacy/TransformationComponent.h"
 #include "mc/world/actor/ActorDamageCause.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
@@ -346,6 +347,30 @@ LL_TYPE_INSTANCE_HOOK(
     origin(mob);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    TransformationHook,
+    HookPriority::Normal,
+    TransformationComponent,
+    &TransformationComponent::maintainOldData,
+    void,
+    ::Actor&                           originalActor,
+    ::Actor&                           transformed,
+    ::TransformationDescription const& transformation,
+    ::ActorUniqueID const&             ownerID,
+    ::Level const&                     level
+) {
+    IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
+        CallEvent(
+            EVENT_TYPES::onEntityTransformation,
+            String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
+            EntityClass::newEntity(&transformed)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEntityTransformation);
+
+    origin(originalActor, transformed, transformation, ownerID, level);
+}
+
 void ProjectileSpawnEvent() {
     ProjectileSpawnHook1::hook();
     ProjectileSpawnHook2::hook();
@@ -361,4 +386,5 @@ void NpcCommandEvent() { NpcCommandHook::hook(); }
 void EffectApplyEvent() { EffectApplyHook::hook(); }
 void EffectExpiredEvent() { EffectExpiredHook::hook(); }
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
+void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

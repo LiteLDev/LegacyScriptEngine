@@ -605,17 +605,9 @@ void EnableEventListener(int eventId) {
         lse::events::entity::ProjectileHitEntityEvent();
         break;
 
-        // case EVENT_TYPES::onEntityTransformation:
-        //   Event::EntityTransformEvent::subscribe([](const EntityTransformEvent
-        //   &ev) {
-        //     IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
-        //       CallEvent(EVENT_TYPES::onEntityTransformation,
-        //                 String::newString(to_string(ev.mBeforeEntityUniqueId->id)),
-        //                 EntityClass::newEntity(ev.mAfterEntity));
-        //     }
-        //     IF_LISTENED_END(EVENT_TYPES::onEntityTransformation);
-        //   });
-        //   break;
+    case EVENT_TYPES::onEntityTransformation:
+        lse::events::entity::TransformationEvent();
+        break;
 
     case EVENT_TYPES::onProjectileHitBlock:
         lse::events::entity::ProjectileHitBlockEvent();

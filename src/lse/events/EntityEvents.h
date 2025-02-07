@@ -12,4 +12,5 @@ void NpcCommandEvent();
 void EffectApplyEvent();
 void EffectExpiredEvent();
 void EffectUpdateEvent();
+void TransformationEvent();
 }

@@ -71,15 +71,14 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 
 bool LegacyScriptEngine::enable() {
     auto& logger = getSelf().getLogger();
-    if (!api::MoreGlobal::onEnable()) {
-        logger.error("Failed to enable MoreGlobal"_tr());
-    }
-    ll::service::PlayerInfo::getInstance();
-
     try {
+        if (!api::MoreGlobal::onEnable()) {
+            logger.error("Failed to enable MoreGlobal"_tr());
+        }
+        ll::service::PlayerInfo::getInstance();
         RegisterDebugCommand();
     } catch (...) {
-        logger.error("Failed to enable: {0}"_tr("RegisterDebugCommand"));
+        logger.error("Failed to enable: {0}"_tr(getSelf().getName()));
         ll::error_utils::printCurrentException(logger);
         return false;
     }
@@ -124,8 +123,9 @@ bool LegacyScriptEngine::load() {
 
         return true;
 
-    } catch (const std::exception& error) {
-        logger.error("Failed to load: {0}"_tr(error.what()));
+    } catch (...) {
+        logger.error("Failed to load: {0}"_tr(getSelf().getName()));
+        ll::error_utils::printCurrentException(logger);
         return false;
     }
 }

@@ -16,32 +16,33 @@
 #include "PythonHelper.h"
 #endif
 
-extern bool                     isInConsoleDebugMode;
-extern ScriptEngine*            debugEngine;
-std::shared_ptr<ll::io::Logger> debugLogger = ll::io::LoggerRegistry::getInstance().getOrCreate("LSEDEBUG");
-inline void                     printConsoleSymbol() { debugLogger->info("> "); }
+extern bool                     InConsoleDebugMode;
+extern ScriptEngine*            DebugEngine;
+std::shared_ptr<ll::io::Logger> DebugCmdLogger = ll::io::LoggerRegistry::getInstance().getOrCreate("LSEDEBUG");
+
+inline void PrintDebugSign() { DebugCmdLogger->info("> "); }
 
 bool ProcessDebugEngine(const std::string& cmd) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
     // process python debug seperately
     return PythonHelper::processPythonDebugEngine(cmd);
 #endif
-    if (isInConsoleDebugMode) {
-        EngineScope enter(debugEngine);
+    if (InConsoleDebugMode) {
+        EngineScope enter(DebugEngine);
         auto&       logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
         try {
             if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
                 return true;
             } else {
-                auto               result = debugEngine->eval(cmd);
+                auto               result = DebugEngine->eval(cmd);
                 std::ostringstream sout;
                 PrintValue(sout, result);
                 logger.info(sout.str());
-                printConsoleSymbol();
+                PrintDebugSign();
             }
         } catch (...) {
             ll::error_utils::printCurrentException(logger);
-            printConsoleSymbol();
+            PrintDebugSign();
         }
         return false;
     }
@@ -53,16 +54,18 @@ struct EngineDebugCommand {
 };
 
 void RegisterDebugCommand() {
-    debugLogger->setFormatter(ll::makePolymorphic<lse::io::DirectFormatter>());
+    DebugCmdLogger->setFormatter(ll::makePolymorphic<lse::io::DirectFormatter>());
+    // Node.js engine doesn't support debug engine, Python engine don't need to register command.
+#if (!defined LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS) && (!defined LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
     auto& command = ll::command::CommandRegistrar::getInstance()
                         .getOrCreateCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
             auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
             if (!param.eval.getText().empty()) {
-                EngineScope enter(debugEngine);
+                EngineScope enter(DebugEngine);
                 try {
-                    auto               result = debugEngine->eval(param.eval.getText());
+                    auto               result = DebugEngine->eval(param.eval.getText());
                     std::ostringstream sout;
                     PrintValue(sout, result);
                     output.success(sout.str());
@@ -70,17 +73,18 @@ void RegisterDebugCommand() {
                     ll::error_utils::printCurrentException(logger);
                 }
             } else {
-                if (isInConsoleDebugMode) {
+                if (InConsoleDebugMode) {
                     // EndDebug
                     logger.info("Debug mode ended");
-                    isInConsoleDebugMode = false;
+                    InConsoleDebugMode = false;
                 } else {
                     // StartDebug
                     logger.info("Debug mode begins");
-                    isInConsoleDebugMode = true;
-                    printConsoleSymbol();
+                    InConsoleDebugMode = true;
+                    PrintDebugSign();
                 }
             }
         }
     );
+#endif
 }

@@ -55,8 +55,8 @@ void                  InitLocalShareData();
 void                  InitMessageSystem();
 void                  InitSafeGuardRecord();
 void                  RegisterDebugCommand();
-bool                  isInConsoleDebugMode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-script::ScriptEngine* debugEngine;          // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+bool                  InConsoleDebugMode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+script::ScriptEngine* DebugEngine;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 namespace lse {
 
@@ -75,14 +75,14 @@ bool LegacyScriptEngine::enable() {
         logger.error("Failed to enable MoreGlobal"_tr());
     }
     ll::service::PlayerInfo::getInstance();
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+
     try {
         RegisterDebugCommand();
-    } catch (const std::exception& error) {
-        logger.error("Failed to enable: {0}"_tr(error.what()));
+    } catch (...) {
+        logger.error("Failed to enable: {0}"_tr("RegisterDebugCommand"));
+        ll::error_utils::printCurrentException(logger);
         return false;
     }
-#endif
     return true;
 }
 
@@ -172,7 +172,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     }
     scriptEngine->eval(baseLibContent.value());
 
-    debugEngine = scriptEngine;
+    DebugEngine = scriptEngine;
 #endif
 }
 

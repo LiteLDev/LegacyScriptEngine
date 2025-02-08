@@ -17,9 +17,10 @@
 const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 
 // pre-declare
-extern void          BindAPIs(ScriptEngine* engine);
-extern bool          isInConsoleDebugMode;
-extern ScriptEngine* debugEngine;
+extern void                            BindAPIs(ScriptEngine* engine);
+extern bool                            InConsoleDebugMode;
+extern ScriptEngine*                   DebugEngine;
+extern std::shared_ptr<ll::io::Logger> DebugCmdLogger;
 
 struct PyConfig;
 typedef PyObject* (*create_stdio_func_type)(
@@ -142,8 +143,8 @@ std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
     else return "";
 }
 
-inline void OUTPUT_DEBUG_SIGN() { std::cout << ">>> " << std::flush; }
-inline void OUTPUT_DEBUG_NEED_MORE_CODE_SIGN() { std::cout << "... " << std::flush; }
+inline void PrintPyDebugSign() { DebugCmdLogger->info(">>> "); }
+inline void OutputDebugNeedMoreCodeSign() { DebugCmdLogger->info("... "); }
 std::string codeBuffer        = "";
 bool        isInsideCodeBlock = false;
 
@@ -157,22 +158,23 @@ static PyObject* getPyGlobalDict() {
 
 bool processPythonDebugEngine(const std::string& cmd) {
     if (cmd == LLSE_DEBUG_CMD) {
-        if (isInConsoleDebugMode) {
+        auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+        if (InConsoleDebugMode) {
             // EndDebug
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Debug mode ended");
-            isInConsoleDebugMode = false;
+            logger.info("Debug mode ended");
+            InConsoleDebugMode = false;
         } else {
             // StartDebug
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Debug mode begins");
+            logger.info("Debug mode begins");
             codeBuffer.clear();
-            isInsideCodeBlock    = false;
-            isInConsoleDebugMode = true;
-            OUTPUT_DEBUG_SIGN();
+            isInsideCodeBlock  = false;
+            InConsoleDebugMode = true;
+            PrintPyDebugSign();
         }
         return false;
     }
-    if (isInConsoleDebugMode) {
-        EngineScope enter(debugEngine);
+    if (InConsoleDebugMode) {
+        EngineScope enter(DebugEngine);
         if (cmd == "stop") {
             return true;
         } else {
@@ -185,7 +187,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
                     } else {
                         // add a new line to buffer
                         codeBuffer += cmd + "\n";
-                        OUTPUT_DEBUG_NEED_MORE_CODE_SIGN();
+                        OutputDebugNeedMoreCodeSign();
                         return false;
                     }
                 } else {
@@ -194,7 +196,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
                         // begin code block mode
                         isInsideCodeBlock = true;
                         codeBuffer        = cmd + "\n";
-                        OUTPUT_DEBUG_NEED_MORE_CODE_SIGN();
+                        OutputDebugNeedMoreCodeSign();
                         return false;
                     } else {
                         codeBuffer = cmd;
@@ -207,13 +209,13 @@ bool processPythonDebugEngine(const std::string& cmd) {
                     auto exp = script::py_interop::getAndClearLastException();
                     throw exp;
                 }
-            } catch (const Exception& e) {
+            } catch (...) {
                 isInsideCodeBlock = false;
                 codeBuffer.clear();
-                ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                ll::error_utils::printCurrentException(logger);
             }
         }
-        OUTPUT_DEBUG_SIGN();
+        PrintPyDebugSign();
         return false;
     }
     return true;

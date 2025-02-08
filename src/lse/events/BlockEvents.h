@@ -9,7 +9,7 @@ void PistonPushEvent();
 void ExplodeEvent();
 void RespawnAnchorExplodeEvent();
 void BlockExplodedEvent();
-void RedstoneupdateEvent();
+void RedstoneUpdateEvent();
 void LiquidFlowEvent();
 void CommandBlockExecuteEvent();
 void HopperEvent(bool pullIn);

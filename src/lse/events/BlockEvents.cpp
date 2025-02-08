@@ -18,15 +18,31 @@
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Explosion.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/block/ActivatorRailBlock.h"
 #include "mc/world/level/block/BasePressurePlateBlock.h"
+#include "mc/world/level/block/BaseRailBlock.h"
+#include "mc/world/level/block/BigDripleafBlock.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/CommandBlock.h"
 #include "mc/world/level/block/ComparatorBlock.h"
+#include "mc/world/level/block/CopperBulbBlock.h"
+#include "mc/world/level/block/CrafterBlock.h"
 #include "mc/world/level/block/DiodeBlock.h"
+#include "mc/world/level/block/DispenserBlock.h"
+#include "mc/world/level/block/DoorBlock.h"
 #include "mc/world/level/block/FarmBlock.h"
+#include "mc/world/level/block/FenceGateBlock.h"
+#include "mc/world/level/block/HopperBlock.h"
 #include "mc/world/level/block/LiquidBlockDynamic.h"
+#include "mc/world/level/block/NoteBlock.h"
+#include "mc/world/level/block/PoweredRailBlock.h"
 #include "mc/world/level/block/RedStoneWireBlock.h"
+#include "mc/world/level/block/RedstoneLampBlock.h"
 #include "mc/world/level/block/RedstoneTorchBlock.h"
 #include "mc/world/level/block/RespawnAnchorBlock.h"
+#include "mc/world/level/block/StructureBlock.h"
+#include "mc/world/level/block/TntBlock.h"
+#include "mc/world/level/block/TrapDoorBlock.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -253,6 +269,7 @@ LL_TYPE_INSTANCE_HOOK(
     origin(region, pos, entitySource);
 }
 
+namespace redstone {
 inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& strength, bool& isFirstTime) {
     if (!CallEvent(
             EVENT_TYPES::onRedStoneUpdate,
@@ -265,85 +282,51 @@ inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& s
     return true;
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    RedstoneUpdateHook1,
-    HookPriority::Normal,
-    RedStoneWireBlock,
-    &RedStoneWireBlock::$onRedstoneUpdate,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
-        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
-            return;
-        }
+#define REDSTONEHOOK(BLOCK)                                                                                            \
+    LL_TYPE_INSTANCE_HOOK(                                                                                             \
+        BLOCK##Hook,                                                                                                   \
+        HookPriority::Normal,                                                                                          \
+        BLOCK,                                                                                                         \
+        &BLOCK::$onRedstoneUpdate,                                                                                     \
+        void,                                                                                                          \
+        BlockSource&    region,                                                                                        \
+        BlockPos const& pos,                                                                                           \
+        int             strength,                                                                                      \
+        bool            isFirstTime                                                                                    \
+    ) {                                                                                                                \
+        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
+            if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {                                            \
+                return;                                                                                                \
+            }                                                                                                          \
+        }                                                                                                              \
+        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
+        origin(region, pos, strength, isFirstTime);                                                                    \
     }
-    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
-    origin(region, pos, strength, isFirstTime);
-}
 
-LL_TYPE_INSTANCE_HOOK(
-    RedstoneUpdateHook2,
-    HookPriority::Normal,
-    DiodeBlock,
-    &DiodeBlock::$onRedstoneUpdate,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
-        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
-            return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
-    origin(region, pos, strength, isFirstTime);
-}
+REDSTONEHOOK(RedStoneWireBlock)
+REDSTONEHOOK(DiodeBlock)
+REDSTONEHOOK(RedstoneTorchBlock)
+REDSTONEHOOK(ComparatorBlock)
+REDSTONEHOOK(HopperBlock)
+REDSTONEHOOK(CrafterBlock)
+REDSTONEHOOK(CommandBlock)
+REDSTONEHOOK(BaseRailBlock)
+REDSTONEHOOK(PoweredRailBlock)
+REDSTONEHOOK(BigDripleafBlock)
+REDSTONEHOOK(CopperBulbBlock)
+REDSTONEHOOK(DoorBlock)
+REDSTONEHOOK(FenceGateBlock)
+REDSTONEHOOK(DispenserBlock)
+REDSTONEHOOK(StructureBlock)
+REDSTONEHOOK(TrapDoorBlock)
+REDSTONEHOOK(NoteBlock)
+REDSTONEHOOK(ActivatorRailBlock)
+REDSTONEHOOK(RedstoneLampBlock)
+REDSTONEHOOK(TntBlock)
 
-LL_TYPE_INSTANCE_HOOK(
-    RedstoneUpdateHook3,
-    HookPriority::Normal,
-    RedstoneTorchBlock,
-    &RedstoneTorchBlock::$onRedstoneUpdate,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
-        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
-            return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
-    origin(region, pos, strength, isFirstTime);
-}
+#undef REDSTONEHOOK
 
-LL_TYPE_INSTANCE_HOOK(
-    RedstoneUpdateHook4,
-    HookPriority::Normal,
-    ComparatorBlock,
-    &ComparatorBlock::$onRedstoneUpdate,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    int             strength,
-    bool            isFirstTime
-) {
-    IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {
-        if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {
-            return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);
-    origin(region, pos, strength, isFirstTime);
-}
+} // namespace redstone
 
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
@@ -405,7 +388,7 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, commandOrigin, markForSaving);
 }
 
-namespace HopperEvents {
+namespace hopper {
 enum class HopperStatus { None, PullIn, PullOut } hopperStatus = HopperStatus::None;
 Vec3 hopperPos;
 
@@ -482,7 +465,7 @@ LL_TYPE_INSTANCE_HOOK(
     hopperStatus = HopperStatus::None;
     return origin(region, container, item, slot, face, itemCount);
 }
-} // namespace HopperEvents
+} // namespace hopper
 
 void ContainerChangeEvent() { ContainerChangeHook::hook(); }
 void ArmorStandSwapItemEvent() { ArmorStandSwapItemHook::hook(); }
@@ -492,20 +475,36 @@ void PistonPushEvent() { PistonPushHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
 void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
-void RedstoneupdateEvent() {
-    RedstoneUpdateHook1::hook();
-    RedstoneUpdateHook2::hook();
-    RedstoneUpdateHook3::hook();
-    RedstoneUpdateHook4::hook();
+void RedstoneUpdateEvent() {
+    redstone::RedstoneTorchBlockHook::hook();
+    redstone::RedStoneWireBlockHook::hook();
+    redstone::DiodeBlockHook::hook();
+    redstone::ComparatorBlockHook::hook();
+    redstone::HopperBlockHook::hook();
+    redstone::CrafterBlockHook::hook();
+    redstone::CommandBlockHook::hook();
+    redstone::BaseRailBlockHook::hook();
+    redstone::PoweredRailBlockHook::hook();
+    redstone::BigDripleafBlockHook::hook();
+    redstone::CopperBulbBlockHook::hook();
+    redstone::DoorBlockHook::hook();
+    redstone::FenceGateBlockHook::hook();
+    redstone::DispenserBlockHook::hook();
+    redstone::StructureBlockHook::hook();
+    redstone::TrapDoorBlockHook::hook();
+    redstone::NoteBlockHook::hook();
+    redstone::ActivatorRailBlockHook::hook();
+    redstone::RedstoneLampBlockHook::hook();
+    redstone::TntBlockHook::hook();
 }
 void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
 void HopperEvent(bool pullIn) {
-    HopperEvents::HopperAddItemHook::hook();
+    hopper::HopperAddItemHook::hook();
     if (pullIn) {
-        HopperEvents::HopperPullInHook::hook();
+        hopper::HopperPullInHook::hook();
     } else {
-        HopperEvents::HopperPushOutHook::hook();
+        hopper::HopperPushOutHook::hook();
     }
 }
 } // namespace lse::events::block

@@ -530,7 +530,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onRedStoneUpdate:
-        lse::events::block::RedstoneupdateEvent();
+        lse::events::block::RedstoneUpdateEvent();
         break;
 
     case EVENT_TYPES::onWitherBossDestroy:

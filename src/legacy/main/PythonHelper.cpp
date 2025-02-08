@@ -157,8 +157,8 @@ static PyObject* getPyGlobalDict() {
 }
 
 bool processPythonDebugEngine(const std::string& cmd) {
+    auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
     if (cmd == LLSE_DEBUG_CMD) {
-        auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
         if (InConsoleDebugMode) {
             // EndDebug
             logger.info("Debug mode ended");

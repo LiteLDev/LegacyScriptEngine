@@ -334,6 +334,7 @@ Player* PlayerClass::extract(Local<Value> v) {
 }
 
 // 公用API
+using namespace lse::api;
 Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);

@@ -79,6 +79,7 @@ Local<Value> BlockEntityClass::getNbt(const Arguments&) {
 }
 
 Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
+    using namespace lse::api;
     CHECK_ARGS_COUNT(args, 1);
 
     try {

@@ -5,7 +5,7 @@
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/DBStorageConfig.h"
 
-namespace MoreGlobal {
+namespace lse::api::MoreGlobal {
 DBStorage*             dbStorage;
 DefaultDataLoadHelper* helper;
 DefaultDataLoadHelper& defaultDataLoadHelper() { return (DefaultDataLoadHelper&)helper; }
@@ -33,4 +33,4 @@ bool onEnable() {
     }
     return false;
 }
-} // namespace MoreGlobal
+} // namespace lse::api::MoreGlobal

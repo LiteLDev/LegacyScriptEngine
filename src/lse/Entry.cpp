@@ -71,7 +71,7 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 
 bool LegacyScriptEngine::enable() {
     auto& logger = getSelf().getLogger();
-    if (!MoreGlobal::onEnable()) {
+    if (!api::MoreGlobal::onEnable()) {
         logger.error("Failed to enable MoreGlobal"_tr());
     }
     ll::service::PlayerInfo::getInstance();
@@ -97,7 +97,7 @@ void initializeLegacyStuff() {
 
     InitBasicEventListeners();
     InitMessageSystem();
-    MoreGlobal::onLoad();
+    api::MoreGlobal::onLoad();
 }
 
 bool LegacyScriptEngine::load() {

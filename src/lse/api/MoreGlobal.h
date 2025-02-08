@@ -1,8 +1,8 @@
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 class DBStorage;
-namespace MoreGlobal {
+namespace lse::api::MoreGlobal {
 extern DBStorage*             dbStorage;
 extern DefaultDataLoadHelper& defaultDataLoadHelper();
 extern void                   onLoad();
 extern bool                   onEnable();
-}; // namespace MoreGlobal
+}; // namespace lse::api::MoreGlobal

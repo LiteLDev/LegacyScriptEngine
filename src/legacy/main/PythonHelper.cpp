@@ -142,8 +142,8 @@ std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
     else return "";
 }
 
-#define OUTPUT_DEBUG_SIGN()                std::cout << ">>> " << std::flush
-#define OUTPUT_DEBUG_NEED_MORE_CODE_SIGN() std::cout << "... " << std::flush
+inline void OUTPUT_DEBUG_SIGN() { std::cout << ">>> " << std::flush; }
+inline void OUTPUT_DEBUG_NEED_MORE_CODE_SIGN() { std::cout << "... " << std::flush; }
 std::string codeBuffer        = "";
 bool        isInsideCodeBlock = false;
 

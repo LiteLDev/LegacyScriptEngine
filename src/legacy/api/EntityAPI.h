@@ -115,4 +115,3 @@ public:
     Local<Value> removeEffect(const Arguments& args);
 };
 extern ClassDefine<EntityClass> EntityClassBuilder;
-extern ClassDefine<void>        ActorDamageCauseBuilder;

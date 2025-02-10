@@ -20,4 +20,6 @@ void UseBucketTakeEvent();
 void ConsumeTotemEvent();
 void SetArmorEvent();
 void InteractEntityEvent();
-}
+void AddEffectEvent();
+void RemoveEffectEvent();
+} // namespace lse::events::player

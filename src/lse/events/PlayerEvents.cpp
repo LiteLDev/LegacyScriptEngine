@@ -8,6 +8,7 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/common/ActorUniqueID.h"
+#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
@@ -19,6 +20,8 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/player/PlayerItemInUse.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
+#include "mc/world/effect/EffectDuration.h"
+#include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
@@ -596,6 +599,50 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(actor, location);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    AddEffectHook,
+    HookPriority::Normal,
+    Player,
+    &Player::addEffect,
+    void,
+    ::MobEffectInstance const& effect
+) {
+    IF_LISTENED(EVENT_TYPES::onEffectAdded) {
+        if (!CallEvent(
+                EVENT_TYPES::onEffectAdded,
+                PlayerClass::newPlayer(this),
+                String::newString(effect.getComponentName().getString()),
+                Number::newNumber(effect.getAmplifier()),
+                Number::newNumber(effect.getDuration().getValueForSerialization())
+            )) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
+    origin(effect);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    RemoveEffectHook,
+    HookPriority::Normal,
+    Player,
+    &Player::$onEffectRemoved,
+    void,
+    ::MobEffectInstance& effect
+) {
+    IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
+        if (!CallEvent(
+                EVENT_TYPES::onEffectRemoved,
+                PlayerClass::newPlayer(this),
+                String::newString(effect.getComponentName().getString())
+            )) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
+    origin(effect);
+}
+
 void StartDestroyBlock() { StartDestroyHook::hook(); }
 void DropItem() {
     DropItemHook1::hook();
@@ -630,4 +677,6 @@ void UseBucketTakeEvent() {
 void ConsumeTotemEvent() { ConsumeTotemHook::hook(); }
 void SetArmorEvent() { SetArmorHook::hook(); }
 void InteractEntityEvent() { InteractEntityHook::hook(); }
+void AddEffectEvent() { AddEffectHook::hook(); }
+void RemoveEffectEvent() { RemoveEffectHook::hook(); }
 } // namespace lse::events::player

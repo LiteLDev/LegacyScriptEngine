@@ -492,10 +492,10 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onEffectAdded:
-        lse::events::entity::EffectApplyEvent();
+        lse::events::player::AddEffectEvent();
         break;
     case EVENT_TYPES::onEffectRemoved:
-        lse::events::entity::EffectExpiredEvent();
+        lse::events::player::RemoveEffectEvent();
         break;
     case EVENT_TYPES::onEffectUpdated:
         lse::events::entity::EffectUpdateEvent();

@@ -313,54 +313,6 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    EffectApplyHook,
-    HookPriority::Normal,
-    MobEffectInstance,
-    &MobEffectInstance::applyEffects,
-    void,
-    ::Actor& mob
-) {
-    IF_LISTENED(EVENT_TYPES::onEffectAdded) {
-        if (mob.isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectAdded,
-                    PlayerClass::newPlayer(&static_cast<Player&>(mob)),
-                    String::newString(getComponentName().getString()),
-                    Number::newNumber(getAmplifier()),
-                    Number::newNumber(getDuration().getValueForSerialization())
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
-    origin(mob);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    EffectExpiredHook,
-    HookPriority::Normal,
-    MobEffectInstance,
-    &MobEffectInstance::onEffectsExpired,
-    void,
-    ::Actor& mob
-) {
-    IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
-        if (mob.isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectRemoved,
-                    PlayerClass::newPlayer(&static_cast<Player&>(mob)),
-                    String::newString(getComponentName().getString())
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
-    origin(mob);
-}
-
-LL_TYPE_INSTANCE_HOOK(
     EffectUpdateHook,
     HookPriority::Normal,
     MobEffectInstance,
@@ -424,8 +376,6 @@ void MobHurtEvent() {
     MobHurtEffectHook::hook();
 }
 void NpcCommandEvent() { NpcCommandHook::hook(); }
-void EffectApplyEvent() { EffectApplyHook::hook(); }
-void EffectExpiredEvent() { EffectExpiredHook::hook(); }
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

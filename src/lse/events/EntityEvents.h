@@ -9,8 +9,6 @@ void ProjectileHitEntityEvent();
 void ProjectileHitBlockEvent();
 void MobHurtEvent();
 void NpcCommandEvent();
-void EffectApplyEvent();
-void EffectExpiredEvent();
 void EffectUpdateEvent();
 void TransformationEvent();
-}
+} // namespace lse::events::entity

@@ -538,32 +538,6 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobHurt:
-        bus.emplaceListener<ActorHurtEvent>([](ActorHurtEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onMobHurt) {
-                if (ev.self().hasType(ActorType::Mob)) {
-                    Actor* damageSource = nullptr;
-                    if (ev.source().isEntitySource()) {
-                        if (ev.source().isChildEntitySource()) {
-                            damageSource = ll::service::getLevel()->fetchEntity(ev.source().getEntityUniqueID(), false);
-                        } else {
-                            damageSource =
-                                ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
-                        }
-                    }
-
-                    if (!CallEvent(
-                            EVENT_TYPES::onMobHurt,
-                            EntityClass::newEntity(&ev.self()),
-                            damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                            Number::newNumber(ev.damage()),
-                            Number::newNumber((int)ev.source().getCause())
-                        )) {
-                        ev.cancel();
-                    }
-                }
-            }
-            IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-        });
         lse::events::entity::MobHurtEvent();
         break;
 

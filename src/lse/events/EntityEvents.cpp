@@ -204,15 +204,53 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
+    MobHurtHook,
+    HookPriority::Normal,
+    Mob,
+    &Mob::$_hurt,
+    bool,
+    ::ActorDamageSource const& source,
+    float                      damage,
+    bool                       knock,
+    bool                       ignite
+) {
+    IF_LISTENED(EVENT_TYPES::onMobHurt) {
+        // LeviLamina's ActorHurtEvent can't handle fire hurt, so we just hook Mob::$_hurt.
+        Actor* damageSource = nullptr;
+        if (source.isEntitySource()) {
+            if (source.isChildEntitySource()) {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
+            } else {
+                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
+            }
+        }
+
+        if (!CallEvent(
+                EVENT_TYPES::onMobHurt,
+                EntityClass::newEntity(this),
+                damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                Number::newNumber(damage < 0.0f ? -damage : damage),
+                Number::newNumber((int)source.getCause())
+            )) {
+            return false;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+    return origin(source, damage, knock, ignite);
+}
+
+LL_TYPE_INSTANCE_HOOK(
     MobHurtEffectHook,
     HookPriority::Normal,
     Mob,
     &Mob::getDamageAfterResistanceEffect,
     float,
-    ActorDamageSource const& source,
-    float                    damage
+    ::ActorDamageSource const& source,
+    float                      damage
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
+        // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we just
+        // need magic damage.
         if (source.getCause() == ActorDamageCause::Magic || source.getCause() == ActorDamageCause::Wither) {
             Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
@@ -381,7 +419,10 @@ void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
 void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
-void MobHurtEvent() { MobHurtEffectHook::hook(); }
+void MobHurtEvent() {
+    MobHurtHook::hook();
+    MobHurtEffectHook::hook();
+}
 void NpcCommandEvent() { NpcCommandHook::hook(); }
 void EffectApplyEvent() { EffectApplyHook::hook(); }
 void EffectExpiredEvent() { EffectExpiredHook::hook(); }

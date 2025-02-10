@@ -362,7 +362,7 @@
 
 #### 以某个玩家身份向某玩家说话
 
-`pl.talkAs(target,text)`
+`pl.talkTo(target,text)`
 
 - 参数：
     - target : `Player`  

@@ -329,7 +329,7 @@ var open = pl.runcmd("tp ~ ~+50 ~");
 
 #### Speak to a Player as a Player
 
-`pl.talkAs(target,text)`
+`pl.talkTo(target,text)`
 
 - Parameters:
     - target : `Player`  

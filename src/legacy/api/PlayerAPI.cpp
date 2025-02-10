@@ -1633,8 +1633,13 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt =
-            TextPacket::createChat(player->getName(), args[0].asString().toString(), player->getXuid(), "", "");
+        TextPacket pkt = TextPacket::createChat(
+            player->getRealName(),
+            args[0].asString().toString(),
+            {},
+            player->getXuid(),
+            player->getPlatformOnlineId()
+        );
         if (ll::service::getLevel().has_value()) {
             IF_LISTENED(EVENT_TYPES::onChat) {
                 if (!CallEvent(
@@ -1668,8 +1673,13 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt =
-            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), player->getXuid(), "", "");
+        TextPacket pkt = TextPacket::createWhisper(
+            player->getRealName(),
+            args[0].asString().toString(),
+            {},
+            player->getXuid(),
+            player->getPlatformOnlineId()
+        );
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }

@@ -13,6 +13,8 @@
 
 ///////////////////// Enum //////////////////////
 ClassDefine<void> DamageCauseEnumBuilder = EnumDefineBuilder<ActorDamageCause>::build("DamageCause");
+// For compatibility
+ClassDefine<void> ActorDamageCauseEnumBuilder = EnumDefineBuilder<ActorDamageCause>::build("ActorDamageCause");
 
 //////////////////// Class Definition ////////////////////
 

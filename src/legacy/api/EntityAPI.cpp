@@ -145,43 +145,6 @@ ClassDefine<EntityClass> EntityClassBuilder =
 
 //////////////////// Classes ////////////////////
 
-// clang-format off
-ClassDefine<void> ActorDamageCauseBuilder =
-    defineClass("ActorDamageCause")
-        .property("Override", []() { return Number::newNumber(0); })
-        .property("Contact", []() { return Number::newNumber(1); })
-        .property("EntityAttack", []() { return Number::newNumber(2); })
-        .property("Projectile", []() { return Number::newNumber(3); })
-        .property("Suffocation", []() { return Number::newNumber(4); })
-        .property("Fall", []() { return Number::newNumber(5); })
-        .property("Fire", []() { return Number::newNumber(6); })
-        .property("FireTick", []() { return Number::newNumber(7); })
-        .property("Lava", []() { return Number::newNumber(8); })
-        .property("Drowning", []() { return Number::newNumber(9); })
-        .property("BlockExplosion", []() { return Number::newNumber(10); })
-        .property("EntityExplosion", []() { return Number::newNumber(11); })
-        .property("Void", []() { return Number::newNumber(12); })
-        .property("Suicide", []() { return Number::newNumber(13); })
-        .property("Magic", []() { return Number::newNumber(14); })
-        .property("Wither", []() { return Number::newNumber(15); })
-        .property("Starve", []() { return Number::newNumber(16); })
-        .property("Anvil", []() { return Number::newNumber(17); })
-        .property("Thorns", []() { return Number::newNumber(18); })
-        .property("FallingBlock", []() { return Number::newNumber(19); })
-        .property("Piston", []() { return Number::newNumber(20); })
-        .property("FlyIntoWall", []() { return Number::newNumber(21); })
-        .property("Magma", []() { return Number::newNumber(22); })
-        .property("Fireworks", []() { return Number::newNumber(23); })
-        .property("Lightning", []() { return Number::newNumber(24); })
-        .property("Charging", []() { return Number::newNumber(25); })
-        .property("Temperature", []() { return Number::newNumber(26); })
-        .property("Freezing", []() { return Number::newNumber(27); })
-        .property("Stalactite", []() { return Number::newNumber(28); })
-        .property("Stalagmite", []() { return Number::newNumber(29); })
-        .build();
-
-// clang-format on
-
 // 生成函数
 Local<Object> EntityClass::newEntity(Actor* actor) {
     auto newp = new EntityClass(actor);

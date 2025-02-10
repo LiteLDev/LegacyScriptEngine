@@ -362,13 +362,13 @@
 
 #### 以某个玩家身份向某玩家说话
 
-`pl.talkTo(target,text)`
+`pl.talkTo(text,target)`
 
 - 参数：
-    - target : `Player`  
-      模拟说话对象
     - text : `String`  
       模拟说话内容
+    - target : `Player`  
+      模拟说话对象
 - 返回值：是否执行成功
 - 返回值类型： `Boolean`
 

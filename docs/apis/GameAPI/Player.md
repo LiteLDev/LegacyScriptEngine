@@ -329,13 +329,13 @@ var open = pl.runcmd("tp ~ ~+50 ~");
 
 #### Speak to a Player as a Player
 
-`pl.talkTo(target,text)`
+`pl.talkTo(text,target)`
 
 - Parameters:
-    - target : `Player`  
-      The player who will be spoken to.
     - text : `String`  
       The text the player will be made to say.
+    - target : `Player`  
+      The player who will be spoken to.
 - Return value: Whether the execution was successful.
 - Return value type:  `Boolean`
 

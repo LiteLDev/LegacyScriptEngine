@@ -64,6 +64,7 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass(ParamOptionStaticBuilder);
     engine->registerNativeClass(OriginTypeStaticBuilder);
     engine->registerNativeClass(DamageCauseEnumBuilder);
+    engine->registerNativeClass(ActorDamageCauseEnumBuilder);
 
     engine->registerNativeClass(I18nClassBuilder);
 

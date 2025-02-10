@@ -193,39 +193,44 @@
 
 注意，此处造成的伤害为真实伤害，无法被盔甲等保护装备减免
 
-| 伤害类型枚举                             |
-|------------------------------------|
-| `ActorDamageCause.Override`        |
-| `ActorDamageCause.Contact `        |
-| `ActorDamageCause.EntityAttack`    |
-| `ActorDamageCause.Projectile`      |
-| `ActorDamageCause.Suffocation`     |
-| `ActorDamageCause.All`             |
-| `ActorDamageCause.Fire`            |
-| `ActorDamageCause.FireTick`        |
-| `ActorDamageCause.Lava`            |
-| `ActorDamageCause.Drowning `       |
-| `ActorDamageCause.BlockExplosion`  |
-| `ActorDamageCause.EntityExplosion` |
-| `ActorDamageCause.Void`            |
-| `ActorDamageCause.Suicide`         |
-| `ActorDamageCause.Magic`           |
-| `ActorDamageCause.Wither`          |
-| `ActorDamageCause.Starve`          |
-| `ActorDamageCause.Anvil`           |
-| `ActorDamageCause.Thorns`          |
-| `ActorDamageCause.FallingBlock`    |
-| `ActorDamageCause.Piston`          |
-| `ActorDamageCause.FlyIntoWall`     |
-| `ActorDamageCause.Magma`           |
-| `ActorDamageCause.Fireworks`       |
-| `ActorDamageCause.Lightning`       |
-| `ActorDamageCause.Charging`        |
-| `ActorDamageCause.Temperature`     |
-| `ActorDamageCause.Freezing`        |
-| `ActorDamageCause.Stalactite`      |
-| `ActorDamageCause.Stalagmite`      |
-| `ActorDamageCause.All`             |
+| 伤害类型枚举                             | 枚举值 |
+|------------------------------------|-----|
+| `ActorDamageCause.Override`        | -1  |
+| `ActorDamageCause.Contact `        | 0   |
+| `ActorDamageCause.EntityAttack`    | 1   |
+| `ActorDamageCause.Projectile`      | 2   |
+| `ActorDamageCause.Suffocation`     | 3   |
+| `ActorDamageCause.All`             | 4   |
+| `ActorDamageCause.Fire`            | 5   |
+| `ActorDamageCause.FireTick`        | 6   |
+| `ActorDamageCause.Lava`            | 7   |
+| `ActorDamageCause.Drowning `       | 8   |
+| `ActorDamageCause.BlockExplosion`  | 9   |
+| `ActorDamageCause.EntityExplosion` | 10  |
+| `ActorDamageCause.Void`            | 11  |
+| `ActorDamageCause.Suicide`         | 12  |
+| `ActorDamageCause.Magic`           | 13  |
+| `ActorDamageCause.Wither`          | 14  |
+| `ActorDamageCause.Starve`          | 15  |
+| `ActorDamageCause.Anvil`           | 16  |
+| `ActorDamageCause.Thorns`          | 17  |
+| `ActorDamageCause.FallingBlock`    | 18  |
+| `ActorDamageCause.Piston`          | 19  |
+| `ActorDamageCause.FlyIntoWall`     | 20  |
+| `ActorDamageCause.Magma`           | 21  |
+| `ActorDamageCause.Fireworks`       | 22  |
+| `ActorDamageCause.Lightning`       | 23  |
+| `ActorDamageCause.Charging`        | 24  |
+| `ActorDamageCause.Temperature`     | 25  |
+| `ActorDamageCause.Freezing`        | 26  |
+| `ActorDamageCause.Stalactite`      | 27  |
+| `ActorDamageCause.Stalagmite`      | 28  |
+| `ActorDamageCause.RamAttack`       | 29  |
+| `ActorDamageCause.SonicBoom`       | 30  |
+| `ActorDamageCause.Campfire`        | 31  |
+| `ActorDamageCause.SoulCampfire`    | 32  |
+| `ActorDamageCause.MaceSmash`       | 33  |
+| `ActorDamageCause.All`             | 34  |
 
 #### 治疗实体
 

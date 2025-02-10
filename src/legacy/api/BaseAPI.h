@@ -8,6 +8,7 @@ class BlockSource;
 
 ///////////////////// Enum //////////////////////
 extern ClassDefine<void> DamageCauseEnumBuilder;
+extern ClassDefine<void> ActorDamageCauseEnumBuilder;
 
 //////////////////// Classes ////////////////////
 class IntPos : public IntVec4, public ScriptClass {

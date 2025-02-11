@@ -58,7 +58,7 @@
 
 - 参数：
     - name : `String`  
-      生物的命名空间名称，如 `minectaft:creeper`
+      生物的命名空间名称，如 `minecraft:creeper`
     - pos : `IntPos `/ `FloatPos`  
       生成生物的位置的坐标对象（或者使用x, y, z, dimid来确定生成位置）
 - 返回值：生成的实体对象

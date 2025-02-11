@@ -60,7 +60,7 @@ Through this function, generate a new creature at the specified location and get
 
 - Parameters:
     - name : `String`  
-      The namespace name of the creature, such as `minectaft:creeper`
+      The namespace name of the creature, such as `minecraft:creeper`
     - pos : `IntPos `/ `FloatPos`  
       A coordinate object of where the mob is spawned (or use x, y, z, dimid to determine where to spawn).
 - Return value: The generated entity object.

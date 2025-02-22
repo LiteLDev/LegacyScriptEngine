@@ -47,7 +47,7 @@
 #include "lse/events/OtherEvents.h"
 #include "lse/events/PlayerEvents.h"
 #include "main/Global.h"
-#include "mc/common/ActorUniqueID.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/ActorType.h"

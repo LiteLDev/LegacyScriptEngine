@@ -4,7 +4,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"
-#include "mc/common/ActorRuntimeID.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
 #include "mc/network/ConnectionRequest.h"

@@ -7,7 +7,7 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/ActorUniqueID.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/server/ServerPlayer.h"

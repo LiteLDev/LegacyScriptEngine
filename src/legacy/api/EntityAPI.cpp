@@ -11,22 +11,30 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
-#include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/string/HashedString.h"
+#include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
+#include "mc/deps/vanilla_components/StateVectorComponent.h"
+#include "mc/entity/components/ActorRotationComponent.h"
+#include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
+#include "mc/legacy/ActorRuntimeID.h"
+#include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/SimpleContainer.h"
-#include "mc/world/actor/ActorDamageCause.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ActorType.h"
+#include "mc/world/actor/BuiltInActorComponents.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/AttributeModificationContext.h"
+#include "mc/world/attribute/MutableAttributeWithContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -34,6 +42,7 @@
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
@@ -216,7 +225,14 @@ Local<Value> EntityClass::isInsidePortal() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isInsidePortal());
+        auto component = entity->getEntityContext().tryGetComponent<InsideBlockComponent>();
+        if (component) {
+            auto& fullName = component->mInsideBlock->getLegacyBlock().mNameInfo->mFullName;
+            return Boolean::newBoolean(
+                *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in isInsidePortal!")
 }
@@ -226,7 +242,9 @@ Local<Value> EntityClass::isTrusting() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isTrusting());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Trusting)
+        );
     }
     CATCH("Fail in isTrusting!")
 }
@@ -316,7 +334,7 @@ Local<Value> EntityClass::isAngry() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isAngry());
+        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Angry));
     }
     CATCH("Fail in isAngry!")
 }
@@ -336,7 +354,9 @@ Local<Value> EntityClass::isMoving() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isMoving());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
+        );
     }
     CATCH("Fail in isMoving!")
 }
@@ -415,7 +435,7 @@ Local<Value> EntityClass::setPosDelta(const Arguments& args) {
             delta.y = args[1].asNumber().toFloat();
             delta.z = args[2].asNumber().toFloat();
         }
-        entity->getPosDeltaNonConst() = delta;
+        entity->mBuiltInComponents->mStateVectorComponent->mPosDelta = delta;
 
         return Boolean::newBoolean(true);
     }
@@ -457,7 +477,7 @@ Local<Value> EntityClass::getHealth() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Number::newNumber(entity->getHealth());
+        return Number::newNumber(ActorAttribute::getHealth(entity->getEntityContext()));
     }
     CATCH("Fail in GetHealth!")
 }
@@ -497,7 +517,7 @@ Local<Value> EntityClass::getCanPickupItems() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->getCanPickupItems());
+        return Boolean::newBoolean(entity->mCanPickupItems);
     }
     CATCH("Fail in getCanPickupItems!")
 }
@@ -569,7 +589,11 @@ Local<Value> EntityClass::getInWall() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isInWall());
+        // The original Actor::isInWall() was moved to MobSuffocationSystemImpl::isInWall() in 1.21.60.10, but the later
+        // needs too many parameters.
+        return Boolean::newBoolean(entity->getDimensionBlockSource().isInWall(
+            entity->getAttachPos(SharedTypes::Legacy::ActorLocation::BreathingPoint)
+        ));
     }
     CATCH("Fail in getInWall!")
 }
@@ -609,7 +633,8 @@ Local<Value> EntityClass::getDirection() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        Vec2 vec = entity->getRotation();
+        // getRotation()
+        Vec2 vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH("Fail in getDirection!")
@@ -675,7 +700,8 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         if (!rotationIsValid) {
-            ang = entity->getRotation();
+            // getRotation()
+            ang = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         }
         entity->teleport(pos.getVec3(), pos.dim, ang);
         return Boolean::newBoolean(true);
@@ -969,10 +995,12 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source.value(), (ActorDamageCause)type);
+            ActorDamageByActorSource damageBySource =
+                ActorDamageByActorSource(*source.value(), (SharedTypes::Legacy::ActorDamageCause)type);
             return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
-        ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
+        ActorDamageSource damageSource;
+        damageSource.mCause = (SharedTypes::Legacy::ActorDamageCause)type;
         return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
     CATCH("Fail in hurt!");
@@ -999,7 +1027,7 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
+        MutableAttributeWithContext healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
 
         healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
 

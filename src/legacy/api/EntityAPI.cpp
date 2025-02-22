@@ -22,7 +22,10 @@
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
+#include "mc/server/commands/CommandUtils.h"
 #include "mc/world/SimpleContainer.h"
+#include "mc/world/actor/ActorDamageByActorSource.h"
+#include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/BuiltInActorComponents.h"
@@ -34,6 +37,7 @@
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeModificationContext.h"
+#include "mc/world/attribute/BaseAttributeMap.h"
 #include "mc/world/attribute/MutableAttributeWithContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -43,6 +47,7 @@
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
+#include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
@@ -360,8 +365,6 @@ Local<Value> EntityClass::isMoving() {
     }
     CATCH("Fail in isMoving!")
 }
-
-#include "mc/server/commands/CommandUtils.h"
 
 Local<Value> EntityClass::getName() {
     try {
@@ -947,9 +950,6 @@ Local<Value> EntityClass::refreshItems(const Arguments&) {
     CATCH("Fail in refreshItems!");
 }
 
-#include "mc/world/level/BlockSource.h"
-#include "mc/world/level/dimension/Dimension.h"
-
 Local<Value> EntityClass::hasContainer(const Arguments&) {
     try {
         Actor* entity = get();
@@ -972,9 +972,6 @@ Local<Value> EntityClass::getContainer(const Arguments&) {
     }
     CATCH("Fail in getContainer!");
 }
-
-#include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/ActorDamageSource.h"
 
 Local<Value> EntityClass::hurt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -1019,6 +1016,12 @@ Local<Value> EntityClass::heal(const Arguments& args) {
     CATCH("Fail in heal!");
 }
 
+void SetAttributeCurrentValue(MutableAttributeWithContext& attribute, float value) {
+    auto& instance          = attribute.mInstance;
+    instance->mCurrentValue = value;
+    attribute.mContext->mAttributeMap->_onAttributeModified(*instance);
+}
+
 Local<Value> EntityClass::setHealth(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1027,10 +1030,8 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
-
-        healthAttribute->setCurrentValue(args[0].asNumber().toFloat());
-
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setHealth!");
@@ -1044,9 +1045,8 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* absorptionAttribute = entity->getMutableAttribute(SharedAttributes::ABSORPTION());
-
-        absorptionAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ABSORPTION());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1061,9 +1061,8 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-
-        attactDamageAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1078,9 +1077,8 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* attactDamageAttribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-
-        attactDamageAttribute->setMaxValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1095,9 +1093,8 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* followRangeAttribute = entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
-
-        followRangeAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1112,10 +1109,8 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* knockbackResistanceAttribute =
-            entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
-
-        knockbackResistanceAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1130,9 +1125,8 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* luckAttribute = entity->getMutableAttribute(SharedAttributes::LUCK());
-
-        luckAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::LUCK());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1147,11 +1141,8 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* movementSpeedAttribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
-        if (movementSpeedAttribute) {
-            movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-            return Boolean::newBoolean(true);
-        }
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(false);
     }
@@ -1166,10 +1157,11 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* underwaterMovementSpeedAttribute =
+        MutableAttributeWithContext attribute =
             entity->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
-
-        underwaterMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        auto& instance          = attribute.mInstance;
+        instance->mCurrentValue = args[0].asNumber().toFloat();
+        attribute.mContext->mAttributeMap->_onAttributeModified(*instance);
 
         return Boolean::newBoolean(true);
     }
@@ -1184,10 +1176,8 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* lavaMovementSpeedAttribute =
-            entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
-
-        lavaMovementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -1202,9 +1192,8 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        AttributeInstance* healthAttribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
-
-        healthAttribute->setMaxValue(args[0].asNumber().toFloat());
+        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
+        SetAttributeCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }

@@ -18,11 +18,13 @@
 #include "mc/entity/components/ActorRotationComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
+#include "mc/entity/components/TagsComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandUtils.h"
+#include "mc/util/IDType.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/ActorDamageSource.h"
@@ -1333,11 +1335,15 @@ Local<Value> EntityClass::getAllTags(const Arguments&) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        Local<Array> arr = Array::newArray();
-        for (auto& tag : entity->getTags()) {
-            arr.add(String::newString(tag));
+        Local<Array> arr       = Array::newArray();
+        auto         component = entity->getEntityContext().tryGetComponent<TagsComponent<IDType<LevelTagSetIDType>>>();
+        if (component) {
+            for (auto& tag : ll::service::getLevel()->getTagRegistry().getTagsInSet(component->mTagSetID)) {
+                arr.add(String::newString(tag));
+            }
+            return arr;
         }
-        return arr;
+        return Local<Value>();
     }
     CATCH("Fail in getAllTags!");
 }

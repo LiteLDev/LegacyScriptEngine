@@ -24,6 +24,7 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandUtils.h"
+#include "mc/util/BlockUtils.h"
 #include "mc/util/IDType.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
@@ -48,6 +49,7 @@
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/CachedComponentData.h"
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
@@ -1397,13 +1399,13 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             false,
             true,
             [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
-                if (solidOnly && !block.isSolid()) {
+                if (solidOnly && !block.mCachedComponentData->mUnkd6c5eb.as<bool>()) {
                     return false;
                 }
                 if (fullOnly && !block.isSlabBlock()) {
                     return false;
                 }
-                if (!includeLiquid && block.getMaterial().isLiquid()) {
+                if (!includeLiquid && BlockUtils::isLiquidSource(block)) {
                     return false;
                 }
                 return true;
@@ -1418,8 +1420,9 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         } else {
             bp = res.mBlock;
         }
-        Block const& bl = actor->getDimensionBlockSource().getBlock(bp);
-        if (bl.isAir() || bl.isEmpty()) {
+        Block const&       bl     = actor->getDimensionBlockSource().getBlock(bp);
+        BlockLegacy const& legacy = bl.getLegacyBlock();
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());
@@ -1465,10 +1468,8 @@ Local<Value> EntityClass::getAllEffects() {
             return Local<Value>();
         }
         Local<Array> effectList = Array::newArray();
-        for (unsigned int i = 0; i <= 30; i++) {
-            if (actor->getEffect(i)) {
-                effectList.add(Number::newNumber((int)i));
-            }
+        for (auto& effect : actor->_getAllEffectsNonConst()) {
+            effectList.add(Number::newNumber((long long)effect.mId));
         }
         return effectList;
     }
@@ -1486,12 +1487,14 @@ Local<Value> EntityClass::addEffect(const Arguments& args) {
         if (!actor) {
             return Boolean::newBoolean(false);
         }
-        unsigned int   id = args[0].asNumber().toInt32();
-        EffectDuration duration{};
-        duration.mValue                 = args[1].asNumber().toInt32();
+        unsigned int      id = args[0].asNumber().toInt32();
+        EffectDuration    duration{args[1].asNumber().toInt32()};
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect        = MobEffectInstance(id, duration, level, false, showParticles, false);
+        MobEffectInstance effect(id);
+        effect.mDuration      = duration;
+        effect.mAmplifier     = level;
+        effect.mEffectVisible = showParticles;
         actor->addEffect(effect);
         return Boolean::newBoolean(true);
     }
@@ -1518,7 +1521,7 @@ Local<Value> McClass::getAllEntities(const Arguments&) {
         auto& entityList = ll::service::getLevel()->getEntities();
         auto  arr        = Array::newArray();
         for (auto& i : entityList) {
-            if (i._hasValue() && i.tryUnwrap().has_value()) {
+            if (i.has_value() && i.tryUnwrap().has_value()) {
                 arr.add(EntityClass::newEntity(&i.tryUnwrap().get()));
             }
         }
@@ -1596,11 +1599,11 @@ Local<Value> McClass::getEntities(const Arguments& args) {
 
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
-        if (!dimension) {
+        if (!dimension.lock()) {
             LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
             return Local<Value>();
         }
-        BlockSource& bs         = dimension->getBlockSourceFromMainChunkSource();
+        BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
         auto         entityList = bs.getEntities(aabb, dis);
         for (auto i : entityList) {
             arr.add(EntityClass::newEntity(i));
@@ -1680,7 +1683,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
         }
         ActorDefinitionIdentifier id(ac->getTypeName());
         Mob*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
-            ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+            ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
             id,
             nullptr,
             pos.getVec3(),
@@ -1743,7 +1746,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
 
         ActorDefinitionIdentifier id(name);
         Mob*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
-            ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+            ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
             id,
             nullptr,
             pos.getVec3(),
@@ -1824,7 +1827,7 @@ Local<Value> McClass::explode(const Arguments& args) {
 
             return Boolean::newBoolean(
                 ll::service::getLevel()->explode(
-                    ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+                    ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
                     source.value_or(nullptr),
                     pos.getVec3(),
                     radius,
@@ -1847,7 +1850,7 @@ Local<Value> McClass::explode(const Arguments& args) {
 
             return Boolean::newBoolean(
                 ll::service::getLevel()->explode(
-                    ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+                    ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
                     source.value_or(nullptr),
                     pos.getVec3(),
                     radius,

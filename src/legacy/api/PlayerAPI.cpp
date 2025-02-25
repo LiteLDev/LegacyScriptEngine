@@ -32,6 +32,8 @@
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/core/utility/MCRESULT.h"
+#include "mc/entity/components/ActorRotationComponent.h"
+#include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
@@ -67,12 +69,14 @@
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
+#include "mc/world/actor/BuiltInActorComponents.h"
 #include "mc/world/actor/SynchedActorData.h"
 #include "mc/world/actor/SynchedActorDataEntityWrapper.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
 #include "mc/world/actor/player/LayeredAbilities.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/Attribute.h"
@@ -85,6 +89,7 @@
 #include "mc/world/level/ChunkPos.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
@@ -665,7 +670,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
                 found = &player;
                 return false;
             }
-            std::string pName = player.getName();
+            std::string pName = player.mName;
             transform(pName.begin(), pName.end(), pName.begin(), ::tolower);
 
             if (pName.find(target) == 0) {
@@ -747,7 +752,7 @@ Local<Value> PlayerClass::getName() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return String::newString(player->getName());
+        return String::newString(player->mName);
     }
     CATCH("Fail in getPlayerName!")
 }
@@ -899,7 +904,11 @@ Local<Value> PlayerClass::getCanBeSeenOnMap() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->canBeSeenOnMap());
+        if (!player->isAlive() || player->isSpectator()) {
+            return Boolean::newBoolean(false);
+        }
+        ItemStack const& item = player->getItemSlot(SharedTypes::Legacy::EquipmentSlot::Legs);
+        return Boolean::newBoolean(item.isHumanoidWearableBlockItem());
     }
     CATCH("Fail in getCanBeSeenOnMap!")
 }
@@ -959,7 +968,7 @@ Local<Value> PlayerClass::getCanPickupItems() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->getCanPickupItems());
+        return Boolean::newBoolean(player->mCanPickupItems);
     }
     CATCH("Fail in getCanPickupItems!")
 }
@@ -969,7 +978,9 @@ Local<Value> PlayerClass::isSneaking() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->isSneaking());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Sneaking)
+        );
     }
     CATCH("Fail in isSneaking!")
 }
@@ -989,8 +1000,9 @@ Local<Value> PlayerClass::getDirection() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        Vec2 rot = player->getRotation();
-        return DirectionAngle::newAngle(rot.x, rot.y);
+        // getRotation()
+        Vec2 vec = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH("Fail in getDirection!")
 }
@@ -1010,7 +1022,7 @@ Local<Value> PlayerClass::getHealth() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(player->getHealth());
+        return Number::newNumber(ActorAttribute::getHealth(player->getEntityContext()));
     }
     CATCH("Fail in GetHealth!")
 }
@@ -1072,7 +1084,11 @@ Local<Value> PlayerClass::getInWall() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->isInWall());
+        // The original Actor::isInWall() was moved to MobSuffocationSystemImpl::isInWall() in 1.21.60.10, but the later
+        // needs too many parameters.
+        return Boolean::newBoolean(player->getDimensionBlockSource().isInWall(
+            player->getAttachPos(SharedTypes::Legacy::ActorLocation::BreathingPoint)
+        ));
     }
     CATCH("Fail in getInWall!")
 }
@@ -1129,9 +1145,7 @@ Local<Value> PlayerClass::getRuntimeID() {
 
 Local<Value> PlayerClass::getLangCode() {
     try {
-        Json::Value& requestJson = ll::service::getServerNetworkHandler()
-                                       ->fetchConnectionRequest(get()->getNetworkIdentifier())
-                                       .mRawToken->mDataInfo;
+        Json::Value& requestJson = get()->getConnectionRequest()->mRawToken->mDataInfo;
 
         return String::newString(requestJson.get("LanguageCode", "unknown").asString("unknown"));
     }
@@ -1169,7 +1183,13 @@ Local<Value> PlayerClass::isInsidePortal() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isInsidePortal());
+        auto component = player->getEntityContext().tryGetComponent<InsideBlockComponent>();
+        if (component) {
+            auto& fullName = component->mInsideBlock->getLegacyBlock().mNameInfo->mFullName;
+            return Boolean::newBoolean(
+                *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
+            );
+        }
     }
     CATCH("Fail in isInsidePortal!")
 }

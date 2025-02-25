@@ -12,7 +12,6 @@
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
 #include "mc/deps/core/math/Vec2.h"
-#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/deps/vanilla_components/StateVectorComponent.h"
 #include "mc/entity/components/ActorRotationComponent.h"

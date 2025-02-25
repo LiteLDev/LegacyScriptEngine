@@ -3659,8 +3659,8 @@ Local<Value> PlayerClass::addEffect(const Arguments& args) {
         if (!player) {
             return Boolean::newBoolean(false);
         }
-        unsigned int      id            = args[0].asNumber().toInt32();
-        int               tick          = args[1].asNumber().toInt32();
+        unsigned int      id = args[0].asNumber().toInt32();
+        EffectDuration    duration{args[1].asNumber().toInt32()};
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
         MobEffectInstance effect(id);

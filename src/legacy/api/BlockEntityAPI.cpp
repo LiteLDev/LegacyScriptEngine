@@ -50,7 +50,7 @@ BlockActor* BlockEntityClass::extract(Local<Value> v) {
 // 成员函数
 Local<Value> BlockEntityClass::getPos() {
     try {
-        return IntPos::newPos(blockEntity->getPosition(), dim);
+        return IntPos::newPos(blockEntity->mPosition, dim);
     }
     CATCH("Fail in getBlockEntityPos!")
 }
@@ -64,7 +64,7 @@ Local<Value> BlockEntityClass::getName() {
 
 Local<Value> BlockEntityClass::getType() {
     try {
-        return Number::newNumber((int)blockEntity->getType());
+        return Number::newNumber((int)blockEntity->mType);
     }
     CATCH("Fail in getBlockEntityType!")
 }
@@ -95,9 +95,10 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
 
 Local<Value> BlockEntityClass::getBlock(const Arguments&) {
     try {
-        BlockPos bp = blockEntity->getPosition();
-        auto&    bl = ll::service::getLevel()->getDimension(dim)->getBlockSourceFromMainChunkSource().getBlock(bp);
-        return BlockClass::newBlock(bl, bp, dim);
+        BlockPos blockPos = blockEntity->mPosition;
+        auto&    block =
+            ll::service::getLevel()->getDimension(dim).lock()->getBlockSourceFromMainChunkSource().getBlock(blockPos);
+        return BlockClass::newBlock(block, blockPos, dim);
     }
     CATCH("Fail in getBlock!")
 }

@@ -11,11 +11,8 @@ private:
     bool                   mValid;
 
 public:
-    explicit DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
-        setPlayer(player);
-    }
+    explicit DeviceClass(Player* player);
 
-    void    setPlayer(Player* player);
     Player* getPlayer();
 
     static Local<Object> newDevice(Player* player);

@@ -34,23 +34,21 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 //////////////////// Classes ////////////////////
 
 // 生成函数
+DeviceClass::DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+            mValid      = true;
+        }
+    } catch (...) {}
+}
+
 Local<Object> DeviceClass::newDevice(Player* player) {
     auto newp = new DeviceClass(player);
     return newp->getScriptObject();
 }
 
 // 成员函数
-void DeviceClass::setPlayer(Player* player) {
-    try {
-        if (player) {
-            mWeakEntity = player->getWeakEntity();
-            mValid      = true;
-        }
-    } catch (...) {
-        mValid = false;
-    }
-}
-
 Player* DeviceClass::getPlayer() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();

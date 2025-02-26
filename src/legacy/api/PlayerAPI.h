@@ -15,7 +15,6 @@ private:
 public:
     explicit PlayerClass(Player* player);
 
-    void             set(Player* player);
     Player*          get();
     SimulatedPlayer* asSimulatedPlayer();
 

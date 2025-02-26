@@ -11,8 +11,6 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-#include <magic_enum.hpp>
-
 //////////////////// Class Definition ////////////////////
 ClassDefine<void> OriginTypeStaticBuilder = EnumDefineBuilder<CommandOriginType>::build("OriginType");
 

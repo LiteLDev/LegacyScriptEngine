@@ -161,6 +161,15 @@ ClassDefine<EntityClass> EntityClassBuilder =
 
 //////////////////// Classes ////////////////////
 
+EntityClass::EntityClass(Actor* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) {
+    try {
+        if (actor) {
+            mWeakEntity = actor->getWeakEntity();
+            mValid      = true;
+        }
+    } catch (...) {}
+}
+
 // 生成函数
 Local<Object> EntityClass::newEntity(Actor* actor) {
     auto newp = new EntityClass(actor);
@@ -180,17 +189,6 @@ Actor* EntityClass::tryExtractActor(Local<Value> v) {
 }
 
 // 成员函数
-void EntityClass::set(Actor* actor) {
-    try {
-        if (actor) {
-            mWeakEntity = actor->getWeakEntity();
-            mValid      = true;
-        }
-    } catch (...) {
-        mValid = false;
-    }
-}
-
 Actor* EntityClass::get() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Actor>().as_ptr();

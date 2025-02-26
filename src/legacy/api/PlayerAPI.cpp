@@ -340,7 +340,14 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
 //////////////////// Classes ////////////////////
 
 // 生成函数
-PlayerClass::PlayerClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) { set(player); }
+PlayerClass::PlayerClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) {
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+            mValid      = true;
+        }
+    } catch (...) {}
+}
 
 Local<Object> PlayerClass::newPlayer(Player* player) {
     auto newp = new PlayerClass(player);
@@ -742,17 +749,6 @@ Local<Value> McClass::broadcast(const Arguments& args) {
 }
 
 // 成员函数
-void PlayerClass::set(Player* player) {
-    try {
-        if (player) {
-            mWeakEntity = player->getWeakEntity();
-            mValid      = true;
-        }
-    } catch (...) {
-        mValid = false;
-    }
-}
-
 Player* PlayerClass::get() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();

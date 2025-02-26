@@ -9,5 +9,5 @@ public:
     static void setCurrentValue(MutableAttributeWithContext& attribute, float value);
     static void setMaxValue(MutableAttributeWithContext& attribute, float value);
     static void setDefaultValue(MutableAttributeWithContext& attribute, float value);
-}
+};
 } // namespace lse::api

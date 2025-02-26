@@ -1,19 +1,18 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/legacy/ActorRuntimeID.h"
 
 //////////////////// Classes ////////////////////
 class Actor;
 class EntityClass : public ScriptClass {
 private:
     WeakRef<EntityContext> mWeakEntity;
-    bool                   mValid;
+    bool                   mValid = false;
 
 public:
-    explicit EntityClass(Actor* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) { set(actor); }
+    explicit EntityClass(Actor* actor);
 
-    void   set(Actor* actor);
     Actor* get();
 
     static Local<Object> newEntity(Actor* actor);

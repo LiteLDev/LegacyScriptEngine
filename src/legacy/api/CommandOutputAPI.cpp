@@ -29,7 +29,6 @@ Local<Object> CommandOutputClass::newCommandOutput(CommandOutput* p) {
     return newp->getScriptObject();
 }
 
-// MCAPI bool empty() const;
 Local<Value> CommandOutputClass::empty() {
     try {
         return Boolean::newBoolean(get()->mMessages.empty());
@@ -37,7 +36,6 @@ Local<Value> CommandOutputClass::empty() {
     CATCH("Fail in empty!");
 }
 
-// MCAPI int getSuccessCount() const;
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
         return Number::newNumber(get()->mSuccessCount);
@@ -45,7 +43,6 @@ Local<Value> CommandOutputClass::getSuccessCount() {
     CATCH("Fail in getSuccessCount!");
 };
 
-// MCAPI enum CommandOutputType getType() const;
 // Local<Value> CommandOutputClass::getType()
 //{
 //     try
@@ -55,8 +52,6 @@ Local<Value> CommandOutputClass::getSuccessCount() {
 //     CATCH("Fail in getType!");
 // };
 
-// MCAPI void success(std::string const&, std::vector<class
-// CommandOutputParameter> const&); MCAPI void success();
 Local<Value> CommandOutputClass::success(const Arguments& args) {
     try {
         if (args.size() == 0) {
@@ -106,8 +101,6 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
     CATCH("Fail in addMessage!");
 };
 
-// MCAPI void error(std::string const&, std::vector<class
-// CommandOutputParameter> const&);
 Local<Value> CommandOutputClass::error(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);

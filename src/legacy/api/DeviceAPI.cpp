@@ -4,9 +4,9 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"
-#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/world/actor/player/Player.h"
@@ -114,7 +114,7 @@ Local<Value> DeviceClass::getOs() {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
 
-        return String::newString(magic_enum::enum_name(player->getPlatform()));
+        return String::newString(magic_enum::enum_name(player->mBuildPlatform));
     }
     CATCH("Fail in getOs!")
 }

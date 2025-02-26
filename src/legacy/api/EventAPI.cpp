@@ -47,11 +47,10 @@
 #include "lse/events/OtherEvents.h"
 #include "lse/events/PlayerEvents.h"
 #include "main/Global.h"
-#include "mc/legacy/ActorRuntimeID.h"
-#include "mc/deps/core/string/HashedString.h"
+#include "mc/legacy/ActorUniqueID.h"
 #include "mc/server/commands/CommandOriginType.h"
-#include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -236,6 +235,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onPlayerDie) {
                 Actor* source = ll::service::getLevel()
                                     ->getDimension(ev.self().getDimensionId())
+                                    .lock()
                                     ->fetchEntity(ev.source().getEntityUniqueID(), false);
                 CallEvent(
                     EVENT_TYPES::onPlayerDie,
@@ -466,15 +466,17 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onEat:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onEat) {
-                if ((ev.item().getItem()->isFood() || ev.item().isPotionItem()
-                     || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString())
-                    && (ev.self().isHungry() || ev.self().forceAllowEating())) {
-                    if (!CallEvent(
-                            EVENT_TYPES::onEat,
-                            PlayerClass::newPlayer(&ev.self()),
-                            ItemClass::newItem(&ev.item())
-                        )) {
-                        ev.cancel();
+                if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
+                    || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
+                    auto attribute = ev.self().getAttribute(Player::HUNGER());
+                    if (attribute.mCurrentMaxValue > attribute.mCurrentValue) {
+                        if (!CallEvent(
+                                EVENT_TYPES::onEat,
+                                PlayerClass::newPlayer(&ev.self()),
+                                ItemClass::newItem(&ev.item())
+                            )) {
+                            ev.cancel();
+                        }
                     }
                 }
             }
@@ -560,7 +562,7 @@ void EnableEventListener(int eventId) {
                     EVENT_TYPES::onMobDie,
                     EntityClass::newEntity(&ev.self()),
                     (source ? EntityClass::newEntity(source) : Local<Value>()),
-                    Number::newNumber((int)ev.source().getCause())
+                    Number::newNumber((int)ev.source().mCause)
                 ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onMobDie);
@@ -668,7 +670,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
                 CallEvent(
                     EVENT_TYPES::onMobSpawn,
-                    String::newString(ev.identifier().getFullName()),
+                    String::newString(ev.identifier().mFullName),
                     FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
                 ); // Not cancellable
             }
@@ -681,7 +683,7 @@ void EnableEventListener(int eventId) {
             IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
                 if (!CallEvent(
                         EVENT_TYPES::onMobTrySpawn,
-                        String::newString(ev.identifier().getFullName()),
+                        String::newString(ev.identifier().mFullName),
                         FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
                     )) {
                     ev.cancel();
@@ -745,7 +747,7 @@ void InitBasicEventListeners() {
     EventBus& bus = EventBus::getInstance();
 
     bus.emplaceListener<ExecutingCommandEvent>([](ExecutingCommandEvent& ev) {
-        auto originType = ev.commandContext().getCommandOrigin().getOriginType();
+        auto originType = ev.commandContext().mOrigin->getOriginType();
         if (originType == CommandOriginType::DedicatedServer) {
             std::string cmd = ev.commandContext().mCommand;
             if (cmd.starts_with("/")) {

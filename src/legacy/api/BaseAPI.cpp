@@ -12,9 +12,11 @@
 #include <mc/world/level/BlockSource.h>
 
 ///////////////////// Enum //////////////////////
-ClassDefine<void> DamageCauseEnumBuilder = EnumDefineBuilder<ActorDamageCause>::build("DamageCause");
+ClassDefine<void> DamageCauseEnumBuilder =
+    EnumDefineBuilder<SharedTypes::Legacy::ActorDamageCause>::build("DamageCause");
 // For compatibility
-ClassDefine<void> ActorDamageCauseEnumBuilder = EnumDefineBuilder<ActorDamageCause>::build("ActorDamageCause");
+ClassDefine<void> ActorDamageCauseEnumBuilder =
+    EnumDefineBuilder<SharedTypes::Legacy::ActorDamageCause>::build("ActorDamageCause");
 
 //////////////////// Class Definition ////////////////////
 
@@ -181,7 +183,13 @@ Local<Value> DirectionAngle::toString() {
 
 Local<Value> DirectionAngle::toFacing() {
     int facing = -1;
-    switch (Facing::convertYRotationToFacingDirection(yaw)) {
+    // Facing::convertYRotationToFacingDirection
+    float value  = yaw * 0.011111111f + 0.5f;
+    int   result = static_cast<int>(value) - 1;
+    if (static_cast<float>(static_cast<int>(value)) <= value) {
+        result = static_cast<int>(value);
+    }
+    switch (result) {
     case 2:
         facing = 0;
         break;

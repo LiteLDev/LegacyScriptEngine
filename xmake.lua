@@ -39,6 +39,7 @@ elseif is_config("backend", "nodejs") then
 
 end
 
+add_requires("openssl3 3.3.2")
 add_requires("cpp-httplib 0.18.7", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then

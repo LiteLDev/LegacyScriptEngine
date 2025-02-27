@@ -9,6 +9,7 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
+#include "lse/api/BlockHelper.h"
 #include "mc/deps/core/utility/optional_ref.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChunkBlockPos.h"
@@ -24,6 +25,8 @@
 #include "mc/world/level/dimension/DimensionHeightRange.h"
 
 #include <exception>
+
+using lse::api::BlockHelper;
 
 //////////////////// Class Definition ////////////////////
 
@@ -68,25 +71,6 @@ ClassDefine<BlockClass> BlockClassBuilder =
         .instanceFunction("getTag", &BlockClass::getNbt)
         .build();
 
-namespace lse::api::BlockHelper {
-inline bool isValidHeight(WeakRef<Dimension> dimension, std::variant<int, float> height) {
-    auto dim = dimension.lock();
-    if (dim) {
-        if (std::holds_alternative<int>(height)) {
-            int y = std::get<int>(height);
-            return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;
-        } else {
-            float y = std::get<float>(height);
-            return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;
-        }
-    }
-
-    return false;
-}
-} // namespace lse::api::BlockHelper
-
-using lse::api::BlockHelper::isValidHeight;
-
 //////////////////// Classes ////////////////////
 
 BlockClass::BlockClass(Block const& block) : ScriptClass(ScriptClass::ConstructFromCpp<BlockClass>{}), block(&block) {
@@ -107,7 +91,7 @@ Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, Dime
 
 Local<Object> BlockClass::newBlock(BlockPos const& pos, DimensionType dim) {
     if (auto dimension = ll::service::getLevel()->getDimension(dim).lock()) {
-        if (isValidHeight(dimension, pos.y)) {
+        if (BlockHelper::isValidHeight(dimension, pos.y)) {
             auto& bl = dimension->getBlockSourceFromMainChunkSource().getBlock(pos);
             return BlockClass::newBlock(bl, pos, dim);
         }
@@ -127,7 +111,7 @@ Local<Object> BlockClass::newBlock(Block const& block, BlockPos const& pos, Bloc
 Local<Object> BlockClass::newBlock(IntVec4 pos) {
     BlockPos bp = {(float)pos.x, (float)pos.y, (float)pos.z};
     if (auto dimension = ll::service::getLevel()->getDimension(pos.dim).lock()) {
-        if (isValidHeight(dimension, pos.y)) {
+        if (BlockHelper::isValidHeight(dimension, pos.y)) {
             auto& bl = dimension->getBlockSourceFromMainChunkSource().getBlock(bp);
             return BlockClass::newBlock(bl, bp, pos.dim);
         }

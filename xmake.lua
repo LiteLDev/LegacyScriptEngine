@@ -23,14 +23,17 @@ add_requires(
 )
 
 if is_config("backend", "lua") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Python"}})
 

@@ -38,7 +38,7 @@ Local<Object> ObjectiveClass::newObjective(Objective* obj) {
 
 void ObjectiveClass::set(Objective* obj) {
     if (obj) {
-        objname = obj->getName();
+        objname = obj->mName;
         isValid = true;
     }
 }
@@ -59,7 +59,7 @@ Local<Value> ObjectiveClass::getDisplayName() {
     try {
         Objective* obj = get();
         if (!obj) return Local<Value>();
-        return String::newString(obj->getDisplayName());
+        return String::newString(obj->mDisplayName);
     }
     CATCH("Fail in getDisplayName!")
 }
@@ -100,13 +100,12 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(name);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
             bool isSuccess = false;
             scoreboard.modifyPlayerScore(isSuccess, id, *obj, score, PlayerScoreSetFunction::Set);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -115,17 +114,15 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
             bool isSuccess = false;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
         }
         return Local<Value>();
     }
@@ -147,14 +144,13 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(name);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
             bool isSuccess = false;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -163,17 +159,15 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
             bool isSuccess = false;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
         }
         return Local<Value>();
     }
@@ -195,14 +189,13 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(name);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
             bool isSuccess = false;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -211,17 +204,15 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
             bool isSuccess = false;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
             if (isSuccess) return Number::newNumber(score);
-            return Local<Value>();
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
         }
         return Local<Value>();
     }
@@ -239,7 +230,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(args[0].asString().toString());
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 return Boolean::newBoolean(true);
             }
             // obj->_resetPlayer(id);
@@ -253,7 +244,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
             const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-            if (!id.isValid()) {
+            if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 return Boolean::newBoolean(true);
             }
             // obj->_resetPlayer(id);
@@ -275,7 +266,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
             ScoreboardId sid       = board.getScoreboardId(args[0].asString().toString());
-            if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
+            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
@@ -283,7 +274,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
             ScoreboardId sid       = board.getScoreboardId(*PlayerClass::extract(args[0]));
-            if (!objective || !sid.isValid() || !objective->hasScore(sid)) {
+            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);

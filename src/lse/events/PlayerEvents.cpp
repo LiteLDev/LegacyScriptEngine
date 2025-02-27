@@ -7,8 +7,6 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/legacy/ActorRuntimeID.h"
-#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
@@ -17,7 +15,9 @@
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/FishingHook.h"
 #include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/player/PlayerInventory.h"
 #include "mc/world/actor/player/PlayerItemInUse.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -118,7 +118,9 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onDropItem,
                         PlayerClass::newPlayer(&player),
-                        ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)))
+                        ItemClass::newItem(
+                            &const_cast<ItemStack&>(player.mInventory->mInventory->getItem(actions[0].mSlot))
+                        )
                     )) {
                     return InventoryTransactionError::NoError;
                 }
@@ -143,7 +145,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onOpenContainer,
                     PlayerClass::newPlayer(static_cast<Player*>(actor)),
-                    BlockClass::newBlock(playerOpenContainerEvent.mUnkb08e33.as<BlockPos>(), actor->getDimensionId())
+                    BlockClass::newBlock(playerOpenContainerEvent.mBlockPos, actor->getDimensionId())
                 )) {
                 return EventResult::StopProcessing;
             }
@@ -165,7 +167,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(getPosition(), player.getDimensionId())
+                BlockClass::newBlock(mPosition, player.getDimensionId())
             )) {
             return;
         }
@@ -186,7 +188,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(getPosition(), player.getDimensionId())
+                BlockClass::newBlock(mPosition, player.getDimensionId())
             )) {
             return;
         }
@@ -222,29 +224,29 @@ LL_TYPE_INSTANCE_HOOK(
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    AttackBlockHook,
-    HookPriority::Normal,
-    Block,
-    &Block::attack,
-    bool,
-    Player*         player,
-    BlockPos const& pos
-) {
-    IF_LISTENED(EVENT_TYPES::onAttackBlock) {
-        ItemStack const& item = player->getSelectedItem();
-        if (!CallEvent(
-                EVENT_TYPES::onAttackBlock,
-                PlayerClass::newPlayer(player),
-                BlockClass::newBlock(pos, player->getDimensionId()),
-                !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
-            )) {
-            return false;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
-    return origin(player, pos);
-}
+// LL_TYPE_INSTANCE_HOOK(
+//     AttackBlockHook,
+//     HookPriority::Normal,
+//     Block,
+//     &Block::attack,
+//     bool,
+//     Player*         player,
+//     BlockPos const& pos
+//) {
+//     IF_LISTENED(EVENT_TYPES::onAttackBlock) {
+//         ItemStack const& item = player->getSelectedItem();
+//         if (!CallEvent(
+//                 EVENT_TYPES::onAttackBlock,
+//                 PlayerClass::newPlayer(player),
+//                 BlockClass::newBlock(pos, player->getDimensionId()),
+//                 !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
+//             )) {
+//             return false;
+//         }
+//     }
+//     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
+//     return origin(player, pos);
+// }
 
 LL_TYPE_INSTANCE_HOOK(
     UseFrameHook1,
@@ -305,25 +307,25 @@ LL_TYPE_INSTANCE_HOOK(EatHook1, HookPriority::Normal, Player, &Player::eat, void
     origin(instance);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    EatHook2,
-    HookPriority::Normal,
-    ItemStack,
-    &ItemStack::useTimeDepleted,
-    ::ItemUseMethod,
-    Level*  level,
-    Player* player
-) {
-    IF_LISTENED(EVENT_TYPES::onAte) {
-        if (isPotionItem() || getTypeName() == "minecraft:milk_bucket") {
-            if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(this))) {
-                return ItemUseMethod::Unknown;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onAte);
-    return origin(level, player);
-}
+// LL_TYPE_INSTANCE_HOOK(
+//     EatHook2,
+//     HookPriority::Normal,
+//     ItemStack,
+//     &ItemStack::useTimeDepleted,
+//     ::ItemUseMethod,
+//     Level*  level,
+//     Player* player
+//) {
+//     IF_LISTENED(EVENT_TYPES::onAte) {
+//         if (isPotionItem() || getTypeName() == "minecraft:milk_bucket") {
+//             if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(this))) {
+//                 return ItemUseMethod::Unknown;
+//             }
+//         }
+//     }
+//     IF_LISTENED_END(EVENT_TYPES::onAte);
+//     return origin(level, player);
+// }
 
 LL_TYPE_INSTANCE_HOOK(
     ChangeDimensionHook,
@@ -559,8 +561,8 @@ LL_TYPE_INSTANCE_HOOK(
     ServerPlayer,
     &ServerPlayer::$setArmor,
     void,
-    ArmorSlot        armorSlot,
-    ItemStack const& item
+    SharedTypes::Legacy::ArmorSlot const armorSlot,
+    ItemStack const&                     item
 ) {
     IF_LISTENED(EVENT_TYPES::onSetArmor) {
         if (!CallEvent(
@@ -611,9 +613,9 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onEffectAdded,
                 PlayerClass::newPlayer(this),
-                String::newString(effect.getComponentName().getString()),
-                Number::newNumber(effect.getAmplifier()),
-                Number::newNumber(effect.getDuration().getValueForSerialization())
+                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                Number::newNumber(effect.mAmplifier),
+                Number::newNumber(effect.mDuration->mValue)
             )) {
             return;
         }
@@ -634,7 +636,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onEffectRemoved,
                 PlayerClass::newPlayer(this),
-                String::newString(effect.getComponentName().getString())
+                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString())
             )) {
             return;
         }
@@ -654,14 +656,16 @@ void CloseContainerEvent() {
     CloseContainerHook2::hook();
 }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() { AttackBlockHook::hook(); }
+void AttackBlockEvent() {
+    // AttackBlockHook::hook();
+}
 void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();
 }
 void EatEvent() {
     EatHook1::hook();
-    EatHook2::hook();
+    //    EatHook2::hook();
 }
 void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
 void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }

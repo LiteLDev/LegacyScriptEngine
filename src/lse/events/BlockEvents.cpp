@@ -65,7 +65,8 @@ LL_TYPE_INSTANCE_HOOK(
             return origin(slotNumber, oldItem, newItem);
 
         Player& player = mUnk84d147.as<Player&>();
-        if (player.hasOpenContainer()) {
+        // Player::hasOpenContainer()
+        if (player.mContainerManager) {
             if (!CallEvent(
                     EVENT_TYPES::onContainerChange,
                     PlayerClass::newPlayer(&player),
@@ -169,7 +170,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
         if (!CallEvent(
                 EVENT_TYPES::onPistonTryPush,
-                IntPos::newPos(this->getPosition(), region.getDimensionId()),
+                IntPos::newPos(this->mPosition, region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
             )) {
             return false;
@@ -181,7 +182,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (shouldPush) {
             CallEvent( // Not cancellable
                 EVENT_TYPES::onPistonPush,
-                IntPos::newPos(this->getPosition(), region.getDimensionId()),
+                IntPos::newPos(this->mPosition, region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
             );
         }
@@ -249,26 +250,26 @@ LL_TYPE_STATIC_HOOK(
     origin(player, pos, region, level);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    BlockExplodedHook,
-    HookPriority::Normal,
-    Block,
-    &Block::onExploded,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    Actor*          entitySource
-) {
-    IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        CallEvent(
-            EVENT_TYPES::onBlockExploded,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            EntityClass::newEntity(entitySource)
-        );
-    }
-    IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
-    origin(region, pos, entitySource);
-}
+// LL_TYPE_INSTANCE_HOOK(
+//     BlockExplodedHook,
+//     HookPriority::Normal,
+//     Block,
+//     &Block::onExploded,
+//     void,
+//     BlockSource&    region,
+//     BlockPos const& pos,
+//     Actor*          entitySource
+//) {
+//     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
+//         CallEvent(
+//             EVENT_TYPES::onBlockExploded,
+//             BlockClass::newBlock(pos, region.getDimensionId()),
+//             EntityClass::newEntity(entitySource)
+//         );
+//     }
+//     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
+//     origin(region, pos, entitySource);
+// }
 
 namespace redstone {
 inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& strength, bool& isFirstTime) {
@@ -368,7 +369,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
             if (!CallEvent(
                     EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->getCommand()),
+                    String::newString(this->mCommand),
                     FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
                     Boolean::newBoolean(true)
                 )) {
@@ -377,7 +378,7 @@ LL_TYPE_INSTANCE_HOOK(
         } else {
             if (!CallEvent(
                     EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->getCommand()),
+                    String::newString(this->mCommand),
                     FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
                     Boolean::newBoolean(false)
                 )) {
@@ -475,7 +476,9 @@ void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
-void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
+void BlockExplodedEvent() {
+    // BlockExplodedHook ::hook();
+}
 void RedstoneUpdateEvent() {
     redstone::RedstoneTorchBlockHook::hook();
     redstone::RedStoneWireBlockHook::hook();

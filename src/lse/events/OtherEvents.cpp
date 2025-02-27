@@ -22,17 +22,16 @@ LL_TYPE_INSTANCE_HOOK(
     Objective const&    obj
 ) {
     IF_LISTENED(EVENT_TYPES::onScoreChanged) {
-        if (id.getIdentityDef().isPlayerType()) {
+        auto& idRef = id.mIdentityDef;
+        if (idRef && idRef->mIdentityType == IdentityDefinition::Type::Player) {
             if (!CallEvent(
                     EVENT_TYPES::onScoreChanged,
                     PlayerClass::newPlayer(
-                        ll::service::getLevel()->getPlayer(
-                            ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId)
-                        )
+                        ll::service::getLevel()->getPlayer(ActorUniqueID(idRef->mPlayerId->mActorUniqueId))
                     ),
                     Number::newNumber(obj.getPlayerScore(id).mValue),
-                    String::newString(obj.getName()),
-                    String::newString(obj.getDisplayName())
+                    String::newString(obj.mName),
+                    String::newString(obj.mDisplayName)
                 )) {
                 return;
             }

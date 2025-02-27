@@ -7,6 +7,7 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
+#include "mc/common/Globals.h"
 #include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
@@ -27,6 +28,8 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
+#include "mc/world/events/ActorEventCoordinator.h"
+#include "mc/world/events/ProjectileHitEvent.h"
 #include "mc/world/item/CrossbowItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
@@ -51,11 +54,12 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&                      direction
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (id._getLegacyActorType() != ActorType::Trident) {
+        static auto& tridentName = EntityCanonicalName(ActorType::Trident);
+        if (id.mCanonicalName.get() != tridentName) {
             if (!CallEvent(
                     EVENT_TYPES::onSpawnProjectile,
                     EntityClass::newEntity(spawner),
-                    String::newString(id.getCanonicalName())
+                    String::newString(id.mCanonicalName->getString())
                 )) {
                 return nullptr;
             }
@@ -179,30 +183,28 @@ LL_TYPE_INSTANCE_HOOK(
     origin(owner, res);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    ProjectileHitBlockHook,
-    HookPriority::Normal,
-    Block,
-    &Block::onProjectileHit,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    Actor const&    projectile
-) {
-    IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-        if (pos != BlockPos::ZERO() && !this->isAir()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onProjectileHitBlock,
-                    BlockClass::newBlock(*this, pos, region),
-                    EntityClass::newEntity(&const_cast<Actor&>(projectile))
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
-    origin(region, pos, projectile);
-}
+// LL_TYPE_INSTANCE_HOOK(
+//     ProjectileHitBlockHook,
+//     HookPriority::Normal,
+//     ActorEventCoordinator,
+//     &ActorEventCoordinator::sendEvent,
+//     CoordinatorResult,
+//     EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
+//) {
+//     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
+//         if (pos != BlockPos::ZERO() && !this->isAir()) {
+//             if (!CallEvent(
+//                     EVENT_TYPES::onProjectileHitBlock,
+//                     BlockClass::newBlock(*this, pos, region),
+//                     EntityClass::newEntity(&const_cast<Actor&>(projectile))
+//                 )) {
+//                 return CoordinatorResult::Cancel;
+//             }
+//         }
+//     }
+//     IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
+//     origin(event);
+// }
 
 LL_TYPE_INSTANCE_HOOK(
     MobHurtHook,
@@ -231,7 +233,7 @@ LL_TYPE_INSTANCE_HOOK(
                 EntityClass::newEntity(this),
                 damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                 Number::newNumber(damage < 0.0f ? -damage : damage),
-                Number::newNumber((int)source.getCause())
+                Number::newNumber((int)source.mCause)
             )) {
             return false;
         }
@@ -252,7 +254,8 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
         // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we just
         // need magic damage.
-        if (source.getCause() == ActorDamageCause::Magic || source.getCause() == ActorDamageCause::Wither) {
+        if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
+            || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
             Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
                 if (source.isChildEntitySource()) {
@@ -267,7 +270,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EntityClass::newEntity(this),
                     damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                     Number::newNumber(damage < 0.0f ? -damage : damage),
-                    Number::newNumber((int)source.getCause())
+                    Number::newNumber((int)source.mCause)
                 )) {
                 return 0.0f;
             }
@@ -289,9 +292,12 @@ LL_TYPE_INSTANCE_HOOK(
     ::std::string const& sceneName
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
-        auto action = this->getActionsContainer().at(actionIndex);
-        if (std::holds_alternative<npc::CommandAction>(*action)) {
-            auto&       commands = std::get<npc::CommandAction>(*action).commands;
+        auto& action =
+            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>().at(
+                actionIndex
+            );
+        if (std::holds_alternative<npc::CommandAction>(action)) {
+            auto&       commands = std::get<npc::CommandAction>(action).commands;
             std::string command;
             for (auto& cmd : commands.get()) {
                 command += cmd.mUnk879303.as<std::string>() + ";";
@@ -316,26 +322,26 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     EffectUpdateHook,
     HookPriority::Normal,
-    MobEffectInstance,
-    &MobEffectInstance::updateEffects,
+    Actor,
+    &Actor::onEffectUpdated,
     void,
-    ::Actor* mob
+    MobEffectInstance& effect
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (mob->isPlayer()) {
+        if (isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectUpdated,
-                    PlayerClass::newPlayer(static_cast<Player*>(mob)),
-                    String::newString(getComponentName().getString()),
-                    Number::newNumber(getAmplifier()),
-                    Number::newNumber(getDuration().getValueForSerialization())
+                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                    Number::newNumber(effect.mAmplifier),
+                    Number::newNumber(effect.mDuration->mValue)
                 )) {
                 return;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
-    origin(mob);
+    origin(effect);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -371,7 +377,9 @@ void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
-void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
+void ProjectileHitBlockEvent() {
+    // ProjectileHitBlockHook::hook();
+}
 void MobHurtEvent() {
     MobHurtHook::hook();
     MobHurtEffectHook::hook();

@@ -28,18 +28,17 @@
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
 #include "lse/api/PlayerHelper.h"
+#include "lse/api/ScoreboardHelper.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
 #include "mc/deps/core/math/Vec2.h"
-#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/entity/components/ActorRotationComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
-#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/nbt/ListTag.h"
@@ -76,7 +75,6 @@
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/BuiltInActorComponents.h"
-#include "mc/world/actor/SynchedActorData.h"
 #include "mc/world/actor/SynchedActorDataEntityWrapper.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
@@ -91,7 +89,6 @@
 #include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeModificationContext.h"
-#include "mc/world/attribute/MutableAttributeWithContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -124,6 +121,7 @@
 #include <vector>
 
 using lse::api::AttributeHelper;
+using lse::api::ScoreboardHelper;
 using lse::form::FormCancelReason;
 
 //////////////////// Class Definition ////////////////////
@@ -502,8 +500,8 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
             return Number::newNumber(0);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid() || !objective->hasScore(sid)) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
             return Number::newNumber(0);
         }
         return Number::newNumber(objective->getPlayerScore(sid).mValue);
@@ -537,8 +535,8 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -575,8 +573,8 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -613,8 +611,8 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -655,8 +653,8 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         scoreboard.resetPlayerScore(sid, *objective);

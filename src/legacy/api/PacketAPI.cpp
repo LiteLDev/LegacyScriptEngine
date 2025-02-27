@@ -2,12 +2,8 @@
 
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
-#include "api/BlockAPI.h"
-#include "api/BlockEntityAPI.h"
-#include "api/ContainerAPI.h"
 #include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
-#include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPackets.h"

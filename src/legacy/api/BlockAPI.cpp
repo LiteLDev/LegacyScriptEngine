@@ -484,7 +484,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         if (!lc) {
             return {};
         }
-        auto& block = lc->getBlock(ChunkBlockPos{pos.x, pos.z, minHeight});
+        auto& block = lc->getBlock(ChunkBlockPos{(uchar)pos.x, (uchar)pos.z, minHeight});
         return BlockClass::newBlock(block, pos.getBlockPos(), pos.dim);
     }
     CATCH("Fail in GetBlock!")

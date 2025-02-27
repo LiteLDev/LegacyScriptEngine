@@ -39,7 +39,7 @@ elseif is_config("backend", "nodejs") then
 
 end
 
-add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
+add_requires("cpp-httplib 0.18.7", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")

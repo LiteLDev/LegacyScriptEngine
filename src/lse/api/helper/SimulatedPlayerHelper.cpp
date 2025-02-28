@@ -1,4 +1,4 @@
-#include "lse/api/SimulatedPlayerHelper.h"
+#include "SimulatedPlayerHelper.h"
 
 #include "mc/deps/ecs/gamerefs_entity/EntityContext.h"
 #include "mc/entity/components_json_legacy/NavigationComponent.h"

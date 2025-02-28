@@ -1,4 +1,4 @@
-#include "lse/api/AttributeHelper.h"
+#include "AttributeHelper.h"
 
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeModificationContext.h"

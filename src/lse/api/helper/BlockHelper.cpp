@@ -1,4 +1,4 @@
-#include "lse/api/BlockHelper.h"
+#include "BlockHelper.h"
 
 #include "mc/world/level/dimension/DimensionHeightRange.h"
 

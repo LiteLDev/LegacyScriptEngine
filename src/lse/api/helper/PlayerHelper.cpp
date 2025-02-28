@@ -1,4 +1,4 @@
-#include "lse/api/PlayerHelper.h"
+#include "PlayerHelper.h"
 
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"

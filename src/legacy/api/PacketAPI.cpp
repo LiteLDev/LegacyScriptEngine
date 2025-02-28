@@ -5,6 +5,7 @@
 #include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
 #include "api/NbtAPI.h"
+#include "lse/api/helper/ItemStackSerializerHelpers.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPackets.h"
 #include "mc/network/packet/Packet.h"
@@ -455,7 +456,7 @@ Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        pkt->writeType(NetworkItemStackDescriptor(*item));
+        ItemStackSerializerHelpers::write(NetworkItemStackDescriptor(*item), *pkt);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in BinaryStream writeCompoundTag!");

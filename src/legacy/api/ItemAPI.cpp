@@ -6,7 +6,7 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "lse/api/ItemHelper.h"
+#include "lse/api/helper/ItemHelper.h"
 #include "mc/safety/RedactableString.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/item/Item.h"

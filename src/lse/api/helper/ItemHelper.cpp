@@ -1,4 +1,4 @@
-#include "lse/api/ItemHelper.h"
+#include "ItemHelper.h"
 
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/item/Item.h"

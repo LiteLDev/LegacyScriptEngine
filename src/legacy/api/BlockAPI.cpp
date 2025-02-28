@@ -9,7 +9,7 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "lse/api/BlockHelper.h"
+#include "lse/api/helper/BlockHelper.h"
 #include "mc/deps/core/utility/optional_ref.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChunkBlockPos.h"

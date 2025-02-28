@@ -1,4 +1,4 @@
-#include "lse/api/ScoreboardHelper.h"
+#include "ScoreboardHelper.h"
 
 #include "mc/world/scores/IdentityDictionary.h"
 

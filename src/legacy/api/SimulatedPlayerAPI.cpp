@@ -8,7 +8,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
-#include "lse/api/SimulatedPlayerHelper.h"
+#include "lse/api/helper/SimulatedPlayerHelper.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/scripting/modules/gametest/ScriptNavigationResult.h"

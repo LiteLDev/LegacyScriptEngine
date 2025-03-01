@@ -20,13 +20,13 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/player/PlayerInventory.h"
 #include "mc/world/actor/player/PlayerItemInUse.h"
-#include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/gamemode/InteractionResult.h"
+#include "mc/world/inventory/network/ItemStackNetManagerBase.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
@@ -357,14 +357,21 @@ LL_TYPE_INSTANCE_HOOK(
     origin(player, std::move(changeRequest));
 }
 
-LL_TYPE_INSTANCE_HOOK(OpenContainerScreenHook, HookPriority::Normal, Player, &Player::canOpenContainerScreen, bool) {
+LL_TYPE_INSTANCE_HOOK(
+    OpenContainerScreenHook,
+    HookPriority::Normal,
+    ItemStackNetManagerBase,
+    &ItemStackNetManagerBase::$onContainerScreenOpen,
+    void,
+    ContainerScreenContext const& screenContext
+) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(this))) {
-            return false;
+        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(&mUnkecd0f2.as<Player&>()))) {
+            return;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
-    return origin();
+    return origin(screenContext);
 }
 
 LL_TYPE_STATIC_HOOK(

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0-rc.2] - 2025-03-02
+
+### Fixed
+
+- Fixed onNpcCmd event
+- Use coro for delay command registration instead of ServerStartedEvent to fix command registration in onServerStarted event
+
 ## [0.10.0-rc.1] - 2025-03-01
 
 ### Changed
@@ -767,7 +774,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231
 [#236]: https://github.com/LiteLDev/LegacyScriptEngine/issues/236
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.1...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.2...HEAD
+[0.10.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.1...v0.10.0-rc.2
 [0.10.0-rc.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.7...v0.10.0-rc.1
 [0.9.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.5...v0.9.6

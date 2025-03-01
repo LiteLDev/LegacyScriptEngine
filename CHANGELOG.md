@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Adapted to LeviLamina 1.1.0(MCBE 1.21.60.10)
 - Disabled onNpcCmd temporarily because it is broken
+- Not delay onServerStartedEvent and command registration for compatibility with LeviStone
 
 ## [0.9.7] - 2025-02-10
 

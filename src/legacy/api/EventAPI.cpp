@@ -147,7 +147,6 @@ bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
 
 //////////////////// Events ////////////////////
 
-// TODO:
 void EnableEventListener(int eventId) {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();

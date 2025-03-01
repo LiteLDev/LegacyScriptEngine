@@ -280,6 +280,7 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(source, damage);
 }
 
+// TODO: fix this event, can't get correct vector via mUnke14f11
 LL_TYPE_INSTANCE_HOOK(
     NpcCommandHook,
     HookPriority::Normal,
@@ -292,10 +293,10 @@ LL_TYPE_INSTANCE_HOOK(
     ::std::string const& sceneName
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
-        auto& actionContainer =
-            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>();
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Size: {}", actionContainer.size());
-        auto& action = actionContainer.at(actionIndex);
+        auto& action =
+            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>().at(
+                actionIndex
+            );
         if (std::holds_alternative<npc::CommandAction>(action)) {
             auto&       commands = std::get<npc::CommandAction>(action).commands;
             std::string command;
@@ -382,7 +383,9 @@ void MobHurtEvent() {
     MobHurtHook::hook();
     MobHurtEffectHook::hook();
 }
-void NpcCommandEvent() { NpcCommandHook::hook(); }
+void NpcCommandEvent() {
+    //    NpcCommandHook::hook();
+}
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

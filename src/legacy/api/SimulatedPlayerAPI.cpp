@@ -145,7 +145,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
             face = (ScriptModuleMinecraft::ScriptFacing)args[index].asNumber().toInt32();
         }
-        // TODO
+
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
     }
     CATCH("Fail in " __FUNCTION__ "!")

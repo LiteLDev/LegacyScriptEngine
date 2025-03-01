@@ -50,7 +50,6 @@
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
 
-
 namespace lse::events::block {
 LL_TYPE_INSTANCE_HOOK(
     ContainerChangeHook,
@@ -256,7 +255,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockExplodedHook,
     HookPriority::Normal,
     ScriptModuleMinecraft::ScriptBlockGlobalEventListener,
-    &ScriptBlockGlobalEventListener::onBlockExploded,
+    &ScriptBlockGlobalEventListener::$onBlockExploded,
     EventResult,
     Dimension&      dimension,
     BlockPos const& blockPos,

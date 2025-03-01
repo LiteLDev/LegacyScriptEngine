@@ -5,15 +5,15 @@ add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
 if is_config("target_type", "server") then
     add_requires("levilamina 1.1.0", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 1,1,0", {configs = {target_type = "client"}})
+    add_requires("levilamina 1.1.0", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
 
 add_requires(
-    "legacymoney 0.9.0-rc.1",
-    "legacyparticleapi 0.9.0-rc.1",
-    "legacyremotecall 0.9.0-rc.1",
+    "legacymoney 0.10.0",
+    "legacyparticleapi 0.10.0",
+    "legacyremotecall 0.10.0",
     "lightwebsocketclient 1.0.1",
     "magic_enum v0.9.7",
     "nlohmann_json v3.11.3",

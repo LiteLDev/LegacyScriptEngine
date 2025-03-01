@@ -9,9 +9,9 @@
 #include "ll/api/service/Bedrock.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
+#include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
-#include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
 #include "mc/world/actor/ArmorStand.h"
 #include "mc/world/actor/Hopper.h"
 #include "mc/world/actor/player/Player.h"
@@ -49,6 +49,7 @@
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
+
 
 namespace lse::events::block {
 LL_TYPE_INSTANCE_HOOK(
@@ -254,7 +255,7 @@ LL_TYPE_STATIC_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     BlockExplodedHook,
     HookPriority::Normal,
-    ScriptModuleMinecraft::ScriptBlockGlobalEventListener ,
+    ScriptModuleMinecraft::ScriptBlockGlobalEventListener,
     &ScriptBlockGlobalEventListener::onBlockExploded,
     EventResult,
     Dimension&      dimension,
@@ -478,9 +479,7 @@ void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
-void BlockExplodedEvent() {
-    // BlockExplodedHook ::hook();
-}
+void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
 void RedstoneUpdateEvent() {
     redstone::RedstoneTorchBlockHook::hook();
     redstone::RedStoneWireBlockHook::hook();

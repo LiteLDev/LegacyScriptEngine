@@ -8,6 +8,7 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/network/ServerPlayerBlockUseHandler.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
@@ -224,30 +225,30 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
-// FIXME: this hook is not working
-//  LL_TYPE_INSTANCE_HOOK(
-//      AttackBlockHook,
-//      HookPriority::Normal,
-//      Block,
-//      &Block::attack,
-//      bool,
-//      Player*         player,
-//      BlockPos const& pos
-//) {
-//      IF_LISTENED(EVENT_TYPES::onAttackBlock) {
-//          ItemStack const& item = player->getSelectedItem();
-//          if (!CallEvent(
-//                  EVENT_TYPES::onAttackBlock,
-//                  PlayerClass::newPlayer(player),
-//                  BlockClass::newBlock(pos, player->getDimensionId()),
-//                  !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
-//              )) {
-//              return false;
-//          }
-//      }
-//      IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
-//      return origin(player, pos);
-//  }
+
+LL_STATIC_HOOK(
+    AttackBlockHook,
+    HookPriority::Normal,
+    &ServerPlayerBlockUseHandler::onStartDestroyBlock,
+    void,
+    ServerPlayer&   player,
+    const BlockPos& pos,
+    int             face
+) {
+    IF_LISTENED(EVENT_TYPES::onAttackBlock) {
+        ItemStack const& item = player.getSelectedItem();
+        if (!CallEvent(
+                EVENT_TYPES::onAttackBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId()),
+                !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
+            )) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
+    return origin(player, pos, face);
+}
 
 LL_TYPE_INSTANCE_HOOK(
     UseFrameHook1,
@@ -673,9 +674,7 @@ void CloseContainerEvent() {
     CloseContainerHook2::hook();
 }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() {
-    // AttackBlockHook::hook();
-}
+void AttackBlockEvent() { AttackBlockHook::hook(); }
 void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();

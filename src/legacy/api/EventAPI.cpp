@@ -851,20 +851,14 @@ void InitBasicEventListeners() {
 
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent&) {
-        ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
-            using namespace ll::chrono_literals;
-            co_await 1_tick;
+        IF_LISTENED(EVENT_TYPES::onServerStarted) {
+            CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
+        }
+        IF_LISTENED_END(EVENT_TYPES::onServerStarted);
 
-            IF_LISTENED(EVENT_TYPES::onServerStarted) {
-                CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
-            }
-            IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+        isCmdRegisterEnabled = true;
 
-            isCmdRegisterEnabled = true;
-
-            // 处理延迟注册
-            ProcessRegCmdQueue();
-        }).launch(ll::thread::ServerThreadExecutor::getDefault());
+        ProcessRegCmdQueue();
     });
 
     // 植入tick

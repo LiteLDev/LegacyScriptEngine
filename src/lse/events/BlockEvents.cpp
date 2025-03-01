@@ -11,6 +11,7 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
+#include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
 #include "mc/world/actor/ArmorStand.h"
 #include "mc/world/actor/Hopper.h"
 #include "mc/world/actor/player/Player.h"
@@ -250,26 +251,27 @@ LL_TYPE_STATIC_HOOK(
     origin(player, pos, region, level);
 }
 
-// LL_TYPE_INSTANCE_HOOK(
-//     BlockExplodedHook,
-//     HookPriority::Normal,
-//     Block,
-//     &Block::onExploded,
-//     void,
-//     BlockSource&    region,
-//     BlockPos const& pos,
-//     Actor*          entitySource
-//) {
-//     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-//         CallEvent(
-//             EVENT_TYPES::onBlockExploded,
-//             BlockClass::newBlock(pos, region.getDimensionId()),
-//             EntityClass::newEntity(entitySource)
-//         );
-//     }
-//     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
-//     origin(region, pos, entitySource);
-// }
+LL_TYPE_INSTANCE_HOOK(
+    BlockExplodedHook,
+    HookPriority::Normal,
+    ScriptModuleMinecraft::ScriptBlockGlobalEventListener ,
+    &ScriptBlockGlobalEventListener::onBlockExploded,
+    EventResult,
+    Dimension&      dimension,
+    BlockPos const& blockPos,
+    Block const&    destroyedBlock,
+    Actor*          source
+) {
+    IF_LISTENED(EVENT_TYPES::onBlockExploded) {
+        CallEvent(
+            EVENT_TYPES::onBlockExploded,
+            BlockClass::newBlock(blockPos, dimension.getDimensionId()),
+            EntityClass::newEntity(source)
+        );
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
+    return origin(dimension, blockPos, destroyedBlock, source);
+}
 
 namespace redstone {
 inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& strength, bool& isFirstTime) {

@@ -54,30 +54,6 @@
 
 namespace lse::events::player {
 LL_TYPE_INSTANCE_HOOK(
-    StartDestroyHook,
-    HookPriority::Normal,
-    BlockEventCoordinator,
-    &BlockEventCoordinator::sendBlockDestructionStarted,
-    void,
-    ::Player&         player,
-    const ::BlockPos& blockPos,
-    const ::Block&    hitBlock,
-    uchar             face
-) {
-    IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
-        if (!CallEvent(
-                EVENT_TYPES::onStartDestroyBlock,
-                PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(hitBlock, blockPos, player.getDimensionId())
-            )) {
-            return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
-    origin(player, blockPos, hitBlock, face);
-}
-
-LL_TYPE_INSTANCE_HOOK(
     DropItemHook1,
     HookPriority::Normal,
     Player,
@@ -227,7 +203,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_STATIC_HOOK(
-    AttackBlockHook,
+    StartDestroyBlockHook,
     HookPriority::Normal,
     &ServerPlayerBlockUseHandler::onStartDestroyBlock,
     void,
@@ -235,6 +211,7 @@ LL_STATIC_HOOK(
     const BlockPos& pos,
     int             face
 ) {
+    bool isCancelled = false;
     IF_LISTENED(EVENT_TYPES::onAttackBlock) {
         ItemStack const& item = player.getSelectedItem();
         if (!CallEvent(
@@ -243,10 +220,23 @@ LL_STATIC_HOOK(
                 BlockClass::newBlock(pos, player.getDimensionId()),
                 !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
             )) {
-            return;
+            isCancelled = true;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
+    IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
+        if (!CallEvent(
+                EVENT_TYPES::onStartDestroyBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId())
+            )) {
+            isCancelled = true;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
+    if (isCancelled) {
+        return;
+    }
     return origin(player, pos, face);
 }
 
@@ -663,7 +653,7 @@ LL_TYPE_INSTANCE_HOOK(
     origin(effect);
 }
 
-void StartDestroyBlock() { StartDestroyHook::hook(); }
+void StartDestroyBlock() { StartDestroyBlockHook::hook(); }
 void DropItem() {
     DropItemHook1::hook();
     DropItemHook2::hook();
@@ -674,7 +664,7 @@ void CloseContainerEvent() {
     CloseContainerHook2::hook();
 }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() { AttackBlockHook::hook(); }
+void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
 void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();

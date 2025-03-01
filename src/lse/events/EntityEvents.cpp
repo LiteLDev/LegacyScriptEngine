@@ -195,7 +195,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         auto& region = owner.getDimensionBlockSourceConst();
         auto& block  = region.getBlock(res.mBlock);
-        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && block.isAir()) {
+        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitBlock,
                     BlockClass::newBlock(block, res.mBlock, region),
@@ -295,10 +295,10 @@ LL_TYPE_INSTANCE_HOOK(
     ::std::string const& sceneName
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
-        auto& action =
-            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>().at(
-                actionIndex
-            );
+        auto& actionContainer =
+            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>();
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info("Size: {}", actionContainer.size());
+        auto& action = actionContainer.at(actionIndex);
         if (std::holds_alternative<npc::CommandAction>(action)) {
             auto&       commands = std::get<npc::CommandAction>(action).commands;
             std::string command;

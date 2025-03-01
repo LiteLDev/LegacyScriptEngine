@@ -384,9 +384,7 @@ void MobHurtEvent() {
     MobHurtHook::hook();
     MobHurtEffectHook::hook();
 }
-void NpcCommandEvent() {
-    //    NpcCommandHook::hook();
-}
+void NpcCommandEvent() { NpcCommandHook::hook(); }
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

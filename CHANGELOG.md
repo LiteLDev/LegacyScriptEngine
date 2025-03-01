@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0-rc.1] - 2025-03-01
+
+### Changed
+
+- Adapted to LeviLamina 1.1.0(MCBE 1.21.60.10)
+- Disabled onNpcCmd temporarily because it is broken
+
 ## [0.9.7] - 2025-02-10
 
 ### Added
@@ -759,7 +766,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231
 [#236]: https://github.com/LiteLDev/LegacyScriptEngine/issues/236
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.7...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.1...HEAD
+[0.10.0-rc.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.7...v0.10.0-rc.1
 [0.9.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.9.4...v0.9.5

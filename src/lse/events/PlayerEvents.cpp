@@ -224,7 +224,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
-// fixme: this hook is not working
+// FIXME: this hook is not working
 //  LL_TYPE_INSTANCE_HOOK(
 //      AttackBlockHook,
 //      HookPriority::Normal,

@@ -2324,8 +2324,8 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             float value = (float)percent / 100;
 
             // Remove BossBar firstly
-            BossEventPacket* removePkt =
-                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            auto removePkt =
+                static_pointer_cast<BossEventPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent));
             removePkt->mBossID    = ActorUniqueID(uid);
             removePkt->mEventType = BossEventUpdateType::Remove;
             removePkt->sendTo(*player);
@@ -2356,9 +2356,9 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeUnsignedVarInt(0, nullptr, nullptr);
             auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(bs.mBuffer));
 
-            BossBarColor     color = (BossBarColor)args[3].asNumber().toInt32();
-            BossEventPacket* pkt =
-                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            BossBarColor color = (BossBarColor)args[3].asNumber().toInt32();
+            auto         pkt =
+                static_pointer_cast<BossEventPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent));
             pkt->mEventType     = BossEventUpdateType::Add;
             pkt->mBossID        = ActorUniqueID(uid);
             pkt->mName          = args[1].asString().toString();
@@ -2384,8 +2384,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
 
         BossBarColor color = BossBarColor::Red;
         if (args.size() >= 3) color = (BossBarColor)args[2].asNumber().toInt32();
-        BossEventPacket* pkt =
-            static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+        auto pkt = static_pointer_cast<BossEventPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent));
         pkt->mEventType     = BossEventUpdateType::Add;
         pkt->mName          = args[0].asString().toString();
         pkt->mHealthPercent = value;
@@ -2402,8 +2401,8 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
             Player* player = get();
             if (!player) return Local<Value>();
 
-            BossEventPacket* pkt =
-                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            auto pkt =
+                static_pointer_cast<BossEventPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent));
             pkt->mEventType = BossEventUpdateType::Remove;
             pkt->mColor     = BossBarColor::Red;
             pkt->sendTo(*player);
@@ -2416,9 +2415,9 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
         try {
             Player* player = get();
             if (!player) return Local<Value>();
-            int64_t          uid = args[0].asNumber().toInt64();
-            BossEventPacket* pkt =
-                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            int64_t uid = args[0].asNumber().toInt64();
+            auto    pkt =
+                static_pointer_cast<BossEventPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent));
             pkt->mBossID    = ActorUniqueID(uid);
             pkt->mEventType = BossEventUpdateType::Remove;
             pkt->sendTo(*player);

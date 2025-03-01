@@ -183,28 +183,31 @@ LL_TYPE_INSTANCE_HOOK(
     origin(owner, res);
 }
 
-// LL_TYPE_INSTANCE_HOOK(
-//     ProjectileHitBlockHook,
-//     HookPriority::Normal,
-//     ActorEventCoordinator,
-//     &ActorEventCoordinator::sendEvent,
-//     CoordinatorResult,
-//     EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
-//) {
-//     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-//         if (pos != BlockPos::ZERO() && !this->isAir()) {
-//             if (!CallEvent(
-//                     EVENT_TYPES::onProjectileHitBlock,
-//                     BlockClass::newBlock(*this, pos, region),
-//                     EntityClass::newEntity(&const_cast<Actor&>(projectile))
-//                 )) {
-//                 return CoordinatorResult::Cancel;
-//             }
-//         }
-//     }
-//     IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
-//     origin(event);
-// }
+LL_TYPE_INSTANCE_HOOK(
+    ProjectileHitBlockHook,
+    HookPriority::Normal,
+    ProjectileComponent,
+    &ProjectileComponent::onHit,
+    void,
+    ::Actor&           owner,
+    ::HitResult const& res
+) {
+    IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
+        auto& region = owner.getDimensionBlockSourceConst();
+        auto& block  = region.getBlock(res.mBlock);
+        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && block.isAir()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onProjectileHitBlock,
+                    BlockClass::newBlock(block, res.mBlock, region),
+                    EntityClass::newEntity(&owner)
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onProjectileHitBlock);
+    return origin(owner, res);
+}
 
 LL_TYPE_INSTANCE_HOOK(
     MobHurtHook,
@@ -377,9 +380,7 @@ void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }
 void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
-void ProjectileHitBlockEvent() {
-    // ProjectileHitBlockHook::hook();
-}
+void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
 void MobHurtEvent() {
     MobHurtHook::hook();
     MobHurtEffectHook::hook();

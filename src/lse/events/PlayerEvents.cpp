@@ -8,6 +8,7 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/network/ServerPlayerBlockUseHandler.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
@@ -33,6 +34,7 @@
 #include "mc/world/item/BucketItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
+#include "mc/world/item/PotionItem.h"
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChangeDimensionRequest.h"
@@ -224,29 +226,29 @@ LL_TYPE_INSTANCE_HOOK(
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
 
-// LL_TYPE_INSTANCE_HOOK(
-//     AttackBlockHook,
-//     HookPriority::Normal,
-//     Block,
-//     &Block::attack,
-//     bool,
-//     Player*         player,
-//     BlockPos const& pos
-//) {
-//     IF_LISTENED(EVENT_TYPES::onAttackBlock) {
-//         ItemStack const& item = player->getSelectedItem();
-//         if (!CallEvent(
-//                 EVENT_TYPES::onAttackBlock,
-//                 PlayerClass::newPlayer(player),
-//                 BlockClass::newBlock(pos, player->getDimensionId()),
-//                 !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
-//             )) {
-//             return false;
-//         }
-//     }
-//     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
-//     return origin(player, pos);
-// }
+LL_STATIC_HOOK(
+    AttackBlockHook,
+    HookPriority::Normal,
+    &ServerPlayerBlockUseHandler::onStartDestroyBlock,
+    void,
+    ServerPlayer&   player,
+    const BlockPos& pos,
+    int             face
+) {
+    IF_LISTENED(EVENT_TYPES::onAttackBlock) {
+        ItemStack const& item = player.getSelectedItem();
+        if (!CallEvent(
+                EVENT_TYPES::onAttackBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId()),
+                !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
+            )) {
+            return;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
+    return origin(player, pos, face);
+}
 
 LL_TYPE_INSTANCE_HOOK(
     UseFrameHook1,
@@ -306,26 +308,42 @@ LL_TYPE_INSTANCE_HOOK(EatHook1, HookPriority::Normal, Player, &Player::eat, void
     IF_LISTENED_END(EVENT_TYPES::onAte);
     origin(instance);
 }
-
-// LL_TYPE_INSTANCE_HOOK(
-//     EatHook2,
-//     HookPriority::Normal,
-//     ItemStack,
-//     &ItemStack::useTimeDepleted,
-//     ::ItemUseMethod,
-//     Level*  level,
-//     Player* player
-//) {
-//     IF_LISTENED(EVENT_TYPES::onAte) {
-//         if (isPotionItem() || getTypeName() == "minecraft:milk_bucket") {
-//             if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(this))) {
-//                 return ItemUseMethod::Unknown;
-//             }
-//         }
-//     }
-//     IF_LISTENED_END(EVENT_TYPES::onAte);
-//     return origin(level, player);
-// }
+LL_TYPE_INSTANCE_HOOK(
+    EatHook2,
+    HookPriority::Normal,
+    PotionItem,
+    &PotionItem::$useTimeDepleted,
+    ::ItemUseMethod,
+    ::ItemStack& inoutInstance,
+    Level*       level,
+    Player*      player
+) {
+    IF_LISTENED(EVENT_TYPES::onAte) {
+        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
+            return ItemUseMethod::Unknown;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAte);
+    return origin(inoutInstance, level, player);
+}
+LL_TYPE_INSTANCE_HOOK(
+    EatHook3,
+    HookPriority::Normal,
+    Item,
+    (uintptr_t)BucketItem::$vftable()[79],
+    ::ItemUseMethod,
+    ::ItemStack& inoutInstance,
+    Level*       level,
+    Player*      player
+) {
+    IF_LISTENED(EVENT_TYPES::onAte) {
+        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
+            return ItemUseMethod::Unknown;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAte);
+    return origin(inoutInstance, level, player);
+}
 
 LL_TYPE_INSTANCE_HOOK(
     ChangeDimensionHook,
@@ -656,16 +674,15 @@ void CloseContainerEvent() {
     CloseContainerHook2::hook();
 }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() {
-    // AttackBlockHook::hook();
-}
+void AttackBlockEvent() { AttackBlockHook::hook(); }
 void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();
 }
 void EatEvent() {
     EatHook1::hook();
-    //    EatHook2::hook();
+    EatHook2::hook();
+    EatHook3::hook();
 }
 void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
 void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }

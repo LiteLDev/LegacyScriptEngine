@@ -223,7 +223,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onInventoryChange);
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
-
+//fixme: this hook is not working
 // LL_TYPE_INSTANCE_HOOK(
 //     AttackBlockHook,
 //     HookPriority::Normal,
@@ -306,7 +306,7 @@ LL_TYPE_INSTANCE_HOOK(EatHook1, HookPriority::Normal, Player, &Player::eat, void
     IF_LISTENED_END(EVENT_TYPES::onAte);
     origin(instance);
 }
-
+//fixme: this hook is not working
 // LL_TYPE_INSTANCE_HOOK(
 //     EatHook2,
 //     HookPriority::Normal,

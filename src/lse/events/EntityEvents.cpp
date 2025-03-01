@@ -182,7 +182,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onProjectileHitEntity);
     origin(owner, res);
 }
-
+//fixme: this hook is not working
 // LL_TYPE_INSTANCE_HOOK(
 //     ProjectileHitBlockHook,
 //     HookPriority::Normal,

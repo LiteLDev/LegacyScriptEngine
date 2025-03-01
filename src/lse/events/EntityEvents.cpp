@@ -8,6 +8,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
 #include "mc/common/Globals.h"
+#include "mc/deps/ecs/gamerefs_entity/EntityContext.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
 #include "mc/entity/components_json_legacy/ProjectileComponent.h"
@@ -280,7 +281,6 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(source, damage);
 }
 
-// TODO: fix this event, can't get correct vector via mUnke14f11
 LL_TYPE_INSTANCE_HOOK(
     NpcCommandHook,
     HookPriority::Normal,
@@ -294,9 +294,10 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
         auto& action =
-            mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>().at(
-                actionIndex
-            );
+            owner.getEntityContext()
+                .tryGetComponent<NpcComponent>()
+                ->mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>()
+                .at(actionIndex);
         if (std::holds_alternative<npc::CommandAction>(action)) {
             auto&       commands = std::get<npc::CommandAction>(action).commands;
             std::string command;

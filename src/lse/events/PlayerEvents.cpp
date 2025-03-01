@@ -7,9 +7,8 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/ActorUniqueID.h"
-#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
+#include "mc/network/ServerPlayerBlockUseHandler.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
@@ -17,15 +16,17 @@
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/FishingHook.h"
 #include "mc/world/actor/item/ItemActor.h"
+#include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/player/PlayerInventory.h"
 #include "mc/world/actor/player/PlayerItemInUse.h"
-#include "mc/world/containers/models/LevelContainerModel.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/gamemode/InteractionResult.h"
+#include "mc/world/inventory/network/ItemStackNetManagerBase.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
@@ -33,6 +34,7 @@
 #include "mc/world/item/BucketItem.h"
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
+#include "mc/world/item/PotionItem.h"
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChangeDimensionRequest.h"
@@ -51,30 +53,6 @@
 #include "mc/world/phys/HitResult.h"
 
 namespace lse::events::player {
-LL_TYPE_INSTANCE_HOOK(
-    StartDestroyHook,
-    HookPriority::Normal,
-    BlockEventCoordinator,
-    &BlockEventCoordinator::sendBlockDestructionStarted,
-    void,
-    ::Player&         player,
-    const ::BlockPos& blockPos,
-    const ::Block&    hitBlock,
-    uchar             face
-) {
-    IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
-        if (!CallEvent(
-                EVENT_TYPES::onStartDestroyBlock,
-                PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(hitBlock, blockPos, player.getDimensionId())
-            )) {
-            return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
-    origin(player, blockPos, hitBlock, face);
-}
-
 LL_TYPE_INSTANCE_HOOK(
     DropItemHook1,
     HookPriority::Normal,
@@ -118,7 +96,9 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onDropItem,
                         PlayerClass::newPlayer(&player),
-                        ItemClass::newItem(&const_cast<ItemStack&>(player.getInventory().getItem(actions[0].mSlot)))
+                        ItemClass::newItem(
+                            &const_cast<ItemStack&>(player.mInventory->mInventory->getItem(actions[0].mSlot))
+                        )
                     )) {
                     return InventoryTransactionError::NoError;
                 }
@@ -143,7 +123,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onOpenContainer,
                     PlayerClass::newPlayer(static_cast<Player*>(actor)),
-                    BlockClass::newBlock(playerOpenContainerEvent.mUnkb08e33.as<BlockPos>(), actor->getDimensionId())
+                    BlockClass::newBlock(playerOpenContainerEvent.mBlockPos, actor->getDimensionId())
                 )) {
                 return EventResult::StopProcessing;
             }
@@ -165,7 +145,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(getPosition(), player.getDimensionId())
+                BlockClass::newBlock(mPosition, player.getDimensionId())
             )) {
             return;
         }
@@ -186,7 +166,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onCloseContainer,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(getPosition(), player.getDimensionId())
+                BlockClass::newBlock(mPosition, player.getDimensionId())
             )) {
             return;
         }
@@ -222,28 +202,42 @@ LL_TYPE_INSTANCE_HOOK(
     origin(container, slot, oldItem, newItem, forceBalanced);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    AttackBlockHook,
+LL_STATIC_HOOK(
+    StartDestroyBlockHook,
     HookPriority::Normal,
-    Block,
-    &Block::attack,
-    bool,
-    Player*         player,
-    BlockPos const& pos
+    &ServerPlayerBlockUseHandler::onStartDestroyBlock,
+    void,
+    ServerPlayer&   player,
+    const BlockPos& pos,
+    int             face
 ) {
+    bool isCancelled = false;
     IF_LISTENED(EVENT_TYPES::onAttackBlock) {
-        ItemStack const& item = player->getSelectedItem();
+        ItemStack const& item = player.getSelectedItem();
         if (!CallEvent(
                 EVENT_TYPES::onAttackBlock,
-                PlayerClass::newPlayer(player),
-                BlockClass::newBlock(pos, player->getDimensionId()),
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId()),
                 !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
             )) {
-            return false;
+            isCancelled = true;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onAttackBlock);
-    return origin(player, pos);
+    IF_LISTENED(EVENT_TYPES::onStartDestroyBlock) {
+        if (!CallEvent(
+                EVENT_TYPES::onStartDestroyBlock,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId())
+            )) {
+            isCancelled = true;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onStartDestroyBlock)
+    if (isCancelled) {
+        return;
+    }
+    return origin(player, pos, face);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -304,25 +298,41 @@ LL_TYPE_INSTANCE_HOOK(EatHook1, HookPriority::Normal, Player, &Player::eat, void
     IF_LISTENED_END(EVENT_TYPES::onAte);
     origin(instance);
 }
-
 LL_TYPE_INSTANCE_HOOK(
     EatHook2,
     HookPriority::Normal,
-    ItemStack,
-    &ItemStack::useTimeDepleted,
+    PotionItem,
+    &PotionItem::$useTimeDepleted,
     ::ItemUseMethod,
-    Level*  level,
-    Player* player
+    ::ItemStack& inoutInstance,
+    Level*       level,
+    Player*      player
 ) {
     IF_LISTENED(EVENT_TYPES::onAte) {
-        if (isPotionItem() || getTypeName() == "minecraft:milk_bucket") {
-            if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(this))) {
-                return ItemUseMethod::Unknown;
-            }
+        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
+            return ItemUseMethod::Unknown;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);
-    return origin(level, player);
+    return origin(inoutInstance, level, player);
+}
+LL_TYPE_INSTANCE_HOOK(
+    EatHook3,
+    HookPriority::Normal,
+    Item,
+    (uintptr_t)BucketItem::$vftable()[79],
+    ::ItemUseMethod,
+    ::ItemStack& inoutInstance,
+    Level*       level,
+    Player*      player
+) {
+    IF_LISTENED(EVENT_TYPES::onAte) {
+        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
+            return ItemUseMethod::Unknown;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onAte);
+    return origin(inoutInstance, level, player);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -347,14 +357,21 @@ LL_TYPE_INSTANCE_HOOK(
     origin(player, std::move(changeRequest));
 }
 
-LL_TYPE_INSTANCE_HOOK(OpenContainerScreenHook, HookPriority::Normal, Player, &Player::canOpenContainerScreen, bool) {
+LL_TYPE_INSTANCE_HOOK(
+    OpenContainerScreenHook,
+    HookPriority::Normal,
+    ItemStackNetManagerBase,
+    &ItemStackNetManagerBase::$onContainerScreenOpen,
+    void,
+    ContainerScreenContext const& screenContext
+) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(this))) {
-            return false;
+        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(&mUnkecd0f2.as<Player&>()))) {
+            return;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onOpenContainerScreen);
-    return origin();
+    return origin(screenContext);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -559,8 +576,8 @@ LL_TYPE_INSTANCE_HOOK(
     ServerPlayer,
     &ServerPlayer::$setArmor,
     void,
-    ArmorSlot        armorSlot,
-    ItemStack const& item
+    SharedTypes::Legacy::ArmorSlot const armorSlot,
+    ItemStack const&                     item
 ) {
     IF_LISTENED(EVENT_TYPES::onSetArmor) {
         if (!CallEvent(
@@ -611,9 +628,9 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onEffectAdded,
                 PlayerClass::newPlayer(this),
-                String::newString(effect.getComponentName().getString()),
-                Number::newNumber(effect.getAmplifier()),
-                Number::newNumber(effect.getDuration().getValueForSerialization())
+                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                Number::newNumber(effect.mAmplifier),
+                Number::newNumber(effect.mDuration->mValue)
             )) {
             return;
         }
@@ -634,7 +651,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (!CallEvent(
                 EVENT_TYPES::onEffectRemoved,
                 PlayerClass::newPlayer(this),
-                String::newString(effect.getComponentName().getString())
+                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString())
             )) {
             return;
         }
@@ -643,7 +660,7 @@ LL_TYPE_INSTANCE_HOOK(
     origin(effect);
 }
 
-void StartDestroyBlock() { StartDestroyHook::hook(); }
+void StartDestroyBlock() { StartDestroyBlockHook::hook(); }
 void DropItem() {
     DropItemHook1::hook();
     DropItemHook2::hook();
@@ -654,7 +671,7 @@ void CloseContainerEvent() {
     CloseContainerHook2::hook();
 }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() { AttackBlockHook::hook(); }
+void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
 void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();
@@ -662,6 +679,7 @@ void UseFrameEvent() {
 void EatEvent() {
     EatHook1::hook();
     EatHook2::hook();
+    EatHook3::hook();
 }
 void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
 void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }

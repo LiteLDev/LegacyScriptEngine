@@ -5,7 +5,6 @@
 #include "mc/nbt/ByteArrayTag.h"
 #include "mc/nbt/ByteTag.h"
 #include "mc/nbt/CompoundTag.h"
-#include "mc/nbt/CompoundTagVariant.h"
 #include "mc/nbt/DoubleTag.h"
 #include "mc/nbt/EndTag.h"
 #include "mc/nbt/FloatTag.h"
@@ -19,7 +18,6 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include <vector>
 
 using magic_enum::enum_cast;
 

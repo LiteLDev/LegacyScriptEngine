@@ -2,7 +2,8 @@
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/ActorUniqueID.h"
+#include "mc/legacy/ActorRuntimeID.h"
+#include "mc/legacy/ActorUniqueID.h"
 #include "mc/world/scores/IdentityDefinition.h"
 #include "mc/world/scores/Objective.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
@@ -21,17 +22,16 @@ LL_TYPE_INSTANCE_HOOK(
     Objective const&    obj
 ) {
     IF_LISTENED(EVENT_TYPES::onScoreChanged) {
-        if (id.getIdentityDef().isPlayerType()) {
+        auto& idRef = id.mIdentityDef;
+        if (idRef && idRef->mIdentityType == IdentityDefinition::Type::Player) {
             if (!CallEvent(
                     EVENT_TYPES::onScoreChanged,
                     PlayerClass::newPlayer(
-                        ll::service::getLevel()->getPlayer(
-                            ActorUniqueID(id.getIdentityDef().getPlayerId().mActorUniqueId)
-                        )
+                        ll::service::getLevel()->getPlayer(ActorUniqueID(idRef->mPlayerId->mActorUniqueId))
                     ),
                     Number::newNumber(obj.getPlayerScore(id).mValue),
-                    String::newString(obj.getName()),
-                    String::newString(obj.getDisplayName())
+                    String::newString(obj.mName),
+                    String::newString(obj.mDisplayName)
                 )) {
                 return;
             }

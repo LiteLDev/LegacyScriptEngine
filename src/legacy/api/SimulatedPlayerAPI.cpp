@@ -1,7 +1,6 @@
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
-#include "api/DeviceAPI.h"
 #include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
 #include "api/McAPI.h"
@@ -9,7 +8,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/utils/RandomUtils.h"
+#include "lse/api/helper/SimulatedPlayerHelper.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/scripting/modules/gametest/ScriptNavigationResult.h"
@@ -17,15 +16,13 @@
 #include "mc/server/sim/LookDuration.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
-#include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/Actor.h"
-#include "mc/world/actor/player/Player.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/block/Block.h"
-#include "mc/world/scores/Objective.h"
 
 #include <string>
 #include <vector>
+
+using lse::api::SimulatedPlayerHelper;
 
 Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -34,19 +31,20 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     try {
         std::string name = args[0].asString().toString();
         if (args.size() == 1) {
-            if (auto sp = SimulatedPlayer::create(name)) return PlayerClass::newPlayer(sp);
+            if (auto sp = SimulatedPlayer::create(name, ll::service::getLevel()->getSharedSpawnPos()))
+                return PlayerClass::newPlayer(sp);
             else return Local<Value>();
         }
-        auto dimid = 0;
-        Vec3 bpos;
+        auto dimId = 0;
+        Vec3 spawnPos;
         if (IsInstanceOf<IntPos>(args[1])) {
             auto pos = IntPos::extractPos(args[1]);
-            bpos     = pos->getBlockPos().bottomCenter();
-            dimid    = pos->getDimensionId();
+            spawnPos = pos->getBlockPos().bottomCenter();
+            dimId    = pos->getDimensionId();
         } else if (IsInstanceOf<FloatPos>(args[1])) {
             auto pos = FloatPos::extractPos(args[1]);
-            bpos     = pos->getVec3();
-            dimid    = pos->getDimensionId();
+            spawnPos = pos->getVec3();
+            dimId    = pos->getDimensionId();
         } else {
             CHECK_ARGS_COUNT(args, 4);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -54,12 +52,13 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
             if (args.size() > 4) {
                 CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
-                dimid = args[4].asNumber().toInt32();
+                dimId = args[4].asNumber().toInt32();
             }
-            bpos = BlockPos(args[1].asNumber().toInt32(), args[2].asNumber().toInt32(), args[3].asNumber().toInt32())
-                       .bottomCenter();
+            spawnPos =
+                BlockPos(args[1].asNumber().toInt32(), args[2].asNumber().toInt32(), args[3].asNumber().toInt32())
+                    .bottomCenter();
         }
-        if (auto sp = SimulatedPlayer::create(name, bpos, dimid)) return PlayerClass::newPlayer(sp);
+        if (auto sp = SimulatedPlayer::create(name, spawnPos, dimId)) return PlayerClass::newPlayer(sp);
         else return Local<Value>();
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -82,8 +81,6 @@ Local<Value> PlayerClass::simulateSneak(const Arguments&) {
     CATCH("Fail in " __FUNCTION__ "!")
 }
 
-// bool simulateAttack(class Actor*);
-// bool simulateAttack();
 Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
@@ -92,8 +89,8 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateAttack());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!actor) return Local<Value>();
-            return Boolean::newBoolean(sp->simulateAttack(actor));
+            sp->_trySwing();
+            return Boolean::newBoolean(sp->attack(*actor, SharedTypes::Legacy::ActorDamageCause::EntityAttack));
         }
 
         LOG_WRONG_ARG_TYPE(__FUNCTION__);
@@ -102,8 +99,6 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// bool simulateDestroy(); // LIAPI
-// bool simulateDestroyBlock(class BlockPos const&, enum ScriptFacing);
 Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
@@ -150,26 +145,24 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
             face = (ScriptModuleMinecraft::ScriptFacing)args[index].asNumber().toInt32();
         }
-        // TODO
+
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// void simulateDisconnect();
 Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        sp->simulateDisconnect();
+        sp->disconnect();
+        sp->remove();
+        sp->setGameTestHelper(nullptr);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// bool simulateInteract(class Actor&);
-// bool simulateInteract(class BlockPos const&, enum ScriptFacing);
-// bool simulateInteract();
 Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
@@ -177,8 +170,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateInteract());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!actor) return Local<Value>();
-            return Boolean::newBoolean(sp->simulateInteract(*actor));
+            return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()));
         }
 
         int                                 dimid = sp->getDimensionId();
@@ -216,13 +208,12 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        // TODO
+
         return Boolean::newBoolean(sp->simulateInteract(bpos, face));
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// bool simulateJump();
 Local<Value> PlayerClass::simulateJump(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
@@ -232,13 +223,13 @@ Local<Value> PlayerClass::simulateJump(const Arguments&) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// bool simulateRespawn();
 Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        if (sp->simulateRespawn()) {
-            get()->teleport(sp->getSpawnPosition().bottomCenter(), sp->getSpawnDimension());
+        if (SimulatedPlayerHelper::simulateRespawn(*sp)) {
+            auto& spawnPoint = sp->mPlayerRespawnPoint;
+            get()->teleport(spawnPoint->mPlayerPosition->bottomCenter(), spawnPoint->mDimension);
             return Boolean::newBoolean(true);
         } else {
             return Boolean::newBoolean(false);
@@ -247,7 +238,6 @@ Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// void simulateLocalMove(class Vec3 const&, float);
 Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
@@ -291,7 +281,6 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 }
 
-// void simulateWorldMove(class Vec3 const&, float);
 Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
@@ -335,7 +324,6 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// void simulateMoveToLocation(class Vec3 const&, float);
 Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
@@ -379,15 +367,11 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// void simulateLookAt(class Actor&);
-// void simulateLookAt(class BlockPos const&);
-// void simulateLookAt(class Vec3 const&);
 Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        Vec3 target;
         int  dimid        = sp->getDimensionId();
         int  lookDuration = 2; // 0 = Instant, 1 = Continuous, 2 = UntilMove
         if (args.size() > 1) {
@@ -400,7 +384,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = IntPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
+                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -411,7 +395,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = FloatPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)lookDuration);
+                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getVec3(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -423,7 +407,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos   = IntPos::extractPos(block->getPos());
             auto did   = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
+                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -431,8 +415,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             );
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!actor) return Local<Value>();
-            sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
+            SimulatedPlayerHelper::simulateLookAt(*sp, *actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
         LOG_WRONG_ARG_TYPE(__FUNCTION__);
@@ -510,7 +493,6 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             sp->simulateNavigateToLocations(std::move(path), speed);
             return Boolean::newBoolean(true);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            if (!actor) return Local<Value>();
             auto res = sp->simulateNavigateToEntity(*actor, speed);
             return NavigateResultToObject(res);
         } else if (IsInstanceOf<IntPos>(args[0]) || IsInstanceOf<FloatPos>(args[0])) {
@@ -566,7 +548,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
             return Local<Value>();
         }
         if (args.size() == 1) {
-            if (item) return Boolean::newBoolean(sp->simulateUseItem(*item));
+            if (item) return Boolean::newBoolean(SimulatedPlayerHelper::simulateUseItem(*sp, *item));
             else return Boolean::newBoolean(sp->simulateUseItemInSlot(slot));
         }
 
@@ -592,15 +574,14 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
             }
         }
         if (item) return Boolean::newBoolean(sp->simulateUseItemOnBlock(*item, bpos, face, relativePos));
-        else return Boolean::newBoolean(sp->simulateUseItemInSlotOnBlock(slot, bpos, face, relativePos));
+        else
+            return Boolean::newBoolean(
+                SimulatedPlayerHelper::simulateUseItemInSlotOnBlock(*sp, slot, bpos, face, relativePos)
+            );
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
 
-// void simulateStopDestroyingBlock();
-// void simulateStopInteracting();
-// void simulateStopMoving();
-// void simulateStopUsingItem();
 Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
@@ -615,7 +596,7 @@ Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        sp->simulateStopInteracting();
+        sp->deleteContainerManager();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -625,7 +606,7 @@ Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        sp->simulateStopMoving();
+        SimulatedPlayerHelper::simulateStopMoving(*sp);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -635,7 +616,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        sp->simulateStopUsingItem();
+        SimulatedPlayerHelper::simulateStopUsingItem(*sp);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")

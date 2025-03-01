@@ -1,19 +1,19 @@
 add_rules("mode.debug", "mode.release")
 
-add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
+add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 1.0.1", {configs = {target_type = "server"}})
+    add_requires("levilamina 1.1.0", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 1.0.1", {configs = {target_type = "client"}})
+    add_requires("levilamina 1.1.0", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
 
 add_requires(
-    "legacymoney 0.9.0-rc.1",
-    "legacyparticleapi 0.9.0-rc.1",
-    "legacyremotecall 0.9.0-rc.1",
+    "legacymoney 0.10.0",
+    "legacyparticleapi 0.10.0",
+    "legacyremotecall 0.10.0",
     "lightwebsocketclient 1.0.1",
     "magic_enum v0.9.7",
     "nlohmann_json v3.11.3",
@@ -23,14 +23,17 @@ add_requires(
 )
 
 if is_config("backend", "lua") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
+    add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
     add_requires("scriptx main", {configs={backend="Python"}})
 
@@ -39,7 +42,8 @@ elseif is_config("backend", "nodejs") then
 
 end
 
-add_requires("cpp-httplib 0.14.3", {configs = {ssl = true, zlib = true}})
+add_requires("openssl3 3.3.2")
+add_requires("cpp-httplib 0.18.7", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")

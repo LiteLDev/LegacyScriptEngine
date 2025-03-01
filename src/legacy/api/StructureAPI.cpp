@@ -42,7 +42,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
 
         auto structure = StructureTemplate::create(
             "",
-            ll::service::getLevel()->getDimension(pos1->getDimensionId())->getBlockSourceFromMainChunkSource(),
+            ll::service::getLevel()->getDimension(pos1->getDimensionId()).lock()->getBlockSourceFromMainChunkSource(),
             BoundingBox(pos1->getBlockPos(), pos2->getBlockPos()),
             ignoreBlocks,
             ignoreEntities
@@ -87,7 +87,7 @@ Local<Value> McClass::setStructure(const Arguments& args) {
         IntPos* pos       = IntPos::extractPos(args[1]);
         auto    structure = StructureTemplate::create("", *nbt);
         structure->placeInWorld(
-            ll::service::getLevel()->getDimension(pos->getDimensionId())->getBlockSourceFromMainChunkSource(),
+            ll::service::getLevel()->getDimension(pos->getDimensionId()).lock()->getBlockSourceFromMainChunkSource(),
             pos->getBlockPos() + BlockPos(0, 1, 0),
             mirror,
             rotation

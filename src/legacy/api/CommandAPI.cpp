@@ -93,7 +93,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return String::newString(std::get<RuntimeSoftEnum>(result.value()));
     } else if (result.hold(ParamKind::Kind::BlockName)) {
         return BlockClass::newBlock(
-            *std::get<CommandBlockName>(result.value()).resolveBlock(0).getBlock(),
+            *std::get<CommandBlockName>(result.value()).resolveBlock(0).mBlock,
             BlockPos::MIN(),
             -1
         );
@@ -139,15 +139,17 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
                 .mMessage->c_str()
         );
     } else if (result.hold(ParamKind::Kind::RawText)) {
-        return String::newString(std::get<CommandRawText>(result.value()).getText());
+        return String::newString(std::get<CommandRawText>(result.value()).mText);
     } else if (result.hold(ParamKind::Kind::JsonValue)) {
         return String::newString(JsonHelpers::serialize(std::get<Json::Value>(result.value())));
     } else if (result.hold(ParamKind::Kind::Effect)) {
-        return String::newString(std::get<MobEffect const*>(result.value())->getResourceName());
+        return String::newString(std::get<MobEffect const*>(result.value())->mResourceName);
     } else if (result.hold(ParamKind::Kind::Command)) {
         return String::newString(std::get<std::unique_ptr<::Command>>(result.value())->getCommandName());
     } else if (result.hold(ParamKind::Kind::ActorType)) {
-        return String::newString(std::get<ActorDefinitionIdentifier const*>(result.value())->getCanonicalName());
+        return String::newString(
+            std::get<ActorDefinitionIdentifier const*>(result.value())->mCanonicalName->getString()
+        );
     } else if (result.hold(ParamKind::Kind::Bool)) {
         return Boolean::newBoolean(std::get<bool>(result.value()));
     } else if (result.hold(ParamKind::Kind::Int)) {
@@ -188,7 +190,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
         CommandVersion::CurrentVersion()
     );
     try {
-        return Boolean::newBoolean(ll::service::getMinecraft()->getCommands().executeCommand(context, false).mSuccess);
+        return Boolean::newBoolean(ll::service::getMinecraft()->mCommands->executeCommand(context, false).mSuccess);
     }
     CATCH("Fail in RunCmd!")
 }
@@ -200,7 +202,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         std::string outputStr;
         auto        origin =
             ServerCommandOrigin("Server", ll::service::getLevel()->asServer(), CommandPermissionLevel::Owner, 0);
-        auto command = ll::service::getMinecraft()->getCommands().compileCommand(
+        auto command = ll::service::getMinecraft()->mCommands->compileCommand(
             args[0].asString().toString(),
             origin,
             (CurrentCmdVersion)CommandVersion::CurrentVersion(),
@@ -211,14 +213,14 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
             static std::shared_ptr<Localization> localization =
-                getI18n().getLocaleFor(getI18n().getCurrentLanguage()->getFullLanguageCode());
-            for (auto& msg : output.getMessages()) {
-                outputStr += getI18n().get(msg.getMessageId(), msg.getParams(), localization).append("\n");
+                getI18n().getLocaleFor(getI18n().getCurrentLanguage()->mCode);
+            for (auto& msg : output.mMessages) {
+                outputStr += getI18n().get(msg.mMessageId, msg.mParams, localization).append("\n");
             }
             if (outputStr.ends_with('\n')) {
                 outputStr.pop_back();
             }
-            resObj.set("success", output.getSuccessCount() ? true : false);
+            resObj.set("success", output.mSuccessCount ? true : false);
             resObj.set("output", outputStr);
             return resObj;
         }

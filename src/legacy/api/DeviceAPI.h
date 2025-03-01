@@ -1,6 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/common/ActorRuntimeID.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 
 //////////////////// Classes ////////////////////
@@ -11,11 +11,8 @@ private:
     bool                   mValid;
 
 public:
-    explicit DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
-        setPlayer(player);
-    }
+    explicit DeviceClass(Player* player);
 
-    void    setPlayer(Player* player);
     Player* getPlayer();
 
     static Local<Object> newDevice(Player* player);

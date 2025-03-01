@@ -29,23 +29,20 @@ Local<Object> CommandOutputClass::newCommandOutput(CommandOutput* p) {
     return newp->getScriptObject();
 }
 
-// MCAPI bool empty() const;
 Local<Value> CommandOutputClass::empty() {
     try {
-        return Boolean::newBoolean(get()->hasErrorMessage());
+        return Boolean::newBoolean(get()->mMessages.empty());
     }
     CATCH("Fail in empty!");
 }
 
-// MCAPI int getSuccessCount() const;
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
-        return Number::newNumber(get()->getSuccessCount());
+        return Number::newNumber(get()->mSuccessCount);
     }
     CATCH("Fail in getSuccessCount!");
 };
 
-// MCAPI enum CommandOutputType getType() const;
 // Local<Value> CommandOutputClass::getType()
 //{
 //     try
@@ -55,12 +52,10 @@ Local<Value> CommandOutputClass::getSuccessCount() {
 //     CATCH("Fail in getType!");
 // };
 
-// MCAPI void success(std::string const&, std::vector<class
-// CommandOutputParameter> const&); MCAPI void success();
 Local<Value> CommandOutputClass::success(const Arguments& args) {
     try {
         if (args.size() == 0) {
-            get()->success();
+            ++get()->mSuccessCount;
             return Boolean::newBoolean(true);
         }
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -70,7 +65,7 @@ Local<Value> CommandOutputClass::success(const Arguments& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString()));
+                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
             get()->success(msg, param);
             return Boolean::newBoolean(true);
@@ -90,7 +85,7 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString()));
+                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
             if (args.size() >= 3) {
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
@@ -106,8 +101,6 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
     CATCH("Fail in addMessage!");
 };
 
-// MCAPI void error(std::string const&, std::vector<class
-// CommandOutputParameter> const&);
 Local<Value> CommandOutputClass::error(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -118,7 +111,7 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString()));
+                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
             get()->error(msg, param);
             return Boolean::newBoolean(true);

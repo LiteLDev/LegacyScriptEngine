@@ -4,9 +4,9 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"
-#include "mc/common/ActorRuntimeID.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/world/actor/player/Player.h"
@@ -34,23 +34,21 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 //////////////////// Classes ////////////////////
 
 // 生成函数
+DeviceClass::DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+            mValid      = true;
+        }
+    } catch (...) {}
+}
+
 Local<Object> DeviceClass::newDevice(Player* player) {
     auto newp = new DeviceClass(player);
     return newp->getScriptObject();
 }
 
 // 成员函数
-void DeviceClass::setPlayer(Player* player) {
-    try {
-        if (player) {
-            mWeakEntity = player->getWeakEntity();
-            mValid      = true;
-        }
-    } catch (...) {
-        mValid = false;
-    }
-}
-
 Player* DeviceClass::getPlayer() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();
@@ -114,7 +112,7 @@ Local<Value> DeviceClass::getOs() {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
 
-        return String::newString(magic_enum::enum_name(player->getPlatform()));
+        return String::newString(magic_enum::enum_name(player->mBuildPlatform));
     }
     CATCH("Fail in getOs!")
 }

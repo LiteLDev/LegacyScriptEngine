@@ -26,19 +26,25 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
+#include "lse/api/helper/AttributeHelper.h"
+#include "lse/api/helper/PlayerHelper.h"
+#include "lse/api/helper/ScoreboardHelper.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
 #include "mc/certificates/WebToken.h"
-#include "mc/common/ActorUniqueID.h"
 #include "mc/deps/core/math/Vec2.h"
-#include "mc/deps/core/string/HashedString.h"
 #include "mc/deps/core/utility/MCRESULT.h"
+#include "mc/entity/components/ActorRotationComponent.h"
+#include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
+#include "mc/entity/components/TagsComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
+#include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/nbt/ListTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
+#include "mc/network/MinecraftPackets.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
@@ -55,27 +61,34 @@
 #include "mc/network/packet/UpdateAbilitiesPacket.h"
 #include "mc/network/packet/UpdateAdventureSettingsPacket.h"
 #include "mc/platform/UUID.h"
+#include "mc/server/NetworkChunkPublisher.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandContext.h"
 #include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
+#include "mc/util/BlockUtils.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/SynchedActorData.h"
+#include "mc/world/actor/BuiltInActorComponents.h"
 #include "mc/world/actor/SynchedActorDataEntityWrapper.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
+#include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/LayeredAbilities.h"
+#include "mc/world/actor/player/PermissionsHandler.h"
 #include "mc/world/actor/player/Player.h"
+#include "mc/world/actor/player/PlayerInventory.h"
+#include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/AttributeModificationContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -84,6 +97,8 @@
 #include "mc/world/level/ChunkPos.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/CachedComponentData.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
@@ -91,6 +106,7 @@
 #include "mc/world/phys/HitResult.h"
 #include "mc/world/scores/IdentityDefinition.h"
 #include "mc/world/scores/Objective.h"
+#include "mc/world/scores/ObjectiveCriteria.h"
 #include "mc/world/scores/PlayerScoreSetFunction.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
@@ -104,6 +120,8 @@
 #include <string>
 #include <vector>
 
+using lse::api::AttributeHelper;
+using lse::api::ScoreboardHelper;
 using lse::form::FormCancelReason;
 
 //////////////////// Class Definition ////////////////////
@@ -320,7 +338,14 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
 //////////////////// Classes ////////////////////
 
 // 生成函数
-PlayerClass::PlayerClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) { set(player); }
+PlayerClass::PlayerClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) {
+    try {
+        if (player) {
+            mWeakEntity = player->getWeakEntity();
+            mValid      = true;
+        }
+    } catch (...) {}
+}
 
 Local<Object> PlayerClass::newPlayer(Player* player) {
     auto newp = new PlayerClass(player);
@@ -475,8 +500,8 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
             return Number::newNumber(0);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid() || !objective->hasScore(sid)) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
             return Number::newNumber(0);
         }
         return Number::newNumber(objective->getPlayerScore(sid).mValue);
@@ -510,8 +535,8 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -548,8 +573,8 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -586,8 +611,8 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         bool isSuccess = false;
@@ -628,8 +653,8 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = scoreboard.getScoreboardId(PlayerScoreboardId(uniqueId));
-        if (!sid.isValid()) {
+        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
         scoreboard.resetPlayerScore(sid, *objective);
@@ -664,7 +689,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
                 found = &player;
                 return false;
             }
-            std::string pName = player.getName();
+            std::string pName = player.mName;
             transform(pName.begin(), pName.end(), pName.begin(), ::tolower);
 
             if (pName.find(target) == 0) {
@@ -722,17 +747,6 @@ Local<Value> McClass::broadcast(const Arguments& args) {
 }
 
 // 成员函数
-void PlayerClass::set(Player* player) {
-    try {
-        if (player) {
-            mWeakEntity = player->getWeakEntity();
-            mValid      = true;
-        }
-    } catch (...) {
-        mValid = false;
-    }
-}
-
 Player* PlayerClass::get() {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();
@@ -746,7 +760,7 @@ Local<Value> PlayerClass::getName() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return String::newString(player->getName());
+        return String::newString(player->mName);
     }
     CATCH("Fail in getPlayerName!")
 }
@@ -898,7 +912,11 @@ Local<Value> PlayerClass::getCanBeSeenOnMap() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->canBeSeenOnMap());
+        if (!player->isAlive() || player->isSpectator()) {
+            return Boolean::newBoolean(false);
+        }
+        ItemStack const& item = player->getItemSlot(SharedTypes::Legacy::EquipmentSlot::Legs);
+        return Boolean::newBoolean(item.isHumanoidWearableBlockItem());
     }
     CATCH("Fail in getCanBeSeenOnMap!")
 }
@@ -958,7 +976,7 @@ Local<Value> PlayerClass::getCanPickupItems() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->getCanPickupItems());
+        return Boolean::newBoolean(player->mCanPickupItems);
     }
     CATCH("Fail in getCanPickupItems!")
 }
@@ -968,7 +986,9 @@ Local<Value> PlayerClass::isSneaking() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->isSneaking());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Sneaking)
+        );
     }
     CATCH("Fail in isSneaking!")
 }
@@ -988,8 +1008,9 @@ Local<Value> PlayerClass::getDirection() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        Vec2 rot = player->getRotation();
-        return DirectionAngle::newAngle(rot.x, rot.y);
+        // getRotation()
+        Vec2 vec = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH("Fail in getDirection!")
 }
@@ -1009,7 +1030,7 @@ Local<Value> PlayerClass::getHealth() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(player->getHealth());
+        return Number::newNumber(ActorAttribute::getHealth(player->getEntityContext()));
     }
     CATCH("Fail in GetHealth!")
 }
@@ -1071,7 +1092,11 @@ Local<Value> PlayerClass::getInWall() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->isInWall());
+        // The original Actor::isInWall() was moved to MobSuffocationSystemImpl::isInWall() in 1.21.60.10, but the later
+        // needs too many parameters.
+        return Boolean::newBoolean(player->getDimensionBlockSource().isInWall(
+            player->getAttachPos(SharedTypes::Legacy::ActorLocation::BreathingPoint)
+        ));
     }
     CATCH("Fail in getInWall!")
 }
@@ -1128,9 +1153,7 @@ Local<Value> PlayerClass::getRuntimeID() {
 
 Local<Value> PlayerClass::getLangCode() {
     try {
-        Json::Value& requestJson = ll::service::getServerNetworkHandler()
-                                       ->fetchConnectionRequest(get()->getNetworkIdentifier())
-                                       .mRawToken->mDataInfo;
+        Json::Value& requestJson = get()->getConnectionRequest()->mRawToken->mDataInfo;
 
         return String::newString(requestJson.get("LanguageCode", "unknown").asString("unknown"));
     }
@@ -1168,7 +1191,14 @@ Local<Value> PlayerClass::isInsidePortal() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isInsidePortal());
+        auto component = player->getEntityContext().tryGetComponent<InsideBlockComponent>();
+        if (component) {
+            auto& fullName = component->mInsideBlock->getLegacyBlock().mNameInfo->mFullName;
+            return Boolean::newBoolean(
+                *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in isInsidePortal!")
 }
@@ -1180,7 +1210,11 @@ Local<Value> PlayerClass::isHurt() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isHurt());
+        int health = ActorAttribute::getHealth(player->getEntityContext());
+        if (health > 0 && health < player->getMaxHealth()) {
+            return Boolean::newBoolean(true);
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in isHurt!")
 }
@@ -1192,7 +1226,9 @@ Local<Value> PlayerClass::isTrusting() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isTrusting());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Trusting)
+        );
     }
     CATCH("Fail in isTrusting!")
 }
@@ -1216,7 +1252,8 @@ Local<Value> PlayerClass::isHungry() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isHungry());
+        auto attribute = player->getAttribute(Player::HUNGER());
+        return Boolean::newBoolean(attribute.mCurrentMaxValue > attribute.mCurrentValue);
     }
     CATCH("Fail in isHungry!")
 }
@@ -1288,7 +1325,7 @@ Local<Value> PlayerClass::isGliding() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isGliding());
+        return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Gliding));
     }
     CATCH("Fail in isGliding!")
 }
@@ -1384,7 +1421,9 @@ Local<Value> PlayerClass::isMoving() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isMoving());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
+        );
     }
     CATCH("Fail in isMoving!")
 }
@@ -1449,7 +1488,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         if (!rotationIsValid) {
-            angle = player->getRotation();
+            angle = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         }
         player->teleport(pos.getVec3(), pos.dim, angle);
         return Boolean::newBoolean(true);
@@ -1494,7 +1533,7 @@ Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
                 "Set Permission Level",
                 fmt::format("Set Player {} Permission Level as {}.", player->getRealName(), newPerm)
             );
-            player->setPermissions((CommandPermissionLevel)newPerm);
+            player->getAbilities().mPermissions->mCommandPermissions = (CommandPermissionLevel)newPerm;
             if (newPerm >= 1) {
                 player->getAbilities().setPlayerPermissions(PlayerPermissionLevel::Operator);
             } else {
@@ -1540,7 +1579,7 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
             std::make_unique<PlayerCommandOrigin>(*get()),
             CommandVersion::CurrentVersion()
         );
-        ll::service::getMinecraft()->getCommands().executeCommand(context, false);
+        ll::service::getMinecraft()->mCommands->executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in runcmd!");
@@ -1633,13 +1672,8 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket::createChat(
-            player->getRealName(),
-            args[0].asString().toString(),
-            {},
-            player->getXuid(),
-            player->getPlatformOnlineId()
-        );
+        TextPacket pkt =
+            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), {}, player->getXuid(), {});
         if (ll::service::getLevel().has_value()) {
             IF_LISTENED(EVENT_TYPES::onChat) {
                 if (!CallEvent(
@@ -1673,13 +1707,8 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt = TextPacket::createWhisper(
-            player->getRealName(),
-            args[0].asString().toString(),
-            {},
-            player->getXuid(),
-            player->getPlatformOnlineId()
-        );
+        TextPacket pkt =
+            TextPacket::createWhisper(player->getRealName(), args[0].asString().toString(), {}, player->getXuid(), {});
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -1711,7 +1740,7 @@ Local<Value> PlayerClass::getInventory(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return ContainerClass::newContainer(&player->getInventory());
+        return ContainerClass::newContainer(player->mInventory->mInventory.get());
     }
     CATCH("Fail in getInventory!");
 }
@@ -1857,7 +1886,7 @@ Local<Value> PlayerClass::getLevel(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(player->getPlayerLevel());
+        return Number::newNumber(player->getAttribute(Player::LEVEL()).mCurrentValue);
     }
     CATCH("Fail in getLevel!")
 }
@@ -1870,7 +1899,7 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].asNumber().toInt32() - player->getPlayerLevel());
+        player->addLevels(args[0].asNumber().toInt32() - player->getAttribute(Player::LEVEL()).mCurrentValue);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setLevel!");
@@ -1925,29 +1954,30 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        float exp  = args[0].asNumber().toFloat();
-        auto  attr = player->getMutableAttribute(Player::EXPERIENCE());
-        if (!attr) {
+        float exp       = args[0].asNumber().toFloat();
+        auto  attribute = player->getMutableAttribute(Player::EXPERIENCE());
+        auto  instance  = attribute.mInstance;
+        if (!instance) {
             return Boolean::newBoolean(false);
         }
         int neededExp  = player->getXpNeededForNextLevel();
-        int currentExp = static_cast<int>(attr->getCurrentValue() * neededExp);
+        int currentExp = static_cast<int>(instance->mCurrentValue * neededExp);
         if (exp <= currentExp) {
-            attr->setCurrentValue(static_cast<float>(currentExp - exp) / neededExp);
+            AttributeHelper::setCurrentValue(attribute, static_cast<float>(currentExp - exp) / neededExp);
             return Boolean::newBoolean(true);
         }
-        attr->setCurrentValue(0);
+        AttributeHelper::setCurrentValue(attribute, 0.0f);
         size_t needExp = exp - currentExp;
-        int    level   = player->getPlayerLevel();
+        int    level   = player->getAttribute(Player::LEVEL()).mCurrentValue;
         while (level > 0) {
             player->addLevels(-1);
             int levelXp = player->getXpNeededForNextLevel();
             if (needExp < levelXp) {
-                attr->setCurrentValue(static_cast<float>(levelXp - needExp) / player->getXpNeededForNextLevel());
+                AttributeHelper::setCurrentValue(attribute, static_cast<float>(levelXp - needExp) / levelXp);
                 return Boolean::newBoolean(true);
             }
             needExp -= levelXp;
-            level    = player->getPlayerLevel();
+            level    = player->getAttribute(Player::LEVEL()).mCurrentValue;
         }
         return Boolean::newBoolean(false);
     }
@@ -1960,7 +1990,8 @@ Local<Value> PlayerClass::getCurrentExperience(const Arguments&) {
         if (!player) {
             return Local<Value>();
         }
-        return Number::newNumber(player->getXpEarnedAtCurrentLevel());
+
+        return Number::newNumber((long long)PlayerHelper::getXpEarnedAtCurrentLevel(player));
     }
     CATCH("Fail in getCurrentExperience!")
 }
@@ -1975,8 +2006,8 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        AttributeInstance* attr = player->getMutableAttribute(Player::EXPERIENCE());
-        attr->setCurrentValue(args[0].asNumber().toFloat()); // Not sure about that
+        auto attribute = player->getMutableAttribute(Player::EXPERIENCE());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setCurrentExperience!");
@@ -1988,9 +2019,23 @@ Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
         if (!player) {
             return Local<Value>();
         }
-        return Number::newNumber(
-            (int32_t)player->getXpNeededForLevelRange(0, player->getPlayerLevel()) + player->getXpEarnedAtCurrentLevel()
-        );
+
+        int          startLevel = 0;
+        int          endLevel   = player->getAttribute(Player::LEVEL()).mCurrentValue;
+        unsigned int totalXp    = 0;
+
+        for (int level = startLevel; level < endLevel; ++level) {
+            int xpForLevel;
+            if (level / 15 == 1) {
+                xpForLevel = level * 4 - 38;
+            } else if (level / 15 > 1) {
+                xpForLevel = level * 8 - 158;
+            } else {
+                xpForLevel = level * 2 + 7;
+            }
+            totalXp += xpForLevel;
+        }
+        return Number::newNumber((long long)(totalXp + PlayerHelper::getXpEarnedAtCurrentLevel(player)));
     }
     CATCH("Fail in getTotalExperience!")
 }
@@ -2032,8 +2077,10 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TransferPacket pkt = TransferPacket(args[0].asString().toString(), args[1].asNumber().toInt32());
-        player->sendNetworkPacket(pkt);
+        TransferPacket packet;
+        packet.mServerAddress = args[0].asString().toString();
+        packet.mServerPort    = args[1].asNumber().toInt32();
+        player->sendNetworkPacket(packet);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in transServer!");
@@ -2089,7 +2136,7 @@ Local<Value> PlayerClass::getScore(const Arguments& args) {
             throw std::invalid_argument("Objective " + args[0].asString().toString() + " not found");
         }
         const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-        if (!id.isValid()) {
+        if (id.mRawID == ScoreboardId::INVALID().mRawID) { // !isValid
             scoreboard.createScoreboardId(*player);
         }
         return Number::newNumber(obj->getPlayerScore(id).mValue);
@@ -2112,11 +2159,11 @@ Local<Value> PlayerClass::setScore(const Arguments& args) {
             obj = scoreboard.addObjective(
                 args[0].asString().toString(),
                 args[0].asString().toString(),
-                scoreboard.getDefaultCriteria()
+                *scoreboard.getCriteria(Scoreboard::DEFAULT_CRITERIA())
             );
         }
         const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-        if (!id.isValid()) {
+        if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
         bool isSuccess = false;
@@ -2141,7 +2188,7 @@ Local<Value> PlayerClass::addScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-        if (!id.isValid()) {
+        if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
         bool isSuccess = false;
@@ -2166,7 +2213,7 @@ Local<Value> PlayerClass::reduceScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-        if (!id.isValid()) {
+        if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
         bool isSuccess = false;
@@ -2191,7 +2238,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         const ScoreboardId& id = scoreboard.getScoreboardId(*player);
-        if (!id.isValid()) {
+        if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(true);
         }
         scoreboard.resetPlayerScore(id, *obj);
@@ -2220,8 +2267,12 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         int sortOrder = 1;
         if (args.size() >= 3) sortOrder = args[2].asNumber().toInt32();
 
-        SetDisplayObjectivePacket
-            disObjPkt("sidebar", "FakeScoreObj", args[0].asString().toString(), "dummy", (ObjectiveSortOrder)sortOrder);
+        SetDisplayObjectivePacket disObjPkt;
+        disObjPkt.mDisplaySlotName      = "sidebar";
+        disObjPkt.mObjectiveName        = "FakeScoreObj";
+        disObjPkt.mObjectiveDisplayName = args[0].asString().toString();
+        disObjPkt.mCriteriaName         = "dummy";
+        disObjPkt.mSortOrder            = (ObjectiveSortOrder)sortOrder;
         disObjPkt.sendTo(*player);
         std::vector<ScorePacketInfo> info;
         for (auto& i : data) {
@@ -2233,7 +2284,9 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
             pktInfo.mFakePlayerName       = i.first;
             info.emplace_back(pktInfo);
         }
-        SetScorePacket setPkt = SetScorePacket::change(info);
+        SetScorePacket setPkt;
+        setPkt.mType      = ScorePacketType::Change;
+        setPkt.mScoreInfo = info;
         setPkt.sendTo(*player);
         return Boolean::newBoolean(true);
     }
@@ -2271,46 +2324,48 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             float value = (float)percent / 100;
 
             // Remove BossBar firstly
-            BossEventPacket removePkt = BossEventPacket();
-            removePkt.mBossID         = ActorUniqueID(uid);
-            removePkt.mEventType      = BossEventUpdateType::Remove;
-            player->sendNetworkPacket(removePkt);
+            BossEventPacket* removePkt =
+                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            removePkt->mBossID    = ActorUniqueID(uid);
+            removePkt->mEventType = BossEventUpdateType::Remove;
+            removePkt->sendTo(*player);
 
             BinaryStream bs;
-            bs.writeVarInt64(uid);
-            bs.writeUnsignedVarInt64(uid);
-            bs.writeString("player");
-            bs.writeFloat(player->getPosition().x);
-            bs.writeFloat(-60.0f);
-            bs.writeFloat(player->getPosition().z);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
-            bs.writeFloat(0.0f);
+            bs.writeVarInt64(uid, nullptr, nullptr);
+            bs.writeUnsignedVarInt64(uid, nullptr, nullptr);
+            bs.writeString("player", nullptr, nullptr);
+            bs.writeFloat(player->getPosition().x, nullptr, nullptr);
+            bs.writeFloat(-60.0f, nullptr, nullptr);
+            bs.writeFloat(player->getPosition().z, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
             // Atrribute
-            bs.writeUnsignedVarInt(0);
+            bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // DataItem
-            bs.writeUnsignedVarInt(0);
+            bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // PropertySyncIntEntry
-            bs.writeUnsignedVarInt(0);
+            bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // PropertySyncFloatEntry
-            bs.writeUnsignedVarInt(0);
+            bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // Links
-            bs.writeUnsignedVarInt(0);
+            bs.writeUnsignedVarInt(0, nullptr, nullptr);
             auto addPkt = lse::api::NetworkPacket<MinecraftPacketIds::AddActor>(std::move(bs.mBuffer));
 
-            BossBarColor    color = (BossBarColor)args[3].asNumber().toInt32();
-            BossEventPacket pkt;
-            pkt.mEventType     = BossEventUpdateType::Add;
-            pkt.mBossID        = ActorUniqueID(uid);
-            pkt.mName          = args[1].asString().toString();
-            pkt.mHealthPercent = value;
-            pkt.mColor         = color;
-            player->sendNetworkPacket(addPkt);
-            player->sendNetworkPacket(pkt);
+            BossBarColor     color = (BossBarColor)args[3].asNumber().toInt32();
+            BossEventPacket* pkt =
+                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            pkt->mEventType     = BossEventUpdateType::Add;
+            pkt->mBossID        = ActorUniqueID(uid);
+            pkt->mName          = args[1].asString().toString();
+            pkt->mHealthPercent = value;
+            pkt->mColor         = color;
+            addPkt.sendTo(*player);
+            pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
         CATCH("Fail in addBossBar!")
@@ -2329,12 +2384,13 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
 
         BossBarColor color = BossBarColor::Red;
         if (args.size() >= 3) color = (BossBarColor)args[2].asNumber().toInt32();
-        BossEventPacket pkt;
-        pkt.mEventType     = BossEventUpdateType::Add;
-        pkt.mName          = args[0].asString().toString();
-        pkt.mHealthPercent = value;
-        pkt.mColor         = color;
-        player->sendNetworkPacket(pkt);
+        BossEventPacket* pkt =
+            static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+        pkt->mEventType     = BossEventUpdateType::Add;
+        pkt->mName          = args[0].asString().toString();
+        pkt->mHealthPercent = value;
+        pkt->mColor         = color;
+        pkt->sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setBossBar!")
@@ -2346,10 +2402,11 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
             Player* player = get();
             if (!player) return Local<Value>();
 
-            BossEventPacket pkt = BossEventPacket();
-            pkt.mEventType      = BossEventUpdateType::Remove;
-            pkt.mColor          = BossBarColor::Red;
-            player->sendNetworkPacket(pkt);
+            BossEventPacket* pkt =
+                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            pkt->mEventType = BossEventUpdateType::Remove;
+            pkt->mColor     = BossBarColor::Red;
+            pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
         CATCH("Fail in removeBossBar!")
@@ -2359,11 +2416,12 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
         try {
             Player* player = get();
             if (!player) return Local<Value>();
-            int64_t         uid = args[0].asNumber().toInt64();
-            BossEventPacket pkt = BossEventPacket();
-            pkt.mBossID         = ActorUniqueID(uid);
-            pkt.mEventType      = BossEventUpdateType::Remove;
-            player->sendNetworkPacket(pkt);
+            int64_t          uid = args[0].asNumber().toInt64();
+            BossEventPacket* pkt =
+                static_cast<BossEventPacket*>(MinecraftPackets::createPacket(MinecraftPacketIds::BossEvent).get());
+            pkt->mBossID    = ActorUniqueID(uid);
+            pkt->mEventType = BossEventUpdateType::Remove;
+            pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
         CATCH("Fail in removeBossBar!")
@@ -2622,10 +2680,12 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource damageBySource = ActorDamageByActorSource(*source, (ActorDamageCause)type);
+            ActorDamageByActorSource damageBySource =
+                ActorDamageByActorSource(*source, (SharedTypes::Legacy::ActorDamageCause)type);
             return Boolean::newBoolean(player->_hurt(damageBySource, damage, true, false));
         }
-        ActorDamageSource damageSource = ActorDamageSource((ActorDamageCause)type);
+        ActorDamageSource damageSource;
+        damageSource.mCause = (SharedTypes::Legacy::ActorDamageCause)type;
         return Boolean::newBoolean(player->_hurt(damageSource, damage, true, false));
     }
     CATCH("Fail in hurt!");
@@ -2652,7 +2712,8 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::HEALTH());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2667,7 +2728,8 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::HEALTH())->setMaxValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::HEALTH());
+        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2682,7 +2744,8 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ABSORPTION())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::ABSORPTION());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2697,7 +2760,8 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2712,7 +2776,8 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE())->setMaxValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
+        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2727,7 +2792,8 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2742,8 +2808,8 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE())
-            ->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2758,7 +2824,8 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LUCK())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::LUCK());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2773,22 +2840,9 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
-        // Unknown why we need to check again after registering attributes
-        //
-        // AttributeInstance* movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
-        // if (movementSpeedAttribute) {
-        //     movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-        //     return Boolean::newBoolean(true);
-        // } else {
-        //     player->_registerPlayerAttributes();
-        //     movementSpeedAttribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED()); // Check again
-        //     if (movementSpeedAttribute) {
-        //         movementSpeedAttribute->setCurrentValue(args[0].asNumber().toFloat());
-        //         return Boolean::newBoolean(true);
-        //     }
-        // }
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
@@ -2802,8 +2856,8 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED())
-            ->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2818,8 +2872,8 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED())
-            ->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2834,7 +2888,8 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->getMutableAttribute(Player::HUNGER())->setCurrentValue(args[0].asNumber().toFloat());
+        auto attribute = player->getMutableAttribute(Player::HUNGER());
+        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }
@@ -2892,7 +2947,7 @@ Local<Value> PlayerClass::refreshChunks(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->resendAllChunks();
+        player->mChunkPublisherView->clearRegion();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in refreshChunks!");
@@ -2954,7 +3009,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                 }
             }
         };
-        clearFunction(player->getInventory());
+        clearFunction(*player->mInventory->mInventory);
         clearFunction(ActorEquipment::getHandContainer(player->getEntityContext()));
         clearFunction(ActorEquipment::getArmorContainer(player->getEntityContext()));
         player->refreshInventory();
@@ -2968,7 +3023,7 @@ Local<Value> PlayerClass::isSprinting(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Boolean::newBoolean(player->isSprinting());
+        return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Sprinting));
     }
     CATCH("Fail in isSprinting!");
 }
@@ -3059,11 +3114,15 @@ Local<Value> PlayerClass::getAllTags(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        Local<Array> arr = Array::newArray();
-        for (auto& tag : player->getTags()) {
-            arr.add(String::newString(tag));
+        Local<Array> arr       = Array::newArray();
+        auto         component = player->getEntityContext().tryGetComponent<TagsComponent<IDType<LevelTagSetIDType>>>();
+        if (component) {
+            for (auto& tag : ll::service::getLevel()->getTagRegistry().getTagsInSet(component->mTagSetID)) {
+                arr.add(String::newString(tag));
+            }
+            return arr;
         }
-        return arr;
+        return Local<Value>();
     }
     CATCH("Fail in getAllTags!");
 }
@@ -3155,13 +3214,13 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             false,
             true,
             [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
-                if (solidOnly && !block.isSolid()) {
+                if (solidOnly && !block.mCachedComponentData->mUnkd6c5eb.as<bool>()) {
                     return false;
                 }
                 if (fullOnly && !block.isSlabBlock()) {
                     return false;
                 }
-                if (!includeLiquid && block.getMaterial().isLiquid()) {
+                if (!includeLiquid && BlockUtils::isLiquidSource(block)) {
                     return false;
                 }
                 return true;
@@ -3176,8 +3235,10 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         } else {
             bp = res.mBlock;
         }
-        Block const& bl = player->getDimensionBlockSource().getBlock(bp);
-        if (bl.isAir() || bl.isEmpty()) {
+        Block const&       bl     = player->getDimensionBlockSource().getBlock(bp);
+        BlockLegacy const& legacy = bl.getLegacyBlock();
+        // isEmpty()
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());
@@ -3310,7 +3371,7 @@ Local<Value> PlayerClass::getAllItems(const Arguments&) {
 
         const ItemStack&              hand      = player->getCarriedItem();
         const ItemStack&              offHand   = player->getOffhandSlot();
-        std::vector<const ItemStack*> inventory = player->getInventory().getSlots();
+        std::vector<const ItemStack*> inventory = player->mInventory->mInventory->getSlots();
         std::vector<const ItemStack*> armor = ActorEquipment::getArmorContainer(player->getEntityContext()).getSlots();
         std::vector<const ItemStack*> endChest = player->getEnderChestContainer()->getSlots();
 
@@ -3363,9 +3424,9 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
         int inventoryId = args[0].asNumber().toInt32();
         int count       = args[1].asNumber().toInt32();
 
-        Container& container = player->getInventory();
-        if (inventoryId > container.getContainerSize()) return Boolean::newBoolean(false);
-        container.removeItem(inventoryId, count);
+        auto& container = player->mInventory->mInventory;
+        if (inventoryId > container->getContainerSize()) return Boolean::newBoolean(false);
+        container->removeItem(inventoryId, count);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in removeItem!")
@@ -3380,7 +3441,9 @@ Local<Value> PlayerClass::sendToast(const Arguments& args) {
 
         if (!player) return Local<Value>();
 
-        ToastRequestPacket pkt = ToastRequestPacket(args[0].asString().toString(), args[1].asString().toString());
+        ToastRequestPacket pkt;
+        pkt.mTitle   = args[0].asString().toString();
+        pkt.mContent = args[1].asString().toString();
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -3571,10 +3634,8 @@ Local<Value> PlayerClass::getAllEffects() {
             return Local<Value>();
         }
         Local<Array> effectList = Array::newArray();
-        for (unsigned int i = 0; i <= 30; i++) {
-            if (player->getEffect(i)) {
-                effectList.add(Number::newNumber((int)i));
-            }
+        for (auto& effect : player->_getAllEffectsNonConst()) {
+            effectList.add(Number::newNumber((long long)effect.mId));
         }
         return effectList;
     }
@@ -3592,11 +3653,14 @@ Local<Value> PlayerClass::addEffect(const Arguments& args) {
         if (!player) {
             return Boolean::newBoolean(false);
         }
-        unsigned int      id            = args[0].asNumber().toInt32();
-        int               tick          = args[1].asNumber().toInt32();
+        unsigned int      id = args[0].asNumber().toInt32();
+        EffectDuration    duration{args[1].asNumber().toInt32()};
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect        = MobEffectInstance(id, {tick}, level, false, showParticles, false);
+        MobEffectInstance effect(id);
+        effect.mDuration      = duration;
+        effect.mAmplifier     = level;
+        effect.mEffectVisible = showParticles;
         player->addEffect(effect);
         return Boolean::newBoolean(true);
     }

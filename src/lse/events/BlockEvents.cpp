@@ -7,7 +7,8 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/ActorUniqueID.h"
+#include "mc/legacy/ActorUniqueID.h"
+#include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/ArmorStand.h"
@@ -64,7 +65,8 @@ LL_TYPE_INSTANCE_HOOK(
             return origin(slotNumber, oldItem, newItem);
 
         Player& player = mUnk84d147.as<Player&>();
-        if (player.hasOpenContainer()) {
+        // Player::hasOpenContainer()
+        if (player.mContainerManager) {
             if (!CallEvent(
                     EVENT_TYPES::onContainerChange,
                     PlayerClass::newPlayer(&player),
@@ -168,7 +170,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
         if (!CallEvent(
                 EVENT_TYPES::onPistonTryPush,
-                IntPos::newPos(this->getPosition(), region.getDimensionId()),
+                IntPos::newPos(this->mPosition, region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
             )) {
             return false;
@@ -180,7 +182,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (shouldPush) {
             CallEvent( // Not cancellable
                 EVENT_TYPES::onPistonPush,
-                IntPos::newPos(this->getPosition(), region.getDimensionId()),
+                IntPos::newPos(this->mPosition, region.getDimensionId()),
                 BlockClass::newBlock(curPos, region.getDimensionId())
             );
         }
@@ -251,22 +253,23 @@ LL_TYPE_STATIC_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     BlockExplodedHook,
     HookPriority::Normal,
-    Block,
-    &Block::onExploded,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    Actor*          entitySource
+    ScriptModuleMinecraft::ScriptBlockGlobalEventListener,
+    &ScriptBlockGlobalEventListener::$onBlockExploded,
+    EventResult,
+    Dimension&      dimension,
+    BlockPos const& blockPos,
+    Block const&    destroyedBlock,
+    Actor*          source
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
         CallEvent(
             EVENT_TYPES::onBlockExploded,
-            BlockClass::newBlock(pos, region.getDimensionId()),
-            EntityClass::newEntity(entitySource)
+            BlockClass::newBlock(blockPos, dimension.getDimensionId()),
+            EntityClass::newEntity(source)
         );
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
-    origin(region, pos, entitySource);
+    return origin(dimension, blockPos, destroyedBlock, source);
 }
 
 namespace redstone {
@@ -367,7 +370,7 @@ LL_TYPE_INSTANCE_HOOK(
         if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
             if (!CallEvent(
                     EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->getCommand()),
+                    String::newString(this->mCommand),
                     FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
                     Boolean::newBoolean(true)
                 )) {
@@ -376,7 +379,7 @@ LL_TYPE_INSTANCE_HOOK(
         } else {
             if (!CallEvent(
                     EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->getCommand()),
+                    String::newString(this->mCommand),
                     FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
                     Boolean::newBoolean(false)
                 )) {

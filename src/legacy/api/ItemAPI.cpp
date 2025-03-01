@@ -6,9 +6,8 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/nbt/CompoundTag.h"
+#include "lse/api/helper/ItemHelper.h"
 #include "mc/safety/RedactableString.h"
-#include "mc/world/actor/Actor.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/ItemStack.h"
@@ -19,6 +18,8 @@
 #include <string>
 #include <variant>
 #include <vector>
+
+using lse::api::ItemHelper;
 
 //////////////////// Class Definition ////////////////////
 
@@ -154,7 +155,12 @@ Local<Value> ItemClass::getDamage() {
 
 Local<Value> ItemClass::getAttackDamage() {
     try {
-        return Number::newNumber(get()->getAttackDamage());
+        auto mItem = get()->mItem;
+        if (mItem) {
+            return Number::newNumber(mItem->getAttackDamage());
+        } else {
+            return Number::newNumber(0);
+        }
     }
     CATCH("Fail in GetAttackDamage!");
 }
@@ -232,7 +238,12 @@ Local<Value> ItemClass::isEnchantingBook() {
 
 Local<Value> ItemClass::isFireResistant() {
     try {
-        return Boolean::newBoolean(get()->isFireResistant());
+        auto mItem = get()->mItem;
+        if (mItem) {
+            return Boolean::newBoolean(mItem->mFireResistant);
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isFireResistant!");
 }
@@ -260,7 +271,12 @@ Local<Value> ItemClass::isHorseArmorItem() {
 
 Local<Value> ItemClass::isLiquidClipItem() {
     try {
-        return Boolean::newBoolean(get()->isLiquidClipItem());
+        auto mItem = get()->mItem;
+        if (mItem) {
+            return Boolean::newBoolean(mItem->isLiquidClipItem());
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isLiquidClipItem!");
 }
@@ -274,7 +290,12 @@ Local<Value> ItemClass::isMusicDiscItem() {
 
 Local<Value> ItemClass::isOffhandItem() {
     try {
-        return Boolean::newBoolean(get()->isOffhandItem());
+        auto mItem = get()->mItem;
+        if (mItem) {
+            return Boolean::newBoolean(mItem->mAllowOffhand);
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isOffhandItem!");
 }
@@ -295,7 +316,11 @@ Local<Value> ItemClass::isStackable() {
 
 Local<Value> ItemClass::isWearableItem() {
     try {
-        return Boolean::newBoolean(get()->isHumanoidWearableItem());
+        if (get()->mItem) {
+            return Boolean::newBoolean(get()->isHumanoidWearableBlockItem());
+        } else {
+            return Boolean::newBoolean(false);
+        }
     }
     CATCH("Fail in isWearableItem!");
 }
@@ -309,9 +334,9 @@ Local<Value> ItemClass::set(const Arguments& args) {
 
         auto tag = itemNew->save(*SaveContextFactory::createCloneSaveContext());
         if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
-            std::get<std::unique_ptr<ItemStack>>(item)->load(*tag);
+            ItemHelper::load(*std::get<std::unique_ptr<ItemStack>>(item), *tag);
         } else {
-            std::get<ItemStack*>(item)->load(*tag);
+            ItemHelper::load(*std::get<ItemStack*>(item), *tag);
         }
         return Boolean::newBoolean(true);
     }
@@ -348,7 +373,7 @@ Local<Value> ItemClass::setAux(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        get()->setAuxValue(args[0].asNumber().toInt32());
+        get()->mAuxValue = args[0].asNumber().toInt32();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setAux!");
@@ -378,7 +403,9 @@ Local<Value> ItemClass::setDisplayName(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        get()->setCustomName(Bedrock::Safety::RedactableString(args[0].asString().toString()));
+        Bedrock::Safety::RedactableString redactableString;
+        redactableString.mUnredactedString = args[0].asString().toString();
+        get()->setCustomName(redactableString);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setDisplayName!");
@@ -412,8 +439,7 @@ Local<Value> ItemClass::setNbt(const Arguments& args) {
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) return Local<Value>(); // Null
-        auto itemStack = get();
-        itemStack->load(*nbt);
+        ItemHelper::load(*get(), *nbt);
         // update Pre Data
         preloadData();
         return Boolean::newBoolean(true);
@@ -442,13 +468,9 @@ Local<Value> McClass::newItem(const Arguments& args) {
             auto nbt = NbtCompoundClass::extract(args[0]);
             if (nbt) {
                 auto newItem = new ItemStack{ItemStack::EMPTY_ITEM()};
-                newItem->load(*nbt);
-                if (!newItem) return Local<Value>(); // Null
-                else
-                    return ItemClass::newItem(
-                        newItem,
-                        false
-                    ); // Not managed by BDS, pointer will be saved as unique_ptr
+                ItemHelper::load(*newItem, *nbt);
+                return ItemClass::newItem(newItem,
+                                          false); // Not managed by BDS, pointer will be saved as unique_ptr
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -507,7 +529,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
             // By Item
             ;
             ItemActor* entity = ll::service::getLevel()->getSpawner().spawnItem(
-                ll::service::getLevel()->getDimension(pos.dim)->getBlockSourceFromMainChunkSource(),
+                ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
                 *it,
                 0,
                 pos.getVec3(),

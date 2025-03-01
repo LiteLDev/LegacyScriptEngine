@@ -1,6 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/common/ActorRuntimeID.h"
+#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 
 class SimulatedPlayer;
@@ -15,7 +15,6 @@ private:
 public:
     explicit PlayerClass(Player* player);
 
-    void             set(Player* player);
     Player*          get();
     SimulatedPlayer* asSimulatedPlayer();
 

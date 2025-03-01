@@ -62,10 +62,10 @@ void RegisterDebugCommand() {
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
             auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
-            if (!param.eval.getText().empty()) {
+            if (!param.eval.mText.empty()) {
                 EngineScope enter(DebugEngine);
                 try {
-                    auto               result = DebugEngine->eval(param.eval.getText());
+                    auto               result = DebugEngine->eval(param.eval.mText);
                     std::ostringstream sout;
                     PrintValue(sout, result);
                     output.success(sout.str());

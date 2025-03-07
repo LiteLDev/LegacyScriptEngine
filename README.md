@@ -14,20 +14,13 @@ install [Python 3.12.8](https://www.python.org/downloads/release/python-3128/) f
 To install a specific engine, you can use the following command:
 
 ```shell
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua@version
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs@version
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs@version
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@version
 ```
 
-To upgrade engines, you can use the following command:
-
-```shell
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
-```
+Version numbers can be found in [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases).
 
 ## Usage
 

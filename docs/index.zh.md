@@ -11,20 +11,13 @@
 要安装特定的引擎，您可以使用以下命令：
 
 ```shell
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua@版本
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs@版本
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs@版本
+lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@版本
 ```
 
-要升级特定引擎，您可以使用以下命令:
-
-```shell
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-lua
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs
-lip install --upgrade gitea.litebds.com/LiteLDev/legacy-script-engine-python
-```
+可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
 
 ## 使用
 

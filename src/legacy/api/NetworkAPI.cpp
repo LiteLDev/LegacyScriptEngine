@@ -156,12 +156,12 @@ void WSClientClass::initListeners() {
 
     ws->OnBinaryReceived(
         [nowList{&listeners[int(WSClientEvents::onBinaryReceived)]}](WebSocketClient&, vector<uint8_t> data) {
-            if (!nowList->empty())
-                for (auto& listener : *nowList) {
-                    if (!EngineManager::isValid(listener.engine)) return;
-                    EngineScope enter(listener.engine);
-                    NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
-                }
+        if (!nowList->empty())
+            for (auto& listener : *nowList) {
+                if (!EngineManager::isValid(listener.engine)) return;
+                EngineScope enter(listener.engine);
+                NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+            }
         }
     );
 
@@ -482,7 +482,7 @@ void ADD_CALLBACK(
                     }
                 }
                 CATCH_CALLBACK_IN_CORO("Fail in NetworkAPI callback")
-            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         };
     switch (method) {
     case HttpRequestType::Get:
@@ -627,7 +627,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
                     resp = *respObj->get();
                 }
                 CATCH_CALLBACK_IN_CORO("Fail in onPreRouting");
-            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
 
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
         });
@@ -661,7 +661,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
                     resp = *respObj->get();
                 }
                 CATCH_CALLBACK_IN_CORO("Fail in onPostRouting");
-            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
     }
@@ -692,7 +692,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
                     resp = *respObj->get();
                 }
                 CATCH_CALLBACK_IN_CORO("Fail in onError");
-            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
     }
@@ -731,7 +731,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                     resp = *respObj->get();
                 }
                 CATCH_CALLBACK_IN_CORO("Fail in onException");
-            }).launch(ll::thread::ThreadPoolExecutor::getDefault());
+            }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
     }

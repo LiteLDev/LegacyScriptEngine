@@ -2006,8 +2006,7 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        auto attribute = player->getMutableAttribute(Player::EXPERIENCE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
+        PlayerHelper::setXpEarnedAtCurrentLevel(player, args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setCurrentExperience!");

@@ -14,10 +14,7 @@ def main():
     version = args["tag"].lstrip("v")
 
     validate_changelog(version)
-    validate_tooth_template_json(version, "quickjs")
-    validate_tooth_template_json(version, "nodejs")
-    validate_tooth_template_json(version, "lua")
-    validate_tooth_template_json(version, "python")
+    validate_tooth_json(version)
 
 
 def get_args() -> Args:
@@ -49,12 +46,12 @@ def validate_changelog(version: str):
         raise Exception("CHANGELOG.md lacks version {}".format(version))
 
 
-def validate_tooth_template_json(version: str, engine: str):
-    with open("tooth." + engine + ".json", "r", encoding="utf-8") as f:
+def validate_tooth_json(version: str):
+    with open("tooth.json", "r", encoding="utf-8") as f:
         content = f.read()
 
     if not re.search(r"\"version\": \"{}\"".format(version), content):
-        raise Exception("tooth." + engine + ".json has wrong version")
+        raise Exception("tooth.json has wrong version")
 
 
 if __name__ == "__main__":

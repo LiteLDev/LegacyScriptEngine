@@ -1329,7 +1329,7 @@ Local<Value> EntityClass::getAllTags(const Arguments&) {
         Local<Array> arr       = Array::newArray();
         auto         component = entity->getEntityContext().tryGetComponent<TagsComponent<IDType<LevelTagSetIDType>>>();
         if (component) {
-            for (auto& tag : ll::service::getLevel()->getTagRegistry().getTagsInSet(component->mTagSetID)) {
+            for (auto& tag : get()->getLevel().getTagRegistry().getTagsInSet(component->mTagSetID)) {
                 arr.add(String::newString(tag));
             }
             return arr;

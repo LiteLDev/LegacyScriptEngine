@@ -70,42 +70,6 @@ jobs:
           body: |
             ${{ steps.extract-release-notes.outputs.release_notes }}
 
-  upload-to-gitea:
-    needs:
-      - build
-      - update-release-notes
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        backend:
-          - nodejs
-          - lua
-          - python
-          - quickjs
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
-          path: release/
-
-      - name: Upload to Gitea
-        run: |
-          git config --global user.name "Actions"
-          git config --global user.email "shrbox@liteldev.com"
-          rm release/legacy-script-engine-${{ matrix.backend }}/*.pdb
-          git clone --depth=1 https://${{ secrets.GITEA_USER }}:${{ secrets.GITEA_TOKEN }}@gitea.litebds.com/LiteLDev/legacy-script-engine-${{ matrix.backend }}.git
-          cd legacy-script-engine-${{ matrix.backend }}
-          rm -rf legacy-script-engine-${{ matrix.backend }}
-          mv ../release/legacy-script-engine-${{ matrix.backend }} .
-          cp ../tooth.${{ matrix.backend }}.json tooth.json
-          git add .
-          git commit -m "Release ${{ github.event.release.tag_name }}"
-          git tag ${{ github.event.release.tag_name }}
-          git push
-          git push --tags
-
   upload-to-release:
     needs:
       - build

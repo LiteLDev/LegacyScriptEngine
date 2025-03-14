@@ -11,13 +11,21 @@
 要安装特定的引擎，您可以使用以下命令：
 
 ```shell
+lip install github.com/LiteLDev/LegacyScriptEngine#lua@版本
+lip install github.com/LiteLDev/LegacyScriptEngine#quickjs@版本
+lip install github.com/LiteLDev/LegacyScriptEngine#nodejs@版本
+lip install github.com/LiteLDev/LegacyScriptEngine#python@版本
+```
+
+可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。  
+对于0.10.0之前的版本，可以使用以下命令：
+
+```shell
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@版本
 ```
-
-可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
 
 ## 使用
 

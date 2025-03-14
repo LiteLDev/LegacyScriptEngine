@@ -1,0 +1,141 @@
+{
+  "format_version": 3,
+  "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
+  "tooth": "github.com/LiteLDev/LegacyScriptEngine",
+  "version": "0.10.0",
+  "info": {
+    "name": "LegacyScriptEngine",
+    "description": "A plugin engine for running LLSE plugins on LeviLamina",
+    "tags": [
+      "platform:levilamina",
+      "type:mod",
+      "plugin-engine"
+    ],
+    "avatar_url": ""
+  },
+  "variants": [
+    {
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyScriptEngine#quickjs": "{{version}}",
+        "github.com/LiteLDev/LegacyScriptEngine#lua": "{{version}}"
+      }
+    },
+    {
+      "label": "nodejs",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
+        "github.com/LiteLDev/LegacyMoney": "0.10.*",
+        "gitea.litebds.com/ShrBox/7-zip": "24.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-nodejs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-nodejs/",
+              "dest": "plugins/legacy-script-engine-nodejs/"
+            }
+          ]
+        },
+        {
+          "type": "uncompressed",
+          "urls": [
+            "https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"
+          ],
+          "placements": [
+            {
+              "type": "file",
+              "src": "",
+              "dest": "plugins/legacy-script-engine-nodejs/node.zip"
+            }
+          ]
+        }
+      ],
+      "scripts": {
+        "install": [
+          "7za.exe x -y plugins/legacy-script-engine-nodejs/node.zip -o./plugins/legacy-script-engine-nodejs/",
+          "del plugins\\legacy-script-engine-nodejs\\node.zip"
+        ]
+      }
+    },
+    {
+      "label": "quickjs",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
+        "github.com/LiteLDev/LegacyMoney": "0.10.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-quickjs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-quickjs/",
+              "dest": "plugins/legacy-script-engine-quickjs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "lua",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
+        "github.com/LiteLDev/LegacyMoney": "0.10.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-lua-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-lua/",
+              "dest": "plugins/legacy-script-engine-lua/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "python",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
+        "github.com/LiteLDev/LegacyMoney": "0.10.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-python-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-python/",
+              "dest": "plugins/legacy-script-engine-python/"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

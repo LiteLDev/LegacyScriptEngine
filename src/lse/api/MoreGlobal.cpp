@@ -7,8 +7,8 @@
 
 namespace lse::api::MoreGlobal {
 DBStorage*             dbStorage;
-DefaultDataLoadHelper* helper;
-DefaultDataLoadHelper& defaultDataLoadHelper() { return (DefaultDataLoadHelper&)helper; }
+DefaultDataLoadHelper  helper;
+DefaultDataLoadHelper& defaultDataLoadHelper() { return helper; }
 
 LL_TYPE_INSTANCE_HOOK(
     DBStorageHook,
@@ -27,8 +27,7 @@ LL_TYPE_INSTANCE_HOOK(
 void onLoad() { DBStorageHook::hook(); }
 
 bool onEnable() {
-    helper = (DefaultDataLoadHelper*)DefaultDataLoadHelper::$vftable();
-    if (helper && dbStorage && DBStorageHook::unhook()) {
+    if (dbStorage && DBStorageHook::unhook()) {
         return true;
     }
     return false;

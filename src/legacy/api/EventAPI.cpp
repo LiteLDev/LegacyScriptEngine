@@ -849,12 +849,16 @@ void InitBasicEventListeners() {
         }
     });
 
+    using namespace ll::chrono_literals;
     // ===== onServerStarted =====
     bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent&) {
-        IF_LISTENED(EVENT_TYPES::onServerStarted) {
-            CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
-        }
-        IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+        ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
+            co_await 1_tick;
+            IF_LISTENED(EVENT_TYPES::onServerStarted) {
+                CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
+            }
+            IF_LISTENED_END(EVENT_TYPES::onServerStarted);
+        }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
         isCmdRegisterEnabled = true;
 
@@ -863,8 +867,6 @@ void InitBasicEventListeners() {
 
     // 植入tick
     ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
-        using namespace ll::chrono_literals;
-
         while (true) {
             co_await 1_tick;
 

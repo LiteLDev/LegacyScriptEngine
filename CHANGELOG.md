@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.1] - 2025-03-16
 
+### Changed
+
+- Synced [ScriptX](https://github.com/LiteLDev/ScriptX) with upstream
+- Delay onServerStarted for 1 tick to fix compatibility with old plugins(e.g. LLSE-FakePlayer)
+- Show error when loading plugins failed [#240] @xiaoqch
+
 ### Fixed
 
 - Fixed DefaultDataLoadHelper
@@ -793,6 +799,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#227]: https://github.com/LiteLDev/LegacyScriptEngine/issues/227
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231
 [#236]: https://github.com/LiteLDev/LegacyScriptEngine/issues/236
+[#240]: https://github.com/LiteLDev/LegacyScriptEngine/issues/240
 [#243]: https://github.com/LiteLDev/LegacyScriptEngine/issues/243
 [#249]: https://github.com/LiteLDev/LegacyScriptEngine/issues/249
 [#251]: https://github.com/LiteLDev/LegacyScriptEngine/issues/251

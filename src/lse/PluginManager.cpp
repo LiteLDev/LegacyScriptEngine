@@ -266,6 +266,10 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         EngineManager::unregisterEngine(scriptEngine);
         scriptEngine->getData().reset();
 
+        if (auto plugin = std::static_pointer_cast<Plugin>(getMod(name))) {
+            plugin->onUnload();
+        }
+
         eraseMod(name);
 
         auto destroyEngine = [scriptEngine]() {

@@ -216,11 +216,12 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
     } catch (const Exception& e) {
         if (scriptEngine) {
-            EngineScope engineScope(scriptEngine);
-            auto        error = ll::makeStringError(
-                "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
-            );
-            ExitEngineScope exit;
+            auto error = [&] {
+                EngineScope engineScope(scriptEngine);
+                return ll::makeStringError(
+                    "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
+                );
+            }();
 
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             LLSERemoveTimeTaskData(scriptEngine);

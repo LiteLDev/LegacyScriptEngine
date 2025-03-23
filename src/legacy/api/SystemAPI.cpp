@@ -103,7 +103,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             "cmd /c" + cmd,
             [callback{std::move(callbackFunc)},
-             engine{EngineScope::currentEngine()}](int exitCode, std::string output) {
+             engine{EngineScope::currentEngine()}](int exitCode, std::string output) mutable {
                 ll::coro::keepThis(
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)](
                     ) -> ll::coro::CoroTask<> {
@@ -143,7 +143,7 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
         return Boolean::newBoolean(NewProcess(
             process,
             [callback{std::move(callbackFunc)},
-             engine{EngineScope::currentEngine()}](int exitCode, std::string output) {
+             engine{EngineScope::currentEngine()}](int exitCode, std::string output) mutable {
                 ll::coro::keepThis(
                     [engine, callback = std::move(callback), exitCode, output = std::move(output)](
                     ) -> ll::coro::CoroTask<> {

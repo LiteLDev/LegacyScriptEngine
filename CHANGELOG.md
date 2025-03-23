@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.3] - 2025-03-23
+
+### Fixed
+
+- Fixed plugin executeOnModUnload @zimuya4153
+- Fixed output of plugin load error @xiaoqch
+- Fixed system.cmd and system.newProcess callback [#258] @xiaoqch
+
 ## [0.10.2] - 2025-03-16
 
 ### Changed
@@ -804,8 +812,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#249]: https://github.com/LiteLDev/LegacyScriptEngine/issues/249
 [#251]: https://github.com/LiteLDev/LegacyScriptEngine/issues/251
 [#252]: https://github.com/LiteLDev/LegacyScriptEngine/issues/252
+[#258]: https://github.com/LiteLDev/LegacyScriptEngine/issues/258
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.2...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.3...HEAD
+[0.10.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0...v0.10.2
 [0.10.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.2...v0.10.0
 [0.10.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.1...v0.10.0-rc.2

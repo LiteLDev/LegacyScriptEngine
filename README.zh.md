@@ -1,37 +1,32 @@
 # LegacyScriptEngine
 
-[English](README.md) | 简体中文
-
+[English](README.md) | 简体中文  
 一个用于在 LeviLamina 上运行 LLSE 插件的插件引擎
 
 ## 安装
 
 ### 注意
 
-在安装Python引擎之前，你需要先安装[Python 3.12.8](https://www.python.org/downloads/release/python-3128/)
-
+在安装Python引擎之前，你需要先安装[Python 3.12.8](https://www.python.org/downloads/release/python-3128/)  
 要安装特定的引擎，您可以使用以下命令：
-
 ```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#lua@版本
-lip install github.com/LiteLDev/LegacyScriptEngine#quickjs@版本
-lip install github.com/LiteLDev/LegacyScriptEngine#nodejs@版本
-lip install github.com/LiteLDev/LegacyScriptEngine#python@版本
+lip install github.com/LiteLDev/LegacyScriptEngine#lua
+lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
+lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
+lip install github.com/LiteLDev/LegacyScriptEngine#python
 ```
-
-可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。  
 对于0.10.0之前的版本，可以使用以下命令：
-
 ```shell
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs@版本
 lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@版本
 ```
+可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
 
 ## 使用
 
-> 如需获取插件开发 API 提示库和脚手架工具，请访问 [LegacyScriptEngine_API](https://github.com/LiteLDev/LegacyScriptEngine_API) 仓库
+如需获取插件开发 API 提示库和脚手架工具，请访问 [LegacyScriptEngine_API](https://github.com/LiteLDev/LegacyScriptEngine_API) 仓库
 
 1. 直接将 LLSE 插件放在 `plugins/` 中
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中

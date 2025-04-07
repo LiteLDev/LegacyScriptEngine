@@ -15,7 +15,7 @@
 | `Python`     | 使用 CPython 引擎运行插件，支持 pip 包管理      |
 
 !!! tip
-    如果需要使用 C++、Go、Rust 等原生语言编写插件，请移步 [主页](https://lamina.liteldev.com) 查看其他语言文档
+    如果需要使用 C++、Go、Rust 等原生语言编写插件，请移步 [主页](https://lamina.levimc.org) 查看其他语言文档
 
 ## JavaScript 语言支持说明
 

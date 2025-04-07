@@ -10,7 +10,7 @@
 - [Atom](https://atom.io/) 是轻量级的编辑器，在本教程中很好用。
 - [VSCode](https://code.visualstudio.com/) 也是一个广泛使用的编辑器，具有很多强大的功能。
 
-你还需要建立一个干净的LeviLamina安装，关于如何安装LeviLamina的细节可以在[这里](https://lamina.liteldev.com/zh/install/)
+你还需要建立一个干净的LeviLamina安装，关于如何安装LeviLamina的细节可以在[这里](https://lamina.levimc.org/zh/install/)
 找到。这个服务器将被用来测试你的插件。
 
 有了你的开发环境，并完成了服务器的安装，你就可以开始了!

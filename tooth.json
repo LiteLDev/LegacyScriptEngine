@@ -28,7 +28,7 @@
         "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
         "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
         "github.com/LiteLDev/LegacyMoney": "0.10.*",
-        "gitea.litebds.com/ShrBox/7-zip": "24.*"
+        "git.levimc.org/ShrBox/7-zip": "24.*"
       },
       "assets": [
         {

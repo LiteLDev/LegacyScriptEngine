@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.4] - 2025-04-12
+
+### Fixed
+
+- Fixed mc.getBlock [#261] @xiaoqch
+
 ## [0.10.3] - 2025-03-23
 
 ### Fixed
@@ -813,8 +819,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#251]: https://github.com/LiteLDev/LegacyScriptEngine/issues/251
 [#252]: https://github.com/LiteLDev/LegacyScriptEngine/issues/252
 [#258]: https://github.com/LiteLDev/LegacyScriptEngine/issues/258
+[#261]: https://github.com/LiteLDev/LegacyScriptEngine/issues/261
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.3...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.4...HEAD
+[0.10.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0...v0.10.2
 [0.10.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0-rc.2...v0.10.0

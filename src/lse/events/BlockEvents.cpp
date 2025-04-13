@@ -262,9 +262,12 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          source
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
+        if (destroyedBlock.isAir()) {
+            return origin(dimension, blockPos, destroyedBlock, source);
+        }
         CallEvent(
             EVENT_TYPES::onBlockExploded,
-            BlockClass::newBlock(blockPos, dimension.getDimensionId()),
+            BlockClass::newBlock(destroyedBlock, blockPos, dimension.getDimensionId()),
             EntityClass::newEntity(source)
         );
     }

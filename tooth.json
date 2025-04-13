@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -28,7 +28,7 @@
         "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
         "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
         "github.com/LiteLDev/LegacyMoney": "0.10.*",
-        "git.levimc.org/ShrBox/7-zip": "24.*"
+        "gitea.litebds.com/ShrBox/7-zip": "24.*"
       },
       "assets": [
         {

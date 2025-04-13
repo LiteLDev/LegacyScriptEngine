@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.5] - 2025-04-13
+
+### Fixed
+
+- Fixe param of onBlockExploded event callback [#264] @xiaoqch
+
 ## [0.10.4] - 2025-04-12
 
 ### Fixed
@@ -820,8 +826,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#252]: https://github.com/LiteLDev/LegacyScriptEngine/issues/252
 [#258]: https://github.com/LiteLDev/LegacyScriptEngine/issues/258
 [#261]: https://github.com/LiteLDev/LegacyScriptEngine/issues/261
+[#264]: https://github.com/LiteLDev/LegacyScriptEngine/issues/264
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.4...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.5...HEAD
+[0.10.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.4...v0.10.5
 [0.10.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.0...v0.10.2

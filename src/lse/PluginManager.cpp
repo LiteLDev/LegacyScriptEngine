@@ -189,7 +189,8 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         if (!NodeJsHelper::loadPluginCode(
                 scriptEngine,
                 ll::string_utils::u8str2str(entryPath.u8string()),
-                ll::string_utils::u8str2str(dirPath.u8string())
+                ll::string_utils::u8str2str(dirPath.u8string()),
+                NodeJsHelper::isESModulesSystem(ll::string_utils::u8str2str(dirPath.u8string()))
             )) {
             return ll::makeStringError("Failed to load plugin code"_tr());
         }

@@ -1,11 +1,11 @@
+#include <filesystem>
 #pragma warning(disable : 4251)
-
-#include "main/NodeJsHelper.h"
 
 #include "api/EventAPI.h"
 #include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
+#include "fmt/format.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h"
@@ -14,6 +14,7 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
+#include "main/NodeJsHelper.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
 
@@ -130,14 +131,17 @@ script::ScriptEngine* newEngine() {
     return engine;
 }
 
-bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath) {
-    auto mainScripts = ll::file_utils::readFile(ll::string_utils::str2u8str(entryScriptPath));
-    if (!mainScripts) {
-        return false;
-    }
-
+bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath, bool esm) {
     // Process requireDir
     if (!pluginDirPath.ends_with('/')) pluginDirPath += "/";
+
+    // check if entryScriptPath is not absolute path
+    if (auto path = std::filesystem::path(entryScriptPath); !path.is_absolute()) {
+        entryScriptPath = std::filesystem::absolute(path).string();
+    }
+    if (auto path = std::filesystem::path(pluginDirPath); !path.is_absolute()) {
+        pluginDirPath = std::filesystem::absolute(path).string();
+    }
     pluginDirPath   = ll::string_utils::replaceAll(pluginDirPath, "\\", "/");
     entryScriptPath = ll::string_utils::replaceAll(entryScriptPath, "\\", "/");
 
@@ -151,23 +155,58 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         using namespace v8;
         EngineScope enter(engine);
 
-        string executeJs = "const __LLSE_PublicRequire = "
-                           "require('module').createRequire(process.cwd() + '/"
-                         + pluginDirPath + "');"
-                         + "const __LLSE_PublicModule = require('module'); "
-                           "__LLSE_PublicModule.exports = {};"
-                         + "ll.export = ll.exports; ll.import = ll.imports; "
+        string compiler;
+        if (esm) {
+            compiler = fmt::format(
+                R"(
+                    import('url').then(url => {{
+                        const moduleUrl = url.pathToFileURL('{1}').href;
+                        import(moduleUrl).catch(error => {{
+                            console.error('Failed to load ESM module:', error);
+                            process.exit(1);
+                        }});
+                    }}).catch(error => {{
+                        console.error('Failed to import url module:', error);
+                        process.exit(1);
+                    }});
+                )",
+                pluginDirPath,
+                entryScriptPath
+            );
+        } else {
+            compiler = fmt::format(
+                R"(
+                    const __Path = require("path");
+                    const __PluginPath = __Path.join("{0}");
+                    const __PluginNodeModulesPath = __Path.join(__PluginPath, "node_modules");
 
-                         + "(function (exports, require, module, __filename, __dirname) { " + mainScripts.value()
-                         + "\n})({}, __LLSE_PublicRequire, __LLSE_PublicModule, '" + entryScriptPath + "', '"
-                         + pluginDirPath + "'); "; // TODO __filename & __dirname need to be reviewed
-        // TODO: ESM Support
+                    __dirname = __PluginPath;
+                    __filename = "{1}";
+                    (function ReplaeRequire() {{
+                        const PublicModule = require('module').Module;
+                        const OriginalResolveLookupPaths = PublicModule._resolveLookupPaths;
+                        PublicModule._resolveLookupPaths = function (request, parent) {{
+                            let result = OriginalResolveLookupPaths.call(this, request, parent);
+                            if (Array.isArray(result)) {{
+                                result.push(__PluginNodeModulesPath);
+                                result.push(__PluginPath);
+                            }}
+                            return result;
+                        }};
+                        require = PublicModule.createRequire(__PluginPath);
+                    }})();
+                    require("{1}");
+                )",
+                pluginDirPath,
+                entryScriptPath
+            );
+        }
 
         // Set exit handler
         node::SetProcessExitHandler(env, [](node::Environment* env_, int exit_code) { stopEngine(getEngine(env_)); });
 
         // Load code
-        MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, executeJs.c_str());
+        MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, compiler.c_str());
         if (loadenv_ret.IsEmpty()) // There has been a JS exception.
         {
             node::Stop(env);
@@ -303,6 +342,25 @@ bool doesPluginPackHasDependency(const std::string& dirPath) {
         nlohmann::json j;
         file >> j;
         if (j.contains("dependencies")) {
+            return true;
+        }
+        return false;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool isESModulesSystem(const std::string& dirPath) {
+    auto dirPath_obj = std::filesystem::path(dirPath);
+
+    std::filesystem::path packageFilePath = dirPath_obj / std::filesystem::path("package.json");
+    if (!std::filesystem::exists(packageFilePath)) return false;
+
+    try {
+        std::ifstream  file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
+        nlohmann::json j;
+        file >> j;
+        if (j.contains("type") && j["type"] == "module") {
             return true;
         }
         return false;

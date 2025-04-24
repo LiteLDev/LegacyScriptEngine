@@ -2343,7 +2343,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             bs.writeFloat(0.0f, nullptr, nullptr);
             bs.writeFloat(0.0f, nullptr, nullptr);
             bs.writeFloat(0.0f, nullptr, nullptr);
-            // Atrribute
+            // Attribute
             bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // DataItem
             bs.writeUnsignedVarInt(0, nullptr, nullptr);

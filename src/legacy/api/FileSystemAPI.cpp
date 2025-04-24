@@ -321,9 +321,9 @@ Local<Value> FileClass::readAll(const Arguments& args) {
 
             EngineScope scope(engine);
             try {
-                Local<Value> readed = isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
+                Local<Value> data = isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
                                                : String::newString(res).asValue();
-                NewTimeout(callback.get(), {readed}, 1);
+                NewTimeout(callback.get(), {data}, 1);
             }
             CATCH_IN_CALLBACK("FileReadAll")
         });

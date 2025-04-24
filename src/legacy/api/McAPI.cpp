@@ -52,7 +52,7 @@ ClassDefine<void> McClassBuilder = defineClass("mc")
                                        .function("setTime", &McClass::setTime)
                                        .function("getWeather", &McClass::getWeather)
                                        .function("setWeather", &McClass::setWeather)
-                                       // For Compatity
+                                       // For Compatibility
                                        .function("getAllScoreObjective", &McClass::getAllScoreObjectives)
                                        .function("getDisplayObjectives", &McClass::getDisplayObjective)
                                        .function("crash", &McClass::crashBDS)

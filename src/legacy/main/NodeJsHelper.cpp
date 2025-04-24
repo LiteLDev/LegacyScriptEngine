@@ -121,7 +121,7 @@ script::ScriptEngine* newEngine() {
         [](void* arg) {
             static_cast<script::ScriptEngine*>(arg)->destroy();
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
-                "Destory ScriptEngine for node.js [{}]",
+                "Destroy ScriptEngine for node.js [{}]",
                 arg
             );
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Destroy EnvironmentCleanupHook");
@@ -182,7 +182,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
 
                     __dirname = __PluginPath;
                     __filename = "{1}";
-                    (function ReplaeRequire() {{
+                    (function ReplaceRequire() {{
                         const PublicModule = require('module').Module;
                         const OriginalResolveLookupPaths = PublicModule._resolveLookupPaths;
                         PublicModule._resolveLookupPaths = function (request, parent) {{

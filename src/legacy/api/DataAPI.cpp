@@ -679,15 +679,15 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
         string res{EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32())};
         return objectificationMoneyHistory(res);
     } catch (const std::invalid_argument& e) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyGetHintory!");
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
         return Local<Value>();
     } catch (const std::out_of_range& e) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyGetHintory!");
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
         return Local<Value>();
     }
-    CATCH("Fail in MoneyGetHintory!");
+    CATCH("Fail in MoneyGetHistory!");
 }
 
 Local<Value> MoneyClass::clearHistory(const Arguments& args) {
@@ -948,7 +948,7 @@ Local<Value> DataClass::fromBase64(const Arguments& args) {
     CATCH("Fail in FromBase64!");
 }
 
-// For Compability
+// For Compatibility
 
 Local<Value> KVDBClass::newDb(const string& dir) {
     auto newp = new KVDBClass(dir);

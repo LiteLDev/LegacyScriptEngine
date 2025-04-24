@@ -57,6 +57,7 @@ void BindAPIs(ScriptEngine* engine) {
     engine->registerNativeClass(NbtStaticBuilder);
     engine->registerNativeClass(TextClassBuilder);
     engine->registerNativeClass(ParticleColorBuilder);
+    engine->registerNativeClass(DirectionBuilder);
 
     engine->registerNativeClass(PermissionStaticBuilder);
     engine->registerNativeClass(ParamTypeStaticBuilder);

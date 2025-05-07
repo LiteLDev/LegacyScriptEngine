@@ -30,14 +30,12 @@
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
 #include "mc/world/actor/ActorType.h"
-#include "mc/world/actor/BuiltInActorComponents.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-#include "mc/world/attribute/AttributeModificationContext.h"
 #include "mc/world/attribute/MutableAttributeWithContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -46,7 +44,6 @@
 #include "mc/world/level/Spawner.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/CachedComponentData.h"
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
@@ -550,7 +547,9 @@ Local<Value> EntityClass::getInClouds() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(entity->isInClouds());
+        short cloudHeight = entity->getDimension().getCloudHeight();
+        float y           = entity->getPosition().y;
+        return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
     CATCH("Fail in getInClouds!")
 }

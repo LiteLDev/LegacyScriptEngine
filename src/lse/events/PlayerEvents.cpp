@@ -47,6 +47,7 @@
 #include "mc/world/level/block/actor/BarrelBlockActor.h"
 #include "mc/world/level/block/actor/ChestBlockActor.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
+#include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/phys/AABB.h"
@@ -244,23 +245,22 @@ LL_TYPE_INSTANCE_HOOK(
     UseFrameHook1,
     HookPriority::Normal,
     ItemFrameBlock,
-    &ItemFrameBlock::$use,
-    bool,
-    Player&         player,
-    BlockPos const& pos,
-    uchar           face
+    &ItemFrameBlock::use,
+    void,
+    BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
+        Player& player = eventData.mUnk765a41.as<Player&>();
         if (!CallEvent(
                 EVENT_TYPES::onUseFrameBlock,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(pos, player.getDimensionId())
+                BlockClass::newBlock(eventData.mUnkd82caf.as<BlockPos>(), player.getDimensionId())
             )) {
-            return false;
+            return;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseFrameBlock);
-    return origin(player, pos, face);
+    return origin(eventData);
 }
 
 LL_TYPE_INSTANCE_HOOK(

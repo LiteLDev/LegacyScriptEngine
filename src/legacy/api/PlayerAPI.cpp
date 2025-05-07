@@ -99,6 +99,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/CachedComponentData.h"
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
+#include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
 #include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
@@ -1128,7 +1129,9 @@ Local<Value> PlayerClass::getInClouds() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isInClouds());
+        short cloudHeight = player->getDimension().getCloudHeight();
+        float y           = player->getPosition().y;
+        return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
     CATCH("Fail in getInClouds!")
 }

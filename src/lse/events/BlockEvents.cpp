@@ -34,7 +34,7 @@
 #include "mc/world/level/block/FarmBlock.h"
 #include "mc/world/level/block/FenceGateBlock.h"
 #include "mc/world/level/block/HopperBlock.h"
-#include "mc/world/level/block/LiquidBlockDynamic.h"
+#include "mc/world/level/block/LiquidBlock.h"
 #include "mc/world/level/block/NoteBlock.h"
 #include "mc/world/level/block/PoweredRailBlock.h"
 #include "mc/world/level/block/RedStoneWireBlock.h"
@@ -337,8 +337,8 @@ REDSTONEHOOK(TntBlock)
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
     HookPriority::Normal,
-    LiquidBlockDynamic,
-    &LiquidBlockDynamic::_trySpreadTo,
+    LiquidBlock,
+    &LiquidBlock::_trySpreadTo,
     void,
     ::BlockSource&    region,
     ::BlockPos const& pos,

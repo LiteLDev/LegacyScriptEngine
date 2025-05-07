@@ -155,9 +155,12 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         using namespace v8;
         EngineScope enter(engine);
 
-        string compiler;
+        string compiler = R"(
+            ll.import=ll.imports;
+            ll.export=ll.exports;)";
+
         if (esm) {
-            compiler = fmt::format(
+            compiler += fmt::format(
                 R"(
                     import('url').then(url => {{
                         const moduleUrl = url.pathToFileURL('{1}').href;
@@ -174,7 +177,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                 entryScriptPath
             );
         } else {
-            compiler = fmt::format(
+            compiler += fmt::format(
                 R"(
                     const __Path = require("path");
                     const __PluginPath = __Path.join("{0}");

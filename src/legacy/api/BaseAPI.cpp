@@ -189,20 +189,7 @@ Local<Value> DirectionAngle::toFacing() {
     if (static_cast<float>(static_cast<int>(value)) <= value) {
         result = static_cast<int>(value);
     }
-    switch (result) {
-    case 2:
-        facing = 0;
-        break;
-    case 3:
-        facing = 2;
-        break;
-    case 4:
-        facing = 3;
-        break;
-    case 5:
-        facing = 1;
-        break;
-    }
+    facing = (result + 2) % 4;
     return Number::newNumber(facing);
 }
 

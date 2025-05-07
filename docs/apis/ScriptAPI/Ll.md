@@ -118,7 +118,7 @@ LLSE provides the interface import to import functions already exported by other
 - Return value: The imported function
 - Return value type:  `Function`
 
-The return value of `ll.import` is a function. When you call this function, the cross-plugin call process will be done
+The return value of `ll.imports` is a function. When you call this function, the cross-plugin call process will be done
 automatically in the background. The parameters of the calling function will be wrapped and passed to the remote
 function, and the return value of this function is the return value returned by the remote function after it has been
 executed.
@@ -127,7 +127,7 @@ executed.
 
 For example, there is a plug-in that exports a function using the namespace AAA, and the name of the exported function
 is Welcome  
-You can execute `welcome = ll.import("AAA", "Welcome"); ` to import this function. After the import is complete, you can
+You can execute `welcome = ll.imports("AAA", "Welcome"); ` to import this function. After the import is complete, you can
 execute directly below:
 
 `welcome("hello",2,true);`

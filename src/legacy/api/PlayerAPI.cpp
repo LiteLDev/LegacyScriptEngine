@@ -998,7 +998,7 @@ Local<Value> PlayerClass::getSpeed() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(player->getSpeed());
+        return Number::newNumber(player->getPosDeltaPerSecLength());
     }
     CATCH("Fail in getSpeed!")
 }
@@ -1421,8 +1421,7 @@ Local<Value> PlayerClass::isMoving() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
+        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
         );
     }
     CATCH("Fail in isMoving!")

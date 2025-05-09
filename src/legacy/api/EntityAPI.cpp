@@ -626,7 +626,7 @@ Local<Value> EntityClass::getSpeed() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Number::newNumber((float)entity->getPosDelta().length() * 20.0);
+        return Number::newNumber(entity->getPosDeltaPerSecLength());
     }
     CATCH("Fail in getSpeed!")
 }

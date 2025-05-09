@@ -25,9 +25,9 @@
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.10.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.10.*",
-        "github.com/LiteLDev/LegacyMoney": "0.10.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.11.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.11.*",
+        "github.com/LiteLDev/LegacyMoney": "0.11.*",
         "gitea.litebds.com/ShrBox/7-zip": "24.*"
       },
       "assets": [

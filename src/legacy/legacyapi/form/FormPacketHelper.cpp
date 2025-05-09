@@ -170,7 +170,7 @@ LL_AUTO_TYPE_INSTANCE_HOOK(
     FormResponseHandler,
     HookPriority::Highest,
     PacketHandlerDispatcherInstance<ModalFormResponsePacket>,
-    &PacketHandlerDispatcherInstance<ModalFormResponsePacket>::handle,
+    &PacketHandlerDispatcherInstance<ModalFormResponsePacket>::$handle,
     void,
     NetworkIdentifier const& source,
     NetEventCallback&        callback,

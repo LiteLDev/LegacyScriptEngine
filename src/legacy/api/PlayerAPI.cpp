@@ -42,6 +42,7 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/nbt/ListTag.h"
+#include "mc/nbt/StringTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
@@ -118,6 +119,7 @@
 #include <climits>
 #include <memory>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -469,7 +471,28 @@ Local<Value> McClass::deletePlayerNbt(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         mce::UUID uuid = mce::UUID::fromString(args[0].asString().toString());
-        ll::service::getLevel()->getLevelStorage().deleteData("player_" + uuid.asString(), DBHelpers::Category::Player);
+        if (uuid == mce::UUID::EMPTY()) {
+            throw std::invalid_argument(args[0].asString().toString() + " is not a valid UUID");
+        }
+        auto storage = ll::service::getLevel().transform([](auto& level) { return &level.getLevelStorage(); });
+        if (!storage) {
+            return Boolean::newBoolean(false);
+        }
+        auto playerIds = storage->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
+        if (!playerIds) {
+            return Boolean::newBoolean(false);
+        }
+        for (auto& [type, id] : *playerIds) {
+            if (!id.is_string()) {
+                continue;
+            }
+            std::string& key = id.get<StringTag>();
+            if (type == "ServerId") {
+                storage->deleteData(key, ::DBHelpers::Category::Player);
+            } else {
+                storage->deleteData("player_" + key, ::DBHelpers::Category::Player);
+            }
+        }
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in deletePlayerNbt!")

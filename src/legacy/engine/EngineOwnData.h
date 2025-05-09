@@ -40,9 +40,6 @@ struct EngineOwnData {
     std::string pluginName = {};
     std::string engineType = LLSE_BACKEND_TYPE;
 
-    // Form callbacks
-    std::map<unsigned, FormCallbackData> formCallbacks;
-
     // RemoteCall Exported Functions: unordered_map<nameSpace, funcName>
     std::unordered_map<std::string, RemoteCallData> exportFuncs;
 

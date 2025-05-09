@@ -3,15 +3,14 @@
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
-#include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
+#include "ll/api/form/FormBase.h"
+#include "ll/api/form/SimpleForm.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/service/ServerInfo.h"
 #include "mc/world/actor/player/Player.h"
+#include "nlohmann/json_fwd.hpp"
 
-#include <iostream>
-
-using lse::form::FormCancelReason;
+using ll::form::FormCancelReason;
 
 //////////////////// Class Definition ////////////////////
 
@@ -44,33 +43,27 @@ Local<Object> SimpleFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-lse::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
+ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<SimpleFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<SimpleFormClass>(v)->get();
     else return nullptr;
 }
 
-void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, script::Local<Function>& callback) {
+void SimpleFormClass::sendForm(ll::form::SimpleForm* form, Player* player, script::Local<Function>& callback) {
     script::Global<Function> callbackFunc{callback};
-
     form->sendTo(
-        player,
+        *player,
         [engine{EngineScope::currentEngine()},
-         callback{std::move(callbackFunc)}](Player* pl, int chosen, FormCancelReason reason) {
+         callback{std::move(callbackFunc)}](Player& pl, int chosen, FormCancelReason reason) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
             EngineScope scope(engine);
             try {
-                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl), Local<Value>());
-                else
-                    callback.get().call(
-                        {},
-                        PlayerClass::newPlayer(pl),
-                        Number::newNumber(chosen),
-                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
-                    );
+                auto reasonValue = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
+                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(&pl), reasonValue);
+                else callback.get().call({}, PlayerClass::newPlayer(&pl), Number::newNumber(chosen), reasonValue);
             }
             CATCH_IN_CALLBACK("sendForm")
         }
@@ -107,7 +100,8 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
 
     try {
         std::string image = args.size() >= 2 ? args[1].asString().toString() : "";
-        form.addButton(args[0].asString().toString(), image);
+        std::string type  = image.starts_with("http") ? "url" : "path";
+        form.appendButton(args[0].asString().toString(), image, type);
         return this->getScriptObject();
     }
     CATCH("Fail in addButton!")
@@ -123,32 +117,32 @@ Local<Object> CustomFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-lse::form::CustomForm* CustomFormClass::extract(Local<Value> v) {
+lse::form::CustomFormWrapper* CustomFormClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<CustomFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<CustomFormClass>(v)->get();
     else return nullptr;
 }
 
 // 成员函数
-void CustomFormClass::sendForm(lse::form::CustomForm* form, Player* player, script::Local<Function>& callback) {
+void CustomFormClass::sendForm(lse::form::CustomFormWrapper* form, Player* player, script::Local<Function>& callback) {
     script::Global<Function> callbackFunc{callback};
-
-    form->sendToForRawJson(
-        player,
+    form->sendTo(
+        *player,
         [engine{EngineScope::currentEngine()},
-         callback{std::move(callbackFunc)}](Player* player, std::string data, FormCancelReason reason) {
+         callback{std::move(callbackFunc)
+         }](Player& player, lse::form::CustomFormResult const& data, FormCancelReason reason) {
             if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
             if (!EngineManager::isValid(engine)) return;
             if (callback.isEmpty()) return;
 
-            EngineScope scope(engine);
+            EngineScope  scope(engine);
+            Local<Value> result;
+            if (data) {
+                result = JsonToValue(*data);
+            }
+            auto reasonVal = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
             try {
-                callback.get().call(
-                    {},
-                    PlayerClass::newPlayer(player),
-                    JsonToValue(data),
-                    reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
-                );
+                callback.get().call({}, PlayerClass::newPlayer(&player), result, reasonVal);
             }
             CATCH_IN_CALLBACK("sendForm")
         }
@@ -171,7 +165,7 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
-        form.addLabel(args[0].asString().toString(), args[0].asString().toString());
+        form.appendLabel(args[0].asString().toString());
         return this->getScriptObject();
     }
     CATCH("Fail in addLabel!")
@@ -187,7 +181,7 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
         std::string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
         std::string def         = args.size() >= 3 ? args[2].asString().toString() : "";
 
-        form.addInput(args[0].asString().toString(), args[0].asString().toString(), placeholder, def);
+        form.appendInput(args[0].asString().toString(), placeholder, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addInput!")
@@ -207,7 +201,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
         bool def =
             args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
 
-        form.addToggle(args[0].asString().toString(), args[0].asString().toString(), def);
+        form.appendToggle(args[0].asString().toString(), def);
         return this->getScriptObject();
     }
     CATCH("Fail in addSwitch!")
@@ -222,11 +216,14 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
     try {
         auto                     optionsArr = args[1].asArray();
         std::vector<std::string> options;
-        for (int i = 0; i < optionsArr.size(); ++i) options.push_back(optionsArr.get(i).asString().toString());
+        options.reserve(optionsArr.size());
+        for (size_t i = 0; i < optionsArr.size(); ++i) {
+            options.emplace_back(optionsArr.get(i).asString().toString());
+        }
 
         int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.addDropdown(args[0].asString().toString(), args[0].asString().toString(), options, def);
+        form.appendDropdown(args[0].asString().toString(), options, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addDropdown!")
@@ -249,8 +246,8 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         int defValue = args.size() >= 5 ? args[4].asNumber().toInt32() : minValue;
         if (defValue < minValue || defValue > maxValue) defValue = minValue;
 
-        form.addSlider(
-            args[0].asString().toString(),
+        form.appendSlider(
+
             args[0].asString().toString(),
             minValue,
             maxValue,
@@ -271,11 +268,12 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
     try {
         auto                     stepsArr = args[1].asArray();
         std::vector<std::string> steps;
-        for (int i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).asString().toString());
+        steps.reserve(stepsArr.size());
+        for (size_t i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).asString().toString());
 
         int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.addStepSlider(args[0].asString().toString(), args[0].asString().toString(), steps, defIndex);
+        form.appendStepSlider(args[0].asString().toString(), steps, defIndex);
         return this->getScriptObject();
     }
     CATCH("Fail in addStepSlider!")

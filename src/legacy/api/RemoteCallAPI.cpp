@@ -190,7 +190,8 @@ Local<Value> MakeRemoteCall(const string& nameSpace, const string& funcName, con
     }
 
     std::vector<RemoteCall::ValueType> params;
-    for (int i = 0; i < args.size(); ++i) {
+    params.reserve(args.size());
+    for (size_t i = 0; i < args.size(); ++i) {
         params.emplace_back(pack(args[i]));
     }
     return extract(func(std::move(params)));
@@ -220,6 +221,7 @@ bool LLSEExportFunc(
             }
             auto                              scriptCallback = iter->second.callback.get();
             std::vector<script::Local<Value>> scriptParams;
+            scriptParams.reserve(params.size());
             for (auto& param : params) {
                 scriptParams.emplace_back(extract(std::move(param)));
             }

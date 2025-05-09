@@ -15,10 +15,9 @@
 #include "api/PacketAPI.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "legacyapi/form/FormPacketHelper.h"
-#include "legacyapi/form/FormUI.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
+#include "ll/api/form/ModalForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/PlayerInfo.h"
@@ -64,7 +63,6 @@
 #include "mc/platform/UUID.h"
 #include "mc/server/NetworkChunkPublisher.h"
 #include "mc/server/ServerPlayer.h"
-#include "mc/server/commands/Command.h"
 #include "mc/server/commands/CommandContext.h"
 #include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
@@ -87,9 +85,7 @@
 #include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-#include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
-#include "mc/world/attribute/AttributeModificationContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -102,7 +98,6 @@
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
-#include "mc/world/level/storage/AdventureSettings.h"
 #include "mc/world/level/storage/DBStorage.h"
 #include "mc/world/level/storage/db_helpers/Category.h"
 #include "mc/world/phys/HitResult.h"
@@ -114,18 +109,6 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
-
-#include <algorithm>
-#include <climits>
-#include <memory>
-#include <optional>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-using lse::api::AttributeHelper;
-using lse::api::ScoreboardHelper;
-using lse::form::FormCancelReason;
 
 //////////////////// Class Definition ////////////////////
 
@@ -2469,19 +2452,22 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
         auto imagesArr = args[3].asArray();
         if (imagesArr.size() != textsArr.size() || !imagesArr.get(0).isString()) return Local<Value>();
 
-        lse::form::SimpleForm form(args[0].asString().toString(), args[1].asString().toString());
+        ll::form::SimpleForm form(args[0].asString().toString(), args[1].asString().toString());
         for (size_t i = 0; i < textsArr.size(); ++i) {
             Local<Value> img = imagesArr.get(i);
             if (img.isString()) {
-                form.addButton(textsArr.get(i).asString().toString(), img.asString().toString());
+                auto path = img.asString().toString();
+                auto type = path.starts_with("http") ? "url" : "path";
+                form.appendButton(textsArr.get(i).asString().toString(), path, type);
             } else {
-                form.addButton(textsArr.get(i).asString().toString());
+                form.appendButton(textsArr.get(i).asString().toString());
             }
         }
         form.sendTo(
-            player,
+            *player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player* pl, int chosen, FormCancelReason reason) {
+             callback{script::Global(args[4].asFunction())
+             }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
@@ -2489,7 +2475,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
                 try {
                     callback.get().call(
                         {},
-                        PlayerClass::newPlayer(pl),
+                        PlayerClass::newPlayer(&pl),
                         chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
                         reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
                     );
@@ -2515,16 +2501,17 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        lse::form::ModalForm form(
+        ll::form::ModalForm form(
             args[0].asString().toString(),
             args[1].asString().toString(),
             args[2].asString().toString(),
             args[3].asString().toString()
         );
         form.sendTo(
-            player,
+            *player,
             [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())}](Player* pl, bool chosen, FormCancelReason reason) {
+             callback{script::Global(args[4].asFunction())
+             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
@@ -2532,8 +2519,8 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
                 try {
                     callback.get().call(
                         {},
-                        PlayerClass::newPlayer(pl),
-                        chosen ? Boolean::newBoolean(chosen) : Local<Value>(),
+                        PlayerClass::newPlayer(&pl),
+                        chosen ? Boolean::newBoolean(static_cast<bool>(*chosen)) : Local<Value>(),
                         reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
                     );
                 }
@@ -2555,25 +2542,25 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        std::string data = ordered_json::parse(args[0].asString().toString()).dump();
-
-        unsigned               formId = lse::form::NewFormId();
-        ModalFormRequestPacket packet(formId, data);
-        player->sendNetworkPacket(packet);
-        lse::form::SetCustomFormPacketCallback(
-            formId,
+        auto formData = ordered_json::parse(args[0].asString().toString());
+        ll::form::Form::sendRawTo(
+            *player,
+            formData.dump(),
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
-             callback{script::Global(args[1].asFunction())}](Player* player, string result, FormCancelReason reason) {
+             callback{script::Global(args[1].asFunction())},
+             formData = std::move(formData
+             )](Player& player, std::optional<std::string> const& result, ll::form::FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
+                auto newResult = lse::form::CustomFormWrapper::convertResult(result, formData);
 
                 EngineScope scope(engine);
                 try {
                     callback.get().call(
                         {},
-                        PlayerClass::newPlayer(player),
-                        result != "null" ? JsonToValue(result) : Local<Value>(),
+                        PlayerClass::newPlayer(&player),
+                        newResult ? JsonToValue(*newResult) : Local<Value>(),
                         reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
                     );
                 }

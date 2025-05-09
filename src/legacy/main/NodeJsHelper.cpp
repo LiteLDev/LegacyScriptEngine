@@ -9,6 +9,7 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h"
+#include "ll/api/io/LogLevel.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
@@ -162,16 +163,18 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         if (esm) {
             compiler += fmt::format(
                 R"(
-                    import('url').then(url => {{
-                        const moduleUrl = url.pathToFileURL('{1}').href;
-                        import(moduleUrl).catch(error => {{
-                            console.error('Failed to load ESM module:', error);
+                    Promise.all([import("url"), import("util")])
+                        .then(([url, util]) => {{
+                            const moduleUrl = url.pathToFileURL("{1}").href;
+                            import(moduleUrl).catch((error) => {{
+                                logger.error(`Failed to load ESM module: `, util.inspect(error));
+                                process.exit(1);
+                            }});
+                        }})
+                        .catch((error) => {{
+                            console.error(`Failed to import "url" or "util" module:`, error);
                             process.exit(1);
                         }});
-                    }}).catch(error => {{
-                        console.error('Failed to import url module:', error);
-                        process.exit(1);
-                    }});
                 )",
                 pluginDirPath,
                 entryScriptPath
@@ -206,10 +209,19 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         }
 
         // Set exit handler
-        node::SetProcessExitHandler(env, [](node::Environment* env_, int exit_code) { stopEngine(getEngine(env_)); });
+        node::SetProcessExitHandler(env, [](node::Environment* env_, int exit_code) {
+            auto engine = getEngine(env_);
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().log(
+                exit_code == 0 ? ll::io::LogLevel::Debug : ll::io::LogLevel::Error,
+                "NodeJs plugin {} exited with code {}.",
+                getEngineData(engine)->pluginName,
+                exit_code
+            );
+            stopEngine(engine);
+        });
 
         // Load code
-        MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, compiler.c_str());
+        MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, compiler);
         if (loadenv_ret.IsEmpty()) // There has been a JS exception.
         {
             node::Stop(env);
@@ -278,10 +290,6 @@ bool stopEngine(node::Environment* env) {
 }
 
 bool stopEngine(script::ScriptEngine* engine) {
-    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
-        "NodeJs plugin {} exited.",
-        getEngineData(engine)->pluginName
-    );
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }
@@ -324,7 +332,7 @@ std::string getPluginPackageName(const std::string& dirPath) {
         std::ifstream  file(ll::string_utils::u8str2str(packageFilePath.make_preferred().u8string()));
         nlohmann::json j;
         file >> j;
-        std::string packageName = "";
+        std::string packageName{};
         if (j.contains("name")) {
             packageName = j["name"].get<std::string>();
         }
@@ -385,7 +393,7 @@ bool processConsoleNpmCmd(const std::string& cmd) {
 #endif
 }
 
-int executeNpmCommand(std::string cmd, std::string workingDir) {
+int executeNpmCommand(const std::string& cmd, std::string workingDir) {
     if (!nodeJsInited && !initNodeJs()) {
         return -1;
     }
@@ -431,7 +439,7 @@ int executeNpmCommand(std::string cmd, std::string workingDir) {
 
         try {
             node::SetProcessExitHandler(env, [&](node::Environment* env_, int exit_code) { node::Stop(env); });
-            MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, executeJs.c_str());
+            MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, executeJs);
             if (loadenv_ret.IsEmpty()) // There has been a JS exception.
                 throw "error";
             exit_code = node::SpinEventLoop(env).FromMaybe(0);

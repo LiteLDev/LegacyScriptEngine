@@ -30,6 +30,6 @@ bool        doesPluginPackHasDependency(const std::string& dirPath);
 bool        isESModulesSystem(const std::string& dirPath);
 
 bool processConsoleNpmCmd(const std::string& cmd);
-int  executeNpmCommand(std::string cmd, std::string workingDir = LLSE_NPM_EXECUTE_PATH);
+int  executeNpmCommand(const std::string& cmd, std::string workingDir = LLSE_NPM_EXECUTE_PATH);
 
 } // namespace NodeJsHelper

@@ -159,6 +159,7 @@ public:
     Local<Value> sendModalForm(const Arguments& args);
     Local<Value> sendCustomForm(const Arguments& args);
     Local<Value> sendForm(const Arguments& args);
+    Local<Value> closeForm(const Arguments& args);
     Local<Value> sendPacket(const Arguments& args);
 
     Local<Value> setExtraData(const Arguments& args);

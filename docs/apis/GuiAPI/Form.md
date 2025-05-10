@@ -122,3 +122,11 @@ Parameter `callback` The callback function prototype: `function(player,data)`
   The reason why the form is closed.
   0 = UserClosed, 1 = UserBusy
   The reason may be `null`.
+
+### Close the form that the player is currently opening
+
+`pl.closeForm()`
+
+- Return value: Whether the request is successful
+- Return value type: `Boolean`
+ 

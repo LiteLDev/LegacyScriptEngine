@@ -48,8 +48,8 @@
 #include "mc/network/NetEventCallback.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
+#include "mc/network/packet/ClientboundCloseFormPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
-#include "mc/network/packet/ModalFormRequestPacket.h"
 #include "mc/network/packet/RemoveObjectivePacket.h"
 #include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
@@ -260,6 +260,7 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceFunction("sendModalForm", &PlayerClass::sendModalForm)
         .instanceFunction("sendCustomForm", &PlayerClass::sendCustomForm)
         .instanceFunction("sendForm", &PlayerClass::sendForm)
+        .instanceFunction("closeForm", &PlayerClass::closeForm)
         .instanceFunction("sendPacket", &PlayerClass::sendPacket)
 
         .instanceFunction("setExtraData", &PlayerClass::setExtraData)
@@ -2604,6 +2605,17 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
+        return Boolean::newBoolean(true);
+    }
+    CATCH("Fail in sendForm!");
+}
+
+Local<Value> PlayerClass::closeForm(const Arguments&) {
+    try {
+        Player* player = get();
+        if (!player) return Local<Value>();
+
+        ClientboundCloseFormPacket().sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in sendForm!");

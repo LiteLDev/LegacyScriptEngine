@@ -116,3 +116,10 @@
   表单被取消的原因
   0 = UserClosed, 1 = UserBusy
   reason可能会是`null`.
+
+### 关闭玩家正在打开的表单
+
+`pl.closeForm()`
+
+- 返回值：请求是否成功
+- 返回值类型：`Boolean`

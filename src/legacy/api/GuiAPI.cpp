@@ -69,9 +69,12 @@ void SimpleFormClass::sendForm(
 
         EngineScope scope(engine);
         try {
-            auto reasonValue = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
-            if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(&pl), reasonValue);
-            else callback.get().call({}, PlayerClass::newPlayer(&pl), Number::newNumber(chosen), reasonValue);
+            callback.get().call(
+                {},
+                PlayerClass::newPlayer(&pl),
+                chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
+                reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+            );
         }
         CATCH_IN_CALLBACK("sendForm")
     };

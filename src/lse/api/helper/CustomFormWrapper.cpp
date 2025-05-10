@@ -1,5 +1,7 @@
 #include "CustomFormWrapper.h"
 
+#include "nlohmann/json.hpp"
+
 namespace lse::form {
 
 CustomFormResult
@@ -24,11 +26,18 @@ CustomFormWrapper::convertResult(std::optional<std::string> const& result, std::
 CustomFormResult
 CustomFormWrapper::convertResult(std::optional<std::string> const& result, nlohmann::ordered_json const& formData) {
     if (!result) return {};
+    auto type    = formData.find("type");
+    auto content = formData.find("content");
+    if (content == formData.end() || type == formData.end() || *type != "custom") {
+        return nlohmann::ordered_json::parse(*result);
+    }
     std::vector<int>      resultIndices{};
     int                   index = 0;
     std::set<std::string> fillNullTypes({"header", "label", "divider"});
-    for (auto& data : formData["content"]) {
-        if (fillNullTypes.contains(data["type"])) resultIndices.emplace_back(-1);
+    for (auto& data : *content) {
+        auto type = data.find("type");
+        if (type == data.end()) return {};
+        if (fillNullTypes.contains(*type)) resultIndices.emplace_back(-1);
         else resultIndices.emplace_back(index++);
     }
     return convertResult(result, resultIndices);

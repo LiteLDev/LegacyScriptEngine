@@ -2,7 +2,7 @@
 
 #include "ll/api/form/CustomForm.h"
 #include "ll/api/form/FormBase.h"
-#include "nlohmann/json.hpp"
+#include "nlohmann/json_fwd.hpp"
 
 namespace lse::form {
 

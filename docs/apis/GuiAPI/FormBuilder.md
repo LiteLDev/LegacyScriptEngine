@@ -57,6 +57,33 @@ For each button on the form, set the corresponding icon as follows:
 2. If you use a URL path, you can put the full URL here, like `https://www.baidu.com/img/flexible/logo/pc/result.png`
 3. If you don't need to display an image for this button, just don't pass in this parameter.
 
+#### Add a Header to the Form
+
+`fm.addHeader(text)`
+
+- Parameters:
+    - text : `String`  
+      Header.
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `SimpleForm`
+
+#### Add a Line of Text to the Form
+
+`fm.addLabel(text)`
+
+- Parameters:
+    - text : `String`  
+      Line of text.
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `SimpleForm`
+
+#### Add a Divider to the Form
+
+`fm.addDivider()`
+
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `SimpleForm`
+
 ### Send Form
 
 Finally, when everything is in place, you can send the configured form object to the player and listen for player
@@ -118,6 +145,16 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
+#### Add a Header to the Form
+
+`fm.addHeader(text)`
+
+- Parameters:
+    - text : `String`  
+      Header.
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `CustomForm`
+
 #### Add a Line of Text to the Form
 
 `fm.addLabel(text)`
@@ -125,6 +162,13 @@ For a specific form object `fm`, the following functions are available:
 - Parameters:
     - text : `String`  
       Line of text.
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `CustomForm`
+
+#### Add a Divider to the Form
+
+`fm.addDivider()`
+
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 

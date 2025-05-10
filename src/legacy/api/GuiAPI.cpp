@@ -19,13 +19,18 @@ ClassDefine<SimpleFormClass> SimpleFormClassBuilder = defineClass<SimpleFormClas
                                                           .instanceFunction("setTitle", &SimpleFormClass::setTitle)
                                                           .instanceFunction("setContent", &SimpleFormClass::setContent)
                                                           .instanceFunction("addButton", &SimpleFormClass::addButton)
+                                                          .instanceFunction("addHeader", &SimpleFormClass::addHeader)
+                                                          .instanceFunction("addLabel", &SimpleFormClass::addLabel)
+                                                          .instanceFunction("addDivider", &SimpleFormClass::addDivider)
                                                           .build();
 
 ClassDefine<CustomFormClass> CustomFormClassBuilder =
     defineClass<CustomFormClass>("LLSE_CustomForm")
         .constructor(nullptr)
         .instanceFunction("setTitle", &CustomFormClass::setTitle)
+        .instanceFunction("addHeader", &CustomFormClass::addHeader)
         .instanceFunction("addLabel", &CustomFormClass::addLabel)
+        .instanceFunction("addDivider", &CustomFormClass::addDivider)
         .instanceFunction("addInput", &CustomFormClass::addInput)
         .instanceFunction("addSwitch", &CustomFormClass::addSwitch)
         .instanceFunction("addDropdown", &CustomFormClass::addDropdown)
@@ -49,25 +54,29 @@ ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
     else return nullptr;
 }
 
-void SimpleFormClass::sendForm(ll::form::SimpleForm* form, Player* player, script::Local<Function>& callback) {
+void SimpleFormClass::sendForm(
+    ll::form::SimpleForm*    form,
+    Player*                  player,
+    script::Local<Function>& callback,
+    bool                     update
+) {
     script::Global<Function> callbackFunc{callback};
-    form->sendTo(
-        *player,
-        [engine{EngineScope::currentEngine()},
-         callback{std::move(callbackFunc)}](Player& pl, int chosen, FormCancelReason reason) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
-            if (!EngineManager::isValid(engine)) return;
-            if (callback.isEmpty()) return;
+    auto                     cb = [engine{EngineScope::currentEngine()},
+               callback{std::move(callbackFunc)}](Player& pl, int chosen, FormCancelReason reason) {
+        if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
+        if (!EngineManager::isValid(engine)) return;
+        if (callback.isEmpty()) return;
 
-            EngineScope scope(engine);
-            try {
-                auto reasonValue = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
-                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(&pl), reasonValue);
-                else callback.get().call({}, PlayerClass::newPlayer(&pl), Number::newNumber(chosen), reasonValue);
-            }
-            CATCH_IN_CALLBACK("sendForm")
+        EngineScope scope(engine);
+        try {
+            auto reasonValue = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
+            if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(&pl), reasonValue);
+            else callback.get().call({}, PlayerClass::newPlayer(&pl), Number::newNumber(chosen), reasonValue);
         }
-    );
+        CATCH_IN_CALLBACK("sendForm")
+    };
+    if (update) form->sendUpdate(*player, std::move(cb));
+    else form->sendTo(*player, std::move(cb));
 }
 
 // 成员函数
@@ -107,6 +116,38 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
     CATCH("Fail in addButton!")
 }
 
+Local<Value> SimpleFormClass::addHeader(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        form.appendLabel(args[0].asString().toString());
+        return this->getScriptObject();
+    }
+    CATCH("Fail in addHeader!")
+}
+
+Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        form.appendLabel(args[0].asString().toString());
+        return this->getScriptObject();
+    }
+    CATCH("Fail in addLabel!")
+}
+
+Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 0);
+
+    try {
+        form.appendDivider();
+        return this->getScriptObject();
+    }
+    CATCH("Fail in addDivider!")
+}
+
 //////////////////// Custom Form ////////////////////
 
 CustomFormClass::CustomFormClass() : ScriptClass(ScriptClass::ConstructFromCpp<CustomFormClass>{}), form("") {}
@@ -124,29 +165,33 @@ lse::form::CustomFormWrapper* CustomFormClass::extract(Local<Value> v) {
 }
 
 // 成员函数
-void CustomFormClass::sendForm(lse::form::CustomFormWrapper* form, Player* player, script::Local<Function>& callback) {
+void CustomFormClass::sendForm(
+    lse::form::CustomFormWrapper* form,
+    Player*                       player,
+    script::Local<Function>&      callback,
+    bool                          update
+) {
     script::Global<Function> callbackFunc{callback};
-    form->sendTo(
-        *player,
-        [engine{EngineScope::currentEngine()},
-         callback{std::move(callbackFunc)
-         }](Player& player, lse::form::CustomFormResult const& data, FormCancelReason reason) {
-            if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
-            if (!EngineManager::isValid(engine)) return;
-            if (callback.isEmpty()) return;
+    auto                     cb = [engine{EngineScope::currentEngine()},
+               callback{std::move(callbackFunc)
+               }](Player& player, lse::form::CustomFormResult const& data, FormCancelReason reason) {
+        if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
+        if (!EngineManager::isValid(engine)) return;
+        if (callback.isEmpty()) return;
 
-            EngineScope  scope(engine);
-            Local<Value> result;
-            if (data) {
-                result = JsonToValue(*data);
-            }
-            auto reasonVal = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
-            try {
-                callback.get().call({}, PlayerClass::newPlayer(&player), result, reasonVal);
-            }
-            CATCH_IN_CALLBACK("sendForm")
+        EngineScope  scope(engine);
+        Local<Value> result;
+        if (data) {
+            result = JsonToValue(*data);
         }
-    );
+        auto reasonVal = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
+        try {
+            callback.get().call({}, PlayerClass::newPlayer(&player), result, reasonVal);
+        }
+        CATCH_IN_CALLBACK("sendForm")
+    };
+    if (update) form->sendUpdate(*player, std::move(cb));
+    else form->sendTo(*player, std::move(cb));
 }
 
 Local<Value> CustomFormClass::setTitle(const Arguments& args) {
@@ -160,6 +205,17 @@ Local<Value> CustomFormClass::setTitle(const Arguments& args) {
     CATCH("Fail in setTitle!")
 }
 
+Local<Value> CustomFormClass::addHeader(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1)
+    CHECK_ARG_TYPE(args[0], ValueKind::kString)
+
+    try {
+        form.appendLabel(args[0].asString().toString());
+        return this->getScriptObject();
+    }
+    CATCH("Fail in addHeader!")
+}
+
 Local<Value> CustomFormClass::addLabel(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
@@ -169,6 +225,16 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
         return this->getScriptObject();
     }
     CATCH("Fail in addLabel!")
+}
+
+Local<Value> CustomFormClass::addDivider(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 0)
+
+    try {
+        form.appendDivider();
+        return this->getScriptObject();
+    }
+    CATCH("Fail in addDivider!")
 }
 
 Local<Value> CustomFormClass::addInput(const Arguments& args) {

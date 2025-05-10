@@ -12,7 +12,7 @@
 
 模式表单包含一个标题、一个文本显示框以及两个按钮
 
-`pl.sendModalForm(title,content,confirmButton,cancelButton,callback)`
+`pl.sendModalForm(title,content,confirmButton,cancelButton,callback,forUpdating)`
 
 - 参数：
     - title : `String`  
@@ -25,6 +25,8 @@
       按钮2文本的字符串
     - callback : `Function`  
       玩家点击按钮之后被调用的回调函数。
+    - forUpdating : `Boolean`
+      是否为表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败
@@ -46,7 +48,7 @@
 普通表单包含一个标题、一个文本显示框以及若干按钮，可以设置按钮上显示的图标  
 由于按钮的内容设置相对复杂，建议使用下一节的表单构建器API更好地完成这项任务。
 
-`pl.sendSimpleForm(title,content,buttons,images,callback)`
+`pl.sendSimpleForm(title,content,buttons,images,callback,forUpdating)`
 
 - 参数：
     - title : `String`  
@@ -59,6 +61,8 @@
       各个按钮对应的图片路径
     - callback : `Function`  
       玩家点击按钮之后被调用的回调函数。
+    - forUpdating : `Boolean`
+      是否为表单更新。
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败
@@ -87,13 +91,15 @@
 自定义表单可以包含丰富的自定义控件。  
 由于相关JSON定义格式相对复杂，建议使用下一节的表单构建器API更好地完成这项任务。
 
-`pl.sendCustomForm(json,callback)`
+`pl.sendCustomForm(json,callback,forUpdating)`
 
 - 参数：
     - json : `String`  
       自定义表单json字符串
     - callback : `Function`  
       玩家提交表单之后被调用的回调函数。
+    - forUpdating : `Boolean`
+      是否为表单更新。
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败

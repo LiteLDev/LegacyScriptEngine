@@ -93,13 +93,15 @@
 
 对于某个玩家对象`pl`，使用函数：
 
-`pl.sendForm(fm,callback)`
+`pl.sendForm(fm,callback,forUpdating)`
 
 - 参数：
     - fm : `SimpleForm`  
       配置好的表单对象
     - callback : `Function`  
       玩家与表单元素互动之后被调用的回调函数。
+    - forUpdating : `Boolean`
+      是否为表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败
@@ -260,13 +262,15 @@ reason可能会是`null`.
 
 对于某个玩家对象`pl`，使用函数：
 
-`pl.sendForm(fm,callback)`
+`pl.sendForm(fm,callback,forUpdating)`
 
 - 参数：
     - fm : `CustomForm`  
       配置好的自定义表单对象
     - callback : `Function`  
       玩家提交表单之后被调用的回调函数。
+    - forUpdating : `Boolean`
+      是否为表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败

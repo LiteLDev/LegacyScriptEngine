@@ -45,6 +45,7 @@
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
+#include "mc/network/NetEventCallback.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
@@ -2435,16 +2436,18 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
 }
 
 Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 4);
+    CHECK_ARGS_COUNT(args, 5);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kArray);
     CHECK_ARG_TYPE(args[3], ValueKind::kArray);
     CHECK_ARG_TYPE(args[4], ValueKind::kFunction);
+    if (args.size() > 5) CHECK_ARG_TYPE(args[5], ValueKind::kBoolean);
 
     try {
         Player* player = get();
         if (!player) return Local<Value>();
+        bool update = args.size() > 5 ? args[5].asBoolean().value() : false;
 
         // 普通格式
         auto textsArr = args[2].asArray();
@@ -2463,26 +2466,25 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
                 form.appendButton(textsArr.get(i).asString().toString());
             }
         }
-        form.sendTo(
-            *player,
-            [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())
-             }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
-                if (!EngineManager::isValid(engine)) return;
+        auto formCallback = [engine{EngineScope::currentEngine()},
+                             callback{script::Global(args[4].asFunction())
+                             }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
+            if (!EngineManager::isValid(engine)) return;
 
-                EngineScope scope(engine);
-                try {
-                    callback.get().call(
-                        {},
-                        PlayerClass::newPlayer(&pl),
-                        chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
-                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
-                    );
-                }
-                CATCH_IN_CALLBACK("sendSimpleForm")
+            EngineScope scope(engine);
+            try {
+                callback.get().call(
+                    {},
+                    PlayerClass::newPlayer(&pl),
+                    chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
+                    reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                );
             }
-        );
+            CATCH_IN_CALLBACK("sendSimpleForm")
+        };
+        if (update) form.sendUpdate(*player, std::move(formCallback));
+        else form.sendTo(*player, std::move(formCallback));
 
         return Number::newNumber(1);
     }
@@ -2496,10 +2498,12 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
     CHECK_ARG_TYPE(args[2], ValueKind::kString);
     CHECK_ARG_TYPE(args[3], ValueKind::kString);
     CHECK_ARG_TYPE(args[4], ValueKind::kFunction);
+    if (args.size() > 5) CHECK_ARG_TYPE(args[5], ValueKind::kBoolean);
 
     try {
         Player* player = get();
         if (!player) return Local<Value>();
+        bool update = args.size() > 5 ? args[5].asBoolean().value() : false;
 
         ll::form::ModalForm form(
             args[0].asString().toString(),
@@ -2507,26 +2511,27 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             args[2].asString().toString(),
             args[3].asString().toString()
         );
-        form.sendTo(
-            *player,
-            [engine{EngineScope::currentEngine()},
-             callback{script::Global(args[4].asFunction())
-             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason) {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
-                if (!EngineManager::isValid(engine)) return;
+        auto formCallback = [engine{EngineScope::currentEngine()},
+                             callback{script::Global(args[4].asFunction())
+                             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason
+                            ) {
+            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
+            if (!EngineManager::isValid(engine)) return;
 
-                EngineScope scope(engine);
-                try {
-                    callback.get().call(
-                        {},
-                        PlayerClass::newPlayer(&pl),
-                        chosen ? Boolean::newBoolean(static_cast<bool>(*chosen)) : Local<Value>(),
-                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
-                    );
-                }
-                CATCH_IN_CALLBACK("sendModalForm")
+            EngineScope scope(engine);
+            try {
+                callback.get().call(
+                    {},
+                    PlayerClass::newPlayer(&pl),
+                    chosen ? Boolean::newBoolean(static_cast<bool>(*chosen)) : Local<Value>(),
+                    reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                );
             }
-        );
+            CATCH_IN_CALLBACK("sendModalForm")
+        };
+
+        if (update) form.sendUpdate(*player, std::move(formCallback));
+        else form.sendTo(*player, std::move(formCallback));
 
         return Number::newNumber(2);
     }
@@ -2537,20 +2542,19 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
+    if (args.size() > 2) CHECK_ARG_TYPE(args[2], ValueKind::kBoolean);
 
     try {
         Player* player = get();
         if (!player) return Local<Value>();
+        bool update = args.size() > 2 ? args[2].asBoolean().value() : false;
 
         auto formData = ordered_json::parse(args[0].asString().toString());
-        ll::form::Form::sendRawTo(
-            *player,
-            formData.dump(),
+        auto formCallback =
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
              callback{script::Global(args[1].asFunction())},
-             formData = std::move(formData
-             )](Player& player, std::optional<std::string> const& result, ll::form::FormCancelReason reason) {
+             formData](Player& player, std::optional<std::string> const& result, ll::form::FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
                 auto newResult = lse::form::CustomFormWrapper::convertResult(result, formData);
@@ -2565,8 +2569,10 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
                     );
                 }
                 CATCH_IN_CALLBACK("sendCustomForm")
-            }
-        );
+            };
+        if (update) ll::form::Form::sendRawUpdate(*player, formData.dump(), std::move(formCallback));
+        else ll::form::Form::sendRawTo(*player, formData.dump(), std::move(formCallback));
+
         return Number::newNumber(3);
     } catch (const ordered_json::exception& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
@@ -2581,17 +2587,19 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
 Local<Value> PlayerClass::sendForm(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
+    if (args.size() > 2) CHECK_ARG_TYPE(args[2], ValueKind::kBoolean);
 
     try {
         Player* player = get();
         if (!player) return Local<Value>();
+        bool update = args.size() > 2 ? args[2].asBoolean().value() : false;
 
         if (IsInstanceOf<SimpleFormClass>(args[0])) {
             Local<Function> callback = args[1].asFunction();
-            SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player, callback);
+            SimpleFormClass::sendForm(SimpleFormClass::extract(args[0]), player, callback, update);
         } else if (IsInstanceOf<CustomFormClass>(args[0])) {
             Local<Function> callback = args[1].asFunction();
-            CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player, callback);
+            CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player, callback, update);
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();

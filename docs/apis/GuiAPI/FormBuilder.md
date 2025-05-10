@@ -93,13 +93,15 @@ are called when there is player interaction, without fighting.
 
 For a player object `pl`, using the function:
 
-`pl.sendForm(fm,callback)`
+`pl.sendForm(fm,callback.forUpdating)`
 
 - Parameters:
     - fm : `SimpleForm`  
       The configured form object.
     - callback : `Function`  
       Callback function to be called after the player interacts with the form element.
+    - forUpdating : `Boolean`
+      Whether the form is sent for updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -263,13 +265,15 @@ are called when there is player interaction, without fighting.
 
 For a player object `pl`, using the function:
 
-`pl.sendForm(fm,callback)`
+`pl.sendForm(fm,callback,forUpdating)`
 
 - Parameters:
     - fm : `CustomForm`  
       Configured custom form object.
     - callback : `Function`  
       Callback function to be called after the player submits the form.
+    - forUpdating : `Boolean`
+      Whether the form is sent for updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.

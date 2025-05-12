@@ -423,14 +423,14 @@ Local<Value> McClass::getBlock(const Arguments& args) {
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
                 IntPos* posObj = IntPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Boolean::newBoolean(false);
+                if (posObj->dim < 0) return {};
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos* posObj = FloatPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Boolean::newBoolean(false);
+                if (posObj->dim < 0) return {};
                 else {
                     pos = posObj->toIntVec4();
                 }

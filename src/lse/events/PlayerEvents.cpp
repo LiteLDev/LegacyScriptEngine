@@ -250,11 +250,11 @@ LL_TYPE_INSTANCE_HOOK(
     BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        Player& player = eventData.mUnk765a41.as<Player&>();
+        Player& player = eventData.mPlayer;
         if (!CallEvent(
                 EVENT_TYPES::onUseFrameBlock,
                 PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(eventData.mUnkd82caf.as<BlockPos>(), player.getDimensionId())
+                BlockClass::newBlock(eventData.mPos, player.getDimensionId())
             )) {
             return;
         }

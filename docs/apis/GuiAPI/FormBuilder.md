@@ -101,7 +101,7 @@ For a player object `pl`, using the function:
     - callback : `Function`  
       Callback function to be called after the player interacts with the form element.
     - forUpdating : `Boolean`
-      Whether the form is sent for updating.
+      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -256,6 +256,16 @@ For a specific form object `fm`, the following functions are available:
 - Return value: The processed form object (for other operations in the chain).
 - Return value type: `CustomForm`
 
+#### Set the Text of the Submit Button
+
+`fm.setSubmitButton(text)`
+
+- Parameters:
+    - text : `String`  
+      Text of the submit button.
+- Return value: The processed form object (for other operations in the chain).
+- Return value type: `CustomForm`
+
 ### Send Form
 
 Finally, when everything is in place, you can send the configured form object to the player and listen for player
@@ -265,7 +275,7 @@ are called when there is player interaction, without fighting.
 
 For a player object `pl`, using the function:
 
-`pl.sendForm(fm,callback,forUpdating)`
+`pl.sendForm(fm,callback[,forUpdating])`
 
 - Parameters:
     - fm : `CustomForm`  
@@ -273,7 +283,7 @@ For a player object `pl`, using the function:
     - callback : `Function`  
       Callback function to be called after the player submits the form.
     - forUpdating : `Boolean`
-      Whether the form is sent for updating.
+      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.

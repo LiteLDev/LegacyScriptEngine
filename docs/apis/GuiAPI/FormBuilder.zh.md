@@ -93,7 +93,7 @@
 
 对于某个玩家对象`pl`，使用函数：
 
-`pl.sendForm(fm,callback,forUpdating)`
+`pl.sendForm(fm,callback[,forUpdating])`
 
 - 参数：
     - fm : `SimpleForm`  
@@ -101,7 +101,7 @@
     - callback : `Function`  
       玩家与表单元素互动之后被调用的回调函数。
     - forUpdating : `Boolean`
-      是否为表单更新
+      （可选参数）是否为表单更新，默认值为false，即非表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败
@@ -255,6 +255,16 @@ reason可能会是`null`.
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 
+#### 设置提交按钮的文本
+
+`fm.setSubmitButton(text)`
+
+- 参数：
+    - text : `String`  
+      提交按钮的文本
+- 返回值：处理完毕的表单对象（便于连锁进行其他操作）
+- 返回值类型：`CustomForm`
+
 ### 发送表单
 
 最后，在一切就绪之后，你可以将配置好的表单对象发送给玩家，并监听玩家的互动消息  
@@ -262,7 +272,7 @@ reason可能会是`null`.
 
 对于某个玩家对象`pl`，使用函数：
 
-`pl.sendForm(fm,callback,forUpdating)`
+`pl.sendForm(fm,callback[,forUpdating])`
 
 - 参数：
     - fm : `CustomForm`  
@@ -270,7 +280,7 @@ reason可能会是`null`.
     - callback : `Function`  
       玩家提交表单之后被调用的回调函数。
     - forUpdating : `Boolean`
-      是否为表单更新
+      （可选参数）是否为表单更新，默认值为false，即非表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败

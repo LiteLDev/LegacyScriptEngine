@@ -13,7 +13,7 @@ for a specific player object `pl`, the following form interfaces are available:
 
 A modal form contains a title, a text display, and two buttons.
 
-`pl.sendModalForm(title,content,confirmButton,cancelButton,callback,forUpdating)`
+`pl.sendModalForm(title,content,confirmButton,cancelButton,callback[,forUpdating])`
 
 - Parameters:
     - title : `String`  
@@ -27,7 +27,7 @@ A modal form contains a title, a text display, and two buttons.
     - callback : `Function`  
       Function called after player clicks a button.
     - forUpdating : `Boolean`
-      Whether the form is sent for updating.
+      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The ID of the sent form.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -51,7 +51,7 @@ set.
 Due to the relatively complex content setup of buttons, it is recommended to use the form builder API in the next
 section to better accomplish this task.
 
-`pl.sendSimpleForm(title,content,buttons,images,callback,forUpdating)`
+`pl.sendSimpleForm(title,content,buttons,images,callback[,forUpdating])`
 
 - Parameters:
     - title : `String`  
@@ -65,7 +65,7 @@ section to better accomplish this task.
     - callback : `Function`  
       The function called after the player clicks a button.
     - forUpdating : `Boolean`
-      Whether the form is sent for updating.
+      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -95,7 +95,7 @@ Custom forms can contain rich custom controls.
 Since the relevant JSON definition format is relatively complex, it is recommended to use the form builder API in the
 next section to better accomplish this task.
 
-`pl.sendCustomForm(json,callback,forUpdating)`
+`pl.sendCustomForm(json,callback[,forUpdating])`
 
 - Parameters:
     - json : `String`  
@@ -103,7 +103,7 @@ next section to better accomplish this task.
     - callback : `Function`  
       Callback function to be called after the player submits the form.
     - forUpdating : `Boolean`
-      Whether the form is sent for updating.
+      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is Null, it means the sending failed.

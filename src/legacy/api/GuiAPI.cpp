@@ -36,6 +36,7 @@ ClassDefine<CustomFormClass> CustomFormClassBuilder =
         .instanceFunction("addDropdown", &CustomFormClass::addDropdown)
         .instanceFunction("addSlider", &CustomFormClass::addSlider)
         .instanceFunction("addStepSlider", &CustomFormClass::addStepSlider)
+        .instanceFunction("setSubmitButton", &CustomFormClass::setSubmitButton)
         .build();
 
 //////////////////// Simple Form ////////////////////
@@ -206,6 +207,17 @@ Local<Value> CustomFormClass::setTitle(const Arguments& args) {
         return this->getScriptObject();
     }
     CATCH("Fail in setTitle!")
+}
+
+Local<Value> CustomFormClass::setSubmitButton(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1)
+    CHECK_ARG_TYPE(args[0], ValueKind::kString)
+
+    try {
+        form.setSubmitButton(args[0].asString().toString());
+        return this->getScriptObject();
+    }
+    CATCH("Fail in setSubmitButton!")
 }
 
 Local<Value> CustomFormClass::addHeader(const Arguments& args) {

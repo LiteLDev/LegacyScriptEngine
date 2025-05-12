@@ -51,5 +51,6 @@ public:
     Local<Value> addDropdown(const Arguments& args);
     Local<Value> addSlider(const Arguments& args);
     Local<Value> addStepSlider(const Arguments& args);
+    Local<Value> setSubmitButton(const Arguments& args);
 };
 extern ClassDefine<CustomFormClass> CustomFormClassBuilder;

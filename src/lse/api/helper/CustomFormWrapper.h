@@ -9,6 +9,8 @@ namespace lse::form {
 using CustomFormResult = std::optional<nlohmann::ordered_json>;
 
 class CustomFormWrapper {
+    static std::set<std::string> const COMMON_ELEMENT_TYPENAMES;
+
     ll::form::CustomForm form;
     std::vector<int>     resultIndices{};
     size_t               resultIndex = 0;

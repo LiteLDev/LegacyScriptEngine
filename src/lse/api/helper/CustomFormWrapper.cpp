@@ -5,6 +5,8 @@
 
 namespace lse::form {
 
+std::set<std::string> const CustomFormWrapper::COMMON_ELEMENT_TYPENAMES{"header", "label", "divider"};
+
 CustomFormResult
 CustomFormWrapper::convertResult(std::optional<std::string> const& result, std::vector<int> const& resultIndices) {
     if (!result) return {};
@@ -27,18 +29,18 @@ CustomFormWrapper::convertResult(std::optional<std::string> const& result, std::
 CustomFormResult
 CustomFormWrapper::convertResult(std::optional<std::string> const& result, nlohmann::ordered_json const& formData) {
     if (!result) return {};
-    auto type    = formData.find("type");
-    auto content = formData.find("content");
-    if (content == formData.end() || type == formData.end() || *type != "custom_form") {
+    auto formType = formData.find("type");
+    auto content  = formData.find("content");
+    if (content == formData.end() || formType == formData.end() || *formType != "custom_form") {
         return nlohmann::ordered_json::parse(*result);
     }
-    std::vector<int>      resultIndices{};
-    int                   index = 0;
-    std::set<std::string> fillNullTypes({"header", "label", "divider"});
-    for (auto& data : *content) {
-        auto type = data.find("type");
-        if (type == data.end()) return {};
-        if (fillNullTypes.contains(*type)) resultIndices.emplace_back(-1);
+    std::vector<int> resultIndices{};
+    resultIndices.reserve(content->size());
+    int index = 0;
+    for (auto& element : *content) {
+        auto elementType = element.find("type");
+        if (elementType == element.end()) return {};
+        if (COMMON_ELEMENT_TYPENAMES.contains(*elementType)) resultIndices.emplace_back(-1);
         else resultIndices.emplace_back(index++);
     }
     return convertResult(result, resultIndices);

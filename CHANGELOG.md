@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.7] - 2025-05-20
+
+### Fixed
+
+- Fixed ll.import and ll.export for nodejs engine (#270) @xiaoqch
+- Fixed ang.toFacing (#271) @xiaoqch
+- Fixed entity.speed and player.speed (#184) @xiaoqch
+- Fixed mc.deletePlayerNbt @xiaoqch
+- Improved logging in NodeJs plugin loading @xiaoqch
+- Fixed return type for invalid dimension in mc.getBlock @xiaoqch
+
 ## [0.10.6] - 2025-04-27
 
 ### Added
@@ -838,7 +849,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#261]: https://github.com/LiteLDev/LegacyScriptEngine/issues/261
 [#264]: https://github.com/LiteLDev/LegacyScriptEngine/issues/264
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.6...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.7...HEAD
+[0.10.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.4...v0.10.5
 [0.10.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.3...v0.10.4

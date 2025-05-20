@@ -4,6 +4,7 @@ add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
 
 if is_config("target_type", "server") then
     add_requires("levilamina c59145f8bd574cfd181343590a56f0b30462764c", {configs = {target_type = "server"}})
+    add_requireconfs("levilamina.bedrockdata", {override = true, version = "1.21.60.10-server"})
 else
     add_requires("levilamina c59145f8bd574cfd181343590a56f0b30462764c", {configs = {target_type = "client"}})
 end

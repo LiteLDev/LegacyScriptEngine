@@ -23,6 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved logging in NodeJs plugin loading @xiaoqch
 - Fixed return type for invalid dimension in mc.getBlock @xiaoqch
 
+## [0.10.7] - 2025-05-20
+
+### Fixed
+
+- Fixed ll.import and ll.export for nodejs engine (#270) @xiaoqch
+- Fixed ang.toFacing (#271) @xiaoqch
+- Fixed entity.speed and player.speed (#184) @xiaoqch
+- Fixed mc.deletePlayerNbt @xiaoqch
+- Improved logging in NodeJs plugin loading @xiaoqch
+- Fixed return type for invalid dimension in mc.getBlock @xiaoqch
+
 ## [0.10.6] - 2025-04-27
 
 ### Added

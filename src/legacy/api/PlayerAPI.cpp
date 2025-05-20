@@ -71,11 +71,8 @@
 #include "mc/util/BlockUtils.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
-#include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
-#include "mc/world/actor/BuiltInActorComponents.h"
-#include "mc/world/actor/SynchedActorDataEntityWrapper.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
 #include "mc/world/actor/player/Inventory.h"
@@ -92,10 +89,8 @@
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/ChunkPos.h"
 #include "mc/world/level/biome/Biome.h"
 #include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/CachedComponentData.h"
 #include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
@@ -110,6 +105,8 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+
+SetScorePacket::SetScorePacket() = default;
 
 //////////////////// Class Definition ////////////////////
 

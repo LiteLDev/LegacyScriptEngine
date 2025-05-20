@@ -64,13 +64,12 @@ LL_TYPE_INSTANCE_HOOK(
         if (*reinterpret_cast<void***>(this) != LevelContainerModel::$vftable())
             return origin(slotNumber, oldItem, newItem);
 
-        Player& player = mUnk84d147.as<Player&>();
         // Player::hasOpenContainer()
-        if (player.mContainerManager) {
+        if (mPlayer.mContainerManager) {
             if (!CallEvent(
                     EVENT_TYPES::onContainerChange,
-                    PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(mUnk74419a.as<BlockPos>(), player.getDimensionId()),
+                    PlayerClass::newPlayer(&mPlayer),
+                    BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId()),
                     Number::newNumber(slotNumber + this->_getContainerOffset()),
                     ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
                     ItemClass::newItem(&const_cast<ItemStack&>(newItem))

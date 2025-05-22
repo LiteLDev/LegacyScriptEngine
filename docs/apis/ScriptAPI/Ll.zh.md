@@ -17,6 +17,7 @@
 | `ll.isBeta`              | `Boolean` | 当前版本是否为测试版                                 |
 | `ll.isDev`               | `Boolean` | 当前版本是否为开发版                                 |
 | `ll.isRelease`           | `Boolean` | 当前版本是否为发布版本                                |
+| `ll.pluginsRoot`         | `String`  | LeviLamina插件的根目录                                |
 
 ### 获取 LegacyScriptEngine 版本字符串
 
@@ -48,6 +49,13 @@
 | plugin.versionStr | 插件版本       | `String`                         |
 | plugin.filePath   | 插件路径       | `String`                         |
 | plugin.others     | 其他信息       | `Object`                         |
+
+### 获取当前插件的信息
+
+`ll.getCurrentPluginInfo()`
+
+- 返回值: 插件对象
+- 返回值类型:  `Plugin`
 
 ### 列出所有已加载的插件
 

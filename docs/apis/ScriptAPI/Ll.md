@@ -17,6 +17,7 @@ Some interfaces related to loader operations are provided here.
 | `ll.isBeta`              | `Boolean` | Whether the current version is a beta version              |
 | `ll.isDev`               | `Boolean` | Whether the current version is a dev version               |
 | `ll.isRelease`           | `Boolean` | Whether the current version is a release version           |
+| `ll.pluginsRoot`         | `String`  | Root directory of LeviLamina plugins                        |
 
 ### Get LegacyScriptEngine loader version string
 
@@ -48,6 +49,13 @@ Some interfaces related to loader operations are provided here.
 | plugin.versionStr | Plugin version (string) | `String`                         |
 | plugin.filePath   | Path to plugin          | `String`                         |
 | plugin.others     | Other information       | `Object`                         |
+
+### Get information about current Plugin
+
+`ll.getCurrentPluginInfo()`
+
+- Return value: Plugin Object
+- Return value type:  `Plugin`
 
 ### List all loaded plugins
 

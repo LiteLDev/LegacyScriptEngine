@@ -1,9 +1,11 @@
 #include "api/LlAPI.h"
 
 #include "api/APIHelp.h"
+#include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/Versions.h"
 #include "ll/api/data/Version.h"
+#include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManagerRegistry.h"
 #include "ll/api/reflection/Serialization.h"
 #include "ll/api/utils/SystemUtils.h"
@@ -24,6 +26,7 @@ ClassDefine<void> LlClassBuilder = defineClass("ll")
                                        .property("isRelease", &LlClass::isRelease)
                                        .property("isBeta", &LlClass::isBeta)
                                        .property("isDev", &LlClass::isDev)
+                                       .property("pluginsRoot", &LlClass::getPluginsRoot)
 
                                        .function("versionString", &LlClass::versionString)
                                        .function("requireVersion", &LlClass::requireVersion)
@@ -36,6 +39,7 @@ ClassDefine<void> LlClassBuilder = defineClass("ll")
                                        .function("eval", &LlClass::eval)
                                        .function("registerPlugin", &LlClass::registerPlugin)
                                        .function("getPluginInfo", &LlClass::getPluginInfo)
+                                       .function("getCurrentPluginInfo", &LlClass::getCurrentPluginInfo)
                                        .function("checkVersion", &LlClass::requireVersion)
                                        .function("onUnload", &LlClass::onUnload)
 
@@ -167,6 +171,13 @@ Local<Value> LlClass::getVersionStatus() {
     } else {
         return Number::newNumber(0);
     }
+}
+
+Local<Value> LlClass::getPluginsRoot() {
+    try {
+        return String::newString(ll::mod::getModsRoot().u8string());
+    }
+    CATCH("Fail in getPluginsRoot")
 }
 
 Local<Value> LlClass::registerPlugin(const Arguments& args) {
@@ -313,6 +324,41 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
     }
     CATCH("Fail in getPluginInfo");
 }
+
+Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
+    try {
+        auto plugin = getEngineOwnData()->plugin;
+        if (plugin) {
+            auto result = Object::newObject();
+
+            result.set("name", plugin->getManifest().name);
+            if (plugin->getManifest().description.has_value()) {
+                result.set("desc", plugin->getManifest().description.value());
+            }
+
+            auto ver = Array::newArray();
+            ver.add(Number::newNumber(plugin->getManifest().version->major));
+            ver.add(Number::newNumber(plugin->getManifest().version->minor));
+            ver.add(Number::newNumber(plugin->getManifest().version->patch));
+
+            result.set("version", ver);
+            result.set("versionStr", plugin->getManifest().version->to_string());
+            result.set("filePath", plugin->getManifest().entry);
+            if (plugin->getManifest().extraInfo.has_value()) {
+                auto others = Object::newObject();
+                for (const auto& [k, v] : plugin->getManifest().extraInfo.value()) {
+                    others.set(k, v);
+                }
+                result.set("others", others);
+            }
+
+            return result;
+        }
+        return {};
+    }
+    CATCH("Fail in getCurrentPluginInfo");
+}
+
 Local<Value> LlClass::versionString(const Arguments&) {
     try {
         auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;

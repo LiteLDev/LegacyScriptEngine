@@ -19,6 +19,7 @@ public:
     static Local<Value> isDev();
     static Local<Value> isWine();
     static Local<Value> isDebugMode();
+    static Local<Value> getPluginsRoot();
 
     static Local<Value> registerPlugin(const Arguments& args);
     static Local<Value> versionString(const Arguments& args);
@@ -31,6 +32,7 @@ public:
     static Local<Value> require(const Arguments& args);
     static Local<Value> eval(const Arguments& args);
     static Local<Value> getPluginInfo(const Arguments& args);
+    static Local<Value> getCurrentPluginInfo(const Arguments& args);
     static Local<Value> onUnload(const Arguments& args);
 
     // For Compatibility

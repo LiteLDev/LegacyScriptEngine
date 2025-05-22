@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.8] - 2025-05-22
+
+### Changed
+
+- Update LeviLamina to 1.1.2
+
+### Fixed
+
+- Fixed mc.getPlayerScore [#273]
+- Fixed network.httpGet [#269]
+
 ## [0.10.7] - 2025-05-20
 
 ### Fixed
@@ -848,8 +859,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#258]: https://github.com/LiteLDev/LegacyScriptEngine/issues/258
 [#261]: https://github.com/LiteLDev/LegacyScriptEngine/issues/261
 [#264]: https://github.com/LiteLDev/LegacyScriptEngine/issues/264
+[#269]: https://github.com/LiteLDev/LegacyScriptEngine/issues/269
+[#273]: https://github.com/LiteLDev/LegacyScriptEngine/issues/273
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.7...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.8...HEAD
+[0.10.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.4...v0.10.5

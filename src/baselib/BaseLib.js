@@ -28,7 +28,8 @@ SOFTWARE.
 
     let coreModules = new Map([]);
 
-    let basePath = "plugins/";
+    let basePath = ll.pluginsRoot;
+    if(!basePath.endsWith("/")) basePath += "/";
 
     let utilPath = {
         normalize(path) {
@@ -135,9 +136,9 @@ SOFTWARE.
                 throw new Error("cannot require file out of root dir");
             }
             path = path.replace(/^\//, "");
-            let cjsSelf = "plugins/cjs.js";
+            let cjsSelf = basePath + "lib/BaseLib.js";
             if (path === cjsSelf) {
-                throw new Error("cjs.js is trying to load itself");
+                throw new Error("BaseLib.js is trying to load itself");
             }
             requestPaths.push(path);
             let content = file.readFrom(path);
@@ -173,7 +174,7 @@ SOFTWARE.
             }
             result = tryFile(`${id}.json`);
             if (result != undefined) {
-                throw new Error(`cannot require a JSON file ${id}.mjs`);
+                throw new Error(`cannot require a JSON file ${id}.json`);
             }
             result = tryFile(`${id}.mjs`);
             if (result != undefined) {
@@ -194,7 +195,7 @@ SOFTWARE.
             }
             result = tryFile(utilPath.join(id, "index.json"));
             if (result != undefined) {
-                throw new Error(`cannot require a JSON file ${id}.mjs`);
+                throw new Error(`cannot require a JSON file ${id}.json`);
             }
             result = tryFile(utilPath.join(id, "index.mjs"));
             if (result != undefined) {
@@ -229,7 +230,7 @@ SOFTWARE.
             let dirs = node_modules_paths(start);
             let result;
             for (let dir of dirs) {
-                result = loadPackagExports(utilPath.join(dir, id));
+                result = loadPackageExports(utilPath.join(dir, id));
                 if (result != undefined) {
                     return result;
                 }
@@ -271,7 +272,7 @@ SOFTWARE.
             return undefined;
         }
 
-        function loadPackagExports(id) {
+        function loadPackageExports(id) {
             //TODO
             let package = file.readFrom(utilPath.join(id, "package.json"));
             if (package == undefined) {

@@ -397,6 +397,9 @@ int executeNpmCommand(const std::string& cmd, std::string workingDir) {
     if (!nodeJsInited && !initNodeJs()) {
         return -1;
     }
+    std::string engineDir =
+        ll::string_utils::u8str2str(lse::LegacyScriptEngine::getInstance().getSelf().getModDir().u8string());
+    if (workingDir.empty()) workingDir = engineDir;
     std::vector<std::string>                      errors;
     std::unique_ptr<node::CommonEnvironmentSetup> setup = node::CommonEnvironmentSetup::Create(
         platform.get(),
@@ -430,12 +433,23 @@ int executeNpmCommand(const std::string& cmd, std::string workingDir) {
         v8::HandleScope    handle_scope(isolate);
         v8::Context::Scope context_scope(setup->context());
 
-        string executeJs = "const oldCwd = process.cwd();"
-                           "const publicRequire = require('module').createRequire(oldCwd + "
-                           "'/plugins/legacy-script-engine-nodejs/');"
-                           "require('process').chdir('"
-                         + workingDir + "');" + "publicRequire('npm-js-interface')('" + cmd + "');"
-                         + "require('process').chdir(oldCwd);";
+        std::string executeJs = fmt::format(
+            R"(
+            const engineDir = "{0}";
+            const workingDir = "{1}";
+            const command = "{2}";
+            const oldCwd = process.cwd();
+            const publicRequire = require("module").createRequire(
+            require("path").resolve(engineDir) + require("path").sep
+            );
+            process.chdir(workingDir);
+            publicRequire("npm-js-interface")(command);
+            process.chdir(oldCwd);
+            )",
+            engineDir.erase(0,2)+"/",
+            workingDir,
+            cmd
+        );
 
         try {
             node::SetProcessExitHandler(env, [&](node::Environment* env_, int exit_code) { node::Stop(env); });

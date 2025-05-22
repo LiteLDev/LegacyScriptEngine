@@ -1,7 +1,7 @@
 -- ---------------------
 -- For require
 -- ---------------------
-package.path = "plugins/lib/?.lua;" .. package.path
+package.path = ll.pluginsRoot:match("^(.-)/?$") .. "/lib/?.lua;" .. package.path
 
 
 -- ---------------------

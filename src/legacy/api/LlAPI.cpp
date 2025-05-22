@@ -292,8 +292,15 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
 }
 
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
     try {
-        auto plugin = lse::LegacyScriptEngine::getInstance().getManager().getMod(args[0].asString().toString());
+        auto pluginName = args[0].asString().toString();
+        auto plugin     = lse::LegacyScriptEngine::getInstance().getManager().getMod(pluginName);
+        if (!plugin && pluginName == getEngineOwnData()->pluginName) {
+            plugin = getEngineOwnData()->plugin;
+        }
         if (plugin) {
             auto result = Object::newObject();
 

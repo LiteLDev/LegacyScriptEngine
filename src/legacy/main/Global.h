@@ -93,4 +93,3 @@ constexpr wchar_t       LLSE_GLOBAL_DATA_NAME[]                 = L"LLSE_GLOBAL_
 constexpr unsigned long LLSE_MESSAGE_SYSTEM_WAIT_CHECK_INTERVAL = 5;
 constexpr size_t        LLSE_POOL_THREAD_COUNT                  = 4;
 constexpr int           LLSE_VALID_BACKENDS_COUNT               = 4;
-constexpr auto          LLSE_NPM_EXECUTE_PATH                   = "plugins/legacy-script-engine-nodejs";

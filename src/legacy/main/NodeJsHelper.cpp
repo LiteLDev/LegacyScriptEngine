@@ -435,18 +435,18 @@ int executeNpmCommand(const std::string& cmd, std::string workingDir) {
 
         std::string executeJs = fmt::format(
             R"(
-            const engineDir = "{0}";
-            const workingDir = "{1}";
-            const command = "{2}";
-            const oldCwd = process.cwd();
-            const publicRequire = require("module").createRequire(
-            require("path").resolve(engineDir) + require("path").sep
-            );
-            process.chdir(workingDir);
-            publicRequire("npm-js-interface")(command);
-            process.chdir(oldCwd);
+                const engineDir = "{0}";
+                const workingDir = "{1}";
+                const command = "{2}";
+                const oldCwd = process.cwd();
+                const publicRequire = require("module").createRequire(
+                    require("path").resolve(engineDir) + require("path").sep
+                );
+                process.chdir(workingDir);
+                publicRequire("npm-js-interface")(command);
+                process.chdir(oldCwd);
             )",
-            engineDir.erase(0,2)+"/",
+            engineDir,
             workingDir,
             cmd
         );

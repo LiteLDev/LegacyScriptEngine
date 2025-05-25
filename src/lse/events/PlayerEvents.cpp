@@ -285,54 +285,15 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, pos);
 }
 
-LL_TYPE_INSTANCE_HOOK(EatHook1, HookPriority::Normal, Player, &Player::eat, void, ItemStack const& instance) {
+LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
     IF_LISTENED(EVENT_TYPES::onAte) {
-        if (!CallEvent(
-                EVENT_TYPES::onAte,
-                PlayerClass::newPlayer(this),
-                ItemClass::newItem(&const_cast<ItemStack&>(instance))
-            )) {
-            return;
-        }
+        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(this), ItemClass::newItem(&*mItemInUse->mItem)))
+            stopUsingItem();
+        else origin();
+        return;
     }
     IF_LISTENED_END(EVENT_TYPES::onAte);
-    origin(instance);
-}
-LL_TYPE_INSTANCE_HOOK(
-    EatHook2,
-    HookPriority::Normal,
-    PotionItem,
-    &PotionItem::$useTimeDepleted,
-    ::ItemUseMethod,
-    ::ItemStack& inoutInstance,
-    Level*       level,
-    Player*      player
-) {
-    IF_LISTENED(EVENT_TYPES::onAte) {
-        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
-            return ItemUseMethod::Unknown;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onAte);
-    return origin(inoutInstance, level, player);
-}
-LL_TYPE_INSTANCE_HOOK(
-    EatHook3,
-    HookPriority::Normal,
-    Item,
-    (uintptr_t)BucketItem::$vftable()[79],
-    ::ItemUseMethod,
-    ::ItemStack& inoutInstance,
-    Level*       level,
-    Player*      player
-) {
-    IF_LISTENED(EVENT_TYPES::onAte) {
-        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(player), ItemClass::newItem(&inoutInstance))) {
-            return ItemUseMethod::Unknown;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onAte);
-    return origin(inoutInstance, level, player);
+    origin();
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -676,11 +637,7 @@ void UseFrameEvent() {
     UseFrameHook1::hook();
     UseFrameHook2::hook();
 }
-void EatEvent() {
-    EatHook1::hook();
-    EatHook2::hook();
-    EatHook3::hook();
-}
+void EatEvent() { EatHook::hook(); }
 void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
 void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }
 void UseRespawnAnchorEvent() { UseRespawnAnchorHook::hook(); }

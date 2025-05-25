@@ -287,7 +287,10 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
     IF_LISTENED(EVENT_TYPES::onAte) {
-        if (!CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(this), ItemClass::newItem(&*mItemInUse->mItem)))
+        const std::set<std::string> item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
+        auto checked = mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
+        if (checked
+            && !CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(this), ItemClass::newItem(&*mItemInUse->mItem)))
             stopUsingItem();
         else origin();
         return;

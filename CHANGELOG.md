@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.1] - 2025-05-31
+
+### Added
+
+- Added ll.pluginsRoot and ll.getCurrentPluginInfo apis @xiaoqch
+
+### Changed
+
+- Updated LeviLamina to 1.2.0
+- Updated ScriptX to fix v8 backend issue [#277] @ShrBox
+- Refactored onAte event (#279) @killcerr
+
+### Fixed
+
+- Fixed compatibility with custom mods directory @xiaoqch
+- Fixed ll.getPluginInfo fails to get current plugin info during loading @xiaoqch
+
 ## [0.11.0] - 2025-05-20
 
 ### Changed
@@ -877,8 +894,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#264]: https://github.com/LiteLDev/LegacyScriptEngine/issues/264
 [#269]: https://github.com/LiteLDev/LegacyScriptEngine/issues/269
 [#273]: https://github.com/LiteLDev/LegacyScriptEngine/issues/273
+[#277]: https://github.com/LiteLDev/LegacyScriptEngine/issues/277
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.8...v0.11.0
 [0.10.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.6...v0.10.7

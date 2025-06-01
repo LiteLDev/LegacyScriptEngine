@@ -63,14 +63,12 @@ void SimpleFormClass::sendForm(lse::form::SimpleForm* form, Player* player, scri
 
             EngineScope scope(engine);
             try {
-                if (chosen < 0) callback.get().call({}, PlayerClass::newPlayer(pl), Local<Value>());
-                else
-                    callback.get().call(
-                        {},
-                        PlayerClass::newPlayer(pl),
-                        Number::newNumber(chosen),
-                        reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
-                    );
+                callback.get().call(
+                    {},
+                    PlayerClass::newPlayer(pl),
+                    chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
+                    reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                );
             }
             CATCH_IN_CALLBACK("sendForm")
         }

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.9] - 2025-06-01
+
+### Added
+
+- Added ll.pluginsRoot and ll.getCurrentPluginInfo apis @xiaoqch
+
+### Changed
+
+- Updated ScriptX to fix v8 backend issue [#277] @ShrBox
+- Refactored onAte event (#279) @killcerr
+
+### Fixed
+
+- Fixed compatibility with custom mods directory @xiaoqch
+- Fixed ll.getPluginInfo fails to get current plugin info during loading @xiaoqch
+- Fixed onPlaceBlock [#242] @ShrBox
+
 ## [0.10.8] - 2025-05-22
 
 ### Changed
@@ -852,6 +869,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231
 [#236]: https://github.com/LiteLDev/LegacyScriptEngine/issues/236
 [#240]: https://github.com/LiteLDev/LegacyScriptEngine/issues/240
+[#242]: https://github.com/LiteLDev/LegacyScriptEngine/issues/242
 [#243]: https://github.com/LiteLDev/LegacyScriptEngine/issues/243
 [#249]: https://github.com/LiteLDev/LegacyScriptEngine/issues/249
 [#251]: https://github.com/LiteLDev/LegacyScriptEngine/issues/251
@@ -861,8 +879,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#264]: https://github.com/LiteLDev/LegacyScriptEngine/issues/264
 [#269]: https://github.com/LiteLDev/LegacyScriptEngine/issues/269
 [#273]: https://github.com/LiteLDev/LegacyScriptEngine/issues/273
+[#277]: https://github.com/LiteLDev/LegacyScriptEngine/issues/277
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.8...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.9...HEAD
+[0.10.9]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.8...v0.10.9
 [0.10.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.10.5...v0.10.6

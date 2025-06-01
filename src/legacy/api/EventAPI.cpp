@@ -298,10 +298,12 @@ void EnableEventListener(int eventId) {
                     ++truePos.x;
                     break;
                 }
+                auto block = ev.self().getCarriedItem().mBlock;
                 if (!CallEvent(
                         EVENT_TYPES::onPlaceBlock,
                         PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(truePos, ev.self().getDimensionId()),
+                        block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId())
+                              : BlockClass::newBlock(truePos, ev.self().getDimensionId()),
                         Number::newNumber((schar)ev.face())
                     )) {
                     ev.cancel();

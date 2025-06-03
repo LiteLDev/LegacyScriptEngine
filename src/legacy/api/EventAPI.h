@@ -73,6 +73,7 @@ enum class EVENT_TYPES : int {
     onMobTrySpawn,
     onMobSpawned,
     onNpcCmd,
+    onEndermanTakeBlock,
     /* Block Events */
     onBlockInteracted,
     onBlockChanged,

@@ -9,6 +9,7 @@ void ProjectileHitEntityEvent();
 void ProjectileHitBlockEvent();
 void MobHurtEvent();
 void NpcCommandEvent();
+void EndermanTakeBlockEvent();
 void EffectUpdateEvent();
 void TransformationEvent();
 } // namespace lse::events::entity

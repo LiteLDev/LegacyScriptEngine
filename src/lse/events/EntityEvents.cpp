@@ -370,6 +370,44 @@ LL_TYPE_INSTANCE_HOOK(
     origin(originalActor, transformed, transformation, ownerID, level);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    ActorDestroyBlockEventHook,
+    HookPriority::Normal,
+    ActorEventCoordinator,
+    &ActorEventCoordinator::sendEvent,
+    CoordinatorResult,
+    EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
+)
+try {
+    return event.get().visit([&](auto&& arg) {
+        if constexpr (std::is_same_v<std::decay_t<decltype(arg)>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
+            auto& griefingEvent = arg.value();
+
+            if (auto entity = griefingEvent.mActorContext->tryUnwrap(); entity && entity->isType(ActorType::EnderMan)) {
+                IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onEndermanTakeBlock,
+                            EntityClass::newEntity(entity.as_ptr()),
+                            BlockClass::newBlock(
+                                *griefingEvent.mBlock,
+                                BlockPos(griefingEvent.mPos),
+                                entity->getDimensionId()
+                            ),
+                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId())
+                        )) {
+                        return CoordinatorResult::Cancel;
+                    }
+                }
+                IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
+            }
+            return CoordinatorResult::Continue;
+        }
+        return origin(event);
+    });
+} catch (...) {
+    return origin(event);
+}
+
 void ProjectileSpawnEvent() {
     ProjectileSpawnHook1::hook();
     ProjectileSpawnHook2::hook();
@@ -385,6 +423,7 @@ void MobHurtEvent() {
     MobHurtEffectHook::hook();
 }
 void NpcCommandEvent() { NpcCommandHook::hook(); }
+void EndermanTakeBlockEvent() { ActorDestroyBlockEventHook::hook(); }
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

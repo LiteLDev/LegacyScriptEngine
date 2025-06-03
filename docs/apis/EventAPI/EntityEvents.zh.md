@@ -255,3 +255,20 @@ ActorDamageCause 为伤害原因枚举，枚举值如下，有问号的待验证
 
 注：此事件为 `Addons` 中实体的 `TransformationComponent` 激活时触发，多用于引擎与Addon交互。由于转变前的实体指针很快被销毁，因此只提供
 `UniqueId`。
+
+
+#### `"onEndermanTakeBlock"` - 末影人搬运方块
+
+!!! warning
+    此事件仅在0.11.3及更高版本中可用。
+
+- 监听函数原型
+  `function(entity, block, pos)`
+- 参数：
+    - entity : `Entity`  
+      搬运方块的末影人
+    - block : `Block`  
+      被搬运的方块
+    - pos : `BlockPos`  
+      被搬运的方块坐标
+- 拦截事件：函数返回`false`

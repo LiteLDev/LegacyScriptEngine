@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added onEndermanTakeBlock event [#233] @zimuya4153
+
 ## [0.11.2] - 2025-06-01
 
 ### Fixed
@@ -906,6 +910,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#226]: https://github.com/LiteLDev/LegacyScriptEngine/issues/226
 [#227]: https://github.com/LiteLDev/LegacyScriptEngine/issues/227
 [#231]: https://github.com/LiteLDev/LegacyScriptEngine/issues/231
+[#233]: https://github.com/LiteLDev/LegacyScriptEngine/issues/233
 [#236]: https://github.com/LiteLDev/LegacyScriptEngine/issues/236
 [#240]: https://github.com/LiteLDev/LegacyScriptEngine/issues/240
 [#242]: https://github.com/LiteLDev/LegacyScriptEngine/issues/242

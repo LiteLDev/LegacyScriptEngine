@@ -246,3 +246,19 @@ hooks).
 Note: This event is triggered when the `TransformationComponent` of the entity in `Addons` is activated, and is mostly
 used for the interaction between the engine and the Addon. Only `UniqueId` is provided since the entity pointer before
 the transition is destroyed quickly.
+
+#### `"onEndermanTakeBlock"` - Enderman Take Block Event
+
+!!! warning
+    This event is only available in 0.11.3 and later versions.
+
+- Listener function prototype
+  `function(entity, block, pos)`
+- Parameters
+    - entity : `Entity`  
+      Enderman entity.
+    - block : `Block`  
+      Pick up the Block
+    - pos : `BlockPos`  
+      The coordinates of the block.
+- Intercept events: function returns `false`

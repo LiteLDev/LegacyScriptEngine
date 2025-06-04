@@ -738,6 +738,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onNpcCmd:
         lse::events::entity::NpcCommandEvent();
         break;
+    case EVENT_TYPES::onEndermanTakeBlock:
+        lse::events::entity::EndermanTakeBlockEvent();
+        break;
     default:
         break;
     }

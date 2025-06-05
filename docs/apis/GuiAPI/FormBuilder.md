@@ -101,7 +101,7 @@ For a player object `pl`, using the function:
     - callback : `Function`  
       Callback function to be called after the player interacts with the form element.
     - forUpdating : `Boolean`
-      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
+      (Optional parameter, added in 0.11.0) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -258,6 +258,9 @@ For a specific form object `fm`, the following functions are available:
 
 #### Set the Text of the Submit Button
 
+!!! warning
+    This API is only available in 0.11.0 and later versions.
+
 `fm.setSubmitButton(text)`
 
 - Parameters:
@@ -283,7 +286,7 @@ For a player object `pl`, using the function:
     - callback : `Function`  
       Callback function to be called after the player submits the form.
     - forUpdating : `Boolean`
-      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
+      (Optional parameter, added in 0.11.0) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.

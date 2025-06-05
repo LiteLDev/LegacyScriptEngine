@@ -27,7 +27,7 @@ A modal form contains a title, a text display, and two buttons.
     - callback : `Function`  
       Function called after player clicks a button.
     - forUpdating : `Boolean`
-      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
+      (Optional parameter, added in 0.11.0) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The ID of the sent form.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -65,7 +65,7 @@ section to better accomplish this task.
     - callback : `Function`  
       The function called after the player clicks a button.
     - forUpdating : `Boolean`
-      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
+      (Optional parameter, added in 0.11.0) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is `Null`, it means the sending failed.
@@ -103,7 +103,7 @@ next section to better accomplish this task.
     - callback : `Function`  
       Callback function to be called after the player submits the form.
     - forUpdating : `Boolean`
-      (Optional parameter) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
+      (Optional parameter, added in 0.11.0) Whether the form is sent for updating. The default value is false, meaning it is not for form updating.
 - Return value: The sent form ID.
 - Return value type: `Integer`
     - If the return value is Null, it means the sending failed.

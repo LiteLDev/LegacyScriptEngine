@@ -101,7 +101,7 @@
     - callback : `Function`  
       玩家与表单元素互动之后被调用的回调函数。
     - forUpdating : `Boolean`
-      （可选参数）是否为表单更新，默认值为false，即非表单更新
+      （可选参数，在0.11.0中加入）是否为表单更新，默认值为false，即非表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败
@@ -257,6 +257,9 @@ reason可能会是`null`.
 
 #### 设置提交按钮的文本
 
+!!! warning
+    此API仅在0.11.0及更高版本中可用。
+
 `fm.setSubmitButton(text)`
 
 - 参数：
@@ -280,7 +283,7 @@ reason可能会是`null`.
     - callback : `Function`  
       玩家提交表单之后被调用的回调函数。
     - forUpdating : `Boolean`
-      （可选参数）是否为表单更新，默认值为false，即非表单更新
+      （可选参数，在0.11.0中加入）是否为表单更新，默认值为false，即非表单更新
 - 返回值：发送的表单ID
 - 返回值类型：`Integer`
     - 如果返回值为`Null`，则代表发送失败

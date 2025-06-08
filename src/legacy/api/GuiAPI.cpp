@@ -259,12 +259,14 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
+    if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kString);
 
     try {
         std::string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
         std::string def         = args.size() >= 3 ? args[2].asString().toString() : "";
+        std::string tooltip     = args.size() >= 4 ? args[3].asString().toString() : "";
 
-        form.appendInput("", args[0].asString().toString(), placeholder, def);
+        form.appendInput("", args[0].asString().toString(), placeholder, def, tooltip);
         return this->getScriptObject();
     }
     CATCH("Fail in addInput!")
@@ -279,12 +281,14 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
             return Local<Value>();
         }
     }
+    if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
 
     try {
         bool def =
             args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
+        std::string tooltip = args.size() >= 3 ? args[2].asString().toString() : "";
 
-        form.appendToggle("", args[0].asString().toString(), def);
+        form.appendToggle("", args[0].asString().toString(), def, tooltip);
         return this->getScriptObject();
     }
     CATCH("Fail in addSwitch!")
@@ -295,6 +299,7 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
+    if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kString);
 
     try {
         auto                     optionsArr = args[1].asArray();
@@ -304,9 +309,10 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
             options.emplace_back(optionsArr.get(i).asString().toString());
         }
 
-        int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
+        int         def     = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
+        std::string tooltip = args.size() >= 4 ? args[3].asString().toString() : "";
 
-        form.appendDropdown("", args[0].asString().toString(), options, def);
+        form.appendDropdown("", args[0].asString().toString(), options, def, tooltip);
         return this->getScriptObject();
     }
     CATCH("Fail in addDropdown!")
@@ -319,6 +325,7 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
     CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
     if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
     if (args.size() >= 5) CHECK_ARG_TYPE(args[4], ValueKind::kNumber);
+    if (args.size() >= 6) CHECK_ARG_TYPE(args[5], ValueKind::kString);
 
     try {
         int minValue = args[1].asNumber().toInt32();
@@ -328,8 +335,9 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         int step     = args.size() >= 4 ? args[3].asNumber().toInt32() : 1;
         int defValue = args.size() >= 5 ? args[4].asNumber().toInt32() : minValue;
         if (defValue < minValue || defValue > maxValue) defValue = minValue;
+        std::string tooltip = args.size() >= 6 ? args[5].asString().toString() : "";
 
-        form.appendSlider("", args[0].asString().toString(), minValue, maxValue, step, defValue);
+        form.appendSlider("", args[0].asString().toString(), minValue, maxValue, step, defValue, tooltip);
         return this->getScriptObject();
     }
     CATCH("Fail in addSlider!")
@@ -340,6 +348,7 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
+    if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kString);
 
     try {
         auto                     stepsArr = args[1].asArray();
@@ -347,9 +356,10 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
         steps.reserve(stepsArr.size());
         for (size_t i = 0; i < stepsArr.size(); ++i) steps.push_back(stepsArr.get(i).asString().toString());
 
-        int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
+        int         defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
+        std::string tooltip  = args.size() >= 4 ? args[3].asString().toString() : "";
 
-        form.appendStepSlider("", args[0].asString().toString(), steps, defIndex);
+        form.appendStepSlider("", args[0].asString().toString(), steps, defIndex, tooltip);
         return this->getScriptObject();
     }
     CATCH("Fail in addStepSlider!")

@@ -176,7 +176,7 @@ reason可能会是`null`.
 
 #### 向表单内增加一行输入框
 
-`fm.addInput(title[,placeholder,default])`
+`fm.addInput(title[,placeholder,default,tooltip])`
 
 - 参数：
 
@@ -186,24 +186,28 @@ reason可能会是`null`.
       （可选参数）输入框内的提示字符
     - default : `String`  
       （可选参数）输入框中默认存在的内容
+    - tooltip : `String`
+      （可选参数，在0.12.0中加入）提示文本
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 
 #### 向表单内增加一行开关选项
 
-`fm.addSwitch(title[,default])`
+`fm.addSwitch(title[,default,tooltip])`
 
 - 参数：
     - title : `String`  
       开关选项描述文本
     - default : `Boolean`  
       （可选参数）开关的默认状态 开 / 关
+    - tooltip : `String`
+      （可选参数，在0.12.0中加入）提示文本
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 
 #### 向表单内增加一行下拉菜单
 
-`fm.addDropdown(title,items[,default])`
+`fm.addDropdown(title,items[,default,tooltip])`
 
 - 参数：
 
@@ -216,12 +220,15 @@ reason可能会是`null`.
     - default : `Integer`  
       （可选参数）下拉菜单默认选中的列表项序号。  
       序号从0开始编号。默认为0，即默认选中列表的第一项
+
+    - tooltip : `String`
+      （可选参数，在0.12.0中加入）提示文本
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 
 #### 向表单内增加一行游标滑块
 
-`fm.addSlider(title,min,max[,step,default])`
+`fm.addSlider(title,min,max[,step,default,tooltip])`
 
 - 参数：
     - title : `String`  
@@ -235,12 +242,14 @@ reason可能会是`null`.
     - default : `Integer`  
       （可选参数）游标滑块默认初始格数，数值必须在最小和最大格数之间。  
       默认为0，即滑块位于滑块行的开头
+    - tooltip : `String`
+      （可选参数，在0.12.0中加入）提示文本
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 
 #### 向表单内增加一行步进滑块
 
-`fm.addStepSlider(title,items[,default])`
+`fm.addStepSlider(title,items[,default,tooltip])`
 
 - 参数：
     - title : `String`  
@@ -252,6 +261,9 @@ reason可能会是`null`.
     - default : `Integer`  
       （可选参数）步进滑块默认初始选项。序号从0开始编号  
       默认为0，即滑块位于滑块行的开头
+
+    - tooltip : `String`
+      （可选参数，在0.12.0中加入）提示文本
 - 返回值：处理完毕的表单对象（便于连锁进行其他操作）
 - 返回值类型：`CustomForm`
 

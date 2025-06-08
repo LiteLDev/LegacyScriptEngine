@@ -2552,17 +2552,22 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
             [id{player->getOrCreateUniqueID()},
              engine{EngineScope::currentEngine()},
              callback{script::Global(args[1].asFunction())},
-             formData](Player& player, std::optional<std::string> const& result, ll::form::FormCancelReason reason) {
+             formData](Player& player, std::optional<std::string> const& data, ll::form::FormCancelReason reason) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
-                auto newResult = lse::form::CustomFormWrapper::convertResult(result, formData);
 
                 EngineScope scope(engine);
                 try {
+                    Local<Value> result;
+                    if (data) {
+                        auto dataJson = nlohmann::ordered_json::parse(*data);
+                        result        = JsonToValue(dataJson);
+                        if (result.isNull()) result = Array::newArray();
+                    }
                     callback.get().call(
                         {},
                         PlayerClass::newPlayer(&player),
-                        newResult ? JsonToValue(*newResult) : Local<Value>(),
+                        result,
                         reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
                     );
                 }

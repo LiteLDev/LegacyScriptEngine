@@ -154,7 +154,7 @@ Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
 
 //////////////////// Custom Form ////////////////////
 
-CustomFormClass::CustomFormClass() : ScriptClass(ScriptClass::ConstructFromCpp<CustomFormClass>{}), form("") {}
+CustomFormClass::CustomFormClass() : ScriptClass(ScriptClass::ConstructFromCpp<CustomFormClass>{}), form() {}
 
 // 生成函数
 Local<Object> CustomFormClass::newForm() {
@@ -162,7 +162,7 @@ Local<Object> CustomFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-lse::form::CustomFormWrapper* CustomFormClass::extract(Local<Value> v) {
+lse::form::RawCustomForm* CustomFormClass::extract(Local<Value> v) {
     if (EngineScope::currentEngine()->isInstanceOf<CustomFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<CustomFormClass>(v)->get();
     else return nullptr;
@@ -170,10 +170,10 @@ lse::form::CustomFormWrapper* CustomFormClass::extract(Local<Value> v) {
 
 // 成员函数
 void CustomFormClass::sendForm(
-    lse::form::CustomFormWrapper* form,
-    Player*                       player,
-    script::Local<Function>&      callback,
-    bool                          update
+    lse::form::RawCustomForm* form,
+    Player*                   player,
+    script::Local<Function>&  callback,
+    bool                      update
 ) {
     script::Global<Function> callbackFunc{callback};
     auto                     cb = [engine{EngineScope::currentEngine()},
@@ -186,7 +186,9 @@ void CustomFormClass::sendForm(
         EngineScope  scope(engine);
         Local<Value> result;
         if (data) {
-            result = JsonToValue(*data);
+            auto dataJson = nlohmann::ordered_json::parse(*data);
+            result        = JsonToValue(dataJson);
+            if (result.isNull()) result = Array::newArray();
         }
         auto reasonVal = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
         try {
@@ -194,8 +196,8 @@ void CustomFormClass::sendForm(
         }
         CATCH_IN_CALLBACK("sendForm")
     };
-    if (update) form->sendUpdate(*player, std::move(cb));
-    else form->sendTo(*player, std::move(cb));
+    if (update) form->sendRawUpdate(*player, std::move(cb));
+    else form->sendRawTo(*player, std::move(cb));
 }
 
 Local<Value> CustomFormClass::setTitle(const Arguments& args) {
@@ -262,7 +264,7 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
         std::string placeholder = args.size() >= 2 ? args[1].asString().toString() : "";
         std::string def         = args.size() >= 3 ? args[2].asString().toString() : "";
 
-        form.appendInput(args[0].asString().toString(), placeholder, def);
+        form.appendInput("", args[0].asString().toString(), placeholder, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addInput!")
@@ -282,7 +284,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
         bool def =
             args.size() >= 2 ? args[1].isBoolean() ? args[1].asBoolean().value() : args[1].asNumber().toInt32() : false;
 
-        form.appendToggle(args[0].asString().toString(), def);
+        form.appendToggle("", args[0].asString().toString(), def);
         return this->getScriptObject();
     }
     CATCH("Fail in addSwitch!")
@@ -304,7 +306,7 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
 
         int def = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.appendDropdown(args[0].asString().toString(), options, def);
+        form.appendDropdown("", args[0].asString().toString(), options, def);
         return this->getScriptObject();
     }
     CATCH("Fail in addDropdown!")
@@ -327,14 +329,7 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         int defValue = args.size() >= 5 ? args[4].asNumber().toInt32() : minValue;
         if (defValue < minValue || defValue > maxValue) defValue = minValue;
 
-        form.appendSlider(
-
-            args[0].asString().toString(),
-            minValue,
-            maxValue,
-            step,
-            defValue
-        );
+        form.appendSlider("", args[0].asString().toString(), minValue, maxValue, step, defValue);
         return this->getScriptObject();
     }
     CATCH("Fail in addSlider!")
@@ -354,7 +349,7 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
 
         int defIndex = args.size() >= 3 ? args[2].asNumber().toInt32() : 0;
 
-        form.appendStepSlider(args[0].asString().toString(), steps, defIndex);
+        form.appendStepSlider("", args[0].asString().toString(), steps, defIndex);
         return this->getScriptObject();
     }
     CATCH("Fail in addStepSlider!")

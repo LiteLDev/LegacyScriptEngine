@@ -1,7 +1,7 @@
 #pragma once
 #include "api/APIHelp.h"
 #include "ll/api/form/SimpleForm.h"
-#include "lse/api/helper/CustomFormWrapper.h"
+#include "lse/api/helper/RawCustomForm.h"
 
 //////////////////// Classes ////////////////////
 
@@ -30,17 +30,17 @@ extern ClassDefine<SimpleFormClass> SimpleFormClassBuilder;
 
 class CustomFormClass : public ScriptClass {
 private:
-    lse::form::CustomFormWrapper form;
+    lse::form::RawCustomForm form;
 
 public:
     CustomFormClass();
 
-    lse::form::CustomFormWrapper* get() { return &form; }
+    lse::form::RawCustomForm* get() { return &form; }
 
     static Local<Object>                 newForm();
-    static lse::form::CustomFormWrapper* extract(Local<Value> v);
+    static lse::form::RawCustomForm* extract(Local<Value> v);
     static void
-    sendForm(lse::form::CustomFormWrapper* form, Player* player, script::Local<Function>& callback, bool update = true);
+    sendForm(lse::form::RawCustomForm* form, Player* player, script::Local<Function>& callback, bool update = true);
 
     Local<Value> setTitle(const Arguments& args);
     Local<Value> addHeader(const Arguments& args);

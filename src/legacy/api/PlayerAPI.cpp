@@ -2083,9 +2083,7 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TransferPacket packet;
-        packet.mServerAddress = args[0].asString().toString();
-        packet.mServerPort    = args[1].asNumber().toInt32();
+        TransferPacket packet(args[0].asString().toString(), args[1].asNumber().toInt32());
         player->sendNetworkPacket(packet);
         return Boolean::newBoolean(true);
     }

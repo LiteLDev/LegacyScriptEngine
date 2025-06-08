@@ -282,7 +282,7 @@ Local<Value> BinaryStreamClass::writeUnsignedChar(const Arguments& args) {
         if (!pkt) {
             return Local<Value>();
         }
-        pkt->writeUnsignedChar(args[0].asNumber().toInt32(), nullptr, nullptr);
+        pkt->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in BinaryStream writeUnsignedChar!");

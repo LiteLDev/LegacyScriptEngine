@@ -105,6 +105,8 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+#include "ll/api/event/player/PlayerChatEvent.h"
+#include "ll/api/event/EventBus.h"
 
 SetScorePacket::SetScorePacket() = default;
 
@@ -1678,20 +1680,13 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
     try {
         Player* player = get();
         if (!player) return Local<Value>();
-
-        TextPacket pkt =
-            TextPacket::createChat(player->getRealName(), args[0].asString().toString(), {}, player->getXuid(), {});
         if (ll::service::getLevel().has_value()) {
-            IF_LISTENED(EVENT_TYPES::onChat) {
-                if (!CallEvent(
-                        EVENT_TYPES::onChat,
-                        PlayerClass::newPlayer(player),
-                        String::newString(args[0].asString().toString())
-                    )) {
-                    return Boolean::newBoolean(false);
-                }
-            }
-            IF_LISTENED_END(EVENT_TYPES::onChat);
+            auto msg = args[0].asString().toString();
+            ll::event::PlayerChatEvent event{*reinterpret_cast<ServerPlayer*>(player), msg};
+            ll::event::EventBus::getInstance().publish(event);
+            if (event.isCancelled()) return Boolean::newBoolean(false);
+            TextPacket pkt =
+            TextPacket::createChat(player->getRealName(), msg, {}, player->getXuid(), {});
             ll::service::getLevel()->forEachPlayer([&pkt](Player& player) {
                 player.sendNetworkPacket(pkt);
                 return true;

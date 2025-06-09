@@ -94,9 +94,10 @@ Local<Value> McClass::listen(const Arguments& args) {
 
 Local<Value> listenCancellable(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
     try {
-        auto event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
-        auto eventId    = int(event_enum.value());
-        auto event =
+        EngineScope enter(engine);
+        auto        event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
+        auto        eventId    = int(event_enum.value());
+        auto        event =
             listenerList[eventId].insert(listenerList[eventId].end(), {engine, script::Global<Function>(func)});
         if (!hasListened[eventId]) {
             hasListened[eventId] = true;

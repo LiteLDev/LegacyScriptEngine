@@ -76,13 +76,13 @@ std::list<ListenerListType> listenerList[int(EVENT_TYPES::EVENT_COUNT)];
 bool hasListened[int(EVENT_TYPES::EVENT_COUNT)] = {false};
 
 //////////////////// APIs ////////////////////
-Local<Value> listenCancellable(ScriptEngine* engine, const Arguments& args);
+Local<Value> listenCancellable(ScriptEngine* engine, const string& eventName, const Local<Function>& func);
 Local<Value> McClass::listen(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
     if (args.size() >= 3 && args[2].isBoolean() && args[2].asBoolean().value()) {
-        return listenCancellable(EngineScope::currentEngine(), args);
+        return listenCancellable(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction());
     }
     try {
         return Boolean::newBoolean(
@@ -92,35 +92,27 @@ Local<Value> McClass::listen(const Arguments& args) {
     CATCH("Fail to Bind Listener!");
 }
 
-Local<Value> listenCancellable(ScriptEngine* engine, const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 2);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
+Local<Value> listenCancellable(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
     try {
-        auto eventName = args[0].asString().toString();
-        auto func      = args[1].asFunction();
-        try {
-            auto event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
-            auto eventId    = int(event_enum.value());
-            auto event =
-                listenerList[eventId].insert(listenerList[eventId].end(), {engine, script::Global<Function>(func)});
-            if (!hasListened[eventId]) {
-                hasListened[eventId] = true;
-                EnableEventListener(eventId);
-            }
-            return Function::newFunction([eventId, event](const Arguments&) -> Local<Value> {
-                listenerList[eventId].erase(event);
-                return Local<Value>();
-            });
-        } catch (...) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
-                "In Plugin: " + getEngineData(engine)->pluginName
-            );
-            return Local<Value>();
+        auto event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
+        auto eventId    = int(event_enum.value());
+        auto event =
+            listenerList[eventId].insert(listenerList[eventId].end(), {engine, script::Global<Function>(func)});
+        if (!hasListened[eventId]) {
+            hasListened[eventId] = true;
+            EnableEventListener(eventId);
         }
+        return Function::newFunction([eventId{eventId}, event{event}](const Arguments&) -> Local<Value> {
+            listenerList[eventId].erase(event);
+            return Local<Value>();
+        });
+    } catch (...) {
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            "In Plugin: " + getEngineData(engine)->pluginName
+        );
+        return Local<Value>();
     }
-    CATCH("Fail to Bind Listener!");
 }
 
 //////////////////// Funcs ////////////////////

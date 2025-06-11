@@ -1,6 +1,5 @@
 #include "api/PlayerAPI.h"
 
-#include "EventAPI.h"
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
@@ -17,6 +16,8 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
+#include "ll/api/event/player/PlayerChatEvent.h"
+#include "ll/api/event/EventBus.h"
 #include "ll/api/form/ModalForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"

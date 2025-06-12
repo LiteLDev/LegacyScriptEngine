@@ -794,7 +794,6 @@ void InitBasicEventListeners() {
                 }
             } else {
                 if (isFromOtherEngine) {
-                    ev.cancel();
                     return;
                 }
 
@@ -839,7 +838,6 @@ void InitBasicEventListeners() {
                 }
             } else {
                 if (isFromOtherEngine) {
-                    ev.cancel();
                     return;
                 }
 

@@ -16,8 +16,8 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
-#include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/event/EventBus.h"
+#include "ll/api/event/player/PlayerChatEvent.h"
 #include "ll/api/form/ModalForm.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
@@ -1430,7 +1430,8 @@ Local<Value> PlayerClass::isMoving() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
         );
     }
     CATCH("Fail in isMoving!")
@@ -1680,12 +1681,11 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
         if (ll::service::getLevel().has_value()) {
-            auto msg = args[0].asString().toString();
+            auto                       msg = args[0].asString().toString();
             ll::event::PlayerChatEvent event{*reinterpret_cast<ServerPlayer*>(player), msg};
             ll::event::EventBus::getInstance().publish(event);
             if (event.isCancelled()) return Boolean::newBoolean(false);
-            TextPacket pkt =
-            TextPacket::createChat(player->getRealName(), msg, {}, player->getXuid(), {});
+            TextPacket pkt = TextPacket::createChat(player->getRealName(), msg, {}, player->getXuid(), {});
             ll::service::getLevel()->forEachPlayer([&pkt](Player& player) {
                 player.sendNetworkPacket(pkt);
                 return true;
@@ -2457,7 +2457,8 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
             }
         }
         auto formCallback = [engine{EngineScope::currentEngine()},
-                             callback{script::Global(args[4].asFunction())
+                             callback{
+                                 script::Global(args[4].asFunction())
                              }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -2501,9 +2502,10 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             args[2].asString().toString(),
             args[3].asString().toString()
         );
-        auto formCallback = [engine{EngineScope::currentEngine()},
-                             callback{script::Global(args[4].asFunction())
-                             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason
+        auto formCallback = [engine{EngineScope::currentEngine()}, callback{script::Global(args[4].asFunction())}](
+                                Player&                          pl,
+                                ll::form::ModalFormResult const& chosen,
+                                ll::form::FormCancelReason       reason
                             ) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;

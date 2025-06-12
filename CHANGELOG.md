@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2025-06-12
+
+### Added
+
+- Added tooltip support for CustomFormBuilder @xiaoqch
+
+### Changed
+
+- Removed obsolete GUI logic @xiaoqch
+- Improved PlayerClass::talkAs (#287) @killcerr
+
+### Fixed
+
+- Fixed Player.transServer @xiaoqch
+- Fixed data.toMD5 and data.toSHA1 @xiaoqch
+- Fixed simulateLookAt [#278] @ShrBox
+
 ## [0.11.3] - 2025-06-03
 
 ### Added
@@ -926,8 +943,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#269]: https://github.com/LiteLDev/LegacyScriptEngine/issues/269
 [#273]: https://github.com/LiteLDev/LegacyScriptEngine/issues/273
 [#277]: https://github.com/LiteLDev/LegacyScriptEngine/issues/277
+[#278]: https://github.com/LiteLDev/LegacyScriptEngine/issues/278
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.3...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.3...v0.12.0
 [0.11.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.0...v0.11.1

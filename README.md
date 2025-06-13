@@ -27,7 +27,7 @@ Version numbers can be found in [releases](https://github.com/LiteLDev/LegacyScr
 
 ## Usage
 
-To access plugin development API hints and scaffolding toolkits, visit the [LegacyScriptEngine_API](https://github.com/LiteLDev/LegacyScriptEngine_API) repository.
+To access plugin development API hints and scaffolding toolkits, visit the [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) repository.
 
 1. Put LLSE plugins directly in `plugins/`
 2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically

@@ -26,7 +26,7 @@ lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@版本
 
 ## 使用
 
-如需获取插件开发 API 提示库和脚手架工具，请访问 [LegacyScriptEngine_API](https://github.com/LiteLDev/LegacyScriptEngine_API) 仓库
+如需获取插件开发 API 提示库和脚手架工具，请访问 [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) 仓库
 
 1. 直接将 LLSE 插件放在 `plugins/` 中
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中

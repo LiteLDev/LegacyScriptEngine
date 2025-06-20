@@ -170,17 +170,26 @@
 
 #### 设置指定位置的方块
 
-`mc.setBlock(pos,block,tiledata)`  
-`mc.setBlock(x,y,z,dimid,block,tiledata)`
+`mc.setBlock(pos, blockObject)`  
+`mc.setBlock(pos, blockString, tileData)`  
+`mc.setBlock(x, y, z, dimId, blockObject)`  
+`mc.setBlock(x, y, z, dimId, blockString, tileData)`
 
 - 参数：
-  - pos : `IntPos`  
-    目标方块位置（或者使用x, y, z, dimid来确定方块位置）
-  - block : `Block` 、`String` 或 `NBTCompound`
-    要设置成的方块对象、方块标准类型名（如`minecraft:stone`）或方块NBT数据
-  - tiledata : `Integer`  
-    方块状态值，同原版 /setBlock 指令的 tiledata，默认为0，仅通过方块类型名放置方块时有效
+  - pos： `IntPos` 或 `FloatPos`  
+    目标方块位置（或者使用 x、y、z、dimId 来确定方块位置）
+
+  - blockObject： `Block` 或 `NBTCompound`  
+    要设置成的方块对象或方块 NBT 数据
+
+  - blockString：`String`  
+    方块标准类型名（如`minecraft:stone`）
+
+  - tileData：`Integer`  
+    方块状态值，同原版 /setBlock 指令的 tileData，默认为0，仅通过方块类型名放置方块时有效
+
 - 返回值：是否成功设置
+
 - 返回值类型：`Boolean`
 
 通过此函数，将一个坐标对应的方块设置成另一个，类似于命令 `/setblock`

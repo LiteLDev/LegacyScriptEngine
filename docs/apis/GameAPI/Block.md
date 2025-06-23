@@ -169,17 +169,26 @@ The following APIs provide APIs for interacting with blocks at specified locatio
 
 #### Set the Block at the Specified Location
 
-`mc.setBlock(pos,block,tiledata)`  
-`mc.setBlock(x,y,z,dimid,block,tiledata)`
+`mc.setBlock(pos, blockObject)`   
+`mc.setBlock(pos, blockString, tileData)`  
+`mc.setBlock(x, y, z, dimId, blockObject)`  
+`mc.setBlock(x, y, z, dimId, blockString, tileData)`
 
 - Parameters: 
-  - pos : `IntPos `  
-    Target block position (or use x, y, z, dimid to determine block position)
-  - block : `Block` ,`String` or `NBTCompound`
-    The block object to set to, the block standard type name (e.g. `minecraft:stone`) or block NBT data
-  - tiledata : `Integer`  
-    Block state value, same as tiledata of vanilla /setBlock command, default is 0, only valid when placing blocks by block type name.
-- Return value: Whether the setting is successful or not.
+  - pos : `IntPos ` or `FloatPos`  
+    Target block position (or use x, y, z, dimId to determine block position)
+    
+  - blockObject : `Block` or `NBTCompound`  
+    Either the target block object or NBT data representing the block
+    
+  - blockString: `String`  
+    The block standard type name (e.g. `minecraft:stone`)
+  
+  - tileData : `Integer`  
+    Block state value, same as tileData of vanilla /setBlock command, default is 0, only valid when placing blocks by block type name
+  
+- Return value: Whether the setting is successful or not
+
 - Return value type: `Boolean`
 
 Through this function, set the block corresponding to one coordinate to another, similar to the command `/setblock`

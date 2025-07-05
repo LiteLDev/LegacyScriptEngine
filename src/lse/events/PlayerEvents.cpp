@@ -537,23 +537,25 @@ LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$
 LL_TYPE_INSTANCE_HOOK(
     SetArmorHook,
     HookPriority::Normal,
-    ServerPlayer,
-    &ServerPlayer::$setArmor,
+    Actor,
+    &Actor::$setArmor,
     void,
     SharedTypes::Legacy::ArmorSlot const armorSlot,
     ItemStack const&                     item
 ) {
-    IF_LISTENED(EVENT_TYPES::onSetArmor) {
-        if (!CallEvent(
-                EVENT_TYPES::onSetArmor,
-                PlayerClass::newPlayer(this),
-                Number::newNumber((int)armorSlot),
-                ItemClass::newItem(&const_cast<ItemStack&>(item))
-            )) {
-            return;
+    if (isPlayer()) {
+        IF_LISTENED(EVENT_TYPES::onSetArmor) {
+            if (!CallEvent(
+                    EVENT_TYPES::onSetArmor,
+                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                    Number::newNumber((int)armorSlot),
+                    ItemClass::newItem(&const_cast<ItemStack&>(item))
+                )) {
+                return;
+            }
         }
+        IF_LISTENED_END(EVENT_TYPES::onSetArmor);
     }
-    IF_LISTENED_END(EVENT_TYPES::onSetArmor);
     origin(armorSlot, item);
 }
 
@@ -583,44 +585,48 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     AddEffectHook,
     HookPriority::Normal,
-    Player,
-    &Player::addEffect,
+    Actor,
+    &Actor::addEffect,
     void,
     ::MobEffectInstance const& effect
 ) {
-    IF_LISTENED(EVENT_TYPES::onEffectAdded) {
-        if (!CallEvent(
-                EVENT_TYPES::onEffectAdded,
-                PlayerClass::newPlayer(this),
-                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
-                Number::newNumber(effect.mAmplifier),
-                Number::newNumber(effect.mDuration->mValue)
-            )) {
-            return;
+    if (isPlayer()) {
+        IF_LISTENED(EVENT_TYPES::onEffectAdded) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEffectAdded,
+                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                    Number::newNumber(effect.mAmplifier),
+                    Number::newNumber(effect.mDuration->mValue)
+                )) {
+                return;
+            }
         }
+        IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
     }
-    IF_LISTENED_END(EVENT_TYPES::onEffectAdded);
     origin(effect);
 }
 
 LL_TYPE_INSTANCE_HOOK(
     RemoveEffectHook,
     HookPriority::Normal,
-    Player,
-    &Player::$onEffectRemoved,
+    Actor,
+    &Actor::$onEffectRemoved,
     void,
     ::MobEffectInstance& effect
 ) {
-    IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
-        if (!CallEvent(
-                EVENT_TYPES::onEffectRemoved,
-                PlayerClass::newPlayer(this),
-                String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString())
-            )) {
-            return;
+    if (isPlayer()) {
+        IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
+            if (!CallEvent(
+                    EVENT_TYPES::onEffectRemoved,
+                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString())
+                )) {
+                return;
+            }
         }
+        IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
     }
-    IF_LISTENED_END(EVENT_TYPES::onEffectRemoved);
     origin(effect);
 }
 

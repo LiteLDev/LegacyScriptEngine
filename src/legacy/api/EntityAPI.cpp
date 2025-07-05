@@ -1152,7 +1152,6 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
 
         MutableAttributeWithContext attribute =
             entity->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
-        auto& instance = attribute.mInstance;
         AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
@@ -1185,7 +1184,7 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         if (!entity) return Local<Value>();
 
         MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
+        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
 
         return Boolean::newBoolean(true);
     }

@@ -330,7 +330,7 @@ LL_TYPE_INSTANCE_HOOK(
     ContainerScreenContext const& screenContext
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(&mUnkecd0f2.as<Player&>()))) {
+        if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(&mPlayer))) {
             return;
         }
     }

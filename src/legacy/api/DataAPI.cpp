@@ -781,7 +781,8 @@ Local<Value> DataClass::fromUuid(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromUuid(args[0].asString().toString());
+        auto playerInfo =
+            ll::service::PlayerInfo::getInstance().fromUuid(mce::UUID::fromString(args[0].asString().toString()));
         if (playerInfo) {
             auto object = Object::newObject();
             object.set("xuid", playerInfo->xuid);

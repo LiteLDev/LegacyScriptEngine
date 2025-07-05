@@ -65,8 +65,9 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
 }
 
 SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
-    if (get()->isSimulatedPlayer()) {
-        return static_cast<SimulatedPlayer*>(get());
+    Player* ptr = get();
+    if (ptr && ptr->isSimulatedPlayer()) {
+        return static_cast<SimulatedPlayer*>(ptr);
     }
     return nullptr;
 }
@@ -373,18 +374,18 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
         int  dimid        = sp->getDimensionId();
-        int  lookDuration = 2; // 0 = Instant, 1 = Continuous, 2 = UntilMove
+        auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
             if (!args[1].isNumber()) {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
             }
-            lookDuration = args[1].asNumber().toInt32();
+            lookDuration = static_cast<sim::LookDuration>(args[1].asNumber().toInt32());
         }
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), (sim::LookDuration)lookDuration);
+                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(

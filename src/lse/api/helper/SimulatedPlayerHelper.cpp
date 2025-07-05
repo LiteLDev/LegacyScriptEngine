@@ -1,7 +1,6 @@
 #include "SimulatedPlayerHelper.h"
 
 #include "mc/entity/components_json_legacy/NavigationComponent.h"
-#include "mc/server/sim/LookAtIntent.h"
 #include "mc/server/sim/MoveInDirectionIntent.h"
 #include "mc/server/sim/MoveToPositionIntent.h"
 #include "mc/server/sim/NavigateToEntityIntent.h"
@@ -30,8 +29,7 @@ bool SimulatedPlayerHelper::simulateRespawn(SimulatedPlayer& player) {
 }
 
 void SimulatedPlayerHelper::simulateLookAt(SimulatedPlayer& player, Actor& actor, sim::LookDuration lookType) {
-    auto intent = sim::lookAt(player, actor.getEntityContext(), lookType);
-    memcpy((void*)&player.mLookAtIntent, &intent, sizeof(sim::LookAtIntent));
+    player.mLookAtIntent = sim::lookAt(player, actor.getEntityContext(), lookType);
 }
 
 void SimulatedPlayerHelper::simulateLookAt(
@@ -40,17 +38,15 @@ void SimulatedPlayerHelper::simulateLookAt(
     sim::LookDuration lookType
 ) {
     glm::vec3 vec3;
-    vec3.x      = (float)blockPos.x + 0.5f;
-    vec3.y      = (float)blockPos.y + 0.5f;
-    vec3.z      = (float)blockPos.z + 0.5f;
-    auto intent = sim::lookAt(player, vec3, lookType);
-    memcpy((void*)&player.mLookAtIntent, &intent, sizeof(sim::LookAtIntent));
+    vec3.x               = (float)blockPos.x + 0.5f;
+    vec3.y               = (float)blockPos.y + 0.5f;
+    vec3.z               = (float)blockPos.z + 0.5f;
+    player.mLookAtIntent = sim::lookAt(player, vec3, lookType);
 }
 
 void SimulatedPlayerHelper::simulateLookAt(SimulatedPlayer& player, Vec3 const& pos, sim::LookDuration lookType) {
     glm::vec3 vec3(pos.x, pos.y, pos.z);
-    auto      intent = sim::lookAt(player, vec3, lookType);
-    memcpy((void*)&player.mLookAtIntent, &intent, sizeof(sim::LookAtIntent));
+    player.mLookAtIntent = sim::lookAt(player, vec3, lookType);
 }
 
 bool SimulatedPlayerHelper::simulateUseItem(SimulatedPlayer& player, ItemStack& item) {

@@ -277,7 +277,7 @@ Local<Value> BlockClass::isSlabBlock() {
 
 Local<Value> BlockClass::isUnbreakable() {
     try {
-        return Boolean::newBoolean(block->mDirectData->mUnkc08fbd.as<float>() < 0.0f);
+        return Boolean::newBoolean(block->mDirectData->mDestroySpeed < 0.0f);
     }
     CATCH("Fail in isUnbreakable!");
 }
@@ -285,7 +285,7 @@ Local<Value> BlockClass::isUnbreakable() {
 Local<Value> BlockClass::isWaterBlockingBlock() {
     try {
         return Boolean::newBoolean(
-            block->mDirectData->mUnkd3e7c9.as<DetectionRule>().mUnk21e36d.as<LiquidReaction>()
+            block->mDirectData->mWaterDetectionRule->mUnk21e36d.as<LiquidReaction>()
             == LiquidReaction::Blocking
         );
     }

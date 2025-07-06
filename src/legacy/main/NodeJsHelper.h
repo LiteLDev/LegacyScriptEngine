@@ -30,6 +30,6 @@ bool        doesPluginPackHasDependency(const std::string& dirPath);
 bool        isESModulesSystem(const std::string& dirPath);
 
 bool processConsoleNpmCmd(const std::string& cmd);
-int  executeNpmCommand(const std::string& cmd, std::string workingDir = "");
+int executeNpmCommand(std::vector<std::string> npmArgs = {"i", "--omit=dev", "--no-fund"}, std::string workingDir = "");
 
 } // namespace NodeJsHelper

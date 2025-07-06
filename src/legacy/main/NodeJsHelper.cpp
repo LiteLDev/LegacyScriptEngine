@@ -1,5 +1,6 @@
-#include <filesystem>
 #pragma warning(disable : 4251)
+
+#include "main/NodeJsHelper.h"
 
 #include "api/EventAPI.h"
 #include "engine/EngineManager.h"
@@ -15,11 +16,9 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
-#include "main/NodeJsHelper.h"
+#include "utils/Utils.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
-
-#include <functional>
 
 using ll::chrono_literals::operator""_tick;
 
@@ -41,24 +40,25 @@ std::vector<node::Environment*>              uvLoopTask;
 
 bool initNodeJs() {
     // Init NodeJs
-    WCHAR buf[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, buf);
-    auto  path  = ll::string_utils::wstr2str(buf) + "\\bedrock_server_mod.exe";
+    auto  path  = ll::string_utils::u8str2str(ll::sys_utils::getModulePath(nullptr).value().u8string());
     char* cPath = (char*)path.c_str();
     uv_setup_args(1, &cPath);
-    args        = {path};
-    auto result = node::InitializeOncePerProcess(
-        args,
+    auto full_args = std::vector<std::string>{path};
+    auto result    = node::InitializeOncePerProcess(
+        full_args,
         {node::ProcessInitializationFlags::kNoInitializeV8,
-         node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
+            node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
     );
-    exec_args = result->exec_args();
     if (result->exit_code() != 0) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
             "Failed to initialize node! NodeJs plugins won't be loaded"
         );
+        for (const std::string& error : result->errors())
+            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(error);
         return false;
     }
+    args      = result->args();
+    exec_args = result->exec_args();
 
     // Init V8
     using namespace v8;
@@ -382,8 +382,8 @@ bool isESModulesSystem(const std::string& dirPath) {
 
 bool processConsoleNpmCmd(const std::string& cmd) {
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-    if (cmd.starts_with("npm ")) {
-        executeNpmCommand(cmd);
+    if (cmd.starts_with("npm ") || cmd.starts_with("npx ")) {
+        executeNpmCommand(SplitCmdLine(cmd));
         return false;
     } else {
         return true;
@@ -393,21 +393,35 @@ bool processConsoleNpmCmd(const std::string& cmd) {
 #endif
 }
 
-int executeNpmCommand(const std::string& cmd, std::string workingDir) {
+int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) {
     if (!nodeJsInited && !initNodeJs()) {
         return -1;
     }
     std::string engineDir =
         ll::string_utils::u8str2str(lse::LegacyScriptEngine::getInstance().getSelf().getModDir().u8string());
     if (workingDir.empty()) workingDir = engineDir;
-    std::vector<std::string>                      errors;
+
+    auto npmPath = std::filesystem::absolute(engineDir) / "node_modules" / "npm" / "bin" / "npm-cli.js";
+    std::vector<std::string>& env_args = npmArgs;
+    if (!env_args.empty() && (env_args[0] == "npm" || env_args[0] == "npx")) {
+        if (env_args[0] == "npx") {
+            npmPath = std::filesystem::absolute(engineDir) / "node_modules" / "npm" / "bin" / "npx-cli.js";
+        }
+        env_args.erase(env_args.begin());
+    }
+    auto scriptPath = ll::string_utils::replaceAll(ll::string_utils::u8str2str(npmPath.u8string()), "\\", "/");
+    env_args.insert(env_args.begin(), {args[0], scriptPath});
+
+    std::vector<std::string> errors;
+
     std::unique_ptr<node::CommonEnvironmentSetup> setup = node::CommonEnvironmentSetup::Create(
         platform.get(),
         &errors,
-        args,
+        env_args,
         exec_args,
         node::EnvironmentFlags::kOwnsProcessState
     );
+
     // if kOwnsInspector set, inspector_agent.cc:681
     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
@@ -437,26 +451,40 @@ int executeNpmCommand(const std::string& cmd, std::string workingDir) {
             R"(
                 const engineDir = "{0}";
                 const workingDir = "{1}";
-                const command = "{2}";
-                const oldCwd = process.cwd();
+                const scriptPath = "{2}";
                 const publicRequire = require("module").createRequire(
                     require("path").resolve(engineDir) + require("path").sep
                 );
+                // Record states and restore at exit
+                const oldCwd = process.cwd();
+                const oldEnv = Object.entries(process.env).filter(([k]) => k.startsWith("npm_"));
+                const oldTitle = process.title;
+                process.on("exit", () => {{
+                    Object.keys(process.env)
+                        .filter((k) => k.startsWith("npm_"))
+                        .forEach((k) => delete process.env[k]);
+                    oldEnv.forEach(([k, v]) => (process.env[k] = v));
+                    process.title = oldTitle;
+                    process.chdir(oldCwd);
+                }});
+
                 process.chdir(workingDir);
-                publicRequire("npm-js-interface")(command);
-                process.chdir(oldCwd);
+                publicRequire(scriptPath);
             )",
             engineDir,
             workingDir,
-            cmd
+            scriptPath
         );
 
         try {
-            node::SetProcessExitHandler(env, [&](node::Environment* env_, int exit_code) { node::Stop(env); });
+            node::SetProcessExitHandler(env, [&](node::Environment*, int exit_code_) {
+                exit_code = exit_code_;
+                node::Stop(env);
+            });
             MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, executeJs);
             if (loadenv_ret.IsEmpty()) // There has been a JS exception.
-                throw "error";
-            exit_code = node::SpinEventLoop(env).FromMaybe(0);
+                throw std::runtime_error("Failed at LoadEnvironment");
+            exit_code = node::SpinEventLoop(env).FromMaybe(exit_code);
         } catch (...) {
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to execute NPM command. Error occurs"

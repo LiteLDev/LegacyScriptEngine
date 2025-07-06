@@ -64,7 +64,7 @@ Currently, LSE supports writing plugins in the following languages：
 - Distribute the **.llplugin** file as a plugin. When installing the plugin, just place this file directly into the
   plugins directory
 - LSE will automatically recognize the **.llplugin** file when BDS launch, extract it to the
-  `plugins/nodejs/<PluginName>` directory, and automatically execute `npm install` in the directory to install the
+  `plugins/nodejs/<PluginName>` directory, and automatically execute `npm install --omit=dev` in the directory to install the
   dependency packages. No manual intervention is needed for the whole process
 
 ## Python language support description

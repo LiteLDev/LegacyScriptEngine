@@ -48,7 +48,7 @@
 - 在插件编写完成之后，请将 `package.json` 以及所有插件源码打包为一个zip压缩包，并**将文件名后缀修改为 .llplugin**
 - `node_modules` 目录请勿打包在压缩包之中
 - 将 **.llplugin** 文件作为插件分发，安装插件时直接将此文件放置到 plugins 目录即可
-- 在开服时，脚本引擎会自动识别 **.llplugin** 文件，将其解压到`plugins/nodejs/插件名`目录，并在目录中自动执行 `npm install`
+- 在开服时，脚本引擎会自动识别 **.llplugin** 文件，将其解压到`plugins/nodejs/插件名`目录，并在目录中自动执行 `npm install --omit=dev`
   安装依赖包，整个过程无需人工干预
 
 ## Python 语言支持说明

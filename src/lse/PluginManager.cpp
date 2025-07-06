@@ -116,7 +116,10 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                 fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
             )
         );
-        if ((exitCode = NodeJsHelper::executeNpmCommand("npm install", ll::string_utils::u8str2str(dirPath.u8string())))
+        if ((exitCode = NodeJsHelper::executeNpmCommand(
+                 {"install", "--omit=dev", "--no-fund"},
+                 ll::string_utils::u8str2str(dirPath.u8string())
+             ))
             != 0) {
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Error occurred. Exit code: {code}"_tr(fmt::arg("code", exitCode))

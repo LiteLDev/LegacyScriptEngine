@@ -235,7 +235,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             LLSERemoveCmdCallback(scriptEngine);
             LLSERemoveAllExportedFuncs(scriptEngine);
 
-            scriptEngine->getData().reset();
+            EngineOwnData::clearEngineObjects(scriptEngine);
             EngineManager::unregisterEngine(scriptEngine);
 #ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
@@ -268,8 +268,8 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         LLSERemoveCmdCallback(scriptEngine);
         LLSERemoveAllExportedFuncs(scriptEngine);
 
+        EngineOwnData::clearEngineObjects(scriptEngine);
         EngineManager::unregisterEngine(scriptEngine);
-        scriptEngine->getData().reset();
 
         if (auto plugin = std::static_pointer_cast<Plugin>(getMod(name))) {
             plugin->onUnload();

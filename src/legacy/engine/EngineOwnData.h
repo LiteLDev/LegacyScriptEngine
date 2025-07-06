@@ -85,6 +85,13 @@ struct EngineOwnData {
         return index;
     }
     inline bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
+
+    static void clearEngineObjects(ScriptEngine* engine) {
+        EngineScope scope(engine);
+        auto        data = std::static_pointer_cast<EngineOwnData>(engine->getData());
+        data->playerDataDB.clear();
+        // LLSERemoveAllExportedFuncs(engine);
+    }
 };
 
 // Engine additional data

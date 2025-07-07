@@ -449,17 +449,15 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
 
         std::string executeJs = fmt::format(
             R"(
-                const engineDir = "{0}";
+                const engineDir = require("path").resolve("{0}") + require("path").sep;
                 const workingDir = "{1}";
                 const scriptPath = "{2}";
-                const publicRequire = require("module").createRequire(
-                    require("path").resolve(engineDir) + require("path").sep
-                );
+                const publicRequire = require("module").createRequire(engineDir);
                 // Record states and restore at exit
                 const oldCwd = process.cwd();
                 const oldEnv = Object.entries(process.env).filter(([k]) => k.startsWith("npm_"));
                 const oldTitle = process.title;
-                process.on("exit", () => {{
+                process.once("exit", () => {{
                     Object.keys(process.env)
                         .filter((k) => k.startsWith("npm_"))
                         .forEach((k) => delete process.env[k]);
@@ -467,6 +465,15 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
                     process.title = oldTitle;
                     process.chdir(oldCwd);
                 }});
+                // disable npm input
+                function inputHandler(type, resolve, reject) {{
+                    if (type === "read") {{
+                        console.error("Input is not allow in server command.");
+                        reject();
+                    }}
+                }}
+                process.on("input", inputHandler);
+                process.once("exit", () => process.off("input", inputHandler));
 
                 process.chdir(workingDir);
                 publicRequire(scriptPath);

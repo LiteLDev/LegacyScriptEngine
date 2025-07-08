@@ -313,13 +313,21 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         // Start libuv event loop
         uvLoopTask.push_back(env);
         ll::coro::keepThis(
-            [engine, env, isRunningMap{&isRunning}, eventLoop{it->second->event_loop()}]() -> ll::coro::CoroTask<> {
+            [engine,
+             env,
+             isolate{it->second->isolate()},
+             isRunningMap{&isRunning},
+             eventLoop{it->second->event_loop()}]() -> ll::coro::CoroTask<> {
                 using namespace ll::chrono_literals;
                 while (std::find(uvLoopTask.begin(), uvLoopTask.end(), env) != uvLoopTask.end()) {
                     co_await 2_tick;
                     if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
                         EngineScope enter(engine);
+                        // v8::MicrotasksScope microtaskScope(isolate, v8::MicrotasksScope::kRunMicrotasks);
                         uv_run(eventLoop, UV_RUN_NOWAIT);
+                        // Manually perform microtasks because default MicrotasksPolicy is kExplicit
+                        isolate->PerformMicrotaskCheckpoint();
+                        // Or change MicrotasksPolicy to kScope and enter MicrotasksScope before uv_run
                     }
                     if ((ll::getGamingStatus() != ll::GamingStatus::Running)) {
                         uv_stop(eventLoop);

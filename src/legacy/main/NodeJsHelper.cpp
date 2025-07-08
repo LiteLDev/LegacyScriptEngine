@@ -7,18 +7,25 @@
 #include "engine/EngineOwnData.h"
 #include "engine/RemoteCall.h"
 #include "fmt/format.h"
+#include "ll/api/Expected.h"
+#include "ll/api/base/Containers.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/io/LogLevel.h"
+#include "ll/api/memory/Hook.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 #include "main/Global.h"
 #include "utils/Utils.h"
 #include "uv/uv.h"
 #include "v8/v8.h"
+
+#define NODE_LIBRARY_NAME_W   L"libnode.dll"
+#define NODE_HOST_BINARY_NAME "node.exe"
 
 using ll::chrono_literals::operator""_tick;
 
@@ -38,7 +45,81 @@ std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmen
 std::unordered_map<node::Environment*, bool> isRunning;
 std::vector<node::Environment*>              uvLoopTask;
 
+ll::Expected<> PatchDelayImport(HMODULE hAddon, HMODULE hLibNode) {
+    BYTE* base = (BYTE*)hAddon;
+    auto  dos  = (PIMAGE_DOS_HEADER)base;
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
+        return ll::makeStringError("Invalid DOS signature.");
+    }
+    auto nt = (PIMAGE_NT_HEADERS)(base + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE) {
+        return ll::makeStringError("Invalid NT signature.");
+    }
+    DWORD rva = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress;
+    if (!rva) {};
+    auto pDesc = (PIMAGE_DELAYLOAD_DESCRIPTOR)(base + rva);
+    for (; pDesc->DllNameRVA; ++pDesc) {
+        char* szDll = (char*)(base + pDesc->DllNameRVA);
+        if (_stricmp(szDll, NODE_HOST_BINARY_NAME) != 0) continue;
+
+        auto pIAT = (PIMAGE_THUNK_DATA)(base + pDesc->ImportAddressTableRVA);
+        auto pINT = (PIMAGE_THUNK_DATA)(base + pDesc->ImportNameTableRVA);
+
+        for (; pIAT->u1.Function; ++pIAT, ++pINT) {
+            FARPROC f = nullptr;
+            if (pINT->u1.Ordinal & IMAGE_ORDINAL_FLAG) {
+                // Import by Ordinal
+                WORD ordinal = IMAGE_ORDINAL(pINT->u1.Ordinal);
+                f            = GetProcAddress(hLibNode, MAKEINTRESOURCEA(ordinal));
+            } else {
+                // Import by name
+                auto name = (PIMAGE_IMPORT_BY_NAME)(base + pINT->u1.AddressOfData);
+                f         = GetProcAddress(hLibNode, name->Name);
+            }
+            if (f) {
+                DWORD oldProt;
+                VirtualProtect(&pIAT->u1.Function, sizeof(void*), PAGE_READWRITE, &oldProt);
+                pIAT->u1.Function = reinterpret_cast<decltype(pIAT->u1.Function)>(f);
+                VirtualProtect(&pIAT->u1.Function, sizeof(void*), oldProt, &oldProt);
+            }
+        }
+        break;
+    }
+    return {};
+}
+
+ll::DenseSet<HMODULE> cachedModules{};
+
+// patch in node?
+LL_STATIC_HOOK(
+    PatchDelayImportHook,
+    HookPriority::Normal,
+    LoadLibraryExW,
+    HMODULE,
+    LPCWSTR lpLibFileName,
+    HANDLE  hFile,
+    DWORD   dwFlags
+) {
+    auto hAddon = origin(lpLibFileName, hFile, dwFlags);
+    if (!cachedModules.contains(hAddon)) {
+        cachedModules.emplace(hAddon);
+        if (std::wstring_view(lpLibFileName).ends_with(L".node")) {
+            static HMODULE hLibNode = GetModuleHandle(NODE_LIBRARY_NAME_W);
+            if (!(hAddon && hLibNode)) return hAddon;
+            auto res = PatchDelayImport(hAddon, hLibNode);
+            if (res) return hAddon;
+            res.error().log(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+        }
+    }
+    return hAddon;
+}
+
+std::unique_ptr<ll::memory::HookRegistrar<PatchDelayImportHook>> hook{};
+
 bool initNodeJs() {
+    if (lse::LegacyScriptEngine::getInstance().getConfig().fixOldAddon.value_or(true)) {
+        hook = std::make_unique<ll::memory::HookRegistrar<PatchDelayImportHook>>();
+    }
     // Init NodeJs
     auto  path  = ll::string_utils::u8str2str(ll::sys_utils::getModulePath(nullptr).value().u8string());
     char* cPath = (char*)path.c_str();

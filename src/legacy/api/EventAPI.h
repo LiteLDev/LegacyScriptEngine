@@ -10,7 +10,7 @@ void EnableEventListener(int eventId);
 bool LLSEAddEventListener(ScriptEngine* engine, const std::string& eventName, const Local<Function>& func);
 bool LLSERemoveAllEventListeners(ScriptEngine* engine);
 bool LLSECallEventsOnHotLoad(ScriptEngine* engine);
-bool LLSECallEventsOnHotUnload(ScriptEngine* engine);
+bool LLSECallEventsOnUnload(ScriptEngine* engine);
 
 //////////////////// Callback ////////////////////
 

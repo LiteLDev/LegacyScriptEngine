@@ -40,6 +40,7 @@
 #include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/Entry.h"
 #include "lse/events/BlockEvents.h"
@@ -133,13 +134,19 @@ bool LLSECallEventsOnHotLoad(ScriptEngine* engine) {
     return true;
 }
 
-bool LLSECallEventsOnHotUnload(ScriptEngine* engine) {
-    ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-        FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
-        return true;
-    });
+bool LLSECallEventsOnUnload(ScriptEngine* engine) {
+    if (ll::getGamingStatus() == ll::GamingStatus::Running) {
+        ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+            FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
+            return true;
+        });
+    }
     for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
-        cb(engine);
+        EngineScope scope(engine);
+        try {
+            cb(engine);
+        }
+        CATCH_IN_CALLBACK("onUnload")
     }
     getEngineData(engine)->unloadCallbacks.clear();
     return true;

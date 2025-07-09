@@ -1,8 +1,5 @@
 #pragma once
 #include "legacy/main/Global.h"
-#include "ll/api/base/Macro.h"
-#include "ll/api/mod/Mod.h"
-#include "lse/Entry.h"
 #include "lse/Plugin.h"
 #include "utils/UsingScriptX.h"
 
@@ -10,7 +7,6 @@
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/Logger.h>
 #include <ll/api/io/LoggerRegistry.h>
-#include <map>
 #include <string>
 #include <unordered_map>
 
@@ -25,15 +21,6 @@ struct RemoteCallData {
     script::Global<Function> callback;
 };
 
-/*
-struct SimpleCallbackData
-{
-    ScriptEngine* engine;
-    script::Global<script::Function> func;
-    std::vector<script::Global<Value>> values;
-};
-*/
-
 // It is similar to ll::mod::Mod, it stores data of an engine(usually a plugin).
 struct EngineOwnData {
     // Basic information
@@ -42,28 +29,6 @@ struct EngineOwnData {
 
     // RemoteCall Exported Functions: unordered_map<nameSpace, funcName>
     std::unordered_map<std::string, RemoteCallData> exportFuncs;
-
-    /*
-    uint64_t simpleCallbackIndex = 0;
-    std::unordered_map<uint64_t, SimpleCallbackData> simpleCallbacks;
-
-    inline uint64_t addSimpleCallback(script::Local<Function> func,
-    std::vector<script::Local<Value>> values)
-    {
-        auto index = ++simpleCallbackIndex;
-        std::vector<script::Global<Value>> globalValues;
-        for (auto& value : values)
-            globalValues.emplace_back(value);
-        SimpleCallbackData data{EngineScope::currentEngine(),
-    script::Global<Function>(func), std::move(globalValues)};
-        simpleCallbacks.emplace(index, std::move(data));
-        return index;
-    }
-    inline bool removeSimpleCallback(uint64_t index)
-    {
-        return simpleCallbacks.erase(index);
-    }
-    */
 
     // I18nAPI
     ll::i18n::I18n i18n;
@@ -90,7 +55,9 @@ struct EngineOwnData {
         EngineScope scope(engine);
         auto        data = std::static_pointer_cast<EngineOwnData>(engine->getData());
         data->playerDataDB.clear();
+        data->unloadCallbacks.clear();
         // LLSERemoveAllExportedFuncs(engine);
+        assert(data->exportFuncs.empty());
     }
 };
 

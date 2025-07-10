@@ -22,7 +22,7 @@ public:
 
     std::unordered_map<std::string, std::vector<ParamInfo>> registeredCommands;
 
-    Plugin(const ll::mod::Manifest& manifest);
+    explicit Plugin(ll::mod::Manifest manifest);
     ~Plugin();
 
     static std::shared_ptr<ll::mod::Mod> current();

@@ -7,7 +7,7 @@
 
 namespace lse {
 
-Plugin::Plugin(const ll::mod::Manifest& manifest) : ll::mod::Mod(std::move(manifest)) {}
+Plugin::Plugin(ll::mod::Manifest manifest) : ll::mod::Mod(std::move(manifest)) {}
 
 Plugin::~Plugin() { release(); }
 

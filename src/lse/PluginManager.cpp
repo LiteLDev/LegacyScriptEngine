@@ -255,16 +255,18 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
             return ll::makeStringError("Plugin {0} not found"_tr(name));
         }
 
+        {
+            EngineScope scope(scriptEngine);
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
-        LLSERemoveTimeTaskData(scriptEngine);
+            LLSERemoveTimeTaskData(scriptEngine);
 #endif
-        LLSECallEventsOnUnload(scriptEngine);
-        LLSERemoveAllEventListeners(scriptEngine);
-        LLSERemoveCmdRegister(scriptEngine);
-        LLSERemoveCmdCallback(scriptEngine);
-        LLSERemoveAllExportedFuncs(scriptEngine);
-
-        EngineOwnData::clearEngineObjects(scriptEngine);
+            LLSECallEventsOnUnload(scriptEngine);
+            LLSERemoveAllEventListeners(scriptEngine);
+            LLSERemoveCmdRegister(scriptEngine);
+            LLSERemoveCmdCallback(scriptEngine);
+            LLSERemoveAllExportedFuncs(scriptEngine);
+            EngineOwnData::clearEngineObjects(scriptEngine);
+        }
         EngineManager::unregisterEngine(scriptEngine);
 
         if (auto plugin = std::static_pointer_cast<Plugin>(getMod(name))) {
@@ -292,7 +294,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         }
 
         return {};
-    } catch (const script::Exception& e) {
+    } catch (const script::Exception&) {
         return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, "Unknown script exception"));
     } catch (const std::exception& e) {
         return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, e.what()));

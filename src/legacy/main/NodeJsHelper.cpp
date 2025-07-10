@@ -1,28 +1,22 @@
-#pragma warning(disable : 4251)
-
 #include "main/NodeJsHelper.h"
 
-#include "api/EventAPI.h"
-#include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
-#include "engine/RemoteCall.h"
 #include "fmt/format.h"
 #include "ll/api/Expected.h"
 #include "ll/api/base/Containers.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
-#include "ll/api/io/FileUtils.h"
-#include "ll/api/io/LogLevel.h"
+#include "ll/api/io/Logger.h"
 #include "ll/api/memory/Hook.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
+#include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
-#include "main/Global.h"
+#include "nlohmann/json.hpp"
 #include "utils/Utils.h"
 #include "uv/uv.h"
-#include "v8/v8.h"
+#include "v8/v8.h" // IWYU pragma: keep
 
 #define NODE_LIBRARY_NAME_W   L"libnode.dll"
 #define NODE_HOST_BINARY_NAME "node.exe"
@@ -43,7 +37,7 @@ std::unordered_map<script::ScriptEngine*, node::Environment*>                   
 std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
     new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
 std::unordered_map<node::Environment*, bool> isRunning;
-std::vector<node::Environment*>              uvLoopTask;
+std::set<node::Environment*>                 uvLoopTask;
 
 ll::Expected<> PatchDelayImport(HMODULE hAddon, HMODULE hLibNode) {
     BYTE* base = (BYTE*)hAddon;
@@ -125,10 +119,16 @@ bool initNodeJs() {
     char* cPath = (char*)path.c_str();
     uv_setup_args(1, &cPath);
     auto full_args = std::vector<std::string>{path};
-    auto result    = node::InitializeOncePerProcess(
+#if defined(LSE_DEBUG) || defined(LSE_TEST)
+    full_args.insert(
+        full_args.end(),
+        {"--experimental-strip-types", "--enable-source-maps", "--disable-warning=ExperimentalWarning"}
+    );
+#endif
+    auto result = node::InitializeOncePerProcess(
         full_args,
         {node::ProcessInitializationFlags::kNoInitializeV8,
-            node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
+         node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
     );
     if (result->exit_code() != 0) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
@@ -237,25 +237,25 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         using namespace v8;
         EngineScope enter(engine);
 
-        string compiler = R"(
+        std::string compiler = R"(
             ll.import=ll.imports;
             ll.export=ll.exports;)";
 
         if (esm) {
             compiler += fmt::format(
                 R"(
-                    Promise.all([import("url"), import("util")])
-                        .then(([url, util]) => {{
-                            const moduleUrl = url.pathToFileURL("{1}").href;
-                            import(moduleUrl).catch((error) => {{
-                                logger.error(`Failed to load ESM module: `, util.inspect(error));
-                                process.exit(1);
-                            }});
-                        }})
+                    const moduleUrl = require("url").pathToFileURL("{1}").href;
+                    const {{ promise, resolve, reject }} = Promise.withResolvers();
+                    let timeout = false;
+                    import(moduleUrl)
+                        .then(() => resolve())
                         .catch((error) => {{
-                            console.error(`Failed to import "url" or "util" module:`, error);
-                            process.exit(1);
+                            const msg = `Failed to load ESM module: ${{require("util").inspect(error)}}`;
+                            if (timeout) logger.error(msg), process.exit(1);
+                            else resolve(msg);
                         }});
+                    const timer = setTimeout(() => (timeout = true) && resolve(), 900);
+                    return promise.finally(() => clearTimeout(timer));
                 )",
                 pluginDirPath,
                 entryScriptPath
@@ -282,7 +282,12 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                         }};
                         require = PublicModule.createRequire(__PluginPath);
                     }})();
-                    require("{1}");
+                    try{{
+                        require("{1}");
+                    }}catch(error){{
+                        return require("util").inspect(error);
+                    }};
+                    return;
                 )",
                 pluginDirPath,
                 entryScriptPath
@@ -303,15 +308,37 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
 
         // Load code
         MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, compiler);
-        if (loadenv_ret.IsEmpty()) // There has been a JS exception.
-        {
+        bool                  loadFailed  = loadenv_ret.IsEmpty();
+
+        auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+
+        if (!loadFailed) {
+            v8::Local<v8::Value> errorMsg = loadenv_ret.ToLocalChecked();
+            if (loadenv_ret.ToLocalChecked()->IsPromise()) {
+                // wait for module loaded
+                auto promise  = loadenv_ret.ToLocalChecked().As<v8::Promise>();
+                auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds{1};
+                while (promise->State() == v8::Promise::kPending && std::chrono::steady_clock::now() <= deadline) {
+                    uv_run(it->second->event_loop(), UV_RUN_ONCE);
+                    it->second->isolate()->PerformMicrotaskCheckpoint();
+                }
+                if (promise->State() == v8::Promise::kFulfilled) {
+                    errorMsg = promise->Result();
+                }
+            }
+            if (errorMsg->IsString()) {
+                v8::String::Utf8Value value{it->second->isolate(), errorMsg};
+                logger.error(std::string_view{*value, static_cast<size_t>(value.length())});
+                loadFailed = true;
+            }
+        }
+        if (loadFailed) {
             node::Stop(env);
             uv_stop(it->second->event_loop());
             return false;
         }
-
         // Start libuv event loop
-        uvLoopTask.push_back(env);
+        uvLoopTask.insert(env);
         ll::coro::keepThis(
             [engine,
              env,
@@ -319,7 +346,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
              isRunningMap{&isRunning},
              eventLoop{it->second->event_loop()}]() -> ll::coro::CoroTask<> {
                 using namespace ll::chrono_literals;
-                while (std::find(uvLoopTask.begin(), uvLoopTask.end(), env) != uvLoopTask.end()) {
+                while (uvLoopTask.contains(env)) {
                     co_await 2_tick;
                     if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
                         EngineScope enter(engine);
@@ -365,7 +392,7 @@ bool stopEngine(node::Environment* env) {
         node::Stop(env);
 
         // Stop libuv event loop
-        auto it = std::find(uvLoopTask.begin(), uvLoopTask.end(), env);
+        auto it = uvLoopTask.find(env);
         if (it != uvLoopTask.end()) {
             uvLoopTask.erase(it);
         }

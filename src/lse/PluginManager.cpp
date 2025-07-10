@@ -158,8 +158,8 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         BindAPIs(scriptEngine);
 
-        auto& self = LegacyScriptEngine::getInstance().getSelf();
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
+        auto& self = LegacyScriptEngine::getInstance().getSelf();
         // Load BaseLib.
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
         auto baseLibContent = ll::file_utils::readFile(baseLibPath);
@@ -208,6 +208,12 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
+        plugin->onDisable([this](ll::mod::Mod& self) {
+            if (ll::getGamingStatus() == ll::GamingStatus::Stopping) {
+                unload(self.getName());
+            }
+            return true;
+        });
 
         return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
     } catch (const Exception& e) {

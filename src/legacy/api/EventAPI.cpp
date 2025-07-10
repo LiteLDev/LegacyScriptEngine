@@ -78,17 +78,44 @@ bool hasListened[int(EVENT_TYPES::EVENT_COUNT)] = {false};
 
 //////////////////// APIs ////////////////////
 
+Local<Value> listenCancellable(ScriptEngine* engine, const string& eventName, const Local<Function>& func);
 Local<Value> McClass::listen(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
+    if (args.size() >= 3 && args[2].isBoolean() && args[2].asBoolean().value()) {
+        return listenCancellable(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction());
+    }
     try {
         return Boolean::newBoolean(
             LLSEAddEventListener(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction())
         );
     }
     CATCH("Fail to Bind Listener!");
+}
+
+Local<Value> listenCancellable(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
+    try {
+        auto event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
+        auto eventId    = int(event_enum.value());
+        auto event =
+            listenerList[eventId].insert(listenerList[eventId].end(), {engine, script::Global<Function>(func)});
+        if (!hasListened[eventId]) {
+            hasListened[eventId] = true;
+            EnableEventListener(eventId);
+        }
+        return Function::newFunction([eventId{eventId}, event{event}](const Arguments&) -> Local<Value> {
+            listenerList[eventId].erase(event);
+            return Local<Value>();
+        });
+    } catch (...) {
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            "In Plugin: " + getEngineData(engine)->pluginName
+        );
+        return Local<Value>();
+    }
 }
 
 //////////////////// Funcs ////////////////////
@@ -135,14 +162,13 @@ bool LLSECallEventsOnHotLoad(ScriptEngine* engine) {
 }
 
 bool LLSECallEventsOnUnload(ScriptEngine* engine) {
-    if (ll::getGamingStatus() == ll::GamingStatus::Running) {
-        ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-            FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
-            return true;
-        });
-    }
+    // Players may be online when the server is stopping
+    ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+        FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
+        return true;
+    });
+    EngineScope scope(engine);
     for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
-        EngineScope scope(engine);
         try {
             cb(engine);
         }

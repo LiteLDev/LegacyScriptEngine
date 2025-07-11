@@ -516,6 +516,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
     std::string engineDir =
         ll::string_utils::u8str2str(lse::LegacyScriptEngine::getInstance().getSelf().getModDir().u8string());
     if (workingDir.empty()) workingDir = engineDir;
+    workingDir = ll::string_utils::replaceAll(workingDir, "\\", "/");
 
     auto npmPath = std::filesystem::absolute(engineDir) / "node_modules" / "npm" / "bin" / "npm-cli.js";
     std::vector<std::string>& env_args = npmArgs;
@@ -526,7 +527,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
         env_args.erase(env_args.begin());
     }
     auto scriptPath = ll::string_utils::replaceAll(ll::string_utils::u8str2str(npmPath.u8string()), "\\", "/");
-    env_args.insert(env_args.begin(), {args[0], scriptPath});
+    env_args.insert(env_args.begin(), {args[0], scriptPath, engineDir, workingDir});
 
     std::vector<std::string> errors;
 
@@ -553,9 +554,6 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
     node::Environment* env       = setup->env();
     int                exit_code = 0;
 
-    // Process workingDir
-    workingDir = ll::string_utils::replaceAll(workingDir, "\\", "/");
-
     {
         using namespace v8;
         v8::Locker         locker(isolate);
@@ -563,41 +561,36 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
         v8::HandleScope    handle_scope(isolate);
         v8::Context::Scope context_scope(setup->context());
 
-        std::string executeJs = fmt::format(
-            R"(
-                const engineDir = require("path").resolve("{0}") + require("path").sep;
-                const workingDir = "{1}";
-                const scriptPath = "{2}";
-                const publicRequire = require("module").createRequire(engineDir);
-                // Record states and restore at exit
-                const oldCwd = process.cwd();
-                const oldEnv = Object.entries(process.env).filter(([k]) => k.startsWith("npm_"));
-                const oldTitle = process.title;
-                process.once("exit", () => {{
-                    Object.keys(process.env)
-                        .filter((k) => k.startsWith("npm_"))
-                        .forEach((k) => delete process.env[k]);
-                    oldEnv.forEach(([k, v]) => (process.env[k] = v));
-                    process.title = oldTitle;
-                    process.chdir(oldCwd);
-                }});
-                // disable npm input
-                function inputHandler(type, resolve, reject) {{
-                    if (type === "read") {{
-                        console.error("Input is not allow in server command.");
-                        reject();
-                    }}
-                }}
-                process.on("input", inputHandler);
-                process.once("exit", () => process.off("input", inputHandler));
-
-                process.chdir(workingDir);
-                publicRequire(scriptPath);
-            )",
-            engineDir,
-            workingDir,
-            scriptPath
-        );
+        std::string executeJs = R"(
+            const path = require("path");
+            const util = require("util");
+            const [root, cwd] = util.parseArgs({ strict: false }).positionals;
+            const entry = process.argv[1];
+            process.argv.splice(process.argv.findIndex((a) => a == root), 1);
+            process.argv.splice(process.argv.findIndex((a) => a == cwd), 1);
+            const publicRequire = require("module").createRequire(path.resolve(root ?? process.cwd()) + path.sep);
+            // disable npm input
+            process.stdin.destroy();
+            function inputHandler(type) {
+                if (type === "read")
+                    throw "Input is not allow in server command.";
+            }
+            process.on("input", inputHandler);
+            process.once("exit", () => process.off("input", inputHandler));
+            // keep env
+            const modifiedEnv = {};
+            process.env = new Proxy(process.env, {
+                get: (target, k) => modifiedEnv[k] ?? target[k],
+                set: (_, k, v) => (modifiedEnv[k] = v),
+            });
+            let fakeCwd = path.resolve(cwd ?? root ?? process.cwd());
+            process.chdir = (cd) => (fakeCwd = path.resolve(fakeCwd, cd));
+            process.cwd = () => fakeCwd;
+            Object.defineProperties(process, {
+                title: { get: () => "", set: () => true },
+            });
+            publicRequire(entry);
+        )";
 
         try {
             node::SetProcessExitHandler(env, [&](node::Environment*, int exit_code_) {

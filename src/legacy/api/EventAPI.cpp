@@ -1,4 +1,4 @@
-#include "api/EventAPI.h"
+#include "EventAPI.h"
 
 #include "BaseAPI.h"
 #include "BlockAPI.h"
@@ -71,7 +71,7 @@
 //////////////////// Listeners ////////////////////
 
 // 监听器表
-std::list<ListenerListType> listenerList[int(EVENT_TYPES::EVENT_COUNT)];
+std::list<EventListener> listenerList[int(EVENT_TYPES::EVENT_COUNT)];
 
 // 监听器历史
 bool hasListened[int(EVENT_TYPES::EVENT_COUNT)] = {false};
@@ -84,31 +84,32 @@ Local<Value> McClass::listen(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
     try {
-        return Boolean::newBoolean(
-            LLSEAddEventListener(EngineScope::currentEngine(), args[0].asString().toString(), args[1].asFunction())
-        );
+        auto eventName = args[0].asString().toString();
+        auto listener  = LLSEAddEventListener(EngineScope::currentEngine(), eventName, args[1].asFunction());
+        return Boolean::newBoolean(listener.has_value());
     }
     CATCH("Fail to Bind Listener!");
 }
 
 //////////////////// Funcs ////////////////////
 
-bool LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
+optional_ref<EventListener>
+LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
     try {
-        auto event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
-        auto eventId    = int(event_enum.value());
-        listenerList[eventId].push_back({engine, script::Global<Function>(func)});
+        auto  event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
+        auto  eventId    = int(event_enum.value());
+        auto& listener   = listenerList[eventId].emplace_back(engine, script::Global<Function>(func), *event_enum);
         if (!hasListened[eventId]) {
             hasListened[eventId] = true;
             EnableEventListener(eventId);
         }
-        return true;
+        return {listener};
     } catch (...) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
             "In Plugin: " + getEngineData(engine)->pluginName
         );
-        return false;
+        return std::nullopt;
     }
 }
 
@@ -878,7 +879,17 @@ void InitBasicEventListeners() {
     ll::coro::keepThis([]() -> ll::coro::CoroTask<> {
         while (true) {
             co_await 1_tick;
-
+            for (auto& type : dirtyEventTypes) {
+                auto& list = listenerList[int(type)];
+                for (auto iter = list.begin(); iter != list.end();) {
+                    if (iter->removed) {
+                        EngineScope scope(iter->engine);
+                        iter = list.erase(iter);
+                    } else {
+                        iter++;
+                    }
+                }
+            }
 #ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
             try {
                 std::list<ScriptEngine*> tmpList;

@@ -371,20 +371,19 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    ActorDestroyBlockEventHook,
+    EndermanTakeBlockHook,
     HookPriority::Normal,
     ActorEventCoordinator,
     &ActorEventCoordinator::sendEvent,
     CoordinatorResult,
     EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
-)
-try {
-    return event.get().visit([&](auto&& arg) {
+) {
+    bool canceled = event.get().visit([&](auto&& arg) {
         if constexpr (std::is_same_v<std::decay_t<decltype(arg)>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
-            auto& griefingEvent = arg.value();
-
-            if (auto entity = griefingEvent.mActorContext->tryUnwrap(); entity && entity->isType(ActorType::EnderMan)) {
-                IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
+            IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
+                auto& griefingEvent = arg.value();
+                auto  entity        = griefingEvent.mActorContext->tryUnwrap();
+                if (entity && entity->isType(ActorType::EnderMan)) {
                     if (!CallEvent(
                             EVENT_TYPES::onEndermanTakeBlock,
                             EntityClass::newEntity(entity.as_ptr()),
@@ -395,16 +394,15 @@ try {
                             ),
                             IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId())
                         )) {
-                        return CoordinatorResult::Cancel;
+                        return true;
                     }
                 }
-                IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
             }
-            return CoordinatorResult::Continue;
+            IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
         }
-        return origin(event);
+        return false;
     });
-} catch (...) {
+    if (canceled) return CoordinatorResult::Cancel;
     return origin(event);
 }
 
@@ -423,7 +421,7 @@ void MobHurtEvent() {
     MobHurtEffectHook::hook();
 }
 void NpcCommandEvent() { NpcCommandHook::hook(); }
-void EndermanTakeBlockEvent() { ActorDestroyBlockEventHook::hook(); }
+void EndermanTakeBlockEvent() { EndermanTakeBlockHook::hook(); }
 void EffectUpdateEvent() { EffectUpdateHook::hook(); }
 void TransformationEvent() { TransformationHook::hook(); }
 } // namespace lse::events::entity

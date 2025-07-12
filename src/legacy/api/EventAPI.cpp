@@ -56,11 +56,11 @@
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
 #include "legacy/main/PythonHelper.h"
 #endif
 
@@ -764,18 +764,18 @@ void InitBasicEventListeners() {
             if (cmd.starts_with("/")) {
                 cmd.erase(0, 1);
             }
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();
                 return;
             }
 #endif
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
             if (!NodeJsHelper::processConsoleNpmCmd(cmd)) {
                 ev.cancel();
                 return;
             }
-#elif defined(LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
+#elif defined(LSE_BACKEND_PYTHON)
             if (!PythonHelper::processConsolePipCmd(cmd)) {
                 ev.cancel();
                 return;
@@ -890,7 +890,7 @@ void InitBasicEventListeners() {
                     }
                 }
             }
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
             try {
                 std::list<ScriptEngine*> tmpList;
                 {

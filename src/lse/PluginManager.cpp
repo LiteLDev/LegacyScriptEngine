@@ -19,21 +19,21 @@
 #include <fmt/format.h>
 #include <memory>
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
+#ifdef LSE_BACKEND_LUA
 
 constexpr auto BaseLibFileName   = "BaseLib.lua";
 constexpr auto PluginManagerName = "lse-lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
+#ifdef LSE_BACKEND_QUICKJS
 
 constexpr auto BaseLibFileName   = "BaseLib.js";
 constexpr auto PluginManagerName = "lse-quickjs";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
 
 #include "legacy/main/PythonHelper.h"
 constexpr auto BaseLibFileName   = "BaseLib.py";
@@ -41,7 +41,7 @@ constexpr auto PluginManagerName = "lse-python";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
 
 #include "legacy/main/NodeJsHelper.h"
 constexpr auto PluginManagerName = "lse-nodejs";
@@ -65,7 +65,7 @@ PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     std::string           entryPath =
         PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
@@ -97,7 +97,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
     }
 #endif
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;
@@ -132,7 +132,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // Init plugin logger
         getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(manifest.name);
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
         scriptEngine->eval("import sys as _llse_py_sys_module");
         std::error_code ec;
 
@@ -158,7 +158,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
         BindAPIs(scriptEngine);
 
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend load depends code in another place
+#ifndef LSE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         auto& self = LegacyScriptEngine::getInstance().getSelf();
         // Load BaseLib.
         auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;
@@ -171,7 +171,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // Load the plugin entry.
         auto entryPath             = plugin->getModDir() / manifest.entry;
         getEngineOwnData()->plugin = plugin;
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
         if (!PythonHelper::loadPluginCode(
                 scriptEngine,
                 ll::string_utils::u8str2str(entryPath.u8string()),
@@ -180,7 +180,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             return ll::makeStringError("Failed to load plugin code"_tr());
         }
 #endif
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
         if (!NodeJsHelper::loadPluginCode(
                 scriptEngine,
                 ll::string_utils::u8str2str(entryPath.u8string()),
@@ -190,7 +190,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             return ll::makeStringError("Failed to load plugin code"_tr());
         }
 #endif
-#if (defined LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS) || (defined LEGACY_SCRIPT_ENGINE_BACKEND_LUA)
+#if (defined LSE_BACKEND_QUICKJS) || (defined LSE_BACKEND_LUA)
         // Try loadFile
         try {
             scriptEngine->loadFile(entryPath.u8string());
@@ -225,7 +225,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
                 );
             }();
 
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
             LLSERemoveTimeTaskData(scriptEngine);
 #endif
             LLSERemoveAllEventListeners(scriptEngine);
@@ -235,7 +235,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 
             EngineOwnData::clearEngineObjects(scriptEngine);
             EngineManager::unregisterEngine(scriptEngine);
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
 #else
             scriptEngine->destroy();
@@ -257,7 +257,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         {
             EngineScope scope(scriptEngine);
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
             LLSERemoveTimeTaskData(scriptEngine);
 #endif
             LLSECallEventsOnUnload(scriptEngine);
@@ -276,7 +276,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         eraseMod(name);
 
         auto destroyEngine = [scriptEngine]() {
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
 #else
             scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.

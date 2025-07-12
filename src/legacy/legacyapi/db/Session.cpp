@@ -1,7 +1,7 @@
 #include "legacyapi/db/Session.h"
 
 #include "lse/Entry.h"
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
 #include "legacyapi/db/impl/mysql/Session.h"
 #endif
 #include "legacyapi/db/impl/sqlite/Session.h"
@@ -110,7 +110,7 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
         session = params.empty() ? new SQLiteSession() : new SQLiteSession(params);
         break;
     case DBType::MySQL:
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
             "Session::_Create: MySQL is disabled in NodeJS backend because its OpenSSL has conflicts with libnode"
         );

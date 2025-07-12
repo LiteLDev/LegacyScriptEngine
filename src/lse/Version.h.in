@@ -1,0 +1,44 @@
+#pragma once
+
+// clang-format off
+#define LSE_LABEL_ALPHA 0
+#define LSE_LABEL_BETA  1
+#define LSE_LABEL_NONE  255
+
+#define LSE_VERSION_MAJOR         ${LSE_VERSION_MAJOR}
+#define LSE_VERSION_MINOR         ${LSE_VERSION_MINOR}
+#define LSE_VERSION_PATCH         ${LSE_VERSION_PATCH}
+${define LSE_VERSION_PRERELEASE}
+#define LSE_VERSION_COMMIT_SHA    ${GIT_COMMIT}
+// clang-format on
+
+#if defined(LSE_BACKEND_QUICKJS)
+#define LSE_ENTRY_FILE_NAME "legacy-script-engine-quickjs.dll"
+#elif defined(LSE_BACKEND_LUA)
+#define LSE_ENTRY_FILE_NAME "legacy-script-engine-lua.dll"
+#elif defined(LSE_BACKEND_NODEJS)
+#define LSE_ENTRY_FILE_NAME "legacy-script-engine-nodejs.dll"
+#elif defined(LSE_BACKEND_PYTHON)
+#define LSE_ENTRY_FILE_NAME "legacy-script-engine-python.dll"
+#endif
+
+#define LSE_WORKSPACE_FOLDER R"(${LSE_WORKSPACE_FOLDER}\)"
+
+#define TARGET_BDS_PROTOCOL_VERSION 800
+
+#define LSE_VERSION_TO_STRING_INNER(ver) #ver
+#define LSE_VERSION_TO_STRING(ver)       LSE_VERSION_TO_STRING_INNER(ver)
+
+#ifdef LSE_VERSION_PRERELEASE
+#define LSE_FILE_VERSION_FLAG VS_FF_DEBUG
+#define LSE_FILE_VERSION_STRING                                                                                        \
+    LSE_VERSION_TO_STRING(LSE_VERSION_MAJOR)                                                                           \
+    "." LSE_VERSION_TO_STRING(LSE_VERSION_MINOR) "." LSE_VERSION_TO_STRING(LSE_VERSION_PATCH                           \
+    ) "-" LSE_VERSION_PRERELEASE "+" LSE_VERSION_TO_STRING(LSE_VERSION_COMMIT_SHA)
+#else
+#define LSE_FILE_VERSION_FLAG 0x00000000L
+#define LSE_FILE_VERSION_STRING                                                                                        \
+    LSE_VERSION_TO_STRING(LSE_VERSION_MAJOR)                                                                           \
+    "." LSE_VERSION_TO_STRING(LSE_VERSION_MINOR) "." LSE_VERSION_TO_STRING(LSE_VERSION_PATCH                           \
+    ) "+" LSE_VERSION_TO_STRING(LSE_VERSION_COMMIT_SHA)
+#endif

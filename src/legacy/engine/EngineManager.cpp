@@ -4,7 +4,7 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/utils/StringUtils.h"
 
-#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
+#if defined(LSE_BACKEND_NODEJS)
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
@@ -36,7 +36,7 @@ bool EngineManager::registerEngine(ScriptEngine* engine) {
 ScriptEngine* EngineManager::newEngine(std::string pluginName) {
     ScriptEngine* engine = nullptr;
 
-#if defined(LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS)
+#if defined(LSE_BACKEND_NODEJS)
     engine = NodeJsHelper::newEngine();
 #elif !defined(SCRIPTX_BACKEND_WEBASSEMBLY)
     engine = new ScriptEngineImpl();

@@ -12,7 +12,7 @@
 
 #include <string>
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
 #include "PythonHelper.h"
 #endif
 
@@ -23,7 +23,7 @@ std::shared_ptr<ll::io::Logger> DebugCmdLogger = ll::io::LoggerRegistry::getInst
 inline void PrintDebugSign() { DebugCmdLogger->info("> "); }
 
 bool ProcessDebugEngine(const std::string& cmd) {
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
     // process python debug seperately
     return PythonHelper::processPythonDebugEngine(cmd);
 #endif
@@ -56,7 +56,7 @@ struct EngineDebugCommand {
 void RegisterDebugCommand() {
     DebugCmdLogger->setFormatter(ll::makePolymorphic<lse::io::DirectFormatter>());
     // Node.js engine doesn't support debug engine, Python engine don't need to register command.
-#if (!defined LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS) && (!defined LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON)
+#if (!defined LSE_BACKEND_NODEJS) && (!defined LSE_BACKEND_PYTHON)
     auto& command = ll::command::CommandRegistrar::getInstance()
                         .getOrCreateCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command.overload<EngineDebugCommand>().optional("eval").execute(

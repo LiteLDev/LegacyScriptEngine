@@ -12,25 +12,25 @@
 #include <nlohmann/json.hpp>
 #include <unordered_set>
 
-#if LEGACY_SCRIPT_ENGINE_BACKEND_LUA
+#if LSE_BACKEND_LUA
 
 constexpr auto PluginExtName = ".lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
+#ifdef LSE_BACKEND_QUICKJS
 
 constexpr auto PluginExtName = ".js";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
 
 constexpr auto PluginExtName = ".py";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
 
 #include "legacy/legacyapi/utils/FileHelper.h"
 #include "main/NodeJsHelper.h"
@@ -66,7 +66,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
             )
         );
     }
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifndef LSE_BACKEND_NODEJS
     if (!std::filesystem::exists(pluginDir)) {
         if (!std::filesystem::create_directory(pluginDir)) {
             throw std::runtime_error(
@@ -88,7 +88,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
             }, },
     };
 #endif
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
     lse::legacy::UncompressFile(
         ll::string_utils::u8str2str(path.u8string()),
         ll::string_utils::u8str2str(pluginDir.u8string()),

@@ -20,26 +20,26 @@
 #include <memory>
 #include <stdexcept>
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_LUA
+#ifdef LSE_BACKEND_LUA
 
 constexpr auto BaseLibFileName = "BaseLib.lua";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS
+#ifdef LSE_BACKEND_QUICKJS
 
 constexpr auto BaseLibFileName = "BaseLib.js";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
 
 #include "legacy/main/PythonHelper.h"
 constexpr auto BaseLibFileName = "BaseLib.py";
 
 #endif
 
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
 
 #include "legacy/main/NodeJsHelper.h"
 
@@ -90,7 +90,7 @@ void initializeLegacyStuff() {
     InitGlobalShareData();
     InitSafeGuardRecord();
     EconomySystem::init();
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON
+#ifdef LSE_BACKEND_PYTHON
     PythonHelper::initPythonRuntime();
 #endif
 
@@ -150,7 +150,7 @@ void loadConfig(const ll::mod::NativeMod& self, Config& cfg) {
 }
 
 void loadDebugEngine(const ll::mod::NativeMod& self) {
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
+#ifndef LSE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto scriptEngine = EngineManager::newEngine();
 
     script::EngineScope engineScope(scriptEngine);

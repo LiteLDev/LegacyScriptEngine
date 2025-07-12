@@ -38,7 +38,7 @@ void BindAPIs(ScriptEngine* engine) {
     engine->set("colorLog", Function::newFunction(ColorLog));
     engine->set("fastLog", Function::newFunction(FastLog));
 
-#ifndef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS // NodeJs has its own functions below
+#ifndef LSE_BACKEND_NODEJS // NodeJs has its own functions below
     engine->set("setTimeout", Function::newFunction(SetTimeout));
     engine->set("setInterval", Function::newFunction(SetInterval));
     engine->set("clearInterval", Function::newFunction(ClearInterval));

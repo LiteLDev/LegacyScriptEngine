@@ -122,7 +122,10 @@ bool initNodeJs() {
 #if defined(LSE_DEBUG) || defined(LSE_TEST)
     full_args.insert(
         full_args.end(),
-        {"--experimental-strip-types", "--enable-source-maps", "--disable-warning=ExperimentalWarning"}
+        {"--experimental-strip-types",
+         "--experimental-transform-types",
+         "--enable-source-maps",
+         "--disable-warning=ExperimentalWarning"}
     );
 #endif
     auto result = node::InitializeOncePerProcess(
@@ -143,7 +146,7 @@ bool initNodeJs() {
 
     // Init V8
     using namespace v8;
-    platform = node::MultiIsolatePlatform::Create(std::thread::hardware_concurrency());
+    platform = node::MultiIsolatePlatform::Create((int)std::thread::hardware_concurrency());
     V8::InitializePlatform(platform.get());
     V8::Initialize();
 
@@ -497,7 +500,7 @@ bool isESModulesSystem(const std::string& dirPath) {
 }
 
 bool processConsoleNpmCmd(const std::string& cmd) {
-#ifdef LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS
+#ifdef LSE_BACKEND_NODEJS
     if (cmd.starts_with("npm ") || cmd.starts_with("npx ")) {
         executeNpmCommand(SplitCmdLine(cmd));
         return false;

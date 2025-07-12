@@ -91,13 +91,21 @@ target("legacy-script-engine")
     set_kind("shared")
     set_languages("cxx20")
     set_symbols("debug")
+    set_configdir("$(builddir)/config")
+    set_configvar("LSE_WORKSPACE_FOLDER", "$(projectdir)")
+    add_configfiles("src/(lse/Version.h.in)")
     add_files(
-        "src/**.cpp"
+        "src/**.cpp",
+        "src/**.rc"
     )
     add_includedirs(
         "src",
-        "src/legacy"
+        "src/legacy",
+        "$(builddir)/config"
     )
+    if has_config("publish") then
+        add_defines("LSE_VERSION_PUBLISH")
+    end
     on_load(function (target)
         local tag = os.iorun("git describe --tags --abbrev=0 --always")
         local major, minor, patch, suffix = tag:match("v(%d+)%.(%d+)%.(%d+)(.*)")
@@ -111,8 +119,14 @@ target("legacy-script-engine")
             if prerelease then
                 prerelease = prerelease:gsub("\n", "")
             end
+            if prerelease then
+                target:set("configvar", "LSE_VERSION_PRERELEASE", prerelease)
+                versionStr = versionStr.."-"..prerelease
+            end
         end
-
+        target:set("configvar", "LSE_VERSION_MAJOR", major)
+        target:set("configvar", "LSE_VERSION_MINOR", minor)
+        target:set("configvar", "LSE_VERSION_PATCH", patch)
         if not has_config("publish") then
             local hash = os.iorun("git rev-parse --short HEAD")
             versionStr = versionStr.."+"..hash:gsub("\n", "")
@@ -126,7 +140,7 @@ target("legacy-script-engine")
 
     if is_config("backend", "lua") then
         add_defines(
-            "LEGACY_SCRIPT_ENGINE_BACKEND_LUA"
+            "LSE_BACKEND_LUA"
         )
         remove_files("src/legacy/main/NodeJsHelper.cpp")
         remove_files("src/legacy/main/PythonHelper.cpp")
@@ -143,7 +157,7 @@ target("legacy-script-engine")
 
     elseif is_config("backend", "quickjs") then
         add_defines(
-            "LEGACY_SCRIPT_ENGINE_BACKEND_QUICKJS"
+            "LSE_BACKEND_QUICKJS"
         )
         remove_files("src/legacy/main/NodeJsHelper.cpp")
         remove_files("src/legacy/main/PythonHelper.cpp")
@@ -160,7 +174,7 @@ target("legacy-script-engine")
 
     elseif is_config("backend", "python") then
         add_defines(
-            "LEGACY_SCRIPT_ENGINE_BACKEND_PYTHON"
+            "LSE_BACKEND_PYTHON"
         )
         remove_files("src/legacy/main/NodeJsHelper.cpp")
         set_basename("legacy-script-engine-python")
@@ -176,7 +190,7 @@ target("legacy-script-engine")
 
     elseif is_config("backend", "nodejs") then
         add_defines(
-            "LEGACY_SCRIPT_ENGINE_BACKEND_NODEJS"
+            "LSE_BACKEND_NODEJS"
         )
         remove_files("src/legacy/main/PythonHelper.cpp")
         remove_files("src/legacy/legacyapi/db/impl/mysql/*.cpp")

@@ -1,0 +1,33 @@
+#include "lse/Version.h"
+#include "winres.h"
+
+#pragma code_page(65001)
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION LSE_VERSION_MAJOR, LSE_VERSION_MINOR, LSE_VERSION_PATCH
+    PRODUCTVERSION LSE_VERSION_MAJOR, LSE_VERSION_MINOR, LSE_VERSION_PATCH
+    FILEFLAGSMASK 0x3fL
+    FILEFLAGS LSE_FILE_VERSION_FLAG
+    FILEOS 0x40004L
+    FILETYPE 0x2L
+    FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "levimc"
+            VALUE "FileDescription", "A plugin engine for running LLSE plugins on LeviLamina"
+            VALUE "FileVersion", LSE_FILE_VERSION_STRING
+            VALUE "InternalName", LSE_ENTRY_FILE_NAME
+            VALUE "LegalCopyright", "Copyright (c) 2021-present levimc. Distributed under GPL-3.0-or-later."
+            VALUE "OriginalFilename", LSE_ENTRY_FILE_NAME
+            VALUE "ProductName", "LegacyScriptEngine for LeviLamina"
+            VALUE "ProductVersion", LSE_FILE_VERSION_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END

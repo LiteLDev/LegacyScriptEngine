@@ -111,7 +111,7 @@ LL_STATIC_HOOK(
 std::unique_ptr<ll::memory::HookRegistrar<PatchDelayImportHook>> hook{};
 
 bool initNodeJs() {
-    if (lse::LegacyScriptEngine::getInstance().getConfig().fixOldAddon.value_or(true)) {
+    if (lse::LegacyScriptEngine::getInstance().getConfig().fixLegacyAddons.value_or(true)) {
         hook = std::make_unique<ll::memory::HookRegistrar<PatchDelayImportHook>>();
     }
     // Init NodeJs

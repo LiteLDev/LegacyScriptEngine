@@ -83,7 +83,7 @@ Local<Value> LlClass::isRelease() {
     try {
         auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
         if (ver) {
-            return Boolean::newBoolean(!ver->preRelease.has_value());
+            return Boolean::newBoolean(!ver->preRelease.has_value() && !ver->build.has_value());
         } else {
             return Boolean::newBoolean(false);
         }
@@ -107,7 +107,7 @@ Local<Value> LlClass::isDev() {
     try {
         auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
         if (ver) {
-            return Boolean::newBoolean(ver->to_string().find("+") != std::string::npos);
+            return Boolean::newBoolean(ver->build.has_value());
         } else {
             return Boolean::newBoolean(true);
         }
@@ -161,12 +161,12 @@ Local<Value> LlClass::getScriptEngineVersion() {
 Local<Value> LlClass::getVersionStatus() {
     auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
     if (ver) {
-        if (ver->to_string().find("+") != std::string::npos) {
-            return Number::newNumber(0);
-        } else if (ver->preRelease.has_value()) {
+        if (ver->preRelease.has_value()) {
             return Number::newNumber(1);
-        } else {
+        } else if (ver->build.has_value()) {
             return Number::newNumber(2);
+        } else {
+            return Number::newNumber(0);
         }
     } else {
         return Number::newNumber(0);

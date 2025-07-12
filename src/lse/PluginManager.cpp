@@ -257,10 +257,10 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         {
             EngineScope scope(scriptEngine);
+            LLSECallEventsOnUnload(scriptEngine);
 #ifndef LSE_BACKEND_NODEJS
             LLSERemoveTimeTaskData(scriptEngine);
 #endif
-            LLSECallEventsOnUnload(scriptEngine);
             LLSERemoveAllEventListeners(scriptEngine);
             LLSERemoveCmdRegister(scriptEngine);
             LLSERemoveCmdCallback(scriptEngine);

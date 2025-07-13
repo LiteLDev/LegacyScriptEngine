@@ -3624,7 +3624,7 @@ Local<Value> PlayerClass::setAbility(const Arguments& args) {
                 auto player = ll::service::getLevel()->getPlayer(uuid);
                 if (!player) co_return;
                 UpdateAbilitiesPacket(uuid, player->getAbilities()).sendTo(*player);
-                UpdateAdventureSettingsPacket{}.sendTo(*player);
+                UpdateAdventureSettingsPacket{player->getLevel().getAdventureSettings()}.sendTo(*player);
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
         }
         return Boolean::newBoolean(true);

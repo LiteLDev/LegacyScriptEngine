@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1] - 2025-07-13
+
+### Added
+
+- Implemented the internal support for event cancellation [#285] @xiaoqch
+- Added file version info @xiaoqch
+
+### Changed
+
+- Refactored npm command, revert event commit @xiaoqch
+
+### Fixed
+
+- Fixed entity.setMaxHealth [#291] @xiaoqch
+- Fixed onSetArmor, onEffectAdded and onEffectRemoved [#299] @xiaoqch
+- Fixed npm command @xiaoqch
+- Fixed unload crash [#300] @xiaoqch
+- Disabled input in console npm command @xiaoqch
+- Fixed old nodejs addon load error [#9] @xiaoqch
+- Ensured microtasks are executed automatically [#10] @xiaoqch
+- Fixed ll.onUnload [#303] @xiaoqch
+- Fixed onServerStarted event for nodejs engine @xiaoqch
+- Ensured mods are unloaded when the server stops [#303] @xiaoqch
+- Added missing enter scope on mods unload @xiaoqch
+- Fixed ll.isRelease @xiaoqch
+
 ## [0.12.0] - 2025-06-12
 
 ### Added
@@ -858,6 +884,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release.
 
+[#9]: https://github.com/LiteLDev/LegacyScriptEngine/issues/9
+[#10]: https://github.com/LiteLDev/LegacyScriptEngine/issues/10
 [#31]: https://github.com/LiteLDev/LegacyScriptEngine/issues/31
 [#35]: https://github.com/LiteLDev/LegacyScriptEngine/issues/35
 [#37]: https://github.com/LiteLDev/LegacyScriptEngine/issues/37
@@ -944,8 +972,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#273]: https://github.com/LiteLDev/LegacyScriptEngine/issues/273
 [#277]: https://github.com/LiteLDev/LegacyScriptEngine/issues/277
 [#278]: https://github.com/LiteLDev/LegacyScriptEngine/issues/278
+[#285]: https://github.com/LiteLDev/LegacyScriptEngine/issues/285
+[#291]: https://github.com/LiteLDev/LegacyScriptEngine/issues/291
+[#299]: https://github.com/LiteLDev/LegacyScriptEngine/issues/299
+[#300]: https://github.com/LiteLDev/LegacyScriptEngine/issues/300
+[#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.1...HEAD
+[0.12.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.3...v0.12.0
 [0.11.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.1...v0.11.2

@@ -17,6 +17,7 @@
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
+#include "ll/api/thread/ServerThreadExecutor.h"
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
 #include "mc/deps/core/utility/MCRESULT.h"
@@ -37,7 +38,6 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "ll/api/thread/ServerThreadExecutor.h"
 
 #include <string>
 #include <vector>
@@ -495,15 +495,15 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 if (info.name == paramName || info.enumName == paramName || info.identifier == paramName) {
                     if (info.optional) {
                         if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                            cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                            (void)cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
                         } else {
-                            cmd.optional(info.name, info.type).option(info.option);
+                            (void)cmd.optional(info.name, info.type).option(info.option);
                         }
                     } else {
                         if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                            cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                            (void)cmd.required(info.enumName, info.type, info.enumName).option(info.option);
                         } else {
-                            cmd.required(info.name, info.type).option(info.option);
+                            (void)cmd.required(info.name, info.type).option(info.option);
                         }
                     }
                 }

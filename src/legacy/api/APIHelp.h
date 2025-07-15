@@ -244,11 +244,6 @@ std::string  ValueToJson(Local<Value> v, int formatIndent = -1);
 // Limitation: enum values must be in range of [-128, 128)
 template <typename Type>
 struct EnumDefineBuilder {
-    template <Type val>
-    inline static Local<Value> serialize() {
-        return Number::newNumber(static_cast<int>(val));
-    }
-
     inline static Local<Value> keys() {
         try {
             auto arr = Array::newArray();
@@ -266,7 +261,7 @@ struct EnumDefineBuilder {
         try {
             auto obj = Object::newObject();
             for (auto& [value, name] : magic_enum::enum_entries<Type>()) {
-                obj.set(String::newString(name), Number::newNumber((int)value));
+                obj.set(String::newString(name), Number::newNumber(static_cast<int64_t>(value)));
             }
             return obj;
         } catch (const std::exception&) {
@@ -299,37 +294,18 @@ struct EnumDefineBuilder {
         return Local<Value>();
     }
 
-    template <
-        Type                                         val,
-        std::enable_if_t<std::is_enum_v<Type>, char> max = static_cast<char>(*magic_enum::enum_values<Type>().rbegin())>
-    inline static void buildBuilder(script::ClassDefineBuilder<void>& builder) {
-        if constexpr (static_cast<char>(val) > max) return;
-        if constexpr (!magic_enum::enum_name(val).empty()) {
-            fmt::print("{} = {},\n", magic_enum::enum_name(val), static_cast<int>(val));
-            builder.property(magic_enum::enum_name(val).data(), &serialize<val>);
-        }
-        buildBuilder<static_cast<Type>((static_cast<char>(val) + 1)), max>(builder);
-    }
-
-    template <
-        std::enable_if_t<std::is_enum_v<Type>, char> max = static_cast<char>(*magic_enum::enum_values<Type>().rbegin())>
     inline static ClassDefine<void> build(std::string const& enumName) {
         script::ClassDefineBuilder<void> builder = defineClass(enumName);
-        // fmt::print("枚举 {} 可能取值：\n", enumName);
-        // buildBuilder<*magic_enum::enum_values<Type>().begin(), max>(builder);
 
         for (auto& [val, name] : magic_enum::enum_entries<Type>()) {
-            // fmt::print("{} = {},\n", name, static_cast<int>(val));
-            auto _val  = val;
-            auto _name = name;
-            builder.property(std::string(name), [=]() -> Local<Value> {
+            builder.property(std::string(name), [enumName, val, name{std::string{name}}]() -> Local<Value> {
                 try {
-                    return Number::newNumber(static_cast<int>(_val));
+                    return Number::newNumber(static_cast<int64_t>(val));
                 } catch (const std::exception&) {
                     lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                         "Error in get {}.{}",
                         enumName,
-                        _name
+                        name
                     );
                 }
                 return Local<Value>();

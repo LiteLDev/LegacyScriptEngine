@@ -457,7 +457,7 @@ Local<Value> ConfIniClass::getFloat(const Arguments& args) {
         return Number::newNumber(iniConf->getFloat(
             args[0].asString().toString(),
             args[1].asString().toString(),
-            args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0
+            args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0f
         ));
     }
     CATCH("Fail in ConfIniGetFloat!");
@@ -884,7 +884,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), data.size()));
+        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
     }
     CATCH("Fail in ToMD5!");
 }
@@ -902,7 +902,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), data.size()));
+        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
     }
     CATCH("Fail in ToSHA1!");
 }

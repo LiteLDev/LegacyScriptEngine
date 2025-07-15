@@ -43,7 +43,7 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
     if (timeLimit == -1) WaitForSingleObject(pi.hProcess, INFINITE);
     else {
         WaitForSingleObject(pi.hProcess, timeLimit);
-        TerminateProcess(pi.hProcess, -1);
+        TerminateProcess(pi.hProcess, 1);
     }
     char        buffer[8192];
     std::string strOutput;

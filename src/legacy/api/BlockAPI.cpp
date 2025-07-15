@@ -581,11 +581,8 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
-                    type    = args[1];
+                    pos  = *posObj;
+                    type = args[1];
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos

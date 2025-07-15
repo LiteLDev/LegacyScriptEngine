@@ -121,8 +121,6 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
             },
             args.size() >= 3 ? args[2].asNumber().toInt32() : -1
         ));
-
-        return Boolean::newBoolean(true);
     }
     CATCH("Fail in SystemCmd");
 }

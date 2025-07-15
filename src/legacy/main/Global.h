@@ -3,8 +3,7 @@
 #include "ll/api/i18n/I18n.h"
 #include "mc/deps/core/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
-
-#include <string>
+class FloatVec4;
 
 class IntVec4 {
 public:
@@ -14,6 +13,8 @@ public:
     [[nodiscard]] inline BlockPos getBlockPos() const { return {x, y, z}; }
 
     [[nodiscard]] inline int getDimensionId() const { return dim; }
+
+    inline IntVec4& operator=(FloatVec4 const&);
 };
 
 class FloatVec4 {
@@ -25,15 +26,28 @@ public:
 
     [[nodiscard]] inline int getDimensionId() const { return dim; }
 
-    inline IntVec4 toIntVec4() {
-        auto px = (int)x;
-        auto py = (int)y;
-        auto pz = (int)z;
-        if (px < 0 && px != x) px = px - 1;
-        if (py < 0 && py != y) py = py - 1;
-        if (pz < 0 && pz != z) pz = pz - 1;
-        return {px, py, pz, dim};
+    [[nodiscard]] inline IntVec4 toIntVec4() const {
+        IntVec4 pos{};
+        pos = *this;
+        return pos;
     }
+
+    inline FloatVec4& operator=(IntVec4 const&);
+};
+
+inline IntVec4& IntVec4::operator=(FloatVec4 const& rhs) {
+    x   = (int)floor(rhs.x);
+    y   = (int)floor(rhs.y);
+    z   = (int)floor(rhs.z);
+    dim = rhs.dim;
+    return *this;
+};
+inline FloatVec4& FloatVec4::operator=(IntVec4 const& rhs) {
+    x   = (float)rhs.x;
+    y   = (float)rhs.y;
+    z   = (float)rhs.z;
+    dim = rhs.dim;
+    return *this;
 };
 
 using namespace ll::i18n_literals;

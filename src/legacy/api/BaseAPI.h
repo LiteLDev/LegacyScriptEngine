@@ -1,9 +1,8 @@
 #pragma once
 
-#include "api/APIHelp.h"
+#include "api/APIHelp.h" // IWYU pragma: keep
 #include "main/Global.h"
 
-#include <string>
 class BlockSource;
 
 ///////////////////// Enum //////////////////////
@@ -13,7 +12,7 @@ extern ClassDefine<void> ActorDamageCauseEnumBuilder;
 //////////////////// Classes ////////////////////
 class IntPos : public IntVec4, public ScriptClass {
 public:
-    explicit IntPos(const Local<Object>& scriptObj) : ScriptClass(scriptObj) {}
+    explicit IntPos(const Local<Object>& scriptObj) : IntVec4(), ScriptClass(scriptObj) {}
     static IntPos* create(const Arguments& args);
 
     static Local<Object> newPos(int x, int y, int z, int dim = -1);
@@ -38,7 +37,7 @@ extern ClassDefine<IntPos> IntPosBuilder;
 
 class FloatPos : public FloatVec4, public ScriptClass {
 public:
-    explicit FloatPos(const Local<Object>& scriptObj) : ScriptClass(scriptObj) {}
+    explicit FloatPos(const Local<Object>& scriptObj) : FloatVec4(), ScriptClass(scriptObj) {}
     static FloatPos* create(const Arguments& args);
 
     static Local<Object> newPos(double x, double y, double z, int dim = -1);
@@ -62,18 +61,18 @@ extern ClassDefine<FloatPos> FloatPosBuilder;
 
 class DirectionAngle : public ScriptClass {
 public:
-    double pitch = 0, yaw = 0;
+    float pitch = 0, yaw = 0;
 
     explicit DirectionAngle(const Local<Object>& scriptObj) : ScriptClass(scriptObj) {}
     static DirectionAngle* create(const Arguments& args);
     static DirectionAngle* extract(Local<Value> value);
 
-    static Local<Object> newAngle(float pitch, float yaw);
-    Local<Value>         getPitch() { return Number::newNumber(pitch); }
-    Local<Value>         getYaw() { return Number::newNumber(yaw); }
-    void                 setPitch(const Local<Value>& value) { pitch = value.asNumber().toDouble(); }
-    void                 setYaw(const Local<Value>& value) { yaw = value.asNumber().toDouble(); }
-    Local<Value>         toString();
+    static Local<Object>       newAngle(float pitch, float yaw);
+    [[nodiscard]] Local<Value> getPitch() const { return Number::newNumber(pitch); }
+    [[nodiscard]] Local<Value> getYaw() const { return Number::newNumber(yaw); }
+    void                       setPitch(const Local<Value>& value) { pitch = value.asNumber().toFloat(); }
+    void                       setYaw(const Local<Value>& value) { yaw = value.asNumber().toFloat(); }
+    Local<Value>               toString();
 
     Local<Value> toFacing();
 };

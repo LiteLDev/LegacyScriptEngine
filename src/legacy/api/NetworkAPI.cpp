@@ -37,7 +37,7 @@ using namespace ll::coro;
 
 #define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
     catch (const Exception& e) {                                                                                       \
-        EngineScope enter(engine);                                                                                     \
+        EngineScope enterCoro(engine);                                                                                 \
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());              \
         co_return;                                                                                                     \
@@ -45,7 +45,7 @@ using namespace ll::coro;
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(LOG);                                       \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());          \
-        EngineScope enter(engine);                                                                                     \
+        EngineScope enterCoro(engine);                                                                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         co_return;                                                                                                     \
     }

@@ -491,10 +491,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos

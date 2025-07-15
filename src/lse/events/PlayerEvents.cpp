@@ -49,8 +49,6 @@
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/level/material/Material.h"
-#include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
 
 namespace lse::events::player {

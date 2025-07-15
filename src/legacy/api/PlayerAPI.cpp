@@ -1453,10 +1453,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
@@ -1900,7 +1897,7 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].asNumber().toInt32() - player->getAttribute(Player::LEVEL()).mCurrentValue);
+        player->addLevels(args[0].asNumber().toInt32() - (int)player->getAttribute(Player::LEVEL()).mCurrentValue);
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setLevel!");
@@ -2021,7 +2018,7 @@ Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
         }
 
         int          startLevel = 0;
-        int          endLevel   = player->getAttribute(Player::LEVEL()).mCurrentValue;
+        int          endLevel   = (int)player->getAttribute(Player::LEVEL()).mCurrentValue;
         unsigned int totalXp    = 0;
 
         for (int level = startLevel; level < endLevel; ++level) {
@@ -2630,7 +2627,6 @@ Local<Value> PlayerClass::sendPacket(const Arguments& args) {
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in sendPacket");
-    return Local<Value>();
 }
 
 Local<Value> PlayerClass::setExtraData(const Arguments& args) {
@@ -3026,10 +3022,10 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
                     if (count <= clearCount) {
                         result     += count;
                         clearCount -= count;
-                        container.setItem(slot, ItemStack::EMPTY_ITEM());
+                        container.setItem((int)slot, ItemStack::EMPTY_ITEM());
                     } else {
                         result += clearCount;
-                        container.removeItem(slot, clearCount);
+                        container.removeItem((int)slot, clearCount);
                         clearCount = 0;
                     }
                 }
@@ -3491,10 +3487,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
@@ -3557,10 +3550,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos

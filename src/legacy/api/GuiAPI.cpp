@@ -143,8 +143,6 @@ Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
 }
 
 Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0);
-
     try {
         form.appendDivider();
         return this->getScriptObject();
@@ -245,8 +243,6 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
 }
 
 Local<Value> CustomFormClass::addDivider(const Arguments& args) {
-    CHECK_ARGS_COUNT(args, 0)
-
     try {
         form.appendDivider();
         return this->getScriptObject();

@@ -547,7 +547,7 @@ Local<Value> EntityClass::getInClouds() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        short cloudHeight = entity->getDimension().getCloudHeight();
+        float cloudHeight = entity->getDimension().getCloudHeight();
         float y           = entity->getPosition().y;
         return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
@@ -658,10 +658,7 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
@@ -726,10 +723,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
@@ -792,10 +786,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
@@ -1636,10 +1627,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
@@ -1698,10 +1686,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
@@ -1764,10 +1749,7 @@ Local<Value> McClass::explode(const Arguments& args) {
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos.x   = posObj->x;
-                    pos.y   = posObj->y;
-                    pos.z   = posObj->z;
-                    pos.dim = posObj->dim;
+                    pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos

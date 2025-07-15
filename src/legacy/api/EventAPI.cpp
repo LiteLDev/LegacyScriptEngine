@@ -11,12 +11,10 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
-#include "legacy/main/BuiltinCommands.h"
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ExecuteCommandEvent.h"
-#include "ll/api/event/entity/ActorHurtEvent.h"
 #include "ll/api/event/entity/MobDieEvent.h"
 #include "ll/api/event/player/PlayerAddExperienceEvent.h"
 #include "ll/api/event/player/PlayerAttackEvent.h"
@@ -40,7 +38,6 @@
 #include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/service/GamingStatus.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/Entry.h"
 #include "lse/events/BlockEvents.h"
@@ -48,7 +45,6 @@
 #include "lse/events/OtherEvents.h"
 #include "lse/events/PlayerEvents.h"
 #include "main/Global.h"
-#include "mc/legacy/ActorUniqueID.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"
@@ -65,7 +61,6 @@
 #endif
 
 #include <list>
-#include <shared_mutex>
 #include <string>
 
 //////////////////// Listeners ////////////////////
@@ -202,6 +197,7 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onChat);
         });
+        break;
 
     case EVENT_TYPES::onChangeDim:
         lse::events::player::ChangeDimensionEvent();
@@ -520,9 +516,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onEntityExplode:
-        lse::events::block::ExplodeEvent();
-        break;
-
+        [[fallthrough]];
     case EVENT_TYPES::onBlockExplode:
         lse::events::block::ExplodeEvent();
         break;
@@ -618,15 +612,14 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
         });
+        break;
 
     case EVENT_TYPES::onFarmLandDecay:
         lse::events::block::FarmDecayEvent();
         break;
 
     case EVENT_TYPES::onPistonTryPush:
-        lse::events::block::PistonPushEvent();
-        break;
-
+        [[fallthrough]];
     case EVENT_TYPES::onPistonPush:
         lse::events::block::PistonPushEvent();
         break;

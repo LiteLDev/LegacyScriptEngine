@@ -10,6 +10,7 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+#include "mc/world/scores/ScoreboardOperationResult.h"
 
 #include <optional>
 
@@ -103,9 +104,9 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard.modifyPlayerScore(isSuccess, id, *obj, score, PlayerScoreSetFunction::Set);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -117,10 +118,10 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
         }
@@ -147,10 +148,10 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -162,10 +163,10 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
         }
@@ -192,10 +193,10 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
@@ -207,10 +208,10 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
-            bool isSuccess = false;
+            ScoreboardOperationResult isSuccess;
             scoreboard
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
-            if (isSuccess) return Number::newNumber(score);
+            if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
         }

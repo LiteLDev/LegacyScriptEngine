@@ -106,6 +106,7 @@
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
+#include "mc/world/scores/ScoreboardOperationResult.h"
 
 SetScorePacket::SetScorePacket() = default;
 
@@ -546,10 +547,10 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard
             .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Set);
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in setPlayerScore!")
 }
@@ -584,10 +585,10 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard
             .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Add);
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in addPlayerScore!")
 }
@@ -622,7 +623,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard.modifyPlayerScore(
             isSuccess,
             sid,
@@ -630,7 +631,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
             args[2].asNumber().toInt32(),
             PlayerScoreSetFunction::Subtract
         );
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in reducePlayerScore!")
 }
@@ -1430,8 +1431,7 @@ Local<Value> PlayerClass::isMoving() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
+        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
         );
     }
     CATCH("Fail in isMoving!")
@@ -2161,9 +2161,9 @@ Local<Value> PlayerClass::setScore(const Arguments& args) {
         if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in setScore!");
 }
@@ -2186,9 +2186,9 @@ Local<Value> PlayerClass::addScore(const Arguments& args) {
         if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in addScore!");
 }
@@ -2211,10 +2211,10 @@ Local<Value> PlayerClass::reduceScore(const Arguments& args) {
         if (id.mRawID == ScoreboardId::INVALID().mRawID) {
             scoreboard.createScoreboardId(*player);
         }
-        bool isSuccess = false;
+        ScoreboardOperationResult isSuccess;
         scoreboard
             .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
-        return Boolean::newBoolean(isSuccess);
+        return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
     CATCH("Fail in reduceScore!");
 }
@@ -2454,8 +2454,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
             }
         }
         auto formCallback = [engine{EngineScope::currentEngine()},
-                             callback{
-                                 script::Global(args[4].asFunction())
+                             callback{script::Global(args[4].asFunction())
                              }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -2499,10 +2498,9 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             args[2].asString().toString(),
             args[3].asString().toString()
         );
-        auto formCallback = [engine{EngineScope::currentEngine()}, callback{script::Global(args[4].asFunction())}](
-                                Player&                          pl,
-                                ll::form::ModalFormResult const& chosen,
-                                ll::form::FormCancelReason       reason
+        auto formCallback = [engine{EngineScope::currentEngine()},
+                             callback{script::Global(args[4].asFunction())
+                             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason
                             ) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;

@@ -21,6 +21,8 @@
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
 #include "mc/deps/core/utility/MCRESULT.h"
+#include "mc/deps/json/Value.h"
+#include "mc/deps/json/FastWriter.h"
 #include "mc/locale/I18n.h"
 #include "mc/locale/Localization.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -135,7 +137,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     } else if (result.hold(ParamKind::Kind::RawText)) {
         return String::newString(std::get<CommandRawText>(result.value()).mText);
     } else if (result.hold(ParamKind::Kind::JsonValue)) {
-        return String::newString(JsonHelpers::serialize(std::get<Json::Value>(result.value())));
+        return String::newString(Json::FastWriter().write(std::get<Json::Value>(result.value())));
     } else if (result.hold(ParamKind::Kind::Effect)) {
         return String::newString(std::get<MobEffect const*>(result.value())->mResourceName);
     } else if (result.hold(ParamKind::Kind::Command)) {

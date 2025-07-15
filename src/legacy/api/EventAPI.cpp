@@ -11,6 +11,7 @@
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
+#include "legacy/main/BuiltinCommands.h" // IWYU pragma: keep
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/event/EventBus.h"

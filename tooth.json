@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -25,9 +25,9 @@
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.12.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.12.*",
-        "github.com/LiteLDev/LegacyMoney": "0.12.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.13.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.13.*",
+        "github.com/LiteLDev/LegacyMoney": "0.13.*",
         "gitea.litebds.com/ShrBox/7-zip": "24.*"
       },
       "assets": [
@@ -69,9 +69,9 @@
       "label": "quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.12.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.12.*",
-        "github.com/LiteLDev/LegacyMoney": "0.12.*"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.13.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.13.*",
+        "github.com/LiteLDev/LegacyMoney": "0.13.*"
       },
       "assets": [
         {
@@ -93,9 +93,9 @@
       "label": "lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.12.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.12.*",
-        "github.com/LiteLDev/LegacyMoney": "0.12.*"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.13.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.13.*",
+        "github.com/LiteLDev/LegacyMoney": "0.13.*"
       },
       "assets": [
         {
@@ -117,9 +117,9 @@
       "label": "python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.12.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.12.*",
-        "github.com/LiteLDev/LegacyMoney": "0.12.*"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.13.*",
+        "github.com/LiteLDev/LegacyParticleAPI": "0.13.*",
+        "github.com/LiteLDev/LegacyMoney": "0.13.*"
       },
       "assets": [
         {

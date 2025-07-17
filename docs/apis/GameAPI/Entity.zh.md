@@ -20,7 +20,8 @@
 
 ### 获取在特定范围内的实体
 
-`mc.getEntities(startPos[,endPos],range)`
+`mc.getEntities(startPos[,range])`  
+`mc.getEntities(startPos,endPos[,range])`
 
 - 参数:
     - startPos : `IntPos` / `FloatPos`  

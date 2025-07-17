@@ -21,7 +21,8 @@ This function returns an array of entity objects, each of which corresponds to a
 
 ### Get entities in a specified area
 
-`mc.getEntities(startPos[,endPos],range)`
+`mc.getEntities(startPos[,range])`  
+`mc.getEntities(startPos,endPos[,range])`
 
 - Parameters:
     - startPos : `IntPos` / `FloatPos`  

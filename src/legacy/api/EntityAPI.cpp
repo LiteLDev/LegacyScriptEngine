@@ -356,8 +356,7 @@ Local<Value> EntityClass::isMoving() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
+        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
         );
     }
     CATCH("Fail in isMoving!")
@@ -1559,7 +1558,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                 }
                 if (args.size() > 2) {
                     if (args[2].getKind() == ValueKind::kNumber) {
-                        dis = args[1].asNumber().toFloat();
+                        dis = args[2].asNumber().toFloat();
                     } else {
                         LOG_WRONG_ARG_TYPE(__FUNCTION__);
                         return Local<Value>();
@@ -1588,7 +1587,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         }
         return arr;
     }
-    CATCH("Fail in GetAllEntities");
+    CATCH("Fail in getEntities");
 }
 
 Local<Value> McClass::getEntity(const Arguments& args) {
@@ -1794,18 +1793,16 @@ Local<Value> McClass::explode(const Arguments& args) {
             bool  isDestroy = args[beginIndex + 2].asBoolean().value();
             bool  isFire    = args[beginIndex + 3].asBoolean().value();
 
-            return Boolean::newBoolean(
-                ll::service::getLevel()->explode(
-                    ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
-                    source.value_or(nullptr),
-                    pos.getVec3(),
-                    radius,
-                    isFire,
-                    isDestroy,
-                    FLT_MAX,
-                    false
-                )
-            );
+            return Boolean::newBoolean(ll::service::getLevel()->explode(
+                ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
+                source.value_or(nullptr),
+                pos.getVec3(),
+                radius,
+                isFire,
+                isDestroy,
+                FLT_MAX,
+                false
+            ));
         } else {
             CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
@@ -1817,18 +1814,16 @@ Local<Value> McClass::explode(const Arguments& args) {
             bool  isDestroy     = args[beginIndex + 3].asBoolean().value();
             bool  isFire        = args[beginIndex + 4].asBoolean().value();
 
-            return Boolean::newBoolean(
-                ll::service::getLevel()->explode(
-                    ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
-                    source.value_or(nullptr),
-                    pos.getVec3(),
-                    radius,
-                    isFire,
-                    isDestroy,
-                    maxResistance,
-                    false
-                )
-            );
+            return Boolean::newBoolean(ll::service::getLevel()->explode(
+                ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
+                source.value_or(nullptr),
+                pos.getVec3(),
+                radius,
+                isFire,
+                isDestroy,
+                maxResistance,
+                false
+            ));
         }
     }
     CATCH("Fail in Explode!");

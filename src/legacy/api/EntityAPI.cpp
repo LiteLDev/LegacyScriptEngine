@@ -1573,6 +1573,8 @@ Local<Value> McClass::getEntities(const Arguments& args) {
             LOG_TOO_FEW_ARGS(__FUNCTION__);
             return Local<Value>();
         }
+        aabb.max += dis;
+        aabb.min -= dis;
 
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
@@ -1581,7 +1583,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
             return Local<Value>();
         }
         BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
-        auto         entityList = bs.getEntities(aabb, dis);
+        auto         entityList = bs.getEntities(aabb);
         for (auto i : entityList) {
             arr.add(EntityClass::newEntity(i));
         }

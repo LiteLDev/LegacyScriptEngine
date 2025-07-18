@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1] - 2025-07-18
+
+### Fixed
+
+- Fixed 7-zip tooth [#309]
+- Fixed mc.getEntities [#310]
+
 ## [0.13.0] - 2025-07-15
 
 ### Changed
@@ -987,8 +994,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#299]: https://github.com/LiteLDev/LegacyScriptEngine/issues/299
 [#300]: https://github.com/LiteLDev/LegacyScriptEngine/issues/300
 [#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303
+[#309]: https://github.com/LiteLDev/LegacyScriptEngine/issues/309
+[#310]: https://github.com/LiteLDev/LegacyScriptEngine/issues/310
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.1...HEAD
+[0.13.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.11.3...v0.12.0

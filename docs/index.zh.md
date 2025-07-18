@@ -17,10 +17,10 @@ lip install github.com/LiteLDev/LegacyScriptEngine#python
 ```
 对于0.10.0之前的版本，可以使用以下命令：
 ```shell
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-lua@版本
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-quickjs@版本
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-nodejs@版本
-lip install gitea.litebds.com/LiteLDev/legacy-script-engine-python@版本
+lip install git.levimc.org/LiteLDev/legacy-script-engine-lua@版本
+lip install git.levimc.org/LiteLDev/legacy-script-engine-quickjs@版本
+lip install git.levimc.org/LiteLDev/legacy-script-engine-nodejs@版本
+lip install git.levimc.org/LiteLDev/legacy-script-engine-python@版本
 ```
 可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
 

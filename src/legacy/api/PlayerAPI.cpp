@@ -1163,7 +1163,10 @@ Local<Value> PlayerClass::getRuntimeID() {
 
 Local<Value> PlayerClass::getLangCode() {
     try {
-        auto language = get()->getLocaleCode();
+        Player* player = get();
+        if (!player) return Local<Value>();
+
+        auto language = player->getLocaleCode();
         return String::newString(language.empty() ? "unknown" : language);
     }
     CATCH("Fail in getLangCode!");

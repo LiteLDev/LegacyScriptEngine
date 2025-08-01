@@ -1163,9 +1163,8 @@ Local<Value> PlayerClass::getRuntimeID() {
 
 Local<Value> PlayerClass::getLangCode() {
     try {
-        Json::Value& requestJson = get()->getConnectionRequest()->mRawToken->mDataInfo;
-
-        return String::newString(requestJson.get("LanguageCode", "unknown").asString("unknown"));
+        auto language = get()->getLocaleCode();
+        return String::newString(language.empty() ? "unknown" : language);
     }
     CATCH("Fail in getLangCode!");
 }

@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -45,25 +45,19 @@
           ]
         },
         {
-          "type": "uncompressed",
+          "type": "zip",
           "urls": [
             "https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"
           ],
           "placements": [
             {
-              "type": "file",
+              "type": "dir",
               "src": "",
-              "dest": "plugins/legacy-script-engine-nodejs/node.zip"
+              "dest": "plugins/legacy-script-engine-nodejs/"
             }
           ]
         }
-      ],
-      "scripts": {
-        "install": [
-          "7za.exe x -y plugins/legacy-script-engine-nodejs/node.zip -o./plugins/legacy-script-engine-nodejs/",
-          "del plugins\\legacy-script-engine-nodejs\\node.zip"
-        ]
-      }
+      ]
     },
     {
       "label": "quickjs",

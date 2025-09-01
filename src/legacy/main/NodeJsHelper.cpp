@@ -222,10 +222,10 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
 
     // check if entryScriptPath is not absolute path
     if (auto path = std::filesystem::path(entryScriptPath); !path.is_absolute()) {
-        entryScriptPath = std::filesystem::absolute(path).string();
+        entryScriptPath = ll::string_utils::u8str2str(std::filesystem::absolute(path).u8string());
     }
     if (auto path = std::filesystem::path(pluginDirPath); !path.is_absolute()) {
-        pluginDirPath = std::filesystem::absolute(path).string();
+        pluginDirPath = ll::string_utils::u8str2str(std::filesystem::absolute(path).u8string());
     }
     pluginDirPath   = ll::string_utils::replaceAll(pluginDirPath, "\\", "/");
     entryScriptPath = ll::string_utils::replaceAll(entryScriptPath, "\\", "/");

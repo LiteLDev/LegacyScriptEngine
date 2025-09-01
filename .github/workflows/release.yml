@@ -18,12 +18,6 @@ jobs:
 
       - uses: xmake-io/github-action-setup-xmake@v1
 
-      - uses: matbour/setup-sentry-cli@v1
-        with:
-          token: ${{ SECRETS.SENTRY_TOKEN }}
-          organization: ${{ SECRETS.SENTRY_ORG }}
-          project: ${{ SECRETS.SENTRY_PROJECT }}
-
       - uses: actions/cache@v4
         with:
           path: |
@@ -41,14 +35,38 @@ jobs:
       - run: |
           xmake -y
 
-      - run: |
-          sentry-cli debug-files upload --include-sources bin/legacy-script-engine-${{ matrix.backend }}
-
       - uses: actions/upload-artifact@v4
         with:
           name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
           path: |
             bin/
+
+  upload-to-sentry:
+    needs: build
+    strategy:
+      matrix:
+        backend:
+          - nodejs
+          - lua
+          - python
+          - quickjs
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: matbour/setup-sentry-cli@v1
+        with:
+          token: ${{ SECRETS.SENTRY_TOKEN }}
+          organization: ${{ SECRETS.SENTRY_ORG }}
+          project: ${{ SECRETS.SENTRY_PROJECT }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          path: artifact
+
+      - run: |
+          sentry-cli debug-files upload --include-sources artifact
 
   update-release-notes:
     permissions:

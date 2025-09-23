@@ -4,6 +4,7 @@
 #include "api/PlayerAPI.h"
 #include "engine/EngineOwnData.h"
 #include "ll/api/data/IndirectValue.h"
+#include "ll/api/io/DefaultSink.h"
 #include "ll/api/io/FileSink.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/io/PatternFormatter.h"
@@ -166,7 +167,18 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        return Boolean::newBoolean(getEngineOwnData()->logger->addSink(sink));
+        bool hasFileSink = false;
+        for (auto& sk : getEngineOwnData()->logger->sinks()) {
+            if (typeid(sk) == typeid(ll::io::FileSink)) {
+                hasFileSink = true;
+            }
+        }
+        auto logger = getEngineOwnData()->logger;
+        if (hasFileSink) {
+            logger->clearSink();
+            logger->addSink(std::make_shared<ll::io::DefaultSink>());
+        }
+        return Boolean::newBoolean(logger->addSink(sink));
     }
     CATCH("Fail in LoggerSetFile!")
 }

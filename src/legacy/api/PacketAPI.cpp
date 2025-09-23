@@ -8,7 +8,7 @@
 #include "lse/api/helper/ItemStackSerializerHelpers.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPackets.h"
-#include "mc/client/renderer/rendergraph/Packet.h"
+#include "mc/network/Packet.h"
 #include "mc/world/item/NetworkItemStackDescriptor.h"
 
 //////////////////// Class Definition ////////////////////

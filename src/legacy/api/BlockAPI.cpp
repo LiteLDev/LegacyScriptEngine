@@ -172,28 +172,28 @@ Local<Value> BlockClass::getPos() {
 Local<Value> BlockClass::getTileData() {
     try {
         // preloaded
-        return Number::newNumber(block->getLegacyBlock().getVariant(*block));
+        return Number::newNumber(block->getBlockType().getVariant(*block));
     }
     CATCH("Fail in getTileData!");
 }
 
 Local<Value> BlockClass::getVariant() {
     try {
-        return Number::newNumber(block->getLegacyBlock().getVariant(*block));
+        return Number::newNumber(block->getBlockType().getVariant(*block));
     }
     CATCH("Fail in getVariant!");
 }
 
 Local<Value> BlockClass::getTranslucency() {
     try {
-        return Number::newNumber(block->getLegacyBlock().mTranslucency);
+        return Number::newNumber(block->getBlockType().mTranslucency);
     }
     CATCH("Fail in getTranslucency!");
 }
 
 Local<Value> BlockClass::getThickness() {
     try {
-        return Number::newNumber(block->getLegacyBlock().mThickness);
+        return Number::newNumber(block->getBlockType().mThickness);
     }
     CATCH("Fail in getThickness!");
 }
@@ -207,7 +207,7 @@ Local<Value> BlockClass::isAir() {
 
 Local<Value> BlockClass::isBounceBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().isBounceBlock());
+        return Boolean::newBoolean(block->getBlockType().isBounceBlock());
     }
     CATCH("Fail in isBounceBlock!");
 }
@@ -235,35 +235,35 @@ Local<Value> BlockClass::isDoorBlock() {
 
 Local<Value> BlockClass::isFenceBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().isFenceBlock());
+        return Boolean::newBoolean(block->getBlockType().isFenceBlock());
     }
     CATCH("Fail in isFenceBlock!");
 }
 
 Local<Value> BlockClass::isFenceGateBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().isFenceGateBlock());
+        return Boolean::newBoolean(block->getBlockType().isFenceGateBlock());
     }
     CATCH("Fail in isFenceGateBlock!");
 }
 
 Local<Value> BlockClass::isThinFenceBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().isThinFenceBlock());
+        return Boolean::newBoolean(block->getBlockType().isThinFenceBlock());
     }
     CATCH("Fail in isThinFenceBlock!");
 }
 
 Local<Value> BlockClass::isHeavyBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().mFalling);
+        return Boolean::newBoolean(block->getBlockType().mFalling);
     }
     CATCH("Fail in isHeavyBlock!");
 }
 
 Local<Value> BlockClass::isStemBlock() {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().isStemBlock());
+        return Boolean::newBoolean(block->getBlockType().isStemBlock());
     }
     CATCH("Fail in isStemBlock!");
 }
@@ -285,8 +285,7 @@ Local<Value> BlockClass::isUnbreakable() {
 Local<Value> BlockClass::isWaterBlockingBlock() {
     try {
         return Boolean::newBoolean(
-            block->mDirectData->mWaterDetectionRule->mUnk21e36d.as<LiquidReaction>()
-            == LiquidReaction::Blocking
+            block->mDirectData->mWaterDetectionRule->mOnLiquidTouches == LiquidReaction::Blocking
         );
     }
     CATCH("Fail in isWaterBlockingBlock!");
@@ -359,7 +358,7 @@ Local<Value> BlockClass::hasContainer(const Arguments&) {
                        .lock()
                        ->getBlockSourceFromMainChunkSource()
                        .getBlock(blockPos.getBlockPos());
-        return Boolean::newBoolean(bl.getLegacyBlock().isContainerBlock());
+        return Boolean::newBoolean(bl.getBlockType().isContainerBlock());
     }
     CATCH("Fail in hasContainer!");
 }
@@ -379,7 +378,7 @@ Local<Value> BlockClass::getContainer(const Arguments&) {
 
 Local<Value> BlockClass::hasBlockEntity(const Arguments&) {
     try {
-        return Boolean::newBoolean(block->getLegacyBlock().mBlockEntityType != BlockActorType::Undefined);
+        return Boolean::newBoolean(block->getBlockType().mBlockEntityType != BlockActorType::Undefined);
     }
     CATCH("Fail in hasBlockEntity!");
 }
@@ -469,7 +468,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
             return {};
         }
         auto& block = lc->getBlock(
-            ChunkBlockPos{(uchar)(pos.x & 0xf), (uchar)(pos.z & 0xf), ChunkLocalHeight{(short)pos.y - minHeight}}
+            ChunkBlockPos{(uchar)(pos.x & 0xf), ChunkLocalHeight{(short)pos.y - minHeight}, (uchar)(pos.z & 0xf)}
         );
         return BlockClass::newBlock(block, pos.getBlockPos(), pos.dim);
     }

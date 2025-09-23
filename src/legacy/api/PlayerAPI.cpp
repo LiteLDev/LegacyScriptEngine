@@ -1205,7 +1205,7 @@ Local<Value> PlayerClass::isInsidePortal() {
 
         auto component = player->getEntityContext().tryGetComponent<InsideBlockComponent>();
         if (component) {
-            auto& fullName = component->mInsideBlock->getLegacyBlock().mNameInfo->mFullName;
+            auto& fullName = component->mInsideBlock->getBlockType().mNameInfo->mFullName;
             return Boolean::newBoolean(
                 *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
             );
@@ -1433,7 +1433,8 @@ Local<Value> PlayerClass::isMoving() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
         );
     }
     CATCH("Fail in isMoving!")
@@ -1662,10 +1663,10 @@ Local<Value> PlayerClass::setTitle(const Arguments& args) {
             fadeOutTime = args[4].asNumber().toInt32();
         }
 
-        SetTitlePacket pkt = SetTitlePacket(type, content, std::nullopt);
-        pkt.mFadeInTime    = fadeInTime;
-        pkt.mStayTime      = stayTime;
-        pkt.mFadeOutTime   = fadeOutTime;
+        SetTitlePacket pkt(type, content, std::nullopt);
+        pkt.mFadeInTime  = fadeInTime;
+        pkt.mStayTime    = stayTime;
+        pkt.mFadeOutTime = fadeOutTime;
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -2290,6 +2291,9 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
     CATCH("Fail in setSidebar!")
 }
 
+RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
+SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() = default;
+
 Local<Value> PlayerClass::removeSidebar(const Arguments&) {
     try {
         Player* player = get();
@@ -2456,7 +2460,8 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
             }
         }
         auto formCallback = [engine{EngineScope::currentEngine()},
-                             callback{script::Global(args[4].asFunction())
+                             callback{
+                                 script::Global(args[4].asFunction())
                              }](Player& pl, int chosen, ll::form::FormCancelReason reason) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -2500,9 +2505,10 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
             args[2].asString().toString(),
             args[3].asString().toString()
         );
-        auto formCallback = [engine{EngineScope::currentEngine()},
-                             callback{script::Global(args[4].asFunction())
-                             }](Player& pl, ll::form::ModalFormResult const& chosen, ll::form::FormCancelReason reason
+        auto formCallback = [engine{EngineScope::currentEngine()}, callback{script::Global(args[4].asFunction())}](
+                                Player&                          pl,
+                                ll::form::ModalFormResult const& chosen,
+                                ll::form::FormCancelReason       reason
                             ) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
             if (!EngineManager::isValid(engine)) return;
@@ -3236,7 +3242,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             false,
             true,
             [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
-                if (solidOnly && !block.mCachedComponentData->mUnkd6c5eb.as<bool>()) {
+                if (solidOnly && !block.mCachedComponentData->mIsSolid) {
                     return false;
                 }
                 if (fullOnly && !block.isSlabBlock()) {
@@ -3258,7 +3264,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
             bp = res.mBlock;
         }
         Block const&       bl     = player->getDimensionBlockSource().getBlock(bp);
-        BlockLegacy const& legacy = bl.getLegacyBlock();
+        BlockType const& legacy = bl.getBlockType();
         // isEmpty()
         if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
@@ -3454,6 +3460,9 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
     CATCH("Fail in removeItem!")
 }
 
+ToastRequestPacket::ToastRequestPacket() = default;
+ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
+
 Local<Value> PlayerClass::sendToast(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -3628,7 +3637,7 @@ Local<Value> PlayerClass::getBiomeId() {
         Player* player = get();
         if (!player) return Local<Value>();
         Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
-        return Number::newNumber(bio.mId);
+        return Number::newNumber(bio.mId->mValue);
     }
     CATCH("Fail in getBiomeId!");
 }

@@ -138,19 +138,22 @@ LL_TYPE_INSTANCE_HOOK(
     ChestBlockActor,
     &ChestBlockActor::$stopOpen,
     void,
-    Player& player
+    Actor& actor
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        if (!CallEvent(
-                EVENT_TYPES::onCloseContainer,
-                PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(mPosition, player.getDimensionId())
-            )) {
-            return;
+        if (actor.isPlayer()) {
+            Player& player = static_cast<Player&>(actor);
+            if (!CallEvent(
+                    EVENT_TYPES::onCloseContainer,
+                    PlayerClass::newPlayer(&player),
+                    BlockClass::newBlock(mPosition, player.getDimensionId())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
-    origin(player);
+    origin(actor);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -159,19 +162,22 @@ LL_TYPE_INSTANCE_HOOK(
     BarrelBlockActor,
     &BarrelBlockActor::$stopOpen,
     void,
-    Player& player
+    Actor& actor
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        if (!CallEvent(
-                EVENT_TYPES::onCloseContainer,
-                PlayerClass::newPlayer(&player),
-                BlockClass::newBlock(mPosition, player.getDimensionId())
-            )) {
-            return;
+        if (actor.isPlayer()) {
+            Player& player = static_cast<Player&>(actor);
+            if (!CallEvent(
+                    EVENT_TYPES::onCloseContainer,
+                    PlayerClass::newPlayer(&player),
+                    BlockClass::newBlock(mPosition, player.getDimensionId())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
-    origin(player);
+    origin(actor);
 }
 
 LL_TYPE_INSTANCE_HOOK(

@@ -4,7 +4,7 @@
 #include "mc/deps/core/platform/Result.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 #include "mc/network/MinecraftPacketIds.h"
-#include "mc/client/renderer/rendergraph/Packet.h"
+#include "mc/network/Packet.h"
 
 #include <string>
 

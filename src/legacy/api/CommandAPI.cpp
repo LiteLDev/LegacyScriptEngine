@@ -208,7 +208,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
-            static std::shared_ptr<Localization> localization =
+            static std::shared_ptr<const Localization> localization =
                 getI18n().getLocaleFor(getI18n().getCurrentLanguage()->mCode);
             for (auto& msg : output.mMessages) {
                 outputStr += getI18n().get(msg.mMessageId, msg.mParams, localization).append("\n");

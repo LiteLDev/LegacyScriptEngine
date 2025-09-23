@@ -229,7 +229,7 @@ Local<Value> EntityClass::isInsidePortal() {
 
         auto component = entity->getEntityContext().tryGetComponent<InsideBlockComponent>();
         if (component) {
-            auto& fullName = component->mInsideBlock->getLegacyBlock().mNameInfo->mFullName;
+            auto& fullName = component->mInsideBlock->getBlockType().mNameInfo->mFullName;
             return Boolean::newBoolean(
                 *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
             );
@@ -1376,7 +1376,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             false,
             true,
             [&solidOnly, &fullOnly, &includeLiquid](BlockSource const&, Block const& block, bool) {
-                if (solidOnly && !block.mCachedComponentData->mUnkd6c5eb.as<bool>()) {
+                if (solidOnly && !block.mCachedComponentData->mIsSolid) {
                     return false;
                 }
                 if (fullOnly && !block.isSlabBlock()) {
@@ -1398,7 +1398,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             bp = res.mBlock;
         }
         Block const&       bl     = actor->getDimensionBlockSource().getBlock(bp);
-        BlockLegacy const& legacy = bl.getLegacyBlock();
+        BlockType const& legacy = bl.getBlockType();
         if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
@@ -1423,7 +1423,7 @@ Local<Value> EntityClass::getBiomeId() {
         Actor* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
-        return Number::newNumber(bio.mId);
+        return Number::newNumber(bio.mId->mValue);
     }
     CATCH("Fail in getBiomeId!");
 }

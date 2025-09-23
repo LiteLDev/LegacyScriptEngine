@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Supported LeviLamina 1.5.0 @ShrBox
 
+### Fixed
+
+- Fixed logger.setFile [#323] @ShrBox
+
 ## [0.13.2] - 2025-08-07
 
 ### Fixed
@@ -1009,6 +1013,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303
 [#309]: https://github.com/LiteLDev/LegacyScriptEngine/issues/309
 [#310]: https://github.com/LiteLDev/LegacyScriptEngine/issues/310
+[#323]: https://github.com/LiteLDev/LegacyScriptEngine/issues/323
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.14.0...HEAD
 [0.14.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.2...v0.14.0

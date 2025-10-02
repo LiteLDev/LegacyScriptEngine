@@ -267,7 +267,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
             ScoreboardId sid       = board.getScoreboardId(args[0].asString().toString());
-            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
+            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->mScores->contains(sid)) {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
@@ -275,7 +275,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
             ScoreboardId sid       = board.getScoreboardId(*PlayerClass::extract(args[0]));
-            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
+            if (!objective || sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->mScores->contains(sid)) {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);

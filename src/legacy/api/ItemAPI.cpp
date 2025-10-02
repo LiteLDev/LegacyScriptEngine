@@ -167,7 +167,7 @@ Local<Value> ItemClass::getAttackDamage() {
 
 Local<Value> ItemClass::getMaxDamage() {
     try {
-        return Number::newNumber(get()->getMaxDamage());
+        return Number::newNumber(get()->mItem->mMaxDamage);
     }
     CATCH("Fail in GetMaxDamage!");
 }
@@ -217,14 +217,14 @@ Local<Value> ItemClass::isDamageableItem() {
 
 Local<Value> ItemClass::isDamaged() {
     try {
-        return Boolean::newBoolean(get()->isDamaged());
+        return Boolean::newBoolean(get()->getDamageValue() > 0);
     }
     CATCH("Fail in isDamaged!");
 }
 
 Local<Value> ItemClass::isEnchanted() {
     try {
-        return Boolean::newBoolean(get()->isEnchanted());
+        return Boolean::newBoolean(get()->mUserData->contains(ItemStackBase::TAG_ENCHANTS(), Tag::List));
     }
     CATCH("Fail in isEnchanted!");
 }
@@ -250,14 +250,14 @@ Local<Value> ItemClass::isFireResistant() {
 
 Local<Value> ItemClass::isFullStack() {
     try {
-        return Boolean::newBoolean(get()->isFullStack());
+        return Boolean::newBoolean(get()->mCount >= get()->getMaxStackSize());
     }
     CATCH("Fail in isFullStack!");
 }
 
 Local<Value> ItemClass::isGlint() {
     try {
-        return Boolean::newBoolean(get()->isGlint());
+        return Boolean::newBoolean(get()->mItem->mIsGlint);
     }
     CATCH("Fail in isGlint!");
 }
@@ -309,7 +309,11 @@ Local<Value> ItemClass::isPotionItem() {
 
 Local<Value> ItemClass::isStackable() {
     try {
-        return Boolean::newBoolean(get()->isStackable());
+        if (get()->getMaxStackSize() > 1u && get()->getDamageValue() <= 0) {
+            return Boolean::newBoolean(true);
+        }
+
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in isStackable!");
 }

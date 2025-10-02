@@ -1,5 +1,7 @@
 #include "BlockHelper.h"
 
+#include "mc/world/level/block/BedrockBlockNames.h"
+#include "mc/world/level/block/Block.h"
 #include "mc/world/level/dimension/DimensionHeightRange.h"
 
 namespace lse::api {
@@ -16,5 +18,9 @@ bool BlockHelper::isValidHeight(WeakRef<Dimension> dimension, std::variant<int, 
     }
 
     return false;
+}
+
+bool BlockHelper::isAir(Block const& block) {
+    return block.getBlockType().mNameInfo->mFullName->mStrHash == BedrockBlockNames::Air().mStrHash;
 }
 } // namespace lse::api

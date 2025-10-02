@@ -21,8 +21,8 @@
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
 #include "mc/deps/core/utility/MCRESULT.h"
-#include "mc/deps/json/Value.h"
 #include "mc/deps/json/FastWriter.h"
+#include "mc/deps/json/Value.h"
 #include "mc/locale/I18n.h"
 #include "mc/locale/Localization.h"
 #include "mc/server/commands/CommandBlockName.h"
@@ -35,9 +35,7 @@
 #include "mc/server/commands/GenerateMessageResult.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/ServerCommandOrigin.h"
-#include "mc/util/JsonHelpers.h"
 #include "mc/world/Minecraft.h"
-#include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/dimension/Dimension.h"
 
@@ -96,9 +94,9 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     } else if (result.hold(ParamKind::Kind::Item)) {
         return ItemClass::newItem(
             new ItemStack(
-                std::get<CommandItem>(result.value())
-                    .createInstance(1, 1, output, true)
-                    .value_or(ItemInstance::EMPTY_ITEM())
+                ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(
+                    std::get<CommandItem>(result.value()).mId
+                )
             ),
             false
         ); // Not managed by BDS, pointer will be saved as unique_ptr
@@ -490,7 +488,8 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 // vector<index>
 Local<Value> CommandClass::addOverload(const Arguments& args) {
     try {
-        auto overloadFunc = [e(EngineScope::currentEngine()
+        auto overloadFunc = [e(
+                                EngineScope::currentEngine()
                             )](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
             auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
             for (auto& info : paramList) {
@@ -513,8 +512,8 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
         };
         auto delayRegFunc = [this, &overloadFunc](std::vector<std::string>& paramNames) {
             ll::coro::keepThis(
-                [paramNames, commandName(commandName), overloadFunc, e(EngineScope::currentEngine())](
-                ) -> ll::coro::CoroTask<> {
+                [paramNames, commandName(commandName), overloadFunc, e(EngineScope::currentEngine())]()
+                    -> ll::coro::CoroTask<> {
                     auto cmd = ll::command::CommandRegistrar::getInstance()
                                    .getOrCreateCommand(commandName)
                                    .runtimeOverload(getEngineData(e)->plugin);

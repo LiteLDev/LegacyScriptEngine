@@ -15,14 +15,11 @@
 #include "mc/world/level/ChunkBlockPos.h"
 #include "mc/world/level/block/BedrockBlockNames.h"
 #include "mc/world/level/block/Block.h"
-#include "mc/world/level/block/DetectionRule.h"
 #include "mc/world/level/block/LiquidReaction.h"
+#include "mc/world/level/block/VanillaBlockTags.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
-#include "mc/world/level/block/components/BlockComponentDirectData.h"
 #include "mc/world/level/chunk/LevelChunk.h"
-#include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/level/dimension/DimensionHeightRange.h"
 
 #include <exception>
 
@@ -200,7 +197,9 @@ Local<Value> BlockClass::getThickness() {
 
 Local<Value> BlockClass::isAir() {
     try {
-        return Boolean::newBoolean(block->isAir());
+        return Boolean::newBoolean(
+            BlockHelper::isAir(*get())
+        );
     }
     CATCH("Fail in isAir!");
 }
@@ -214,21 +213,21 @@ Local<Value> BlockClass::isBounceBlock() {
 
 Local<Value> BlockClass::isButtonBlock() {
     try {
-        return Boolean::newBoolean(block->isButtonBlock());
+        return Boolean::newBoolean(block->getBlockType().isButtonBlock());
     }
     CATCH("Fail in isButtonBlock!");
 }
 
 Local<Value> BlockClass::isCropBlock() {
     try {
-        return Boolean::newBoolean(block->isCropBlock());
+        return Boolean::newBoolean(block->hasTag(VanillaBlockTags::Crop()));
     }
     CATCH("Fail in isCropBlock!");
 }
 
 Local<Value> BlockClass::isDoorBlock() {
     try {
-        return Boolean::newBoolean(block->isDoorBlock());
+        return Boolean::newBoolean(block->getBlockType().isDoorBlock());
     }
     CATCH("Fail in isDoorBlock!");
 }
@@ -270,7 +269,7 @@ Local<Value> BlockClass::isStemBlock() {
 
 Local<Value> BlockClass::isSlabBlock() {
     try {
-        return Boolean::newBoolean(block->isSlabBlock());
+        return Boolean::newBoolean(block->getBlockType().isSlabBlock());
     }
     CATCH("Fail in isSlabBlock!");
 }
@@ -397,16 +396,14 @@ Local<Value> BlockClass::getBlockEntity(const Arguments&) {
 
 Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
     try {
-        auto chunk = ll::service::getLevel()
-                         ->getDimension(blockPos.dim)
-                         .lock()
-                         ->getBlockSourceFromMainChunkSource()
-                         .getChunkAt(blockPos.getBlockPos());
-        if (chunk) {
-            return Boolean::newBoolean(chunk->removeBlockEntity(blockPos.getBlockPos()) != nullptr);
-        } else {
-            return Boolean::newBoolean(false);
-        }
+        return Boolean::newBoolean(
+            ll::service::getLevel()
+                ->getDimension(blockPos.dim)
+                .lock()
+                ->getBlockSourceFromMainChunkSource()
+                .removeBlockEntity(blockPos.getBlockPos())
+            != nullptr
+        );
     }
     CATCH("Fail in removeBlockEntity!");
 }
@@ -532,7 +529,8 @@ Local<Value> McClass::setBlock(const Arguments& args) {
         }
 
         if (block.isString()) {
-            optional_ref<const Block> bl = Block::tryGetFromRegistry(block.asString().toString(), tileData);
+            optional_ref<const Block> bl =
+                Block::tryGetFromRegistry(HashedString(block.asString().toString()), tileData);
             if (!bl.has_value()) {
                 return Boolean::newBoolean(false);
             }

@@ -18,6 +18,7 @@
 #include "mc/world/Minecraft.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/level/BlockSource.h"
+#include "mc/world/level/dimension/Dimension.h"
 
 #include <string>
 #include <vector>
@@ -107,7 +108,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
 
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateDestroyLookAt());
 
-        int                                 dimid = sp->getDimensionId();
+        int                                 dimid = sp->getDimension().mId->id;
         BlockPos                            bpos;
         size_t                              index = 0;
         ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
@@ -174,7 +175,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
             return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()));
         }
 
-        int                                 dimid = sp->getDimensionId();
+        int                                 dimid = sp->getDimension().mId->id;
         BlockPos                            bpos;
         size_t                              index = 0;
         ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
@@ -228,7 +229,7 @@ Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        if (SimulatedPlayerHelper::simulateRespawn(*sp)) {
+        if (sp->simulateRespawn()) {
             auto& spawnPoint = sp->mPlayerRespawnPoint;
             get()->teleport(spawnPoint->mPlayerPosition->bottomCenter(), spawnPoint->mDimension);
             return Boolean::newBoolean(true);
@@ -373,7 +374,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        int  dimid        = sp->getDimensionId();
+        int  dimid        = sp->getDimension().mId->id;
         auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
             if (!args[1].isNumber()) {
@@ -385,7 +386,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = IntPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), lookDuration);
+                sp->simulateLookAt(pos->getBlockPos(), lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -396,7 +397,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos = FloatPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getVec3(), (sim::LookDuration)lookDuration);
+                sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -408,7 +409,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             auto pos   = IntPos::extractPos(block->getPos());
             auto did   = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
-                SimulatedPlayerHelper::simulateLookAt(*sp, pos->getBlockPos(), (sim::LookDuration)lookDuration);
+                sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
@@ -416,7 +417,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             );
             return Boolean::newBoolean(false);
         } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            SimulatedPlayerHelper::simulateLookAt(*sp, *actor, (sim::LookDuration)lookDuration);
+            sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
         LOG_WRONG_ARG_TYPE(__FUNCTION__);
@@ -607,7 +608,7 @@ Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        SimulatedPlayerHelper::simulateStopMoving(*sp);
+        sp->simulateStopMoving();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -617,7 +618,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
-        SimulatedPlayerHelper::simulateStopUsingItem(*sp);
+        sp->simulateStopUsingItem();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in " __FUNCTION__ "!")

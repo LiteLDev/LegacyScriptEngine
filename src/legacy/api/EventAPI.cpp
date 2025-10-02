@@ -236,10 +236,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerDie:
         bus.emplaceListener<ll::event::PlayerDieEvent>([](ll::event::PlayerDieEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerDie) {
-                Actor* source = ll::service::getLevel()
-                                    ->getDimension(ev.self().getDimensionId())
-                                    .lock()
-                                    ->fetchEntity(ev.source().getEntityUniqueID(), false);
+                Actor* source = ev.self().getDimension().fetchEntity(ev.source().getEntityUniqueID(), false);
                 CallEvent(
                     EVENT_TYPES::onPlayerDie,
                     PlayerClass::newPlayer(&ev.self()),
@@ -269,7 +266,7 @@ void EnableEventListener(int eventId) {
                 if (!CallEvent(
                         EVENT_TYPES::onDestroyBlock,
                         PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                        BlockClass::newBlock(ev.pos(), ev.self().getDimension().mId->id)
                     )) {
                     ev.cancel();
                 }
@@ -306,8 +303,8 @@ void EnableEventListener(int eventId) {
                 if (!CallEvent(
                         EVENT_TYPES::onPlaceBlock,
                         PlayerClass::newPlayer(&ev.self()),
-                        block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId())
-                              : BlockClass::newBlock(truePos, ev.self().getDimensionId()),
+                        block ? BlockClass::newBlock(*block, truePos, ev.self().getDimension().mId->id)
+                              : BlockClass::newBlock(truePos, ev.self().getDimension().mId->id),
                         Number::newNumber((schar)ev.face())
                     )) {
                     ev.cancel();
@@ -323,7 +320,7 @@ void EnableEventListener(int eventId) {
                 CallEvent(
                     EVENT_TYPES::afterPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                    BlockClass::newBlock(ev.pos(), ev.self().getDimension().mId->id)
                 ); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
@@ -392,9 +389,9 @@ void EnableEventListener(int eventId) {
                         EVENT_TYPES::onUseItemOn,
                         PlayerClass::newPlayer(&ev.self()),
                         ItemClass::newItem(&ev.item()),
-                        BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId()),
+                        BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimension().mId->id),
                         Number::newNumber((schar)ev.face()),
-                        FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
+                        FloatPos::newPos(ev.clickPos(), ev.self().getDimension().mId->id)
                     )) {
                     ev.cancel();
                 }
@@ -606,7 +603,7 @@ void EnableEventListener(int eventId) {
                 if (!CallEvent(
                         EVENT_TYPES::onBlockInteracted,
                         PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
+                        BlockClass::newBlock(ev.blockPos(), ev.self().getDimension().mId->id)
                     )) {
                     ev.cancel();
                 }

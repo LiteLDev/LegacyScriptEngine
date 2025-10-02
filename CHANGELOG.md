@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2025-10-02
+
+### Changed
+
+- Supported LeviLamina 1.6.0 @ShrBox
+
 ## [0.14.0] - 2025-09-23
 
 ### Changed
@@ -1015,7 +1021,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#310]: https://github.com/LiteLDev/LegacyScriptEngine/issues/310
 [#323]: https://github.com/LiteLDev/LegacyScriptEngine/issues/323
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.2...v0.14.0
 [0.13.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.0...v0.13.1

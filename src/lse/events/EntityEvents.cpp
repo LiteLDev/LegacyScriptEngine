@@ -7,6 +7,7 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
+#include "lse/api/helper/BlockHelper.h"
 #include "mc/common/Globals.h"
 #include "mc/deps/ecs/gamerefs_entity/EntityContext.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
@@ -193,7 +194,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         auto& region = owner.getDimensionBlockSourceConst();
         auto& block  = region.getBlock(res.mBlock);
-        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
+        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !api::BlockHelper::isAir(block)) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitBlock,
                     BlockClass::newBlock(block, res.mBlock, region),
@@ -390,9 +391,9 @@ LL_TYPE_INSTANCE_HOOK(
                             BlockClass::newBlock(
                                 *griefingEvent.mBlock,
                                 BlockPos(griefingEvent.mPos),
-                                entity->getDimensionId()
+                                entity->getDimension().mId->id
                             ),
-                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId())
+                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimension().mId->id)
                         )) {
                         return true;
                     }

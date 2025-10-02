@@ -27,6 +27,7 @@
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
 #include "lse/api/helper/AttributeHelper.h"
+#include "lse/api/helper/BlockHelper.h"
 #include "lse/api/helper/PlayerHelper.h"
 #include "lse/api/helper/ScoreboardHelper.h"
 #include "main/EconomicSystem.h"
@@ -509,7 +510,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
         ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
-        if (sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->hasScore(sid)) {
+        if (sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->mScores->contains(sid)) {
             return Number::newNumber(0);
         }
         return Number::newNumber(objective->getPlayerScore(sid).mValue);
@@ -778,7 +779,7 @@ Local<Value> PlayerClass::getPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return FloatPos::newPos(player->getPosition(), player->getDimensionId());
+        return FloatPos::newPos(player->getPosition(), player->getDimension().mId->id);
     }
     CATCH("Fail in getPlayerPos!")
 }
@@ -788,7 +789,7 @@ Local<Value> PlayerClass::getFeetPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return FloatPos::newPos(player->getFeetPos(), player->getDimensionId());
+        return FloatPos::newPos(player->getFeetPos(), player->getDimension().mId->id);
     }
     CATCH("Fail in getPlayerFeetPos!")
 }
@@ -798,7 +799,7 @@ Local<Value> PlayerClass::getBlockPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId());
+        return IntPos::newPos(player->getFeetBlockPos(), player->getDimension().mId->id);
     }
     CATCH("Fail in getPlayerBlockPos!")
 }
@@ -1385,7 +1386,9 @@ Local<Value> PlayerClass::isDancing() {
             return Local<Value>();
         }
 
-        return Boolean::newBoolean(player->isDancing());
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Dancing)
+        );
     }
     CATCH("Fail in isDancing!")
 }
@@ -1543,11 +1546,14 @@ Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
                 fmt::format("Set Player {} Permission Level as {}.", player->getRealName(), newPerm)
             );
             player->getAbilities().mPermissions->mCommandPermissions = (CommandPermissionLevel)newPerm;
+            auto& perm    = player->getAbilities().mPermissions->mPlayerPermissions;
+            auto  oriPerm = perm;
             if (newPerm >= 1) {
-                player->getAbilities().setPlayerPermissions(PlayerPermissionLevel::Operator);
+                perm = PlayerPermissionLevel::Operator;
             } else {
-                player->getAbilities().setPlayerPermissions(PlayerPermissionLevel::Member);
+                perm = PlayerPermissionLevel::Member;
             }
+            player->getAbilities()._handlePlayerPermissionsChange(oriPerm, perm);
             UpdateAbilitiesPacket uPkt(player->getOrCreateUniqueID(), player->getAbilities());
             player->sendNetworkPacket(uPkt);
             res = true;
@@ -2106,7 +2112,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimensionId());
+        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimension().mId->id);
     }
     CATCH("Fail in getBlockStandingOn!");
 }
@@ -2245,6 +2251,9 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
     CATCH("Fail in deleteScore!");
 }
 
+SetDisplayObjectivePacket::SetDisplayObjectivePacket()               = default;
+SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() = default;
+
 Local<Value> PlayerClass::setSidebar(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -2292,7 +2301,7 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
 }
 
 RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
-SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() = default;
+RemoveObjectivePacket::RemoveObjectivePacket()               = default;
 
 Local<Value> PlayerClass::removeSidebar(const Arguments&) {
     try {
@@ -3245,7 +3254,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
                 if (solidOnly && !block.mCachedComponentData->mIsSolid) {
                     return false;
                 }
-                if (fullOnly && !block.isSlabBlock()) {
+                if (fullOnly && !block.getBlockType().isSlabBlock()) {
                     return false;
                 }
                 if (!includeLiquid && BlockUtils::isLiquidSource(block)) {
@@ -3263,10 +3272,11 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         } else {
             bp = res.mBlock;
         }
-        Block const&       bl     = player->getDimensionBlockSource().getBlock(bp);
+        Block const&     bl     = player->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
         // isEmpty()
-        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (lse::api::BlockHelper::isAir(bl)
+            || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());
@@ -3460,7 +3470,7 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
     CATCH("Fail in removeItem!")
 }
 
-ToastRequestPacket::ToastRequestPacket() = default;
+ToastRequestPacket::ToastRequestPacket()               = default;
 ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
 
 Local<Value> PlayerClass::sendToast(const Arguments& args) {
@@ -3516,7 +3526,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId();
+                pos.dim = targetActor->getDimension().mId->id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -3537,9 +3547,9 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
 
-        return Number::newNumber(player->distanceTo(pos.getVec3()));
+        return Number::newNumber(player->getPosition().distanceTo(pos.getVec3()));
     }
     CATCH("Fail in distanceTo!")
 }
@@ -3579,7 +3589,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId();
+                pos.dim = targetActor->getDimension().mId->id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -3600,9 +3610,9 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
 
-        return Number::newNumber(player->distanceToSqr(pos.getVec3()));
+        return Number::newNumber(player->getPosition().distanceToSqr(pos.getVec3()));
     }
     CATCH("Fail in distanceToSqr!")
 }

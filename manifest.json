@@ -10,9 +10,6 @@
       "name": "LegacyMoney"
     },
     {
-      "name": "LegacyParticleAPI"
-    },
-    {
       "name": "LegacyRemoteCall"
     }
   ]

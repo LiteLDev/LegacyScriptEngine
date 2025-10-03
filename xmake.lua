@@ -12,7 +12,6 @@ add_requires("levibuildscript")
 
 add_requires(
     "legacymoney 0.10.0",
-    "legacyparticleapi 0.10.0",
     "legacyremotecall 0.10.0",
     "lightwebsocketclient 1.0.1",
     "magic_enum v0.9.7",
@@ -88,7 +87,6 @@ target("legacy-script-engine")
     add_packages(
         "cpp-httplib",
         "legacymoney",
-        "legacyparticleapi",
         "legacyremotecall",
         "levilamina",
         "lightwebsocketclient",

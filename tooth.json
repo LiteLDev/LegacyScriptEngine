@@ -26,7 +26,6 @@
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.15.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.15.*",
         "github.com/LiteLDev/LegacyMoney": "0.15.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
       },
@@ -64,7 +63,6 @@
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.15.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.15.*",
         "github.com/LiteLDev/LegacyMoney": "0.15.*"
       },
       "assets": [
@@ -88,7 +86,6 @@
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.15.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.15.*",
         "github.com/LiteLDev/LegacyMoney": "0.15.*"
       },
       "assets": [
@@ -112,7 +109,6 @@
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall": "0.15.*",
-        "github.com/LiteLDev/LegacyParticleAPI": "0.15.*",
         "github.com/LiteLDev/LegacyMoney": "0.15.*"
       },
       "assets": [

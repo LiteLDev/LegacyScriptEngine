@@ -224,7 +224,9 @@ Local<Value> ItemClass::isDamaged() {
 
 Local<Value> ItemClass::isEnchanted() {
     try {
-        return Boolean::newBoolean(get()->mUserData->contains(ItemStackBase::TAG_ENCHANTS(), Tag::List));
+        return Boolean::newBoolean(
+            get()->mUserData && get()->mUserData->contains(ItemStackBase::TAG_ENCHANTS(), Tag::List)
+        );
     }
     CATCH("Fail in isEnchanted!");
 }
@@ -312,7 +314,6 @@ Local<Value> ItemClass::isStackable() {
         if (get()->getMaxStackSize() > 1u && get()->getDamageValue() <= 0) {
             return Boolean::newBoolean(true);
         }
-
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in isStackable!");

@@ -1403,7 +1403,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         }
         Block const&     bl     = actor->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
-        if (lse::api::BlockHelper::isAir(bl)
+        if (bl.isAir()
             || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }

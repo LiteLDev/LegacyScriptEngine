@@ -224,9 +224,7 @@ Local<Value> ItemClass::isDamaged() {
 
 Local<Value> ItemClass::isEnchanted() {
     try {
-        return Boolean::newBoolean(
-            get()->mUserData && get()->mUserData->contains(ItemStackBase::TAG_ENCHANTS(), Tag::List)
-        );
+        return Boolean::newBoolean(get()->isEnchanted());
     }
     CATCH("Fail in isEnchanted!");
 }

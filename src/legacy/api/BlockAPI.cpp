@@ -197,9 +197,7 @@ Local<Value> BlockClass::getThickness() {
 
 Local<Value> BlockClass::isAir() {
     try {
-        return Boolean::newBoolean(
-            BlockHelper::isAir(*get())
-        );
+        return Boolean::newBoolean(get()->isAir());
     }
     CATCH("Fail in isAir!");
 }

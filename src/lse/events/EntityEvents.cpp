@@ -194,7 +194,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         auto& region = owner.getDimensionBlockSourceConst();
         auto& block  = region.getBlock(res.mBlock);
-        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !api::BlockHelper::isAir(block)) {
+        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitBlock,
                     BlockClass::newBlock(block, res.mBlock, region),

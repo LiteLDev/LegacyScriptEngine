@@ -165,7 +165,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar           pistonMoveFacing
 ) {
     IF_LISTENED(EVENT_TYPES::onPistonTryPush) {
-        if (api::BlockHelper::isAir(region.getBlock(curPos))) {
+        if (region.getBlock(curPos).isAir()) {
             return origin(region, curPos, curBranchFacing, pistonMoveFacing);
         }
         if (!CallEvent(
@@ -262,7 +262,7 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          source
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        if (api::BlockHelper::isAir(destroyedBlock)) {
+        if (destroyedBlock.isAir()) {
             return origin(dimension, blockPos, destroyedBlock, source);
         }
         CallEvent(

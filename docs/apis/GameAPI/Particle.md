@@ -1,5 +1,7 @@
-
 # ✨ ParticleSpawner Object
+
+!!! warning
+    ParticleSpawner has been deprecated since version 0.15.0. All APIs except spawnParticle are unavailable.
 
    For a `ParticleSpawner` type variable ps, there are the following members:
 

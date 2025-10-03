@@ -1,5 +1,8 @@
 # ✨ ParticleSpawner 对象
 
+!!! warning
+    ParticleSpawner已在0.15.0中废弃，除了spawnParticle外的所有API均不可用。
+
    对于某个 `ParticleSpawner` 类型变量 ps, 有如下这些成员:
 
    | 成员             | 含义           | 类型      |

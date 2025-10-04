@@ -1407,7 +1407,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
-        return BlockClass::newBlock(bl, bp, actor->getDimension().mId);
+        return BlockClass::newBlock(bl, bp, actor->getDimensionId());
     }
     CATCH("Fail in getBlockFromViewVector!");
 }

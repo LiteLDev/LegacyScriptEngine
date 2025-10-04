@@ -779,7 +779,7 @@ Local<Value> PlayerClass::getPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return FloatPos::newPos(player->getPosition(), player->getDimension().mId->id);
+        return FloatPos::newPos(player->getPosition(), player->getDimensionId().id);
     }
     CATCH("Fail in getPlayerPos!")
 }
@@ -789,7 +789,7 @@ Local<Value> PlayerClass::getFeetPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return FloatPos::newPos(player->getFeetPos(), player->getDimension().mId->id);
+        return FloatPos::newPos(player->getFeetPos(), player->getDimensionId().id);
     }
     CATCH("Fail in getPlayerFeetPos!")
 }
@@ -799,7 +799,7 @@ Local<Value> PlayerClass::getBlockPos() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return IntPos::newPos(player->getFeetBlockPos(), player->getDimension().mId->id);
+        return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId().id);
     }
     CATCH("Fail in getPlayerBlockPos!")
 }
@@ -2112,7 +2112,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimension().mId->id);
+        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimensionId().id);
     }
     CATCH("Fail in getBlockStandingOn!");
 }
@@ -3526,7 +3526,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimension().mId->id;
+                pos.dim = targetActor->getDimensionId().id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -3547,7 +3547,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->getPosition().distanceTo(pos.getVec3()));
     }
@@ -3589,7 +3589,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimension().mId->id;
+                pos.dim = targetActor->getDimensionId().id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -3610,7 +3610,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (player->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->getPosition().distanceToSqr(pos.getVec3()));
     }

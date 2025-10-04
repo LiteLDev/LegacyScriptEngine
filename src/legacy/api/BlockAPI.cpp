@@ -168,7 +168,6 @@ Local<Value> BlockClass::getPos() {
 
 Local<Value> BlockClass::getTileData() {
     try {
-        // preloaded
         return Number::newNumber(block->getBlockType().getVariant(*block));
     }
     CATCH("Fail in getTileData!");
@@ -197,7 +196,7 @@ Local<Value> BlockClass::getThickness() {
 
 Local<Value> BlockClass::isAir() {
     try {
-        return Boolean::newBoolean(get()->isAir());
+        return Boolean::newBoolean(block->isAir());
     }
     CATCH("Fail in isAir!");
 }

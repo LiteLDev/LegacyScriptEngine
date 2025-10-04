@@ -391,9 +391,9 @@ LL_TYPE_INSTANCE_HOOK(
                             BlockClass::newBlock(
                                 *griefingEvent.mBlock,
                                 BlockPos(griefingEvent.mPos),
-                                entity->getDimension().mId->id
+                                entity->getDimensionId().id
                             ),
-                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimension().mId->id)
+                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId().id)
                         )) {
                         return true;
                     }

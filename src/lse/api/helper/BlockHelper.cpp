@@ -1,6 +1,5 @@
 #include "BlockHelper.h"
 
-#include "mc/world/level/block/BedrockBlockNames.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/dimension/DimensionHeightRange.h"
 

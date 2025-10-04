@@ -401,7 +401,7 @@ Local<Value> EntityClass::getPos() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return FloatPos::newPos(entity->getPosition(), entity->getDimension().mId->id);
+        return FloatPos::newPos(entity->getPosition(), entity->getDimensionId().id);
     }
     CATCH("Fail in GetEntityPos!")
 }
@@ -411,7 +411,7 @@ Local<Value> EntityClass::getPosDelta() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return FloatPos::newPos(entity->getPosDelta(), entity->getDimension().mId->id);
+        return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId().id);
     }
     CATCH("Fail in GetEntityPosDelta!")
 }
@@ -450,7 +450,7 @@ Local<Value> EntityClass::getFeetPos() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return FloatPos::newPos(entity->getFeetPos(), entity->getDimension().mId->id);
+        return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId().id);
     }
     CATCH("Fail in GetEntityFeetPos!")
 }
@@ -460,7 +460,7 @@ Local<Value> EntityClass::getBlockPos() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimension().mId->id);
+        return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId().id);
     }
     CATCH("Fail in GetEntityBlockPos!")
 }
@@ -746,7 +746,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimension().mId->id;
+                pos.dim = targetActor->getDimensionId().id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -767,7 +767,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (actor->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->getPosition().distanceTo(pos.getVec3()));
     }
@@ -809,7 +809,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimension().mId->id;
+                pos.dim = targetActor->getDimensionId().id;
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();
@@ -830,7 +830,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             return Local<Value>();
         }
 
-        if (actor->getDimension().mId->id != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->getPosition().distanceToSqr(pos.getVec3()));
     }
@@ -917,7 +917,7 @@ Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimension().mId->id);
+        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId().id);
     }
     CATCH("Fail in getBlockStandingOn!");
 }

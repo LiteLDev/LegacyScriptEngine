@@ -70,7 +70,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onContainerChange,
                     PlayerClass::newPlayer(&mPlayer),
-                    BlockClass::newBlock(mBlockPos, mPlayer.getDimension().mId->id),
+                    BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId().id),
                     Number::newNumber(slotNumber + this->_getContainerOffset()),
                     ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
                     ItemClass::newItem(&const_cast<ItemStack&>(newItem))

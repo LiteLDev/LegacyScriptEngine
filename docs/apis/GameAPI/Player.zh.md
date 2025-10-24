@@ -447,45 +447,53 @@
 
 注意，此处造成的伤害为真实伤害，无法被盔甲等保护装备减免
 
-| 伤害类型枚举                             |
-|------------------------------------|
-| `ActorDamageCause.Override`        |
-| `ActorDamageCause.Contact `        |
-| `ActorDamageCause.EntityAttack`    |
-| `ActorDamageCause.Projectile`      |
-| `ActorDamageCause.Suffocation`     |
-| `ActorDamageCause.All`             |
-| `ActorDamageCause.Fire`            |
-| `ActorDamageCause.FireTick`        |
-| `ActorDamageCause.Lava`            |
-| `ActorDamageCause.Drowning `       |
-| `ActorDamageCause.BlockExplosion`  |
-| `ActorDamageCause.EntityExplosion` |
-| `ActorDamageCause.Void`            |
-| `ActorDamageCause.Suicide`         |
-| `ActorDamageCause.Magic`           |
-| `ActorDamageCause.Wither`          |
-| `ActorDamageCause.Starve`          |
-| `ActorDamageCause.Anvil`           |
-| `ActorDamageCause.Thorns`          |
-| `ActorDamageCause.FallingBlock`    |
-| `ActorDamageCause.Piston`          |
-| `ActorDamageCause.FlyIntoWall`     |
-| `ActorDamageCause.Magma`           |
-| `ActorDamageCause.Fireworks`       |
-| `ActorDamageCause.Lightning`       |
-| `ActorDamageCause.Charging`        |
-| `ActorDamageCause.Temperature`     |
-| `ActorDamageCause.Freezing`        |
-| `ActorDamageCause.Stalactite`      |
-| `ActorDamageCause.Stalagmite`      |
-| `ActorDamageCause.All`             |
+| `ActorDamageCause` 枚举            | 值 |
+| ---------------------------------- | --- |
+| `ActorDamageCause.None`            | -1 |
+| `ActorDamageCause.Override`        | 0 |
+| `ActorDamageCause.Contact`         | 1 |
+| `ActorDamageCause.EntityAttack`    | 2 |
+| `ActorDamageCause.Projectile`      | 3 |
+| `ActorDamageCause.Suffocation`     | 4 |
+| `ActorDamageCause.Fall`            | 5 |
+| `ActorDamageCause.Fire`            | 6 |
+| `ActorDamageCause.FireTick`        | 7 |
+| `ActorDamageCause.Lava`            | 8 |
+| `ActorDamageCause.Drowning`        | 9 |
+| `ActorDamageCause.BlockExplosion`  | 10 |
+| `ActorDamageCause.EntityExplosion` | 11 |
+| `ActorDamageCause.Void`            | 12 |
+| `ActorDamageCause.SelfDestruct`    | 13 |
+| `ActorDamageCause.Magic`           | 14 |
+| `ActorDamageCause.Wither`          | 15 |
+| `ActorDamageCause.Starve`          | 16 |
+| `ActorDamageCause.Anvil`           | 17 |
+| `ActorDamageCause.Thorns`          | 18 |
+| `ActorDamageCause.FallingBlock`    | 19 |
+| `ActorDamageCause.Piston`          | 20 |
+| `ActorDamageCause.FlyIntoWall`     | 21 |
+| `ActorDamageCause.Magma`           | 22 |
+| `ActorDamageCause.Fireworks`       | 23 |
+| `ActorDamageCause.Lightning`       | 24 |
+| `ActorDamageCause.Charging`        | 25 |
+| `ActorDamageCause.Temperature`     | 26 |
+| `ActorDamageCause.Freezing`        | 27 |
+| `ActorDamageCause.Stalactite`      | 28 |
+| `ActorDamageCause.Stalagmite`      | 29 |
+| `ActorDamageCause.RamAttack`       | 30 |
+| `ActorDamageCause.SonicBoom`       | 31 |
+| `ActorDamageCause.Campfire`        | 32 |
+| `ActorDamageCause.SoulCampfire`    | 33 |
+| `ActorDamageCause.MaceSmash`       | 34 |
+| `ActorDamageCause.All`             | 35 |
 
 - 示例：
     - JavaScript
       ```js
       // 对于一个玩家对象pl
       pl.hurt(20);
+      // 使用枚举
+      pl.hurt(20, ActorDamageCause.EntityAttack);
       ```
     - Lua
       ```lua

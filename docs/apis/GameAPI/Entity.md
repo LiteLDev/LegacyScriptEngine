@@ -204,44 +204,45 @@ Each entity object contains some member functions (member methods) that can be e
 
 Note that the damage dealt here is real damage and cannot be reduced by protective equipment such as armor.
 
-| ActorDamageCause ENUM              | Value |
-|------------------------------------|-------|
-| `ActorDamageCause.Override`        | -1    |
-| `ActorDamageCause.Contact `        | 0     |
-| `ActorDamageCause.EntityAttack`    | 1     |
-| `ActorDamageCause.Projectile`      | 2     |
-| `ActorDamageCause.Suffocation`     | 3     |
-| `ActorDamageCause.All`             | 4     |
-| `ActorDamageCause.Fire`            | 5     |
-| `ActorDamageCause.FireTick`        | 6     |
-| `ActorDamageCause.Lava`            | 7     |
-| `ActorDamageCause.Drowning `       | 8     |
-| `ActorDamageCause.BlockExplosion`  | 9     |
-| `ActorDamageCause.EntityExplosion` | 10    |
-| `ActorDamageCause.Void`            | 11    |
-| `ActorDamageCause.Suicide`         | 12    |
-| `ActorDamageCause.Magic`           | 13    |
-| `ActorDamageCause.Wither`          | 14    |
-| `ActorDamageCause.Starve`          | 15    |
-| `ActorDamageCause.Anvil`           | 16    |
-| `ActorDamageCause.Thorns`          | 17    |
-| `ActorDamageCause.FallingBlock`    | 18    |
-| `ActorDamageCause.Piston`          | 19    |
-| `ActorDamageCause.FlyIntoWall`     | 20    |
-| `ActorDamageCause.Magma`           | 21    |
-| `ActorDamageCause.Fireworks`       | 22    |
-| `ActorDamageCause.Lightning`       | 23    |
-| `ActorDamageCause.Charging`        | 24    |
-| `ActorDamageCause.Temperature`     | 25    |
-| `ActorDamageCause.Freezing`        | 26    |
-| `ActorDamageCause.Stalactite`      | 27    |
-| `ActorDamageCause.Stalagmite`      | 28    |
-| `ActorDamageCause.RamAttack`       | 29    |
-| `ActorDamageCause.SonicBoom`       | 30    |
-| `ActorDamageCause.Campfire`        | 31    |
-| `ActorDamageCause.SoulCampfire`    | 32    |
-| `ActorDamageCause.MaceSmash`       | 33    |
-| `ActorDamageCause.All`             | 34    |
+| `ActorDamageCause` ENUM            | Value |
+| ---------------------------------- | --- |
+| `ActorDamageCause.None`            | -1 |
+| `ActorDamageCause.Override`        | 0 |
+| `ActorDamageCause.Contact`         | 1 |
+| `ActorDamageCause.EntityAttack`    | 2 |
+| `ActorDamageCause.Projectile`      | 3 |
+| `ActorDamageCause.Suffocation`     | 4 |
+| `ActorDamageCause.Fall`            | 5 |
+| `ActorDamageCause.Fire`            | 6 |
+| `ActorDamageCause.FireTick`        | 7 |
+| `ActorDamageCause.Lava`            | 8 |
+| `ActorDamageCause.Drowning`        | 9 |
+| `ActorDamageCause.BlockExplosion`  | 10 |
+| `ActorDamageCause.EntityExplosion` | 11 |
+| `ActorDamageCause.Void`            | 12 |
+| `ActorDamageCause.SelfDestruct`    | 13 |
+| `ActorDamageCause.Magic`           | 14 |
+| `ActorDamageCause.Wither`          | 15 |
+| `ActorDamageCause.Starve`          | 16 |
+| `ActorDamageCause.Anvil`           | 17 |
+| `ActorDamageCause.Thorns`          | 18 |
+| `ActorDamageCause.FallingBlock`    | 19 |
+| `ActorDamageCause.Piston`          | 20 |
+| `ActorDamageCause.FlyIntoWall`     | 21 |
+| `ActorDamageCause.Magma`           | 22 |
+| `ActorDamageCause.Fireworks`       | 23 |
+| `ActorDamageCause.Lightning`       | 24 |
+| `ActorDamageCause.Charging`        | 25 |
+| `ActorDamageCause.Temperature`     | 26 |
+| `ActorDamageCause.Freezing`        | 27 |
+| `ActorDamageCause.Stalactite`      | 28 |
+| `ActorDamageCause.Stalagmite`      | 29 |
+| `ActorDamageCause.RamAttack`       | 30 |
+| `ActorDamageCause.SonicBoom`       | 31 |
+| `ActorDamageCause.Campfire`        | 32 |
+| `ActorDamageCause.SoulCampfire`    | 33 |
+| `ActorDamageCause.MaceSmash`       | 34 |
+| `ActorDamageCause.All`             | 35 |
 
 #### Heal the Entity
 

@@ -33,45 +33,45 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
 
 Here are values of `ActorDamageCause`:
 
-| ActorDamageCause | Enum Value |
-|------------------|------------|
-| None             | -1         |
-| Override         | 0          |
-| Contact          | 1          |
-| EntityAttack     | 2          |
-| Projectile       | 3          |
-| Suffocation      | 4          |
-| Fall             | 5          |
-| Fire             | 6          |
-| FireTick         | 7          |
-| Lava             | 8          |
-| Drowning         | 9          |
-| BlockExplosion   | 10         |
-| EntityExplosion  | 11         |
-| Void             | 12         |
-| Suicide          | 13         |
-| Magic            | 14         |
-| Wither           | 15         |
-| Starve           | 16         |
-| Anvil            | 17         |
-| Thorns           | 18         |
-| FallingBlock     | 19         |
-| Piston           | 20         |
-| FlyIntoWall      | 21         |
-| Magma            | 22         |
-| Fireworks        | 23         |
-| Lightning        | 24         |
-| Charging         | 25         |
-| Temperature      | 26         |
-| Freezing         | 27         |
-| Stalactite       | 28         |
-| Stalagmite       | 29         |
-| RamAttack        | 30         |
-| SonicBoom        | 31         |
-| Campfire         | 32         |
-| SoulCampfire     | 33         |
-| MaceSmash        | 34         |
-| All              | 35         |
+| `ActorDamageCause` ENUM            | Value |
+| ---------------------------------- | --- |
+| `ActorDamageCause.None`            | -1 |
+| `ActorDamageCause.Override`        | 0 |
+| `ActorDamageCause.Contact`         | 1 |
+| `ActorDamageCause.EntityAttack`    | 2 |
+| `ActorDamageCause.Projectile`      | 3 |
+| `ActorDamageCause.Suffocation`     | 4 |
+| `ActorDamageCause.Fall`            | 5 |
+| `ActorDamageCause.Fire`            | 6 |
+| `ActorDamageCause.FireTick`        | 7 |
+| `ActorDamageCause.Lava`            | 8 |
+| `ActorDamageCause.Drowning`        | 9 |
+| `ActorDamageCause.BlockExplosion`  | 10 |
+| `ActorDamageCause.EntityExplosion` | 11 |
+| `ActorDamageCause.Void`            | 12 |
+| `ActorDamageCause.SelfDestruct`    | 13 |
+| `ActorDamageCause.Magic`           | 14 |
+| `ActorDamageCause.Wither`          | 15 |
+| `ActorDamageCause.Starve`          | 16 |
+| `ActorDamageCause.Anvil`           | 17 |
+| `ActorDamageCause.Thorns`          | 18 |
+| `ActorDamageCause.FallingBlock`    | 19 |
+| `ActorDamageCause.Piston`          | 20 |
+| `ActorDamageCause.FlyIntoWall`     | 21 |
+| `ActorDamageCause.Magma`           | 22 |
+| `ActorDamageCause.Fireworks`       | 23 |
+| `ActorDamageCause.Lightning`       | 24 |
+| `ActorDamageCause.Charging`        | 25 |
+| `ActorDamageCause.Temperature`     | 26 |
+| `ActorDamageCause.Freezing`        | 27 |
+| `ActorDamageCause.Stalactite`      | 28 |
+| `ActorDamageCause.Stalagmite`      | 29 |
+| `ActorDamageCause.RamAttack`       | 30 |
+| `ActorDamageCause.SonicBoom`       | 31 |
+| `ActorDamageCause.Campfire`        | 32 |
+| `ActorDamageCause.SoulCampfire`    | 33 |
+| `ActorDamageCause.MaceSmash`       | 34 |
+| `ActorDamageCause.All`             | 35 |
 
 #### `"onEntityExplode"` - Entity Explosion Event
 

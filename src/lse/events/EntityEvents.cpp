@@ -295,15 +295,12 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
         auto& action =
-            owner.getEntityContext()
-                .tryGetComponent<NpcComponent>()
-                ->mActionsContainer->mUnke14f11.as<std::vector<std::variant<npc::CommandAction, npc::UrlAction>>>()
-                .at(actionIndex);
+            owner.getEntityContext().tryGetComponent<NpcComponent>()->mActionsContainer->mActions->at(actionIndex);
         if (std::holds_alternative<npc::CommandAction>(action)) {
             auto&       commands = std::get<npc::CommandAction>(action).commands;
             std::string command;
             for (auto& cmd : commands.get()) {
-                command += cmd.mUnk879303.as<std::string>() + ";";
+                command += cmd.rawCommand.get() + ";";
             }
             if (!commands->empty()) {
                 command.pop_back();

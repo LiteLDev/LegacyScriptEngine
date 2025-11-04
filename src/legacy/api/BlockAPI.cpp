@@ -15,6 +15,7 @@
 #include "mc/world/level/ChunkBlockPos.h"
 #include "mc/world/level/block/BedrockBlockNames.h"
 #include "mc/world/level/block/Block.h"
+#include "mc/world/level/block/BlockChangeContext.h"
 #include "mc/world/level/block/LiquidReaction.h"
 #include "mc/world/level/block/VanillaBlockTags.h"
 #include "mc/world/level/block/actor/BlockActor.h"
@@ -297,7 +298,8 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
         BlockSource& bl =
             ll::service::getLevel()->getDimension(blockPos.dim).lock()->getBlockSourceFromMainChunkSource();
         return Boolean::newBoolean(
-            ll::service::getLevel()->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value())
+            ll::service::getLevel()
+                ->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value(), BlockChangeContext())
         );
     }
     CATCH("Fail in destroyBlock!");
@@ -325,7 +327,7 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
                 ->getDimension(blockPos.dim)
                 .lock()
                 ->getBlockSourceFromMainChunkSource()
-                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr);
+                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext());
         }
         preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
         return Boolean::newBoolean(true);
@@ -533,7 +535,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext()));
         } else if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
             auto                      nbt = NbtCompoundClass::extract(block);
@@ -543,7 +545,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext()));
         } else {
             // other block object
             Block const* bl = BlockClass::extract(block);
@@ -553,7 +555,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext()));
         }
     }
     CATCH("Fail in SetBlock!")

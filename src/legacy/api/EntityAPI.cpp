@@ -981,12 +981,12 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            std::optional<Actor*> source = EntityClass::tryExtractActor(args[2]);
+            Actor* source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
             ActorDamageByActorSource damageBySource =
-                ActorDamageByActorSource(*source.value(), (SharedTypes::Legacy::ActorDamageCause)type);
+                ActorDamageByActorSource(*source, (SharedTypes::Legacy::ActorDamageCause)type);
             return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
         ActorDamageSource damageSource;

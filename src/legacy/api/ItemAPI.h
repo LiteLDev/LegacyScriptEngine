@@ -14,7 +14,7 @@ private:
 
     // Pre data
     std::string name, type;
-    int         id, count, aux;
+    int         id, maxCount, count, aux;
 
 public:
     explicit ItemClass(ItemStack* itemStack, bool isManagedByBDS = true);
@@ -35,6 +35,7 @@ public:
     Local<Value> getType();
     Local<Value> getId();
     Local<Value> getCount();
+    Local<Value> getMaxCount();
     Local<Value> getAux();
     Local<Value> getDamage();
     Local<Value> getAttackDamage();

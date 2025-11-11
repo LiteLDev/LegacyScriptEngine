@@ -29,6 +29,7 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
                                               .instanceProperty("type", &ItemClass::getType)
                                               .instanceProperty("id", &ItemClass::getId)
                                               .instanceProperty("count", &ItemClass::getCount)
+                                              .instanceProperty("maxCount", &ItemClass::getMaxCount)
                                               .instanceProperty("aux", &ItemClass::getAux)
                                               .instanceProperty("damage", &ItemClass::getDamage)
                                               .instanceProperty("lore", &ItemClass::getLore)
@@ -96,14 +97,14 @@ ItemStack* ItemClass::extract(Local<Value> v) {
 
 // 成员函数
 void ItemClass::preloadData() {
-    ;
     name = get()->getCustomName();
     if (name.empty()) name = get()->getName();
 
-    type  = get()->getTypeName();
-    id    = get()->getId();
-    count = get()->mCount;
-    aux   = get()->getAuxValue();
+    type     = get()->getTypeName();
+    id       = get()->getId();
+    count    = get()->mCount;
+    maxCount = get()->getMaxStackSize();
+    aux      = get()->getAuxValue();
 }
 
 Local<Value> ItemClass::getName() {
@@ -136,6 +137,14 @@ Local<Value> ItemClass::getCount() {
         return Number::newNumber(count);
     }
     CATCH("Fail in GetCount!");
+}
+
+Local<Value> ItemClass::getMaxCount() {
+    try {
+        // 已预加载
+        return Number::newNumber(maxCount);
+    }
+    CATCH("Fail in GetMaxCount!");
 }
 
 Local<Value> ItemClass::getAux() {

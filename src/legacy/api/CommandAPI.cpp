@@ -122,7 +122,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     } else if (result.hold(ParamKind::Kind::Vec3)) {
         auto dim = origin.getDimension();
         return FloatPos::newPos(
-            std::get<CommandPosition>(result.value())
+            std::get<CommandPositionFloat>(result.value())
                 .getPosition(CommandVersion::CurrentVersion(), origin, Vec3::ZERO()),
             dim ? dim->getDimensionId().id : -1
         );
@@ -222,6 +222,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
             outputStr.pop_back();
         }
         resObj.set("success", false);
+        resObj.set("output", outputStr);
         return resObj;
     }
     CATCH("Fail in RunCmdEx!")
@@ -361,8 +362,8 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
     try {
         Local<Object> args = Object::newObject();
         auto          cmd  = CommandClass::newCommand(commandName);
-        auto          ori  = CommandOriginClass::newCommandOrigin(&origin);
-        auto          outp = CommandOutputClass::newCommandOutput(&output);
+        auto *         ori  = new CommandOriginClass(origin.clone());
+        auto*          outp = new CommandOutputClass(std::make_shared<CommandOutput>(output), ori->ptr);
 
         auto& registeredCommands = getEngineOwnData()->plugin->registeredCommands;
         if (registeredCommands.find(commandName) == registeredCommands.end()) {
@@ -395,6 +396,9 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
             }
         }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);
+        std::swap(output.mMessages, outp->output->mMessages);
+        output.mSuccessCount = outp->output->mSuccessCount;
+        outp->isAsync        = true;
     }
     CATCH_WITHOUT_RETURN("Fail in executing command \"" + commandName + "\"!")
 }

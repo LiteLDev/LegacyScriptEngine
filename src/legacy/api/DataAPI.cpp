@@ -637,7 +637,8 @@ Local<Array> objectificationMoneyHistory(const string& res) {
     ll::string_utils::splitByPattern(
         [&](std::string_view str) -> bool {
             auto [whole, fromName, toName, money, time, note] =
-                ctre::match<R"((.*) -> (.*) (\d+) (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \((.*)\))">(str);
+                ctre::match<R"(^(.*) -> (.*) (\d+) (\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}) \((.*)\)$)">(str);
+            if (time.empty()) return true;
             Local<Object> obj = Object::newObject();
             obj.set("from", String::newString(fromName));
             obj.set("to", String::newString(toName));

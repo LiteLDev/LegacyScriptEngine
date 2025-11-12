@@ -71,6 +71,7 @@
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
 #include "mc/util/BlockUtils.h"
+#include "mc/util/LootTableUtils.h"
 #include "mc/world/Container.h"
 #include "mc/world/Minecraft.h"
 #include "mc/world/actor/Actor.h"
@@ -2999,16 +3000,19 @@ Local<Value> PlayerClass::giveItem(const Arguments& args) {
 
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) return Local<Value>(); // Null
+        std::vector<ItemStack> items = {*item};
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
-            item->set(args[1].asNumber().toInt32());
+            auto count    = args[1].asNumber().toInt32();
+            auto maxCount = item->getMaxStackSize();
+            if (count > maxCount) {
+                items[0].mCount = count % maxCount;
+                for (int i = 0; i < count / maxCount; i++) {
+                    items.emplace_back(*item).mCount = maxCount;
+                }
+            }
         }
-        bool result = player->add(*item);
-        if (!result) {
-            player->drop(*item, false);
-        }
-        player->sendInventory(true);
-        return Boolean::newBoolean(result);
+        return Boolean::newBoolean(Util::LootTableUtils::givePlayer(*player, items, true));
     }
     CATCH("Fail in giveItem!");
 }

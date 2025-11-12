@@ -18,7 +18,8 @@ add_requires(
     "nlohmann_json v3.11.3",
     "simpleini v4.22",
     "sqlite3 3.43.0+200",
-    "toml++ v3.4.0"
+    "toml++ v3.4.0",
+    "ctre 3.8.1"
 )
 
 if is_config("backend", "lua") then
@@ -96,7 +97,8 @@ target("legacy-script-engine")
         "simpleini",
         "sqlite3",
         "toml++",
-        "mariadb-connector-c"
+        "mariadb-connector-c",
+        "ctre"
     )
     set_exceptions("none")
     set_kind("shared")

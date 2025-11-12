@@ -11,6 +11,7 @@
 #include "mc/deps/crypto/hash/Hash.h"
 #include "utils/JsonHelper.h"
 
+#include <ctre/ctre.hpp>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -632,37 +633,24 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
 }
 
 Local<Array> objectificationMoneyHistory(const string& res) {
-    std::vector<std::string_view> listV = ll::string_utils::splitByPattern(res, "\n");
-    std::vector<std::string>      list  = std::vector<std::string>(listV.begin(), listV.end());
-    // from -> to money time (note)
-
     Local<Array> arr = Array::newArray();
-
-    string    from, to, time1, time2, note, tmp;
-    long long money;
-    for (auto& str : list) {
-        if (str.back() == '\n') str.pop_back();
-
-        std::istringstream sin(str);
-        Local<Object>      obj = Object::newObject();
-
-        note.clear();
-        sin >> from >> tmp >> to >> money >> time1 >> time2;
-        sin.get();
-        getline(sin, note);
-        if (note.front() == '(') note.erase(0, 1);
-        if (note.back() == '\n') note.pop_back();
-        if (note.back() == ')') note.pop_back();
-
-        time1 += " " + time2;
-
-        obj.set("from", String::newString(from));
-        obj.set("to", String::newString(to));
-        obj.set("money", Number::newNumber(money));
-        obj.set("time", String::newString(time1));
-        obj.set("note", String::newString(note));
-        arr.add(obj);
-    }
+    ll::string_utils::splitByPattern(
+        [&](std::string_view str) -> bool {
+            auto [whole, fromName, toName, money, time, note] =
+                ctre::match<R"(^(.*) -> (.*) (\d+) (\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}) \((.*)\)$)">(str);
+            if (time.empty()) return true;
+            Local<Object> obj = Object::newObject();
+            obj.set("from", String::newString(fromName));
+            obj.set("to", String::newString(toName));
+            obj.set("money", Number::newNumber(money.to_number<llong>()));
+            obj.set("time", String::newString(time));
+            obj.set("note", String::newString(note));
+            arr.add(obj);
+            return true;
+        },
+        res,
+        "\n"
+    );
     return arr;
 }
 

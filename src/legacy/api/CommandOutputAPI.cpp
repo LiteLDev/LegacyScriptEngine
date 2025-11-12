@@ -1,6 +1,10 @@
 #include "api/CommandOutputAPI.h"
 
+#include "ll/api/service/Bedrock.h"
 #include "mc/server/commands/CommandOutputMessageType.h"
+#include "mc/server/commands/CommandPropertyBag.h"
+#include "mc/server/commands/MinecraftCommands.h"
+#include "mc/world/Minecraft.h"
 
 //////////////////// Class Definition ////////////////////
 
@@ -20,14 +24,11 @@ ClassDefine<CommandOutputClass> CommandOutputClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOutputClass::CommandOutputClass(CommandOutput* p)
+CommandOutputClass::CommandOutputClass(std::shared_ptr<CommandOutput> out, std::shared_ptr<CommandOrigin> ori)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOutputClass>{}),
-  ptr(p) {};
-
-Local<Object> CommandOutputClass::newCommandOutput(CommandOutput* p) {
-    auto newp = new CommandOutputClass(p);
-    return newp->getScriptObject();
-}
+  output(std::move(out)),
+  origin(std::move(ori)),
+  isAsync(false) {};
 
 Local<Value> CommandOutputClass::empty() {
     try {
@@ -68,9 +69,11 @@ Local<Value> CommandOutputClass::success(const Arguments& args) {
                 param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
             get()->success(msg, param);
+            send();
             return Boolean::newBoolean(true);
         }
         get()->success(msg);
+        send();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in success!");
@@ -90,12 +93,15 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
             if (args.size() >= 3) {
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
                 get()->addMessage(msg, param, (CommandOutputMessageType)args[2].asNumber().toInt32());
+                send();
                 return Boolean::newBoolean(true);
             }
             get()->addMessage(msg, param, (CommandOutputMessageType)0);
+            send();
             return Boolean::newBoolean(true);
         }
         get()->addMessage(msg, {}, CommandOutputMessageType::Success);
+        send();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in addMessage!");
@@ -114,13 +120,25 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
                 param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
             get()->error(msg, param);
+            send();
             return Boolean::newBoolean(true);
         }
         get()->error(msg);
+        send();
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in error!");
 };
+
+void CommandOutputClass::send() {
+    try {
+        if (!isAsync) return;
+        ll::service::getMinecraft()->mCommands->handleOutput(*origin, *output);
+        output->mSuccessCount = 0;
+        output->mMessages.clear();
+    }
+    CATCH_WITHOUT_RETURN("Fail in sendCommandOutput!");
+}
 
 Local<Value> CommandOutputClass::toString(const Arguments&) {
     try {

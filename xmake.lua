@@ -1,11 +1,11 @@
 add_rules("mode.debug", "mode.release")
 
-add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
+add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 1.7.0", {configs = {target_type = "server"}})
+    add_requires("levilamina eb5a505faf11dfbc86cee806386ef135e979bace", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 1.7.0", {configs = {target_type = "client"}})
+    add_requires("levilamina eb5a505faf11dfbc86cee806386ef135e979bace", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
@@ -47,6 +47,12 @@ add_requires("cpp-httplib 0.26.0", {configs = {ssl = true, zlib = true}})
 if not has_config("vs_runtime") then
     set_runtimes("MD")
 end
+
+option("levimc_repo")
+    set_default("https://github.com/LiteLDev/xmake-repo.git")
+    set_showmenu(true)
+    set_description("Set the levimc-repo path or url")
+option_end()
 
 option("publish")
     set_default(false)
@@ -114,6 +120,11 @@ target("legacy-script-engine")
         "src/legacy",
         "$(builddir)/config"
     )
+    if is_config("target_type", "server") then
+        add_defines("LL_PLAT_S")
+    else
+        add_defines("LL_PLAT_C")
+    end
     if has_config("publish") then
         add_defines("LSE_VERSION_PUBLISH")
     end

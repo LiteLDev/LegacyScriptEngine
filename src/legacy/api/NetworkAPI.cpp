@@ -156,12 +156,12 @@ void WSClientClass::initListeners() {
 
     ws->OnBinaryReceived(
         [nowList{&listeners[int(WSClientEvents::onBinaryReceived)]}](WebSocketClient&, vector<uint8_t> data) {
-        if (!nowList->empty())
-            for (auto& listener : *nowList) {
-                if (!EngineManager::isValid(listener.engine)) return;
-                EngineScope enter(listener.engine);
-                NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
-            }
+            if (!nowList->empty())
+                for (auto& listener : *nowList) {
+                    if (!EngineManager::isValid(listener.engine)) return;
+                    EngineScope enter(listener.engine);
+                    NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+                }
         }
     );
 
@@ -294,7 +294,8 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else if (event == "onError")
-        listeners[(int)WSClientEvents::onError].push_back({EngineScope::currentEngine(), script::Global<Function>(func)}
+        listeners[(int)WSClientEvents::onError].push_back(
+            {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else if (event == "onLostConnection")
         listeners[(int)WSClientEvents::onLostConnection].push_back(
@@ -317,10 +318,7 @@ Local<Value> WSClientClass::getStatus() {
 Local<Value> WSClientClass::connect(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    // if (args.size() > 1 && args[1].isFunction())
-    //     return connectAsync(args);
     try {
-
         string target = args[0].asString().toString();
         RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
         ws->Connect(target);
@@ -705,9 +703,11 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
 
     try {
         exceptionCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
-        svr->set_exception_handler([this,
-                                    engine = EngineScope::currentEngine(
-                                    )](const Request& req, Response& resp, std::exception_ptr e) {
+        svr->set_exception_handler([this, engine = EngineScope::currentEngine()](
+                                       const Request&     req,
+                                       Response&          resp,
+                                       std::exception_ptr e
+                                   ) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -1081,22 +1081,24 @@ bool HttpGet(
     string host, path;
     SplitHttpUrl(url, host, path);
 
-    auto* cli = new httplib::Client(host.c_str());
+    auto cli = std::make_unique<httplib::Client>(host.c_str());
     if (!cli->is_valid()) {
-        delete cli;
         return false;
     }
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
-    std::thread([cli, headers, callback, path{std::move(path)}]() {
-        try {
-            auto response = cli->Get(path.c_str(), headers);
-            delete cli;
+    std::thread(
+        [headers, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> cli) {
+            try {
+                auto response = cli->Get(path.c_str(), headers);
 
-            if (!response) callback(-1, "");
-            else callback(response->status, response->body);
-        } catch (...) {}
-    }).detach();
+                if (!response) callback(-1, "");
+                else callback(response->status, response->body);
+            } catch (...) {}
+        },
+        std::move(cli)
+    )
+        .detach();
 
     return true;
 }
@@ -1115,21 +1117,23 @@ bool HttpPost(
 ) {
     std::string host, path;
     SplitHttpUrl(url, host, path);
-    auto* cli = new httplib::Client(host.c_str());
+    auto cli = std::make_unique<httplib::Client>(host.c_str());
     if (!cli->is_valid()) {
-        delete cli;
         return false;
     }
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
-    std::thread([cli, headers, data, type, callback, path{std::move(path)}]() {
-        try {
-            auto response = cli->Post(path.c_str(), headers, data, type.c_str());
-            delete cli;
-            if (!response) callback(-1, "");
-            else callback(response->status, response->body);
-        } catch (...) {}
-    }).detach();
+    std::thread(
+        [headers, data, type, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> cli) {
+            try {
+                auto response = cli->Post(path.c_str(), headers, data, type.c_str());
+                if (!response) callback(-1, "");
+                else callback(response->status, response->body);
+            } catch (...) {}
+        },
+        std::move(cli)
+    )
+        .detach();
     return true;
 }
 

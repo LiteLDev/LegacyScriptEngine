@@ -8,7 +8,7 @@ A plugin engine for running LLSE plugins on LeviLamina
 ### Attention
 
 Before installing the Python engine, you need to
-install [Python 3.12.8](https://www.python.org/downloads/release/python-3128/) first.  
+install [Python 3.12.10](https://www.python.org/downloads/release/python-31210/) first.  
 To install a specific engine, you can use the following command:
 ```shell
 lip install github.com/LiteLDev/LegacyScriptEngine#lua

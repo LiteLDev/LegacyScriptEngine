@@ -7,7 +7,7 @@
 
 ### 注意
 
-在安装Python引擎之前，你需要先安装[Python 3.12.8](https://www.python.org/downloads/release/python-3128/)  
+在安装Python引擎之前，你需要先安装[Python 3.12.10](https://www.python.org/downloads/release/python-31210/)  
 要安装特定的引擎，您可以使用以下命令：
 ```shell
 lip install github.com/LiteLDev/LegacyScriptEngine#lua

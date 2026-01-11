@@ -7,6 +7,7 @@
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/Base64Utils.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/api/Hash.h"
 #include "main/EconomicSystem.h"
 #include "mc/deps/crypto/hash/Hash.h"
 #include "utils/JsonHelper.h"
@@ -14,7 +15,6 @@
 #include <ctre/ctre.hpp>
 #include <fstream>
 #include <string>
-#include <vector>
 
 //////////////////// Class Definition ////////////////////
 
@@ -532,7 +532,8 @@ Local<Value> MoneyClass::set(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneySet!");
@@ -570,7 +571,8 @@ Local<Value> MoneyClass::add(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyAdd!");
@@ -614,12 +616,14 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
     try {
         string note = "";
         if (args.size() >= 4 && args[3].getKind() == ValueKind::kString) note = args[3].asString().toString();
-        return Boolean::newBoolean(EconomySystem::transMoney(
-            args[0].asString().toString(),
-            args[1].asString().toString(),
-            args[2].asNumber().toInt64(),
-            note
-        ));
+        return Boolean::newBoolean(
+            EconomySystem::transMoney(
+                args[0].asString().toString(),
+                args[1].asString().toString(),
+                args[2].asNumber().toInt64(),
+                note
+            )
+        );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyTrans!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
@@ -872,7 +876,8 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
+        using namespace lse::api::hash;
+        return String::newString(caculateHash(HashType::MD5, data));
     }
     CATCH("Fail in ToMD5!");
 }
@@ -890,7 +895,8 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
+        using namespace lse::api::hash;
+        return String::newString(caculateHash(HashType::SHA1, data));
     }
     CATCH("Fail in ToSHA1!");
 }

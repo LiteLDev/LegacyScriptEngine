@@ -25,20 +25,20 @@ add_requires(
 if is_config("backend", "lua") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="Lua"}})
+    add_requires("scriptx 95c7a9fb63f62444c1f884a56e912b6e1a593ca4", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="QuickJs"}})
+    add_requires("scriptx 95c7a9fb63f62444c1f884a56e912b6e1a593ca4", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="Python"}})
+    add_requires("scriptx 95c7a9fb63f62444c1f884a56e912b6e1a593ca4", {configs={backend="Python"}})
 
 elseif is_config("backend", "nodejs") then
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="V8"}})
+    add_requires("scriptx 95c7a9fb63f62444c1f884a56e912b6e1a593ca4", {configs={backend="V8"}})
 
 end
 

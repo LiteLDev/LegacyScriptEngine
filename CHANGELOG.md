@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2026-01-11
+
+### Changed
+
+- Bumped QuickJs-Ng to 0.11.0 @Yushu2606
+- Bumped Python to 3.12.10 @Yushu2606
+
+### Fixed
+
+- Fixed data.toMD5 & data.toSHA1 [#339] @ShrBox
+- Fixed memory leak in network.httpGet & network.httpPost @ShrBox
+
+## [0.16.1] - 2025-11-12
+
+### Added
+
+- Added the maxCount attribute to the Item class @zimuya4153
+
+### Fixed
+
+- Fixed the Vec3 parameter of the command @zimuya4153
+- Fixed the objectificationMoneyHistory function of money [#332] @zimuya4153
+- Fixed the Player::giveItem method [#326] @zimuya4153
+- Fixed the NbtCompound::toObject method [#315] [#317] @zimuya4153
+- Fixed the syntax error output of runcmdEx @zimuya4153
+- Fixed the asynchronous output of commands [#322] @zimuya4153
+- Fixed the hurt method of the Actor class [#330] @zimuya4153
+
 ## [0.16.0] - 2025-11-04
 
 ### Changed
@@ -1026,9 +1054,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303
 [#309]: https://github.com/LiteLDev/LegacyScriptEngine/issues/309
 [#310]: https://github.com/LiteLDev/LegacyScriptEngine/issues/310
+[#315]: https://github.com/LiteLDev/LegacyScriptEngine/issues/315
+[#317]: https://github.com/LiteLDev/LegacyScriptEngine/issues/317
+[#322]: https://github.com/LiteLDev/LegacyScriptEngine/issues/322
 [#323]: https://github.com/LiteLDev/LegacyScriptEngine/issues/323
+[#326]: https://github.com/LiteLDev/LegacyScriptEngine/issues/326
+[#330]: https://github.com/LiteLDev/LegacyScriptEngine/issues/330
+[#332]: https://github.com/LiteLDev/LegacyScriptEngine/issues/332
+[#339]: https://github.com/LiteLDev/LegacyScriptEngine/issues/339
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.2...HEAD
+[0.16.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.13.2...v0.14.0

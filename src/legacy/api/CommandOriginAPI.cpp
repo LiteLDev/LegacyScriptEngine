@@ -32,14 +32,9 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOriginClass::CommandOriginClass(CommandOrigin const* p)
+CommandOriginClass::CommandOriginClass(std::shared_ptr<CommandOrigin> p)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
-  ptr(p) {};
-
-Local<Object> CommandOriginClass::newCommandOrigin(CommandOrigin const* p) {
-    auto newp = new CommandOriginClass(p);
-    return newp->getScriptObject();
-}
+  ptr(std::move(p)) {};
 
 Local<Value> CommandOriginClass::getOriginType() {
     try {

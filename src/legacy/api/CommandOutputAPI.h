@@ -6,12 +6,14 @@ class CommandOutputClass;
 extern ClassDefine<CommandOutputClass> CommandOutputClassBuilder;
 
 class CommandOutputClass : public ScriptClass {
-    CommandOutput*        ptr;
-    inline CommandOutput* get() { return ptr; }
+public:
+    std::shared_ptr<CommandOutput> output;
+    std::shared_ptr<CommandOrigin> origin;
+    bool                           isAsync;
+    inline CommandOutput*          get() { return output.get(); }
 
 public:
-    CommandOutputClass(CommandOutput* p);
-    static Local<Object> newCommandOutput(CommandOutput* p);
+    CommandOutputClass(std::shared_ptr<CommandOutput> output, std::shared_ptr<CommandOrigin> origin = {});
 
     Local<Value> empty();
 
@@ -22,6 +24,8 @@ public:
     Local<Value> addMessage(const Arguments& args);
 
     Local<Value> error(const Arguments& args);
+
+    void send();
 
     // Local<Value> setHasPlayerText()
     //{

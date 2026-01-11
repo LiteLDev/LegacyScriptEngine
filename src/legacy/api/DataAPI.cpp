@@ -7,13 +7,14 @@
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/Base64Utils.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/api/Hash.h"
 #include "main/EconomicSystem.h"
 #include "mc/deps/crypto/hash/Hash.h"
 #include "utils/JsonHelper.h"
 
+#include <ctre/ctre.hpp>
 #include <fstream>
 #include <string>
-#include <vector>
 
 //////////////////// Class Definition ////////////////////
 
@@ -531,7 +532,8 @@ Local<Value> MoneyClass::set(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneySet!");
@@ -569,7 +571,8 @@ Local<Value> MoneyClass::add(const Arguments& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        return Boolean::newBoolean(EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
+        return Boolean::newBoolean(
+            EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyAdd!");
@@ -613,12 +616,14 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
     try {
         string note = "";
         if (args.size() >= 4 && args[3].getKind() == ValueKind::kString) note = args[3].asString().toString();
-        return Boolean::newBoolean(EconomySystem::transMoney(
-            args[0].asString().toString(),
-            args[1].asString().toString(),
-            args[2].asNumber().toInt64(),
-            note
-        ));
+        return Boolean::newBoolean(
+            EconomySystem::transMoney(
+                args[0].asString().toString(),
+                args[1].asString().toString(),
+                args[2].asNumber().toInt64(),
+                note
+            )
+        );
     } catch (const std::invalid_argument& e) {
         lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Bad argument in MoneyTrans!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
@@ -632,37 +637,24 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
 }
 
 Local<Array> objectificationMoneyHistory(const string& res) {
-    std::vector<std::string_view> listV = ll::string_utils::splitByPattern(res, "\n");
-    std::vector<std::string>      list  = std::vector<std::string>(listV.begin(), listV.end());
-    // from -> to money time (note)
-
     Local<Array> arr = Array::newArray();
-
-    string    from, to, time1, time2, note, tmp;
-    long long money;
-    for (auto& str : list) {
-        if (str.back() == '\n') str.pop_back();
-
-        std::istringstream sin(str);
-        Local<Object>      obj = Object::newObject();
-
-        note.clear();
-        sin >> from >> tmp >> to >> money >> time1 >> time2;
-        sin.get();
-        getline(sin, note);
-        if (note.front() == '(') note.erase(0, 1);
-        if (note.back() == '\n') note.pop_back();
-        if (note.back() == ')') note.pop_back();
-
-        time1 += " " + time2;
-
-        obj.set("from", String::newString(from));
-        obj.set("to", String::newString(to));
-        obj.set("money", Number::newNumber(money));
-        obj.set("time", String::newString(time1));
-        obj.set("note", String::newString(note));
-        arr.add(obj);
-    }
+    ll::string_utils::splitByPattern(
+        [&](std::string_view str) -> bool {
+            auto [whole, fromName, toName, money, time, note] =
+                ctre::match<R"(^(.*) -> (.*) (\d+) (\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}) \((.*)\)$)">(str);
+            if (time.to_view().empty()) return true;
+            Local<Object> obj = Object::newObject();
+            obj.set("from", String::newString(fromName));
+            obj.set("to", String::newString(toName));
+            obj.set("money", Number::newNumber(money.to_number<llong>()));
+            obj.set("time", String::newString(time));
+            obj.set("note", String::newString(note));
+            arr.add(obj);
+            return true;
+        },
+        res,
+        "\n"
+    );
     return arr;
 }
 
@@ -884,7 +876,8 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
+        using namespace lse::api::hash;
+        return String::newString(caculateHash(HashType::MD5, data));
     }
     CATCH("Fail in ToMD5!");
 }
@@ -902,7 +895,8 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             LOG_WRONG_ARG_TYPE(__FUNCTION__);
             return Local<Value>();
         }
-        return String::newString(Crypto::Hash::hash(Crypto::Hash::HashType::Md5, data.data(), (uint)data.size()));
+        using namespace lse::api::hash;
+        return String::newString(caculateHash(HashType::SHA1, data));
     }
     CATCH("Fail in ToSHA1!");
 }

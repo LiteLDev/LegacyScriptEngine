@@ -18,26 +18,27 @@ add_requires(
     "nlohmann_json v3.11.3",
     "simpleini v4.22",
     "sqlite3 3.43.0+200",
-    "toml++ v3.4.0"
+    "toml++ v3.4.0",
+    "ctre 3.8.1"
 )
 
 if is_config("backend", "lua") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="Lua"}})
+    add_requires("scriptx 2026.1.10", {configs={backend="Lua"}})
 
 elseif is_config("backend", "quickjs") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="QuickJs"}})
+    add_requires("scriptx 2026.1.10", {configs={backend="QuickJs"}})
 
 elseif is_config("backend", "python") then
     add_requires("openssl 1.1.1-w")
     add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="Python"}})
+    add_requires("scriptx 2026.1.10", {configs={backend="Python"}})
 
 elseif is_config("backend", "nodejs") then
-    add_requires("scriptx 22184aeecdcee2c683ad99db6362837e4ec6b7fe", {configs={backend="V8"}})
+    add_requires("scriptx 2026.1.10", {configs={backend="V8"}})
 
 end
 
@@ -102,7 +103,8 @@ target("legacy-script-engine")
         "simpleini",
         "sqlite3",
         "toml++",
-        "mariadb-connector-c"
+        "mariadb-connector-c",
+        "ctre"
     )
     set_exceptions("none")
     set_kind("shared")

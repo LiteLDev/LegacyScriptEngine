@@ -2048,6 +2048,7 @@ Local<Value> Tag2Value_ListHelper(ListTag* nbt, bool autoExpansion = false) {
         case Tag::Type::Compound:
             if (!autoExpansion) res.add(NbtCompoundClass::pack(tag->as_ptr<CompoundTag>()));
             else res.add(Tag2Value_CompoundHelper(tag->as_ptr<CompoundTag>(), autoExpansion));
+            break;
         case Tag::Type::End:
         default:
             res.add(Local<Value>());
@@ -2100,6 +2101,7 @@ Local<Value> Tag2Value_CompoundHelper(CompoundTag* nbt, bool autoExpansion) {
         case Tag::Type::Compound:
             if (!autoExpansion) res.set(key, NbtCompoundClass::pack(tag.get().as_ptr<CompoundTag>()));
             else res.set(key, Tag2Value_CompoundHelper(tag.get().as_ptr<CompoundTag>(), autoExpansion));
+            break;
         case Tag::Type::End:
         default:
             res.set(key, Local<Value>());

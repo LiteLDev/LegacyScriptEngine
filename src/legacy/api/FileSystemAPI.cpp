@@ -95,13 +95,12 @@ FileClass* FileClass::constructor(const Arguments& args) {
 
     try {
         std::filesystem::path path(args[0].asString().toU8string());
-        if (!path.empty() && path.has_parent_path()) {
-            std::filesystem::create_directories(path.parent_path());
+        if (!path.empty()) {
+            if (path.has_parent_path()) {
+                std::filesystem::create_directories(path.parent_path());
+            }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "Fail to create directory of " + args[0].asString().toString() + "!\n"
-            );
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "File " + args[0].asString().toString() + " doesn't exist!");
             return nullptr;
         }
         FileOpenMode fMode = (FileOpenMode)(args[1].asNumber().toInt32());
@@ -279,22 +278,23 @@ Local<Value> FileClass::readLine(const Arguments& args) {
     try {
         script::Global<Function> callbackFunc{args[0].asFunction()};
 
-        pool.execute([fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}](
-                     ) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
-            if (!EngineManager::isValid(engine)) return;
+        pool.execute(
+            [fp{&file}, lock{&lock}, callback{std::move(callbackFunc)}, engine{EngineScope::currentEngine()}]() {
+                if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
+                if (!EngineManager::isValid(engine)) return;
 
-            std::string buf;
-            lock->lock();
-            getline(*fp, buf);
-            lock->unlock();
+                std::string buf;
+                lock->lock();
+                getline(*fp, buf);
+                lock->unlock();
 
-            EngineScope scope(engine);
-            try {
-                NewTimeout(callback.get(), {String::newString(buf)}, 1);
+                EngineScope scope(engine);
+                try {
+                    NewTimeout(callback.get(), {String::newString(buf)}, 1);
+                }
+                CATCH_IN_CALLBACK("FileReadLine")
             }
-            CATCH_IN_CALLBACK("FileReadLine")
-        });
+        );
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in readLine!");
@@ -322,7 +322,7 @@ Local<Value> FileClass::readAll(const Arguments& args) {
             EngineScope scope(engine);
             try {
                 Local<Value> data = isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
-                                               : String::newString(res).asValue();
+                                             : String::newString(res).asValue();
                 NewTimeout(callback.get(), {data}, 1);
             }
             CATCH_IN_CALLBACK("FileReadAll")

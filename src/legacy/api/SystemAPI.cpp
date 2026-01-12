@@ -59,11 +59,7 @@ bool NewProcess(
     CloseHandle(hWrite);
     CloseHandle(pi.hThread);
 
-    std::jthread([hRead{hRead},
-                  hProcess{pi.hProcess},
-                  callback{std::move(callback)},
-                  timeLimit{timeLimit},
-                  wCmd{std::move(wCmd)}]() mutable {
+    std::jthread([hRead{hRead}, hProcess{pi.hProcess}, callback{std::move(callback)}, timeLimit{timeLimit}]() mutable {
         if (timeLimit == -1) {
             WaitForSingleObject(hProcess, INFINITE);
         } else {

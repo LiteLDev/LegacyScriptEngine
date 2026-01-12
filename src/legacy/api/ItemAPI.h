@@ -10,26 +10,26 @@ class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    // ItemStack* is managed by BDS// ItemStack* is managed by BDS
-    std::variant<ItemStack*, std::unique_ptr<ItemStack>> item;
+    // ItemStack* is managed by BDS
+    std::variant<std::monostate, std::unique_ptr<ItemStack>, ItemStack*> item;
 
     // Pre data
     std::string name, type;
     int         id, maxCount, count, aux;
 
 public:
-    explicit ItemClass(ItemStack* itemStack, bool isManagedByBDS = true);
+    explicit ItemClass(std::variant<std::monostate, std::unique_ptr<ItemStack>, ItemStack*> itemStack);
     void preloadData();
 
     ItemStack* get() {
-        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
+        if (std::holds_alternative<std::monostate>(item)) return nullptr;
+        if (std::holds_alternative<std::unique_ptr<ItemStack>>(item))
             return std::get<std::unique_ptr<ItemStack>>(item).get();
-        } else {
-            return std::get<ItemStack*>(item);
-        }
+        return std::get<ItemStack*>(item);
     }
 
-    static Local<Object> newItem(ItemStack* itemStack, bool isManagedByBDS = true);
+    static Local<Object> newItem(ItemStack* itemStack);
+    static Local<Object> newItem(std::unique_ptr<ItemStack> itemStack);
     static ItemStack*    extract(Local<Value> v);
 
     Local<Value> getName();

@@ -7,6 +7,7 @@
 class BlockActor;
 class BlockEntityClass : public ScriptClass {
 private:
+    // BlockActor is managed by BDS, so use raw pointer
     BlockActor* blockEntity = nullptr;
     int         dim;
 

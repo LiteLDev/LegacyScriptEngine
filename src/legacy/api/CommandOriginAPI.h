@@ -8,19 +8,18 @@ extern ClassDefine<CommandOriginClass> CommandOriginClassBuilder;
 
 class CommandOriginClass : public ScriptClass {
 public:
-    std::shared_ptr<CommandOrigin> ptr;
-    inline CommandOrigin*    get() { return ptr.get(); }
+    CommandOrigin const&        origin;
+    inline CommandOrigin const& get() { return origin; }
 
 public:
-    CommandOriginClass(std::shared_ptr<CommandOrigin> p);
-    static std::shared_ptr<CommandOrigin> extract(Local<Value> v);
-    Local<Value>                          getOriginType();
-    Local<Value>                          getOriginTypeName();
-    Local<Value>                          getOriginName();
-    Local<Value>                          getBlockPosition();
-    Local<Value>                          getPosition();
-    Local<Value>                          getEntity();
-    Local<Value>                          getPlayer();
-    Local<Value>                          getNbt(const Arguments& args);
-    Local<Value>                          toString();
+    CommandOriginClass(CommandOrigin const& ori);
+    Local<Value> getOriginType();
+    Local<Value> getOriginTypeName();
+    Local<Value> getOriginName();
+    Local<Value> getBlockPosition();
+    Local<Value> getPosition();
+    Local<Value> getEntity();
+    Local<Value> getPlayer();
+    Local<Value> getNbt(const Arguments& args);
+    Local<Value> toString();
 };

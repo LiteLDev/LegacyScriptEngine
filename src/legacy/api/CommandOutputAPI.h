@@ -7,13 +7,13 @@ extern ClassDefine<CommandOutputClass> CommandOutputClassBuilder;
 
 class CommandOutputClass : public ScriptClass {
 public:
-    std::shared_ptr<CommandOutput> output;
-    std::shared_ptr<CommandOrigin> origin;
-    bool                           isAsync;
-    inline CommandOutput*          get() { return output.get(); }
+    CommandOutput&        output;
+    CommandOrigin const&  origin;
+    bool                  isAsync;
+    inline CommandOutput& get() { return output; }
 
 public:
-    CommandOutputClass(std::shared_ptr<CommandOutput> output, std::shared_ptr<CommandOrigin> origin = {});
+    CommandOutputClass(CommandOutput& output, CommandOrigin const& origin);
 
     Local<Value> empty();
 

@@ -32,50 +32,50 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOriginClass::CommandOriginClass(std::shared_ptr<CommandOrigin> p)
+CommandOriginClass::CommandOriginClass(CommandOrigin const& ori)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
-  ptr(std::move(p)) {};
+  origin(ori) {};
 
 Local<Value> CommandOriginClass::getOriginType() {
     try {
-        return Number::newNumber((int)get()->getOriginType());
+        return Number::newNumber((int)get().getOriginType());
     }
     CATCH("Fail in getOriginType!");
 }
 
 Local<Value> CommandOriginClass::getOriginTypeName() {
     try {
-        return String::newString(magic_enum::enum_name(get()->getOriginType()));
+        return String::newString(magic_enum::enum_name(get().getOriginType()));
     }
     CATCH("Fail in getOriginTypeName!");
 }
 
 Local<Value> CommandOriginClass::getOriginName() {
     try {
-        return String::newString(get()->getName());
+        return String::newString(get().getName());
     }
     CATCH("Fail in getOriginName!");
 }
 
 Local<Value> CommandOriginClass::getBlockPosition() {
     try {
-        auto dim = get()->getDimension();
-        return IntPos::newPos(get()->getBlockPosition(), dim ? (int)dim->getDimensionId() : 0);
+        auto dim = get().getDimension();
+        return IntPos::newPos(get().getBlockPosition(), dim ? (int)dim->getDimensionId() : 0);
     }
     CATCH("Fail in getBlockPosition!");
 }
 
 Local<Value> CommandOriginClass::getPosition() {
     try {
-        auto dim = get()->getDimension();
-        return FloatPos::newPos(get()->getWorldPosition(), dim ? (int)dim->getDimensionId() : 0);
+        auto dim = get().getDimension();
+        return FloatPos::newPos(get().getWorldPosition(), dim ? (int)dim->getDimensionId() : 0);
     }
     CATCH("Fail in getPosition!");
 }
 
 Local<Value> CommandOriginClass::getEntity() {
     try {
-        auto entity = get()->getEntity();
+        auto entity = get().getEntity();
         if (!entity) return Local<Value>();
         return EntityClass::newEntity(entity);
     }
@@ -84,7 +84,7 @@ Local<Value> CommandOriginClass::getEntity() {
 
 Local<Value> CommandOriginClass::getPlayer() {
     try {
-        Actor* player = get()->getEntity();
+        Actor* player = get().getEntity();
         if (!player) return Local<Value>();
         return PlayerClass::newPlayer(static_cast<Player*>(player));
     }
@@ -93,7 +93,7 @@ Local<Value> CommandOriginClass::getPlayer() {
 
 Local<Value> CommandOriginClass::getNbt(const Arguments&) {
     try {
-        return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get()->serialize()));
+        return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get().serialize()));
     }
     CATCH("Fail in getNbt!");
 }

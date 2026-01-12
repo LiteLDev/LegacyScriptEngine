@@ -24,22 +24,22 @@ ClassDefine<CommandOutputClass> CommandOutputClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOutputClass::CommandOutputClass(std::shared_ptr<CommandOutput> out, std::shared_ptr<CommandOrigin> ori)
+CommandOutputClass::CommandOutputClass(CommandOutput& out, CommandOrigin const& ori)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOutputClass>{}),
-  output(std::move(out)),
-  origin(std::move(ori)),
+  output(out),
+  origin(ori),
   isAsync(false) {};
 
 Local<Value> CommandOutputClass::empty() {
     try {
-        return Boolean::newBoolean(get()->mMessages.empty());
+        return Boolean::newBoolean(get().mMessages.empty());
     }
     CATCH("Fail in empty!");
 }
 
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
-        return Number::newNumber(get()->mSuccessCount);
+        return Number::newNumber(get().mSuccessCount);
     }
     CATCH("Fail in getSuccessCount!");
 };
@@ -56,7 +56,7 @@ Local<Value> CommandOutputClass::getSuccessCount() {
 Local<Value> CommandOutputClass::success(const Arguments& args) {
     try {
         if (args.size() == 0) {
-            ++get()->mSuccessCount;
+            ++get().mSuccessCount;
             return Boolean::newBoolean(true);
         }
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -68,11 +68,11 @@ Local<Value> CommandOutputClass::success(const Arguments& args) {
             for (int i = 0; i < paramArr.size(); ++i) {
                 param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
-            get()->success(msg, param);
+            get().success(msg, param);
             send();
             return Boolean::newBoolean(true);
         }
-        get()->success(msg);
+        get().success(msg);
         send();
         return Boolean::newBoolean(true);
     }
@@ -92,15 +92,15 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
             }
             if (args.size() >= 3) {
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-                get()->addMessage(msg, param, (CommandOutputMessageType)args[2].asNumber().toInt32());
+                get().addMessage(msg, param, (CommandOutputMessageType)args[2].asNumber().toInt32());
                 send();
                 return Boolean::newBoolean(true);
             }
-            get()->addMessage(msg, param, (CommandOutputMessageType)0);
+            get().addMessage(msg, param, (CommandOutputMessageType)0);
             send();
             return Boolean::newBoolean(true);
         }
-        get()->addMessage(msg, {}, CommandOutputMessageType::Success);
+        get().addMessage(msg, {}, CommandOutputMessageType::Success);
         send();
         return Boolean::newBoolean(true);
     }
@@ -119,11 +119,11 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
             for (int i = 0; i < paramArr.size(); ++i) {
                 param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
             }
-            get()->error(msg, param);
+            get().error(msg, param);
             send();
             return Boolean::newBoolean(true);
         }
-        get()->error(msg);
+        get().error(msg);
         send();
         return Boolean::newBoolean(true);
     }
@@ -133,9 +133,9 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
 void CommandOutputClass::send() {
     try {
         if (!isAsync) return;
-        ll::service::getMinecraft()->mCommands->handleOutput(*origin, *output);
-        output->mSuccessCount = 0;
-        output->mMessages.clear();
+        ll::service::getMinecraft()->mCommands->handleOutput(origin, output);
+        output.mSuccessCount = 0;
+        output.mMessages.clear();
     }
     CATCH_WITHOUT_RETURN("Fail in sendCommandOutput!");
 }

@@ -362,8 +362,8 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
     try {
         Local<Object> args = Object::newObject();
         auto          cmd  = CommandClass::newCommand(commandName);
-        auto *         ori  = new CommandOriginClass(origin.clone());
-        auto*          outp = new CommandOutputClass(std::make_shared<CommandOutput>(output), ori->ptr);
+        auto*         ori  = new CommandOriginClass(origin);
+        auto*         outp = new CommandOutputClass(output, origin);
 
         auto& registeredCommands = getEngineOwnData()->plugin->registeredCommands;
         if (registeredCommands.find(commandName) == registeredCommands.end()) {
@@ -396,8 +396,8 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
             }
         }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);
-        std::swap(output.mMessages, outp->output->mMessages);
-        output.mSuccessCount = outp->output->mSuccessCount;
+        std::swap(output.mMessages, outp->output.mMessages);
+        output.mSuccessCount = outp->output.mSuccessCount;
         outp->isAsync        = true;
     }
     CATCH_WITHOUT_RETURN("Fail in executing command \"" + commandName + "\"!")

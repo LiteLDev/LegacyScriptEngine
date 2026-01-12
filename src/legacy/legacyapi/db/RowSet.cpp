@@ -12,7 +12,7 @@ RowSet::RowSet(const std::shared_ptr<RowHeader>& header) : std::vector<Row>(), h
     }
 }
 
-RowSet::RowSet(const RowHeader& header) : std::vector<Row>(), header(new RowHeader(header)) {}
+RowSet::RowSet(const RowHeader& header) : std::vector<Row>(), header(std::make_shared<RowHeader>(header)) {}
 RowSet::RowSet(RowSet&& set) noexcept : std::vector<Row>(std::move(set)), header(set.header) {}
 RowSet::RowSet(const RowSet& set) : std::vector<Row>(set), header(set.header) {}
 RowSet& RowSet::operator=(RowSet&& set) noexcept {

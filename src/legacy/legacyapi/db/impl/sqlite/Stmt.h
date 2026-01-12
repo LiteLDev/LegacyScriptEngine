@@ -20,11 +20,11 @@ class SQLiteStmt : public Stmt {
     bool                       executed         = false;
     std::vector<int>           boundIndexes;
 
-    SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute);
     int  getNextParamIndex();
     void fetchResultHeader();
 
 public:
+    SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute);
     ~SQLiteStmt();
     Stmt& bind(const Any& value, int index);
     Stmt& bind(const Any& value, const std::string& name);

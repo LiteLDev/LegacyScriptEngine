@@ -49,8 +49,8 @@ bool NewProcess(
     si.hStdOutput = si.hStdError = hWrite;
     si.dwFlags                   = STARTF_USESTDHANDLES;
 
-    std::unique_ptr<wchar_t[]> wCmd(str2cwstr(process));
-    if (!CreateProcessW(nullptr, wCmd.get(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
+    auto wCmd = str2cwstr(process);
+    if (!CreateProcessW(nullptr, wCmd.data(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
         CloseHandle(hRead);
         CloseHandle(hWrite);
         return false;

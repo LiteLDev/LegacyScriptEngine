@@ -252,8 +252,8 @@ int executePipCommand(std::string cmd) {
     si.cb                  = sizeof(STARTUPINFO);
     GetStartupInfoW(&si);
 
-    std::unique_ptr<wchar_t[]> wCmd(str2cwstr(cmd));
-    if (!CreateProcessW(nullptr, wCmd.get(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
+    auto wCmd = str2cwstr(cmd);
+    if (!CreateProcessW(nullptr, wCmd.data(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
         if (pi.hThread) CloseHandle(pi.hThread);
         if (pi.hProcess) CloseHandle(pi.hProcess);
         return -1;

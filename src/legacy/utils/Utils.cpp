@@ -57,10 +57,10 @@ bool IsVersionLess(int v1a, int v1b, int v1c, int v2a, int v2b, int v2c) {
     return (v1a < v2a || (v1a == v2a && v1b < v2b) || (v1a == v2a && v1b == v2b && v1c < v2c));
 }
 
-wchar_t* str2cwstr(std::string str) {
-    auto     len    = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
-    wchar_t* buffer = new wchar_t[len + 1];
-    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer, len + 1);
+std::vector<wchar_t> str2cwstr(std::string str) {
+    auto                 len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    std::vector<wchar_t> buffer(len + 1);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer.data(), len + 1);
     buffer[len] = L'\0';
     return buffer;
 }

@@ -66,7 +66,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
         engine->loadFile(String::newString(entryScriptPath));
     } catch (const Exception& e1) {
         // Fail
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail in Loading Script Plugin!\n");
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail in Loading Script Plugin!");
         throw e1;
     }
     return true;

@@ -302,7 +302,7 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!\n");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
     }
 }
 

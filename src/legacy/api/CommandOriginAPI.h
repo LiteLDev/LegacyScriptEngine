@@ -8,11 +8,12 @@ extern ClassDefine<CommandOriginClass> CommandOriginClassBuilder;
 
 class CommandOriginClass : public ScriptClass {
 public:
-    CommandOrigin const&        origin;
-    inline CommandOrigin const& get() { return origin; }
+    // Storing CommandOrigin as shared_ptr is for asynchronous command processing.
+    std::shared_ptr<CommandOrigin const>        origin;
+    inline std::shared_ptr<CommandOrigin const> get() { return origin; }
 
 public:
-    CommandOriginClass(CommandOrigin const& ori);
+    CommandOriginClass(std::shared_ptr<CommandOrigin const> ori);
     Local<Value> getOriginType();
     Local<Value> getOriginTypeName();
     Local<Value> getOriginName();

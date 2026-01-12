@@ -6,18 +6,18 @@
 #include <filesystem>
 
 std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std::string& defContent) {
-    if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
-        // 创建新的
-        std::filesystem::create_directories(
-            std::filesystem::path(ll::string_utils::str2wstr(path)).remove_filename().u8string()
-        );
-
+    namespace fs = std::filesystem;
+    auto fpath   = fs::path(ll::string_utils::str2wstr(path));
+    if (!fpath.empty() && !fs::exists(fpath)) { // Create new file
+        if (fpath.has_root_directory() && fpath.has_parent_path()) {
+            fs::create_directories(fpath.parent_path());
+        }
         std::ofstream iniFile(path);
         if (iniFile.is_open() && defContent != "") iniFile << defContent;
         iniFile.close();
     }
 
-    // 已存在
+    // Exist
     auto root = std::make_unique<SimpleIni>();
     root->SetUnicode(true);
     auto res = root->LoadFile(path.c_str());

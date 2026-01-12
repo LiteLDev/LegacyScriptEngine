@@ -7,10 +7,9 @@
 
 void FormatHelper(
     std::vector<Local<Value>>&                          args,
-    const std::vector<char*>&                           names,
+    const std::vector<const char*>&                     names,
     bool                                                enableObject,
-    fmt::dynamic_format_arg_store<fmt::format_context>& s,
-    std::vector<std::unique_ptr<char[]>>&               delList
+    fmt::dynamic_format_arg_store<fmt::format_context>& s
 ) {
     for (size_t i = 0; i < args.size(); ++i) {
         auto&       arg  = args[i];
@@ -41,7 +40,7 @@ void FormatHelper(
                 for (size_t j = 0; j < arr.size(); ++j) {
                     vals[j] = arr.get(j);
                 }
-                FormatHelper(vals, {}, false, s, delList);
+                FormatHelper(vals, {}, false, s);
             }
             break;
         case ValueKind::kObject:
@@ -49,16 +48,19 @@ void FormatHelper(
                 auto                      obj  = arg.asObject();
                 auto                      keys = obj.getKeys();
                 std::vector<Local<Value>> vals(keys.size());
-                std::vector<char*>        nextNames(keys.size());
+
+                std::vector<std::string> nameStrs;
+                nameStrs.reserve(keys.size());
+                std::vector<const char*> nextNames;
+                nextNames.reserve(keys.size());
+
                 for (size_t j = 0; j < keys.size(); ++j) {
-                    auto key   = keys[j].toString();
-                    auto cName = std::make_unique<char[]>(key.size() + 1);
-                    std::memcpy(cName.get(), key.c_str(), key.size() + 1);
-                    delList.push_back(std::move(cName));
-                    nextNames[j] = delList.back().get();
-                    vals[j]      = obj.get(keys[j]);
+                    auto key = keys[j].toString();
+                    nameStrs.emplace_back(key);
+                    nextNames.push_back(nameStrs.back().c_str());
+                    vals[j] = obj.get(keys[j]);
                 }
-                FormatHelper(vals, nextNames, false, s, delList);
+                FormatHelper(vals, nextNames, false, s);
             }
             break;
         default:
@@ -78,12 +80,11 @@ Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, con
             return String::newString(key);
         } else {
             fmt::dynamic_format_arg_store<fmt::format_context> s;
-            std::vector<std::unique_ptr<char[]>>               delList;
             std::vector<Local<Value>>                          vals;
             for (auto i = offset; i < args.size(); ++i) {
                 vals.push_back(args[i]);
             }
-            FormatHelper(vals, {}, true, s, delList);
+            FormatHelper(vals, {}, true, s);
             auto result = String::newString(fmt::vformat(key, s));
             return result;
         }

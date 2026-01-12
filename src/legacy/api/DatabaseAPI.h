@@ -8,7 +8,7 @@
 //// KVDB
 class KVDBClass : public ScriptClass {
 private:
-    std::unique_ptr<ll::data::KeyValueDB> kvdb;
+    std::unique_ptr<ll::data::KeyValueDB> kvdb                = nullptr;
     int                                   unloadCallbackIndex = -1;
 
 public:

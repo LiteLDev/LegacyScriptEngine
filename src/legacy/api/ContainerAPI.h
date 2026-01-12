@@ -8,6 +8,7 @@
 class Container;
 class ContainerClass : public ScriptClass {
 private:
+    // Container is managed by BDS, so use raw pointer
     Container* container;
 
 public:

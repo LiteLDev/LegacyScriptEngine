@@ -171,14 +171,13 @@ Local<Value> FileClass::readSync(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
-        int   cnt = args[0].asNumber().toInt32();
-        char* buf = new char[cnt];
-        file.read(buf, cnt);
+        int               cnt = args[0].asNumber().toInt32();
+        std::vector<char> buf(cnt + 1);
+        file.read(buf.data(), cnt);
         size_t bytes = file.gcount();
 
-        Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
-                                    : String::newString(std::string_view(buf, bytes)).asValue();
-        delete[] buf;
+        Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf.data(), bytes).asValue()
+                                    : String::newString(std::string_view(buf.data(), bytes)).asValue();
         return res;
     }
     CATCH("Fail in readSync!");
@@ -249,17 +248,16 @@ Local<Value> FileClass::read(const Arguments& args) {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
                 if (!EngineManager::isValid(engine)) return;
 
-                char* buf = new char[cnt];
+                std::vector<char> buf(cnt + 1);
                 lock->lock();
-                fp->read(buf, cnt);
+                fp->read(buf.data(), cnt);
                 size_t bytes = fp->gcount();
                 lock->unlock();
 
                 EngineScope scope(engine);
                 try {
-                    Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf, bytes).asValue()
-                                                : String::newString(std::string_view(buf, bytes)).asValue();
-                    delete[] buf;
+                    Local<Value> res = isBinary ? ByteBuffer::newByteBuffer(buf.data(), bytes).asValue()
+                                                : String::newString(std::string_view(buf.data(), bytes)).asValue();
                     // dangerous
                     NewTimeout(callback.get(), {res}, 1);
                 }

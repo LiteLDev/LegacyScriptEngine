@@ -248,13 +248,14 @@ int executePipCommand(std::string cmd) {
     sa.bInheritHandle       = TRUE;
 
     STARTUPINFOW        si = {0};
-    PROCESS_INFORMATION pi;
-    si.cb = sizeof(STARTUPINFO);
+    PROCESS_INFORMATION pi = {0};
+    si.cb                  = sizeof(STARTUPINFO);
     GetStartupInfoW(&si);
 
-    auto wCmd = str2cwstr(cmd);
-    if (!CreateProcessW(nullptr, wCmd, nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
-        delete[] wCmd;
+    std::unique_ptr<wchar_t[]> wCmd(str2cwstr(cmd));
+    if (!CreateProcessW(nullptr, wCmd.get(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
+        if (pi.hThread) CloseHandle(pi.hThread);
+        if (pi.hProcess) CloseHandle(pi.hProcess);
         return -1;
     }
     CloseHandle(pi.hThread);
@@ -264,7 +265,6 @@ int executePipCommand(std::string cmd) {
     DWORD exitCode = 0;
     GetExitCodeProcess(pi.hProcess, &exitCode);
     CloseHandle(pi.hProcess);
-    delete[] wCmd;
     return exitCode;
 }
 

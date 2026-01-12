@@ -31,30 +31,39 @@ bool NewProcess(
     int                                   timeLimit = -1
 ) {
     SECURITY_ATTRIBUTES sa;
-    HANDLE              hRead, hWrite;
+    HANDLE              hRead = nullptr, hWrite = nullptr;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);
     sa.lpSecurityDescriptor = nullptr;
     sa.bInheritHandle       = TRUE;
 
-    if (!CreatePipe(&hRead, &hWrite, &sa, 0)) return false;
-    STARTUPINFOW        si = {0};
-    PROCESS_INFORMATION pi;
+    if (!CreatePipe(&hRead, &hWrite, &sa, 0)) {
+        if (hRead) CloseHandle(hRead);
+        if (hWrite) CloseHandle(hWrite);
+        return false;
+    }
 
-    si.cb = sizeof(STARTUPINFO);
+    STARTUPINFOW        si = {0};
+    PROCESS_INFORMATION pi = {0};
+    si.cb                  = sizeof(STARTUPINFO);
     GetStartupInfoW(&si);
     si.hStdOutput = si.hStdError = hWrite;
     si.dwFlags                   = STARTF_USESTDHANDLES;
 
-    auto wCmd = str2cwstr(process);
-    if (!CreateProcessW(nullptr, wCmd, nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
-        delete[] wCmd;
+    std::unique_ptr<wchar_t[]> wCmd(str2cwstr(process));
+    if (!CreateProcessW(nullptr, wCmd.get(), nullptr, nullptr, TRUE, 0, nullptr, nullptr, &si, &pi)) {
+        CloseHandle(hRead);
+        CloseHandle(hWrite);
         return false;
     }
+
     CloseHandle(hWrite);
     CloseHandle(pi.hThread);
 
-    std::thread([hRead{hRead}, hProcess{pi.hProcess}, callback{std::move(callback)}, timeLimit{timeLimit}, wCmd{wCmd}](
-                ) mutable {
+    std::jthread([hRead{hRead},
+                  hProcess{pi.hProcess},
+                  callback{std::move(callback)},
+                  timeLimit{timeLimit},
+                  wCmd{std::move(wCmd)}]() mutable {
         if (timeLimit == -1) {
             WaitForSingleObject(hProcess, INFINITE);
         } else {
@@ -66,13 +75,13 @@ bool NewProcess(
         std::string strOutput;
         DWORD       bytesRead, exitCode;
 
-        delete[] wCmd;
         GetExitCodeProcess(hProcess, &exitCode);
         while (true) {
             ZeroMemory(buffer, sizeof(buffer));
             if (!ReadFile(hRead, buffer, sizeof(buffer), &bytesRead, nullptr)) break;
             strOutput.append(buffer, bytesRead);
         }
+
         CloseHandle(hRead);
         CloseHandle(hProcess);
 
@@ -105,8 +114,8 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
             [callback{std::move(callbackFunc)},
              engine{EngineScope::currentEngine()}](int exitCode, std::string output) mutable {
                 ll::coro::keepThis(
-                    [engine, callback = std::move(callback), exitCode, output = std::move(output)](
-                    ) -> ll::coro::CoroTask<> {
+                    [engine, callback = std::move(callback), exitCode, output = std::move(output)]()
+                        -> ll::coro::CoroTask<> {
                         co_await 1_tick;
                         if ((ll::getGamingStatus() != ll::GamingStatus::Running)) co_return;
                         if (!EngineManager::isValid(engine)) co_return;
@@ -143,8 +152,8 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
             [callback{std::move(callbackFunc)},
              engine{EngineScope::currentEngine()}](int exitCode, std::string output) mutable {
                 ll::coro::keepThis(
-                    [engine, callback = std::move(callback), exitCode, output = std::move(output)](
-                    ) -> ll::coro::CoroTask<> {
+                    [engine, callback = std::move(callback), exitCode, output = std::move(output)]()
+                        -> ll::coro::CoroTask<> {
                         co_await 1_tick;
                         if ((ll::getGamingStatus() != ll::GamingStatus::Running)) co_return;
                         if (!EngineManager::isValid(engine)) co_return;

@@ -10,92 +10,60 @@ void FormatHelper(
     const std::vector<char*>&                           names,
     bool                                                enableObject,
     fmt::dynamic_format_arg_store<fmt::format_context>& s,
-    std::vector<char*>&                                 delList
+    std::vector<std::unique_ptr<char[]>>&               delList
 ) {
-    for (auto i = 0; i < args.size(); ++i) {
-        auto& arg  = args[i];
-        char* name = nullptr;
-        if (i < names.size()) {
-            name = names[i];
-        }
+    for (size_t i = 0; i < args.size(); ++i) {
+        auto&       arg  = args[i];
+        const char* name = (i < names.size()) ? names[i] : nullptr;
+
+        auto pushArg = [&](auto value) {
+            if (name) {
+                s.push_back(fmt::arg(name, value));
+            } else {
+                s.push_back(value);
+            }
+        };
+
         switch (arg.getKind()) {
-        case ValueKind::kBoolean: {
-            if (!name) {
-                s.push_back(arg.asBoolean().value());
-            } else {
-                s.push_back(fmt::arg(name, arg.asBoolean().value()));
-            }
+        case ValueKind::kBoolean:
+            pushArg(arg.asBoolean().value());
             break;
-        }
-        case ValueKind::kNumber: {
-            if (CheckIsFloat(arg)) {
-                if (!name) {
-                    s.push_back(arg.asNumber().toDouble());
-                } else {
-                    s.push_back(fmt::arg(name, arg.asNumber().toDouble()));
-                }
-            } else {
-                if (!name) {
-                    s.push_back(arg.asNumber().toInt64());
-                } else {
-                    s.push_back(fmt::arg(name, arg.asNumber().toInt64()));
-                }
-            }
+        case ValueKind::kNumber:
+            pushArg(CheckIsFloat(arg) ? arg.asNumber().toDouble() : arg.asNumber().toInt64());
             break;
-        }
-        case ValueKind::kString: {
-            if (!name) {
-                s.push_back(arg.asString().toString());
-            } else {
-                s.push_back(fmt::arg(name, arg.asString().toString()));
-            }
+        case ValueKind::kString:
+            pushArg(arg.asString().toString());
             break;
-        }
-        case ValueKind::kArray: {
+        case ValueKind::kArray:
             if (enableObject) {
                 auto                      arr = arg.asArray();
-                std::vector<Local<Value>> vals;
-                for (auto j = 0ULL; j < arr.size(); ++j) {
-                    vals.push_back(arr.get(j));
+                std::vector<Local<Value>> vals(arr.size());
+                for (size_t j = 0; j < arr.size(); ++j) {
+                    vals[j] = arr.get(j);
                 }
                 FormatHelper(vals, {}, false, s, delList);
-                break;
             }
-            // Follow
-        }
-        case ValueKind::kObject: {
+            break;
+        case ValueKind::kObject:
             if (enableObject) {
                 auto                      obj  = arg.asObject();
                 auto                      keys = obj.getKeys();
-                std::vector<Local<Value>> vals;
-                std::vector<char*>        nextNames;
-                for (auto j = 0ULL; j < keys.size(); ++j) {
-                    auto key = keys[j].toString();
-                    // #if __cplusplus <= 201703L
-                    char* cName = new char[key.size() + 1];
-                    std::memset(cName, 0, key.size() + 1);
-                    // #else
-                    //           char *cName = new char[key.size() + 1](0);
-                    // #endif
-                    std::copy(key.begin(), key.end(), cName);
-                    delList.push_back(cName);
-                    nextNames.push_back(cName);
-                    vals.push_back(obj.get(keys[j]));
+                std::vector<Local<Value>> vals(keys.size());
+                std::vector<char*>        nextNames(keys.size());
+                for (size_t j = 0; j < keys.size(); ++j) {
+                    auto key   = keys[j].toString();
+                    auto cName = std::make_unique<char[]>(key.size() + 1);
+                    std::memcpy(cName.get(), key.c_str(), key.size() + 1);
+                    delList.push_back(std::move(cName));
+                    nextNames[j] = delList.back().get();
+                    vals[j]      = obj.get(keys[j]);
                 }
                 FormatHelper(vals, nextNames, false, s, delList);
-                break;
-            }
-            // Follow
-        }
-        default: {
-            auto str = ValueToString(arg);
-            if (!name) {
-                s.push_back(str);
-            } else {
-                s.push_back(fmt::arg(name, str));
             }
             break;
-        }
+        default:
+            pushArg(ValueToString(arg));
+            break;
         }
     }
 }
@@ -110,16 +78,13 @@ Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, con
             return String::newString(key);
         } else {
             fmt::dynamic_format_arg_store<fmt::format_context> s;
-            std::vector<char*>                                 delList;
+            std::vector<std::unique_ptr<char[]>>               delList;
             std::vector<Local<Value>>                          vals;
             for (auto i = offset; i < args.size(); ++i) {
                 vals.push_back(args[i]);
             }
             FormatHelper(vals, {}, true, s, delList);
             auto result = String::newString(fmt::vformat(key, s));
-            for (auto& ptr : delList) {
-                delete[] ptr;
-            }
             return result;
         }
     } catch (const fmt::format_error&) {

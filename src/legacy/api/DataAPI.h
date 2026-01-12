@@ -33,7 +33,7 @@ public:
 };
 extern ClassDefine<void> DataClassBuilder;
 
-Local<Array> objectificationMoneyHistory(const string& res);
+Local<Array> objectificationMoneyHistory(const std::string& res);
 
 //////////////////// Money Static ////////////////////
 
@@ -59,7 +59,7 @@ protected:
     virtual bool reload() = 0;
 
 public:
-    explicit ConfBaseClass(const string& dir);
+    explicit ConfBaseClass(const std::string& dir);
 
     virtual Local<Value> reload(const Arguments& args) = 0;
     virtual Local<Value> close(const Arguments& args)  = 0;
@@ -77,8 +77,8 @@ private:
     bool         reload() override;
 
 public:
-    explicit ConfJsonClass(const Local<Object>& scriptObj, const string& path, const string& defContent);
-    explicit ConfJsonClass(const string& path, const string& defContent);
+    explicit ConfJsonClass(const Local<Object>& scriptObj, const std::string& path, const std::string& defContent);
+    explicit ConfJsonClass(const std::string& path, const std::string& defContent);
     ~ConfJsonClass();
     static ConfJsonClass* constructor(const Arguments& args);
 
@@ -91,7 +91,7 @@ public:
     virtual Local<Value> write(const Arguments& args) override;
 
     // For Compatibility
-    static Local<Value> newConf(const string& path, const string& defContent = "");
+    static Local<Value> newConf(const std::string& path, const std::string& defContent = "");
 };
 extern ClassDefine<ConfJsonClass> ConfJsonClassBuilder;
 
@@ -103,8 +103,8 @@ private:
     bool       reload() override;
 
 public:
-    explicit ConfIniClass(const Local<Object>& scriptObj, const string& path, const string& defContent);
-    explicit ConfIniClass(const string& path, const string& defContent);
+    explicit ConfIniClass(const Local<Object>& scriptObj, const std::string& path, const std::string& defContent);
+    explicit ConfIniClass(const std::string& path, const std::string& defContent);
     ~ConfIniClass();
     static ConfIniClass* constructor(const Arguments& args);
 
@@ -122,6 +122,6 @@ public:
     virtual Local<Value> write(const Arguments& args) override;
 
     // For Compatibility
-    static Local<Value> newConf(const string& path, const string& defContent = "");
+    static Local<Value> newConf(const std::string& path, const std::string& defContent = "");
 };
 extern ClassDefine<ConfIniClass> ConfIniClassBuilder;

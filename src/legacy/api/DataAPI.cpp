@@ -269,13 +269,13 @@ bool ConfJsonClass::reload() {
 ConfIniClass::ConfIniClass(const Local<Object>& scriptObj, const string& path, const string& defContent)
 : ScriptClass(scriptObj),
   ConfBaseClass(path) {
-    iniConf = SimpleIni::create(path, defContent);
+    iniConf = SimpleIni::create(path, defContent).release();
 }
 
 ConfIniClass::ConfIniClass(const string& path, const string& defContent)
 : ScriptClass(ScriptClass::ConstructFromCpp<ConfIniClass>{}),
   ConfBaseClass(path) {
-    iniConf = SimpleIni::create(path, defContent);
+    iniConf = SimpleIni::create(path, defContent).release();
 }
 
 ConfIniClass::~ConfIniClass() { close(); }
@@ -309,7 +309,7 @@ bool ConfIniClass::reload() {
     if (!isValid()) return false;
 
     delete iniConf;
-    iniConf = SimpleIni::create(confPath, "");
+    iniConf = SimpleIni::create(confPath).release();
     return true;
 }
 

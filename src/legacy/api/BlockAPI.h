@@ -8,7 +8,8 @@
 class Block;
 class BlockClass : public ScriptClass {
 private:
-    Block const* block;
+    // Block is managed by BDS, so use raw pointer
+    Block const* block = nullptr;
 
     // Pre data
     std::string   name, type;

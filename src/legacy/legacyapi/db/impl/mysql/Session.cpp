@@ -153,6 +153,12 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
         Row r(header);
         for (unsigned int i = 0; i < numFields; i++) {
             auto type = fields[i].type;
+            const char *col = row[i];
+            if (!col) {
+                // NULL column -> push a null/empty Any and continue
+                r.push_back(Any());
+                continue;
+            }
             switch (type) {
             case MYSQL_TYPE_TINY:
             case MYSQL_TYPE_SHORT:

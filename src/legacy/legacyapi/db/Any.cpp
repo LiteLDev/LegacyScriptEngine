@@ -3,88 +3,88 @@
 namespace DB {
 
 Any::Any() {
-    type          = Type::Null;
-    value.boolean = false;
+    type  = Type::Null;
+    value = false;
 }
 Any::Any(bool v) {
-    type          = Type::Boolean;
-    value.boolean = v;
+    type  = Type::Boolean;
+    value = v;
 }
 Any::Any(int64_t v) {
-    type          = Type::Integer;
-    value.integer = v;
+    type  = Type::Integer;
+    value = v;
 }
 Any::Any(uint64_t v) {
-    type           = Type::UInteger;
-    value.uinteger = v;
+    type  = Type::UInteger;
+    value = v;
 }
 Any::Any(double v) {
-    type           = Type::Floating;
-    value.floating = v;
+    type  = Type::Floating;
+    value = v;
 }
 Any::Any(const std::string& v) {
-    type         = Type::String;
-    value.string = new std::string(v);
+    type  = Type::String;
+    value = v;
 }
 Any::Any(const char* v) {
-    type         = Type::String;
-    value.string = new std::string(v);
+    type  = Type::String;
+    value = v;
 }
 Any::Any(char* v, size_t len) {
-    type         = Type::String;
-    value.string = new std::string(v, len);
+    type  = Type::String;
+    value = std::string(v, len);
 }
 Any::Any(const Date& v) {
-    type       = Type::Date;
-    value.date = new Date(v);
+    type  = Type::Date;
+    value = v;
 }
 Any::Any(const Time& v) {
-    type       = Type::Time;
-    value.time = new Time(v);
+    type  = Type::Time;
+    value = v;
 }
 Any::Any(const DateTime& v) {
-    type           = Type::DateTime;
-    value.datetime = new DateTime(v);
+    type  = Type::DateTime;
+    value = v;
 }
 Any::Any(char v) {
-    type          = Type::Integer;
-    value.integer = v;
+    type  = Type::Integer;
+    value = v;
 }
 Any::Any(unsigned char v) {
-    type           = Type::UInteger;
-    value.uinteger = v;
+    type  = Type::UInteger;
+    value = static_cast<uint64_t>(v);
 }
 Any::Any(short v) {
-    type          = Type::Integer;
-    value.integer = v;
+    type  = Type::Integer;
+    value = v;
 }
 Any::Any(unsigned short v) {
-    type           = Type::UInteger;
-    value.uinteger = v;
+    type  = Type::UInteger;
+    value = static_cast<uint64_t>(v);
 }
 Any::Any(int v) {
-    type          = Type::Integer;
-    value.integer = v;
+    type  = Type::Integer;
+    value = v;
 }
 Any::Any(unsigned int v) {
-    type           = Type::UInteger;
-    value.uinteger = v;
+    type  = Type::UInteger;
+    value = static_cast<uint64_t>(v);
 }
 Any::Any(long v) {
-    type          = Type::Integer;
-    value.integer = v;
+    type  = Type::Integer;
+    value = v;
 }
 Any::Any(unsigned long v) {
-    type           = Type::UInteger;
-    value.uinteger = v;
+    type  = Type::UInteger;
+    value = static_cast<uint64_t>(v);
 }
 Any::Any(float v) {
-    type           = Type::Floating;
-    value.floating = v;
+    type  = Type::Floating;
+    value = v;
 }
 Any::Any(const ByteArray& v) {
-    type       = Type::Blob;
-    value.blob = new ByteArray(v);
+    type  = Type::Blob;
+    value = v;
 }
 Any::Any(const Any& v) { *this = v; }
 
@@ -92,43 +92,7 @@ Any& Any::operator=(const Any& v) {
     if (this == &v) return *this;
     type  = v.type;
     value = v.value;
-    switch (type) {
-    case Type::String:
-        value.string = new std::string(*v.value.string);
-        break;
-    case Type::Date:
-        value.date = new Date(*v.value.date);
-        break;
-    case Type::Time:
-        value.time = new Time(*v.value.time);
-        break;
-    case Type::DateTime:
-        value.datetime = new DateTime(*v.value.datetime);
-        break;
-    case Type::Blob:
-        value.blob = new ByteArray(*v.value.blob);
-        break;
-    }
     return *this;
-}
-
-Any::~Any() {
-    if (type == Type::String) {
-        delete value.string;
-        value.string = nullptr;
-    } else if (type == Type::Date) {
-        delete value.date;
-        value.date = nullptr;
-    } else if (type == Type::Time) {
-        delete value.time;
-        value.time = nullptr;
-    } else if (type == Type::DateTime) {
-        delete value.datetime;
-        value.datetime = nullptr;
-    } else if (type == Type::Blob) {
-        delete value.blob;
-        value.blob = nullptr;
-    }
 }
 
 bool Any::is_null() const { return type == Type::Null; }

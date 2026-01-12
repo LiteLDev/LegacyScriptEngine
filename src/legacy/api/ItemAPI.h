@@ -10,7 +10,8 @@ class ItemStack;
 
 class ItemClass : public ScriptClass {
 private:
-    std::variant<ItemStack*, std::unique_ptr<ItemStack>> item; // BDS manages ItemStack*
+    // ItemStack* is managed by BDS// ItemStack* is managed by BDS
+    std::variant<ItemStack*, std::unique_ptr<ItemStack>> item;
 
     // Pre data
     std::string name, type;

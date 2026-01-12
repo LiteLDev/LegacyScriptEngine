@@ -14,9 +14,9 @@ MYSQL_TIME any_to(const DB::Any& v) {
     switch (v.type) {
     case DB::Any::Type::Date: {
         MYSQL_TIME t;
-        t.year        = v.value.date->year;
-        t.month       = v.value.date->month;
-        t.day         = v.value.date->day;
+        t.year        = std::get<DB::Date>(v.value).year;
+        t.month       = std::get<DB::Date>(v.value).month;
+        t.day         = std::get<DB::Date>(v.value).day;
         t.hour        = 0;
         t.minute      = 0;
         t.second      = 0;
@@ -29,21 +29,21 @@ MYSQL_TIME any_to(const DB::Any& v) {
         t.year        = 0;
         t.month       = 0;
         t.day         = 0;
-        t.hour        = v.value.time->hour;
-        t.minute      = v.value.time->minute;
-        t.second      = v.value.time->second;
+        t.hour        = std::get<DB::Time>(v.value).hour;
+        t.minute      = std::get<DB::Time>(v.value).minute;
+        t.second      = std::get<DB::Time>(v.value).second;
         t.second_part = 0;
         t.time_type   = MYSQL_TIMESTAMP_TIME;
         return t;
     }
     case DB::Any::Type::DateTime: {
         MYSQL_TIME t;
-        t.year        = v.value.datetime->date.year;
-        t.month       = v.value.datetime->date.month;
-        t.day         = v.value.datetime->date.day;
-        t.hour        = v.value.datetime->time.hour;
-        t.minute      = v.value.datetime->time.minute;
-        t.second      = v.value.datetime->time.second;
+        t.year        = std::get<DB::DateTime>(v.value).date.year;
+        t.month       = std::get<DB::DateTime>(v.value).date.month;
+        t.day         = std::get<DB::DateTime>(v.value).date.day;
+        t.hour        = std::get<DB::DateTime>(v.value).time.hour;
+        t.minute      = std::get<DB::DateTime>(v.value).time.minute;
+        t.second      = std::get<DB::DateTime>(v.value).time.second;
         t.second_part = 0;
         t.time_type   = MYSQL_TIMESTAMP_DATETIME;
         return t;
@@ -367,7 +367,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     case Any::Type::Boolean:
         params[index].buffer_type = MYSQL_TYPE_TINY;
         param.buffer.reset(new char[1]);
-        param.buffer[0]             = value.value.boolean;
+        param.buffer[0]             = std::get<bool>(value.value);
         params[index].buffer        = param.buffer.get();
         params[index].buffer_length = 1;
         params[index].is_unsigned   = true;
@@ -375,7 +375,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     case Any::Type::Integer:
         params[index].buffer_type = MYSQL_TYPE_LONGLONG;
         param.buffer.reset(new char[sizeof(int64_t)]);
-        *reinterpret_cast<int64_t*>(param.buffer.get()) = value.value.integer;
+        *reinterpret_cast<int64_t*>(param.buffer.get()) = std::get<int64_t>(value.value);
         params[index].buffer                            = param.buffer.get();
         params[index].buffer_length                     = sizeof(int64_t);
         params[index].is_unsigned                       = false;
@@ -385,7 +385,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     case Any::Type::UInteger:
         params[index].buffer_type = MYSQL_TYPE_LONGLONG;
         param.buffer.reset(new char[sizeof(uint64_t)]);
-        *reinterpret_cast<uint64_t*>(param.buffer.get()) = value.value.uinteger;
+        *reinterpret_cast<uint64_t*>(param.buffer.get()) = std::get<uint64_t>(value.value);
         params[index].buffer                             = param.buffer.get();
         params[index].buffer_length                      = sizeof(uint64_t);
         params[index].is_unsigned                        = true;
@@ -395,7 +395,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     case Any::Type::Floating:
         params[index].buffer_type = MYSQL_TYPE_DOUBLE;
         param.buffer.reset(new char[sizeof(double)]);
-        *reinterpret_cast<double*>(param.buffer.get()) = value.value.floating;
+        *reinterpret_cast<double*>(param.buffer.get()) = std::get<double>(value.value);
         params[index].buffer                           = param.buffer.get();
         params[index].buffer_length                    = sizeof(double);
         params[index].is_unsigned                      = false;
@@ -404,9 +404,9 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         break;
     case Any::Type::String: {
         params[index].buffer_type = MYSQL_TYPE_STRING;
-        auto sz                   = value.value.string->length(); // Don't +1 here!!!
+        auto sz                   = std::get<std::string>(value.value).length(); // Don't +1 here!!!
         param.buffer.reset(new char[sz]);
-        memcpy(param.buffer.get(), value.value.string->data(), sz); // No '\0'
+        memcpy(param.buffer.get(), std::get<std::string>(value.value).data(), sz); // No '\0'
         param.length = sz; // Must set the length to the buffer size, otherwise it
                            // will be truncated
         params[index].buffer        = param.buffer.get();

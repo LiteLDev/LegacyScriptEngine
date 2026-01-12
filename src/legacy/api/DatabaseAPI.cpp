@@ -100,38 +100,39 @@ Local<Value> any_to(const Any& val) {
     case Any::Type::Null:
         return Local<Value>();
     case Any::Type::Boolean:
-        return Boolean::newBoolean(val.value.boolean);
+        return Boolean::newBoolean(std::get<bool>(val.value));
     case Any::Type::Integer:
-        return Number::newNumber(val.value.integer);
+        return Number::newNumber(std::get<int64_t>(val.value));
     case Any::Type::UInteger:
-        if (val.value.uinteger > LLONG_MAX) return Number::newNumber((double)val.value.uinteger);
-        return Number::newNumber((int64_t)val.value.uinteger);
+        if (std::get<uint64_t>(val.value) > LLONG_MAX)
+            return Number::newNumber(static_cast<double>(std::get<uint64_t>(val.value)));
+        return Number::newNumber(static_cast<int64_t>(std::get<uint64_t>(val.value)));
     case Any::Type::Floating:
-        return Number::newNumber(val.value.floating);
+        return Number::newNumber(std::get<double>(val.value));
     case Any::Type::String:
-        return String::newString(*val.value.string);
+        return String::newString(std::get<std::string>(val.value));
     case Any::Type::Date: {
         auto obj = Object::newObject();
-        obj.set("Y", val.value.date->year);
-        obj.set("M", val.value.date->month);
-        obj.set("D", val.value.date->day);
+        obj.set("Y", std::get<Date>(val.value).year);
+        obj.set("M", std::get<Date>(val.value).month);
+        obj.set("D", std::get<Date>(val.value).day);
         return obj;
     }
     case Any::Type::Time: {
         auto obj = Object::newObject();
-        obj.set("h", val.value.time->hour);
-        obj.set("m", val.value.time->minute);
-        obj.set("s", val.value.time->second);
+        obj.set("h", std::get<Time>(val.value).hour);
+        obj.set("m", std::get<Time>(val.value).minute);
+        obj.set("s", std::get<Time>(val.value).second);
         return obj;
     }
     case Any::Type::DateTime: {
         auto obj = Object::newObject();
-        obj.set("Y", val.value.datetime->date.year);
-        obj.set("M", val.value.datetime->date.month);
-        obj.set("D", val.value.datetime->date.day);
-        obj.set("h", val.value.datetime->time.hour);
-        obj.set("m", val.value.datetime->time.minute);
-        obj.set("s", val.value.datetime->time.second);
+        obj.set("Y", std::get<DateTime>(val.value).date.year);
+        obj.set("M", std::get<DateTime>(val.value).date.month);
+        obj.set("D", std::get<DateTime>(val.value).date.day);
+        obj.set("h", std::get<DateTime>(val.value).time.hour);
+        obj.set("m", std::get<DateTime>(val.value).time.minute);
+        obj.set("s", std::get<DateTime>(val.value).time.second);
         return obj;
     }
     case Any::Type::Blob:

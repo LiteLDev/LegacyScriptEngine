@@ -362,8 +362,8 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
     try {
         Local<Object> args = Object::newObject();
         auto          cmd  = CommandClass::newCommand(commandName);
-        auto *         ori  = new CommandOriginClass(origin.clone());
-        auto*          outp = new CommandOutputClass(std::make_shared<CommandOutput>(output), ori->ptr);
+        auto*         ori  = new CommandOriginClass(origin.clone());
+        auto*         outp = new CommandOutputClass(std::make_shared<CommandOutput>(output), ori->get());
 
         auto& registeredCommands = getEngineOwnData()->plugin->registeredCommands;
         if (registeredCommands.find(commandName) == registeredCommands.end()) {

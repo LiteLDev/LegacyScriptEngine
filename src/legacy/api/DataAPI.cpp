@@ -9,7 +9,6 @@
 #include "ll/api/utils/StringUtils.h"
 #include "lse/api/Hash.h"
 #include "main/EconomicSystem.h"
-#include "mc/deps/crypto/hash/Hash.h"
 #include "utils/JsonHelper.h"
 
 #include <ctre/ctre.hpp>
@@ -300,16 +299,15 @@ bool ConfIniClass::flush() { return iniConf->SaveFile(iniConf->filePath.c_str(),
 bool ConfIniClass::close() {
     if (isValid()) {
         reload();
-        delete iniConf;
-        iniConf = nullptr;
+        iniConf.reset();
     }
     return true;
 }
 bool ConfIniClass::reload() {
     if (!isValid()) return false;
 
-    delete iniConf;
-    iniConf = SimpleIni::create(confPath, "");
+    iniConf.reset();
+    iniConf = SimpleIni::create(confPath);
     return true;
 }
 

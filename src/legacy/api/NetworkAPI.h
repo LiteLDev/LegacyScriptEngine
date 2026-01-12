@@ -42,7 +42,7 @@ extern ClassDefine<void> NetworkClassBuilder;
 
 class WSClientClass : public ScriptClass {
 private:
-    std::shared_ptr<WebSocketClient> ws;
+    std::shared_ptr<WebSocketClient> ws = nullptr;
     std::list<ListenerListType>      listeners[(int)WSClientEvents::EVENT_COUNT];
     void                             addListener(const string& event, Local<Function> func);
 
@@ -102,7 +102,7 @@ public:
 extern ClassDefine<HttpServerClass> HttpServerClassBuilder;
 
 class HttpRequestClass : public ScriptClass {
-    std::shared_ptr<httplib::Request> req;
+    std::shared_ptr<httplib::Request> req = nullptr;
 
 public:
     HttpRequestClass(const Local<Object>& scriptObj, const httplib::Request& req = {});
@@ -125,7 +125,7 @@ public:
 extern ClassDefine<HttpRequestClass> HttpRequestClassBuilder;
 
 class HttpResponseClass : public ScriptClass {
-    std::shared_ptr<httplib::Response> resp;
+    std::shared_ptr<httplib::Response> resp = nullptr;
 
 public:
     HttpResponseClass(const Local<Object>& scriptObj, const httplib::Response& resp = {});

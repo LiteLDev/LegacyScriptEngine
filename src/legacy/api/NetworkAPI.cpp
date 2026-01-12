@@ -302,7 +302,7 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!\n");
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
     }
 }
 
@@ -506,8 +506,12 @@ void ADD_CALLBACK(
     }
 }
 
-HttpServerClass::HttpServerClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), svr(new Server) {}
-HttpServerClass::HttpServerClass() : ScriptClass(ScriptClass::ConstructFromCpp<HttpServerClass>{}), svr(new Server) {}
+HttpServerClass::HttpServerClass(const Local<Object>& scriptObj)
+: ScriptClass(scriptObj),
+  svr(std::make_shared<Server>()) {}
+HttpServerClass::HttpServerClass()
+: ScriptClass(ScriptClass::ConstructFromCpp<HttpServerClass>{}),
+  svr(std::make_shared<Server>()) {}
 
 HttpServerClass::~HttpServerClass() { svr->stop(); }
 
@@ -822,10 +826,10 @@ Local<Object> Params2Object(const Params& params) {
 
 HttpRequestClass::HttpRequestClass(const Local<Object>& scriptObj, const Request& req)
 : ScriptClass(scriptObj),
-  req(new Request(req)) {}
+  req(std::make_shared<Request>(req)) {}
 HttpRequestClass::HttpRequestClass(const Request& req)
 : ScriptClass(ScriptClass::ConstructFromCpp<HttpRequestClass>{}),
-  req(new Request(req)) {}
+  req(std::make_shared<Request>(req)) {}
 
 std::shared_ptr<Request> HttpRequestClass::get() { return req; }
 
@@ -916,10 +920,10 @@ Local<Value> HttpRequestClass::getRegexMatches() {
 
 HttpResponseClass::HttpResponseClass(const Local<Object>& scriptObj, const Response& resp)
 : ScriptClass(scriptObj),
-  resp(new Response(resp)) {}
+  resp(std::make_shared<Response>(resp)) {}
 HttpResponseClass::HttpResponseClass(const Response& resp)
 : ScriptClass(ScriptClass::ConstructFromCpp<HttpResponseClass>{}),
-  resp(new Response(resp)) {}
+  resp(std::make_shared<Response>(resp)) {}
 
 std::shared_ptr<Response> HttpResponseClass::get() { return resp; }
 

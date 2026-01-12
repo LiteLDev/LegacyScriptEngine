@@ -55,7 +55,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         }
         // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("*** After remote call result return");
     } catch (const Exception& e) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in remote engine!\n");
+        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Error occurred in remote engine!");
         if (engine) {
             EngineScope enter(engine);
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());

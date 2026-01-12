@@ -24,10 +24,10 @@ ClassDefine<CommandOutputClass> CommandOutputClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOutputClass::CommandOutputClass(std::shared_ptr<CommandOutput> out, std::shared_ptr<CommandOrigin> ori)
+CommandOutputClass::CommandOutputClass(std::shared_ptr<CommandOutput> out, std::shared_ptr<CommandOrigin const> ori)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOutputClass>{}),
-  output(std::move(out)),
-  origin(std::move(ori)),
+  output(out),
+  origin(ori),
   isAsync(false) {};
 
 Local<Value> CommandOutputClass::empty() {

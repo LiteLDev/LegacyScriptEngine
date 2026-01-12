@@ -11,7 +11,7 @@ class BinaryStream;
 
 class PacketClass : public ScriptClass {
 private:
-    std::shared_ptr<Packet> packet;
+    std::shared_ptr<Packet> packet = nullptr;
 
 public:
     explicit PacketClass(std::shared_ptr<Packet> p);
@@ -30,15 +30,17 @@ extern ClassDefine<PacketClass> PacketClassBuilder;
 
 class BinaryStreamClass : public ScriptClass {
 private:
-    BinaryStream* bs;
+    std::shared_ptr<BinaryStream> binaryStream = nullptr;
 
 public:
-    explicit BinaryStreamClass(BinaryStream* p);
+    explicit BinaryStreamClass(std::shared_ptr<BinaryStream> bs);
 
-    BinaryStreamClass(const Local<Object>& scriptObj) : ScriptClass(scriptObj), bs(new BinaryStream) {}
+    BinaryStreamClass(const Local<Object>& scriptObj)
+    : ScriptClass(scriptObj),
+      binaryStream(std::make_shared<BinaryStream>()) {}
 
-    BinaryStream* get() { return bs; }
-    void          set(BinaryStream* pkt) { bs = pkt; };
+    std::shared_ptr<BinaryStream> get() { return binaryStream; }
+    void                          set(std::shared_ptr<BinaryStream> bs) { binaryStream = bs; };
 
     static Local<Object>      newBinaryStream();
     static BinaryStreamClass* constructor(const Arguments& args);

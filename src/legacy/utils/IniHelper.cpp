@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std::string& defContent) {
+std::shared_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std::string& defContent) {
     namespace fs = std::filesystem;
     auto fpath   = fs::path(ll::string_utils::str2wstr(path));
     if (!fpath.empty() && !fs::exists(fpath)) { // Create new file
@@ -18,7 +18,7 @@ std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std:
     }
 
     // Exist
-    auto root = std::make_unique<SimpleIni>();
+    auto root = std::make_shared<SimpleIni>();
     root->SetUnicode(true);
     auto res = root->LoadFile(path.c_str());
     if (res < 0) {

@@ -8,8 +8,8 @@ class SimpleIni : public CSimpleIniA {
 public:
     std::string filePath;
 
-    static inline std::unique_ptr<SimpleIni> create(const std::string& path) { return create(path, ""); }
-    static std::unique_ptr<SimpleIni>        create(const std::string& path, const std::string& defContent);
+    static inline std::shared_ptr<SimpleIni> create(const std::string& path) { return create(path, ""); }
+    static std::shared_ptr<SimpleIni>        create(const std::string& path, const std::string& defContent);
 
     bool        setInt(const std::string& sec, const std::string& key, int value);
     bool        setFloat(const std::string& sec, const std::string& key, float value);

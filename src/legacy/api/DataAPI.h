@@ -97,10 +97,10 @@ extern ClassDefine<ConfJsonClass> ConfJsonClassBuilder;
 
 class ConfIniClass : public ScriptClass, public ConfBaseClass {
 private:
-    SimpleIni* iniConf;
-    bool       flush() override;
-    bool       close() override;
-    bool       reload() override;
+    std::shared_ptr<SimpleIni> iniConf;
+    bool                       flush() override;
+    bool                       close() override;
+    bool                       reload() override;
 
 public:
     explicit ConfIniClass(const Local<Object>& scriptObj, const std::string& path, const std::string& defContent);

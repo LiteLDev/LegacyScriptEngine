@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.6] - 2026-01-13
+
+### Changed
+
+- No need to copy raw pointer of nbt @ShrBox
+- Optimized ItemAPI
+- Added `std::monostate` to `DB::Any` for preventing some exceptions @ShrBox
+- Avoided unnecessary `new` and raw pointer @ShrBox
+
+### Fixed
+
+- Fixed potential memory leak in `_extractValue(RemoteCall::ItemType&& v)` of RemoteCallAPI @ShrBox
+
 ## [0.16.5] - 2026-01-12
 
 ### Changed
@@ -31,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed several potential memory leak issues(FileSystemAPI, InternationalAPI, SystemAPI, IniHelper) @ShrBox
 
-## [0.16.2] - 2026-01-12
+## [0.16.2] - 2026-01-11
 
 ### Changed
 
@@ -1087,7 +1100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#332]: https://github.com/LiteLDev/LegacyScriptEngine/issues/332
 [#339]: https://github.com/LiteLDev/LegacyScriptEngine/issues/339
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.5...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.6...HEAD
+[0.16.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.2...v0.16.3

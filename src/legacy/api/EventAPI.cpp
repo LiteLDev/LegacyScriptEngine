@@ -389,7 +389,8 @@ void EnableEventListener(int eventId) {
                         EVENT_TYPES::onUseItemOn,
                         PlayerClass::newPlayer(&ev.self()),
                         ItemClass::newItem(&ev.item()),
-                        BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id),
+                        ev.block() ? BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id)
+                                   : BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id),
                         Number::newNumber((schar)ev.face()),
                         FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId().id)
                     )) {

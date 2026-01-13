@@ -238,7 +238,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             LLSERemoveCmdCallback(scriptEngine);
             LLSERemoveAllExportedFuncs(scriptEngine);
 
-            EngineOwnData::clearEngineObjects(scriptEngine.get());
+            EngineOwnData::clearEngineObjects(scriptEngine);
             EngineManager::unregisterEngine(scriptEngine);
 #ifdef LSE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
@@ -268,7 +268,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
             LLSERemoveCmdRegister(scriptEngine);
             LLSERemoveCmdCallback(scriptEngine);
             LLSERemoveAllExportedFuncs(scriptEngine);
-            EngineOwnData::clearEngineObjects(scriptEngine.get());
+            EngineOwnData::clearEngineObjects(scriptEngine);
         }
         EngineManager::unregisterEngine(scriptEngine);
 

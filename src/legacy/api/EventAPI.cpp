@@ -140,7 +140,7 @@ bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine) {
     EngineScope scope(engine.get());
     for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
         try {
-            cb(engine.get());
+            cb(engine);
         }
         CATCH_IN_CALLBACK("onUnload")
     }

@@ -102,16 +102,16 @@ ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data,
                 PackEngineMessage(LLSE_BACKEND_TYPE, type, data, &msgId),
                 std::chrono::milliseconds(delay)
             );
-            engineList.push_back(engine);
+            engineList.push_back(engine.get());
         } catch (const Exception& e) {
-            EngineScope scope(engine);
+            EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to post message to plugin {}",
                 getEngineData(engine)->pluginName
             );
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
         } catch (...) {
-            EngineScope scope(engine);
+            EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to post message to plugin {}",
                 getEngineData(engine)->pluginName
@@ -133,16 +133,16 @@ ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string data
                 PackEngineMessage(EngineManager::getEngineType(engine), type, data, &msgId),
                 std::chrono::milliseconds(delay)
             );
-            engineList.push_back(engine);
+            engineList.push_back(engine.get());
         } catch (const Exception& e) {
-            EngineScope scope(engine);
+            EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to post message to plugin {}",
                 getEngineData(engine)->pluginName
             );
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
         } catch (...) {
-            EngineScope scope(engine);
+            EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                 "Fail to post message to plugin {}",
                 getEngineData(engine)->pluginName
@@ -165,16 +165,16 @@ ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, Message
                     PackEngineMessage(toModuleType, type, data, &msgId),
                     std::chrono::milliseconds(delay)
                 );
-                engineList.push_back(engine);
+                engineList.push_back(engine.get());
             } catch (const Exception& e) {
-                EngineScope scope(engine);
+                EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                     "Fail to post message to plugin {}",
                     getEngineData(engine)->pluginName
                 );
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             } catch (...) {
-                EngineScope scope(engine);
+                EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                     "Fail to post message to plugin {}",
                     getEngineData(engine)->pluginName
@@ -226,16 +226,16 @@ ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::str
                     PackEngineMessage(toModuleType, type, data, &msgId),
                     std::chrono::milliseconds(delay)
                 );
-                return ModuleMessageResult(msgId, {engine});
+                return ModuleMessageResult(msgId, {engine.get()});
             } catch (const Exception& e) {
-                EngineScope scope(engine);
+                EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                     "Fail to post message to plugin {}",
                     getEngineData(engine)->pluginName
                 );
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
             } catch (...) {
-                EngineScope scope(engine);
+                EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                     "Fail to post message to plugin {}",
                     getEngineData(engine)->pluginName
@@ -321,7 +321,7 @@ bool ModuleMessageResult::cancel() {
 void MessageSystemLoopOnce() {
     // if (!messageLoopLock.try_lock())
     //     return;
-    std::list<ScriptEngine*> tmpList;
+    std::list<std::shared_ptr<ScriptEngine>> tmpList;
     {
         std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
         // low efficiency
@@ -330,14 +330,14 @@ void MessageSystemLoopOnce() {
     for (auto engine : tmpList) {
         if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
             try {
-                if (EngineScope::currentEngine() == engine)
+                if (EngineScope::currentEngine() == engine.get())
                     engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
                 else {
-                    EngineScope enter(engine);
+                    EngineScope enter(engine.get());
                     engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
                 }
             } catch (const Exception& e) {
-                EngineScope scope(engine);
+                EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
                     "Error occurred in Engine Message Loop!"
                 );

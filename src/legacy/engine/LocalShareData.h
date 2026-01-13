@@ -48,7 +48,7 @@ struct LocalDataType {
 //////////////////// Externs ////////////////////
 
 // DLL本地共享数据
-extern LocalDataType* localShareData;
+extern std::unique_ptr<LocalDataType> localShareData;
 
 // 命令延迟注册队列
 extern std::vector<RegCmdQueue> toRegCmdQueue;

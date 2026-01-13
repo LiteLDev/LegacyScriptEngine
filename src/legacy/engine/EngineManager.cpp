@@ -16,7 +16,7 @@ using namespace script;
 
 ///////////////////////////////// API /////////////////////////////////
 
-bool EngineManager::unregisterEngine(ScriptEngine* toDelete) {
+bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> toDelete) {
     std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     for (auto engine = globalShareData->globalEngineList.begin(); engine != globalShareData->globalEngineList.end();
          ++engine)
@@ -27,19 +27,19 @@ bool EngineManager::unregisterEngine(ScriptEngine* toDelete) {
     return false;
 }
 
-bool EngineManager::registerEngine(ScriptEngine* engine) {
+bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> engine) {
     std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     globalShareData->globalEngineList.push_back(engine);
     return true;
 }
 
-ScriptEngine* EngineManager::newEngine(std::string pluginName) {
-    ScriptEngine* engine = nullptr;
+std::shared_ptr<ScriptEngine> EngineManager::newEngine(std::string pluginName) {
+    std::shared_ptr<ScriptEngine> engine = nullptr;
 
 #if defined(LSE_BACKEND_NODEJS)
     engine = NodeJsHelper::newEngine();
 #elif !defined(SCRIPTX_BACKEND_WEBASSEMBLY)
-    engine = new ScriptEngineImpl();
+    engine = std::shared_ptr<ScriptEngineImpl>(new ScriptEngineImpl, ScriptEngine::Deleter());
 #else
     engine = ScriptEngineImpl::instance();
 #endif
@@ -55,7 +55,7 @@ ScriptEngine* EngineManager::newEngine(std::string pluginName) {
 bool EngineManager::isValid(ScriptEngine* engine, bool onlyCheckLocal) {
     std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     for (auto i = globalShareData->globalEngineList.begin(); i != globalShareData->globalEngineList.end(); ++i)
-        if (*i == engine) {
+        if (i->get() == engine) {
             if (engine->isDestroying()) return false;
             if (onlyCheckLocal && getEngineType(engine) != LLSE_BACKEND_TYPE) return false;
             else return true;
@@ -63,25 +63,29 @@ bool EngineManager::isValid(ScriptEngine* engine, bool onlyCheckLocal) {
     return false;
 }
 
-std::vector<ScriptEngine*> EngineManager::getLocalEngines() {
-    std::vector<ScriptEngine*>          res;
-    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+bool EngineManager::isValid(std::shared_ptr<ScriptEngine> engine, bool onlyCheckLocal) {
+    return isValid(engine.get(), onlyCheckLocal);
+}
+
+std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getLocalEngines() {
+    std::vector<std::shared_ptr<ScriptEngine>> res;
+    std::shared_lock<std::shared_mutex>        lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (getEngineType(engine) == LLSE_BACKEND_TYPE) res.push_back(engine);
     }
     return res;
 }
 
-std::vector<ScriptEngine*> EngineManager::getGlobalEngines() {
-    std::vector<ScriptEngine*>          res;
-    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getGlobalEngines() {
+    std::vector<std::shared_ptr<ScriptEngine>> res;
+    std::shared_lock<std::shared_mutex>        lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         res.push_back(engine);
     }
     return res;
 }
 
-ScriptEngine* EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
+std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
     std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
@@ -89,6 +93,10 @@ ScriptEngine* EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
         if (ownerData->pluginName == name) return engine;
     }
     return nullptr;
+}
+
+std::string EngineManager::getEngineType(std::shared_ptr<ScriptEngine> engine) {
+    return getEngineData(engine)->engineType;
 }
 
 std::string EngineManager::getEngineType(ScriptEngine* engine) { return getEngineData(engine)->engineType; }

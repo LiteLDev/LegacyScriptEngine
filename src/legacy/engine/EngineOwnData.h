@@ -69,3 +69,7 @@ inline std::shared_ptr<EngineOwnData> getEngineOwnData() {
 inline std::shared_ptr<EngineOwnData> getEngineData(script::ScriptEngine* engine) {
     return std::static_pointer_cast<EngineOwnData>(engine->getData());
 }
+
+inline std::shared_ptr<EngineOwnData> getEngineData(std::shared_ptr<script::ScriptEngine> engine) {
+    return std::static_pointer_cast<EngineOwnData>(engine->getData());
+}

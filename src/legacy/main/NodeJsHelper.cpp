@@ -32,12 +32,11 @@ bool                     nodeJsInited = false;
 std::vector<std::string> args;
 std::vector<std::string> exec_args;
 
-std::unique_ptr<node::MultiIsolatePlatform>                                               platform = nullptr;
-std::unordered_map<script::ScriptEngine*, node::Environment*>                             environments;
-std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>* setups =
-    new std::unordered_map<script::ScriptEngine*, std::unique_ptr<node::CommonEnvironmentSetup>>();
-std::unordered_map<node::Environment*, bool> isRunning;
-std::set<node::Environment*>                 uvLoopTask;
+std::unique_ptr<node::MultiIsolatePlatform>                                                      platform = nullptr;
+std::unordered_map<std::shared_ptr<ScriptEngine>, node::Environment*>                            environments;
+std::unordered_map<std::shared_ptr<ScriptEngine>, std::unique_ptr<node::CommonEnvironmentSetup>> setups;
+std::unordered_map<node::Environment*, bool>                                                     isRunning;
+std::set<node::Environment*>                                                                     uvLoopTask;
 
 ll::Expected<> PatchDelayImport(HMODULE hAddon, HMODULE hLibNode) {
     BYTE* base = (BYTE*)hAddon;
@@ -160,7 +159,7 @@ void shutdownNodeJs() {
     node::TearDownOncePerProcess();
 }
 
-script::ScriptEngine* newEngine() {
+std::shared_ptr<ScriptEngine> newEngine() {
     if (!nodeJsInited && !initNodeJs()) {
         return nullptr;
     }
@@ -191,32 +190,40 @@ script::ScriptEngine* newEngine() {
     v8::HandleScope    handle_scope(isolate);
     v8::Context::Scope context_scope(setup->context());
 
-    script::ScriptEngine* engine = new script::ScriptEngineImpl({}, isolate, setup->context(), false);
+    std::shared_ptr<ScriptEngine> engine = std::shared_ptr<ScriptEngine>(
+        new ScriptEngineImpl({}, isolate, setup->context(), false),
+        ScriptEngine::Deleter()
+    );
 
     lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
         "Initialize ScriptEngine for node.js [{}]",
-        (void*)engine
+        (void*)engine.get()
     );
     environments[engine] = env;
-    (*setups)[engine]    = std::move(setup);
+    setups[engine]       = std::move(setup);
     isRunning[env]       = true;
 
     node::AddEnvironmentCleanupHook(
         isolate,
         [](void* arg) {
-            static_cast<script::ScriptEngine*>(arg)->destroy();
+            static_cast<ScriptEngine*>(arg)->destroy();
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
                 "Destroy ScriptEngine for node.js [{}]",
                 arg
             );
             lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Destroy EnvironmentCleanupHook");
         },
-        engine
+        engine.get()
     );
     return engine;
 }
 
-bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath, bool esm) {
+bool loadPluginCode(
+    std::shared_ptr<ScriptEngine> engine,
+    std::string                   entryScriptPath,
+    std::string                   pluginDirPath,
+    bool                          esm
+) {
     // Process requireDir
     if (!pluginDirPath.ends_with('/')) pluginDirPath += "/";
 
@@ -231,14 +238,14 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
     entryScriptPath = ll::string_utils::replaceAll(entryScriptPath, "\\", "/");
 
     // Find setup
-    auto it = setups->find(engine);
-    if (it == setups->end()) return false;
+    auto it = setups.find(engine);
+    if (it == setups.end()) return false;
 
     auto env = it->second->env();
 
     try {
         using namespace v8;
-        EngineScope enter(engine);
+        EngineScope enter(engine.get());
 
         std::string compiler = R"(
             ll.import=ll.imports;
@@ -352,7 +359,7 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
                 while (uvLoopTask.contains(env)) {
                     co_await 2_tick;
                     if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
-                        EngineScope enter(engine);
+                        EngineScope enter(engine.get());
                         // v8::MicrotasksScope microtaskScope(isolate, v8::MicrotasksScope::kRunMicrotasks);
                         uv_run(eventLoop, UV_RUN_NOWAIT);
                         // Manually perform microtasks because default MicrotasksPolicy is kExplicit
@@ -373,15 +380,15 @@ bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, s
     }
 }
 
-node::Environment* getEnvironmentOf(script::ScriptEngine* engine) {
+node::Environment* getEnvironmentOf(std::shared_ptr<ScriptEngine> engine) {
     auto it = environments.find(engine);
     if (it == environments.end()) return nullptr;
     return it->second;
 }
 
-v8::Isolate* getIsolateOf(script::ScriptEngine* engine) {
-    auto it = setups->find(engine);
-    if (it == setups->end()) return nullptr;
+v8::Isolate* getIsolateOf(std::shared_ptr<ScriptEngine> engine) {
+    auto it = setups.find(engine);
+    if (it == setups.end()) return nullptr;
     return it->second->isolate();
 }
 
@@ -408,12 +415,12 @@ bool stopEngine(node::Environment* env) {
     }
 }
 
-bool stopEngine(script::ScriptEngine* engine) {
+bool stopEngine(std::shared_ptr<ScriptEngine> engine) {
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }
 
-script::ScriptEngine* getEngine(node::Environment* env) {
+std::shared_ptr<ScriptEngine> getEngine(node::Environment* env) {
     for (auto& [engine, environment] : environments)
         if (env == environment) return engine;
     return nullptr;

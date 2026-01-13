@@ -11,16 +11,16 @@ namespace NodeJsHelper {
 bool initNodeJs();
 void shutdownNodeJs();
 
-script::ScriptEngine* newEngine();
-bool                  stopEngine(script::ScriptEngine* engine);
-bool                  stopEngine(node::Environment* env);
-script::ScriptEngine* getEngine(node::Environment* env);
+std::shared_ptr<script::ScriptEngine> newEngine();
+bool                                  stopEngine(std::shared_ptr<script::ScriptEngine> engine);
+bool                                  stopEngine(node::Environment* env);
+std::shared_ptr<script::ScriptEngine> getEngine(node::Environment* env);
 
 bool loadPluginCode(
-    script::ScriptEngine* engine,
-    std::string           entryScriptPath,
-    std::string           pluginDirPath,
-    bool                  esm = false
+    std::shared_ptr<script::ScriptEngine> engine,
+    std::string                           entryScriptPath,
+    std::string                           pluginDirPath,
+    bool                                  esm = false
 ); // raw
 
 std::string findEntryScript(const std::string& dirPath);

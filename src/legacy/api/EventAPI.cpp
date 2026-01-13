@@ -883,15 +883,16 @@ void InitBasicEventListeners() {
             }
 #ifndef LSE_BACKEND_NODEJS
             try {
-                std::list<ScriptEngine*> tmpList;
+                std::list<std::shared_ptr<ScriptEngine>> tmpList;
                 {
                     std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
                     // low efficiency
                     tmpList = globalShareData->globalEngineList;
                 }
                 for (auto engine : tmpList) {
-                    if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
-                        EngineScope enter(engine);
+                    if (EngineManager::isValid(engine.get())
+                        && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
+                        EngineScope enter(engine.get());
                         engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
                     }
                 }

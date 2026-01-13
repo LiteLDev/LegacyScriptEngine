@@ -16,9 +16,9 @@
 #include "PythonHelper.h"
 #endif
 
-extern bool                     InConsoleDebugMode;
-extern ScriptEngine*            DebugEngine;
-std::shared_ptr<ll::io::Logger> DebugCmdLogger = ll::io::LoggerRegistry::getInstance().getOrCreate("LSEDEBUG");
+extern bool                          InConsoleDebugMode;
+extern std::shared_ptr<ScriptEngine> DebugEngine;
+std::shared_ptr<ll::io::Logger>      DebugCmdLogger = ll::io::LoggerRegistry::getInstance().getOrCreate("LSEDEBUG");
 
 inline void PrintDebugSign() { DebugCmdLogger->info("> "); }
 
@@ -28,7 +28,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
     return PythonHelper::processPythonDebugEngine(cmd);
 #endif
     if (InConsoleDebugMode) {
-        EngineScope enter(DebugEngine);
+        EngineScope enter(DebugEngine.get());
         auto&       logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
         try {
             if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
@@ -63,7 +63,7 @@ void RegisterDebugCommand() {
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
             auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
             if (!param.eval.mText.empty()) {
-                EngineScope enter(DebugEngine);
+                EngineScope enter(DebugEngine.get());
                 try {
                     auto               result = DebugEngine->eval(param.eval.mText);
                     std::ostringstream sout;

@@ -3,7 +3,7 @@
 #include <mutex>
 
 // DLL本地共享数据
-LocalDataType* localShareData;
+std::unique_ptr<LocalDataType> localShareData = nullptr;
 
 // 命令延迟注册队列
 std::vector<RegCmdQueue> toRegCmdQueue;
@@ -15,5 +15,5 @@ ll::thread::ThreadPoolExecutor pool("LSE_POOL", LLSE_POOL_THREAD_COUNT);
 
 void InitLocalShareData() {
     srand(clock());
-    localShareData = new LocalDataType;
+    localShareData = std::make_unique<LocalDataType>();
 }

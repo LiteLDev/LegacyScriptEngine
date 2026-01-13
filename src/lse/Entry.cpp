@@ -48,15 +48,15 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 using namespace ll::i18n_literals;
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
-void                  BindAPIs(script::ScriptEngine* engine);
-void                  InitBasicEventListeners();
-void                  InitGlobalShareData();
-void                  InitLocalShareData();
-void                  InitMessageSystem();
-void                  InitSafeGuardRecord();
-void                  RegisterDebugCommand();
-bool                  InConsoleDebugMode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
-script::ScriptEngine* DebugEngine;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+void                                  BindAPIs(script::ScriptEngine* engine);
+void                                  InitBasicEventListeners();
+void                                  InitGlobalShareData();
+void                                  InitLocalShareData();
+void                                  InitMessageSystem();
+void                                  InitSafeGuardRecord();
+void                                  RegisterDebugCommand();
+bool                                  InConsoleDebugMode; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::shared_ptr<script::ScriptEngine> DebugEngine;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 namespace lse {
 
@@ -153,7 +153,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
 #ifndef LSE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto scriptEngine = EngineManager::newEngine();
 
-    script::EngineScope engineScope(scriptEngine);
+    script::EngineScope engineScope(scriptEngine.get());
 
     // Init plugin instance for debug engine to prevent something unexpected.
     ll::mod::Manifest manifest;
@@ -162,7 +162,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     // Init logger
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 
-    BindAPIs(scriptEngine);
+    BindAPIs(scriptEngine.get());
 
     // Load BaseLib.
     auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;

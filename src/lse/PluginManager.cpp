@@ -79,9 +79,11 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             PythonHelper::getPluginPackDependencyFilePath(ll::string_utils::u8str2str(dirPath.u8string()));
         if (!dependTmpFilePath.empty()) {
             int exitCode = 0;
-            logger.info("Executing \"pip install\" for plugin {name}..."_tr(
-                fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
-            ));
+            logger.info(
+                "Executing \"pip install\" for plugin {name}..."_tr(
+                    fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
+                )
+            );
 
             if ((exitCode = PythonHelper::executePipCommand(
                      "pip install -r \"" + dependTmpFilePath + "\" -t \""
@@ -107,9 +109,11 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     if (NodeJsHelper::doesPluginPackHasDependency(ll::string_utils::u8str2str(dirPath.u8string()))
         && !std::filesystem::exists(std::filesystem::path(dirPath) / "node_modules")) {
         int exitCode = 0;
-        logger.info("Executing \"npm install\" for plugin {name}..."_tr(
-            fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
-        ));
+        logger.info(
+            "Executing \"npm install\" for plugin {name}..."_tr(
+                fmt::arg("name", ll::string_utils::u8str2str(dirPath.filename().u8string()))
+            )
+        );
         if ((exitCode = NodeJsHelper::executeNpmCommand(
                  {"install", "--omit=dev", "--no-fund"},
                  ll::string_utils::u8str2str(dirPath.u8string())
@@ -127,7 +131,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     auto plugin       = std::make_shared<Plugin>(manifest);
 
     try {
-        script::EngineScope engineScope(scriptEngine);
+        script::EngineScope engineScope(scriptEngine.get());
 
         // Init plugin logger
         getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(manifest.name);
@@ -156,7 +160,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // engine->set("__name__", String::newString("__main__"));
 #endif
 
-        BindAPIs(scriptEngine);
+        BindAPIs(scriptEngine.get());
 
 #ifndef LSE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         auto& self = LegacyScriptEngine::getInstance().getSelf();
@@ -204,7 +208,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
 #endif
         if (ll::getGamingStatus() == ll::GamingStatus::Running) { // Is hot load
-            LLSECallEventsOnHotLoad(scriptEngine);
+            LLSECallEventsOnHotLoad(scriptEngine.get());
         }
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
@@ -219,26 +223,24 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     } catch (const Exception& e) {
         if (scriptEngine) {
             auto error = [&] {
-                EngineScope engineScope(scriptEngine);
+                EngineScope engineScope(scriptEngine.get());
                 return ll::makeStringError(
                     "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
                 );
             }();
 
 #ifndef LSE_BACKEND_NODEJS
-            LLSERemoveTimeTaskData(scriptEngine);
+            LLSERemoveTimeTaskData(scriptEngine.get());
 #endif
-            LLSERemoveAllEventListeners(scriptEngine);
-            LLSERemoveCmdRegister(scriptEngine);
-            LLSERemoveCmdCallback(scriptEngine);
-            LLSERemoveAllExportedFuncs(scriptEngine);
+            LLSERemoveAllEventListeners(scriptEngine.get());
+            LLSERemoveCmdRegister(scriptEngine.get());
+            LLSERemoveCmdCallback(scriptEngine.get());
+            LLSERemoveAllExportedFuncs(scriptEngine.get());
 
-            EngineOwnData::clearEngineObjects(scriptEngine);
+            EngineOwnData::clearEngineObjects(scriptEngine.get());
             EngineManager::unregisterEngine(scriptEngine);
 #ifdef LSE_BACKEND_NODEJS
             NodeJsHelper::stopEngine(scriptEngine);
-#else
-            scriptEngine->destroy();
 #endif
             return error;
         } else {
@@ -256,16 +258,16 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         }
 
         {
-            EngineScope scope(scriptEngine);
-            LLSECallEventsOnUnload(scriptEngine);
+            EngineScope scope(scriptEngine.get());
+            LLSECallEventsOnUnload(scriptEngine.get());
 #ifndef LSE_BACKEND_NODEJS
-            LLSERemoveTimeTaskData(scriptEngine);
+            LLSERemoveTimeTaskData(scriptEngine.get());
 #endif
-            LLSERemoveAllEventListeners(scriptEngine);
-            LLSERemoveCmdRegister(scriptEngine);
-            LLSERemoveCmdCallback(scriptEngine);
-            LLSERemoveAllExportedFuncs(scriptEngine);
-            EngineOwnData::clearEngineObjects(scriptEngine);
+            LLSERemoveAllEventListeners(scriptEngine.get());
+            LLSERemoveCmdRegister(scriptEngine.get());
+            LLSERemoveCmdCallback(scriptEngine.get());
+            LLSERemoveAllExportedFuncs(scriptEngine.get());
+            EngineOwnData::clearEngineObjects(scriptEngine.get());
         }
         EngineManager::unregisterEngine(scriptEngine);
 
@@ -275,24 +277,9 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         eraseMod(name);
 
-        auto destroyEngine = [scriptEngine]() {
 #ifdef LSE_BACKEND_NODEJS
-            NodeJsHelper::stopEngine(scriptEngine);
-#else
-            scriptEngine->destroy(); // TODO: use unique_ptr to manage the engine.
+        NodeJsHelper::stopEngine(scriptEngine);
 #endif
-        };
-
-        if (ll::getGamingStatus() == ll::GamingStatus::Running) {
-            ll::coro::keepThis([destroyEngine]() -> ll::coro::CoroTask<> {
-                using namespace ll::chrono_literals;
-                co_await 1_tick;
-                destroyEngine();
-            }).launch(ll::thread::ServerThreadExecutor::getDefault());
-        } else {
-            destroyEngine();
-        }
-
         return {};
     } catch (const script::Exception&) {
         return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, "Unknown script exception"));

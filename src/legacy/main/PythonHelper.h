@@ -9,7 +9,11 @@ namespace PythonHelper {
 bool initPythonRuntime();
 
 // raw, will throw exception if fail
-bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath);
+bool loadPluginCode(
+    std::shared_ptr<script::ScriptEngine> engine,
+    std::string                           entryScriptPath,
+    std::string                           pluginDirPath
+);
 
 std::string findEntryScript(const std::string& dirPath);
 std::string getPluginPackageName(const std::string& dirPath);

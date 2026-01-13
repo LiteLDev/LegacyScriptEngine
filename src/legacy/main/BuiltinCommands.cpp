@@ -57,7 +57,7 @@ void RegisterDebugCommand() {
     DebugCmdLogger->setFormatter(ll::makePolymorphic<lse::io::DirectFormatter>());
     // Node.js engine doesn't support debug engine, Python engine don't need to register command.
 #if (!defined LSE_BACKEND_NODEJS) && (!defined LSE_BACKEND_PYTHON)
-    auto& command = ll::command::CommandRegistrar::getInstance()
+    auto& command = ll::command::CommandRegistrar::getInstance(false)
                         .getOrCreateCommand(LLSE_DEBUG_CMD, "Debug LegacyScriptEngine", CommandPermissionLevel::Owner);
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {

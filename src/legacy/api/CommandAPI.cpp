@@ -265,7 +265,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                     );
                 }
             }
-            auto& command = CommandRegistrar::getInstance().getOrCreateCommand(name, desc, permission, flag);
+            auto& command = CommandRegistrar::getInstance(false).getOrCreateCommand(name, desc, permission, flag);
             if (!alias.empty()) {
                 command.alias(alias);
             }
@@ -308,7 +308,7 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
         std::string alias = args[0].asString().toString();
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([commandName(commandName), alias]() -> ll::coro::CoroTask<> {
-                ll::command::CommandRegistrar::getInstance().getOrCreateCommand(commandName).alias(alias);
+                ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(commandName).alias(alias);
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
             return Boolean::newBoolean(true);
@@ -335,12 +335,12 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
         }
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([enumName, enumValues]() -> ll::coro::CoroTask<> {
-                CommandRegistrar::getInstance().tryRegisterRuntimeEnum(enumName, std::move(enumValues));
+                CommandRegistrar::getInstance(false).tryRegisterRuntimeEnum(enumName, std::move(enumValues));
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
             return String::newString(enumName);
         } else {
-            if (CommandRegistrar::getInstance().tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
+            if (CommandRegistrar::getInstance(false).tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
                 return String::newString(enumName);
             }
         }
@@ -517,7 +517,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             ll::coro::keepThis(
                 [paramNames, commandName(commandName), overloadFunc, e(EngineScope::currentEngine())]()
                     -> ll::coro::CoroTask<> {
-                    auto cmd = ll::command::CommandRegistrar::getInstance()
+                    auto cmd = ll::command::CommandRegistrar::getInstance(false)
                                    .getOrCreateCommand(commandName)
                                    .runtimeOverload(getEngineData(e)->plugin);
                     for (auto& paramName : paramNames) {
@@ -533,7 +533,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 ll::coro::keepThis(
                     [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
                         getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
-                        auto cmd = ll::command::CommandRegistrar::getInstance()
+                        auto cmd = ll::command::CommandRegistrar::getInstance(false)
                                        .getOrCreateCommand(commandName)
                                        .runtimeOverload(getEngineData(e)->plugin);
                         cmd.execute(onExecute);
@@ -591,7 +591,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                     ll::coro::keepThis(
                         [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
                             getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
-                            auto cmd = ll::command::CommandRegistrar::getInstance()
+                            auto cmd = ll::command::CommandRegistrar::getInstance(false)
                                            .getOrCreateCommand(commandName)
                                            .runtimeOverload(getEngineData(e)->plugin);
                             cmd.execute(onExecute);
@@ -691,11 +691,11 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
         auto enums = parseStringList(args[1].asArray());
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([name, enums]() -> ll::coro::CoroTask<> {
-                CommandRegistrar::getInstance().tryRegisterSoftEnum(name, std::move(enums));
+                CommandRegistrar::getInstance(false).tryRegisterSoftEnum(name, std::move(enums));
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
         } else {
-            CommandRegistrar::getInstance().tryRegisterSoftEnum(name, std::move(enums));
+            CommandRegistrar::getInstance(false).tryRegisterSoftEnum(name, std::move(enums));
         }
         return Boolean::newBoolean(true);
     }
@@ -711,11 +711,11 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
         auto enums = parseStringList(args[1].asArray());
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([name, enums]() -> ll::coro::CoroTask<> {
-                CommandRegistrar::getInstance().addSoftEnumValues(name, std::move(enums));
+                CommandRegistrar::getInstance(false).addSoftEnumValues(name, std::move(enums));
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
         } else {
-            CommandRegistrar::getInstance().addSoftEnumValues(name, std::move(enums));
+            CommandRegistrar::getInstance(false).addSoftEnumValues(name, std::move(enums));
         }
         return Boolean::newBoolean(true);
     }
@@ -731,11 +731,11 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
         auto enums = parseStringList(args[1].asArray());
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([name, enums]() -> ll::coro::CoroTask<> {
-                CommandRegistrar::getInstance().removeSoftEnumValues(name, std::move(enums));
+                CommandRegistrar::getInstance(false).removeSoftEnumValues(name, std::move(enums));
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
         } else {
-            CommandRegistrar::getInstance().removeSoftEnumValues(name, std::move(enums));
+            CommandRegistrar::getInstance(false).removeSoftEnumValues(name, std::move(enums));
         }
         return Boolean::newBoolean(true);
     }

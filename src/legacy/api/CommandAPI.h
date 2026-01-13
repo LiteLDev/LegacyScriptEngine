@@ -6,7 +6,7 @@ extern ClassDefine<void> ParamTypeStaticBuilder;
 extern ClassDefine<void> PermissionStaticBuilder;
 extern ClassDefine<void> ParamOptionStaticBuilder;
 
-bool LLSERemoveCmdCallback(script::ScriptEngine* engine);
+bool LLSERemoveCmdCallback(std::shared_ptr<script::ScriptEngine> engine);
 
 enum class OldCommandPermissionLevel : schar {
     Any         = 0x0,

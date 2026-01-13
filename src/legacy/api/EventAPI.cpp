@@ -109,38 +109,38 @@ LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<
     }
 }
 
-bool LLSERemoveAllEventListeners(ScriptEngine* engine) {
+bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine) {
     for (auto& listeners : listenerList) {
-        listeners.remove_if([engine](auto& listener) { return listener.engine == engine; });
+        listeners.remove_if([engine](auto& listener) { return listener.engine == engine.get(); });
     }
     return true;
 }
 
-bool LLSECallEventsOnHotLoad(ScriptEngine* engine) {
-    FakeCallEvent(engine, EVENT_TYPES::onServerStarted);
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine) {
+    FakeCallEvent(engine.get(), EVENT_TYPES::onServerStarted);
 
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-        FakeCallEvent(engine, EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
+        FakeCallEvent(engine.get(), EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
         return true;
     });
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-        FakeCallEvent(engine, EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
+        FakeCallEvent(engine.get(), EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
         return true;
     });
 
     return true;
 }
 
-bool LLSECallEventsOnUnload(ScriptEngine* engine) {
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine) {
     // Players may be online when the server is stopping
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-        FakeCallEvent(engine, EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
+        FakeCallEvent(engine.get(), EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
         return true;
     });
-    EngineScope scope(engine);
+    EngineScope scope(engine.get());
     for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
         try {
-            cb(engine);
+            cb(engine.get());
         }
         CATCH_IN_CALLBACK("onUnload")
     }

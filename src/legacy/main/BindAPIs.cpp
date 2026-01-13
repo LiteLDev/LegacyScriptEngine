@@ -30,7 +30,7 @@
 #include "api/InternationalAPI.h"
 #include "api/ParticleAPI.h"
 
-void BindAPIs(ScriptEngine* engine) {
+void BindAPIs(std::shared_ptr<ScriptEngine> engine) {
 
     //////////////// 全局函数 ////////////////
 

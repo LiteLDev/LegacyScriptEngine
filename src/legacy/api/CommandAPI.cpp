@@ -74,8 +74,10 @@ ClassDefine<CommandClass> CommandClassBuilder =
 
 //////////////////// Helper ////////////////////
 
-bool LLSERemoveCmdCallback(script::ScriptEngine* engine) {
-    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
+bool LLSERemoveCmdCallback(std::shared_ptr<script::ScriptEngine> engine) {
+    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) {
+        return data.second.fromEngine == engine.get();
+    });
     return true;
 }
 

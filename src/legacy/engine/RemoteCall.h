@@ -6,7 +6,7 @@
 //////////////////// Funcs ////////////////////
 
 bool LLSEExportFunc(ScriptEngine* engine, const Local<Function>& func, const std::string& exportName);
-bool LLSERemoveAllExportedFuncs(ScriptEngine* engine);
+bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> engine);
 
 class ModuleMessage;
 void RemoteSyncCallRequest(ModuleMessage& msg);

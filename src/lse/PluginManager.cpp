@@ -49,14 +49,14 @@ constexpr auto PluginManagerName = "lse-nodejs";
 #endif
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
-void BindAPIs(script::ScriptEngine* engine);
-void LLSERemoveTimeTaskData(script::ScriptEngine* engine);
-bool LLSERemoveAllEventListeners(script::ScriptEngine* engine);
-bool LLSERemoveCmdRegister(script::ScriptEngine* engine);
-bool LLSERemoveCmdCallback(script::ScriptEngine* engine);
-bool LLSERemoveAllExportedFuncs(script::ScriptEngine* engine);
-bool LLSECallEventsOnHotLoad(ScriptEngine* engine);
-bool LLSECallEventsOnUnload(ScriptEngine* engine);
+void BindAPIs(std::shared_ptr<ScriptEngine> engine);
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine);
+bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
+bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine);
+bool LLSERemoveCmdCallback(std::shared_ptr<ScriptEngine> engine);
+bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
 
 namespace lse {
 
@@ -64,8 +64,8 @@ PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
 PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
-    auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
 #ifdef LSE_BACKEND_PYTHON
+    auto&                 logger  = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     std::string           entryPath =
         PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
@@ -100,6 +100,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     }
 #endif
 #ifdef LSE_BACKEND_NODEJS
+    auto&                 logger  = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;
@@ -131,7 +132,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     auto plugin       = std::make_shared<Plugin>(manifest);
 
     try {
-        script::EngineScope engineScope(scriptEngine.get());
+        EngineScope engineScope(scriptEngine.get());
 
         // Init plugin logger
         getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate(manifest.name);
@@ -160,7 +161,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // engine->set("__name__", String::newString("__main__"));
 #endif
 
-        BindAPIs(scriptEngine.get());
+        BindAPIs(scriptEngine);
 
 #ifndef LSE_BACKEND_NODEJS // NodeJs backend load depends code in another place
         auto& self = LegacyScriptEngine::getInstance().getSelf();
@@ -198,7 +199,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         // Try loadFile
         try {
             scriptEngine->loadFile(entryPath.u8string());
-        } catch (const script::Exception&) {
+        } catch (const Exception&) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
@@ -208,7 +209,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
 #endif
         if (ll::getGamingStatus() == ll::GamingStatus::Running) { // Is hot load
-            LLSECallEventsOnHotLoad(scriptEngine.get());
+            LLSECallEventsOnHotLoad(scriptEngine);
         }
         ExitEngineScope exit;
         plugin->onLoad([](ll::mod::Mod&) { return true; });
@@ -230,12 +231,12 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             }();
 
 #ifndef LSE_BACKEND_NODEJS
-            LLSERemoveTimeTaskData(scriptEngine.get());
+            LLSERemoveTimeTaskData(scriptEngine);
 #endif
-            LLSERemoveAllEventListeners(scriptEngine.get());
-            LLSERemoveCmdRegister(scriptEngine.get());
-            LLSERemoveCmdCallback(scriptEngine.get());
-            LLSERemoveAllExportedFuncs(scriptEngine.get());
+            LLSERemoveAllEventListeners(scriptEngine);
+            LLSERemoveCmdRegister(scriptEngine);
+            LLSERemoveCmdCallback(scriptEngine);
+            LLSERemoveAllExportedFuncs(scriptEngine);
 
             EngineOwnData::clearEngineObjects(scriptEngine.get());
             EngineManager::unregisterEngine(scriptEngine);
@@ -259,14 +260,14 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         {
             EngineScope scope(scriptEngine.get());
-            LLSECallEventsOnUnload(scriptEngine.get());
+            LLSECallEventsOnUnload(scriptEngine);
 #ifndef LSE_BACKEND_NODEJS
-            LLSERemoveTimeTaskData(scriptEngine.get());
+            LLSERemoveTimeTaskData(scriptEngine);
 #endif
-            LLSERemoveAllEventListeners(scriptEngine.get());
-            LLSERemoveCmdRegister(scriptEngine.get());
-            LLSERemoveCmdCallback(scriptEngine.get());
-            LLSERemoveAllExportedFuncs(scriptEngine.get());
+            LLSERemoveAllEventListeners(scriptEngine);
+            LLSERemoveCmdRegister(scriptEngine);
+            LLSERemoveCmdCallback(scriptEngine);
+            LLSERemoveAllExportedFuncs(scriptEngine);
             EngineOwnData::clearEngineObjects(scriptEngine.get());
         }
         EngineManager::unregisterEngine(scriptEngine);
@@ -281,7 +282,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         NodeJsHelper::stopEngine(scriptEngine);
 #endif
         return {};
-    } catch (const script::Exception&) {
+    } catch (const Exception&) {
         return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, "Unknown script exception"));
     } catch (const std::exception& e) {
         return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, e.what()));

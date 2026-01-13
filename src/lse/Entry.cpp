@@ -48,7 +48,7 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 using namespace ll::i18n_literals;
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
-void                                  BindAPIs(script::ScriptEngine* engine);
+void                                  BindAPIs(std::shared_ptr<script::ScriptEngine> engine);
 void                                  InitBasicEventListeners();
 void                                  InitGlobalShareData();
 void                                  InitLocalShareData();
@@ -162,7 +162,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     // Init logger
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 
-    BindAPIs(scriptEngine.get());
+    BindAPIs(scriptEngine);
 
     // Load BaseLib.
     auto baseLibPath    = self.getModDir() / "baselib" / BaseLibFileName;

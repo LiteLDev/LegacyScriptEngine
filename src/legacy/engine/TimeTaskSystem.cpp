@@ -205,13 +205,13 @@ bool ClearTimeTask(int const& id) {
     return true;
 }
 
-void LLSERemoveTimeTaskData(ScriptEngine* engine) {
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine) {
     // enter scope to prevent script::Global::~Global() from crashing
-    EngineScope enter(engine);
+    EngineScope enter(engine.get());
     try {
         std::lock_guard lock(locker);
         for (auto it = timeTaskMap.begin(); it != timeTaskMap.end();) {
-            if (it->second == engine) {
+            if (it->second == engine.get()) {
                 it = timeTaskMap.erase(it);
             } else {
                 ++it;

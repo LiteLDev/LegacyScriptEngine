@@ -23,9 +23,6 @@
 
 using ll::chrono_literals::operator""_tick;
 
-// pre-declare
-extern void BindAPIs(ScriptEngine* engine);
-
 namespace NodeJsHelper {
 
 bool                     nodeJsInited = false;

@@ -10,9 +10,9 @@ void InitBasicEventListeners();
 void EnableEventListener(int eventId);
 optional_ref<EventListener>
      LLSEAddEventListener(ScriptEngine* engine, const std::string& eventName, const Local<Function>& func);
-bool LLSERemoveAllEventListeners(ScriptEngine* engine);
-bool LLSECallEventsOnHotLoad(ScriptEngine* engine);
-bool LLSECallEventsOnUnload(ScriptEngine* engine);
+bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
 
 //////////////////// Callback ////////////////////
 
@@ -157,13 +157,13 @@ extern bool hasListened[int(EVENT_TYPES::EVENT_COUNT)];
 // 监听器异常拦截
 inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_enum::enum_name(e)); }
 
-#define CallEvent(type, ...)                                                                                           \
+#define CallEvent(TYPE, ...)                                                                                           \
     [&]() {                                                                                                            \
-        std::list<EventListener>& nowList     = listenerList[(int)type];                                               \
+        std::list<EventListener>& nowList     = listenerList[(int)TYPE];                                               \
         bool                      returnValue = true;                                                                  \
         for (auto& listener : nowList | std::views::filter([](auto& l) { return !l.removed; })) {                      \
             EngineScope enter(listener.engine);                                                                        \
-            CallEventImpl(listener, returnValue, type, __VA_ARGS__);                                                   \
+            CallEventImpl(listener, returnValue, TYPE, __VA_ARGS__);                                                   \
         }                                                                                                              \
         return returnValue;                                                                                            \
     }()
@@ -192,11 +192,11 @@ void CallEventImpl(EventListener& listener, bool& returnValue, EVENT_TYPES type,
     }
 }
 
-#define FakeCallEvent(engine, type, ...)                                                                               \
-    std::list<EventListener>& nowList = listenerList[(int)type];                                                       \
+#define FakeCallEvent(ENGINE, TYPE, ...)                                                                               \
+    std::list<EventListener>& nowList = listenerList[(int)TYPE];                                                       \
     for (auto& listener : nowList | std::views::filter([](auto& l) { return !l.removed; })) {                          \
         EngineScope enter(listener.engine);                                                                            \
-        FakeCallEventImpl(listener, engine, type, __VA_ARGS__);                                                        \
+        FakeCallEventImpl(listener, ENGINE, TYPE, __VA_ARGS__);                                                        \
     }
 
 template <typename... T>

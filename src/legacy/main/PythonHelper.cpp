@@ -17,7 +17,6 @@
 const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 
 // pre-declare
-extern void                            BindAPIs(ScriptEngine* engine);
 extern bool                            InConsoleDebugMode;
 extern std::shared_ptr<ScriptEngine>   DebugEngine;
 extern std::shared_ptr<ll::io::Logger> DebugCmdLogger;
@@ -178,7 +177,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
         return false;
     }
     if (InConsoleDebugMode) {
-        EngineScope enter(DebugEngine);
+        EngineScope enter(DebugEngine.get());
         if (cmd == "stop") {
             return true;
         } else {

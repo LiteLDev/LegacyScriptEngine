@@ -245,7 +245,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #endif
             return error;
         } else {
-            return ll::makeStringError("Failed to load plugin {0}: {1}"_tr(manifest.name, "ScriptEngine* is nullptr"));
+            return ll::makeStringError("Failed to load plugin {0}: {1}"_tr(manifest.name, "ScriptEngine is nullptr"));
         }
     }
 }

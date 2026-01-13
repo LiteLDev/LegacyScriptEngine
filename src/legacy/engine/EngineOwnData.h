@@ -43,16 +43,16 @@ struct EngineOwnData {
     std::unordered_map<std::string, script::Global<Value>> playerDataDB;
 
     // Unload Callbacks, use for close database...
-    int                                                         index = 0;
-    std::unordered_map<int, std::function<void(ScriptEngine*)>> unloadCallbacks;
-    inline int addUnloadCallback(std::function<void(ScriptEngine*)>&& cb) {
+    int                                                                         index = 0;
+    std::unordered_map<int, std::function<void(std::shared_ptr<ScriptEngine>)>> unloadCallbacks;
+    inline int addUnloadCallback(std::function<void(std::shared_ptr<ScriptEngine>)>&& cb) {
         unloadCallbacks[++index] = cb;
         return index;
     }
     inline bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
 
-    static void clearEngineObjects(ScriptEngine* engine) {
-        EngineScope scope(engine);
+    static void clearEngineObjects(std::shared_ptr<ScriptEngine> engine) {
+        EngineScope scope(engine.get());
         auto        data = std::static_pointer_cast<EngineOwnData>(engine->getData());
         data->playerDataDB.clear();
         data->unloadCallbacks.clear();
@@ -67,5 +67,9 @@ inline std::shared_ptr<EngineOwnData> getEngineOwnData() {
 }
 
 inline std::shared_ptr<EngineOwnData> getEngineData(script::ScriptEngine* engine) {
+    return std::static_pointer_cast<EngineOwnData>(engine->getData());
+}
+
+inline std::shared_ptr<EngineOwnData> getEngineData(std::shared_ptr<script::ScriptEngine> engine) {
     return std::static_pointer_cast<EngineOwnData>(engine->getData());
 }

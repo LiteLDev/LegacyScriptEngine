@@ -14,12 +14,12 @@ using std::string;
 
 class ModuleMessageResult {
 private:
-    int                        msgId;
-    OperationCount             resultCount;
-    std::vector<ScriptEngine*> engineList;
+    int                                      msgId;
+    OperationCount                           resultCount;
+    std::list<std::shared_ptr<ScriptEngine>> engineList;
 
     friend class ModuleMessage;
-    ModuleMessageResult(int messageId, std::vector<ScriptEngine*> engineList);
+    ModuleMessageResult(int messageId, std::list<std::shared_ptr<ScriptEngine>> engineList);
 
 public:
     ModuleMessageResult() : resultCount("") {}
@@ -72,7 +72,8 @@ public:
     static ModuleMessageResult broadcastGlobal(MessageType type, std::string data, int64_t delay = 0);
     static ModuleMessageResult
     broadcastTo(std::string toModuleType, MessageType type, std::string data, int64_t delay = 0);
-    static ModuleMessageResult sendTo(ScriptEngine* engine, MessageType type, std::string data, int64_t delay = 0);
+    static ModuleMessageResult
+    sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string data, int64_t delay = 0);
     static ModuleMessageResult
     sendToRandom(std::string toModuleType, MessageType type, std::string data, int64_t delay = 0);
 

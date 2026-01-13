@@ -104,10 +104,10 @@ SharedPointer<Session> Session::create(DBType type, const std::string& path) {
 }
 
 SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
-    Session* session = nullptr;
+    std::shared_ptr<Session> session = nullptr;
     switch (type) {
     case DBType::SQLite:
-        session = params.empty() ? new SQLiteSession() : new SQLiteSession(params);
+        session = params.empty() ? std::make_shared<SQLiteSession>() : std::make_shared<SQLiteSession>(params);
         break;
     case DBType::MySQL:
 #ifdef LSE_BACKEND_NODEJS
@@ -115,7 +115,7 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
             "Session::_Create: MySQL is disabled in NodeJS backend because its OpenSSL has conflicts with libnode"
         );
 #else
-        session = params.empty() ? new MySQLSession() : new MySQLSession(params);
+        session = params.empty() ? std::make_shared<MySQLSession>() : std::make_shared<MySQLSession>(params);
 #endif
         break;
     default:

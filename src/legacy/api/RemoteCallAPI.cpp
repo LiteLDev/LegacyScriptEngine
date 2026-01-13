@@ -111,7 +111,7 @@ Local<Value> _extractValue(RemoteCall::BlockType v) {
 };
 Local<Value> _extractValue(RemoteCall::NumberType v) { return Number::newNumber(v.get<double>()); };
 Local<Value> _extractValue(RemoteCall::ItemType&& v) {
-    if (v.own) return ItemClass::newItem(v.tryGetUniquePtr().release());
+    if (v.own) return ItemClass::newItem(v.tryGetUniquePtr());
     else return ItemClass::newItem(const_cast<ItemStack*>(v.ptr));
 };
 Local<Value> _extractValue(RemoteCall::NbtType&& v) {
@@ -240,9 +240,9 @@ bool LLSEExportFunc(
     return false;
 }
 
-bool LLSERemoveAllExportedFuncs(ScriptEngine* engine) {
+bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> engine) {
     // enter scope to prevent crash in script::Global::~Global()
-    EngineScope                                      enter(engine);
+    EngineScope                                      enter(engine.get());
     std::vector<std::pair<std::string, std::string>> funcs;
     for (auto& [key, data] : getEngineData(engine)->exportFuncs) {
         funcs.emplace_back(data.nameSpace, data.funcName);

@@ -148,18 +148,6 @@ bool LLSEExportFunc(ScriptEngine *engine, const Local<Function> &func, const str
     };
     return true;
 }
-bool LLSERemoveAllExportedFuncs_Debug(ScriptEngine* engine);
-bool LLSERemoveAllExportedFuncs(ScriptEngine* engine)
-{
-    return LLSERemoveAllExportedFuncs_Debug(engine);
-#if 0
-    std::erase_if(globalShareData->exportedFuncs, [&engine](auto& data) {
-        return data.second.engine == engine;
-    });
-    return true;
-#endif
-}
-
 
 //////////////////// APIs ////////////////////
 

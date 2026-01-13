@@ -11,7 +11,7 @@
 #include <vector>
 
 // 全局共享数据
-GlobalDataType* globalShareData;
+GlobalDataType* globalShareData = nullptr;
 
 void InitGlobalShareData() {
     HANDLE hGlobalData = CreateFileMapping(

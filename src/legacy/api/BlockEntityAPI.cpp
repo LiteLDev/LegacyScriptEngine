@@ -71,7 +71,7 @@ Local<Value> BlockEntityClass::getType() {
 
 Local<Value> BlockEntityClass::getNbt(const Arguments&) {
     try {
-        CompoundTag* tag = new CompoundTag();
+        auto tag = std::make_unique<CompoundTag>();
         blockEntity->save(*tag, *SaveContextFactory::createCloneSaveContext());
         return NbtCompoundClass::pack(std::move(tag)); // Not sure is that will get right value
     }

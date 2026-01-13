@@ -72,10 +72,10 @@ size_t RowHeader::operator[](const std::string& name) {
 std::string& RowHeader::operator[](size_t index) { return at(index); }
 
 Row::Row(const std::shared_ptr<RowHeader>& header) : header(header) {}
-Row::Row(const RowHeader& header) : header(new RowHeader(header)) {}
+Row::Row(const RowHeader& header) : header(std::make_shared<RowHeader>(header)) {}
 Row::Row(const std::initializer_list<Any>& list, const RowHeader& header)
 : std::vector<Any>(list),
-  header(new RowHeader(header)) {
+  header(std::make_shared<RowHeader>(header)) {
     if (!header.empty() && list.size() != header.size()) {
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
@@ -89,7 +89,7 @@ Row::Row(const std::initializer_list<Any>& list, const std::shared_ptr<RowHeader
 }
 Row::Row(std::vector<Any>&& list, const RowHeader& header)
 : std::vector<Any>(std::move(list)),
-  header(new RowHeader(header)) {
+  header(std::make_shared<RowHeader>(header)) {
     if (size() != header.size()) {
         list = std::move(*this); // Restore
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
@@ -97,12 +97,12 @@ Row::Row(std::vector<Any>&& list, const RowHeader& header)
 }
 Row::Row(const std::vector<Any>& list, const RowHeader& header)
 : std::vector<Any>(list),
-  header(new RowHeader(header)) {
+  header(std::make_shared<RowHeader>(header)) {
     if (list.size() != header.size()) {
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
 }
-Row::Row(const std::initializer_list<std::pair<std::string, Any>>& list) : header(new RowHeader()) {
+Row::Row(const std::initializer_list<std::pair<std::string, Any>>& list) : header(std::make_shared<RowHeader>()) {
     for (auto& pair : list) {
         header->add(pair.first);
         this->push_back(pair.second);

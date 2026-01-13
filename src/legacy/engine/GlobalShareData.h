@@ -27,8 +27,8 @@ struct MessageHandlers {
 // 全局共享数据
 struct GlobalDataType {
     // 引擎管理器表
-    std::shared_mutex        engineListLock;
-    std::list<ScriptEngine*> globalEngineList;
+    std::shared_mutex                                engineListLock;
+    std::list<std::shared_ptr<script::ScriptEngine>> globalEngineList;
 
     // 注册过的命令
     std::unordered_map<std::string, std::string> playerRegisteredCmd;

@@ -425,11 +425,12 @@ Local<Value> LlClass::onUnload(const script::Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
-        getEngineOwnData()->addUnloadCallback([func = script::Global<Function>(args[0].asFunction()
-                                               )](ScriptEngine* engine) {
-            EngineScope enter(engine);
-            func.get().call();
-        });
+        getEngineOwnData()->addUnloadCallback(
+            [func = script::Global<Function>(args[0].asFunction())](std::shared_ptr<ScriptEngine> engine) {
+                EngineScope enter(engine.get());
+                func.get().call();
+            }
+        );
         return {};
     }
     CATCH("Fail in onUnload");

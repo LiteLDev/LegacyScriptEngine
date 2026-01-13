@@ -17,9 +17,8 @@
 const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 
 // pre-declare
-extern void                            BindAPIs(ScriptEngine* engine);
 extern bool                            InConsoleDebugMode;
-extern ScriptEngine*                   DebugEngine;
+extern std::shared_ptr<ScriptEngine>   DebugEngine;
 extern std::shared_ptr<ll::io::Logger> DebugCmdLogger;
 
 struct PyConfig;
@@ -60,7 +59,11 @@ bool initPythonRuntime() {
     return true;
 }
 
-bool loadPluginCode(script::ScriptEngine* engine, std::string entryScriptPath, std::string pluginDirPath) {
+bool loadPluginCode(
+    std::shared_ptr<script::ScriptEngine> engine,
+    std::string                           entryScriptPath,
+    std::string                           pluginDirPath
+) {
     // TODO: add import path to sys.path
     try {
         engine->loadFile(String::newString(entryScriptPath));
@@ -174,7 +177,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
         return false;
     }
     if (InConsoleDebugMode) {
-        EngineScope enter(DebugEngine);
+        EngineScope enter(DebugEngine.get());
         if (cmd == "stop") {
             return true;
         } else {

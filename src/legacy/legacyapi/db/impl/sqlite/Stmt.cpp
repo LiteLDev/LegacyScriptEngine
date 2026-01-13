@@ -35,7 +35,7 @@ int SQLiteStmt::getNextParamIndex() {
 }
 
 void SQLiteStmt::fetchResultHeader() {
-    if (!resultHeader) resultHeader.reset(new RowHeader);
+    if (!resultHeader) resultHeader = std::make_shared<RowHeader>();
     int colCnt = sqlite3_column_count(stmt);
     for (int i = 0; i < colCnt; i++) {
         auto     name = sqlite3_column_name(stmt, i);
@@ -328,7 +328,7 @@ SQLiteStmt::create(const std::weak_ptr<Session>& session, const std::string& sql
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::create: " + s->getLastError());
     }
-    auto result    = new SQLiteStmt(stmt, session, autoExecute);
+    auto result    = std::make_shared<SQLiteStmt>(stmt, session, autoExecute);
     result->parent = session;
     result->setDebugOutput(raw->debugOutput);
     if (raw->debugOutput)

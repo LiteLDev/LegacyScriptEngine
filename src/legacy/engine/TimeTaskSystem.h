@@ -22,4 +22,4 @@ bool CheckTimeTask(int const& id);
 
 ///////////////////////// Func /////////////////////////
 
-void LLSERemoveTimeTaskData(ScriptEngine* engine);
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine);

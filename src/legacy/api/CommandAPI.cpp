@@ -74,8 +74,10 @@ ClassDefine<CommandClass> CommandClassBuilder =
 
 //////////////////// Helper ////////////////////
 
-bool LLSERemoveCmdCallback(script::ScriptEngine* engine) {
-    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
+bool LLSERemoveCmdCallback(std::shared_ptr<script::ScriptEngine> engine) {
+    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) {
+        return data.second.fromEngine == engine.get();
+    });
     return true;
 }
 
@@ -93,13 +95,10 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         );
     } else if (result.hold(ParamKind::Kind::Item)) {
         return ItemClass::newItem(
-            new ItemStack(
-                ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(
-                    std::get<CommandItem>(result.value()).mId
-                )
-            ),
-            false
-        ); // Not managed by BDS, pointer will be saved as unique_ptr
+            std::make_unique<ItemStack>(ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(
+                std::get<CommandItem>(result.value()).mId
+            ))
+        );
     } else if (result.hold(ParamKind::Kind::Actor)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Actor>>(result.value()).results(origin)) {

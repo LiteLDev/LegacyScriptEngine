@@ -73,19 +73,20 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
 
 //////////////////// Classes ////////////////////
 
-ItemClass::ItemClass(ItemStack* itemStack, bool isManagedByBDS)
+ItemClass::ItemClass(std::variant<std::monostate, std::unique_ptr<ItemStack>, ItemStack*> itemStack)
 : ScriptClass(ScriptClass::ConstructFromCpp<ItemClass>{}) {
-    if (isManagedByBDS) {
-        item = itemStack;
-    } else {
-        item = std::unique_ptr<ItemStack>(itemStack);
-    }
+    item = std::move(itemStack);
     preloadData();
 }
 
 // 生成函数
-Local<Object> ItemClass::newItem(ItemStack* itemStack, bool isManagedByBDS) {
-    auto newp = new ItemClass(itemStack, isManagedByBDS);
+Local<Object> ItemClass::newItem(ItemStack* itemStack) {
+    auto newp = new ItemClass(itemStack);
+    return newp->getScriptObject();
+}
+
+Local<Object> ItemClass::newItem(std::unique_ptr<ItemStack> itemStack) {
+    auto newp = new ItemClass(std::move(itemStack));
     return newp->getScriptObject();
 }
 
@@ -358,9 +359,8 @@ Local<Value> ItemClass::set(const Arguments& args) {
 Local<Value> ItemClass::clone(const Arguments&) {
     try {
         auto itemStack = get();
-        if (!itemStack) return Local<Value>(); // Null
-        auto itemNew = new ItemStack(*itemStack);
-        return ItemClass::newItem(itemNew, false);
+        if (!itemStack) return Local<Value>();
+        return ItemClass::newItem(std::make_unique<ItemStack>(*itemStack));
     }
     CATCH("Fail in cloneItem!");
 }
@@ -469,9 +469,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 std::string type = args[0].asString().toString();
                 int         cnt  = args[1].asNumber().toInt32();
 
-                ItemStack* item = new ItemStack{type, cnt, 0, nullptr};
-                if (!item) return Local<Value>();            // Null
-                else return ItemClass::newItem(item, false); // Not managed by BDS, pointer will be saved as unique_ptr
+                return ItemClass::newItem(std::make_unique<ItemStack>(type, cnt, 0, nullptr));
             } else {
                 LOG_TOO_FEW_ARGS(__FUNCTION__);
                 return Local<Value>();
@@ -479,10 +477,9 @@ Local<Value> McClass::newItem(const Arguments& args) {
         } else {
             auto nbt = NbtCompoundClass::extract(args[0]);
             if (nbt) {
-                auto newItem = new ItemStack{ItemStack::EMPTY_ITEM()};
+                auto newItem = std::make_unique<ItemStack>(ItemStack::EMPTY_ITEM());
                 ItemHelper::load(*newItem, *nbt);
-                return ItemClass::newItem(newItem,
-                                          false); // Not managed by BDS, pointer will be saved as unique_ptr
+                return ItemClass::newItem(std::move(newItem));
             } else {
                 LOG_WRONG_ARG_TYPE(__FUNCTION__);
                 return Local<Value>();

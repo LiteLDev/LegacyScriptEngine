@@ -49,8 +49,18 @@ namespace DB {
 class Any {
 
 public:
-    std::variant<bool, int64_t, uint64_t, double, std::string, Date, Time, DateTime,
-                 ByteArray> value; ///< Value
+    std::variant<
+        std::monostate,
+        bool,
+        int64_t,
+        uint64_t,
+        double,
+        std::string,
+        Date,
+        Time,
+        DateTime,
+        ByteArray>
+        value; ///< Value
 
     enum class Type : char {
         Null     = 0,

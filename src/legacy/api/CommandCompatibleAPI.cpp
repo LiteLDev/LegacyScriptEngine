@@ -48,12 +48,12 @@ void LLSERegisterNewCmd(
     else toRegCmdQueue.push_back({cmd, describe, level});
 }
 
-bool LLSERemoveCmdRegister(ScriptEngine* engine) {
+bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine) {
     std::erase_if(localShareData->playerCmdCallbacks, [&engine](auto& data) {
-        return data.second.fromEngine == engine;
+        return data.second.fromEngine == engine.get();
     });
     std::erase_if(localShareData->consoleCmdCallbacks, [&engine](auto& data) {
-        return data.second.fromEngine == engine;
+        return data.second.fromEngine == engine.get();
     });
     return true;
 }

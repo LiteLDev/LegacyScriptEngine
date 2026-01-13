@@ -178,7 +178,7 @@ KVDBClass::KVDBClass(const Local<Object>& scriptObj, const std::string& dir) : S
         kvdb.reset();
     }
 
-    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](std::shared_ptr<ScriptEngine>) { kvdb.reset(); });
 }
 
 KVDBClass::KVDBClass(const std::string& dir) : ScriptClass(script::ScriptClass::ConstructFromCpp<KVDBClass>{}) {
@@ -187,7 +187,7 @@ KVDBClass::KVDBClass(const std::string& dir) : ScriptClass(script::ScriptClass::
     } catch (...) {
         kvdb.reset();
     }
-    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](ScriptEngine*) { kvdb.reset(); });
+    unloadCallbackIndex = getEngineOwnData()->addUnloadCallback([&](std::shared_ptr<ScriptEngine>) { kvdb.reset(); });
 }
 
 KVDBClass::~KVDBClass() {}

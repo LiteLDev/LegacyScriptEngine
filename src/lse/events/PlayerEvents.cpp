@@ -7,7 +7,6 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/common/SharedPtr.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/network/ServerPlayerBlockUseHandler.h"
 #include "mc/server/ServerPlayer.h"
@@ -293,7 +292,7 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
     IF_LISTENED(EVENT_TYPES::onAte) {
         const std::set<std::string> item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
-        auto checked = mItemInUse->mItem->mItem.lock()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
+        auto checked = mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
         if (checked
             && !CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(this), ItemClass::newItem(&*mItemInUse->mItem)))
             stopUsingItem();

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.8] - 2026-01-14
+
+### Added
+
+- Added debugCommandLevel config @ShrBox
+- Fixed onLiquidFlow @killcerr
+
 ## [0.16.7] - 2026-01-13
 
 ### Changed
@@ -1106,7 +1113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#332]: https://github.com/LiteLDev/LegacyScriptEngine/issues/332
 [#339]: https://github.com/LiteLDev/LegacyScriptEngine/issues/339
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.8...HEAD
+[0.16.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...v0.16.8
 [0.16.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.6...v0.16.7
 [0.16.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.4...v0.16.5

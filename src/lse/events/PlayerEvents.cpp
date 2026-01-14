@@ -9,6 +9,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/network/ServerPlayerBlockUseHandler.h"
+#include "mc/server/ServerInstance.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
@@ -19,8 +20,6 @@
 #include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/player/PlayerInventory.h"
-#include "mc/world/actor/player/PlayerItemInUse.h"
-#include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
@@ -290,16 +289,23 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
-    IF_LISTENED(EVENT_TYPES::onAte) {
-        const std::set<std::string> item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
-        auto checked = mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
-        if (checked
-            && !CallEvent(EVENT_TYPES::onAte, PlayerClass::newPlayer(this), ItemClass::newItem(&*mItemInUse->mItem)))
-            stopUsingItem();
-        else origin();
-        return;
+    if (std::this_thread::get_id() == ll::service::getServerInstance()->mServerInstanceThread->get_id()) {
+        IF_LISTENED(EVENT_TYPES::onAte) {
+            const std::set<std::string> item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
+            auto                        checked =
+                mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
+            if (checked
+                && !CallEvent(
+                    EVENT_TYPES::onAte,
+                    PlayerClass::newPlayer(this),
+                    ItemClass::newItem(&*mItemInUse->mItem)
+                ))
+                stopUsingItem();
+            else origin();
+            return;
+        }
+        IF_LISTENED_END(EVENT_TYPES::onAte);
     }
-    IF_LISTENED_END(EVENT_TYPES::onAte);
     origin();
 }
 

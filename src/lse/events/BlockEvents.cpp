@@ -10,6 +10,7 @@
 #include "lse/api/helper/BlockHelper.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
+#include "mc/server/ServerInstance.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/ArmorStand.h"
@@ -334,6 +335,31 @@ REDSTONEHOOK(TntBlock)
 
 } // namespace redstone
 
+bool materialsAreEqual(Material const& a, Material const& b) {
+    return a.mType == b.mType && a.mNeverBuildable == b.mNeverBuildable && a.mLiquid == b.mLiquid
+        && a.mBlocksMotion == b.mBlocksMotion && a.mBlocksPrecipitation == b.mBlocksPrecipitation
+        && a.mSolid == b.mSolid && a.mSuperHot == b.mSuperHot;
+}
+
+bool liquidBlockCanSpreadTo(
+    LiquidBlock&    liquidBlock,
+    BlockSource&    region,
+    BlockPos const& pos,
+    BlockPos const& flowFromPos,
+    uchar           flowFromDirection
+) {
+    if (pos.y < region.getMinHeight()) {
+        return false;
+    }
+    if (const auto& block = region.getLiquidBlock(pos);
+        materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
+        || block.getBlockType().mMaterial.mType == MaterialType::Lava
+        || liquidBlock._isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
+        return false;
+    }
+    return true;
+}
+
 LL_TYPE_INSTANCE_HOOK(
     LiquidFlowHook,
     HookPriority::Normal,
@@ -347,12 +373,16 @@ LL_TYPE_INSTANCE_HOOK(
     uchar             flowFromDirection
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        if (!CallEvent(
-                EVENT_TYPES::onLiquidFlow,
-                region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),
-                IntPos::newPos(pos, region.getDimensionId())
-            )) {
-            return;
+        auto ins = ll::service::getServerInstance();
+        if (ins && std::this_thread::get_id() == ins->mServerInstanceThread->get_id()
+            && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
+            if (!CallEvent(
+                    EVENT_TYPES::onLiquidFlow,
+                    region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),
+                    IntPos::newPos(pos, region.getDimensionId())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onLiquidFlow);

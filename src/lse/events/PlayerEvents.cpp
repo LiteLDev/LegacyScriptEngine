@@ -507,33 +507,6 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(item, entity, pos);
 }
 
-// LL_TYPE_INSTANCE_HOOK(
-//     UseBucketTakeHook3,
-//     HookPriority::Normal,
-//     BucketItem,
-//     &BucketItem::_useOn,
-//     InteractionResult,
-//     ItemStack&  instance,
-//     Actor&      entity,
-//     BlockPos    pos,
-//     uchar       face,
-//     Vec3 const& clickPos
-// ) {
-//     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-//         CallEventRtnValue(
-//             EVENT_TYPES::onUseBucketTake,
-//             InteractionResult{InteractionResult::Result::Fail},
-//             PlayerClass::newPlayer(),
-//             ItemClass::newItem(&instance, false),
-//             EntityClass::newEntity(&entity),
-//             Number::newNumber(face),
-//             FloatPos::newPos(pos, entity.getDimensionId().id)
-//         );
-//     }
-//     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-//     return origin(instance, entity, pos, face, clickPos);
-// }
-
 LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
     IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
         if (!CallEvent(EVENT_TYPES::onConsumeTotem, PlayerClass::newPlayer(this))) {

@@ -21,6 +21,9 @@ jobs:
           - lua
           - python
           - quickjs
+        target_type:
+          - client
+          - server
     steps:
       - uses: actions/checkout@v4
 
@@ -38,13 +41,13 @@ jobs:
           xmake repo -u
 
       - run: |
-          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }}
+          xmake f -a x64 -m release -p windows -v -y --target_type=${{ matrix.target_type }} --backend=${{ matrix.backend }}
 
       - run: |
           xmake -y
 
       - uses: actions/upload-artifact@v4
         with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          name: legacy-script-engine-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: |
             bin/

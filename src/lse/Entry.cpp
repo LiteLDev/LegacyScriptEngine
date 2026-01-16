@@ -13,7 +13,6 @@
 #include "ll/api/mod/RegisterHelper.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/ErrorUtils.h"
-#include "lse/api/MoreGlobal.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -72,9 +71,6 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 bool LegacyScriptEngine::enable() {
     auto& logger = getSelf().getLogger();
     try {
-        if (!api::MoreGlobal::onEnable()) {
-            logger.error("Failed to enable MoreGlobal"_tr());
-        }
         ll::service::PlayerInfo::getInstance();
         RegisterDebugCommand();
     } catch (...) {
@@ -96,7 +92,6 @@ void initializeLegacyStuff() {
 
     InitBasicEventListeners();
     InitMessageSystem();
-    api::MoreGlobal::onLoad();
 }
 
 bool LegacyScriptEngine::load() {

@@ -22,6 +22,14 @@
       }
     },
     {
+      "label": "client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyScriptEngine#quickjs-client": "{{version}}",
+        "github.com/LiteLDev/LegacyScriptEngine#lua-client": "{{version}}"
+      }
+    },
+    {
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
@@ -122,6 +130,112 @@
               "type": "dir",
               "src": "legacy-script-engine-python/",
               "dest": "plugins/legacy-script-engine-python/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "nodejs-client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.16.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.16.*",
+        "git.levimc.org/ShrBox/7-zip": "24.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-nodejs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-nodejs/",
+              "dest": "mods/legacy-script-engine-nodejs/"
+            }
+          ]
+        },
+        {
+          "type": "zip",
+          "urls": [
+            "https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "",
+              "dest": "mods/legacy-script-engine-nodejs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "quickjs-client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.16.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.16.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-quickjs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-quickjs/",
+              "dest": "mods/legacy-script-engine-quickjs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "lua-client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.16.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.16.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-lua-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-lua/",
+              "dest": "mods/legacy-script-engine-lua/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "python-client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.16.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.16.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-python-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-python/",
+              "dest": "mods/legacy-script-engine-python/"
             }
           ]
         }

@@ -353,8 +353,8 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto       uuid = mce::UUID::fromString(args[0].asString().toString());
-        DBStorage* db   = MoreGlobal::dbStorage;
+        auto uuid = mce::UUID::fromString(args[0].asString().toString());
+        auto db   = ll::service::getDBStorage();
         if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
             std::unique_ptr<CompoundTag> playerTag =
                 db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -380,7 +380,7 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         if (player && tag) {
             player->load(*tag, MoreGlobal::defaultDataLoadHelper());
         } else if (tag) {
-            DBStorage* db = MoreGlobal::dbStorage;
+            auto db = ll::service::getDBStorage();
             if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                 std::unique_ptr<CompoundTag> playerTag =
                     db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -421,7 +421,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
             }
             player->load(loadedTag, MoreGlobal::defaultDataLoadHelper());
         } else if (tag) {
-            DBStorage* db = MoreGlobal::dbStorage;
+            auto db = ll::service::getDBStorage();
             if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                 std::unique_ptr<CompoundTag> playerTag =
                     db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -492,7 +492,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         auto        obj        = args[1].asString().toString();
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(obj);
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Number::newNumber(0);
         }
@@ -527,7 +527,7 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -565,7 +565,7 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -603,7 +603,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -645,7 +645,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -3279,8 +3279,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         Block const&     bl     = player->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
         // isEmpty()
-        if (bl.isAir()
-            || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());

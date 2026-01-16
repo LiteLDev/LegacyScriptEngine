@@ -3,6 +3,7 @@
   "entry": "${modFile}",
   "version": "${modVersion}",
   "type": "native",
+  "platform": "${modPlatform}",
   "description": "A plugin engine for running LLSE plugins on LeviLamina",
   "author": "LiteLDev",
   "dependencies": [

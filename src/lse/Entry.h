@@ -10,6 +10,8 @@ class LegacyScriptEngine {
 public:
     static LegacyScriptEngine& getInstance();
 
+    static inline ll::io::Logger& getLogger() { return getInstance().getSelf().getLogger(); }
+
     LegacyScriptEngine() : mSelf(*ll::mod::NativeMod::current()) {}
 
     [[nodiscard]] ll::mod::NativeMod& getSelf() const { return mSelf; }

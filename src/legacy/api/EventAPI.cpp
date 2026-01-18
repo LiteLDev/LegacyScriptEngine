@@ -101,8 +101,8 @@ LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<
         }
         return {listener};
     } catch (...) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+        lse::LegacyScriptEngine::getLogger().error("Event {} not found!"_tr(eventName));
+        lse::LegacyScriptEngine::getLogger().error(
             "In Plugin: " + getEngineData(engine)->pluginName
         );
         return std::nullopt;
@@ -663,7 +663,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobSpawn:
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().warn(
+        lse::LegacyScriptEngine::getLogger().warn(
             "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
@@ -898,10 +898,10 @@ void InitBasicEventListeners() {
                     }
                 }
             } catch (...) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                lse::LegacyScriptEngine::getLogger().error(
                     "Error occurred in Engine Message Loop!"
                 );
-                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
 #endif
 

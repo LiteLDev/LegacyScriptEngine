@@ -65,7 +65,7 @@ PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #ifdef LSE_BACKEND_PYTHON
-    auto&                 logger  = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+    auto&                 logger  = lse::LegacyScriptEngine::getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     std::string           entryPath =
         PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
@@ -100,7 +100,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     }
 #endif
 #ifdef LSE_BACKEND_NODEJS
-    auto&                 logger  = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+    auto&                 logger  = lse::LegacyScriptEngine::getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
     // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;

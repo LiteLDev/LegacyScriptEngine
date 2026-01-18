@@ -98,7 +98,7 @@ LL_STATIC_HOOK(
             if (!(hAddon && hLibNode)) return hAddon;
             auto res = PatchDelayImport(hAddon, hLibNode);
             if (res) return hAddon;
-            res.error().log(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+            res.error().log(lse::LegacyScriptEngine::getLogger());
         }
     }
     return hAddon;
@@ -130,11 +130,11 @@ bool initNodeJs() {
          node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
     );
     if (result->exit_code() != 0) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+        lse::LegacyScriptEngine::getLogger().error(
             "Failed to initialize node! NodeJs plugins won't be loaded"
         );
         for (const std::string& error : result->errors())
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(error);
+            lse::LegacyScriptEngine::getLogger().error(error);
         return false;
     }
     args      = result->args();
@@ -173,7 +173,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            lse::LegacyScriptEngine::getLogger().error(
                 "CommonEnvironmentSetup Error: {}",
                 err.c_str()
             );
@@ -192,7 +192,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
         ScriptEngine::Deleter()
     );
 
-    lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    lse::LegacyScriptEngine::getLogger().debug(
         "Initialize ScriptEngine for node.js [{}]",
         (void*)engine.get()
     );
@@ -204,11 +204,11 @@ std::shared_ptr<ScriptEngine> newEngine() {
         isolate,
         [](void* arg) {
             static_cast<ScriptEngine*>(arg)->destroy();
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+            lse::LegacyScriptEngine::getLogger().debug(
                 "Destroy ScriptEngine for node.js [{}]",
                 arg
             );
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Destroy EnvironmentCleanupHook");
+            lse::LegacyScriptEngine::getLogger().debug("Destroy EnvironmentCleanupHook");
         },
         engine.get()
     );
@@ -304,7 +304,7 @@ bool loadPluginCode(
         // Set exit handler
         node::SetProcessExitHandler(env, [](node::Environment* env_, int exit_code) {
             auto engine = getEngine(env_);
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().log(
+            lse::LegacyScriptEngine::getLogger().log(
                 exit_code == 0 ? ll::io::LogLevel::Debug : ll::io::LogLevel::Error,
                 "NodeJs plugin {} exited with code {}.",
                 getEngineData(engine)->pluginName,
@@ -317,7 +317,7 @@ bool loadPluginCode(
         MaybeLocal<v8::Value> loadenv_ret = node::LoadEnvironment(env, compiler);
         bool                  loadFailed  = loadenv_ret.IsEmpty();
 
-        auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+        auto& logger = lse::LegacyScriptEngine::getLogger();
 
         if (!loadFailed) {
             v8::Local<v8::Value> errorMsg = loadenv_ret.ToLocalChecked();
@@ -365,7 +365,7 @@ bool loadPluginCode(
                     }
                     if ((ll::getGamingStatus() != ll::GamingStatus::Running)) {
                         uv_stop(eventLoop);
-                        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Destroy ServerStopping");
+                        lse::LegacyScriptEngine::getLogger().debug("Destroy ServerStopping");
                     }
                 }
             }
@@ -406,8 +406,8 @@ bool stopEngine(node::Environment* env) {
 
         return true;
     } catch (...) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail to stop engine {}", (void*)env);
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+        lse::LegacyScriptEngine::getLogger().error("Fail to stop engine {}", (void*)env);
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
         return false;
     }
 }
@@ -551,7 +551,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            lse::LegacyScriptEngine::getLogger().error(
                 "CommonEnvironmentSetup Error: {}",
                 err.c_str()
             );
@@ -609,10 +609,10 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
                 throw std::runtime_error("Failed at LoadEnvironment");
             exit_code = node::SpinEventLoop(env).FromMaybe(exit_code);
         } catch (...) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+            lse::LegacyScriptEngine::getLogger().error(
                 "Fail to execute NPM command. Error occurs"
             );
-            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
         }
         node::Stop(env);
     }

@@ -29,7 +29,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
 #endif
     if (InConsoleDebugMode) {
         EngineScope enter(DebugEngine.get());
-        auto&       logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+        auto&       logger = lse::LegacyScriptEngine::getLogger();
         try {
             if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
                 return true;
@@ -64,7 +64,7 @@ void RegisterDebugCommand() {
     );
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
-            auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+            auto& logger = lse::LegacyScriptEngine::getLogger();
             if (!param.eval.mText.empty()) {
                 EngineScope enter(DebugEngine.get());
                 try {

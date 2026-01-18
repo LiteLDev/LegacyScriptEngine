@@ -389,7 +389,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+            lse::LegacyScriptEngine::getLogger().debug(
                 "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);
@@ -400,7 +400,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getVec3(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+            lse::LegacyScriptEngine::getLogger().debug(
                 "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);
@@ -412,7 +412,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
                 sp->simulateLookAt(pos->getBlockPos(), (sim::LookDuration)lookDuration);
                 return Boolean::newBoolean(true);
             }
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+            lse::LegacyScriptEngine::getLogger().debug(
                 "Can't simulate look at other dimension!"
             );
             return Boolean::newBoolean(false);

@@ -332,7 +332,7 @@ Local<Value> JsonToValue(std::string jsonStr) {
         auto j = ordered_json::parse(jsonStr, nullptr, true, true);
         return JsonToValue(j);
     } catch (const ordered_json::exception& e) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().warn(
+        lse::LegacyScriptEngine::getLogger().warn(
             "{}{}",
             "JSON parse error"_tr(),
             ll::string_utils::tou8str(e.what())

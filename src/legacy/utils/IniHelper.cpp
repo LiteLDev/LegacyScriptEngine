@@ -22,8 +22,8 @@ std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std:
     root->SetUnicode(true);
     auto res = root->LoadFile(path.c_str());
     if (res < 0) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Failed in loading ini file");
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+        lse::LegacyScriptEngine::getLogger().error("Failed in loading ini file");
+        lse::LegacyScriptEngine::getLogger().error(
             std::string("Error Code:") + std::to_string((int)res)
         );
         return nullptr;

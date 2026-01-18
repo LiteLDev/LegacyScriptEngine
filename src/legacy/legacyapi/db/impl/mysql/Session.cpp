@@ -8,14 +8,14 @@
 namespace DB {
 
 MySQLSession::MySQLSession() {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
         "MySQLSession::MySQLSession: Constructed! this: {}",
         (void*)this
     );
     conn = mysql_init(nullptr);
 }
 MySQLSession::MySQLSession(const ConnParams& params) {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
         "MySQLSession::MySQLSession: Constructed! this: {}",
         (void*)this
     );
@@ -24,7 +24,7 @@ MySQLSession::MySQLSession(const ConnParams& params) {
 }
 
 MySQLSession::~MySQLSession() {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
         "MySQLSession::MySQLSession: Destructor: this: {}",
         (void*)this
     );
@@ -79,7 +79,7 @@ void MySQLSession::open(const ConnParams& params) {
         "true",
         "utf8"
     );
-    // IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("MySQLSession::open: MySQL default
+    // IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::open: MySQL default
     // charset name : {}", defaultCharset);
     mysql_options(conn, MYSQL_SET_CHARSET_NAME, charset.c_str());
     auto res = mysql_real_connect(
@@ -97,7 +97,7 @@ void MySQLSession::open(const ConnParams& params) {
             "MySQLSession::MySQLSession: Failed to open database: " + std::string(mysql_error(conn))
         );
     }
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLSession::open: Opened database: " + std::string(p.getHost()) + ":" + std::to_string(port) + "/" + db
     );
 #if defined(LLDB_DEBUG_MODE)
@@ -106,7 +106,7 @@ void MySQLSession::open(const ConnParams& params) {
 }
 
 bool MySQLSession::execute(const std::string& query) {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLSession::execute: Executing > " + query
     );
     auto res = mysql_query(conn, query.c_str());
@@ -114,7 +114,7 @@ bool MySQLSession::execute(const std::string& query) {
 }
 
 bool MySQLSession::relogin(const std::string& user, const std::string& password, const std::string& db) {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLSession::change: Changing user to{} and database to {} ",
         user,
         db
@@ -124,7 +124,7 @@ bool MySQLSession::relogin(const std::string& user, const std::string& password,
 }
 
 Session& MySQLSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLSession::query: Querying > " + query
     );
     auto res = mysql_query(conn, query.c_str());
@@ -140,7 +140,7 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
     auto     numFields = mysql_num_fields(result);
     auto     numRows   = mysql_num_rows(result);
     auto     fields    = mysql_fetch_fields(result);
-    IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLSession::query: Query returned {} rows and {} fields",
         numRows,
         numFields
@@ -233,7 +233,7 @@ void MySQLSession::close() {
     if (conn) {
         mysql_close(conn);
         conn = nullptr;
-        IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
             "MySQLSession::close: Closed database"
         );
     }

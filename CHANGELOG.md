@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Supported LeviLamina 1.8.0-rc.2
+- Added client support
+
 ## [0.16.7] - 2026-01-13
 
 ### Changed

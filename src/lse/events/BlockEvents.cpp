@@ -7,6 +7,7 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
+#include "lse/api/Thread.h"
 #include "lse/api/helper/BlockHelper.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
@@ -52,6 +53,8 @@
 #include "mc/world/level/material/Material.h"
 
 namespace lse::events::block {
+using api::thread::checkClientIsServerThread;
+
 LL_TYPE_INSTANCE_HOOK(
     ContainerChangeHook,
     HookPriority::Normal,
@@ -63,20 +66,22 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& newItem
 ) {
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        if (*reinterpret_cast<void***>(this) != LevelContainerModel::$vftable())
-            return origin(slotNumber, oldItem, newItem);
+        if (checkClientIsServerThread()) {
+            if (*reinterpret_cast<void***>(this) != LevelContainerModel::$vftable())
+                return origin(slotNumber, oldItem, newItem);
 
-        // Player::hasOpenContainer()
-        if (mPlayer.mContainerManager) {
-            if (!CallEvent(
-                    EVENT_TYPES::onContainerChange,
-                    PlayerClass::newPlayer(&mPlayer),
-                    BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId().id),
-                    Number::newNumber(slotNumber + this->_getContainerOffset()),
-                    ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
-                    ItemClass::newItem(&const_cast<ItemStack&>(newItem))
-                )) {
-                return;
+            // Player::hasOpenContainer()
+            if (mPlayer.mContainerManager) {
+                if (!CallEvent(
+                        EVENT_TYPES::onContainerChange,
+                        PlayerClass::newPlayer(&mPlayer),
+                        BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId().id),
+                        Number::newNumber(slotNumber + this->_getContainerOffset()),
+                        ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
+                        ItemClass::newItem(&const_cast<ItemStack&>(newItem))
+                    )) {
+                    return;
+                }
             }
         }
     }
@@ -94,13 +99,15 @@ LL_TYPE_INSTANCE_HOOK(
     ::SharedTypes::Legacy::EquipmentSlot slot
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
-        if (!CallEvent(
-                EVENT_TYPES::onChangeArmorStand,
-                EntityClass::newEntity(this),
-                PlayerClass::newPlayer(&player),
-                Number::newNumber((int)slot)
-            )) {
-            return false;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onChangeArmorStand,
+                    EntityClass::newEntity(this),
+                    PlayerClass::newPlayer(&player),
+                    Number::newNumber((int)slot)
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onChangeArmorStand);
@@ -118,12 +125,14 @@ LL_TYPE_INSTANCE_HOOK(
     Actor&          entity
 ) {
     IF_LISTENED(EVENT_TYPES::onStepOnPressurePlate) {
-        if (!CallEvent(
-                EVENT_TYPES::onStepOnPressurePlate,
-                EntityClass::newEntity(&entity),
-                BlockClass::newBlock(pos, region.getDimensionId())
-            )) {
-            return false;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onStepOnPressurePlate,
+                    EntityClass::newEntity(&entity),
+                    BlockClass::newBlock(pos, region.getDimensionId())
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onStepOnPressurePlate);
@@ -142,12 +151,14 @@ LL_TYPE_INSTANCE_HOOK(
     float           fallDistance
 ) {
     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
-        if (!CallEvent(
-                EVENT_TYPES::onFarmLandDecay,
-                IntPos::newPos(pos, region.getDimensionId()),
-                EntityClass::newEntity(actor)
-            )) {
-            return;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onFarmLandDecay,
+                    IntPos::newPos(pos, region.getDimensionId()),
+                    EntityClass::newEntity(actor)
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onFarmLandDecay);
@@ -166,21 +177,23 @@ LL_TYPE_INSTANCE_HOOK(
     uchar           pistonMoveFacing
 ) {
     IF_LISTENED(EVENT_TYPES::onPistonTryPush) {
-        if (region.getBlock(curPos).isAir()) {
-            return origin(region, curPos, curBranchFacing, pistonMoveFacing);
-        }
-        if (!CallEvent(
-                EVENT_TYPES::onPistonTryPush,
-                IntPos::newPos(this->mPosition, region.getDimensionId()),
-                BlockClass::newBlock(curPos, region.getDimensionId())
-            )) {
-            return false;
+        if (checkClientIsServerThread()) {
+            if (region.getBlock(curPos).isAir()) {
+                return origin(region, curPos, curBranchFacing, pistonMoveFacing);
+            }
+            if (!CallEvent(
+                    EVENT_TYPES::onPistonTryPush,
+                    IntPos::newPos(this->mPosition, region.getDimensionId()),
+                    BlockClass::newBlock(curPos, region.getDimensionId())
+                )) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onPistonTryPush);
     bool shouldPush = origin(region, curPos, curBranchFacing, pistonMoveFacing);
     IF_LISTENED(EVENT_TYPES::onPistonPush) {
-        if (shouldPush) {
+        if (checkClientIsServerThread() && shouldPush) {
             CallEvent( // Not cancellable
                 EVENT_TYPES::onPistonPush,
                 IntPos::newPos(this->mPosition, region.getDimensionId()),
@@ -194,10 +207,29 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::explode, bool, ::IRandom& random) {
     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-        if (mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
+        if (checkClientIsServerThread()) {
+            if (mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
+                if (!CallEvent(
+                        EVENT_TYPES::onEntityExplode,
+                        EntityClass::newEntity(ll::service::getLevel()->fetchEntity(mSourceID, false)),
+                        FloatPos::newPos(mPos, mRegion.getDimensionId()),
+                        Number::newNumber(mRadius),
+                        Number::newNumber(mMaxResistance),
+                        Boolean::newBoolean(mBreaking),
+                        Boolean::newBoolean(mFire)
+                    )) {
+                    return false;
+                }
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
+
+    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
+        if (checkClientIsServerThread()) {
             if (!CallEvent(
-                    EVENT_TYPES::onEntityExplode,
-                    EntityClass::newEntity(ll::service::getLevel()->fetchEntity(mSourceID, false)),
+                    EVENT_TYPES::onBlockExplode,
+                    BlockClass::newBlock(*mPos, mRegion.getDimensionId()),
                     FloatPos::newPos(mPos, mRegion.getDimensionId()),
                     Number::newNumber(mRadius),
                     Number::newNumber(mMaxResistance),
@@ -206,21 +238,6 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::
                 )) {
                 return false;
             }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
-
-    IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-        if (!CallEvent(
-                EVENT_TYPES::onBlockExplode,
-                BlockClass::newBlock(*mPos, mRegion.getDimensionId()),
-                FloatPos::newPos(mPos, mRegion.getDimensionId()),
-                Number::newNumber(mRadius),
-                Number::newNumber(mMaxResistance),
-                Boolean::newBoolean(mBreaking),
-                Boolean::newBoolean(mFire)
-            )) {
-            return false;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
@@ -239,12 +256,14 @@ LL_TYPE_STATIC_HOOK(
     Level&          level
 ) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        if (!CallEvent(
-                EVENT_TYPES::onRespawnAnchorExplode,
-                IntPos::newPos(pos, region.getDimensionId()),
-                PlayerClass::newPlayer(&player)
-            )) {
-            return;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onRespawnAnchorExplode,
+                    IntPos::newPos(pos, region.getDimensionId()),
+                    PlayerClass::newPlayer(&player)
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
@@ -263,14 +282,16 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          source
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        if (destroyedBlock.isAir()) {
-            return origin(dimension, blockPos, destroyedBlock, source);
+        if (checkClientIsServerThread()) {
+            if (destroyedBlock.isAir()) {
+                return origin(dimension, blockPos, destroyedBlock, source);
+            }
+            CallEvent(
+                EVENT_TYPES::onBlockExploded,
+                BlockClass::newBlock(destroyedBlock, blockPos, dimension.getDimensionId()),
+                EntityClass::newEntity(source)
+            );
         }
-        CallEvent(
-            EVENT_TYPES::onBlockExploded,
-            BlockClass::newBlock(destroyedBlock, blockPos, dimension.getDimensionId()),
-            EntityClass::newEntity(source)
-        );
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExploded);
     return origin(dimension, blockPos, destroyedBlock, source);
@@ -302,8 +323,10 @@ inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& s
         bool            isFirstTime                                                                                    \
     ) {                                                                                                                \
         IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
-            if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {                                            \
-                return;                                                                                                \
+            if (checkClientIsServerThread()) {                                                                         \
+                if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {                                        \
+                    return;                                                                                            \
+                }                                                                                                      \
             }                                                                                                          \
         }                                                                                                              \
         IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
@@ -373,9 +396,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar             flowFromDirection
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        auto ins = ll::service::getServerInstance();
-        if (ins && std::this_thread::get_id() == ins->mServerInstanceThread->get_id()
-            && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
+        if (checkClientIsServerThread() && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
             if (!CallEvent(
                     EVENT_TYPES::onLiquidFlow,
                     region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),
@@ -400,23 +421,25 @@ LL_TYPE_INSTANCE_HOOK(
     bool&                markForSaving
 ) {
     IF_LISTENED(EVENT_TYPES::onCmdBlockExecute) {
-        if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
-            if (!CallEvent(
-                    EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->mCommand),
-                    FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
-                    Boolean::newBoolean(true)
-                )) {
-                return false;
-            }
-        } else {
-            if (!CallEvent(
-                    EVENT_TYPES::onCmdBlockExecute,
-                    String::newString(this->mCommand),
-                    FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
-                    Boolean::newBoolean(false)
-                )) {
-                return false;
+        if (checkClientIsServerThread()) {
+            if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
+                if (!CallEvent(
+                        EVENT_TYPES::onCmdBlockExecute,
+                        String::newString(this->mCommand),
+                        FloatPos::newPos(commandOrigin.getEntity()->getPosition(), region.getDimensionId()),
+                        Boolean::newBoolean(true)
+                    )) {
+                    return false;
+                }
+            } else {
+                if (!CallEvent(
+                        EVENT_TYPES::onCmdBlockExecute,
+                        String::newString(this->mCommand),
+                        FloatPos::newPos(commandOrigin.getBlockPosition(), region.getDimensionId()),
+                        Boolean::newBoolean(false)
+                    )) {
+                    return false;
+                }
             }
         }
     }
@@ -438,8 +461,10 @@ LL_TYPE_INSTANCE_HOOK(
     Container&   toContainer,
     Vec3 const&  pos
 ) {
-    hopperStatus = HopperStatus::PullIn;
-    hopperPos    = pos;
+    if (checkClientIsServerThread()) {
+        hopperStatus = HopperStatus::PullIn;
+        hopperPos    = pos;
+    }
     return origin(region, toContainer, pos);
 }
 
@@ -454,8 +479,10 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&  position,
     int          attachedFace
 ) {
-    hopperStatus = HopperStatus::PullOut;
-    hopperPos    = position;
+    if (checkClientIsServerThread()) {
+        hopperStatus = HopperStatus::PullOut;
+        hopperPos    = position;
+    }
     return origin(region, fromContainer, position, attachedFace);
 }
 
@@ -473,7 +500,7 @@ LL_TYPE_INSTANCE_HOOK(
     int            itemCount
 ) {
     IF_LISTENED(EVENT_TYPES::onHopperSearchItem) {
-        if (hopperStatus == HopperStatus::PullIn) {
+        if (checkClientIsServerThread() && hopperStatus == HopperStatus::PullIn) {
             if (!CallEvent(
                     EVENT_TYPES::onHopperSearchItem,
                     FloatPos::newPos(hopperPos, region.getDimensionId()),
@@ -486,7 +513,7 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onHopperSearchItem);
     IF_LISTENED(EVENT_TYPES::onHopperPushOut) {
-        if (hopperStatus == HopperStatus::PullOut) {
+        if (checkClientIsServerThread() && hopperStatus == HopperStatus::PullOut) {
             if (!CallEvent(
                     EVENT_TYPES::onHopperPushOut,
                     FloatPos::newPos(hopperPos, region.getDimensionId()),

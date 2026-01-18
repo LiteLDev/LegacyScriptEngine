@@ -1,83 +1,83 @@
-export function TestPlayer(players) {
+export function TestPlayer(output, players) {
     for (let player of players) {
-        GetFromViewVector(player)
-        PrintPlayerAttributes(player)
+        GetFromViewVector(output, player)
+        PrintPlayerAttributes(output, player)
     }
 }
 
-function GetFromViewVector(player) {
+function GetFromViewVector(output, player) {
     let en = player.getEntityFromViewVector(5.25);
     if (en) {
-        logger.info(`Entity looking at: ${en.name}`);
-        logBlock(player.getBlockFromViewVector(true, false, player.distanceTo(en), false));
+        output.success(`Entity looking at: ${en.name}`);
+        logBlock(output, player.getBlockFromViewVector(true, false, player.distanceTo(en), false));
     } else {
-        logger.info(`No entity looking at found`);
-        logBlock(player.getBlockFromViewVector(true, false, 5.25, false));
+        output.success(`No entity looking at found`);
+        logBlock(output, player.getBlockFromViewVector(true, false, 5.25, false));
     }
 
-    function logBlock(bl) {
+    function logBlock(output, bl) {
         if (bl) {
-            logger.info(`Block looking at: ${bl.name} ${bl.pos}`);
+            output.success(`Block looking at: ${bl.name} ${bl.pos}`);
         } else {
-            logger.info(`No Block looking at found`);
+            output.success(`No Block looking at found`);
         }
     }
 }
 
-function PrintPlayerAttributes(player) {
-    logger.info(`Name: ${player.name}`);
-    logger.info(`Position: ${player.pos}`);
-    logger.info(`Feet Position: ${player.feetPos}`);
-    logger.info(`Block Position: ${player.blockPos}`);
-    logger.info(`Last Death Position: ${player.lastDeathPos}`);
-    logger.info(`Real Name: ${player.realName}`);
-    logger.info(`XUID: ${player.xuid}`);
-    logger.info(`UUID: ${player.uuid}`);
-    logger.info(`Permission Level: ${player.permLevel}`);
-    logger.info(`Game Mode: ${player.gameMode}`);
-    logger.info(`Can Sleep: ${player.canSleep}`);
-    logger.info(`Can Fly: ${player.canFly}`);
-    logger.info(`Can Be Seen On Map: ${player.canBeSeenOnMap}`);
-    logger.info(`Can Freeze: ${player.canFreeze}`);
-    logger.info(`Can See Daylight: ${player.canSeeDaylight}`);
-    logger.info(`Can Show Name Tag: ${player.canShowNameTag}`);
-    logger.info(`Can Start Sleep In Bed: ${player.canStartSleepInBed}`);
-    logger.info(`Can Pickup Items: ${player.canPickupItems}`);
-    logger.info(`Max Health: ${player.maxHealth}`);
-    logger.info(`Health: ${player.health}`);
-    logger.info(`In Air: ${player.inAir}`);
-    logger.info(`In Water: ${player.inWater}`);
-    logger.info(`In Lava: ${player.inLava}`);
-    logger.info(`In Rain: ${player.inRain}`);
-    logger.info(`In Snow: ${player.inSnow}`);
-    logger.info(`In Wall: ${player.inWall}`);
-    logger.info(`In Water Or Rain: ${player.inWaterOrRain}`);
-    logger.info(`In World: ${player.inWorld}`);
-    logger.info(`In Clouds: ${player.inClouds}`);
-    logger.info(`Speed: ${player.speed}`);
-    logger.info(`Direction: ${player.direction}`);
-    logger.info(`Unique ID: ${player.uniqueId}`);
-    logger.info(`Language Code: ${player.langCode}`);
-    logger.info(`Is Loading: ${player.isLoading}`);
-    logger.info(`Is Invisible: ${player.isInvisible}`);
-    logger.info(`Is Inside Portal: ${player.isInsidePortal}`);
-    logger.info(`Is Hurt: ${player.isHurt}`);
-    logger.info(`Is Trusting: ${player.isTrusting}`);
-    logger.info(`Is Touching Damage Block: ${player.isTouchingDamageBlock}`);
-    logger.info(`Is Hungry: ${player.isHungry}`);
-    logger.info(`Is On Fire: ${player.isOnFire}`);
-    logger.info(`Is On Ground: ${player.isOnGround}`);
-    logger.info(`Is On Hot Block: ${player.isOnHotBlock}`);
-    logger.info(`Is Trading: ${player.isTrading}`);
-    logger.info(`Is Adventure: ${player.isAdventure}`);
-    logger.info(`Is Gliding: ${player.isGliding}`);
-    logger.info(`Is Survival: ${player.isSurvival}`);
-    logger.info(`Is Spectator: ${player.isSpectator}`);
-    logger.info(`Is Riding: ${player.isRiding}`);
-    logger.info(`Is Dancing: ${player.isDancing}`);
-    logger.info(`Is Creative: ${player.isCreative}`);
-    logger.info(`Is Flying: ${player.isFlying}`);
-    logger.info(`Is Sleeping: ${player.isSleeping}`);
-    logger.info(`Is Moving: ${player.isMoving}`);
-    logger.info(`Is Sneaking: ${player.isSneaking}`);
+function PrintPlayerAttributes(output, player) {
+    output.success(`Name: ${player.name}`);
+    output.success(`Position: ${player.pos}`);
+    output.success(`Feet Position: ${player.feetPos}`);
+    output.success(`Block Position: ${player.blockPos}`);
+    output.success(`Last Death Position: ${player.lastDeathPos}`);
+    output.success(`Real Name: ${player.realName}`);
+    output.success(`XUID: ${player.xuid}`);
+    output.success(`UUID: ${player.uuid}`);
+    output.success(`Permission Level: ${player.permLevel}`);
+    output.success(`Game Mode: ${player.gameMode}`);
+    output.success(`Can Sleep: ${player.canSleep}`);
+    output.success(`Can Fly: ${player.canFly}`);
+    output.success(`Can Be Seen On Map: ${player.canBeSeenOnMap}`);
+    output.success(`Can Freeze: ${player.canFreeze}`);
+    output.success(`Can See Daylight: ${player.canSeeDaylight}`);
+    output.success(`Can Show Name Tag: ${player.canShowNameTag}`);
+    output.success(`Can Start Sleep In Bed: ${player.canStartSleepInBed}`);
+    output.success(`Can Pickup Items: ${player.canPickupItems}`);
+    output.success(`Max Health: ${player.maxHealth}`);
+    output.success(`Health: ${player.health}`);
+    output.success(`In Air: ${player.inAir}`);
+    output.success(`In Water: ${player.inWater}`);
+    output.success(`In Lava: ${player.inLava}`);
+    output.success(`In Rain: ${player.inRain}`);
+    output.success(`In Snow: ${player.inSnow}`);
+    output.success(`In Wall: ${player.inWall}`);
+    output.success(`In Water Or Rain: ${player.inWaterOrRain}`);
+    output.success(`In World: ${player.inWorld}`);
+    output.success(`In Clouds: ${player.inClouds}`);
+    output.success(`Speed: ${player.speed}`);
+    output.success(`Direction: ${player.direction}`);
+    output.success(`Unique ID: ${player.uniqueId}`);
+    output.success(`Language Code: ${player.langCode}`);
+    output.success(`Is Loading: ${player.isLoading}`);
+    output.success(`Is Invisible: ${player.isInvisible}`);
+    output.success(`Is Inside Portal: ${player.isInsidePortal}`);
+    output.success(`Is Hurt: ${player.isHurt}`);
+    output.success(`Is Trusting: ${player.isTrusting}`);
+    output.success(`Is Touching Damage Block: ${player.isTouchingDamageBlock}`);
+    output.success(`Is Hungry: ${player.isHungry}`);
+    output.success(`Is On Fire: ${player.isOnFire}`);
+    output.success(`Is On Ground: ${player.isOnGround}`);
+    output.success(`Is On Hot Block: ${player.isOnHotBlock}`);
+    output.success(`Is Trading: ${player.isTrading}`);
+    output.success(`Is Adventure: ${player.isAdventure}`);
+    output.success(`Is Gliding: ${player.isGliding}`);
+    output.success(`Is Survival: ${player.isSurvival}`);
+    output.success(`Is Spectator: ${player.isSpectator}`);
+    output.success(`Is Riding: ${player.isRiding}`);
+    output.success(`Is Dancing: ${player.isDancing}`);
+    output.success(`Is Creative: ${player.isCreative}`);
+    output.success(`Is Flying: ${player.isFlying}`);
+    output.success(`Is Sleeping: ${player.isSleeping}`);
+    output.success(`Is Moving: ${player.isMoving}`);
+    output.success(`Is Sneaking: ${player.isSneaking}`);
 }

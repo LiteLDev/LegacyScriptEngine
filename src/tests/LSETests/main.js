@@ -5,7 +5,7 @@ import {TestPlayer} from './plugins/LSETests/PlayerTests.js';
 RegisterEvents();
 
 mc.listen('onServerStarted', () => {
-    let cmd = mc.newCommand('lsetests', "LegacyScriptEngine tests", PermType.Console);
+    let cmd = mc.newCommand('lsetests', "LegacyScriptEngine tests", PermType.GameMasters);
     cmd.setEnum('testOption', ['logger', 'events', 'player']);
     cmd.mandatory('testOption', ParamType.Enum, 'testOption');
     cmd.optional('player', ParamType.Player);
@@ -18,10 +18,10 @@ mc.listen('onServerStarted', () => {
             case 'events':
                 const
                     notTriggeredEvents = events.filter(event => !triggeredEvents.has(event));
-                logger.info(`Events not triggered: ${notTriggeredEvents.join(', ')}`);
+                output.success(`Events not triggered: ${notTriggeredEvents.join(', ')}`);
                 break;
             case 'player':
-                TestPlayer(results.player);
+                TestPlayer(output, results.player);
                 break;
             default:
                 logger.error(`Invalid test option ${results.testOption}`);

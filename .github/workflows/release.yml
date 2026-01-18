@@ -40,7 +40,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: legacy-script-engine-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: |
             bin/
 
@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: legacy-script-engine-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: artifact
 
       - run: |
@@ -116,7 +116,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: legacy-script-engine-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: release/
 
       - run: |
@@ -125,10 +125,10 @@ jobs:
       - name: Archive release
         run: |
           cd release
-          zip -r ../legacy-script-engine-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip *
+          zip -r ../${{ github.event.repository.name }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip *
           cd ..
 
       - uses: softprops/action-gh-release@v1
         with:
           files: |
-            legacy-script-engine-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip
+            ${{ github.event.repository.name }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip

@@ -48,6 +48,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: legacy-script-engine-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: |
             bin/

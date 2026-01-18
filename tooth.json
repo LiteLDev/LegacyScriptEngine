@@ -41,7 +41,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-nodejs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-nodejs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -77,7 +77,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-quickjs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-quickjs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -100,7 +100,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-lua-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-lua-windows-x64.zip"
           ],
           "placements": [
             {
@@ -123,7 +123,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-python-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-python-windows-x64.zip"
           ],
           "placements": [
             {
@@ -147,7 +147,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-nodejs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-nodejs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -183,7 +183,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-quickjs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-quickjs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -206,7 +206,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-lua-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-lua-windows-x64.zip"
           ],
           "placements": [
             {
@@ -229,7 +229,7 @@
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-python-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-python-windows-x64.zip"
           ],
           "placements": [
             {

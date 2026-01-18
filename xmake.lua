@@ -70,7 +70,7 @@ option("backend")
     set_default("lua")
     set_values("lua", "quickjs", "python", "nodejs")
 
-target("legacy-script-engine")
+target("LegacyScriptEngine")
     add_rules("@levibuildscript/linkrule")
     add_cxflags(
         "/EHa",

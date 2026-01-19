@@ -151,7 +151,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     // Init plugin instance for debug engine to prevent something unexpected.
     ll::mod::Manifest manifest;
     manifest.name              = "DebugEngine";
-    getEngineOwnData()->plugin = std::make_shared<lse::Plugin>(manifest);
+    getEngineOwnData()->plugin = std::make_shared<lse::ScriptPlugin>(manifest);
     // Init logger
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 

@@ -8,7 +8,7 @@
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
-#include "lse/Plugin.h"
+#include "lse/ScriptPlugin.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -125,7 +125,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     }
 
     auto scriptEngine = EngineManager::newEngine(manifest.name);
-    auto plugin       = std::make_shared<Plugin>(manifest);
+    auto plugin       = std::make_shared<ScriptPlugin>(manifest);
 
     try {
         EngineScope engineScope(scriptEngine.get());
@@ -271,7 +271,7 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
         NodeJsHelper::stopEngine(scriptEngine);
 #endif
 
-        if (auto res = std::static_pointer_cast<Plugin>(getMod(name))->onUnload(); !res) {
+        if (auto res = std::static_pointer_cast<ScriptPlugin>(getMod(name))->onUnload(); !res) {
             return res;
         }
         eraseMod(name);

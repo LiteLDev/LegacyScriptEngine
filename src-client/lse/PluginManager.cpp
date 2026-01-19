@@ -9,7 +9,7 @@
 #include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
-#include "lse/Plugin.h"
+#include "lse/ScriptPlugin.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -65,7 +65,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         return ll::makeStringError("Plugin has already loaded");
     }
 
-    auto plugin = std::make_shared<Plugin>(manifest);
+    auto plugin = std::make_shared<ScriptPlugin>(manifest);
 
     return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
 }
@@ -131,7 +131,7 @@ ll::Expected<> PluginManager::enable(std::string_view name) {
         }
     }
 #endif
-    auto plugin = std::static_pointer_cast<Plugin>(getMod(name));
+    auto plugin = std::static_pointer_cast<ScriptPlugin>(getMod(name));
     if (!plugin) {
         return ll::makeStringError("Plugin {0} not found"_tr(name));
     }
@@ -280,8 +280,11 @@ ll::Expected<> PluginManager::disable(std::string_view name) {
         NodeJsHelper::stopEngine(scriptEngine);
 #endif
 
-        if (auto res = std::static_pointer_cast<Plugin>(getMod(name))->onDisable(); !res) {
-            return res;
+        if (auto plugin = std::static_pointer_cast<ScriptPlugin>(getMod(name))) {
+            plugin->registeredCommands.clear();
+            if (auto res = plugin->onDisable(); !res) {
+                return res;
+            }
         }
         return {};
     } catch (const Exception&) {
@@ -292,7 +295,7 @@ ll::Expected<> PluginManager::disable(std::string_view name) {
 }
 
 ll::Expected<> PluginManager::unload(std::string_view name) {
-    if (auto res = std::static_pointer_cast<Plugin>(getMod(name))->onUnload(); !res) {
+    if (auto res = std::static_pointer_cast<ScriptPlugin>(getMod(name))->onUnload(); !res) {
         return res;
     }
     eraseMod(name);

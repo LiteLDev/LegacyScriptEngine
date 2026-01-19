@@ -24,10 +24,6 @@ public:
 
     bool enable();
 
-    // bool disable();
-
-    // bool unload();
-
 private:
     ll::mod::NativeMod&            mSelf;
     Config                         config;        // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)

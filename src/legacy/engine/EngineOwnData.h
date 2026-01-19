@@ -1,6 +1,6 @@
 #pragma once
 #include "legacy/main/Global.h"
-#include "lse/Plugin.h"
+#include "lse/ScriptPlugin.h"
 #include "utils/UsingScriptX.h"
 
 #include <ll/api/Expected.h>
@@ -34,7 +34,7 @@ struct EngineOwnData {
     ll::i18n::I18n i18n;
     std::string    defaultLocaleName;
 
-    std::shared_ptr<lse::Plugin> plugin;
+    std::shared_ptr<lse::ScriptPlugin> plugin;
 
     // Use standalone logger in EngineOwnData instead of plugin.getLogger() for allowing modify logger title.
     std::shared_ptr<ll::io::Logger> logger;

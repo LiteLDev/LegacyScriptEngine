@@ -54,6 +54,8 @@
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
 
+#include <ll/api/service/GamingStatus.h>
+
 #ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"
 #endif
@@ -184,7 +186,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
-                if (checkClientIsServerThread()) {
+                if (checkClientIsServerThread() && ll::getGamingStatus() != ll::GamingStatus::Stopping) {
                     CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
                 }
             }

@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.17.0-rc.1",
+  "version": "0.17.0-rc.2",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -25,8 +25,8 @@
       "label": "client",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyScriptEngine#quickjs-client": "{{version}}",
-        "github.com/LiteLDev/LegacyScriptEngine#lua-client": "{{version}}"
+        "github.com/LiteLDev/LegacyScriptEngine#client_quickjs": "{{version}}",
+        "github.com/LiteLDev/LegacyScriptEngine#client_lua": "{{version}}"
       }
     },
     {
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "label": "nodejs-client",
+      "label": "client_nodejs",
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
@@ -173,7 +173,7 @@
       ]
     },
     {
-      "label": "quickjs-client",
+      "label": "client_quickjs",
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
@@ -196,7 +196,7 @@
       ]
     },
     {
-      "label": "lua-client",
+      "label": "client_lua",
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
@@ -219,7 +219,7 @@
       ]
     },
     {
-      "label": "python-client",
+      "label": "client_python",
       "platform": "win-x64",
       "dependencies": {
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",

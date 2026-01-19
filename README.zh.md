@@ -5,24 +5,7 @@
 
 ## 安装
 
-### 注意
-
-在安装Python引擎之前，你需要先安装[Python 3.12.10](https://www.python.org/downloads/release/python-31210/)  
-要安装特定的引擎，您可以使用以下命令：
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#lua
-lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
-lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
-lip install github.com/LiteLDev/LegacyScriptEngine#python
-```
-对于0.10.0之前的版本，可以使用以下命令：
-```shell
-lip install git.levimc.org/LiteLDev/legacy-script-engine-lua@版本
-lip install git.levimc.org/LiteLDev/legacy-script-engine-quickjs@版本
-lip install git.levimc.org/LiteLDev/legacy-script-engine-nodejs@版本
-lip install git.levimc.org/LiteLDev/legacy-script-engine-python@版本
-```
-可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
+请参考 https://lse.levimc.org/zh/
 
 ## 使用
 

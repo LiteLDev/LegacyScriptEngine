@@ -1,22 +1,19 @@
-#include "PluginManager.h"
+#include "lse/PluginManager.h"
 
-#include "Entry.h"
-#include "Plugin.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
-#include "ll/api/chrono/GameChrono.h"
-#include "ll/api/coro/CoroTask.h"
 #include "ll/api/io/FileUtils.h" // IWYU pragma: keep
 #include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManager.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/thread/ServerThreadExecutor.h"
+#include "ll/api/utils/ErrorUtils.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
+#include "lse/Plugin.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
 #include <filesystem>
-#include <fmt/format.h>
 #include <memory>
 
 #ifdef LSE_BACKEND_LUA
@@ -64,6 +61,16 @@ PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
 PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
+    if (hasMod(manifest.name)) {
+        return ll::makeStringError("Plugin has already loaded");
+    }
+
+    auto plugin = std::make_shared<Plugin>(manifest);
+
+    return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
+}
+
+ll::Expected<> PluginManager::enable(std::string_view name) {
 #ifdef LSE_BACKEND_PYTHON
     auto&                 logger  = lse::LegacyScriptEngine::getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
@@ -124,12 +131,13 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         }
     }
 #endif
-    if (hasMod(manifest.name)) {
-        return ll::makeStringError("Plugin has already loaded");
+    auto plugin = std::static_pointer_cast<Plugin>(getMod(name));
+    if (!plugin) {
+        return ll::makeStringError("Plugin {0} not found"_tr(name));
     }
+    auto manifest = plugin->getManifest();
 
     auto scriptEngine = EngineManager::newEngine(manifest.name);
-    auto plugin       = std::make_shared<Plugin>(manifest);
 
     try {
         EngineScope engineScope(scriptEngine.get());
@@ -212,21 +220,18 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
             LLSECallEventsOnHotLoad(scriptEngine);
         }
         ExitEngineScope exit;
-        plugin->onLoad([](ll::mod::Mod&) { return true; });
-        plugin->onDisable([this](ll::mod::Mod& self) {
-            if (ll::getGamingStatus() == ll::GamingStatus::Stopping) {
-                unload(self.getName());
-            }
-            return true;
-        });
 
-        return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
+        if (auto res = plugin->onEnable(); !res) {
+            return res;
+        }
+
+        return {};
     } catch (const Exception& e) {
         if (scriptEngine) {
             auto error = [&] {
                 EngineScope engineScope(scriptEngine.get());
                 return ll::makeStringError(
-                    "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
+                    "Failed to enable plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
                 );
             }();
 
@@ -245,12 +250,12 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #endif
             return error;
         } else {
-            return ll::makeStringError("Failed to load plugin {0}: {1}"_tr(manifest.name, "ScriptEngine is nullptr"));
+            return ll::makeStringError("Failed to enable plugin {0}: {1}"_tr(manifest.name, "ScriptEngine is nullptr"));
         }
     }
 }
 
-ll::Expected<> PluginManager::unload(std::string_view name) {
+ll::Expected<> PluginManager::disable(std::string_view name) {
     try {
         auto scriptEngine = EngineManager::getEngine(std::string(name));
 
@@ -271,22 +276,27 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
             EngineOwnData::clearEngineObjects(scriptEngine);
         }
         EngineManager::unregisterEngine(scriptEngine);
-
-        if (auto plugin = std::static_pointer_cast<Plugin>(getMod(name))) {
-            plugin->onUnload();
-        }
-
-        eraseMod(name);
-
 #ifdef LSE_BACKEND_NODEJS
         NodeJsHelper::stopEngine(scriptEngine);
 #endif
+
+        if (auto res = std::static_pointer_cast<Plugin>(getMod(name))->onDisable(); !res) {
+            return res;
+        }
         return {};
     } catch (const Exception&) {
-        return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, "Unknown script exception"));
+        return ll::makeStringError("Failed to disable plugin {0}: {1}"_tr(name, "Unknown script exception"));
     } catch (const std::exception& e) {
-        return ll::makeStringError("Failed to unload plugin {0}: {1}"_tr(name, e.what()));
+        return ll::makeStringError("Failed to disable plugin {0}: {1}"_tr(name, e.what()));
     }
+}
+
+ll::Expected<> PluginManager::unload(std::string_view name) {
+    if (auto res = std::static_pointer_cast<Plugin>(getMod(name))->onUnload(); !res) {
+        return res;
+    }
+    eraseMod(name);
+    return {};
 }
 
 } // namespace lse

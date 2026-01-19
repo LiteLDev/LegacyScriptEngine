@@ -1,6 +1,6 @@
-#include "Plugin.h"
+#include "lse/Plugin.h"
 
-#include "Entry.h"
+#include "lse/Entry.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"

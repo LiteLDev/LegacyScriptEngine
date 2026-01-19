@@ -124,8 +124,12 @@ target("LegacyScriptEngine")
     )
     if is_config("target_type", "server") then
         add_defines("LL_PLAT_S")
+        add_files("src-server/**.cpp")
+        add_includedirs("src-server")
     else
         add_defines("LL_PLAT_C")
+        add_files("src-client/**.cpp")
+        add_includedirs("src-client")
     end
     if has_config("publish") then
         add_defines("LSE_VERSION_PUBLISH")

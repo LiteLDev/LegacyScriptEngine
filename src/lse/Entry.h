@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Config.h"
-#include "PluginManager.h"
+#include "lse/Config.h"
+#include "lse/PluginManager.h"
 #include "ll/api/mod/NativeMod.h"
 
 namespace lse {
@@ -24,7 +24,7 @@ public:
 
     bool enable();
 
-    bool disable();
+    // bool disable();
 
     // bool unload();
 

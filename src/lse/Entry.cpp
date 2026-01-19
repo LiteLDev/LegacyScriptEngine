@@ -1,7 +1,5 @@
-#include "Entry.h"
+#include "lse/Entry.h"
 
-#include "PluginManager.h"
-#include "PluginMigration.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/main/EconomicSystem.h"
@@ -13,6 +11,8 @@
 #include "ll/api/mod/RegisterHelper.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/ErrorUtils.h"
+#include "lse/PluginManager.h"
+#include "lse/PluginMigration.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -124,8 +124,6 @@ bool LegacyScriptEngine::load() {
         return false;
     }
 }
-
-bool LegacyScriptEngine::disable() { return true; }
 
 Config const& LegacyScriptEngine::getConfig() { return config; }
 

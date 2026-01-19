@@ -54,5 +54,8 @@
   "Could not find {} in registered commands": {
     "": "Impossibile trovare {} nei comandi registrati."
   },
-  "Event {} not found!": "Evento {} non trovato!"
+  "Event {} not found!": "Evento {} non trovato!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Attivazione del plugin {0}non riuscita: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Attivazione del plugin {0}non riuscita: {1}",
+  "Failed to disable plugin {0}: {1}": "Impossibile disabilitare il plugin {0}: {1}"
 }

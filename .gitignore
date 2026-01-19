@@ -552,7 +552,6 @@ fabric.properties
 /.xmake/
 /build/
 /CMakeLists.txt
-/cmake-build-*/
 
 
 # Project specific ignores

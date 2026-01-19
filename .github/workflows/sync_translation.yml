@@ -1,0 +1,30 @@
+on:
+  schedule:
+    - cron: 0 * * * *
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          pip install crowdin-api-client
+
+      - run: |
+          python scripts/sync_translations.py ${{secrets.CROWDIN_API}}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync translations
+        run: |
+          git add . && \
+          git commit -m "Sync translations from Crowdin" && \
+          git push || echo "No changes to commit"

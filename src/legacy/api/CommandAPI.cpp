@@ -162,7 +162,7 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const& value) {
         if (!tmp.has_value()) throw std::runtime_error("Unable to parse Enum value");
         return tmp.value();
     } else if (value.isNumber()) {
-        return (T)value.asNumber().toInt32();
+        return static_cast<T>(value.asNumber().toInt32());
     }
     throw std::runtime_error("Unable to parse Enum value");
 }
@@ -198,7 +198,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         auto command = ll::service::getMinecraft()->mCommands->compileCommand(
             args[0].asString().toString(),
             origin,
-            (CurrentCmdVersion)CommandVersion::CurrentVersion(),
+            static_cast<CurrentCmdVersion>(CommandVersion::CurrentVersion()),
             [&](std::string const& err) { outputStr.append(err).append("\n"); }
         );
         Local<Object> resObj = Object::newObject();
@@ -238,13 +238,13 @@ Local<Value> McClass::newCommand(const Arguments& args) {
 
         auto                   desc       = args[1].asString().toString();
         CommandPermissionLevel permission = CommandPermissionLevel::Admin;
-        CommandFlag            flag       = {(CommandFlagValue)0x80};
+        CommandFlag            flag       = {static_cast<CommandFlagValue>(0x80)};
         std::string            alias;
         if (args.size() > 2) {
-            permission = (CommandPermissionLevel)parseEnum<OldCommandPermissionLevel>(args[2]);
+            permission = static_cast<CommandPermissionLevel>(parseEnum<OldCommandPermissionLevel>(args[2]));
             if (args.size() > 3) {
                 CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
-                flag = {(CommandFlagValue)args[3].asNumber().toInt32()};
+                flag = {static_cast<CommandFlagValue>(args[3].asNumber().toInt32())};
                 if (args.size() > 4) {
                     CHECK_ARG_TYPE(args[4], ValueKind::kString);
                     alias = args[4].asString().toString();
@@ -256,10 +256,8 @@ Local<Value> McClass::newCommand(const Arguments& args) {
                                  CommandPermissionLevel const& permission,
                                  CommandFlag const&            flag,
                                  std::string const&            alias) {
-            auto registry = ll::service::getCommandRegistry();
-            if (registry) {
-                auto instance = registry->findCommand(name);
-                if (instance) {
+            if (auto registry = ll::service::getCommandRegistry()) {
+                if (registry->findCommand(name)) {
                     lse::LegacyScriptEngine::getLogger().warn(
                         "Runtime command {} already exists, changes will not beapplied except for setOverload!"_tr(name)
                     );
@@ -308,7 +306,7 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
         std::string alias = args[0].asString().toString();
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([commandName(commandName), alias]() -> ll::coro::CoroTask<> {
-                ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(commandName).alias(alias);
+                CommandRegistrar::getInstance(false).getOrCreateCommand(commandName).alias(alias);
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
             return Boolean::newBoolean(true);
@@ -351,7 +349,7 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
 
 void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& runtime) {
     std::string commandName = runtime.getCommandName();
-    if (localShareData->commandCallbacks.find(commandName) == localShareData->commandCallbacks.end()) {
+    if (!localShareData->commandCallbacks.contains(commandName)) {
         lse::LegacyScriptEngine::getLogger().warn(
             "Command {} failed to execute, is the plugin unloaded?"_tr(commandName)
         );
@@ -365,10 +363,8 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
         auto*         outp = new CommandOutputClass(std::make_shared<CommandOutput>(output), ori->get());
 
         auto& registeredCommands = getEngineOwnData()->plugin->registeredCommands;
-        if (registeredCommands.find(commandName) == registeredCommands.end()) {
-            lse::LegacyScriptEngine::getLogger().warn(
-                "Could not find {} in registered commands."_tr(commandName)
-            );
+        if (!registeredCommands.contains(commandName)) {
+            lse::LegacyScriptEngine::getLogger().warn("Could not find {} in registered commands."_tr(commandName));
             return;
         }
         for (auto& info : registeredCommands[commandName]) {
@@ -411,7 +407,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
+        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName   = "";
         bool                   optional   = false;
         std::string            identifier = "";
@@ -421,7 +417,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
         if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+            option = static_cast<CommandParameterOption>(args[index++].asNumber().toInt32());
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
         getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
@@ -440,7 +436,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
+        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName   = "";
         std::string            identifier = "";
         size_t                 index      = 2;
@@ -448,7 +444,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
         if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+            option = static_cast<CommandParameterOption>(args[index++].asNumber().toInt32());
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
         getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
@@ -467,7 +463,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = (ParamKind::Kind)parseEnum<OldParameterType>(args[1]);
+        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName   = "";
         std::string            identifier = "";
         size_t                 index      = 2;
@@ -475,7 +471,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
         if (args.size() > index && args[index].isNumber())
-            option = (CommandParameterOption)args[index++].asNumber().toInt32();
+            option = static_cast<CommandParameterOption>(args[index++].asNumber().toInt32());
         if (index != args.size()) throw std::runtime_error("Error Argument in newParameter");
 
         getEngineOwnData()->plugin->registeredCommands[commandName].push_back(
@@ -517,7 +513,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
             ll::coro::keepThis(
                 [paramNames, commandName(commandName), overloadFunc, e(EngineScope::currentEngine())]()
                     -> ll::coro::CoroTask<> {
-                    auto cmd = ll::command::CommandRegistrar::getInstance(false)
+                    auto cmd = CommandRegistrar::getInstance(false)
                                    .getOrCreateCommand(commandName)
                                    .runtimeOverload(getEngineData(e)->plugin);
                     for (auto& paramName : paramNames) {
@@ -533,7 +529,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 ll::coro::keepThis(
                     [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
                         getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
-                        auto cmd = ll::command::CommandRegistrar::getInstance(false)
+                        auto cmd = CommandRegistrar::getInstance(false)
                                        .getOrCreateCommand(commandName)
                                        .runtimeOverload(getEngineData(e)->plugin);
                         cmd.execute(onExecute);
@@ -591,7 +587,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                     ll::coro::keepThis(
                         [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
                             getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
-                            auto cmd = ll::command::CommandRegistrar::getInstance(false)
+                            auto cmd = CommandRegistrar::getInstance(false)
                                            .getOrCreateCommand(commandName)
                                            .runtimeOverload(getEngineData(e)->plugin);
                             cmd.execute(onExecute);
@@ -746,12 +742,11 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto name     = args[0].asString().toString();
-        auto registry = ll::service::getCommandRegistry();
-        if (registry) {
+        auto name = args[0].asString().toString();
+        if (auto registry = ll::service::getCommandRegistry()) {
             auto& lookup    = registry->mSoftEnumLookup;
             auto& softEnums = registry->mSoftEnums;
-            if (lookup.find(name) != lookup.end()) {
+            if (lookup.contains(name)) {
                 return getStringArray(softEnums[lookup[name]].mValues);
             }
         }

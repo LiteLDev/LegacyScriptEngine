@@ -71,6 +71,11 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 }
 
 ll::Expected<> PluginManager::enable(std::string_view name) {
+    auto plugin = std::static_pointer_cast<ScriptPlugin>(getMod(name));
+    if (!plugin) {
+        return ll::makeStringError("Plugin {0} not found"_tr(name));
+    }
+    auto manifest = plugin->getManifest();
 #ifdef LSE_BACKEND_PYTHON
     auto&                 logger  = lse::LegacyScriptEngine::getLogger();
     std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
@@ -131,12 +136,6 @@ ll::Expected<> PluginManager::enable(std::string_view name) {
         }
     }
 #endif
-    auto plugin = std::static_pointer_cast<ScriptPlugin>(getMod(name));
-    if (!plugin) {
-        return ll::makeStringError("Plugin {0} not found"_tr(name));
-    }
-    auto manifest = plugin->getManifest();
-
     auto scriptEngine = EngineManager::newEngine(manifest.name);
 
     try {

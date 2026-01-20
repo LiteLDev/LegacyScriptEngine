@@ -34,7 +34,7 @@ This is an upgraded version of the above function; it supports color output.
 
 #### Show results:
 
-![ColorLogExample](/img/ColorLog.png)
+![ColorLogExample](../../img/ColorLog.png)
 
 ### Asynchronous Output
 

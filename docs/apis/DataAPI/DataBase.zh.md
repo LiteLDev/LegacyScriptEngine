@@ -7,8 +7,8 @@
 
 ### 📄 目录
 
-🔑 [KVDB 键值对数据库](#🔑-键---值对-nosql数据库)  
-📋 [SQL数据库](#📋-sql数据库)
+🔑 [KVDB 键值对数据库](#-键---值对-nosql数据库)  
+📋 [SQL数据库](#-sql数据库)
 - 🔍 [预准备语句](#sql预准备语句)
 
 附： 各SQL的官方文档  
@@ -142,12 +142,12 @@ SQL数据库适用于使用SQL语句处理大量的关系型数据。接口底�
 
 #### 连接参数
 
-| 键        | 用途                     | 可用数据库 | 示例              | 默认值  |
-| --------- | ------------------------ | ---------- | ----------------- | ------- |
-| path      | 指定数据库所在路径       | `SQLite`   | `plugins/test.db` | -       |
-| create    | 数据库不存在是否自动创建 | `SQLite`   | `true`/`false`    | `true`  |
-| readonly  | 以只读模式打开           | `SQLite`   | `true`/`false`    | `false` |
-| readwrite | 以读写模式打开           | `SQLite`   | `true`/`false`    | `true`  |
+| 键         | 用途           | 可用数据库    | 示例                | 默认值     |
+|-----------|--------------|----------|-------------------|---------|
+| path      | 指定数据库所在路径    | `SQLite` | `plugins/test.db` | -       |
+| create    | 数据库不存在是否自动创建 | `SQLite` | `true`/`false`    | `true`  |
+| readonly  | 以只读模式打开      | `SQLite` | `true`/`false`    | `false` |
+| readwrite | 以读写模式打开      | `SQLite` | `true`/`false`    | `true`  |
 
 
 
@@ -217,7 +217,7 @@ SQL数据库适用于使用SQL语句处理大量的关系型数据。接口底�
 
 
 > 预准备语句(Prepared Statement)是SQL的一个重要部分。它的实现原理是：先将含有未知参数的SQL语句(发往服务端)处理、编译，再绑定参数，最终执行并返回结果。各个SQL的预准备语句实现可能不同，其预准备语句的表示方法也可能存在差异，所以请务必仔细阅读文档(直接去阅读对应SQL的官方文档则更好)。  
-预准备语句的主要作用是防止SQL注入攻击——一种很常见的、危险的攻击。如果在未经检验的情况下直接使用用户输入的数据(就像BDS一样 xD)，就可能会造成免密码登录甚至数据丢失(注入执行`DROP TABLE`或`DROP DATABASE`)等严重后果。所以在处理用户输入的数据时，更推荐使用预准备语句。其次，它可以在(服务器)只编译一次语句的情况下，实现多次输入。
+> 预准备语句的主要作用是防止SQL注入攻击——一种很常见的、危险的攻击。如果在未经检验的情况下直接使用用户输入的数据(就像BDS一样 xD)，就可能会造成免密码登录甚至数据丢失(注入执行`DROP TABLE`或`DROP DATABASE`)等严重后果。所以在处理用户输入的数据时，更推荐使用预准备语句。其次，它可以在(服务器)只编译一次语句的情况下，实现多次输入。
 
 
 
@@ -260,10 +260,10 @@ INSERT INTO table VALUES ($X, ?Y, :Z);
 
 #### 预准备语句对象 - 属性
 
-| 属性                | 含义                                                                                        | 类型      | 另见                                                                                                                                    |
-| ------------------- | ------------------------------------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `stmt.affectedRows` | 获取该预准备语句执行后影响的行数(仅对`INSERT` `UPDATE` `DELETE` `REPLACE` 等语句生效)       | `Integer` | [SQLite](https://www.sqlite.org/c3ref/changes.html) [MySQL](https://dev.mysql.com/doc/c-api/8.0/en/mysql-affected-rows.html)            |
-| `stmt.insertId`     | 获取该`INSERT`/`UPDATE`/`REPLACE`语句执行后最后一个更改行的行号(关于行号的解释详见官方文档) | `Integer` | [SQLite](https://www.sqlite.org/c3ref/last_insert_rowid.html) [MySQL](https://dev.mysql.com/doc/c-api/8.0/en/mysql-stmt-insert-id.html) |
+| 属性                  | 含义                                                             | 类型        | 另见                                                                                                                                      |
+|---------------------|----------------------------------------------------------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `stmt.affectedRows` | 获取该预准备语句执行后影响的行数(仅对`INSERT` `UPDATE` `DELETE` `REPLACE` 等语句生效) | `Integer` | [SQLite](https://www.sqlite.org/c3ref/changes.html) [MySQL](https://dev.mysql.com/doc/c-api/8.0/en/mysql-affected-rows.html)            |
+| `stmt.insertId`     | 获取该`INSERT`/`UPDATE`/`REPLACE`语句执行后最后一个更改行的行号(关于行号的解释详见官方文档)   | `Integer` | [SQLite](https://www.sqlite.org/c3ref/last_insert_rowid.html) [MySQL](https://dev.mysql.com/doc/c-api/8.0/en/mysql-stmt-insert-id.html) |
 
 这些对象属性都是只读的，无法被修改，并且只能在语句执行之后获取到
 

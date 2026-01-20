@@ -95,7 +95,7 @@ Each block object contains some member functions (member methods) that can be ex
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
 
-For more usage of NBT objects, please refer to [NBT Interface Documentation](/NBT.md)
+For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI/NBT.md)
 Note: Use this api with caution, consider using mc.setBlock() instead.
 
 

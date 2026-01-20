@@ -8,8 +8,8 @@ The documentation does not list the packet ID and its structure, please check it
 
 
 ## 目录
-- 🔉 [Packet Object API](#🔉-Packet-Object-api)
-- 🔌 [Binary stream object API](#🔌-Binary-stream-object-api)
+- 🔉 [Packet Object API](#-packet-object-api)
+- 🔌 [Binary stream object API](#-binary-stream-object-api)
 
 
 
@@ -22,7 +22,7 @@ In LLSE, 「Packet Object」 is used to get information about packets.
 #### Get from API
 
 Call some **return packet object** function to get to the packet object given by BDS    
-See [Binary Stream Objects](#🔌-binary-stream-object-api) for details 
+See [Binary Stream Objects](#-binary-stream-object-api) for details 
 
 
 

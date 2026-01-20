@@ -33,7 +33,7 @@
 
 #### 效果展示：
 
-![ColorLogExample](/img/ColorLog.png)
+![ColorLogExample](../../img/ColorLog.png)
 
 ### 异步输出
 

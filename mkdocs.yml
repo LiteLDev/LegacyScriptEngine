@@ -62,6 +62,7 @@ nav:
 
 theme:
   name: material
+  custom_dir: docs/overrides
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -88,7 +89,10 @@ markdown_extensions:
   - def_list
   - footnotes
   - md_in_html
-  - toc
+  - toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - tables
   - pymdownx.arithmatex
   - pymdownx.betterem

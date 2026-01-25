@@ -1,8 +1,8 @@
 #pragma once
 
+#include "ll/api/mod/NativeMod.h"
 #include "lse/Config.h"
 #include "lse/PluginManager.h"
-#include "ll/api/mod/NativeMod.h"
 
 namespace lse {
 
@@ -23,6 +23,8 @@ public:
     bool load();
 
     bool enable();
+
+    bool unload();
 
 private:
     ll::mod::NativeMod&            mSelf;

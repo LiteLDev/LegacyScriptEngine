@@ -125,6 +125,11 @@ bool LegacyScriptEngine::load() {
     }
 }
 
+bool LegacyScriptEngine::unload() {
+    DebugEngine.reset();
+    return true;
+}
+
 Config const& LegacyScriptEngine::getConfig() { return config; }
 
 PluginManager& LegacyScriptEngine::getManager() {

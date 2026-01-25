@@ -25,6 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supported LeviLamina 1.8.0-rc.2
 - Added client support
 - Replace int with CommandPermissionLevel for debugCommandLevel
+- 
+## [0.16.8] - 2026-01-14
+
+### Added
+
+- Added debugCommandLevel config @ShrBox
+- Fixed onLiquidFlow @killcerr
 
 ## [0.16.7] - 2026-01-13
 
@@ -1128,6 +1135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.0...HEAD
 [0.17.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.0-rc.2...v0.17.0
 [0.17.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...v0.17.0-rc.2
+[0.16.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...v0.16.8
 [0.16.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.6...v0.16.7
 [0.16.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.4...v0.16.5

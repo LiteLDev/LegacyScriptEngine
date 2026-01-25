@@ -1,13 +1,13 @@
 #pragma once
 
-#include "PluginManager.h"
 #include "ll/api/command/runtime/ParamKind.h"
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"
+#include "lse/PluginManager.h"
 
 namespace lse {
 
-class Plugin : public ll::mod::Mod {
+class ScriptPlugin : public ll::mod::Mod {
     friend PluginManager;
 
 public:
@@ -22,8 +22,8 @@ public:
 
     std::unordered_map<std::string, std::vector<ParamInfo>> registeredCommands;
 
-    explicit Plugin(ll::mod::Manifest manifest);
-    ~Plugin();
+    explicit ScriptPlugin(ll::mod::Manifest manifest);
+    ~ScriptPlugin();
 
     static std::shared_ptr<ll::mod::Mod> current();
 };

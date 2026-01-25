@@ -1,39 +1,46 @@
 #include "AttributeHelper.h"
 
+#include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
-#include "mc/world/attribute/AttributeModificationContext.h"
+#include "mc/world/attribute/AttributeInstanceRef.h"
 #include "mc/world/attribute/BaseAttributeMap.h"
 
 namespace lse::api {
-inline void AttributeHelper::setDirty(MutableAttributeWithContext& attribute) {
-    auto map = attribute.mContext->mAttributeMap;
-    if (map) {
-        map->_onAttributeModified(*attribute.mInstance);
+inline void AttributeHelper::setDirty(BaseAttributeMap& map, AttributeInstance const* attribute) {
+    map._onAttributeModified(*attribute);
+}
+
+bool AttributeHelper::setCurrentValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
+    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+        ptr->mCurrentValue = value;
+        setDirty(map, ptr);
+        return true;
     }
+    return false;
 }
 
-void AttributeHelper::setCurrentValue(MutableAttributeWithContext& attribute, float value) {
-    auto& instance          = attribute.mInstance;
-    instance->mCurrentValue = value;
-    setDirty(attribute);
-}
-
-void AttributeHelper::setMaxValue(MutableAttributeWithContext& attribute, float value) {
-    auto& instance             = attribute.mInstance;
-    instance->mCurrentMaxValue = value;
-    instance->mDefaultMaxValue = value;
-    float& currentValue        = instance->mCurrentValue;
-    currentValue               = std::max(currentValue, instance->mCurrentMinValue);
-    setDirty(attribute);
-}
-
-void AttributeHelper::setDefaultValue(MutableAttributeWithContext& attribute, float value) {
-    auto&  instance     = attribute.mInstance;
-    float& defaultValue = instance->mDefaultValue;
-    if (value != defaultValue) {
-        defaultValue            = value;
-        instance->mCurrentValue = value;
-        setDirty(attribute);
+bool AttributeHelper::setMaxValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
+    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+        ptr->mCurrentMaxValue = value;
+        ptr->mDefaultMaxValue = value;
+        float& currentValue   = ptr->mCurrentValue;
+        currentValue          = std::max(currentValue, ptr->mCurrentMinValue);
+        setDirty(map, ptr);
+        return true;
     }
+    return false;
 }
-} // namespace lse::api::AttributeHelper
+
+bool AttributeHelper::setDefaultValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
+    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+        float& defaultValue = ptr->mDefaultValue;
+        if (value != defaultValue) {
+            defaultValue       = value;
+            ptr->mCurrentValue = value;
+            setDirty(map, ptr);
+            return true;
+        }
+    }
+    return false;
+}
+} // namespace lse::api

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PluginManager.h"
+#include "lse/PluginManager.h"
 
 namespace lse {
 

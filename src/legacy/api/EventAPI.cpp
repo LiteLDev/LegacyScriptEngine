@@ -41,6 +41,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/Entry.h"
+#include "lse/api/Thread.h"
 #include "lse/events/BlockEvents.h"
 #include "lse/events/EntityEvents.h"
 #include "lse/events/OtherEvents.h"
@@ -49,9 +50,12 @@
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/AttributeInstanceConstRef.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
+
+#include <ll/api/service/GamingStatus.h>
 
 #ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"
@@ -63,6 +67,8 @@
 
 #include <list>
 #include <string>
+
+using lse::api::thread::checkClientIsServerThread;
 
 //////////////////// Listeners ////////////////////
 
@@ -101,10 +107,8 @@ LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<
         }
         return {listener};
     } catch (...) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Event {} not found!"_tr(eventName));
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
-            "In Plugin: " + getEngineData(engine)->pluginName
-        );
+        lse::LegacyScriptEngine::getLogger().error("Event {} not found!"_tr(eventName));
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(engine)->pluginName);
         return std::nullopt;
     }
 }
@@ -157,8 +161,10 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onJoin:
         bus.emplaceListener<PlayerJoinEvent>([](PlayerJoinEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onJoin) {
-                if (!CallEvent(EVENT_TYPES::onJoin, PlayerClass::newPlayer(&ev.self()))) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(EVENT_TYPES::onJoin, PlayerClass::newPlayer(&ev.self()))) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onJoin);
@@ -168,8 +174,10 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPreJoin:
         bus.emplaceListener<PlayerConnectEvent>([](PlayerConnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPreJoin) {
-                if (!CallEvent(EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&ev.self()))) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&ev.self()))) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onPreJoin);
@@ -179,7 +187,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
-                CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                if (checkClientIsServerThread() && ll::getGamingStatus() != ll::GamingStatus::Stopping) {
+                    CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onLeft);
         });
@@ -188,12 +198,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChat:
         bus.emplaceListener<PlayerChatEvent>([](PlayerChatEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChat) {
-                if (!CallEvent(
-                        EVENT_TYPES::onChat,
-                        PlayerClass::newPlayer(&ev.self()),
-                        String::newString(ev.message())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onChat,
+                            PlayerClass::newPlayer(&ev.self()),
+                            String::newString(ev.message())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onChat);
@@ -207,7 +219,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerSwing:
         bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
-                CallEvent(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onPlayerSwing);
         });
@@ -216,12 +230,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onAttackEntity:
         bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onAttackEntity) {
-                if (!CallEvent(
-                        EVENT_TYPES::onAttackEntity,
-                        PlayerClass::newPlayer(&ev.self()),
-                        EntityClass::newEntity(&ev.target())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onAttackEntity,
+                            PlayerClass::newPlayer(&ev.self()),
+                            EntityClass::newEntity(&ev.target())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onAttackEntity);
@@ -236,12 +252,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerDie:
         bus.emplaceListener<ll::event::PlayerDieEvent>([](ll::event::PlayerDieEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerDie) {
-                Actor* source = ev.self().getDimension().fetchEntity(ev.source().getEntityUniqueID(), false);
-                CallEvent(
-                    EVENT_TYPES::onPlayerDie,
-                    PlayerClass::newPlayer(&ev.self()),
-                    (source ? EntityClass::newEntity(source) : Local<Value>())
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    Actor* source = ev.self().getDimension().fetchEntity(ev.source().getEntityUniqueID(), false);
+                    CallEvent(
+                        EVENT_TYPES::onPlayerDie,
+                        PlayerClass::newPlayer(&ev.self()),
+                        (source ? EntityClass::newEntity(source) : Local<Value>())
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onPlayerDie);
         });
@@ -250,7 +268,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onRespawn:
         bus.emplaceListener<ll::event::PlayerRespawnEvent>([](ll::event::PlayerRespawnEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
-                CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onRespawn)
         });
@@ -263,12 +283,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onDestroyBlock:
         bus.emplaceListener<PlayerDestroyBlockEvent>([](PlayerDestroyBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onDestroyBlock) {
-                if (!CallEvent(
-                        EVENT_TYPES::onDestroyBlock,
-                        PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onDestroyBlock,
+                            PlayerClass::newPlayer(&ev.self()),
+                            BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onDestroyBlock);
@@ -278,36 +300,38 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlaceBlock:
         bus.emplaceListener<PlayerPlacingBlockEvent>([](PlayerPlacingBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlaceBlock) {
-                BlockPos truePos = ev.pos();
-                switch (ev.face()) {
-                case 0:
-                    --truePos.y;
-                    break;
-                case 1:
-                    ++truePos.y;
-                    break;
-                case 2:
-                    --truePos.z;
-                    break;
-                case 3:
-                    ++truePos.z;
-                    break;
-                case 4:
-                    --truePos.x;
-                    break;
-                case 5:
-                    ++truePos.x;
-                    break;
-                }
-                auto block = ev.self().getCarriedItem().mBlock;
-                if (!CallEvent(
-                        EVENT_TYPES::onPlaceBlock,
-                        PlayerClass::newPlayer(&ev.self()),
-                        block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId().id)
-                              : BlockClass::newBlock(truePos, ev.self().getDimensionId().id),
-                        Number::newNumber((schar)ev.face())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    BlockPos truePos = ev.pos();
+                    switch (ev.face()) {
+                    case 0:
+                        --truePos.y;
+                        break;
+                    case 1:
+                        ++truePos.y;
+                        break;
+                    case 2:
+                        --truePos.z;
+                        break;
+                    case 3:
+                        ++truePos.z;
+                        break;
+                    case 4:
+                        --truePos.x;
+                        break;
+                    case 5:
+                        ++truePos.x;
+                        break;
+                    }
+                    auto block = ev.self().getCarriedItem().mBlock;
+                    if (!CallEvent(
+                            EVENT_TYPES::onPlaceBlock,
+                            PlayerClass::newPlayer(&ev.self()),
+                            block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId().id)
+                                  : BlockClass::newBlock(truePos, ev.self().getDimensionId().id),
+                            Number::newNumber((schar)ev.face())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onPlaceBlock);
@@ -317,11 +341,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::afterPlaceBlock:
         bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
-                CallEvent(
-                    EVENT_TYPES::afterPlaceBlock,
-                    PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::afterPlaceBlock,
+                        PlayerClass::newPlayer(&ev.self()),
+                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::afterPlaceBlock);
         });
@@ -329,7 +355,9 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onJump:
         bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onJump) {
-                CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onJump);
         });
@@ -342,13 +370,15 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onTakeItem:
         bus.emplaceListener<PlayerPickUpItemEvent>([](PlayerPickUpItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onTakeItem) {
-                if (!CallEvent(
-                        EVENT_TYPES::onTakeItem,
-                        PlayerClass::newPlayer(&ev.self()),
-                        EntityClass::newEntity(&ev.itemActor()),
-                        ItemClass::newItem(&ev.itemActor().item())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onTakeItem,
+                            PlayerClass::newPlayer(&ev.self()),
+                            EntityClass::newEntity(&ev.itemActor()),
+                            ItemClass::newItem(&ev.itemActor().item())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onTakeItem);
@@ -370,12 +400,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItem:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItem) {
-                if (!CallEvent(
-                        EVENT_TYPES::onUseItem,
-                        PlayerClass::newPlayer(&ev.self()),
-                        ItemClass::newItem(&ev.item())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onUseItem,
+                            PlayerClass::newPlayer(&ev.self()),
+                            ItemClass::newItem(&ev.item())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onUseItem);
@@ -385,15 +417,18 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItemOn:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItemOn) {
-                if (!CallEvent(
-                        EVENT_TYPES::onUseItemOn,
-                        PlayerClass::newPlayer(&ev.self()),
-                        ItemClass::newItem(&ev.item()),
-                        BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id),
-                        Number::newNumber((schar)ev.face()),
-                        FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId().id)
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onUseItemOn,
+                            PlayerClass::newPlayer(&ev.self()),
+                            ItemClass::newItem(&ev.item()),
+                            ev.block() ? BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id)
+                                       : BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id),
+                            Number::newNumber((schar)ev.face()),
+                            FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId().id)
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onUseItemOn);
@@ -418,21 +453,25 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChangeSprinting:
         bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEvent(
-                    EVENT_TYPES::onChangeSprinting,
-                    PlayerClass::newPlayer(&ev.self()),
-                    Boolean::newBoolean(true)
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::onChangeSprinting,
+                        PlayerClass::newPlayer(&ev.self()),
+                        Boolean::newBoolean(true)
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
         });
         bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                CallEvent(
-                    EVENT_TYPES::onChangeSprinting,
-                    PlayerClass::newPlayer(&ev.self()),
-                    Boolean::newBoolean(false)
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::onChangeSprinting,
+                        PlayerClass::newPlayer(&ev.self()),
+                        Boolean::newBoolean(false)
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
         });
@@ -441,16 +480,28 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onSneak:
         bus.emplaceListener<PlayerSneakingEvent>([](PlayerSneakingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                if (!CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(true))) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onSneak,
+                            PlayerClass::newPlayer(&ev.self()),
+                            Boolean::newBoolean(true)
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onSneak);
         });
         bus.emplaceListener<PlayerSneakedEvent>([](PlayerSneakedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                if (!CallEvent(EVENT_TYPES::onSneak, PlayerClass::newPlayer(&ev.self()), Boolean::newBoolean(false))) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onSneak,
+                            PlayerClass::newPlayer(&ev.self()),
+                            Boolean::newBoolean(false)
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onSneak);
@@ -468,16 +519,18 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onEat:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onEat) {
-                if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
-                    || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
-                    auto attribute = ev.self().getAttribute(Player::HUNGER());
-                    if (attribute.mCurrentMaxValue > attribute.mCurrentValue) {
-                        if (!CallEvent(
-                                EVENT_TYPES::onEat,
-                                PlayerClass::newPlayer(&ev.self()),
-                                ItemClass::newItem(&ev.item())
-                            )) {
-                            ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
+                        || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
+                        auto attribute = ev.self().getAttribute(Player::HUNGER());
+                        if (attribute.mPtr->mCurrentMaxValue > attribute.mPtr->mCurrentValue) {
+                            if (!CallEvent(
+                                    EVENT_TYPES::onEat,
+                                    PlayerClass::newPlayer(&ev.self()),
+                                    ItemClass::newItem(&ev.item())
+                                )) {
+                                ev.cancel();
+                            }
                         }
                     }
                 }
@@ -550,20 +603,22 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobDie:
         bus.emplaceListener<MobDieEvent>([](MobDieEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobDie) {
-                Actor* source = nullptr;
-                if (ev.source().isEntitySource()) {
-                    source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
-                    if (source) {
-                        if (ev.source().isChildEntitySource()) source = source->getOwner();
+                if (checkClientIsServerThread()) {
+                    Actor* source = nullptr;
+                    if (ev.source().isEntitySource()) {
+                        source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
+                        if (source) {
+                            if (ev.source().isChildEntitySource()) source = source->getOwner();
+                        }
                     }
-                }
 
-                CallEvent(
-                    EVENT_TYPES::onMobDie,
-                    EntityClass::newEntity(&ev.self()),
-                    (source ? EntityClass::newEntity(source) : Local<Value>()),
-                    Number::newNumber((int)ev.source().mCause)
-                ); // Not cancellable
+                    CallEvent(
+                        EVENT_TYPES::onMobDie,
+                        EntityClass::newEntity(&ev.self()),
+                        (source ? EntityClass::newEntity(source) : Local<Value>()),
+                        Number::newNumber((int)ev.source().mCause)
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobDie);
         });
@@ -600,12 +655,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockInteracted:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
-                if (!CallEvent(
-                        EVENT_TYPES::onBlockInteracted,
-                        PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id)
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onBlockInteracted,
+                            PlayerClass::newPlayer(&ev.self()),
+                            BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id)
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
@@ -633,11 +690,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onFireSpread:
         bus.emplaceListener<FireSpreadEvent>([](FireSpreadEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onFireSpread) {
-                if (!CallEvent(
-                        EVENT_TYPES::onFireSpread,
-                        IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onFireSpread,
+                            IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onFireSpread);
@@ -647,11 +706,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockChanged:
         bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
-                CallEvent(
-                    EVENT_TYPES::onBlockChanged,
-                    BlockClass::newBlock(ev.previousBlock(), ev.pos(), ev.blockSource()),
-                    BlockClass::newBlock(ev.newBlock(), ev.pos(), ev.blockSource())
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::onBlockChanged,
+                        BlockClass::newBlock(ev.previousBlock(), ev.pos(), ev.blockSource()),
+                        BlockClass::newBlock(ev.newBlock(), ev.pos(), ev.blockSource())
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onBlockChanged);
         });
@@ -662,16 +723,18 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobSpawn:
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().warn(
+        lse::LegacyScriptEngine::getLogger().warn(
             "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-                CallEvent(
-                    EVENT_TYPES::onMobSpawn,
-                    String::newString(ev.identifier().mFullName),
-                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::onMobSpawn,
+                        String::newString(ev.identifier().mFullName),
+                        FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobSpawn);
         });
@@ -680,12 +743,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobTrySpawn:
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-                if (!CallEvent(
-                        EVENT_TYPES::onMobTrySpawn,
-                        String::newString(ev.identifier().mFullName),
-                        FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onMobTrySpawn,
+                            String::newString(ev.identifier().mFullName),
+                            FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobTrySpawn);
@@ -695,11 +760,13 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobSpawned:
         bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
-                CallEvent(
-                    EVENT_TYPES::onMobSpawned,
-                    EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
-                    FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
-                ); // Not cancellable
+                if (checkClientIsServerThread()) {
+                    CallEvent(
+                        EVENT_TYPES::onMobSpawned,
+                        EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
+                        FloatPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
+                    ); // Not cancellable
+                }
             }
             IF_LISTENED_END(EVENT_TYPES::onMobSpawned);
         });
@@ -708,12 +775,14 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onExperienceAdd:
         bus.emplaceListener<PlayerAddExperienceEvent>([](PlayerAddExperienceEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onExperienceAdd) {
-                if (!CallEvent(
-                        EVENT_TYPES::onExperienceAdd,
-                        PlayerClass::newPlayer(&ev.self()),
-                        Number::newNumber(ev.experience())
-                    )) {
-                    ev.cancel();
+                if (checkClientIsServerThread()) {
+                    if (!CallEvent(
+                            EVENT_TYPES::onExperienceAdd,
+                            PlayerClass::newPlayer(&ev.self()),
+                            Number::newNumber(ev.experience())
+                        )) {
+                        ev.cancel();
+                    }
                 }
             }
             IF_LISTENED_END(EVENT_TYPES::onExperienceAdd);
@@ -897,10 +966,8 @@ void InitBasicEventListeners() {
                     }
                 }
             } catch (...) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
-                    "Error occurred in Engine Message Loop!"
-                );
-                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
+                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
 #endif
 

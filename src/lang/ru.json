@@ -54,5 +54,8 @@
   "Could not find {} in registered commands": {
     "": "Не удалось найти {} в зарегистрированных командах."
   },
-  "Event {} not found!": "Событие {} не найдено!"
+  "Event {} not found!": "Событие {} не найдено!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Не удалось включить плагин {0}: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Не удалось включить плагин {0}: {1}",
+  "Failed to disable plugin {0}: {1}": "Не удалось отключить плагин {0}: {1}"
 }

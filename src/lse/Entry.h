@@ -1,14 +1,16 @@
 #pragma once
 
-#include "Config.h"
-#include "PluginManager.h"
 #include "ll/api/mod/NativeMod.h"
+#include "lse/Config.h"
+#include "lse/PluginManager.h"
 
 namespace lse {
 
 class LegacyScriptEngine {
 public:
     static LegacyScriptEngine& getInstance();
+
+    static inline ll::io::Logger& getLogger() { return getInstance().getSelf().getLogger(); }
 
     LegacyScriptEngine() : mSelf(*ll::mod::NativeMod::current()) {}
 
@@ -22,9 +24,7 @@ public:
 
     bool enable();
 
-    bool disable();
-
-    // bool unload();
+    bool unload();
 
 private:
     ll::mod::NativeMod&            mSelf;

@@ -1,11 +1,11 @@
 add_rules("mode.debug", "mode.release")
 
-add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
+add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 1.7.7", {configs = {target_type = "server"}})
+    add_requires("levilamina 1.9.0", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 1.7.7", {configs = {target_type = "client"}})
+    add_requires("levilamina 1.9.0", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
@@ -22,32 +22,35 @@ add_requires(
     "ctre 3.8.1"
 )
 
+add_requires("openssl3")
+add_requires("cpp-httplib 0.26.0", { configs = { ssl = true, zlib = true } })
+
 if is_config("backend", "lua") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="Lua"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "Lua" } })
 
 elseif is_config("backend", "quickjs") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="QuickJs"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "QuickJs" } })
 
 elseif is_config("backend", "python") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="Python"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "Python" } })
 
 elseif is_config("backend", "nodejs") then
-    add_requires("scriptx 2026.1.10", {configs={backend="V8"}})
-
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "V8" } })
 end
-
-add_requires("openssl3")
-add_requires("cpp-httplib 0.26.0", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")
 end
+
+option("levimc_repo")
+    set_default("https://github.com/LiteLDev/xmake-repo.git")
+    set_showmenu(true)
+    set_description("Set the levimc-repo path or url")
+option_end()
 
 option("publish")
     set_default(false)
@@ -64,7 +67,7 @@ option("backend")
     set_default("lua")
     set_values("lua", "quickjs", "python", "nodejs")
 
-target("legacy-script-engine")
+target("LegacyScriptEngine")
     add_rules("@levibuildscript/linkrule")
     add_cxflags(
         "/EHa",
@@ -116,6 +119,15 @@ target("legacy-script-engine")
         "src/legacy",
         "$(builddir)/config"
     )
+    if is_config("target_type", "server") then
+        add_defines("LL_PLAT_S")
+        add_files("src-server/**.cpp")
+        add_includedirs("src-server")
+    else
+        add_defines("LL_PLAT_C")
+        add_files("src-client/**.cpp")
+        add_includedirs("src-client")
+    end
     if has_config("publish") then
         add_defines("LSE_VERSION_PUBLISH")
     end
@@ -206,7 +218,6 @@ target("legacy-script-engine")
             "LSE_BACKEND_NODEJS"
         )
         remove_files("src/legacy/main/PythonHelper.cpp")
-        remove_files("src/legacy/legacyapi/db/impl/mysql/*.cpp")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang/")

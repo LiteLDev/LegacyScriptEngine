@@ -5,7 +5,6 @@
 #include "api/BaseAPI.h"
 #include "api/BlockEntityAPI.h"
 #include "api/ContainerAPI.h"
-#include "api/EntityAPI.h"
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
@@ -299,7 +298,7 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
             ll::service::getLevel()->getDimension(blockPos.dim).lock()->getBlockSourceFromMainChunkSource();
         return Boolean::newBoolean(
             ll::service::getLevel()
-                ->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value(), BlockChangeContext())
+                ->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value(), BlockChangeContext(false))
         );
     }
     CATCH("Fail in destroyBlock!");
@@ -327,7 +326,7 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
                 ->getDimension(blockPos.dim)
                 .lock()
                 ->getBlockSourceFromMainChunkSource()
-                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext());
+                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false));
         }
         preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
         return Boolean::newBoolean(true);
@@ -464,7 +463,11 @@ Local<Value> McClass::getBlock(const Arguments& args) {
             return {};
         }
         auto& block = lc->getBlock(
-            ChunkBlockPos{(uchar)(pos.x & 0xf), ChunkLocalHeight{(short)pos.y - minHeight}, (uchar)(pos.z & 0xf)}
+            ChunkBlockPos{
+                (uchar)(pos.x & 0xf),
+                ChunkLocalHeight{static_cast<short>(pos.y - minHeight)},
+                (uchar)(pos.z & 0xf)
+            }
         );
         return BlockClass::newBlock(block, pos.getBlockPos(), pos.dim);
     }
@@ -535,7 +538,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext()));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false)));
         } else if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
             auto                      nbt = NbtCompoundClass::extract(block);
@@ -545,7 +548,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext()));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false)));
         } else {
             // other block object
             Block const* bl = BlockClass::extract(block);
@@ -555,7 +558,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext()));
+            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false)));
         }
     }
     CATCH("Fail in SetBlock!")

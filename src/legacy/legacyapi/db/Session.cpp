@@ -1,9 +1,7 @@
 #include "legacyapi/db/Session.h"
 
 #include "lse/Entry.h"
-#ifndef LSE_BACKEND_NODEJS
 #include "legacyapi/db/impl/mysql/Session.h"
-#endif
 #include "legacyapi/db/impl/sqlite/Session.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
@@ -29,12 +27,12 @@ ResultSet Session::query(const std::string& query) {
     });
     IF_ENDBG {
         if (result.valid()) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Session::query: Results >");
+            lse::LegacyScriptEngine::getLogger().debug("Session::query: Results >");
             for (auto& str : ll::string_utils::splitByPattern(result.toTableString(), "\n")) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(str);
+                lse::LegacyScriptEngine::getLogger().debug(str);
             }
         } else {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+            lse::LegacyScriptEngine::getLogger().debug(
                 "Session::query: Query returned no result"
             );
         }
@@ -46,7 +44,7 @@ std::string Session::getLastError() const { throw std::runtime_error("Session::g
 
 std::weak_ptr<Session> Session::getOrSetSelf() {
     if (self.expired()) {
-        IF_ENDBG lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug(
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
             "Session::getOrSetSelf: `self` expired, trying fetching"
         );
         return self = getSession(this);
@@ -110,16 +108,10 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
         session = params.empty() ? std::make_shared<SQLiteSession>() : std::make_shared<SQLiteSession>(params);
         break;
     case DBType::MySQL:
-#ifdef LSE_BACKEND_NODEJS
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
-            "Session::_Create: MySQL is disabled in NodeJS backend because its OpenSSL has conflicts with libnode"
-        );
-#else
         session = params.empty() ? std::make_shared<MySQLSession>() : std::make_shared<MySQLSession>(params);
-#endif
         break;
     default:
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+        lse::LegacyScriptEngine::getLogger().error(
             "Session::_Create: Unknown/Unsupported database type"
         );
     }

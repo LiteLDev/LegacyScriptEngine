@@ -1,7 +1,5 @@
-#include "Entry.h"
+#include "lse/Entry.h"
 
-#include "PluginManager.h"
-#include "PluginMigration.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/main/EconomicSystem.h"
@@ -13,7 +11,8 @@
 #include "ll/api/mod/RegisterHelper.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/ErrorUtils.h"
-#include "lse/api/MoreGlobal.h"
+#include "lse/PluginManager.h"
+#include "lse/PluginMigration.h"
 
 #include <ScriptX/ScriptX.h>
 #include <exception>
@@ -72,9 +71,6 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 bool LegacyScriptEngine::enable() {
     auto& logger = getSelf().getLogger();
     try {
-        if (!api::MoreGlobal::onEnable()) {
-            logger.error("Failed to enable MoreGlobal"_tr());
-        }
         ll::service::PlayerInfo::getInstance();
         RegisterDebugCommand();
     } catch (...) {
@@ -96,7 +92,6 @@ void initializeLegacyStuff() {
 
     InitBasicEventListeners();
     InitMessageSystem();
-    api::MoreGlobal::onLoad();
 }
 
 bool LegacyScriptEngine::load() {
@@ -130,7 +125,10 @@ bool LegacyScriptEngine::load() {
     }
 }
 
-bool LegacyScriptEngine::disable() { return true; }
+bool LegacyScriptEngine::unload() {
+    DebugEngine.reset();
+    return true;
+}
 
 Config const& LegacyScriptEngine::getConfig() { return config; }
 
@@ -158,7 +156,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
     // Init plugin instance for debug engine to prevent something unexpected.
     ll::mod::Manifest manifest;
     manifest.name              = "DebugEngine";
-    getEngineOwnData()->plugin = std::make_shared<lse::Plugin>(manifest);
+    getEngineOwnData()->plugin = std::make_shared<lse::ScriptPlugin>(manifest);
     // Init logger
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 

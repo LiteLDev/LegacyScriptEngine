@@ -69,7 +69,7 @@ bool loadPluginCode(
         engine->loadFile(String::newString(entryScriptPath));
     } catch (const Exception& e1) {
         // Fail
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail in Loading Script Plugin!");
+        lse::LegacyScriptEngine::getLogger().error("Fail in Loading Script Plugin!");
         throw e1;
     }
     return true;
@@ -160,7 +160,7 @@ static PyObject* getPyGlobalDict() {
 }
 
 bool processPythonDebugEngine(const std::string& cmd) {
-    auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+    auto& logger = lse::LegacyScriptEngine::getLogger();
     if (cmd == LLSE_DEBUG_CMD) {
         if (InConsoleDebugMode) {
             // EndDebug

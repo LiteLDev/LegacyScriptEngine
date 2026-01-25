@@ -1,13 +1,13 @@
 #pragma once
-#include "mc/world/attribute/MutableAttributeWithContext.h"
+#include "mc/world/attribute/BaseAttributeMap.h"
 
 namespace lse::api {
 class AttributeHelper {
-    static void setDirty(MutableAttributeWithContext& attribute);
+    static void setDirty(BaseAttributeMap& map, AttributeInstance const* attribute);
 
 public:
-    static void setCurrentValue(MutableAttributeWithContext& attribute, float value);
-    static void setMaxValue(MutableAttributeWithContext& attribute, float value);
-    static void setDefaultValue(MutableAttributeWithContext& attribute, float value);
+    static bool setCurrentValue(BaseAttributeMap& map, Attribute const& attribute, float value);
+    static bool setMaxValue(BaseAttributeMap& map, Attribute const& attribute, float value);
+    static bool setDefaultValue(BaseAttributeMap& map, Attribute const& attribute, float value);
 };
 } // namespace lse::api

@@ -13,6 +13,9 @@ jobs:
           - lua
           - python
           - quickjs
+        target_type:
+          - client
+          - server
     steps:
       - uses: actions/checkout@v4
 
@@ -30,14 +33,14 @@ jobs:
           xmake repo -u
 
       - run: |
-          xmake f -a x64 -m release -p windows -v -y --backend=${{ matrix.backend }} --publish=true
+          xmake f -a x64 -m release -p windows -v -y --target_type=${{ matrix.target_type }} --backend=${{ matrix.backend }} --publish=true
 
       - run: |
           xmake -y
 
       - uses: actions/upload-artifact@v4
         with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: |
             bin/
 
@@ -50,6 +53,9 @@ jobs:
           - lua
           - python
           - quickjs
+        target_type:
+          - client
+          - server
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,7 +68,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: artifact
 
       - run: |
@@ -102,12 +108,15 @@ jobs:
           - lua
           - python
           - quickjs
+        target_type:
+          - client
+          - server
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
-          name: legacy-script-engine-${{ matrix.backend }}-windows-x64-${{ github.sha }}
+          name: ${{ github.event.repository.name }}-${{ github.sha }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64
           path: release/
 
       - run: |
@@ -116,10 +125,10 @@ jobs:
       - name: Archive release
         run: |
           cd release
-          zip -r ../legacy-script-engine-${{ matrix.backend }}-windows-x64.zip *
+          zip -r ../${{ github.event.repository.name }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip *
           cd ..
 
       - uses: softprops/action-gh-release@v1
         with:
           files: |
-            legacy-script-engine-${{ matrix.backend }}-windows-x64.zip
+            ${{ github.event.repository.name }}-${{ matrix.target_type }}-${{ matrix.backend }}-windows-x64.zip

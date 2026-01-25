@@ -29,7 +29,7 @@ bool ProcessDebugEngine(const std::string& cmd) {
 #endif
     if (InConsoleDebugMode) {
         EngineScope enter(DebugEngine.get());
-        auto&       logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+        auto&       logger = lse::LegacyScriptEngine::getLogger();
         try {
             if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
                 return true;
@@ -57,14 +57,14 @@ void RegisterDebugCommand() {
     DebugCmdLogger->setFormatter(ll::makePolymorphic<lse::io::DirectFormatter>());
     // Node.js engine doesn't support debug engine, Python engine don't need to register command.
 #if (!defined LSE_BACKEND_NODEJS) && (!defined LSE_BACKEND_PYTHON)
-    auto& command = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+    auto& command = ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(
         LLSE_DEBUG_CMD,
         "Debug LegacyScriptEngine",
         static_cast<CommandPermissionLevel>(lse::LegacyScriptEngine::getInstance().getConfig().debugCommandLevel)
     );
     command.overload<EngineDebugCommand>().optional("eval").execute(
         [](CommandOrigin const&, CommandOutput& output, EngineDebugCommand const& param) {
-            auto& logger = lse::LegacyScriptEngine::getInstance().getSelf().getLogger();
+            auto& logger = lse::LegacyScriptEngine::getLogger();
             if (!param.eval.mText.empty()) {
                 EngineScope enter(DebugEngine.get());
                 try {

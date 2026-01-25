@@ -1,10 +1,10 @@
-#include "PluginMigration.h"
+#include "lse/PluginMigration.h"
 
-#include "Entry.h"
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"
 #include "ll/api/reflection/Serialization.h"
+#include "lse/Entry.h"
 
 #include <filesystem>
 #include <fmt/format.h>

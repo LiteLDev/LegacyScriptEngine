@@ -6,10 +6,9 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/service/GamingStatus.h"
+#include "lse/api/Thread.h"
 #include "lse/api/helper/BlockHelper.h"
 #include "mc/common/Globals.h"
-#include "mc/deps/ecs/gamerefs_entity/EntityContext.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
 #include "mc/entity/components_json_legacy/ProjectileComponent.h"
@@ -21,12 +20,10 @@
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
 #include "mc/world/actor/boss/WitherBoss.h"
-#include "mc/world/actor/npc/ActionContainer.h"
 #include "mc/world/actor/npc/CommandAction.h"
 #include "mc/world/actor/npc/StoredCommand.h"
 #include "mc/world/actor/npc/UrlAction.h"
 #include "mc/world/actor/player/Player.h"
-#include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/ActorEventCoordinator.h"
 #include "mc/world/item/CrossbowItem.h"
@@ -40,6 +37,8 @@
 #include "mc/world/phys/HitResult.h"
 
 namespace lse::events::entity {
+using api::thread::checkClientIsServerThread;
+
 LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook1,
     HookPriority::Normal,
@@ -53,25 +52,29 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&                      direction
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        static auto& tridentName = EntityCanonicalName(ActorType::Trident);
-        if (id.mCanonicalName.get() != tridentName) {
-            if (!CallEvent(
-                    EVENT_TYPES::onSpawnProjectile,
-                    EntityClass::newEntity(spawner),
-                    String::newString(id.mCanonicalName->getString())
-                )) {
-                return nullptr;
+        if (checkClientIsServerThread()) {
+            static auto& tridentName = EntityCanonicalName(ActorType::Trident);
+            if (id.mCanonicalName != tridentName) {
+                if (!CallEvent(
+                        EVENT_TYPES::onSpawnProjectile,
+                        EntityClass::newEntity(spawner),
+                        String::newString(id.mCanonicalName->getString())
+                    )) {
+                    return nullptr;
+                }
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     Actor* projectile = origin(region, id, spawner, position, direction);
     IF_LISTENED(EVENT_TYPES::onProjectileCreated) {
-        CallEvent( // Not nancellable
+        if (checkClientIsServerThread()) {
+            CallEvent( // Not nancellable
             EVENT_TYPES::onProjectileCreated,
             EntityClass::newEntity(spawner),
             EntityClass::newEntity(projectile)
         );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onProjectileCreated);
     return projectile;
@@ -87,12 +90,14 @@ LL_TYPE_INSTANCE_HOOK(
     Player&             player
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (!CallEvent(
-                EVENT_TYPES::onSpawnProjectile,
-                EntityClass::newEntity(&player),
-                String::newString(projectileInstance.getTypeName())
-            )) {
-            return;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onSpawnProjectile,
+                    EntityClass::newEntity(&player),
+                    String::newString(projectileInstance.getTypeName())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
@@ -110,12 +115,14 @@ LL_TYPE_INSTANCE_HOOK(
     int        durationLeft
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (!CallEvent(
-                EVENT_TYPES::onSpawnProjectile,
-                EntityClass::newEntity(player),
-                String::newString(VanillaActorRendererId::trident().getString())
-            )) {
-            return;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onSpawnProjectile,
+                    EntityClass::newEntity(player),
+                    String::newString(VanillaActorRendererId::trident().getString())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
@@ -124,8 +131,10 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
-        if (!CallEvent(EVENT_TYPES::onRide, EntityClass::newEntity(&passenger), EntityClass::newEntity(this))) {
-            return false;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(EVENT_TYPES::onRide, EntityClass::newEntity(&passenger), EntityClass::newEntity(this))) {
+                return false;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onRide);
@@ -145,13 +154,15 @@ LL_TYPE_INSTANCE_HOOK(
     WitherBoss::WitherAttackType type
 ) {
     IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        if (!CallEvent(
-                EVENT_TYPES::onWitherBossDestroy,
-                EntityClass::newEntity(this),
-                IntPos::newPos(bb.min, region.getDimensionId()),
-                IntPos::newPos(bb.max, region.getDimensionId())
-            )) {
-            return;
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onWitherBossDestroy,
+                    EntityClass::newEntity(this),
+                    IntPos::newPos(bb.min, region.getDimensionId()),
+                    IntPos::newPos(bb.max, region.getDimensionId())
+                )) {
+                return;
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
@@ -168,7 +179,7 @@ LL_TYPE_INSTANCE_HOOK(
     HitResult const& res
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitEntity) {
-        if (res.getEntity()) {
+        if (checkClientIsServerThread() && res.getEntity()) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitEntity,
                     EntityClass::newEntity(res.getEntity()),
@@ -192,15 +203,17 @@ LL_TYPE_INSTANCE_HOOK(
     ::HitResult const& res
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-        auto& region = owner.getDimensionBlockSourceConst();
-        auto& block  = region.getBlock(res.mBlock);
-        if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onProjectileHitBlock,
-                    BlockClass::newBlock(block, res.mBlock, region),
-                    EntityClass::newEntity(&owner)
-                )) {
-                return;
+        if (checkClientIsServerThread()) {
+            auto& region = owner.getDimensionBlockSourceConst();
+            auto& block  = region.getBlock(res.mBlock);
+            if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
+                if (!CallEvent(
+                        EVENT_TYPES::onProjectileHitBlock,
+                        BlockClass::newBlock(block, res.mBlock, region),
+                        EntityClass::newEntity(&owner)
+                    )) {
+                    return;
+                }
             }
         }
     }
@@ -220,44 +233,8 @@ LL_TYPE_INSTANCE_HOOK(
     bool                       ignite
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        // LeviLamina's ActorHurtEvent can't handle fire hurt, so we just hook Mob::$_hurt.
-        Actor* damageSource = nullptr;
-        if (source.isEntitySource()) {
-            if (source.isChildEntitySource()) {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
-            } else {
-                damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
-            }
-        }
-
-        if (!CallEvent(
-                EVENT_TYPES::onMobHurt,
-                EntityClass::newEntity(this),
-                damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                Number::newNumber(damage < 0.0f ? -damage : damage),
-                Number::newNumber((int)source.mCause)
-            )) {
-            return false;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage, knock, ignite);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    MobHurtEffectHook,
-    HookPriority::Normal,
-    Mob,
-    &Mob::getDamageAfterResistanceEffect,
-    float,
-    ::ActorDamageSource const& source,
-    float                      damage
-) {
-    IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we just
-        // need magic damage.
-        if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
-            || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
+        if (checkClientIsServerThread()) {
+            // LeviLamina's ActorHurtEvent can't handle fire hurt, so we just hook Mob::$_hurt.
             Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
                 if (source.isChildEntitySource()) {
@@ -274,7 +251,47 @@ LL_TYPE_INSTANCE_HOOK(
                     Number::newNumber(damage < 0.0f ? -damage : damage),
                     Number::newNumber((int)source.mCause)
                 )) {
-                return 0.0f;
+                return false;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
+    return origin(source, damage, knock, ignite);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    MobHurtEffectHook,
+    HookPriority::Normal,
+    Mob,
+    &Mob::getDamageAfterResistanceEffect,
+    float,
+    ::ActorDamageSource const& source,
+    float                      damage
+) {
+    IF_LISTENED(EVENT_TYPES::onMobHurt) {
+        if (checkClientIsServerThread()) {
+            // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we
+            // just need magic damage.
+            if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
+                || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
+                Actor* damageSource = nullptr;
+                if (source.isEntitySource()) {
+                    if (source.isChildEntitySource()) {
+                        damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
+                    } else {
+                        damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
+                    }
+                }
+
+                if (!CallEvent(
+                        EVENT_TYPES::onMobHurt,
+                        EntityClass::newEntity(this),
+                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
+                        Number::newNumber(damage < 0.0f ? -damage : damage),
+                        Number::newNumber((int)source.mCause)
+                    )) {
+                    return 0.0f;
+                }
             }
         }
     }
@@ -294,24 +311,26 @@ LL_TYPE_INSTANCE_HOOK(
     ::std::string const& sceneName
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
-        auto& action =
-            owner.getEntityContext().tryGetComponent<NpcComponent>()->mActionsContainer->mActions->at(actionIndex);
-        if (std::holds_alternative<npc::CommandAction>(action)) {
-            auto&       commands = std::get<npc::CommandAction>(action).commands;
-            std::string command;
-            for (auto& cmd : commands.get()) {
-                command += cmd.rawCommand.get() + ";";
-            }
-            if (!commands->empty()) {
-                command.pop_back();
-            }
-            if (!CallEvent(
-                    EVENT_TYPES::onNpcCmd,
-                    EntityClass::newEntity(&owner),
-                    PlayerClass::newPlayer(&sourcePlayer),
-                    String::newString(command)
-                )) {
-                return;
+        if (checkClientIsServerThread()) {
+            auto& action =
+                owner.getEntityContext().tryGetComponent<NpcComponent>()->mActionsContainer->mActions->at(actionIndex);
+            if (std::holds_alternative<npc::CommandAction>(action)) {
+                auto&       commands = std::get<npc::CommandAction>(action).commands;
+                std::string command;
+                for (auto& cmd : commands.get()) {
+                    command += cmd.rawCommand.get() + ";";
+                }
+                if (!commands->empty()) {
+                    command.pop_back();
+                }
+                if (!CallEvent(
+                        EVENT_TYPES::onNpcCmd,
+                        EntityClass::newEntity(&owner),
+                        PlayerClass::newPlayer(&sourcePlayer),
+                        String::newString(command)
+                    )) {
+                    return;
+                }
             }
         }
     }
@@ -328,7 +347,7 @@ LL_TYPE_INSTANCE_HOOK(
     MobEffectInstance& effect
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (isPlayer()) {
+        if (checkClientIsServerThread() && isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectUpdated,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
@@ -357,11 +376,13 @@ LL_TYPE_INSTANCE_HOOK(
     ::Level const&                     level
 ) {
     IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
-        CallEvent(
-            EVENT_TYPES::onEntityTransformation,
-            String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
-            EntityClass::newEntity(&transformed)
-        );
+        if (checkClientIsServerThread()) {
+            CallEvent(
+                EVENT_TYPES::onEntityTransformation,
+                String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
+                EntityClass::newEntity(&transformed)
+            );
+        }
     }
     IF_LISTENED_END(EVENT_TYPES::onEntityTransformation);
 
@@ -376,31 +397,37 @@ LL_TYPE_INSTANCE_HOOK(
     CoordinatorResult,
     EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
 ) {
-    bool canceled = event.get().visit([&](auto&& arg) {
-        if constexpr (std::is_same_v<std::decay_t<decltype(arg)>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
-            IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
-                auto& griefingEvent = arg.value();
-                auto  entity        = griefingEvent.mActorContext->tryUnwrap();
-                if (entity && entity->isType(ActorType::EnderMan)) {
-                    if (!CallEvent(
-                            EVENT_TYPES::onEndermanTakeBlock,
-                            EntityClass::newEntity(entity.as_ptr()),
-                            BlockClass::newBlock(
-                                *griefingEvent.mBlock,
-                                BlockPos(griefingEvent.mPos),
-                                entity->getDimensionId().id
-                            ),
-                            IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId().id)
-                        )) {
-                        return true;
+
+    IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
+        if (checkClientIsServerThread()) {
+            bool canceled = event.get().visit([&](auto&& arg) {
+                if constexpr (std::is_same_v<
+                                  std::decay_t<decltype(arg)>,
+                                  Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
+                    auto& griefingEvent = arg.value();
+                    auto  entity        = griefingEvent.mActorContext->tryUnwrap();
+                    if (entity && entity->isType(ActorType::EnderMan)) {
+                        if (!CallEvent(
+                                EVENT_TYPES::onEndermanTakeBlock,
+                                EntityClass::newEntity(entity.as_ptr()),
+                                BlockClass::newBlock(
+                                    *griefingEvent.mBlock,
+                                    BlockPos(griefingEvent.mPos),
+                                    entity->getDimensionId().id
+                                ),
+                                IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId().id)
+                            )) {
+                            return true;
+                        }
                     }
                 }
-            }
-            IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
+                return false;
+            });
+            if (canceled) return CoordinatorResult::Cancel;
         }
-        return false;
-    });
-    if (canceled) return CoordinatorResult::Cancel;
+    }
+    IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
+
     return origin(event);
 }
 

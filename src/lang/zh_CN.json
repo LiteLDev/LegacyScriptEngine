@@ -54,5 +54,8 @@
   "Could not find {} in registered commands": {
     "": "在已注册的命令中找不到 {} 。"
   },
-  "Event {} not found!": "找不到事件 {} ！"
+  "Event {} not found!": "找不到事件 {} ！",
+  "Failed to enable plugin {0}: {1}\\n{2}": "启用插件 {0} 失败: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "启用插件 {0} 失败: {1}",
+  "Failed to disable plugin {0}: {1}": "禁用插件 {0} 失败: {1}"
 }

@@ -51,7 +51,7 @@ class CommandClass : public ScriptClass {
     std::string                        commandName;
     std::string                        description;
     inline ll::command::CommandHandle& get() {
-        return ll::command::CommandRegistrar::getInstance().getOrCreateCommand(commandName);
+        return ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(commandName);
     }
     inline std::vector<std::string> parseStringList(Local<Array> arr) {
         if (arr.size() == 0 || !arr.get(0).isString()) return {};

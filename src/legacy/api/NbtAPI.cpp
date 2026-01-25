@@ -1335,7 +1335,7 @@ Local<Value> NbtListClass::getTag(const Arguments& args) {
         }
 
         Local<Value> res;
-        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+        // lse::LegacyScriptEngine::getLogger().info(
         //     "getListTag Type {}",
         //     magic_enum::enum_name(getPtr()->at(index)->getId())
         // );
@@ -1739,7 +1739,7 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
         auto key = args[0].asString().toString();
 
         Local<Value> res;
-        // lse::LegacyScriptEngine::getInstance().getSelf().getLogger().info(
+        // lse::LegacyScriptEngine::getLogger().info(
         //     "getCompoundTag Type {}",
         //     magic_enum::enum_name(getPtr()->at(key).getId())
         // );

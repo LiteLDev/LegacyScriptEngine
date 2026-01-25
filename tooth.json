@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.16.8",
+  "version": "0.17.0",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -17,23 +17,34 @@
     {
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyScriptEngine#quickjs": "{{version}}",
         "github.com/LiteLDev/LegacyScriptEngine#lua": "{{version}}"
+      }
+    },
+    {
+      "label": "client",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
+        "github.com/LiteLDev/LegacyScriptEngine#client_quickjs": "{{version}}",
+        "github.com/LiteLDev/LegacyScriptEngine#client_lua": "{{version}}"
       }
     },
     {
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.16.*",
-        "github.com/LiteLDev/LegacyMoney": "0.16.*",
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
       },
       "assets": [
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-nodejs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-nodejs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -62,14 +73,15 @@
       "label": "quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.16.*",
-        "github.com/LiteLDev/LegacyMoney": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-quickjs-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-quickjs-windows-x64.zip"
           ],
           "placements": [
             {
@@ -85,14 +97,15 @@
       "label": "lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.16.*",
-        "github.com/LiteLDev/LegacyMoney": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-lua-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-lua-windows-x64.zip"
           ],
           "placements": [
             {
@@ -108,20 +121,131 @@
       "label": "python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.16.*",
-        "github.com/LiteLDev/LegacyMoney": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
           "type": "zip",
           "urls": [
-            "https://{{tooth}}/releases/download/v{{version}}/legacy-script-engine-python-windows-x64.zip"
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-server-python-windows-x64.zip"
           ],
           "placements": [
             {
               "type": "dir",
               "src": "legacy-script-engine-python/",
               "dest": "plugins/legacy-script-engine-python/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client_nodejs",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*",
+        "git.levimc.org/ShrBox/7-zip": "24.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-nodejs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-nodejs/",
+              "dest": "mods/legacy-script-engine-nodejs/"
+            }
+          ]
+        },
+        {
+          "type": "zip",
+          "urls": [
+            "https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "",
+              "dest": "mods/legacy-script-engine-nodejs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client_quickjs",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-quickjs-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-quickjs/",
+              "dest": "mods/legacy-script-engine-quickjs/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client_lua",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-lua-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-lua/",
+              "dest": "mods/legacy-script-engine-lua/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client_python",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://{{tooth}}/releases/download/v{{version}}/LegacyScriptEngine-client-python-windows-x64.zip"
+          ],
+          "placements": [
+            {
+              "type": "dir",
+              "src": "legacy-script-engine-python/",
+              "dest": "mods/legacy-script-engine-python/"
             }
           ]
         }

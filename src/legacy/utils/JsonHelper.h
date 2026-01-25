@@ -29,8 +29,8 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
                 std::filesystem::create_directories(dirPath);
             }
         } else {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("Fail in create json file!");
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error("invalid path");
+            lse::LegacyScriptEngine::getLogger().error("Fail in create json file!");
+            lse::LegacyScriptEngine::getLogger().error("invalid path");
             jsonConf = ordered_json::object();
         }
 
@@ -38,10 +38,10 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(defContent, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                lse::LegacyScriptEngine::getLogger().error(
                     "Fail to parse default json content!"
                 );
-                ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
                 jsonConf = ordered_json::object();
             }
         } else {
@@ -60,10 +60,10 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
+                lse::LegacyScriptEngine::getLogger().error(
                     "Fail to parse json content in file!"
                 );
-                ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+                ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
                 jsonConf = ordered_json::object();
             }
         }

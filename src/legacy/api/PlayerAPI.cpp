@@ -22,20 +22,18 @@
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/PlayerInfo.h"
-#include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
 #include "lse/api/helper/AttributeHelper.h"
-#include "lse/api/helper/BlockHelper.h"
 #include "lse/api/helper/PlayerHelper.h"
 #include "lse/api/helper/ScoreboardHelper.h"
 #include "main/EconomicSystem.h"
 #include "main/SafeGuardRecord.h"
-#include "mc/certificates/WebToken.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/entity/components/ActorRotationComponent.h"
+#include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
@@ -47,7 +45,6 @@
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
-#include "mc/network/NetEventCallback.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/ClientboundCloseFormPacket.h"
@@ -83,10 +80,10 @@
 #include "mc/world/actor/player/PermissionsHandler.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/player/PlayerInventory.h"
-#include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-#include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/Attribute.h"
+#include "mc/world/attribute/AttributeInstanceConstRef.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -102,13 +99,15 @@
 #include "mc/world/phys/HitResult.h"
 #include "mc/world/scores/IdentityDefinition.h"
 #include "mc/world/scores/Objective.h"
-#include "mc/world/scores/ObjectiveCriteria.h"
 #include "mc/world/scores/PlayerScoreSetFunction.h"
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/ScoreInfo.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
+
+#include <mc/world/attribute/AttributeInstance.h>
+#include <mc/world/attribute/AttributeInstanceRef.h>
 
 SetScorePacket::SetScorePacket() = default;
 
@@ -353,8 +352,8 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto       uuid = mce::UUID::fromString(args[0].asString().toString());
-        DBStorage* db   = MoreGlobal::dbStorage;
+        auto uuid = mce::UUID::fromString(args[0].asString().toString());
+        auto db   = ll::service::getDBStorage();
         if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
             std::unique_ptr<CompoundTag> playerTag =
                 db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -380,7 +379,7 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         if (player && tag) {
             player->load(*tag, MoreGlobal::defaultDataLoadHelper());
         } else if (tag) {
-            DBStorage* db = MoreGlobal::dbStorage;
+            auto db = ll::service::getDBStorage();
             if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                 std::unique_ptr<CompoundTag> playerTag =
                     db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -421,7 +420,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
             }
             player->load(loadedTag, MoreGlobal::defaultDataLoadHelper());
         } else if (tag) {
-            DBStorage* db = MoreGlobal::dbStorage;
+            auto db = ll::service::getDBStorage();
             if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
                 std::unique_ptr<CompoundTag> playerTag =
                     db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
@@ -492,7 +491,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         auto        obj        = args[1].asString().toString();
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(obj);
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Number::newNumber(0);
         }
@@ -527,7 +526,7 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -565,7 +564,7 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -603,7 +602,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -645,7 +644,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
     try {
         Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
         Objective*  objective  = scoreboard.getObjective(args[1].asString().toString());
-        DBStorage*  db         = MoreGlobal::dbStorage;
+        auto        db         = ll::service::getDBStorage();
         if (!objective || !db || !db->hasKey("player_" + args[0].asString().toString(), DBHelpers::Category::Player)) {
             return Boolean::newBoolean(false);
         }
@@ -747,9 +746,8 @@ Local<Value> McClass::broadcast(const Arguments& args) {
             int newType = args[1].asNumber().toInt32();
             if (newType >= 0 && newType <= 11) type = (TextPacketType)newType;
         }
-        TextPacket pkt = TextPacket();
-        pkt.mType      = type;
-        pkt.mMessage   = args[0].asString().toString();
+        TextPacket pkt;
+        pkt.mBody = TextPacket::MessageOnly(type, args[0].asString().toString());
         pkt.sendToClients();
         return Boolean::newBoolean(true);
     }
@@ -830,7 +828,7 @@ Local<Value> PlayerClass::getXuid() {
         try {
             xuid = player->getXuid();
         } catch (...) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Fail in getXuid!");
+            lse::LegacyScriptEngine::getLogger().debug("Fail in getXuid!");
             xuid = ll::service::PlayerInfo::getInstance().fromName(player->getRealName())->xuid;
         }
         return String::newString(xuid);
@@ -847,7 +845,7 @@ Local<Value> PlayerClass::getUuid() {
         try {
             uuid = player->getUuid().asString();
         } catch (...) {
-            lse::LegacyScriptEngine::getInstance().getSelf().getLogger().debug("Fail in getUuid!");
+            lse::LegacyScriptEngine::getLogger().debug("Fail in getUuid!");
             uuid = ll::service::PlayerInfo::getInstance().fromName(player->getRealName())->uuid.asString();
         }
         return String::newString(uuid);
@@ -1040,7 +1038,7 @@ Local<Value> PlayerClass::getHealth() {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(ActorAttribute::getHealth(player->getEntityContext()));
+        return Number::newNumber(player->getHealth());
     }
     CATCH("Fail in GetHealth!")
 }
@@ -1224,7 +1222,7 @@ Local<Value> PlayerClass::isHurt() {
             return Local<Value>();
         }
 
-        int health = ActorAttribute::getHealth(player->getEntityContext());
+        int health = player->getHealth();
         if (health > 0 && health < player->getMaxHealth()) {
             return Boolean::newBoolean(true);
         }
@@ -1266,8 +1264,10 @@ Local<Value> PlayerClass::isHungry() {
             return Local<Value>();
         }
 
-        auto attribute = player->getAttribute(Player::HUNGER());
-        return Boolean::newBoolean(attribute.mCurrentMaxValue > attribute.mCurrentValue);
+        if (auto attribute = player->getAttribute(Player::HUNGER()).mPtr) {
+            return Boolean::newBoolean(attribute->mCurrentMaxValue > attribute->mCurrentValue);
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in isHungry!")
 }
@@ -1592,7 +1592,7 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
         if (!player) return Local<Value>();
         CommandContext context = CommandContext(
             args[0].asString().toString(),
-            std::make_unique<PlayerCommandOrigin>(*get()),
+            std::make_unique<PlayerCommandOrigin>(ll::service::getLevel(), player->getOrCreateUniqueID()),
             CommandVersion::CurrentVersion()
         );
         ll::service::getMinecraft()->mCommands->executeCommand(context, false);
@@ -1632,8 +1632,7 @@ Local<Value> PlayerClass::tell(const Arguments& args) {
         }
 
         TextPacket pkt = TextPacket();
-        pkt.mType      = type;
-        pkt.mMessage.assign(args[0].asString().toString());
+        pkt.mBody      = TextPacket::MessageOnly(type, args[0].asString().toString());
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -1715,8 +1714,10 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        TextPacket pkt =
-            TextPacket::createWhisper(player->getRealName(), args[0].asString().toString(), {}, player->getXuid(), {});
+        TextPacket pkt;
+        pkt.mXuid = player->getXuid();
+        pkt.mBody =
+            TextPacket::AuthorAndMessage(TextPacketType::Whisper, player->getRealName(), args[0].asString().toString());
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -1894,7 +1895,7 @@ Local<Value> PlayerClass::getLevel(const Arguments&) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        return Number::newNumber(player->getAttribute(Player::LEVEL()).mCurrentValue);
+        return Number::newNumber(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
     }
     CATCH("Fail in getLevel!")
 }
@@ -1907,7 +1908,9 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        player->addLevels(args[0].asNumber().toInt32() - (int)player->getAttribute(Player::LEVEL()).mCurrentValue);
+        player->addLevels(
+            args[0].asNumber().toInt32() - (int)player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue
+        );
         return Boolean::newBoolean(true);
     }
     CATCH("Fail in setLevel!");
@@ -1962,30 +1965,39 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
             return Local<Value>();
         }
 
-        float exp       = args[0].asNumber().toFloat();
-        auto  attribute = player->getMutableAttribute(Player::EXPERIENCE());
-        auto  instance  = attribute.mInstance;
-        if (!instance) {
-            return Boolean::newBoolean(false);
-        }
-        int neededExp  = player->getXpNeededForNextLevel();
-        int currentExp = static_cast<int>(instance->mCurrentValue * neededExp);
-        if (exp <= currentExp) {
-            AttributeHelper::setCurrentValue(attribute, static_cast<float>(currentExp - exp) / neededExp);
-            return Boolean::newBoolean(true);
-        }
-        AttributeHelper::setCurrentValue(attribute, 0.0f);
-        size_t needExp = exp - currentExp;
-        int    level   = player->getAttribute(Player::LEVEL()).mCurrentValue;
-        while (level > 0) {
-            player->addLevels(-1);
-            int levelXp = player->getXpNeededForNextLevel();
-            if (needExp < levelXp) {
-                AttributeHelper::setCurrentValue(attribute, static_cast<float>(levelXp - needExp) / levelXp);
+        float exp = args[0].asNumber().toFloat();
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            auto instance = component->mAttributes->getMutableInstance(Player::EXPERIENCE().mIDValue).mPtr;
+            if (!instance) {
+                return Boolean::newBoolean(false);
+            }
+            int neededExp  = player->getXpNeededForNextLevel();
+            int currentExp = static_cast<int>(instance->mCurrentValue * neededExp);
+            if (exp <= currentExp) {
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    Player::EXPERIENCE(),
+                    static_cast<float>(currentExp - exp) / neededExp
+                );
                 return Boolean::newBoolean(true);
             }
-            needExp -= levelXp;
-            level    = player->getAttribute(Player::LEVEL()).mCurrentValue;
+            AttributeHelper::setCurrentValue(component->mAttributes, Player::EXPERIENCE(), 0.0f);
+            size_t needExp = exp - currentExp;
+            int    level   = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
+            while (level > 0) {
+                player->addLevels(-1);
+                int levelXp = player->getXpNeededForNextLevel();
+                if (needExp < levelXp) {
+                    AttributeHelper::setCurrentValue(
+                        component->mAttributes,
+                        Player::EXPERIENCE(),
+                        static_cast<float>(levelXp - needExp) / levelXp
+                    );
+                    return Boolean::newBoolean(true);
+                }
+                needExp -= levelXp;
+                level    = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
+            }
         }
         return Boolean::newBoolean(false);
     }
@@ -2028,7 +2040,7 @@ Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
         }
 
         int          startLevel = 0;
-        int          endLevel   = (int)player->getAttribute(Player::LEVEL()).mCurrentValue;
+        int          endLevel   = (int)player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
         unsigned int totalXp    = 0;
 
         for (int level = startLevel; level < endLevel; ++level) {
@@ -2585,10 +2597,8 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
 
         return Number::newNumber(3);
     } catch (const ordered_json::exception& e) {
-        lse::LegacyScriptEngine::getInstance().getSelf().getLogger().error(
-            "Fail to parse Json string in sendCustomForm!"
-        );
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getInstance().getSelf().getLogger());
+        lse::LegacyScriptEngine::getLogger().error("Fail to parse Json string in sendCustomForm!");
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return {};
     }
     CATCH("Fail in sendCustomForm!");
@@ -2750,10 +2760,16 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::HEALTH());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::HEALTH(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setHealth!");
 }
@@ -2766,10 +2782,16 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::HEALTH());
-        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setMaxValue(
+                    component->mAttributes,
+                    SharedAttributes::HEALTH(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMaxHealth!");
 }
@@ -2782,10 +2804,16 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::ABSORPTION());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::ABSORPTION(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setAbsorptionAttribute!");
 }
@@ -2798,10 +2826,16 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::ATTACK_DAMAGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setAttackDamage!");
 }
@@ -2814,10 +2848,16 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setMaxValue(
+                    component->mAttributes,
+                    SharedAttributes::ATTACK_DAMAGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMaxAttackDamage!");
 }
@@ -2830,10 +2870,16 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::FOLLOW_RANGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setFollowRange!");
 }
@@ -2846,10 +2892,16 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::KNOCKBACK_RESISTANCE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setKnockbackResistance!");
 }
@@ -2862,10 +2914,16 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::LUCK());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::LUCK(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setLuck!");
 }
@@ -2878,9 +2936,15 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
@@ -2894,10 +2958,16 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setUnderwaterMovementSpeed!");
 }
@@ -2910,10 +2980,16 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::LAVA_MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setLavaMovementSpeed!");
 }
@@ -2926,10 +3002,12 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         Player* player = get();
         if (!player) return Local<Value>();
 
-        auto attribute = player->getMutableAttribute(Player::HUNGER());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(component->mAttributes, Player::HUNGER(), args[0].asNumber().toFloat())
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setHungry!");
 }
@@ -3279,8 +3357,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         Block const&     bl     = player->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
         // isEmpty()
-        if (bl.isAir()
-            || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());

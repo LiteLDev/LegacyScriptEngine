@@ -54,5 +54,8 @@
   "Could not find {} in registered commands": {
     "": "登録されたコマンドで {} が見つかりませんでした。"
   },
-  "Event {} not found!": "イベント {} が見つかりません！"
+  "Event {} not found!": "イベント {} が見つかりません！",
+  "Failed to enable plugin {0}: {1}\\n{2}": "プラグイン {0}の有効化に失敗しました: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "プラグイン {0}の有効化に失敗しました: {1}",
+  "Failed to disable plugin {0}: {1}": "プラグイン {0}の無効化に失敗しました: {1}"
 }

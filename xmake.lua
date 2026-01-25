@@ -3,9 +3,9 @@ add_rules("mode.debug", "mode.release")
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 1.8.0-rc.2", {configs = {target_type = "server"}})
+    add_requires("levilamina 06b1ab008c5bde2c0c2868107f963896d46bfcb5", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 1.8.0-rc.2", {configs = {target_type = "client"}})
+    add_requires("levilamina 06b1ab008c5bde2c0c2868107f963896d46bfcb5", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
@@ -22,28 +22,25 @@ add_requires(
     "ctre 3.8.1"
 )
 
+add_requires("openssl3")
+add_requires("cpp-httplib 0.26.0", { configs = { ssl = true, zlib = true } })
+
 if is_config("backend", "lua") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="Lua"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "Lua" } })
 
 elseif is_config("backend", "quickjs") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="QuickJs"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "QuickJs" } })
 
 elseif is_config("backend", "python") then
-    add_requires("openssl 1.1.1-w")
-    add_requires("mariadb-connector-c 3.3.9")
-    add_requires("scriptx 2026.1.10", {configs={backend="Python"}})
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "Python" } })
 
 elseif is_config("backend", "nodejs") then
-    add_requires("scriptx 2026.1.10", {configs={backend="V8"}})
-
+    add_requires("mariadb-connector-c 3.4.8")
+    add_requires("scriptx 2026.1.10", { configs = { backend = "V8" } })
 end
-
-add_requires("openssl3")
-add_requires("cpp-httplib 0.26.0", {configs = {ssl = true, zlib = true}})
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")

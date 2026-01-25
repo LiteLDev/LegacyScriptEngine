@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.17.0-rc.2",
+  "version": "0.17.0",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -33,8 +33,8 @@
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney": "0.17.0-rc.1",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
       },
       "assets": [
@@ -70,8 +70,8 @@
       "label": "quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
@@ -93,8 +93,8 @@
       "label": "lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
@@ -116,8 +116,8 @@
       "label": "python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
       "assets": [
         {
@@ -139,8 +139,8 @@
       "label": "client_nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney#client": "0.17.0-rc.1",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
       },
       "assets": [
@@ -176,8 +176,8 @@
       "label": "client_quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney#client": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },
       "assets": [
         {
@@ -199,8 +199,8 @@
       "label": "client_lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney#client": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },
       "assets": [
         {
@@ -222,8 +222,8 @@
       "label": "client_python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.0-rc.1",
-        "github.com/LiteLDev/LegacyMoney#client": "0.17.0-rc.1"
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },
       "assets": [
         {

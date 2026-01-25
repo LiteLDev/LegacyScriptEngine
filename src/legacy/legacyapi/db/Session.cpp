@@ -1,9 +1,7 @@
 #include "legacyapi/db/Session.h"
 
 #include "lse/Entry.h"
-#ifndef LSE_BACKEND_NODEJS
 #include "legacyapi/db/impl/mysql/Session.h"
-#endif
 #include "legacyapi/db/impl/sqlite/Session.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
@@ -110,13 +108,7 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
         session = params.empty() ? std::make_shared<SQLiteSession>() : std::make_shared<SQLiteSession>(params);
         break;
     case DBType::MySQL:
-#ifdef LSE_BACKEND_NODEJS
-        lse::LegacyScriptEngine::getLogger().error(
-            "Session::_Create: MySQL is disabled in NodeJS backend because its OpenSSL has conflicts with libnode"
-        );
-#else
         session = params.empty() ? std::make_shared<MySQLSession>() : std::make_shared<MySQLSession>(params);
-#endif
         break;
     default:
         lse::LegacyScriptEngine::getLogger().error(

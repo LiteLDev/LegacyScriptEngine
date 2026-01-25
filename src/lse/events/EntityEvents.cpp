@@ -6,7 +6,6 @@
 #include "ll/api/memory/Hook.h"
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
-#include "ll/api/service/GamingStatus.h"
 #include "lse/api/Thread.h"
 #include "lse/api/helper/BlockHelper.h"
 #include "mc/common/Globals.h"
@@ -55,7 +54,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
         if (checkClientIsServerThread()) {
             static auto& tridentName = EntityCanonicalName(ActorType::Trident);
-            if (id.mCanonicalName.get() != tridentName) {
+            if (id.mCanonicalName != tridentName) {
                 if (!CallEvent(
                         EVENT_TYPES::onSpawnProjectile,
                         EntityClass::newEntity(spawner),

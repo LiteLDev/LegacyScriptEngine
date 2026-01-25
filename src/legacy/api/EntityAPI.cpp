@@ -12,11 +12,11 @@
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/helper/AttributeHelper.h"
-#include "lse/api/helper/BlockHelper.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/deps/vanilla_components/ActorDataFlagComponent.h"
 #include "mc/deps/vanilla_components/StateVectorComponent.h"
+#include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
@@ -34,10 +34,9 @@
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/actor/player/Player.h"
-#include "mc/world/actor/provider/ActorAttribute.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-#include "mc/world/attribute/MutableAttributeWithContext.h"
+#include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -480,7 +479,7 @@ Local<Value> EntityClass::getHealth() {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        return Number::newNumber(ActorAttribute::getHealth(entity->getEntityContext()));
+        return Number::newNumber(entity->getHealth());
     }
     CATCH("Fail in GetHealth!")
 }
@@ -1017,9 +1016,16 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::HEALTH(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setHealth!");
 }
@@ -1032,10 +1038,16 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ABSORPTION());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::ABSORPTION(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setAbsorptionAttribute!");
 }
@@ -1048,10 +1060,16 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::ATTACK_DAMAGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setAttackDamage!");
 }
@@ -1064,10 +1082,16 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::ATTACK_DAMAGE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setMaxValue(
+                    component->mAttributes,
+                    SharedAttributes::ATTACK_DAMAGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMaxAttackDamage!");
 }
@@ -1080,10 +1104,16 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::FOLLOW_RANGE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::FOLLOW_RANGE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setFollowRange!");
 }
@@ -1096,10 +1126,16 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::KNOCKBACK_RESISTANCE());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::KNOCKBACK_RESISTANCE(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setKnockbackResistance!");
 }
@@ -1112,10 +1148,16 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::LUCK());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::LUCK(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setLuck!");
 }
@@ -1128,9 +1170,15 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
         return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMovementSpeed!");
@@ -1144,11 +1192,16 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute =
-            entity->getMutableAttribute(SharedAttributes::UNDERWATER_MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setUnderwaterMovementSpeed!");
 }
@@ -1161,10 +1214,16 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::LAVA_MOVEMENT_SPEED());
-        AttributeHelper::setCurrentValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setCurrentValue(
+                    component->mAttributes,
+                    SharedAttributes::LAVA_MOVEMENT_SPEED(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setLavaMovementSpeed!");
 }
@@ -1177,10 +1236,16 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        MutableAttributeWithContext attribute = entity->getMutableAttribute(SharedAttributes::HEALTH());
-        AttributeHelper::setMaxValue(attribute, args[0].asNumber().toFloat());
-
-        return Boolean::newBoolean(true);
+        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+            return Boolean::newBoolean(
+                AttributeHelper::setMaxValue(
+                    component->mAttributes,
+                    SharedAttributes::HEALTH(),
+                    args[0].asNumber().toFloat()
+                )
+            );
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH("Fail in setMaxHealth!");
 }
@@ -1403,8 +1468,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         }
         Block const&     bl     = actor->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
-        if (bl.isAir()
-            || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
             return Local<Value>();
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());

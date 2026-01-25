@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added client support
+
+### Changed
+
+- Supported LeviLamina 1.9.0
+- Replace int with CommandPermissionLevel for debugCommandLevel
+
 ## [0.17.0-rc.2] - 2026-01-19
 
 ### Changed

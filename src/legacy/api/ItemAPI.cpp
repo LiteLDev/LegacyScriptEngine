@@ -7,6 +7,7 @@
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/helper/ItemHelper.h"
+#include "mc/common/SharedPtr.h"
 #include "mc/safety/RedactableString.h"
 #include "mc/world/actor/item/ItemActor.h"
 #include "mc/world/item/Item.h"
@@ -469,7 +470,9 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 std::string type = args[0].asString().toString();
                 int         cnt  = args[1].asNumber().toInt32();
 
-                return ItemClass::newItem(std::make_unique<ItemStack>(type, cnt, 0, nullptr));
+                if (auto itemPtr = ll::service::getLevel()->getItemRegistry().getItem(HashedString(type)).lock()) {
+                    return ItemClass::newItem(std::make_unique<ItemStack>(*itemPtr));
+                }
             } else {
                 LOG_TOO_FEW_ARGS(__FUNCTION__);
                 return Local<Value>();

@@ -20,6 +20,7 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
+#include "mc/common/SharedPtr.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/deps/json/FastWriter.h"
 #include "mc/deps/json/Value.h"
@@ -94,11 +95,10 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
             -1
         );
     } else if (result.hold(ParamKind::Kind::Item)) {
-        return ItemClass::newItem(
-            std::make_unique<ItemStack>(ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(
-                std::get<CommandItem>(result.value()).mId
-            ))
-        );
+        if (auto itemPtr =
+                ll::service::getLevel()->getItemRegistry().getItem(std::get<CommandItem>(result.value()).mId).lock()) {
+            return ItemClass::newItem(std::make_unique<ItemStack>(*itemPtr));
+        }
     } else if (result.hold(ParamKind::Kind::Actor)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Actor>>(result.value()).results(origin)) {

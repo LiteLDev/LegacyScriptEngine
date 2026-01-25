@@ -39,7 +39,7 @@ Local<Value> CommandOutputClass::empty() {
 
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
-        return Number::newNumber(get()->mSuccessCount);
+        return Number::newNumber(static_cast<int64_t>(get()->mSuccessCount));
     }
     CATCH("Fail in getSuccessCount!");
 };

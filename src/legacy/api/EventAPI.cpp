@@ -50,6 +50,7 @@
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"
+#include "mc/world/attribute/AttributeInstanceConstRef.h"
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -522,7 +523,7 @@ void EnableEventListener(int eventId) {
                     if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
                         || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
                         auto attribute = ev.self().getAttribute(Player::HUNGER());
-                        if (attribute.mCurrentMaxValue > attribute.mCurrentValue) {
+                        if (attribute.mPtr->mCurrentMaxValue > attribute.mPtr->mCurrentValue) {
                             if (!CallEvent(
                                     EVENT_TYPES::onEat,
                                     PlayerClass::newPlayer(&ev.self()),

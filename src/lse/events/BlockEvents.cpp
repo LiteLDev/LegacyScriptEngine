@@ -8,10 +8,8 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
-#include "lse/api/helper/BlockHelper.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
-#include "mc/server/ServerInstance.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/ArmorStand.h"
@@ -31,7 +29,6 @@
 #include "mc/world/level/block/ComparatorBlock.h"
 #include "mc/world/level/block/CopperBulbBlock.h"
 #include "mc/world/level/block/CrafterBlock.h"
-#include "mc/world/level/block/DiodeBlock.h"
 #include "mc/world/level/block/DispenserBlock.h"
 #include "mc/world/level/block/DoorBlock.h"
 #include "mc/world/level/block/FarmBlock.h"
@@ -49,6 +46,7 @@
 #include "mc/world/level/block/TrapDoorBlock.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
+#include "mc/world/level/block/block_events/BlockRedstoneUpdateEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
 
@@ -310,7 +308,7 @@ inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& s
     return true;
 }
 
-#define REDSTONEHOOK(BLOCK)                                                                                            \
+#define REDSTONE_EVNET_HOOK_OLD(BLOCK)                                                                                 \
     LL_TYPE_INSTANCE_HOOK(                                                                                             \
         BLOCK##Hook,                                                                                                   \
         HookPriority::Normal,                                                                                          \
@@ -333,28 +331,80 @@ inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& s
         origin(region, pos, strength, isFirstTime);                                                                    \
     }
 
-REDSTONEHOOK(RedStoneWireBlock)
-REDSTONEHOOK(DiodeBlock)
-REDSTONEHOOK(RedstoneTorchBlock)
-REDSTONEHOOK(ComparatorBlock)
-REDSTONEHOOK(HopperBlock)
-REDSTONEHOOK(CrafterBlock)
-REDSTONEHOOK(CommandBlock)
-REDSTONEHOOK(BaseRailBlock)
-REDSTONEHOOK(PoweredRailBlock)
-REDSTONEHOOK(BigDripleafBlock)
-REDSTONEHOOK(CopperBulbBlock)
-REDSTONEHOOK(DoorBlock)
-REDSTONEHOOK(FenceGateBlock)
-REDSTONEHOOK(DispenserBlock)
-REDSTONEHOOK(StructureBlock)
-REDSTONEHOOK(TrapDoorBlock)
-REDSTONEHOOK(NoteBlock)
-REDSTONEHOOK(ActivatorRailBlock)
-REDSTONEHOOK(RedstoneLampBlock)
-REDSTONEHOOK(TntBlock)
+#define REDSTONE_EVNET_HOOK_1(BLOCK)                                                                                   \
+    LL_TYPE_INSTANCE_HOOK(                                                                                             \
+        BLOCK##Hook,                                                                                                   \
+        HookPriority::Normal,                                                                                          \
+        BLOCK,                                                                                                         \
+        &BLOCK::$_onRedstoneUpdate,                                                                                    \
+        void,                                                                                                          \
+        BlockEvents::BlockRedstoneUpdateEvent& blockEvent                                                              \
+    ) {                                                                                                                \
+        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
+            if (checkClientIsServerThread()) {                                                                         \
+                if (!RedstoneUpdateEvent(                                                                              \
+                        blockEvent.mRegion,                                                                            \
+                        blockEvent.mPos,                                                                               \
+                        blockEvent.mSignalLevel,                                                                       \
+                        blockEvent.mIsFirstTime                                                                        \
+                    )) {                                                                                               \
+                    return;                                                                                            \
+                }                                                                                                      \
+            }                                                                                                          \
+        }                                                                                                              \
+        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
+        origin(blockEvent);                                                                                            \
+    }
 
-#undef REDSTONEHOOK
+#define REDSTONE_EVNET_HOOK_2(BLOCK)                                                                                   \
+    LL_TYPE_INSTANCE_HOOK(                                                                                             \
+        BLOCK##Hook,                                                                                                   \
+        HookPriority::Normal,                                                                                          \
+        BLOCK,                                                                                                         \
+        &BLOCK::_onRedstoneUpdate,                                                                                     \
+        void,                                                                                                          \
+        BlockEvents::BlockRedstoneUpdateEvent& blockEvent                                                              \
+    ) {                                                                                                                \
+        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
+            if (checkClientIsServerThread()) {                                                                         \
+                if (!RedstoneUpdateEvent(                                                                              \
+                        blockEvent.mRegion,                                                                            \
+                        blockEvent.mPos,                                                                               \
+                        blockEvent.mSignalLevel,                                                                       \
+                        blockEvent.mIsFirstTime                                                                        \
+                    )) {                                                                                               \
+                    return;                                                                                            \
+                }                                                                                                      \
+            }                                                                                                          \
+        }                                                                                                              \
+        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
+        origin(blockEvent);                                                                                            \
+    }
+
+REDSTONE_EVNET_HOOK_OLD(HopperBlock)
+REDSTONE_EVNET_HOOK_OLD(CrafterBlock)
+REDSTONE_EVNET_HOOK_OLD(CommandBlock)
+REDSTONE_EVNET_HOOK_OLD(BigDripleafBlock)
+REDSTONE_EVNET_HOOK_OLD(CopperBulbBlock)
+REDSTONE_EVNET_HOOK_OLD(DoorBlock)
+REDSTONE_EVNET_HOOK_OLD(FenceGateBlock)
+REDSTONE_EVNET_HOOK_OLD(DispenserBlock)
+REDSTONE_EVNET_HOOK_OLD(StructureBlock)
+REDSTONE_EVNET_HOOK_OLD(TrapDoorBlock)
+REDSTONE_EVNET_HOOK_OLD(NoteBlock)
+REDSTONE_EVNET_HOOK_OLD(RedstoneLampBlock)
+REDSTONE_EVNET_HOOK_OLD(TntBlock)
+
+REDSTONE_EVNET_HOOK_1(BaseRailBlock)
+REDSTONE_EVNET_HOOK_1(PoweredRailBlock)
+REDSTONE_EVNET_HOOK_1(ActivatorRailBlock)
+
+REDSTONE_EVNET_HOOK_2(RedStoneWireBlock)
+REDSTONE_EVNET_HOOK_2(RedstoneTorchBlock)
+REDSTONE_EVNET_HOOK_2(ComparatorBlock)
+
+#undef REDSTONE_EVNET_HOOK_OLD
+#undef REDSTONE_EVNET_HOOK
 
 } // namespace redstone
 
@@ -541,7 +591,6 @@ void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
 void RedstoneUpdateEvent() {
     redstone::RedstoneTorchBlockHook::hook();
     redstone::RedStoneWireBlockHook::hook();
-    redstone::DiodeBlockHook::hook();
     redstone::ComparatorBlockHook::hook();
     redstone::HopperBlockHook::hook();
     redstone::CrafterBlockHook::hook();

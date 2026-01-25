@@ -5,8 +5,7 @@
 
 namespace lse::api {
 bool BlockHelper::isValidHeight(WeakRef<Dimension> dimension, std::variant<int, float> height) {
-    auto dim = dimension.lock();
-    if (dim) {
+    if (auto dim = dimension.lock()) {
         if (std::holds_alternative<int>(height)) {
             int y = std::get<int>(height);
             return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;

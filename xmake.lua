@@ -218,7 +218,6 @@ target("LegacyScriptEngine")
             "LSE_BACKEND_NODEJS"
         )
         remove_files("src/legacy/main/PythonHelper.cpp")
-        remove_files("src/legacy/legacyapi/db/impl/mysql/*.cpp")
         set_basename("legacy-script-engine-nodejs")
         after_build(function(target)
             local langPath = path.join(os.projectdir(), "src/lang/")

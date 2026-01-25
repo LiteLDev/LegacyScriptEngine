@@ -17,6 +17,7 @@
     {
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyScriptEngine#quickjs": "{{version}}",
         "github.com/LiteLDev/LegacyScriptEngine#lua": "{{version}}"
       }
@@ -25,6 +26,7 @@
       "label": "client",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
         "github.com/LiteLDev/LegacyScriptEngine#client_quickjs": "{{version}}",
         "github.com/LiteLDev/LegacyScriptEngine#client_lua": "{{version}}"
       }
@@ -33,6 +35,7 @@
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
         "github.com/LiteLDev/LegacyMoney": "0.17.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
@@ -70,6 +73,7 @@
       "label": "quickjs",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
         "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
@@ -93,6 +97,7 @@
       "label": "lua",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
         "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
@@ -116,6 +121,7 @@
       "label": "python",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.17.*",
         "github.com/LiteLDev/LegacyMoney": "0.17.*"
       },
@@ -139,6 +145,7 @@
       "label": "client_nodejs",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
         "github.com/LiteLDev/LegacyMoney#client": "0.17.*",
         "git.levimc.org/ShrBox/7-zip": "24.*"
@@ -176,6 +183,7 @@
       "label": "client_quickjs",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
         "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },
@@ -199,6 +207,7 @@
       "label": "client_lua",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
         "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },
@@ -222,6 +231,7 @@
       "label": "client_python",
       "platform": "win-x64",
       "dependencies": {
+        "github.com/LiteLDev/LeviLamina#client": "1.9.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.17.*",
         "github.com/LiteLDev/LegacyMoney#client": "0.17.*"
       },

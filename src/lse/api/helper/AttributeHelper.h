@@ -1,4 +1,5 @@
 #pragma once
+#include "mc/world/attribute/AttributeInstanceHandle.h"
 #include "mc/world/attribute/BaseAttributeMap.h"
 
 namespace lse::api {

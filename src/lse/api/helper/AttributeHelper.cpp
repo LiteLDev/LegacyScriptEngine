@@ -3,7 +3,6 @@
 #include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeInstanceRef.h"
-#include "mc/world/attribute/BaseAttributeMap.h"
 
 namespace lse::api {
 inline void AttributeHelper::setDirty(BaseAttributeMap& map, AttributeInstance const* attribute) {

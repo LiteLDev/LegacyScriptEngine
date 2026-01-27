@@ -95,10 +95,14 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
             -1
         );
     } else if (result.hold(ParamKind::Kind::Item)) {
-        if (auto itemPtr =
-                ll::service::getLevel()->getItemRegistry().getItem(std::get<CommandItem>(result.value()).mId).lock()) {
-            return ItemClass::newItem(std::make_unique<ItemStack>(*itemPtr));
-        }
+        auto item = std::make_unique<ItemStack>();
+        item->reinit(
+            ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(std::get<CommandItem>(result.value()).mId),
+            1,
+            0
+        );
+        return ItemClass::newItem(std::move(item));
+
     } else if (result.hold(ParamKind::Kind::Actor)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Actor>>(result.value()).results(origin)) {

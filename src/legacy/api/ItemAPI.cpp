@@ -469,10 +469,9 @@ Local<Value> McClass::newItem(const Arguments& args) {
             if (args.size() >= 2 && args[1].isNumber()) {
                 std::string type = args[0].asString().toString();
                 int         cnt  = args[1].asNumber().toInt32();
-
-                if (auto itemPtr = ll::service::getLevel()->getItemRegistry().getItem(HashedString(type)).lock()) {
-                    return ItemClass::newItem(std::make_unique<ItemStack>(*itemPtr));
-                }
+                auto        item = std::make_unique<ItemStack>();
+                item->reinit(type, cnt, 0);
+                return ItemClass::newItem(std::move(item));
             } else {
                 LOG_TOO_FEW_ARGS(__FUNCTION__);
                 return Local<Value>();

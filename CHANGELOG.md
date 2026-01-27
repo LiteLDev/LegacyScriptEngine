@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-01-27
+
+### Fixed
+
+- Fixed `mc.newItem` [#348]
+
 ## [0.17.0] - 2026-01-25
 
 ### Added
@@ -25,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supported LeviLamina 1.8.0-rc.2
 - Added client support
 - Replace int with CommandPermissionLevel for debugCommandLevel
-- 
+
 ## [0.16.8] - 2026-01-14
 
 ### Added
@@ -1131,10 +1137,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#330]: https://github.com/LiteLDev/LegacyScriptEngine/issues/330
 [#332]: https://github.com/LiteLDev/LegacyScriptEngine/issues/332
 [#339]: https://github.com/LiteLDev/LegacyScriptEngine/issues/339
+[#348]: https://github.com/LiteLDev/LegacyScriptEngine/issues/348
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.1...HEAD
+[0.17.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.0-rc.2...v0.17.0
-[0.17.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...v0.17.0-rc.2
+[0.17.0-rc.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.8...v0.17.0-rc.2
 [0.16.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.7...v0.16.8
 [0.16.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.6...v0.16.7
 [0.16.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.16.5...v0.16.6

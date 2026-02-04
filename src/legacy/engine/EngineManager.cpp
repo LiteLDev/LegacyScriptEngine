@@ -17,18 +17,19 @@ using namespace script;
 ///////////////////////////////// API /////////////////////////////////
 
 bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> toDelete) {
-    std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+    std::unique_lock lock(globalShareData->engineListLock);
     for (auto engine = globalShareData->globalEngineList.begin(); engine != globalShareData->globalEngineList.end();
-         ++engine)
+         ++engine) {
         if (*engine == toDelete) {
             globalShareData->globalEngineList.erase(engine);
             return true;
         }
+    }
     return false;
 }
 
 bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> engine) {
-    std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+    std::unique_lock lock(globalShareData->engineListLock);
     globalShareData->globalEngineList.push_back(engine);
     return true;
 }
@@ -53,13 +54,14 @@ std::shared_ptr<ScriptEngine> EngineManager::newEngine(std::string pluginName) {
 }
 
 bool EngineManager::isValid(ScriptEngine* engine, bool onlyCheckLocal) {
-    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
-    for (auto i = globalShareData->globalEngineList.begin(); i != globalShareData->globalEngineList.end(); ++i)
-        if (i->get() == engine) {
+    std::shared_lock lock(globalShareData->engineListLock);
+    for (auto& i : globalShareData->globalEngineList) {
+        if (i.get() == engine) {
             if (engine->isDestroying()) return false;
             if (onlyCheckLocal && getEngineType(engine) != LLSE_BACKEND_TYPE) return false;
-            else return true;
+            return true;
         }
+    }
     return false;
 }
 
@@ -67,9 +69,21 @@ bool EngineManager::isValid(std::shared_ptr<ScriptEngine> engine, bool onlyCheck
     return isValid(engine.get(), onlyCheckLocal);
 }
 
+std::shared_ptr<ScriptEngine> EngineManager::checkAndGet(ScriptEngine* engine, bool onlyCheckLocal) {
+    std::shared_lock lock(globalShareData->engineListLock);
+    for (auto& i : globalShareData->globalEngineList) {
+        if (i.get() == engine) {
+            if (engine->isDestroying()) return nullptr;
+            if (onlyCheckLocal && getEngineType(engine) != LLSE_BACKEND_TYPE) return nullptr;
+            return i;
+        }
+    }
+    return nullptr;
+}
+
 std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getLocalEngines() {
     std::vector<std::shared_ptr<ScriptEngine>> res;
-    std::shared_lock<std::shared_mutex>        lock(globalShareData->engineListLock);
+    std::shared_lock                           lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (getEngineType(engine) == LLSE_BACKEND_TYPE) res.push_back(engine);
     }
@@ -78,7 +92,7 @@ std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getLocalEngines() {
 
 std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getGlobalEngines() {
     std::vector<std::shared_ptr<ScriptEngine>> res;
-    std::shared_lock<std::shared_mutex>        lock(globalShareData->engineListLock);
+    std::shared_lock                           lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         res.push_back(engine);
     }
@@ -86,7 +100,7 @@ std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getGlobalEngines() {
 }
 
 std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
-    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+    std::shared_lock lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
         auto ownerData = getEngineData(engine);

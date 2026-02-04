@@ -954,11 +954,11 @@ void InitBasicEventListeners() {
             try {
                 std::list<std::shared_ptr<ScriptEngine>> tmpList;
                 {
-                    std::shared_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+                    std::shared_lock lock(globalShareData->engineListLock);
                     // low efficiency
                     tmpList = globalShareData->globalEngineList;
                 }
-                for (auto engine : tmpList) {
+                for (auto& engine : tmpList) {
                     if (EngineManager::isValid(engine.get())
                         && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
                         EngineScope enter(engine.get());

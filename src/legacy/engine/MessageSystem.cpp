@@ -324,11 +324,11 @@ void MessageSystemLoopOnce() {
     //     return;
     std::list<std::shared_ptr<ScriptEngine>> tmpList;
     {
-        std::unique_lock<std::shared_mutex> lock(globalShareData->engineListLock);
+        std::unique_lock lock(globalShareData->engineListLock);
         // low efficiency
         tmpList = globalShareData->globalEngineList;
     }
-    for (auto engine : tmpList) {
+    for (auto& engine : tmpList) {
         if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
             try {
                 if (EngineScope::currentEngine() == engine.get())
@@ -339,17 +339,11 @@ void MessageSystemLoopOnce() {
                 }
             } catch (const Exception& e) {
                 EngineScope scope(engine.get());
-                lse::LegacyScriptEngine::getLogger().error(
-                    "Error occurred in Engine Message Loop!"
-                );
+                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-                lse::LegacyScriptEngine::getLogger().error(
-                    "In Plugin: " + getEngineOwnData()->pluginName
-                );
+                lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
             } catch (...) {
-                lse::LegacyScriptEngine::getLogger().error(
-                    "Error occurred in Engine Message Loop!"
-                );
+                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
         }

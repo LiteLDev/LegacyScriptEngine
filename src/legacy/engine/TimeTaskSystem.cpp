@@ -26,18 +26,14 @@ std::unordered_map<uint64, ScriptEngine*> timeTaskMap;
 #define TIMETASK_CATCH(TASK_TYPE)                                                                                      \
     catch (const Exception& e) {                                                                                       \
         EngineScope scope(data.engine);                                                                                \
-        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);         \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineData(data.engine)->pluginName                                                     \
-        );                                                                                                             \
+        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);                                 \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);            \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);         \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineData(data.engine)->pluginName                                                     \
-        );                                                                                                             \
+        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);                                 \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);            \
     }
 
 int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
@@ -55,12 +51,14 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
                 co_return;
             }
 
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+            std::shared_ptr<ScriptEngine> engine;
+            if (engine = EngineManager::checkAndGet(data.engine);
+                !engine || ll::getGamingStatus() == ll::GamingStatus::Stopping) {
                 ClearTimeTask(tid);
                 co_return;
             }
 
-            EngineScope scope(data.engine);
+            EngineScope scope(engine.get());
             if (!data.func.isEmpty()) {
                 std::vector<Local<Value>> args;
                 for (auto& para : data.paras) {
@@ -93,12 +91,14 @@ int NewTimeout(Local<String> func, int timeout) {
                 co_return;
             }
 
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+            std::shared_ptr<ScriptEngine> engine;
+            if (engine = EngineManager::checkAndGet(data.engine);
+                !engine || ll::getGamingStatus() == ll::GamingStatus::Stopping) {
                 ClearTimeTask(tid);
                 co_return;
             }
 
-            EngineScope scope(data.engine);
+            EngineScope scope(engine.get());
             if (!data.code.isEmpty()) {
                 auto code = data.code.get().toString();
                 data.engine->eval(code);
@@ -129,12 +129,14 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
                     co_return;
                 }
 
-                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+                std::shared_ptr<ScriptEngine> engine;
+                if (engine = EngineManager::checkAndGet(data.engine);
+                    !engine || ll::getGamingStatus() == ll::GamingStatus::Stopping) {
                     ClearTimeTask(tid);
                     co_return;
                 }
 
-                EngineScope scope(data.engine);
+                EngineScope scope(engine.get());
 
                 if (!data.func.isEmpty()) {
                     std::vector<Local<Value>> args;
@@ -168,12 +170,14 @@ int NewInterval(Local<String> func, int timeout) {
                 if (!CheckTimeTask(tid)) {
                     co_return;
                 }
-                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(data.engine)) {
+                std::shared_ptr<ScriptEngine> engine;
+                if (engine = EngineManager::checkAndGet(data.engine);
+                    !engine || ll::getGamingStatus() == ll::GamingStatus::Stopping) {
                     ClearTimeTask(tid);
                     co_return;
                 }
 
-                EngineScope scope(data.engine);
+                EngineScope scope(engine.get());
                 if (!data.code.isEmpty()) {
                     data.engine->eval(data.code.get().toString());
                 }
@@ -189,13 +193,13 @@ int NewInterval(Local<String> func, int timeout) {
 
 bool CheckTimeTask(int const& id) {
     std::lock_guard lock(locker);
-    return timeTaskMap.find(id) != timeTaskMap.end();
+    return timeTaskMap.contains(id);
 }
 
 bool ClearTimeTask(int const& id) {
     try {
         std::lock_guard lock(locker);
-        if (timeTaskMap.find(id) != timeTaskMap.end()) {
+        if (timeTaskMap.contains(id)) {
             timeTaskMap.erase(id);
         }
     } catch (...) {

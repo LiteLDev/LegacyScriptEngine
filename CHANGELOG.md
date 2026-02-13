@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 2026-02-13
+
+### Added
+- Added AI Agents support 
+
 ## [0.17.2] - 2026-02-04
 
 ### Fixed

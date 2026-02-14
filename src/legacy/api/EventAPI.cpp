@@ -772,6 +772,10 @@ void EnableEventListener(int eventId) {
         });
         break;
 
+    case EVENT_TYPES::onPortalTrySpawnPigZombie:
+        lse::events::entity::PortalTrySpawnPigZombieEvent();
+        break;
+
     case EVENT_TYPES::onExperienceAdd:
         bus.emplaceListener<PlayerAddExperienceEvent>([](PlayerAddExperienceEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onExperienceAdd) {

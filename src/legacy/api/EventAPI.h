@@ -74,6 +74,7 @@ enum class EVENT_TYPES : int {
     onEntityTransformation,
     onMobTrySpawn,
     onMobSpawned,
+    onPortalTrySpawnPigZombie,
     onNpcCmd,
     onEndermanTakeBlock,
     /* Block Events */

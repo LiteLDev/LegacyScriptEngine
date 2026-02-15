@@ -154,6 +154,26 @@ There are many different combinations of old item objects and new item objects, 
 - Replacement Item: Old Item Object's typenot equal to the new item object `type`, and neither `item` object is empty.
 
 
+#### `"onDispenseItem"` - Dispenser / Dropper Dispense Item Event
+
+- Listener function prototype
+  `function(pos,item,slot,face,container)`
+- Parameters:
+  - pos : `FloatPos`
+    Spawn position of the dispensed item.
+  - item : `Item`
+    The dispensed item object.
+  - slot : `Integer`
+    Source slot index in the container.
+  - face : `Integer`
+    Facing direction value of the dispenser/dropper at dispense time.
+  - container : `Container`
+    The dispenser/dropper container object.
+- Intercept events: function returns `false`
+
+Only triggers when dispenser/dropper ejects normal items (non-projectiles).
+
+
 
 #### `"onProjectileHitBlock"` - Block Hit by Projectile Event
 

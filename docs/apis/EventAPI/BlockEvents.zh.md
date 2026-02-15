@@ -156,6 +156,26 @@
 - 替换物品：旧物品对象的`type` 不等于 新物品对象的`type`，且两物品对象均不为空
 
 
+#### `"onDispenseItem"` - 发射器/投掷器发射普通物品
+
+- 监听函数原型
+  `function(pos,item,slot,face,container)`
+- 参数：
+  - pos : `FloatPos`
+    发射物品出现的位置
+  - item : `Item`
+    被发射的物品对象
+  - slot : `Integer`
+    容器中被取出物品的槽位索引
+  - face : `Integer`
+    发射时方块朝向数值
+  - container : `Container`
+    发射器/投掷器的容器对象
+- 拦截事件：函数返回`false`
+
+仅在发射器/投掷器发射普通物品（非弹射物）时触发。
+
+
 
 #### `"onProjectileHitBlock"` - 方块被弹射物击中
 

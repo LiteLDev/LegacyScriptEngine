@@ -87,6 +87,7 @@ enum class EVENT_TYPES : int {
     onFireSpread,
     onCmdBlockExecute,
     onContainerChange,
+    onDispenseItem,
     onProjectileHitBlock,
     onRedStoneUpdate,
     onHopperSearchItem,

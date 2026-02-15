@@ -56,6 +56,7 @@ export const events = [
     "onFireSpread",
     "onCmdBlockExecute",
     "onContainerChange",
+    "onDispenseItem",
     "onProjectileHitBlock",
     "onRedStoneUpdate",
     "onHopperSearchItem",

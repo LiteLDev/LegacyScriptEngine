@@ -446,6 +446,10 @@ void EnableEventListener(int eventId) {
         lse::events::block::ContainerChangeEvent();
         break;
 
+    case EVENT_TYPES::onDispenseItem:
+        lse::events::block::DispenseItemEvent();
+        break;
+
     case EVENT_TYPES::onChangeArmorStand:
         lse::events::block::ArmorStandSwapItemEvent();
         break;

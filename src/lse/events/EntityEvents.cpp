@@ -33,6 +33,7 @@
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/block/PortalBlock.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
 
@@ -127,6 +128,31 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(item, player, durationLeft);
+}
+
+LL_TYPE_STATIC_HOOK(
+    PortalTrySpawnPigZombieHook,
+    HookPriority::Normal,
+    PortalBlock,
+    &PortalBlock::trySpawnPigZombie,
+    void,
+    BlockSource&    region,
+    BlockPos const& pos,
+    PortalAxis      axis
+) {
+    IF_LISTENED(EVENT_TYPES::onPortalTrySpawnPigZombie) {
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onPortalTrySpawnPigZombie,
+                    IntPos::newPos(pos, region.getDimensionId()),
+                    Number::newNumber(static_cast<int>(axis))
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawnPigZombie);
+    origin(region, pos, axis);
 }
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
@@ -436,6 +462,7 @@ void ProjectileSpawnEvent() {
     ProjectileSpawnHook2::hook();
     ProjectileSpawnHook3::hook();
 };
+void PortalTrySpawnPigZombieEvent() { PortalTrySpawnPigZombieHook::hook(); }
 void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
 void ActorRideEvent() { ActorRideHook::hook(); }
 void WitherDestroyEvent() { WitherDestroyHook::hook(); }

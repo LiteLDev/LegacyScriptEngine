@@ -446,6 +446,10 @@ void EnableEventListener(int eventId) {
         lse::events::block::ContainerChangeEvent();
         break;
 
+    case EVENT_TYPES::onDispenseItem:
+        lse::events::block::DispenseItemEvent();
+        break;
+
     case EVENT_TYPES::onChangeArmorStand:
         lse::events::block::ArmorStandSwapItemEvent();
         break;
@@ -574,6 +578,10 @@ void EnableEventListener(int eventId) {
 
     case EVENT_TYPES::onRespawnAnchorExplode:
         lse::events::block::RespawnAnchorExplodeEvent();
+        break;
+
+    case EVENT_TYPES::onPortalTrySpawn:
+        lse::events::block::PortalSpawnEvent();
         break;
 
     case EVENT_TYPES::onBlockExploded:
@@ -770,6 +778,10 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onMobSpawned);
         });
+        break;
+
+    case EVENT_TYPES::onPortalTrySpawnPigZombie:
+        lse::events::entity::PortalTrySpawnPigZombieEvent();
         break;
 
     case EVENT_TYPES::onExperienceAdd:

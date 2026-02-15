@@ -1,5 +1,6 @@
 #include "legacy/api/BaseAPI.h"
 #include "legacy/api/BlockAPI.h"
+#include "legacy/api/ContainerAPI.h"
 #include "legacy/api/EntityAPI.h"
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/ItemAPI.h"
@@ -37,6 +38,7 @@
 #include "mc/world/level/block/LiquidBlock.h"
 #include "mc/world/level/block/NoteBlock.h"
 #include "mc/world/level/block/PoweredRailBlock.h"
+#include "mc/world/level/block/PortalBlock.h"
 #include "mc/world/level/block/RedStoneWireBlock.h"
 #include "mc/world/level/block/RedstoneLampBlock.h"
 #include "mc/world/level/block/RedstoneTorchBlock.h"
@@ -268,6 +270,26 @@ LL_TYPE_STATIC_HOOK(
     origin(player, pos, region, level);
 }
 
+LL_TYPE_STATIC_HOOK(
+    PortalSpawnHook,
+    HookPriority::Normal,
+    PortalBlock,
+    &PortalBlock::trySpawnPortal,
+    bool,
+    BlockSource&    region,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onPortalTrySpawn) {
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(EVENT_TYPES::onPortalTrySpawn, IntPos::newPos(pos, region.getDimensionId()))) {
+                return false;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawn);
+    return origin(region, pos);
+}
+
 LL_TYPE_INSTANCE_HOOK(
     BlockExplodedHook,
     HookPriority::Normal,
@@ -497,6 +519,40 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(region, commandOrigin, markForSaving);
 }
 
+namespace dispenser {
+LL_TYPE_INSTANCE_HOOK(
+    DispenserEjectItemHook,
+    HookPriority::Normal,
+    DispenserBlock,
+   &DispenserBlock::ejectItem,
+    void,
+    BlockSource&     region,
+    Vec3 const&      pos,
+    uchar            face,
+    ItemStack const& item,
+    Container&       container,
+    int              slot,
+    int              countLimit
+) {
+    IF_LISTENED(EVENT_TYPES::onDispenseItem) {
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(
+                    EVENT_TYPES::onDispenseItem,
+                    FloatPos::newPos(pos, region.getDimensionId()),
+                    ItemClass::newItem(&const_cast<ItemStack&>(item)),
+                    Number::newNumber(slot),
+                    Number::newNumber((int)face),
+                    ContainerClass::newContainer(&container)
+                )) {
+                return;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onDispenseItem);
+    origin(region, pos, face, item, container, slot, countLimit);
+}
+} // namespace dispenser
+
 namespace hopper {
 enum class HopperStatus { None, PullIn, PullOut } hopperStatus = HopperStatus::None;
 Vec3 hopperPos;
@@ -587,6 +643,7 @@ void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
+void PortalSpawnEvent() { PortalSpawnHook::hook(); }
 void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
 void RedstoneUpdateEvent() {
     redstone::RedstoneTorchBlockHook::hook();
@@ -611,6 +668,7 @@ void RedstoneUpdateEvent() {
 }
 void LiquidFlowEvent() { LiquidFlowHook::hook(); }
 void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
+void DispenseItemEvent() { dispenser::DispenserEjectItemHook::hook(); }
 void HopperEvent(bool pullIn) {
     hopper::HopperAddItemHook::hook();
     if (pullIn) {

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `onPortalTrySpawn` event [#318] [#306] @yangyangzhong82
+- Added `onPortalTrySpawnPigZombie` event  @yangyangzhong82
+- Added `onDispenseItem` event  [#318] @yangyangzhong82
+
 ## [0.17.2] - 2026-02-04
 
 ### Fixed

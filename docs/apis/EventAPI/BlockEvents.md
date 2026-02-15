@@ -75,6 +75,16 @@ Intercept events have no effect on chests, shulker boxes, and workbenches.
 
 
 
+#### `"onPortalTrySpawn"` - Nether Portal Try Spawn Event
+
+- Listener function prototype
+  `function(pos)`
+- Parameters:
+  - pos : `IntPos`
+    The coordinates where portal generation is attempted.
+- Intercept events: function returns `false`
+
+
 #### `"onBlockExploded"` - Block Destroyed by Explosion Event
 
 - Listener function prototype 
@@ -142,6 +152,26 @@ There are many different combinations of old item objects and new item objects, 
 - Item Stack Increase: Old Item Object's `type`== new item object's `type`, and the old item object's `count`< new item object's `count`.
 - Item Stack Reduction: Old Item Object's `type` == new item object's `type`, and the old item's `count` > new item object's `count`
 - Replacement Item: Old Item Object's typenot equal to the new item object `type`, and neither `item` object is empty.
+
+
+#### `"onDispenseItem"` - Dispenser / Dropper Dispense Item Event
+
+- Listener function prototype
+  `function(pos,item,slot,face,container)`
+- Parameters:
+  - pos : `FloatPos`
+    Spawn position of the dispensed item.
+  - item : `Item`
+    The dispensed item object.
+  - slot : `Integer`
+    Source slot index in the container.
+  - face : `Integer`
+    Facing direction value of the dispenser/dropper at dispense time.
+  - container : `Container`
+    The dispenser/dropper container object.
+- Intercept events: function returns `false`
+
+Only triggers when dispenser/dropper ejects normal items (non-projectiles).
 
 
 

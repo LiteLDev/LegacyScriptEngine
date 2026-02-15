@@ -77,6 +77,16 @@
 
 
 
+#### `"onPortalTrySpawn"` - 下界传送门尝试生成
+
+- 监听函数原型
+  `function(pos)`
+- 参数：
+  - pos : `IntPos`  
+    尝试生成传送门的位置坐标
+- 拦截事件：函数返回`false`
+
+
 #### `"onBlockExploded"` - 方块被爆炸破坏
 
 - 监听函数原型

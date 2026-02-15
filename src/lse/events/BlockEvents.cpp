@@ -37,6 +37,7 @@
 #include "mc/world/level/block/LiquidBlock.h"
 #include "mc/world/level/block/NoteBlock.h"
 #include "mc/world/level/block/PoweredRailBlock.h"
+#include "mc/world/level/block/PortalBlock.h"
 #include "mc/world/level/block/RedStoneWireBlock.h"
 #include "mc/world/level/block/RedstoneLampBlock.h"
 #include "mc/world/level/block/RedstoneTorchBlock.h"
@@ -266,6 +267,26 @@ LL_TYPE_STATIC_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
     origin(player, pos, region, level);
+}
+
+LL_TYPE_STATIC_HOOK(
+    PortalSpawnHook,
+    HookPriority::Normal,
+    PortalBlock,
+    &PortalBlock::trySpawnPortal,
+    bool,
+    BlockSource&    region,
+    BlockPos const& pos
+) {
+    IF_LISTENED(EVENT_TYPES::onPortalTrySpawn) {
+        if (checkClientIsServerThread()) {
+            if (!CallEvent(EVENT_TYPES::onPortalTrySpawn, IntPos::newPos(pos, region.getDimensionId()))) {
+                return false;
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawn);
+    return origin(region, pos);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -587,6 +608,7 @@ void FarmDecayEvent() { FarmDecayHook::hook(); }
 void PistonPushEvent() { PistonPushHook::hook(); }
 void ExplodeEvent() { ExplodeHook::hook(); }
 void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
+void PortalSpawnEvent() { PortalSpawnHook::hook(); }
 void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
 void RedstoneUpdateEvent() {
     redstone::RedstoneTorchBlockHook::hook();

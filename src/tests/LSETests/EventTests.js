@@ -50,6 +50,7 @@ export const events = [
     "onBlockChanged",
     "onBlockExplode",
     "onRespawnAnchorExplode",
+    "onPortalTrySpawn",
     "onPortalTrySpawnPigZombie",
     "onBlockExploded",
     "onFireSpread",

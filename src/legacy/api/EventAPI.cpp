@@ -576,6 +576,10 @@ void EnableEventListener(int eventId) {
         lse::events::block::RespawnAnchorExplodeEvent();
         break;
 
+    case EVENT_TYPES::onPortalTrySpawn:
+        lse::events::block::PortalSpawnEvent();
+        break;
+
     case EVENT_TYPES::onBlockExploded:
         lse::events::block::BlockExplodedEvent();
         break;

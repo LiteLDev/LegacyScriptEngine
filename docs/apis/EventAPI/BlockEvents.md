@@ -75,6 +75,16 @@ Intercept events have no effect on chests, shulker boxes, and workbenches.
 
 
 
+#### `"onPortalTrySpawn"` - Nether Portal Try Spawn Event
+
+- Listener function prototype
+  `function(pos)`
+- Parameters:
+  - pos : `IntPos`
+    The coordinates where portal generation is attempted.
+- Intercept events: function returns `false`
+
+
 #### `"onBlockExploded"` - Block Destroyed by Explosion Event
 
 - Listener function prototype 

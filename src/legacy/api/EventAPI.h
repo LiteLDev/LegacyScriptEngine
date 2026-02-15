@@ -82,6 +82,7 @@ enum class EVENT_TYPES : int {
     onBlockChanged,
     onBlockExplode,
     onRespawnAnchorExplode,
+    onPortalTrySpawn,
     onBlockExploded,
     onFireSpread,
     onCmdBlockExecute,

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.3] - 2026-02-24
 
+### Added
+
+- Added `onPortalTrySpawn` event [#318] [#306] @yangyangzhong82
+- Added `onPortalTrySpawnPigZombie` event  @yangyangzhong82
+- Added `onDispenseItem` event  [#318] @yangyangzhong82
+
 ### Fixed
 
 - Fixed crash on stop for Node.js engine

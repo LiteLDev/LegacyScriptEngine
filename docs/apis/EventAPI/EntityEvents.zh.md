@@ -119,6 +119,18 @@ ActorDamageCause 为伤害原因枚举，枚举值如下，有问号的待验证
 
 此事件为实体成功生成后触发，不可直接拦截，如需拦截请使用entity.despawn()或entity.remove()
 
+#### `"onPortalTrySpawnPigZombie"` - 下界传送门尝试生成僵尸猪灵
+
+- 监听函数原型
+  `function(pos,axis)`
+- 参数：
+    - pos : `IntPos`  
+      发生尝试生成的位置（传送门方块坐标）
+    - axis : `Integer`  
+      传送门朝向枚举值（`0`=Unknown，`1`=X，`2`=Z）
+
+- 拦截事件：函数返回`false`
+
 #### `"onProjectileHitEntity"` - 实体被弹射物击中
 
 - 监听函数原型

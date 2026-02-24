@@ -119,6 +119,18 @@ Here are values of `ActorDamageCause`:
 
 You can use entity.despawn() or entity.remove() to intercept this event.
 
+#### `"onPortalTrySpawnPigZombie"` - Nether Portal Try Spawn Zombified Piglin Event
+
+- Listener function prototype
+  `function(pos,axis)`
+- Parameters:
+    - pos : `IntPos`
+      The portal block coordinates where the spawn attempt happened.
+    - axis : `Integer`
+      Portal axis enum value (`0` = Unknown, `1` = X, `2` = Z).
+
+- Intercept events: function returns `false`
+
 #### `"onProjectileHitEntity"` - Entity Hit by Projectile Event
 
 - Listener function prototype

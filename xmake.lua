@@ -13,7 +13,7 @@ add_requires("levibuildscript")
 add_requires(
     "legacymoney 0.10.0",
     "legacyremotecall 0.10.0",
-    "lightwebsocketclient 1.0.1",
+    "lightwebsocketclient 1.0.2",
     "magic_enum v0.9.7",
     "nlohmann_json v3.11.3",
     "simpleini v4.22",

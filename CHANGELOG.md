@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `onPortalTrySpawn` event [#318] [#306] @yangyangzhong82
+- Added `onPortalTrySpawn` event [#318]/[#306] @yangyangzhong82
 - Added `onPortalTrySpawnPigZombie` event  @yangyangzhong82
-- Added `onDispenseItem` event  [#318] @yangyangzhong82
+- Added `onDispenseItem` event [#318] @yangyangzhong82
 
 ### Fixed
 
@@ -1145,10 +1145,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#299]: https://github.com/LiteLDev/LegacyScriptEngine/issues/299
 [#300]: https://github.com/LiteLDev/LegacyScriptEngine/issues/300
 [#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303
+[#306]: https://github.com/LiteLDev/LegacyScriptEngine/issues/306
 [#309]: https://github.com/LiteLDev/LegacyScriptEngine/issues/309
 [#310]: https://github.com/LiteLDev/LegacyScriptEngine/issues/310
 [#315]: https://github.com/LiteLDev/LegacyScriptEngine/issues/315
 [#317]: https://github.com/LiteLDev/LegacyScriptEngine/issues/317
+[#318]: https://github.com/LiteLDev/LegacyScriptEngine/issues/318
 [#322]: https://github.com/LiteLDev/LegacyScriptEngine/issues/322
 [#323]: https://github.com/LiteLDev/LegacyScriptEngine/issues/323
 [#326]: https://github.com/LiteLDev/LegacyScriptEngine/issues/326

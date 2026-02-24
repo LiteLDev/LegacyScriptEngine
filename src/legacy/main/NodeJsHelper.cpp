@@ -130,11 +130,8 @@ bool initNodeJs() {
          node::ProcessInitializationFlags::kNoInitializeNodeV8Platform}
     );
     if (result->exit_code() != 0) {
-        lse::LegacyScriptEngine::getLogger().error(
-            "Failed to initialize node! NodeJs plugins won't be loaded"
-        );
-        for (const std::string& error : result->errors())
-            lse::LegacyScriptEngine::getLogger().error(error);
+        lse::LegacyScriptEngine::getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
+        for (const std::string& error : result->errors()) lse::LegacyScriptEngine::getLogger().error(error);
         return false;
     }
     args      = result->args();
@@ -173,10 +170,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::LegacyScriptEngine::getLogger().error(
-                "CommonEnvironmentSetup Error: {}",
-                err.c_str()
-            );
+            lse::LegacyScriptEngine::getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return nullptr;
     }
     v8::Isolate*       isolate = setup->isolate();
@@ -187,31 +181,16 @@ std::shared_ptr<ScriptEngine> newEngine() {
     v8::HandleScope    handle_scope(isolate);
     v8::Context::Scope context_scope(setup->context());
 
-    std::shared_ptr<ScriptEngine> engine = std::shared_ptr<ScriptEngine>(
+    std::shared_ptr<ScriptEngine> engine(
         new ScriptEngineImpl({}, isolate, setup->context(), false),
         ScriptEngine::Deleter()
     );
 
-    lse::LegacyScriptEngine::getLogger().debug(
-        "Initialize ScriptEngine for node.js [{}]",
-        (void*)engine.get()
-    );
+    lse::LegacyScriptEngine::getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine.get());
     environments[engine] = env;
     setups[engine]       = std::move(setup);
     isRunning[env]       = true;
 
-    node::AddEnvironmentCleanupHook(
-        isolate,
-        [](void* arg) {
-            static_cast<ScriptEngine*>(arg)->destroy();
-            lse::LegacyScriptEngine::getLogger().debug(
-                "Destroy ScriptEngine for node.js [{}]",
-                arg
-            );
-            lse::LegacyScriptEngine::getLogger().debug("Destroy EnvironmentCleanupHook");
-        },
-        engine.get()
-    );
     return engine;
 }
 
@@ -551,10 +530,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
 
     if (!setup) {
         for (const std::string& err : errors)
-            lse::LegacyScriptEngine::getLogger().error(
-                "CommonEnvironmentSetup Error: {}",
-                err.c_str()
-            );
+            lse::LegacyScriptEngine::getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return -1;
     }
     v8::Isolate*       isolate   = setup->isolate();
@@ -609,9 +585,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
                 throw std::runtime_error("Failed at LoadEnvironment");
             exit_code = node::SpinEventLoop(env).FromMaybe(exit_code);
         } catch (...) {
-            lse::LegacyScriptEngine::getLogger().error(
-                "Fail to execute NPM command. Error occurs"
-            );
+            lse::LegacyScriptEngine::getLogger().error("Fail to execute NPM command. Error occurs");
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
         }
         node::Stop(env);

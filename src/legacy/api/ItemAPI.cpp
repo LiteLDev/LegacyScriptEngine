@@ -178,7 +178,7 @@ Local<Value> ItemClass::getAttackDamage() {
 
 Local<Value> ItemClass::getMaxDamage() {
     try {
-        return Number::newNumber(get()->mItem->mMaxDamage);
+        return Number::newNumber(get()->getMaxDamage());
     }
     CATCH("Fail in GetMaxDamage!");
 }

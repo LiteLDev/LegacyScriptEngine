@@ -181,15 +181,23 @@ std::shared_ptr<ScriptEngine> newEngine() {
     v8::HandleScope    handle_scope(isolate);
     v8::Context::Scope context_scope(setup->context());
 
-    std::shared_ptr<ScriptEngine> engine(
-        new ScriptEngineImpl({}, isolate, setup->context(), false),
-        ScriptEngine::Deleter()
-    );
+    std::shared_ptr<ScriptEngine> engine(new ScriptEngineImpl({}, isolate, setup->context(), false), [](ScriptEngine*) {
+    });
 
     lse::LegacyScriptEngine::getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine.get());
     environments[engine] = env;
     setups[engine]       = std::move(setup);
     isRunning[env]       = true;
+
+    node::AddEnvironmentCleanupHook(
+        isolate,
+        [](void* arg) {
+            static_cast<ScriptEngine*>(arg)->destroy();
+            lse::LegacyScriptEngine::getLogger().debug("Destroy ScriptEngine for node.js [{}]", arg);
+            lse::LegacyScriptEngine::getLogger().debug("Destroy EnvironmentCleanupHook");
+        },
+        engine.get()
+    );
 
     return engine;
 }

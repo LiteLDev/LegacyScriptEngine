@@ -4,6 +4,8 @@ on:
       - .github/workflows/build_docs.yml
       - docs/**
       - mkdocs.yml
+    branches:
+      - '**'
   workflow_dispatch:
 
 jobs:
@@ -32,4 +34,3 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/deploy-pages@v4
-  

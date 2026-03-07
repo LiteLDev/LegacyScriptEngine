@@ -9,6 +9,8 @@ on:
       - .github/workflows/build.yml
       - src/**
       - xmake.lua
+    branches:
+      - '**'
   workflow_dispatch:
 
 jobs:

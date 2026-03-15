@@ -30,6 +30,69 @@ Currently, LSE supports writing plugins in the following languages：
 - Use `jsdebug` command in the BDS console to enter and exit the QuickJs interactive command line environment. This
   feature facilitates some simple testing when writing plugins
 
+### QuickJS ESModule Path Resolution Behavior
+
+The **ScriptX** used by LegacyScriptEngine is forked from the upstream **Tencent/ScriptX** project, with additional features added on top of it (such as Python backend support).
+
+In the QuickJS backend, ScriptX uses the default `module loader` provided in **quickjs-libc.h**.
+This loader causes the behavior of QuickJS ESModule when resolving the **entry module** to differ from the standard ESModule specification.
+
+Specifically, when loading the **entry module**, the loader sets the module's base path to the **current working directory (CWD)** — which is typically the directory where the server executable is located — rather than the directory where the script file resides.
+
+As a result, relative `import` paths in the entry file are resolved differently from standard ESModule behavior.
+
+Assume the following plugin directory structure:
+
+```
+c:/bds
+    bedrock_server_mod.exe
+    plugins/
+        your_plugin/
+            manifest.json
+            index.js
+            command/
+                command.js
+```
+
+Entry file **index.js**:
+```js
+import { initCommand } from "./command/command.js"
+
+initCommand();
+```
+
+In this case, QuickJS resolves the entry module's import.meta.url as:
+
+```
+file:///c:/bds
+```
+
+instead of:
+
+```
+file:///c:/bds/plugins/your_plugin
+```
+
+Therefore `./command/command.js` cannot be resolved correctly, causing the plugin to fail to load.
+
+For example, QuickJS may produce an error similar to the following (original log output):
+```
+19:26:12.343 ERROR [LeviLamina] Failed to load plugin your_plugin: Unexpected token '{'      
+19:26:12.343 ERROR [LeviLamina]     at ./plugins/your_plugin\index.js:1:1
+```
+
+To resolve this issue, use a path **relative to the current working directory (CWD)**:
+
+```js
+import { initCommand } from "./plugins/your_plugin/command/command.js"
+```
+
+This will allow the module to be loaded correctly.
+
+!!! tip
+    This issue **only affects the entry module specified in manifest.json**.
+    After the entry module is loaded, module resolution between other modules follows the standard ESModule behavior.
+
 ## Lua language support description
 
 - Use the CLua engine, support require

@@ -24,6 +24,60 @@
 - 暂不支持包管理机制，如果需要请使用 Node.js 进行插件开发，使用 npm 包管理
 - 在BDS控制台中使用`jsdebug`命令进入和退出 QuickJs 交互式命令行环境。此功能便于编写插件时进行一些简单的测试
 
+### 关于 QuickJs ESModule 的路径解析行为
+
+LegacyScriptEngine 使用的 ScriptX 来自上游 Tencent/ScriptX 项目的 fork，
+并在其基础上增加了一些功能（例如 Python 后端支持等）。
+
+在 QuickJs 后端中，ScriptX 默认使用 **quickjs-libc.h** 中提供的 `module loader`。
+该 loader 会导致 QuickJS ESModule 在解析入口模块时的行为与标准 ESModule 不完全一致。
+
+具体表现为:
+该 loader 在加载 **入口模块** 时，会将模块的 base path 设为 **当前工作目录 (CWD),即服务器程序所在目录**，而不是脚本文件所在目录。
+因此入口文件中的相对 `import` 路径解析行为与标准 ESModule 不完全一致。
+
+假设脚本插件的结构为:
+
+```
+c:/bds
+    bedrock_server_mod.exe
+    plugins/
+        your_plugin/
+            manifest.json
+            index.js
+            command/
+                command.js
+```
+
+**index.js** 入口文件:
+```js
+import { initCommand } from "./command/command.js"
+
+initCommand();
+```
+
+此时 QuickJS 会将入口模块的 `import.meta.url` 解析为 `file:///c:/bds` 而不是 `file:///c:/bds/plugins/your_plugin`
+
+因此 `./command/command.js` 会解析失败，导致插件加载失败。
+
+例如 QuickJS 可能会抛出类似如下的错误（原始日志）:
+```
+19:26:12.343 ERROR [LeviLamina] Failed to load plugin your_plugin: Unexpected token '{'      
+19:26:12.343 ERROR [LeviLamina]     at ./plugins/your_plugin\index.js:1:1
+```
+
+解决方法是使用**相对于工作目录的路径**：
+
+```js
+import { initCommand } from "./plugins/your_plugin/command/command.js"
+```
+
+即可正常加载模块。
+
+!!! tip
+    该问题**仅影响 manifest.json 指定的入口模块**。
+    入口模块加载完成后，其它模块之间的 `import` 行为均符合标准 ESModule 规则。
+
 ## Lua 语言支持说明
 
 - 使用 CLua 引擎，支持使用 require 进行简单的项目管理

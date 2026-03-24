@@ -7,8 +7,7 @@ A plugin engine for running LLSE plugins on LeviLamina
 ### Server
 
 !!! warning
-Before installing the Python engine, you need to install Python first. Here is a list of LSE versions and their required
-Python versions.
+    Before installing the Python engine, you need to install Python first. Here is a list of LSE versions and their required Python versions.
 
 | LSE Version     | Python Version |
 |-----------------|----------------|

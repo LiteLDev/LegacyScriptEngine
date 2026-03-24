@@ -5,7 +5,7 @@
 ## 安装
 
 !!! warning
-在安装Python引擎之前，你需要先安装Python。下面是一份LSE版本和需要的Python版本的列表。
+    在安装Python引擎之前，你需要先安装Python。下面是一份LSE版本和需要的Python版本的列表。
 
 | LSE 版本          | Python 版本 |
 |-----------------|-----------|

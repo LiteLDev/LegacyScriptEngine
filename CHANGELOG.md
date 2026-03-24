@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.8] - 2026-03-24
+
 ### Fixed
 
 - Fixed the container close event [#294] @zimuya4153
+- Fixed Node.js installation for tooth.json in newer version of lip
 
 ## [0.17.7] - 2026-03-08
 
@@ -41,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `onPortalTrySpawn` event [#318]/[#306] @yangyangzhong82
-- Added `onPortalTrySpawnPigZombie` event  @yangyangzhong82
+- Added `onPortalTrySpawnPigZombie` event @yangyangzhong82
 - Added `onDispenseItem` event [#318] @yangyangzhong82
 
 ### Fixed
@@ -1191,7 +1194,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#349]: https://github.com/LiteLDev/LegacyScriptEngine/issues/349
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.7...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.8...HEAD
+[0.17.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.7...v0.17.8
 [0.17.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.6...v0.17.7
 [0.17.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.5...v0.17.6
 [0.17.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.4...v0.17.5

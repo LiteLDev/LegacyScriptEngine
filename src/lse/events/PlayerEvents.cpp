@@ -140,7 +140,7 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(playerOpenContainerEvent);
 }
 
-LL_TYPE_INSTANCE_HOOK( // 玩家手动关闭/退出游戏
+LL_TYPE_INSTANCE_HOOK( // When player leaves or closes the container
     CloseContainerHook1,
     HookPriority::Normal,
     ServerPlayer,
@@ -165,7 +165,7 @@ LL_TYPE_INSTANCE_HOOK( // 玩家手动关闭/退出游戏
     origin(forceDisconnect);
 }
 
-LL_TYPE_INSTANCE_HOOK( // 方块被推动被迫关闭
+LL_TYPE_INSTANCE_HOOK( // Container closed caused by piston pushing
     CloseContainerHook2,
     HookPriority::Normal,
     PistonBlockActor,

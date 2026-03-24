@@ -62,7 +62,7 @@
           "placements": [
             {
               "type": "dir",
-              "src": "",
+              "src": ".",
               "dest": "plugins/legacy-script-engine-nodejs/"
             }
           ]
@@ -172,7 +172,7 @@
           "placements": [
             {
               "type": "dir",
-              "src": "",
+              "src": ".",
               "dest": "mods/legacy-script-engine-nodejs/"
             }
           ]

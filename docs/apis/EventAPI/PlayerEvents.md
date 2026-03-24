@@ -449,9 +449,7 @@ The **container** here is a broad concept of container, including boxes, buckets
     The player that closes the container.
   - block : `Block`  
     The container that was closed.
-- Intercept events: function returns `false`
-
-Due to the limitation of the monitoring function, the containers that currently support monitoring and closing are: chests (`minecraft:chest`), and wooden barrels (`minecraft:barrel`).
+- Intercept event: cannot be intercepted.
 
 
 

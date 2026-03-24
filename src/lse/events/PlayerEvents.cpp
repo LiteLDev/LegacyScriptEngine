@@ -21,6 +21,7 @@
 #include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/actor/player/PlayerInventory.h"
+#include "mc/world/containers/managers/models/ContainerManagerModel.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
@@ -140,51 +141,26 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    CloseContainerHook1,
+    CloseContainerHook,
     HookPriority::Normal,
-    ChestBlockActor,
-    &ChestBlockActor::$stopOpen,
+    ServerPlayer,
+    &ServerPlayer::doDeleteContainerManager,
     void,
-    Actor& actor
+    bool forceDisconnect
 ) {
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        if (checkClientIsServerThread() && actor.isPlayer()) {
-            Player& player = static_cast<Player&>(actor);
-            if (!CallEvent(
+        if (mContainerManager) {
+            if (auto* pos = std::get_if<BlockPos>(&*mContainerManager->mScreenContext->mOwner); pos) {
+                CallEvent(
                     EVENT_TYPES::onCloseContainer,
-                    PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(mPosition, player.getDimensionId().id)
-                )) {
-                return;
+                    PlayerClass::newPlayer(this),
+                    BlockClass::newBlock(*pos, getDimensionId().id)
+                );
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
-    origin(actor);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    CloseContainerHook2,
-    HookPriority::Normal,
-    BarrelBlockActor,
-    &BarrelBlockActor::$stopOpen,
-    void,
-    Actor& actor
-) {
-    IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-        if (checkClientIsServerThread() && actor.isPlayer()) {
-            Player& player = static_cast<Player&>(actor);
-            if (!CallEvent(
-                    EVENT_TYPES::onCloseContainer,
-                    PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(mPosition, player.getDimensionId().id)
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
-    origin(actor);
+    origin(forceDisconnect);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -659,10 +635,7 @@ void DropItem() {
     DropItemHook2::hook();
 }
 void OpenContainerEvent() { OpenContainerHook::hook(); }
-void CloseContainerEvent() {
-    CloseContainerHook1::hook();
-    CloseContainerHook2::hook();
-}
+void CloseContainerEvent() { CloseContainerHook::hook(); }
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
 void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
 void UseFrameEvent() {

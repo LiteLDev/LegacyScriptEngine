@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the container close event [#294] @zimuya4153
+
 ## [0.17.7] - 2026-03-08
 
 ### Changed
@@ -1167,6 +1171,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#278]: https://github.com/LiteLDev/LegacyScriptEngine/issues/278
 [#285]: https://github.com/LiteLDev/LegacyScriptEngine/issues/285
 [#291]: https://github.com/LiteLDev/LegacyScriptEngine/issues/291
+[#294]: https://github.com/LiteLDev/LegacyScriptEngine/issues/294
 [#299]: https://github.com/LiteLDev/LegacyScriptEngine/issues/299
 [#300]: https://github.com/LiteLDev/LegacyScriptEngine/issues/300
 [#303]: https://github.com/LiteLDev/LegacyScriptEngine/issues/303

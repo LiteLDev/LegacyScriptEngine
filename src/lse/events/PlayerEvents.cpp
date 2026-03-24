@@ -140,8 +140,8 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(playerOpenContainerEvent);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    CloseContainerHook,
+LL_TYPE_INSTANCE_HOOK( // 玩家手动关闭/退出游戏
+    CloseContainerHook1,
     HookPriority::Normal,
     ServerPlayer,
     &ServerPlayer::doDeleteContainerManager,
@@ -151,16 +151,48 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onCloseContainer) {
         if (mContainerManager) {
             if (auto* pos = std::get_if<BlockPos>(&*mContainerManager->mScreenContext->mOwner); pos) {
-                CallEvent(
-                    EVENT_TYPES::onCloseContainer,
-                    PlayerClass::newPlayer(this),
-                    BlockClass::newBlock(*pos, getDimensionId().id)
-                );
+                if (getDimensionBlockSource().getBlock(*pos).mBlockType->isContainerBlock()) {
+                    CallEvent(
+                        EVENT_TYPES::onCloseContainer,
+                        PlayerClass::newPlayer(this),
+                        BlockClass::newBlock(*pos, getDimensionId().id)
+                    );
+                }
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
     origin(forceDisconnect);
+}
+
+LL_TYPE_INSTANCE_HOOK( // 方块被推动被迫关闭
+    CloseContainerHook2,
+    HookPriority::Normal,
+    PistonBlockActor,
+    &PistonBlockActor::_spawnMovingBlock,
+    void,
+    BlockSource&    region,
+    BlockPos const& blockPos
+) {
+    if (region.getBlock(blockPos).mBlockType->isContainerBlock()) {
+        IF_LISTENED(EVENT_TYPES::onCloseContainer) {
+            region.mDimension.forEachPlayer([&](Player& player) -> bool {
+                if (player.mContainerManager) {
+                    if (auto* pos = std::get_if<BlockPos>(&*player.mContainerManager->mScreenContext->mOwner);
+                        pos && *pos == blockPos) {
+                        CallEvent(
+                            EVENT_TYPES::onCloseContainer,
+                            PlayerClass::newPlayer(&player),
+                            BlockClass::newBlock(*pos, player.getDimensionId().id)
+                        );
+                    }
+                }
+                return true;
+            });
+        }
+        IF_LISTENED_END(EVENT_TYPES::onCloseContainer);
+    }
+    origin(region, blockPos);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -635,7 +667,10 @@ void DropItem() {
     DropItemHook2::hook();
 }
 void OpenContainerEvent() { OpenContainerHook::hook(); }
-void CloseContainerEvent() { CloseContainerHook::hook(); }
+void CloseContainerEvent() {
+    CloseContainerHook1::hook();
+    CloseContainerHook2::hook();
+}
 void ChangeSlotEvent() { ChangeSlotHook::hook(); }
 void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
 void UseFrameEvent() {

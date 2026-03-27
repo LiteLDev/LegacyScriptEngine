@@ -66,6 +66,8 @@ theme:
   features:
     - navigation.tabs
     - navigation.tabs.sticky
+    - content.code.copy
+    - content.code.select
   favicon: img/logo.png
   logo: img/logo.png
   palette:

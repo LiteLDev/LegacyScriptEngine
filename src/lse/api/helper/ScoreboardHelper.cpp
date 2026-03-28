@@ -5,7 +5,7 @@
 namespace lse::api {
 ScoreboardId ScoreboardHelper::getId(Scoreboard const& scoreboard, PlayerScoreboardId const& playerId) {
     auto& dict  = scoreboard.mIdentityDict->mPlayers;
-    auto found = dict->find(playerId);
+    auto  found = dict->find(playerId);
     if (found != dict->end()) {
         return found->second;
     } else {

@@ -210,8 +210,7 @@ Local<Value> FileClass::writeSync(const Arguments& args) {
         } else if (args[0].isByteBuffer()) {
             file.write((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return {};
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Boolean::newBoolean(!file.fail() && !file.bad());
     }
@@ -345,8 +344,7 @@ Local<Value> FileClass::write(const Arguments& args) {
                 std::string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength())
             );
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return {};
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         script::Global<Function> callbackFunc;
@@ -745,10 +743,7 @@ Local<Value> OpenFile(const Arguments& args) {
                 return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "Fail to create directory " + args[0].asString().toString() + "!"
-            );
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to create directory " + args[0].asString().toString() + "!");
             return {};
         }
 

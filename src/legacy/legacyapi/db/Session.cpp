@@ -1,10 +1,10 @@
 #include "legacyapi/db/Session.h"
 
-#include "lse/Entry.h"
 #include "legacyapi/db/impl/mysql/Session.h"
 #include "legacyapi/db/impl/sqlite/Session.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
+#include "lse/Entry.h"
 
 namespace DB {
 
@@ -32,9 +32,7 @@ ResultSet Session::query(const std::string& query) {
                 lse::LegacyScriptEngine::getLogger().debug(str);
             }
         } else {
-            lse::LegacyScriptEngine::getLogger().debug(
-                "Session::query: Query returned no result"
-            );
+            lse::LegacyScriptEngine::getLogger().debug("Session::query: Query returned no result");
         }
     }
     return result;
@@ -44,9 +42,7 @@ std::string Session::getLastError() const { throw std::runtime_error("Session::g
 
 std::weak_ptr<Session> Session::getOrSetSelf() {
     if (self.expired()) {
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "Session::getOrSetSelf: `self` expired, trying fetching"
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("Session::getOrSetSelf: `self` expired, trying fetching");
         return self = getSession(this);
     }
     return self;
@@ -111,9 +107,7 @@ SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
         session = params.empty() ? std::make_shared<MySQLSession>() : std::make_shared<MySQLSession>(params);
         break;
     default:
-        lse::LegacyScriptEngine::getLogger().error(
-            "Session::_Create: Unknown/Unsupported database type"
-        );
+        lse::LegacyScriptEngine::getLogger().error("Session::_Create: Unknown/Unsupported database type");
     }
     if (session) {
         auto result  = SharedPointer<Session>(session);

@@ -37,8 +37,8 @@
 #include "mc/world/level/block/HopperBlock.h"
 #include "mc/world/level/block/LiquidBlock.h"
 #include "mc/world/level/block/NoteBlock.h"
-#include "mc/world/level/block/PoweredRailBlock.h"
 #include "mc/world/level/block/PortalBlock.h"
+#include "mc/world/level/block/PoweredRailBlock.h"
 #include "mc/world/level/block/RedStoneWireBlock.h"
 #include "mc/world/level/block/RedstoneLampBlock.h"
 #include "mc/world/level/block/RedstoneTorchBlock.h"
@@ -524,7 +524,7 @@ LL_TYPE_INSTANCE_HOOK(
     DispenserEjectItemHook,
     HookPriority::Normal,
     DispenserBlock,
-   &DispenserBlock::ejectItem,
+    &DispenserBlock::ejectItem,
     void,
     BlockSource&     region,
     Vec3 const&      pos,

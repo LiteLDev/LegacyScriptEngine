@@ -66,8 +66,7 @@ Local<Value> ContainerClass::addItem(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -88,8 +87,7 @@ Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
     }
@@ -102,8 +100,7 @@ Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Boolean::newBoolean(container->hasRoomForItem(*item));
     }
@@ -144,8 +141,7 @@ Local<Value> ContainerClass::setItem(const Arguments& args) {
     try {
         ItemStack* item = ItemClass::extract(args[1]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         container->setItem(args[0].asNumber().toInt32(), *item);

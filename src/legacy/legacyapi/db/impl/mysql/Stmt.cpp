@@ -293,9 +293,7 @@ void MySQLStmt::bindResult() {
         );
     }
     if (!metadata) {
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "MySQLStmt::bindResult: No result metadata"
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::bindResult: No result metadata");
         return;
     }
     // Set the attribute UPDATE_MAX_LENGTH to true
@@ -306,11 +304,8 @@ void MySQLStmt::bindResult() {
     // later
     mysql_stmt_store_result(stmt);
     auto     cnt = mysql_num_fields(metadata);
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "MySQLStmt::bindResult: mysql_num_fields : {} ",
-        cnt
-    );
-    auto fields = mysql_fetch_fields(metadata);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::bindResult: mysql_num_fields : {} ", cnt);
+    auto     fields = mysql_fetch_fields(metadata);
     result.reset(new MYSQL_BIND[cnt]);
     // Allocate result bindings
     resultHeader.reset(new RowHeader);
@@ -334,12 +329,8 @@ void MySQLStmt::bindResult() {
 
         rec.field = field;             // Save the field
         resultHeader->add(field.name); // Add the field name to the header
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "MySQLStmt::bindResult: Bind result {} (type {}) at index {}",
-            field.name,
-            (int)field.type,
-            i
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger()
+            .debug("MySQLStmt::bindResult: Bind result {} (type {}) at index {}", field.name, (int)field.type, i);
     }
     auto res = mysql_stmt_bind_result(stmt, result.get());
     if (res) {
@@ -413,11 +404,8 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         params[index].buffer_length = sz;
         params[index].is_null       = 0;
         params[index].length        = (unsigned long*)&param.length;
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "MySQLStmt::bind: Bound string param at {}: {}",
-            index,
-            param.buffer.get()
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger()
+            .debug("MySQLStmt::bind: Bound string param at {}: {}", index, param.buffer.get());
         break;
     }
     case Any::Type::Date:
@@ -511,10 +499,7 @@ Row MySQLStmt::_Fetch() {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::_Fetch: Fetching row...");
     Row      row(resultHeader);
     IF_ENDBG
-    lse::LegacyScriptEngine::getLogger().debug(
-        "MySQLStmt::_Fetch: RowHeader size {}",
-        row.header->size()
-    );
+    lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::_Fetch: RowHeader size {}", row.header->size());
     int i = 0;
     for (auto& col : resultValues) {
         // Because of the inexplicable problems of MySQL C API,
@@ -612,13 +597,8 @@ SharedPointer<Stmt> MySQLStmt::create(const std::weak_ptr<Session>& session, con
     auto query  = sql;
     auto params = ParseStmtParams(query);
     if (raw->debugOutput && !params.empty()) {
-        lse::LegacyScriptEngine::getLogger().debug(
-            "MySQLStmt::create: Parsed named parameters in query: "
-        );
-        lse::LegacyScriptEngine::getLogger().debug(
-            "MySQLStmt::create: - SQL without named parameters: {}",
-            query
-        );
+        lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: Parsed named parameters in query: ");
+        lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: - SQL without named parameters: {}", query);
         for (auto& [k, v] : params) {
             lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: - {}: {}", k, v);
         }
@@ -631,8 +611,7 @@ SharedPointer<Stmt> MySQLStmt::create(const std::weak_ptr<Session>& session, con
     result->query        = sql;
     result->paramIndexes = params;
     result->setDebugOutput(raw->debugOutput);
-    if (raw->debugOutput)
-        lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: Prepared > " + query);
+    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: Prepared > " + query);
     auto shared  = SharedPointer<Stmt>(result);
     result->self = shared;
     return shared;

@@ -429,8 +429,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
                     pos = posObj->toIntVec4();
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) {
             // Number Pos
@@ -504,8 +503,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
                     block = args[1];
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 5 || args.size() == 6) {
             // Number Pos
@@ -538,7 +536,9 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false)));
+            return Boolean::newBoolean(
+                bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
+            );
         } else if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
             auto                      nbt = NbtCompoundClass::extract(block);
@@ -548,17 +548,20 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false)));
+            return Boolean::newBoolean(
+                bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
+            );
         } else {
             // other block object
             Block const* bl = BlockClass::extract(block);
             if (!bl) {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false)));
+            return Boolean::newBoolean(
+                bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false))
+            );
         }
     }
     CATCH("Fail in SetBlock!")
@@ -592,8 +595,7 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
                     type = args[1];
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos

@@ -15,4 +15,4 @@ void DispenseItemEvent();
 void LiquidFlowEvent();
 void CommandBlockExecuteEvent();
 void HopperEvent(bool pullIn);
-}
+} // namespace lse::events::block

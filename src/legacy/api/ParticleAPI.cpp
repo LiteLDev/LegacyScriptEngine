@@ -25,8 +25,7 @@
         v         = Vec3(pos2->x, pos2->y, pos2->z);                                                                   \
         d         = pos2->dim;                                                                                         \
     } else {                                                                                                           \
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
-        return Local<Value>();                                                                                         \
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
     }
 
 namespace {

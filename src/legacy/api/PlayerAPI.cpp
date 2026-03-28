@@ -1470,8 +1470,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Boolean::newBoolean(false);
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
                 auto ang        = DirectionAngle::extract(args[1]);
@@ -1497,8 +1496,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
                 rotationIsValid = true;
             }
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Boolean::newBoolean(false);
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (!rotationIsValid) {
             angle = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
@@ -1810,8 +1808,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
                     pos = posObj->toIntVec4();
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) {
             // Number Pos
@@ -2621,8 +2618,7 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
             Local<Function> callback = args[1].asFunction();
             CustomFormClass::sendForm(CustomFormClass::extract(args[0]), player, callback, update);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Boolean::newBoolean(true);
     }
@@ -3609,8 +3605,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) { // x, y, z, dimId
             // number pos
@@ -3672,8 +3667,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) {
             // number pos

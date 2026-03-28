@@ -122,7 +122,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Local<Value>();
     }
@@ -167,7 +167,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Local<Value>();
     }
@@ -212,7 +212,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Local<Value>();
     }
@@ -251,8 +251,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
     CATCH("Fail in deleteScore");
@@ -279,8 +278,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
     CATCH("Fail in getScore");

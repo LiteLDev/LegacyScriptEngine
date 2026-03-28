@@ -38,9 +38,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(defContent, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                lse::LegacyScriptEngine::getLogger().error(
-                    "Fail to parse default json content!"
-                );
+                lse::LegacyScriptEngine::getLogger().error("Fail to parse default json content!");
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
                 jsonConf = ordered_json::object();
             }
@@ -60,9 +58,7 @@ inline ordered_json CreateJson(const std::string& path, const std::string& defCo
             try {
                 jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, allowComment);
             } catch (std::exception& e) {
-                lse::LegacyScriptEngine::getLogger().error(
-                    "Fail to parse json content in file!"
-                );
+                lse::LegacyScriptEngine::getLogger().error("Fail to parse json content in file!");
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
                 jsonConf = ordered_json::object();
             }

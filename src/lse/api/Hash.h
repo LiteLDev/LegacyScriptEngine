@@ -26,4 +26,4 @@ std::string caculateHash(HashType type, const std::string& data) {
     EVP_MD_CTX_free(ctx);
     return {};
 }
-} // namespace lse::api
+} // namespace lse::api::hash

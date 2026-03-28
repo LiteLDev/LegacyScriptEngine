@@ -182,16 +182,12 @@ void CallEventImpl(EventListener& listener, bool& returnValue, EVENT_TYPES type,
         lse::LegacyScriptEngine::getLogger().error("CallEvent Callback Failed!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));
-        lse::LegacyScriptEngine::getLogger().error(
-            "In Plugin: " + getEngineOwnData()->pluginName
-        );
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("CallEvent Callback Failed!");
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
         lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));
-        lse::LegacyScriptEngine::getLogger().error(
-            "In Plugin: " + getEngineOwnData()->pluginName
-        );
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
     }
 }
 
@@ -211,16 +207,12 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
             lse::LegacyScriptEngine::getLogger().error("FakeCallEvent Callback Failed!");
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
             lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));
-            lse::LegacyScriptEngine::getLogger().error(
-                "In Plugin: " + getEngineOwnData()->pluginName
-            );
+            lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
         } catch (...) {
             lse::LegacyScriptEngine::getLogger().error("FakeCallEvent Callback Failed!");
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));
-            lse::LegacyScriptEngine::getLogger().error(
-                "In Plugin: " + getEngineOwnData()->pluginName
-            );
+            lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
         }
     }
 }
@@ -231,8 +223,8 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed!");                  \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
-        lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(TYPE));    \
+        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed!");                                          \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(TYPE));                            \
     }                                                                                                                  \
     }

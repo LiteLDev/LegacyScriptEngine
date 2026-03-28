@@ -871,8 +871,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::MD5, data));
@@ -890,8 +889,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::SHA1, data));
@@ -909,8 +907,7 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
             data                  = string((char*)buf.getRawBytes(), buf.byteLength());
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return String::newString(ll::base64_utils::encode(data));
     }

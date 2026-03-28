@@ -643,8 +643,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 return Boolean::newBoolean(true);
             }
         }
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     CATCH("Fail in addOverload!")
 }

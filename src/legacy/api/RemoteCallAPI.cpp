@@ -177,15 +177,9 @@ Local<Value> extract(RemoteCall::ValueType&& val) {
 Local<Value> MakeRemoteCall(const string& nameSpace, const string& funcName, const Arguments& args) {
     auto& func = RemoteCall::importFunc(nameSpace, funcName);
     if (!func) {
-        lse::LegacyScriptEngine::getLogger().error(
-            "Fail to import! Function [{}::{}] has not been exported!",
-            nameSpace,
-            funcName
-        );
-        lse::LegacyScriptEngine::getLogger().error(
-            "In plugin <{}>",
-            getEngineOwnData()->pluginName
-        );
+        lse::LegacyScriptEngine::getLogger()
+            .error("Fail to import! Function [{}::{}] has not been exported!", nameSpace, funcName);
+        lse::LegacyScriptEngine::getLogger().error("In plugin <{}>", getEngineOwnData()->pluginName);
         return Local<Value>();
     }
 

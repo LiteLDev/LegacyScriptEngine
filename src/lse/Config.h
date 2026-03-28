@@ -1,8 +1,8 @@
 #pragma once
 
-#include <optional>
-
 #include "mc/server/commands/CommandPermissionLevel.h"
+
+#include <optional>
 
 namespace lse {
 

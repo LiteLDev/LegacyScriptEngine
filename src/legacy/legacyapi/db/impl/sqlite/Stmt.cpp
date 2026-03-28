@@ -12,10 +12,7 @@ namespace DB {
 SQLiteStmt::SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute)
 : Stmt(parent, autoExecute),
   stmt(stmt) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::SQLiteStmt: Constructed! this: {}",
-        (void*)this
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::SQLiteStmt: Constructed! this: {}", (void*)this);
     totalParamsCount = sqlite3_bind_parameter_count(stmt);
     if (!totalParamsCount && autoExecute) execute(); // Execute without params
 }
@@ -39,20 +36,14 @@ void SQLiteStmt::fetchResultHeader() {
     int colCnt = sqlite3_column_count(stmt);
     for (int i = 0; i < colCnt; i++) {
         auto     name = sqlite3_column_name(stmt, i);
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "SQLiteStmt::fetchResultHeader: Column Name[{}]: {}",
-            i,
-            name
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger()
+            .debug("SQLiteStmt::fetchResultHeader: Column Name[{}]: {}", i, name);
         resultHeader->add(name);
     }
 }
 
 SQLiteStmt::~SQLiteStmt() {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::~SQLiteStmt: Destructor: this: {}",
-        (void*)this
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::~SQLiteStmt: Destructor: this: {}", (void*)this);
     close();
 }
 
@@ -138,11 +129,7 @@ Stmt& SQLiteStmt::bind(const Any& value, const std::string& name) {
         // second is the key!
         throw std::invalid_argument("SQLiteStmt::bind: There isn't any statement parameter named `" + name + "`!");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::bind: Parameter `{}` is at index {}",
-        name,
-        index
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::bind: Parameter `{}` is at index {}", name, index);
     return bind(value, index - 1);
 }
 Stmt& SQLiteStmt::bind(const Any& value) { return bind(value, getNextParamIndex()); }
@@ -171,9 +158,7 @@ bool SQLiteStmt::step() {
         stepped = true;
         return true;
     } else if (res == SQLITE_DONE) {
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-            "SQLiteStmt::step: The statment is done"
-        );
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::step: The statment is done");
         stepped = false;
         return false;
     } else {
@@ -204,11 +189,8 @@ Row SQLiteStmt::_Fetch() {
             break;
         case SQLITE_TEXT: {
             std::string text(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)));
-            IF_ENDBG    lse::LegacyScriptEngine::getLogger().debug(
-                "SQLiteStmt::_Fetch: Fetched TEXT type column: {} {}",
-                i,
-                text
-            );
+            IF_ENDBG    lse::LegacyScriptEngine::getLogger()
+                .debug("SQLiteStmt::_Fetch: Fetched TEXT type column: {} {}", i, text);
             row.push_back(text);
             break;
         }
@@ -242,9 +224,7 @@ Stmt& SQLiteStmt::reset() {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::reexec: Failed to reset");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::reexec: Reset successfully"
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::reexec: Reset successfully");
     resultHeader.reset();
     steps            = 0;
     stepped          = false;
@@ -265,16 +245,12 @@ Stmt& SQLiteStmt::clear() {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::clear: Failed to reset");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::clear: Reset successfully"
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::clear: Reset successfully");
     res = sqlite3_clear_bindings(stmt);
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::clear: Failed to clear bindings");
     }
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
-        "SQLiteStmt::clear: Cleared bindings successfully"
-    );
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::clear: Cleared bindings successfully");
     boundParamsCount = 0;
     boundIndexes     = {};
     resultHeader.reset();
@@ -331,8 +307,7 @@ SQLiteStmt::create(const std::weak_ptr<Session>& session, const std::string& sql
     auto result    = std::make_shared<SQLiteStmt>(stmt, session, autoExecute);
     result->parent = session;
     result->setDebugOutput(raw->debugOutput);
-    if (raw->debugOutput)
-        lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::create: Prepared > " + sql);
+    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::create: Prepared > " + sql);
     auto shared  = SharedPointer<Stmt>(result);
     result->self = shared;
     return shared;

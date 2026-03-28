@@ -49,9 +49,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         // Feedback
         // lse::LegacyScriptEngine::getLogger().debug("*** Before remote call result return");
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, ValueToJson(result))) {
-            lse::LegacyScriptEngine::getLogger().error(
-                "Fail to post remote call result return!"
-            );
+            lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
         // lse::LegacyScriptEngine::getLogger().debug("*** After remote call result return");
     } catch (const Exception& e) {
@@ -59,16 +57,12 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         if (engine) {
             EngineScope enter(engine);
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-            lse::LegacyScriptEngine::getLogger().error(
-                "[Error] In Plugin: " + getEngineOwnData()->pluginName
-            );
+            lse::LegacyScriptEngine::getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
         }
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getLogger().error(
-                "Fail to post remote call result return!"
-            );
+            lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
     } catch (const std::out_of_range&) {
         lse::LegacyScriptEngine::getLogger().error(
@@ -77,9 +71,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getLogger().error(
-                "Fail to post remote call result return!"
-            );
+            lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Error occurred in remote engine!");
@@ -87,9 +79,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
-            lse::LegacyScriptEngine::getLogger().error(
-                "Fail to post remote call result return!"
-            );
+            lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
     }
 }

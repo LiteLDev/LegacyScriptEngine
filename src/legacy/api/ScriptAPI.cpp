@@ -118,8 +118,7 @@ Local<Value> SetTimeout(const Arguments& args) {
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         int timeout = args[1].asNumber().toInt32();
@@ -138,8 +137,7 @@ Local<Value> SetInterval(const Arguments& args) {
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         int timeout = args[1].asNumber().toInt32();

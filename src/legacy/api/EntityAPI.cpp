@@ -1595,8 +1595,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // IntPos
                     IntPos* posObj = IntPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
-                        return Local<Value>();
+                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                     }
                     aabb.max = Vec3(posObj->x, posObj->y, posObj->z) + 1;
                     dim      = posObj->dim;
@@ -1605,8 +1604,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // FloatPos
                     FloatPos* posObj = FloatPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
-                        return Local<Value>();
+                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                     }
                     aabb.max = posObj->getVec3();
                     dim      = posObj->dim;
@@ -1637,8 +1635,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
         if (!dimension.lock()) {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
-            return Local<Value>();
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
         }
         BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
         auto         entityList = bs.getEntities(aabb);

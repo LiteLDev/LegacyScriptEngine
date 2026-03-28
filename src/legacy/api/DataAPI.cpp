@@ -367,8 +367,7 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
             break;
         }
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
-            return Local<Value>();
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
         }
         return res;
     }
@@ -397,8 +396,7 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
             iniConf->setBool(section, key, args[2].asBoolean().value());
             break;
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
-            return Local<Value>();
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
         }
         flush();
         return Boolean::newBoolean(true);
@@ -836,8 +834,7 @@ Local<Value> DataClass::toJson(const Arguments& args) {
             return String::newString(ValueToJson(args[0], spaces));
         } catch (...) {
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
-            return Local<Value>();
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
         }
     }
     CATCH_AND_THROW;
@@ -852,8 +849,7 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
             return JsonToValue(args[0].asString().toString());
         } catch (...) {
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
-            return Local<Value>();
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
         }
     }
     CATCH_AND_THROW;

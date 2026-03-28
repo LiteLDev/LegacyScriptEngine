@@ -506,8 +506,7 @@ Local<Value> DirCreate(const Arguments& args) {
     try {
         return Boolean::newBoolean(std::filesystem::create_directories(args[0].asString().toU8string()));
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Create Dir " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Create Dir " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -521,8 +520,7 @@ Local<Value> PathDelete(const Arguments& args) {
             std::filesystem::remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0
         );
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Delete " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Delete " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -534,8 +532,7 @@ Local<Value> PathExists(const Arguments& args) {
     try {
         return Boolean::newBoolean(std::filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString())));
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Check " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Check " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -552,8 +549,7 @@ Local<Value> PathCopy(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Copy " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Copy " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -570,8 +566,7 @@ Local<Value> PathRename(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Rename " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Rename " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -589,8 +584,7 @@ Local<Value> PathMove(const Arguments& args) {
         remove_all(ll::string_utils::str2wstr(args[0].asString().toString()));
         return Boolean::newBoolean(true);
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Move " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Move " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -605,8 +599,7 @@ Local<Value> CheckIsDir(const Arguments& args) {
 
         return Boolean::newBoolean(directory_entry(p).is_directory());
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Type of " + args[0].asString().toString() + "!");
-        return {};
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Type of " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -623,8 +616,7 @@ Local<Value> GetFileSize(const Arguments& args) {
         auto sz = file_size(p);
         return Number::newNumber((int64_t)sz);
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Size of " + args[0].asString().toString() + "!");
-        return {};
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Size of " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }
@@ -671,18 +663,16 @@ Local<Value> FileWriteTo(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO(
+                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
                     __FUNCTION__,
                     "Fail to create directory " + path.parent_path().string() + "!"
                 );
-                return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO(
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
                 __FUNCTION__,
                 "Fail to create directory of " + args[0].asString().toString() + "!"
             );
-            return Boolean::newBoolean(false);
         }
         return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].asString().toString(), false));
     }
@@ -700,18 +690,16 @@ Local<Value> FileWriteLine(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO(
+                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
                     __FUNCTION__,
                     "Fail to create directory " + path.parent_path().string() + "!"
                 );
-                return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO(
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
                 __FUNCTION__,
                 "Fail to create directory of " + args[0].asString().toString() + "!"
             );
-            return Boolean::newBoolean(false);
         }
 
         std::ofstream fileWrite(path, std::ios::app);
@@ -736,15 +724,16 @@ Local<Value> OpenFile(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                LOG_ERROR_WITH_SCRIPT_INFO(
+                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
                     __FUNCTION__,
                     "Fail to create directory " + path.parent_path().string() + "!"
                 );
-                return Boolean::newBoolean(false);
             }
         } else {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to create directory " + args[0].asString().toString() + "!");
-            return Boolean::newBoolean(false);
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
+                __FUNCTION__,
+                "Fail to create directory " + args[0].asString().toString() + "!"
+            );
         }
 
         FileOpenMode            fMode = (FileOpenMode)(args[1].asNumber().toInt32());
@@ -764,13 +753,11 @@ Local<Value> OpenFile(const Arguments& args) {
 
         std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + path.string() + "!");
-            return Boolean::newBoolean(false);
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + path.string() + "!");
         }
         return FileClass::newFile(std::move(fs), path.string(), isBinary);
     } catch (const filesystem_error&) {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + args[0].asString().toString() + "!");
-        return Boolean::newBoolean(false);
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + args[0].asString().toString() + "!");
     }
     CATCH_AND_THROW;
 }

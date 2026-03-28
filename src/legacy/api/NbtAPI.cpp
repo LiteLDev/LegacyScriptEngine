@@ -1516,12 +1516,10 @@ Local<Value> NbtCompoundClass::getTypeOf(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto& list = getPtr()->mTags;
-        auto  key  = args[0].asString().toString();
-
-        return Number::newNumber(int(list.at(key).getId()));
-    } catch (const std::out_of_range&) {
-        return Local<Value>();
+        auto key = args[0].asString().toString();
+        if (auto* tag = getPtr(); tag && tag->contains(key)) {
+            return Number::newNumber(int(tag->at(key).getId()));
+        }
     }
     CATCH("Fail in NBT GetTypeOf!");
 }
@@ -1723,9 +1721,9 @@ Local<Value> NbtCompoundClass::getData(const Arguments& args) {
 
     try {
         auto key = args[0].asString().toString();
-
-        return Tag2Value(getPtr()->at(key).get().as_ptr<Tag>());
-    } catch (const std::out_of_range&) {
+        if (auto* tag = getPtr(); tag && tag->contains(key)) {
+            return Tag2Value(tag->at(key).get().as_ptr<Tag>());
+        }
         return Local<Value>();
     }
     CATCH("Fail in NBT GetData!")
@@ -1737,6 +1735,10 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
 
     try {
         auto key = args[0].asString().toString();
+
+        if (auto* tag = getPtr(); !tag || !tag->contains(key)) {
+            return Local<Value>();
+        }
 
         Local<Value> res;
         // lse::LegacyScriptEngine::getLogger().info(
@@ -1781,8 +1783,6 @@ Local<Value> NbtCompoundClass::getTag(const Arguments& args) {
             break;
         }
         return res;
-    } catch (const std::out_of_range&) {
-        return Local<Value>();
     }
     CATCH("Fail in NBT GetTag!");
 }

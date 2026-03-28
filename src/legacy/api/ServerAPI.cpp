@@ -20,7 +20,7 @@ Local<Value> McClass::setMotd(const Arguments& args) {
     try {
         return Boolean::newBoolean(ll::setServerMotd(args[0].asString().toString()));
     }
-    CATCH("Fail in SetServerMotd!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::crashBDS(const Arguments&) { return Boolean::newBoolean(false); }
@@ -57,7 +57,7 @@ Local<Value> McClass::setMaxNumPlayers(const Arguments& args) {
 
         return Boolean::newBoolean(result);
     }
-    CATCH("Fail in setMaxPlayers!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getTime(const Arguments& args) {
@@ -99,7 +99,7 @@ Local<Value> McClass::setTime(const Arguments& args) {
         packet.mTime = newTime;
         packet.sendToClients();
     }
-    CATCH("Fail in setTime!")
+    CATCH_AND_THROW
 
     return Boolean::newBoolean(true);
 }
@@ -130,7 +130,7 @@ Local<Value> McClass::setWeather(const Arguments& args) {
         else if (weather == 2) ll::service::getLevel()->updateWeather(1065353216.0, duration, 1065353216.0, duration);
         else ll::service::getLevel()->updateWeather(0.0, duration, 0.0, duration);
     }
-    CATCH("Fail in setWeather!")
+    CATCH_AND_THROW
 
     return Boolean::newBoolean(true);
 }

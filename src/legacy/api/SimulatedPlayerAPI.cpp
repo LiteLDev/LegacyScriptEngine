@@ -58,7 +58,7 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
         if (auto sp = SimulatedPlayer::create(name, spawnPos, dimId)) return PlayerClass::newPlayer(sp);
         else return Local<Value>();
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 }
 
 SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
@@ -76,7 +76,7 @@ Local<Value> PlayerClass::simulateSneak(const Arguments&) {
 
         return Boolean::newBoolean(sp->simulateSneaking());
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
@@ -93,7 +93,7 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
 
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
@@ -144,7 +144,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
 
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
@@ -156,7 +156,7 @@ Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
         sp->setGameTestHelper(nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
@@ -206,7 +206,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
 
         return Boolean::newBoolean(sp->simulateInteract(bpos, face));
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateJump(const Arguments&) {
@@ -215,7 +215,7 @@ Local<Value> PlayerClass::simulateJump(const Arguments&) {
         if (!sp) return Local<Value>();
         return Boolean::newBoolean(sp->simulateJump());
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
@@ -230,7 +230,7 @@ Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
@@ -272,7 +272,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
         sp->simulateLocalMove(target, speed);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
@@ -314,7 +314,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
         sp->simulateWorldMove(target, speed);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
@@ -356,7 +356,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
         sp->simulateMoveToLocation(target, speed, true);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
@@ -406,7 +406,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
         }
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 // void simulateSetBodyRotation(float);
@@ -419,7 +419,7 @@ Local<Value> PlayerClass::simulateSetBodyRotation(const Arguments& args) {
         sp->simulateSetBodyRotation(args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 }
 
 // void simulateWorldMove(class Vec3 const&, float);
@@ -503,7 +503,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 // bool simulateSetItem(class ItemStack&, bool, int);
@@ -558,7 +558,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
                 SimulatedPlayerHelper::simulateUseItemInSlotOnBlock(*sp, slot, bpos, face, relativePos)
             );
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
@@ -568,7 +568,7 @@ Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
         sp->simulateStopDestroyingBlock();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
@@ -578,7 +578,7 @@ Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
         sp->deleteContainerManager();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
@@ -588,7 +588,7 @@ Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
         sp->simulateStopMoving();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
@@ -598,7 +598,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
         sp->simulateStopUsingItem();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 };
 
 Local<Value> PlayerClass::simulateStopSneaking(const Arguments&) {
@@ -608,5 +608,5 @@ Local<Value> PlayerClass::simulateStopSneaking(const Arguments&) {
 
         return Boolean::newBoolean(sp->simulateStopSneaking());
     }
-    CATCH("Fail in " __FUNCTION__ "!")
+    CATCH_AND_THROW
 }

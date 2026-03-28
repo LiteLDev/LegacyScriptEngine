@@ -27,7 +27,7 @@ Local<Value> Log(const Arguments& args) {
         getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in Log!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ColorLog(const Arguments& args) {
@@ -82,7 +82,7 @@ Local<Value> ColorLog(const Arguments& args) {
             prefix = "\x1b[97m";
             break;
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Invalid color!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Invalid color!");
             break;
         }
         std::ostringstream sout;
@@ -92,7 +92,7 @@ Local<Value> ColorLog(const Arguments& args) {
         getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in ColorLog!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> FastLog(const Arguments& args) {
@@ -107,7 +107,7 @@ Local<Value> FastLog(const Arguments& args) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in FastLog!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// APIs ////////////////////
@@ -127,7 +127,7 @@ Local<Value> SetTimeout(const Arguments& args) {
         if (isFunc) return Number::newNumber(NewTimeout(args[0].asFunction(), {}, timeout));
         else return Number::newNumber(NewTimeout(args[0].asString(), timeout));
     }
-    CATCH("Fail in SetTimeout!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SetInterval(const Arguments& args) {
@@ -146,7 +146,7 @@ Local<Value> SetInterval(const Arguments& args) {
         if (isFunc) return Number::newNumber(NewInterval(args[0].asFunction(), {}, timeout));
         else return Number::newNumber(NewInterval(args[0].asString(), timeout));
     }
-    CATCH("Fail in SetInterval!")
+    CATCH_AND_THROW
 }
 
 // ClearInterval
@@ -157,5 +157,5 @@ Local<Value> ClearInterval(const Arguments& args) {
     try {
         return Boolean::newBoolean(ClearTimeTask(args[0].asNumber().toInt32()));
     }
-    CATCH("Fail in ClearInterval!")
+    CATCH_AND_THROW
 }

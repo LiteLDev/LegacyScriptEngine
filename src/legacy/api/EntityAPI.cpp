@@ -200,7 +200,7 @@ Local<Value> EntityClass::getUniqueID() {
         if (!entity) return Local<Value>();
         else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
     }
-    CATCH("Fail in getUniqueID!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getRuntimeID() {
@@ -209,7 +209,7 @@ Local<Value> EntityClass::getRuntimeID() {
         if (!entity) return Local<Value>();
         else return String::newString(std::to_string(entity->getRuntimeID().rawID));
     }
-    CATCH("Fail in getUniqueID!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isInvisible() {
@@ -219,7 +219,7 @@ Local<Value> EntityClass::isInvisible() {
 
         return Boolean::newBoolean(entity->isInvisible());
     }
-    CATCH("Fail in isInvisible!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isInsidePortal() {
@@ -236,7 +236,7 @@ Local<Value> EntityClass::isInsidePortal() {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in isInsidePortal!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isTrusting() {
@@ -248,7 +248,7 @@ Local<Value> EntityClass::isTrusting() {
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Trusting)
         );
     }
-    CATCH("Fail in isTrusting!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isTouchingDamageBlock() {
@@ -258,7 +258,7 @@ Local<Value> EntityClass::isTouchingDamageBlock() {
 
         return Boolean::newBoolean(entity->isTouchingDamageBlock());
     }
-    CATCH("Fail in isTouchingDamageBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isOnFire() {
@@ -268,7 +268,7 @@ Local<Value> EntityClass::isOnFire() {
 
         return Boolean::newBoolean(entity->isOnFire());
     }
-    CATCH("Fail in isOnFire!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isOnGround() {
@@ -278,7 +278,7 @@ Local<Value> EntityClass::isOnGround() {
 
         return Boolean::newBoolean(entity->isOnGround());
     }
-    CATCH("Fail in isOnGround!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isOnHotBlock() {
@@ -288,7 +288,7 @@ Local<Value> EntityClass::isOnHotBlock() {
 
         return Boolean::newBoolean(entity->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
     }
-    CATCH("Fail in isOnHotBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isTrading() {
@@ -298,7 +298,7 @@ Local<Value> EntityClass::isTrading() {
 
         return Boolean::newBoolean(entity->isTrading());
     }
-    CATCH("Fail in isTrading!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isRiding() {
@@ -308,7 +308,7 @@ Local<Value> EntityClass::isRiding() {
 
         return Boolean::newBoolean(entity->isRiding());
     }
-    CATCH("Fail in isRiding!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isDancing() {
@@ -320,7 +320,7 @@ Local<Value> EntityClass::isDancing() {
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Dancing)
         );
     }
-    CATCH("Fail in isDancing!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isSleeping() {
@@ -330,7 +330,7 @@ Local<Value> EntityClass::isSleeping() {
 
         return Boolean::newBoolean(entity->isSleeping());
     }
-    CATCH("Fail in isSleeping!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isAngry() {
@@ -340,7 +340,7 @@ Local<Value> EntityClass::isAngry() {
 
         return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Angry));
     }
-    CATCH("Fail in isAngry!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isBaby() {
@@ -350,7 +350,7 @@ Local<Value> EntityClass::isBaby() {
 
         return Boolean::newBoolean(entity->isBaby());
     }
-    CATCH("Fail in isBaby!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isMoving() {
@@ -362,7 +362,7 @@ Local<Value> EntityClass::isMoving() {
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
         );
     }
-    CATCH("Fail in isMoving!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getName() {
@@ -372,7 +372,7 @@ Local<Value> EntityClass::getName() {
 
         return String::newString(CommandUtils::getActorName(*entity));
     }
-    CATCH("Fail in getEntityName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getType() {
@@ -382,7 +382,7 @@ Local<Value> EntityClass::getType() {
 
         return String::newString(entity->getTypeName());
     }
-    CATCH("Fail in getEntityType!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getId() {
@@ -392,7 +392,7 @@ Local<Value> EntityClass::getId() {
 
         return Number::newNumber(enum_integer(entity->getEntityTypeId()));
     }
-    CATCH("Fail in getEntityId!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getPos() {
@@ -402,7 +402,7 @@ Local<Value> EntityClass::getPos() {
 
         return FloatPos::newPos(entity->getPosition(), entity->getDimensionId().id);
     }
-    CATCH("Fail in GetEntityPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getPosDelta() {
@@ -412,7 +412,7 @@ Local<Value> EntityClass::getPosDelta() {
 
         return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId().id);
     }
-    CATCH("Fail in GetEntityPosDelta!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::setPosDelta(const Arguments& args) {
@@ -440,7 +440,7 @@ Local<Value> EntityClass::setPosDelta(const Arguments& args) {
 
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in GetEntityPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getFeetPos() {
@@ -450,7 +450,7 @@ Local<Value> EntityClass::getFeetPos() {
 
         return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId().id);
     }
-    CATCH("Fail in GetEntityFeetPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getBlockPos() {
@@ -460,7 +460,7 @@ Local<Value> EntityClass::getBlockPos() {
 
         return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId().id);
     }
-    CATCH("Fail in GetEntityBlockPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getMaxHealth() {
@@ -470,7 +470,7 @@ Local<Value> EntityClass::getMaxHealth() {
 
         return Number::newNumber(entity->getMaxHealth());
     }
-    CATCH("Fail in GetMaxHealth!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getHealth() {
@@ -480,7 +480,7 @@ Local<Value> EntityClass::getHealth() {
 
         return Number::newNumber(entity->getHealth());
     }
-    CATCH("Fail in GetHealth!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getCanFly() {
@@ -490,7 +490,7 @@ Local<Value> EntityClass::getCanFly() {
 
         return Boolean::newBoolean(entity->canFly());
     }
-    CATCH("Fail in getCanFly!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getCanFreeze() {
@@ -500,7 +500,7 @@ Local<Value> EntityClass::getCanFreeze() {
 
         return Boolean::newBoolean(entity->canFreeze());
     }
-    CATCH("Fail in getCanFreeze!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getCanSeeDaylight() {
@@ -510,7 +510,7 @@ Local<Value> EntityClass::getCanSeeDaylight() {
 
         return Boolean::newBoolean(entity->canSeeDaylight());
     }
-    CATCH("Fail in getCanSeeDaylight!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getCanPickupItems() {
@@ -520,7 +520,7 @@ Local<Value> EntityClass::getCanPickupItems() {
 
         return Boolean::newBoolean(entity->mCanPickupItems);
     }
-    CATCH("Fail in getCanPickupItems!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInAir() {
@@ -530,7 +530,7 @@ Local<Value> EntityClass::getInAir() {
 
         return Boolean::newBoolean(!entity->isOnGround() && !entity->isInWater());
     }
-    CATCH("Fail in getInAir!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInWater() {
@@ -540,7 +540,7 @@ Local<Value> EntityClass::getInWater() {
 
         return Boolean::newBoolean(entity->isInWater());
     }
-    CATCH("Fail in getInWater!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInClouds() {
@@ -552,7 +552,7 @@ Local<Value> EntityClass::getInClouds() {
         float y           = entity->getPosition().y;
         return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
-    CATCH("Fail in getInClouds!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInLava() {
@@ -564,7 +564,7 @@ Local<Value> EntityClass::getInLava() {
             ActorMobilityUtils::shouldApplyLava(entity->getDimensionBlockSourceConst(), entity->getEntityContext())
         );
     }
-    CATCH("Fail in getInLava!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInRain() {
@@ -574,7 +574,7 @@ Local<Value> EntityClass::getInRain() {
 
         return Boolean::newBoolean(entity->isInRain());
     }
-    CATCH("Fail in getInRain!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInSnow() {
@@ -584,7 +584,7 @@ Local<Value> EntityClass::getInSnow() {
 
         return Boolean::newBoolean(entity->isInSnow());
     }
-    CATCH("Fail in getInSnow!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInWall() {
@@ -598,7 +598,7 @@ Local<Value> EntityClass::getInWall() {
             entity->getAttachPos(SharedTypes::Legacy::ActorLocation::BreathingPoint)
         ));
     }
-    CATCH("Fail in getInWall!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInWaterOrRain() {
@@ -608,7 +608,7 @@ Local<Value> EntityClass::getInWaterOrRain() {
 
         return Boolean::newBoolean(entity->isInWaterOrRain());
     }
-    CATCH("Fail in getInWaterOrRain!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getInWorld() {
@@ -618,7 +618,7 @@ Local<Value> EntityClass::getInWorld() {
 
         return Boolean::newBoolean(entity->isInWorld());
     }
-    CATCH("Fail in getInWorld!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getSpeed() {
@@ -628,7 +628,7 @@ Local<Value> EntityClass::getSpeed() {
 
         return Number::newNumber(entity->getPosDeltaPerSecLength());
     }
-    CATCH("Fail in getSpeed!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getDirection() {
@@ -640,7 +640,7 @@ Local<Value> EntityClass::getDirection() {
         Vec2 vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
-    CATCH("Fail in getDirection!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::teleport(const Arguments& args) {
@@ -704,7 +704,7 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
         entity->teleport(pos.getVec3(), pos.dim, ang);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in TeleportEntity!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::distanceTo(const Arguments& args) {
@@ -765,7 +765,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
 
         return Number::newNumber(actor->getPosition().distanceTo(pos.getVec3()));
     }
-    CATCH("Fail in distanceTo!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
@@ -826,7 +826,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
 
         return Number::newNumber(actor->getPosition().distanceToSqr(pos.getVec3()));
     }
-    CATCH("Fail in distanceToSqr!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::kill(const Arguments&) {
@@ -837,7 +837,7 @@ Local<Value> EntityClass::kill(const Arguments&) {
         entity->kill();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in killEntity!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::despawn(const Arguments&) {
@@ -848,7 +848,7 @@ Local<Value> EntityClass::despawn(const Arguments&) {
         entity->despawn();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in despawnEntity!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::remove(const Arguments&) {
@@ -859,7 +859,7 @@ Local<Value> EntityClass::remove(const Arguments&) {
         entity->remove();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeEntity!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::isPlayer(const Arguments&) {
@@ -869,7 +869,7 @@ Local<Value> EntityClass::isPlayer(const Arguments&) {
 
         return Boolean::newBoolean(entity->isType(ActorType::Player));
     }
-    CATCH("Fail in isPlayer!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::toPlayer(const Arguments&) {
@@ -879,7 +879,7 @@ Local<Value> EntityClass::toPlayer(const Arguments&) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in toPlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::isItemEntity(const Arguments&) {
@@ -889,7 +889,7 @@ Local<Value> EntityClass::isItemEntity(const Arguments&) {
 
         return Boolean::newBoolean(entity->hasCategory(ActorCategory::Item));
     }
-    CATCH("Fail in isItemEntity!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::toItem(const Arguments&) {
@@ -901,7 +901,7 @@ Local<Value> EntityClass::toItem(const Arguments&) {
             return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
         }
     }
-    CATCH("Fail in toItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
@@ -911,7 +911,7 @@ Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
 
         return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId().id);
     }
-    CATCH("Fail in getBlockStandingOn!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getArmor(const Arguments&) {
@@ -921,7 +921,7 @@ Local<Value> EntityClass::getArmor(const Arguments&) {
 
         return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(entity->getEntityContext()));
     }
-    CATCH("Fail in getArmor!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::refreshItems(const Arguments&) {
@@ -932,7 +932,7 @@ Local<Value> EntityClass::refreshItems(const Arguments&) {
         static_cast<Mob*>(entity)->refreshInventory();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in refreshItems!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::hasContainer(const Arguments&) {
@@ -943,7 +943,7 @@ Local<Value> EntityClass::hasContainer(const Arguments&) {
         Vec3 pos = entity->getPosition();
         return Boolean::newBoolean(entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos)) ? true : false);
     }
-    CATCH("Fail in hasContainer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getContainer(const Arguments&) {
@@ -955,7 +955,7 @@ Local<Value> EntityClass::getContainer(const Arguments&) {
         Container* container = entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos));
         return container ? ContainerClass::newContainer(container) : Local<Value>();
     }
-    CATCH("Fail in getContainer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::hurt(const Arguments& args) {
@@ -985,7 +985,7 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
         damageSource.mCause = (SharedTypes::Legacy::ActorDamageCause)type;
         return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
-    CATCH("Fail in hurt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::heal(const Arguments& args) {
@@ -998,7 +998,7 @@ Local<Value> EntityClass::heal(const Arguments& args) {
         entity->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in heal!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setHealth(const Arguments& args) {
@@ -1020,7 +1020,7 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setHealth!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setAbsorption(const Arguments& args) {
@@ -1042,7 +1042,7 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setAbsorptionAttribute!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
@@ -1064,7 +1064,7 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setAttackDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
@@ -1086,7 +1086,7 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMaxAttackDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setFollowRange(const Arguments& args) {
@@ -1108,7 +1108,7 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setFollowRange!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
@@ -1130,7 +1130,7 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setKnockbackResistance!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setLuck(const Arguments& args) {
@@ -1152,7 +1152,7 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setLuck!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
@@ -1174,7 +1174,7 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
@@ -1196,7 +1196,7 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setUnderwaterMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
@@ -1218,7 +1218,7 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setLavaMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
@@ -1240,7 +1240,7 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMaxHealth!");
+    CATCH_AND_THROW;
 }
 
 // For Compatibility
@@ -1256,7 +1256,7 @@ Local<Value> EntityClass::setOnFire(const Arguments& args) {
         entity->setOnFire(time, true);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setOnFire!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::setFire(const Arguments& args) {
@@ -1274,7 +1274,7 @@ Local<Value> EntityClass::setFire(const Arguments& args) {
         entity->setOnFire(time, isEffect);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setFire!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::stopFire(const Arguments&) {
@@ -1285,7 +1285,7 @@ Local<Value> EntityClass::stopFire(const Arguments&) {
         entity->stopFire();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in stopFire!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::setScale(const Arguments& args) {
@@ -1299,7 +1299,7 @@ Local<Value> EntityClass::setScale(const Arguments& args) {
         SynchedActorDataAccess::setBoundingBoxScale(entity->getEntityContext(), args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setScale!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::getNbt(const Arguments&) {
@@ -1311,7 +1311,7 @@ Local<Value> EntityClass::getNbt(const Arguments&) {
         entity->save(*tag);
         return NbtCompoundClass::pack(std::move(tag));
     }
-    CATCH("Fail in getNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::setNbt(const Arguments& args) {
@@ -1329,7 +1329,7 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
 
         return Boolean::newBoolean(entity->load(*nbt, MoreGlobal::defaultDataLoadHelper()));
     }
-    CATCH("Fail in setNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::addTag(const Arguments& args) {
@@ -1342,7 +1342,7 @@ Local<Value> EntityClass::addTag(const Arguments& args) {
 
         return Boolean::newBoolean(entity->addTag(args[0].asString().toString()));
     }
-    CATCH("Fail in addTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::removeTag(const Arguments& args) {
@@ -1355,7 +1355,7 @@ Local<Value> EntityClass::removeTag(const Arguments& args) {
 
         return Boolean::newBoolean(entity->removeTag(args[0].asString().toString()));
     }
-    CATCH("Fail in removeTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::hasTag(const Arguments& args) {
@@ -1368,7 +1368,7 @@ Local<Value> EntityClass::hasTag(const Arguments& args) {
 
         return Boolean::newBoolean(entity->hasTag(args[0].asString().toString()));
     }
-    CATCH("Fail in hasTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getAllTags(const Arguments&) {
@@ -1386,7 +1386,7 @@ Local<Value> EntityClass::getAllTags(const Arguments&) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getAllTags!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getEntityFromViewVector(const Arguments& args) {
@@ -1406,7 +1406,7 @@ Local<Value> EntityClass::getEntityFromViewVector(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getEntityFromViewVector!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
@@ -1466,7 +1466,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());
     }
-    CATCH("Fail in getBlockFromViewVector!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::quickEvalMolangScript(const Arguments& args) {
@@ -1477,7 +1477,7 @@ Local<Value> EntityClass::quickEvalMolangScript(const Arguments& args) {
         if (!actor) return Local<Value>();
         return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
-    CATCH("Fail in quickEvalMolangScript!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getBiomeId() {
@@ -1487,7 +1487,7 @@ Local<Value> EntityClass::getBiomeId() {
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return Number::newNumber(bio.mId->mValue);
     }
-    CATCH("Fail in getBiomeId!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getBiomeName() {
@@ -1497,7 +1497,7 @@ Local<Value> EntityClass::getBiomeName() {
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return String::newString(bio.mHash->getString());
     }
-    CATCH("Fail in getBiomeName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::getAllEffects() {
@@ -1512,7 +1512,7 @@ Local<Value> EntityClass::getAllEffects() {
         }
         return effectList;
     }
-    CATCH("Fail in getAllEffects!")
+    CATCH_AND_THROW
 }
 
 Local<Value> EntityClass::addEffect(const Arguments& args) {
@@ -1537,7 +1537,7 @@ Local<Value> EntityClass::addEffect(const Arguments& args) {
         actor->addEffect(effect);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addEffect!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> EntityClass::removeEffect(const Arguments& args) {
@@ -1552,7 +1552,7 @@ Local<Value> EntityClass::removeEffect(const Arguments& args) {
         actor->removeEffect(id);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeEffect!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::getAllEntities(const Arguments&) {
@@ -1566,7 +1566,7 @@ Local<Value> McClass::getAllEntities(const Arguments&) {
         }
         return arr;
     }
-    CATCH("Fail in GetAllEntities");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::getEntities(const Arguments& args) {
@@ -1595,7 +1595,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // IntPos
                     IntPos* posObj = IntPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                         return Local<Value>();
                     }
                     aabb.max = Vec3(posObj->x, posObj->y, posObj->z) + 1;
@@ -1605,7 +1605,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // FloatPos
                     FloatPos* posObj = FloatPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                         return Local<Value>();
                     }
                     aabb.max = posObj->getVec3();
@@ -1637,7 +1637,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
         if (!dimension.lock()) {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
             return Local<Value>();
         }
         BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
@@ -1647,7 +1647,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         }
         return arr;
     }
-    CATCH("Fail in getEntities");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::getEntity(const Arguments& args) {
@@ -1665,7 +1665,7 @@ Local<Value> McClass::getEntity(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getEntity");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::cloneMob(const Arguments& args) {
@@ -1725,7 +1725,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
         if (!entity) return Local<Value>(); // Null
         else return EntityClass::newEntity(entity);
     }
-    CATCH("Fail in CloneMob!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::spawnMob(const Arguments& args) {
@@ -1783,7 +1783,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
         if (!entity) return Local<Value>(); // Null
         else return EntityClass::newEntity(entity);
     }
-    CATCH("Fail in SpawnMob!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::explode(const Arguments& args) {
@@ -1883,5 +1883,5 @@ Local<Value> McClass::explode(const Arguments& args) {
             );
         }
     }
-    CATCH("Fail in Explode!");
+    CATCH_AND_THROW;
 }

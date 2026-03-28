@@ -52,21 +52,21 @@ Local<Value> BlockEntityClass::getPos() {
     try {
         return IntPos::newPos(blockEntity->mPosition, dim);
     }
-    CATCH("Fail in getBlockEntityPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getName() {
     try {
         return String::newString(blockEntity->getName());
     }
-    CATCH("Fail in getName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getType() {
     try {
         return Number::newNumber((int)blockEntity->mType);
     }
-    CATCH("Fail in getBlockEntityType!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getNbt(const Arguments&) {
@@ -75,7 +75,7 @@ Local<Value> BlockEntityClass::getNbt(const Arguments&) {
         blockEntity->save(*tag, *SaveContextFactory::createCloneSaveContext());
         return NbtCompoundClass::pack(std::move(tag)); // Not sure is that will get right value
     }
-    CATCH("Fail in getNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
@@ -90,7 +90,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
         blockEntity->load(*ll::service::getLevel(), *nbt, MoreGlobal::defaultDataLoadHelper());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getBlock(const Arguments&) {
@@ -100,5 +100,5 @@ Local<Value> BlockEntityClass::getBlock(const Arguments&) {
             ll::service::getLevel()->getDimension(dim).lock()->getBlockSourceFromMainChunkSource().getBlock(blockPos);
         return BlockClass::newBlock(block, blockPos, dim);
     }
-    CATCH("Fail in getBlock!")
+    CATCH_AND_THROW
 }

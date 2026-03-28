@@ -34,7 +34,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
         IntPos* pos1 = IntPos::extractPos(args[0]);
         IntPos* pos2 = IntPos::extractPos(args[1]);
         if (pos1->getDimensionId() != pos2->getDimensionId()) {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
             return Local<Value>();
         }
 
@@ -48,7 +48,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
 
         return NbtCompoundClass::pack(structure->save());
     }
-    CATCH("Fail in getStructure!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::setStructure(const Arguments& args) {
@@ -90,5 +90,5 @@ Local<Value> McClass::setStructure(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setStructure!");
+    CATCH_AND_THROW;
 }

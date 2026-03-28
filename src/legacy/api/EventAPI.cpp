@@ -90,7 +90,7 @@ Local<Value> McClass::listen(const Arguments& args) {
         auto listener  = LLSEAddEventListener(EngineScope::currentEngine(), eventName, args[1].asFunction());
         return Boolean::newBoolean(listener.has_value());
     }
-    CATCH("Fail to Bind Listener!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// Funcs ////////////////////

@@ -139,7 +139,7 @@ Local<Value> BlockClass::getName() {
         // preloaded
         return String::newString(name);
     }
-    CATCH("Fail in getBlockName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getType() {
@@ -147,7 +147,7 @@ Local<Value> BlockClass::getType() {
         // preloaded
         return String::newString(type);
     }
-    CATCH("Fail in getBlockType!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getId() {
@@ -155,7 +155,7 @@ Local<Value> BlockClass::getId() {
         // preloaded
         return Number::newNumber(id);
     }
-    CATCH("Fail in getBlockId!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getPos() {
@@ -163,119 +163,119 @@ Local<Value> BlockClass::getPos() {
         // preloaded
         return IntPos::newPos(blockPos);
     }
-    CATCH("Fail in getBlockPos!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getTileData() {
     try {
         return Number::newNumber(block->getBlockType().getVariant(*block));
     }
-    CATCH("Fail in getTileData!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getVariant() {
     try {
         return Number::newNumber(block->getBlockType().getVariant(*block));
     }
-    CATCH("Fail in getVariant!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getTranslucency() {
     try {
         return Number::newNumber(block->getBlockType().mTranslucency);
     }
-    CATCH("Fail in getTranslucency!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getThickness() {
     try {
         return Number::newNumber(block->getBlockType().mThickness);
     }
-    CATCH("Fail in getThickness!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isAir() {
     try {
         return Boolean::newBoolean(block->isAir());
     }
-    CATCH("Fail in isAir!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isBounceBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isBounceBlock());
     }
-    CATCH("Fail in isBounceBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isButtonBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isButtonBlock());
     }
-    CATCH("Fail in isButtonBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isCropBlock() {
     try {
         return Boolean::newBoolean(block->hasTag(VanillaBlockTags::Crop()));
     }
-    CATCH("Fail in isCropBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isDoorBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isDoorBlock());
     }
-    CATCH("Fail in isDoorBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isFenceBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isFenceBlock());
     }
-    CATCH("Fail in isFenceBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isFenceGateBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isFenceGateBlock());
     }
-    CATCH("Fail in isFenceGateBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isThinFenceBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isThinFenceBlock());
     }
-    CATCH("Fail in isThinFenceBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isHeavyBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().mFalling);
     }
-    CATCH("Fail in isHeavyBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isStemBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isStemBlock());
     }
-    CATCH("Fail in isStemBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isSlabBlock() {
     try {
         return Boolean::newBoolean(block->getBlockType().isSlabBlock());
     }
-    CATCH("Fail in isSlabBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isUnbreakable() {
     try {
         return Boolean::newBoolean(block->mDirectData->mDestroySpeed < 0.0f);
     }
-    CATCH("Fail in isUnbreakable!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::isWaterBlockingBlock() {
@@ -284,7 +284,7 @@ Local<Value> BlockClass::isWaterBlockingBlock() {
             block->mDirectData->mWaterDetectionRule->mOnLiquidTouches == LiquidReaction::Blocking
         );
     }
-    CATCH("Fail in isWaterBlockingBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::destroyBlock(const Arguments& args) {
@@ -301,14 +301,14 @@ Local<Value> BlockClass::destroyBlock(const Arguments& args) {
                 ->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value(), BlockChangeContext(false))
         );
     }
-    CATCH("Fail in destroyBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(block->mSerializationId->clone());
     }
-    CATCH("Fail in getNbt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::setNbt(const Arguments& args) {
@@ -331,7 +331,7 @@ Local<Value> BlockClass::setNbt(const Arguments& args) {
         preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockClass::getBlockState(const Arguments&) {
@@ -345,7 +345,7 @@ Local<Value> BlockClass::getBlockState(const Arguments&) {
     } catch (const std::out_of_range&) {
         return Object::newObject();
     }
-    CATCH("Fail in getBlockState!")
+    CATCH_AND_THROW
 }
 
 Local<Value> BlockClass::hasContainer(const Arguments&) {
@@ -357,7 +357,7 @@ Local<Value> BlockClass::hasContainer(const Arguments&) {
                        .getBlock(blockPos.getBlockPos());
         return Boolean::newBoolean(bl.getBlockType().isContainerBlock());
     }
-    CATCH("Fail in hasContainer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getContainer(const Arguments&) {
@@ -370,14 +370,14 @@ Local<Value> BlockClass::getContainer(const Arguments&) {
                                    ->getContainer();
         return container ? ContainerClass::newContainer(container) : Local<Value>();
     }
-    CATCH("Fail in getContainer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::hasBlockEntity(const Arguments&) {
     try {
         return Boolean::newBoolean(block->getBlockType().mBlockEntityType != BlockActorType::Undefined);
     }
-    CATCH("Fail in hasBlockEntity!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::getBlockEntity(const Arguments&) {
@@ -389,7 +389,7 @@ Local<Value> BlockClass::getBlockEntity(const Arguments&) {
                              .getBlockEntity(blockPos.getBlockPos());
         return be ? BlockEntityClass::newBlockEntity(be, blockPos.dim) : Local<Value>();
     }
-    CATCH("Fail in getBlockEntity!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
@@ -403,7 +403,7 @@ Local<Value> BlockClass::removeBlockEntity(const Arguments&) {
             != nullptr
         );
     }
-    CATCH("Fail in removeBlockEntity!");
+    CATCH_AND_THROW;
 }
 
 // public API
@@ -469,7 +469,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
         );
         return BlockClass::newBlock(block, pos.getBlockPos(), pos.dim);
     }
-    CATCH("Fail in GetBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::setBlock(const Arguments& args) {
@@ -562,7 +562,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
             );
         }
     }
-    CATCH("Fail in SetBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::spawnParticle(const Arguments& args) {
@@ -621,5 +621,5 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in SpawnParticle!")
+    CATCH_AND_THROW
 }

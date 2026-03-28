@@ -221,7 +221,7 @@ bool LLSEExportFunc(
             }
             return pack(scriptCallback.call({}, scriptParams));
         }
-        CATCH_WITHOUT_RETURN("Fail in Remote Call");
+        CATCH("Fail in Remote Call");
         return "";
     };
     if (RemoteCall::exportFunc(nameSpace, funcName, std::move(cb))) {
@@ -268,7 +268,7 @@ Local<Value> LlClass::exportFunc(const Arguments& args) {
             LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), nameSpace, funcName)
         );
     }
-    CATCH("Fail in LLSEExport!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::importFunc(const Arguments& args) {
@@ -292,7 +292,7 @@ Local<Value> LlClass::importFunc(const Arguments& args) {
             return MakeRemoteCall(nameSpace, funcName, args);
         });
     }
-    CATCH("Fail in LLSEImport!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::hasFuncExported(const Arguments& args) {
@@ -314,5 +314,5 @@ Local<Value> LlClass::hasFuncExported(const Arguments& args) {
         // 远程调用
         return Boolean::newBoolean(RemoteCall::hasFunc(nameSpace, funcName));
     }
-    CATCH("Fail in LLSEHasExported!")
+    CATCH_AND_THROW
 }

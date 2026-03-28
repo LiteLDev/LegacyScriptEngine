@@ -189,7 +189,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     try {
         return Boolean::newBoolean(ll::service::getMinecraft()->mCommands->executeCommand(context, false).mSuccess);
     }
-    CATCH("Fail in RunCmd!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::runcmdEx(const Arguments& args) {
@@ -228,7 +228,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         resObj.set("output", outputStr);
         return resObj;
     }
-    CATCH("Fail in RunCmdEx!")
+    CATCH_AND_THROW
 }
 
 // name, description, permission, flag, alias
@@ -282,7 +282,7 @@ Local<Value> McClass::newCommand(const Arguments& args) {
         }
         return CommandClass::newCommand(name);
     }
-    CATCH("Fail in newCommand!")
+    CATCH_AND_THROW
 }
 
 //////////////////// Command APIs ////////////////////
@@ -300,7 +300,7 @@ Local<Value> CommandClass::getName() {
     try {
         return String::newString(commandName);
     }
-    CATCH("Fail in getCommandName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::setAlias(const Arguments& args) {
@@ -319,7 +319,7 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setAlias!")
+    CATCH_AND_THROW
 }
 
 // string, vector<string>
@@ -348,7 +348,7 @@ Local<Value> CommandClass::setEnum(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in setEnum!")
+    CATCH_AND_THROW
 }
 
 void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& runtime) {
@@ -399,7 +399,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
         output.mSuccessCount = outp->output->mSuccessCount;
         outp->isAsync        = true;
     }
-    CATCH_WITHOUT_RETURN("Fail in executing command \"" + commandName + "\"!")
+    CATCH_WITH_MESSAGE("Fail in executing command \"" + commandName + "\"!")
 }
 
 // name, type, optional, description, identifier, option
@@ -430,7 +430,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
 
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in newParameter!")
+    CATCH_AND_THROW
 }
 
 // name, type, description, identifier, option
@@ -457,7 +457,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
 
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in newParameter!")
+    CATCH_AND_THROW
 }
 
 // name, type, description, identifier, option
@@ -484,7 +484,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in newParameter!")
+    CATCH_AND_THROW
 }
 
 // vector<identifier>
@@ -645,7 +645,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
         }
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
-    CATCH("Fail in addOverload!")
+    CATCH_AND_THROW
 }
 
 // function (command, origin, output, results){}
@@ -658,7 +658,7 @@ Local<Value> CommandClass::setCallback(const Arguments& args) {
             ->commandCallbacks[commandName] = {EngineScope::currentEngine(), 0, script::Global<Function>(func)};
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setCallback!")
+    CATCH_AND_THROW
 }
 
 // setup(Function<Command, Origin, Output, Map<String, Any>>)
@@ -669,7 +669,7 @@ Local<Value> CommandClass::setup(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setup!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::isRegistered() { return Boolean::newBoolean(true); }
@@ -678,7 +678,7 @@ Local<Value> CommandClass::toString(const Arguments&) {
     try {
         return String::newString(fmt::format("<Command({})>", commandName));
     }
-    CATCH("Fail in toString!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
@@ -698,7 +698,7 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setSoftEnum!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
@@ -718,7 +718,7 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addSoftEnumValues!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
@@ -738,7 +738,7 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeSoftEnumValues!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
@@ -755,7 +755,7 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in getSoftEnumValues");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
@@ -769,5 +769,5 @@ Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
         }
         return getStringArray(names);
     }
-    CATCH("Fail in getSoftEnumNames");
+    CATCH_AND_THROW;
 }

@@ -114,7 +114,7 @@ Local<Value> ItemClass::getName() {
         // 已预加载
         return String::newString(name);
     }
-    CATCH("Fail in GetItemName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getType() {
@@ -122,7 +122,7 @@ Local<Value> ItemClass::getType() {
         // 已预加载
         return String::newString(type);
     }
-    CATCH("Fail in GetType!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getId() {
@@ -130,7 +130,7 @@ Local<Value> ItemClass::getId() {
         // 已预加载
         return Number::newNumber(id);
     }
-    CATCH("Fail in GetType!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getCount() {
@@ -138,7 +138,7 @@ Local<Value> ItemClass::getCount() {
         // 已预加载
         return Number::newNumber(count);
     }
-    CATCH("Fail in GetCount!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getMaxCount() {
@@ -146,7 +146,7 @@ Local<Value> ItemClass::getMaxCount() {
         // 已预加载
         return Number::newNumber(maxCount);
     }
-    CATCH("Fail in GetMaxCount!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getAux() {
@@ -154,14 +154,14 @@ Local<Value> ItemClass::getAux() {
         // 已预加载
         return Number::newNumber(aux);
     }
-    CATCH("Fail in GetAux!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getDamage() {
     try {
         return Number::newNumber(get()->getDamageValue());
     }
-    CATCH("Fail in GetDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getAttackDamage() {
@@ -173,21 +173,21 @@ Local<Value> ItemClass::getAttackDamage() {
             return Number::newNumber(0);
         }
     }
-    CATCH("Fail in GetAttackDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getMaxDamage() {
     try {
         return Number::newNumber(get()->getMaxDamage());
     }
-    CATCH("Fail in GetMaxDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getMaxStackSize() {
     try {
         return Number::newNumber(get()->getMaxStackSize());
     }
-    CATCH("Fail in GetMaxStackSize!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getLore() {
@@ -202,49 +202,49 @@ Local<Value> ItemClass::getLore() {
 
         return loreValueList;
     }
-    CATCH("Fail in GetLore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isArmorItem() {
     try {
         return Boolean::newBoolean(get()->isArmorItem());
     }
-    CATCH("Fail in isArmorItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isBlock() {
     try {
         return Boolean::newBoolean(get()->isBlock());
     }
-    CATCH("Fail in isBlock!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isDamageableItem() {
     try {
         return Boolean::newBoolean(get()->isDamageableItem());
     }
-    CATCH("Fail in isDamageableItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isDamaged() {
     try {
         return Boolean::newBoolean(get()->getDamageValue() > 0);
     }
-    CATCH("Fail in isDamaged!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isEnchanted() {
     try {
         return Boolean::newBoolean(get()->isEnchanted());
     }
-    CATCH("Fail in isEnchanted!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isEnchantingBook() {
     try {
         return Boolean::newBoolean(get()->isEnchantingBook());
     }
-    CATCH("Fail in isEnchantingBook!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isFireResistant() {
@@ -256,28 +256,28 @@ Local<Value> ItemClass::isFireResistant() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isFireResistant!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isFullStack() {
     try {
         return Boolean::newBoolean(get()->mCount >= get()->getMaxStackSize());
     }
-    CATCH("Fail in isFullStack!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isGlint() {
     try {
         return Boolean::newBoolean(get()->mItem->mIsGlint);
     }
-    CATCH("Fail in isGlint!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isHorseArmorItem() {
     try {
         return Boolean::newBoolean(get()->isHorseArmorItem());
     }
-    CATCH("Fail in isHorseArmorItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isLiquidClipItem() {
@@ -289,14 +289,14 @@ Local<Value> ItemClass::isLiquidClipItem() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isLiquidClipItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isMusicDiscItem() {
     try {
         return Boolean::newBoolean(get()->getItem()->isMusicDisk());
     }
-    CATCH("Fail in isMusicDiscItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isOffhandItem() {
@@ -308,14 +308,14 @@ Local<Value> ItemClass::isOffhandItem() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isOffhandItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isPotionItem() {
     try {
         return Boolean::newBoolean(get()->isPotionItem());
     }
-    CATCH("Fail in isPotionItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isStackable() {
@@ -325,7 +325,7 @@ Local<Value> ItemClass::isStackable() {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in isStackable!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isWearableItem() {
@@ -336,7 +336,7 @@ Local<Value> ItemClass::isWearableItem() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isWearableItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::set(const Arguments& args) {
@@ -354,7 +354,7 @@ Local<Value> ItemClass::set(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in set!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::clone(const Arguments&) {
@@ -363,14 +363,14 @@ Local<Value> ItemClass::clone(const Arguments&) {
         if (!itemStack) return Local<Value>();
         return ItemClass::newItem(std::make_unique<ItemStack>(*itemStack));
     }
-    CATCH("Fail in cloneItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::isNull(const Arguments&) {
     try {
         return Boolean::newBoolean(get()->isNull());
     }
-    CATCH("Fail in isNull!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setNull(const Arguments&) {
@@ -378,7 +378,7 @@ Local<Value> ItemClass::setNull(const Arguments&) {
         get()->setNull({});
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setNull!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setAux(const Arguments& args) {
@@ -389,7 +389,7 @@ Local<Value> ItemClass::setAux(const Arguments& args) {
         get()->mAuxValue = args[0].asNumber().toInt32();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setAux!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setLore(const Arguments& args) {
@@ -408,7 +408,7 @@ Local<Value> ItemClass::setLore(const Arguments& args) {
         get()->setCustomLore(lores);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in SetLore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setDisplayName(const Arguments& args) {
@@ -421,7 +421,7 @@ Local<Value> ItemClass::setDisplayName(const Arguments& args) {
         get()->setCustomName(redactableString);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setDisplayName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setDamage(const Arguments& args) {
@@ -436,14 +436,14 @@ Local<Value> ItemClass::setDamage(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in setDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(get()->save(*SaveContextFactory::createCloneSaveContext()));
     }
-    CATCH("Fail in getNbt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::setNbt(const Arguments& args) {
@@ -457,7 +457,7 @@ Local<Value> ItemClass::setNbt(const Arguments& args) {
         preloadData();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setNbt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::newItem(const Arguments& args) {
@@ -486,7 +486,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
             }
         }
     }
-    CATCH("Fail in NewItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::spawnItem(const Arguments& args) {
@@ -545,7 +545,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
-    CATCH("Fail in SpawnItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ItemClass::match(const Arguments& args) {
@@ -561,5 +561,5 @@ Local<Value> ItemClass::match(const Arguments& args) {
 
         return Boolean::newBoolean(get()->matchesItem(itemNew));
     }
-    CATCH("Fail in MatchItem!");
+    CATCH_AND_THROW;
 }

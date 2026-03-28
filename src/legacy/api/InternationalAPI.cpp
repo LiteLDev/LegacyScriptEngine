@@ -1,4 +1,3 @@
-#define NEW_DEFINES
 #include "api/InternationalAPI.h"
 
 #include "ll/api/i18n/I18n.h"
@@ -101,8 +100,8 @@ ClassDefine<void> I18nClassBuilder = defineClass<void>("i18n")
                                          .build();
 
 Local<Value> I18nClass::tr(const Arguments& args) {
-    CHECK_ARGS_LEAST_COUNT(1); // At least 1
-    CHECK_ARG_TYPE(0, kString);
+    CHECK_ARGS_COUNT(args, 1); // At least 1
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return TrFormat(args, 1ULL, args[0].asString().toString());
@@ -111,9 +110,9 @@ Local<Value> I18nClass::tr(const Arguments& args) {
 }
 
 Local<Value> I18nClass::trl(const Arguments& args) {
-    CHECK_ARGS_LEAST_COUNT(2);
-    CHECK_ARG_TYPE(0, kString);
-    CHECK_ARG_TYPE(1, kString);
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
         return TrFormat(args, 2ULL, args[1].asString().toString(), args[0].asString().toString());
@@ -122,12 +121,10 @@ Local<Value> I18nClass::trl(const Arguments& args) {
 }
 
 Local<Value> I18nClass::get(const Arguments& args) {
-    CHECK_ARGS_LEAST_COUNT(1);
-    CHECK_ARG_TYPE(0, kString);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() == 2) {
-        CHECK_ARG_TYPE(1, kString);
-    } else {
-        CHECK_ARGS_COUNT(1);
+        CHECK_ARG_TYPE(args[1], ValueKind::kString);
     }
 
     try {
@@ -142,13 +139,13 @@ Local<Value> I18nClass::get(const Arguments& args) {
 }
 
 Local<Value> I18nClass::load(const Arguments& args) {
-    CHECK_ARGS_LEAST_COUNT(1);
-    CHECK_ARG_TYPE(0, kString);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() > 1) {
-        CHECK_ARG_TYPE(1, kString);
+        CHECK_ARG_TYPE(args[1], ValueKind::kString);
     }
     if (args.size() > 2) {
-        CHECK_ARG_TYPE(2, kObject);
+        CHECK_ARG_TYPE(args[2], ValueKind::kObject);
     }
 
     try {

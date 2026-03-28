@@ -95,7 +95,7 @@ Local<Value> IntPos::toString() {
     try {
         return String::newString(fmt::format("{}({}, {}, {})", DimId2Name(dim), x, y, z));
     }
-    CATCH("Fail in toString!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// FloatPos ////////////////////
@@ -151,7 +151,7 @@ Local<Value> FloatPos::toString() {
     try {
         return String::newString(fmt::format("{}({}, {}, {})", DimId2Name(dim), x, y, z));
     }
-    CATCH("Fail in toString!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// DirectionAngle ////////////////////
@@ -178,7 +178,7 @@ Local<Value> DirectionAngle::toString() {
     try {
         return String::newString(fmt::format("({}, {})", pitch, yaw));
     }
-    CATCH("Fail in toString");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DirectionAngle::toFacing() {
@@ -214,7 +214,7 @@ Local<Value> McClass::newIntPos(const Arguments& args) {
             args[3].asNumber().toInt32()
         );
     }
-    CATCH("Fail in NewIntPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::newFloatPos(const Arguments& args) {
@@ -232,19 +232,19 @@ Local<Value> McClass::newFloatPos(const Arguments& args) {
             args[3].asNumber().toInt32()
         );
     }
-    CATCH("Fail in NewFloatPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getBDSVersion(const Arguments&) {
     try {
         return String::newString(Common::getGameVersionString());
     }
-    CATCH("Fail in GetBDSVersion!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getServerProtocolVersion(const Arguments&) {
     try {
         return Number::newNumber(SharedConstants::NetworkProtocolVersion());
     }
-    CATCH("Fail in GetServerProtocolVersion!")
+    CATCH_AND_THROW
 }

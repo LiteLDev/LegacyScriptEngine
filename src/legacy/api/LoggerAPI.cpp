@@ -64,7 +64,7 @@ Local<Value> LoggerClass::log(const Arguments& args) {
         LogDataHelper(LogLevel::Info, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerLog!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::debug(const Arguments& args) {
@@ -75,7 +75,7 @@ Local<Value> LoggerClass::debug(const Arguments& args) {
         LogDataHelper(LogLevel::Debug, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerDebug!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::info(const Arguments& args) {
@@ -86,7 +86,7 @@ Local<Value> LoggerClass::info(const Arguments& args) {
         LogDataHelper(LogLevel::Info, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerInfo!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::warn(const Arguments& args) {
@@ -97,7 +97,7 @@ Local<Value> LoggerClass::warn(const Arguments& args) {
         LogDataHelper(LogLevel::Warn, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerWarn!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::error(const Arguments& args) {
@@ -108,7 +108,7 @@ Local<Value> LoggerClass::error(const Arguments& args) {
         LogDataHelper(LogLevel::Error, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerError!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::fatal(const Arguments& args) {
@@ -119,7 +119,7 @@ Local<Value> LoggerClass::fatal(const Arguments& args) {
         LogDataHelper(LogLevel::Fatal, args);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerFatal!")
+    CATCH_AND_THROW
 }
 
 // Deprecated
@@ -149,7 +149,7 @@ Local<Value> LoggerClass::setConsole(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in LoggerSetConsole!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::setFile(const Arguments& args) {
@@ -180,7 +180,7 @@ Local<Value> LoggerClass::setFile(const Arguments& args) {
         }
         return Boolean::newBoolean(logger->addSink(sink));
     }
-    CATCH("Fail in LoggerSetFile!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::setPlayer(const Arguments& args) {
@@ -196,7 +196,7 @@ Local<Value> LoggerClass::setPlayer(const Arguments& args) {
         }
         return Boolean::newBoolean(getEngineOwnData()->logger->addSink(sink));
     }
-    CATCH("Fail in LoggerSetPlayer!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
@@ -208,5 +208,5 @@ Local<Value> LoggerClass::setLogLevel(const Arguments& args) {
         conf->logger->setLevel(static_cast<LogLevel>(args[0].asNumber().toInt32() - 1));
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in SetLogLevel!")
+    CATCH_AND_THROW
 }

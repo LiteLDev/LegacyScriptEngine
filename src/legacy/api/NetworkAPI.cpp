@@ -7,7 +7,6 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ThreadPoolExecutor.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "main/SafeGuardRecord.h"
@@ -17,23 +16,6 @@
 
 using namespace cyanray;
 using namespace ll::coro;
-
-// Some script::Exception have a problem which can crash the server, and I have no idea, so not output message &
-// stacktrace
-#define CATCH_CALLBACK(LOG)                                                                                            \
-    catch (const Exception& e) {                                                                                       \
-        EngineScope enter(engine);                                                                                     \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        return;                                                                                                        \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        EngineScope enter(engine);                                                                                     \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
-        return;                                                                                                        \
-    }
 
 #define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
     catch (const Exception& e) {                                                                                       \
@@ -302,7 +284,7 @@ void WSClientClass::addListener(const string& event, Local<Function> func) {
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
+        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
     }
 }
 
@@ -312,7 +294,7 @@ Local<Value> WSClientClass::getStatus() {
     } catch (const std::runtime_error&) {
         return Local<Value>();
     }
-    CATCH("Fail in getStatus!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::connect(const Arguments& args) {
@@ -326,7 +308,7 @@ Local<Value> WSClientClass::connect(const Arguments& args) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in connect!");
+    CATCH_AND_THROW;
 }
 
 // 异步连接ws客户端
@@ -370,7 +352,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in connectAsync!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::send(const Arguments& args) {
@@ -387,7 +369,7 @@ Local<Value> WSClientClass::send(const Arguments& args) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in send!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::listen(const Arguments& args) {
@@ -401,7 +383,7 @@ Local<Value> WSClientClass::listen(const Arguments& args) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in listen!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::close(const Arguments&) {
@@ -411,7 +393,7 @@ Local<Value> WSClientClass::close(const Arguments&) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in close!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::shutdown(const Arguments&) {
@@ -421,7 +403,7 @@ Local<Value> WSClientClass::shutdown(const Arguments&) {
     } catch (const std::runtime_error&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in shutdown!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> WSClientClass::errorCode(const Arguments&) {
@@ -430,7 +412,7 @@ Local<Value> WSClientClass::errorCode(const Arguments&) {
     } catch (const std::runtime_error&) {
         return Local<Value>();
     }
-    CATCH("Fail in errorCode!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// Class HttpServer ////////////////////
@@ -525,7 +507,7 @@ Local<Value> HttpServerClass::onGet(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Get, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onGet")
+    CATCH_AND_THROW
 }
 
 Local<Value> HttpServerClass::onPut(const Arguments& args) {
@@ -539,7 +521,7 @@ Local<Value> HttpServerClass::onPut(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Put, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onPut!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onPost(const Arguments& args) {
@@ -553,7 +535,7 @@ Local<Value> HttpServerClass::onPost(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Post, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onPost!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onPatch(const Arguments& args) {
@@ -567,7 +549,7 @@ Local<Value> HttpServerClass::onPatch(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Patch, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onPatch!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onDelete(const Arguments& args) {
@@ -581,7 +563,7 @@ Local<Value> HttpServerClass::onDelete(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Delete, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onDelete!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onOptions(const Arguments& args) {
@@ -595,7 +577,7 @@ Local<Value> HttpServerClass::onOptions(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Options, path, func);
         return this->getScriptObject();
     }
-    CATCH("Fail in onOptions!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
@@ -632,7 +614,7 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH("Fail in onPreRouting!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
@@ -664,7 +646,7 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH("Fail in onPostRouting!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onError(const Arguments& args) {
@@ -695,7 +677,7 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH("Fail in onError!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::onException(const Arguments& args) {
@@ -736,7 +718,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH("Fail in onException!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::listen(const Arguments& args) {
@@ -772,7 +754,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         }).detach();
         return this->getScriptObject(); // return self
     }
-    CATCH("Fail in listen!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::stop(const Arguments& args) {
@@ -781,14 +763,14 @@ Local<Value> HttpServerClass::stop(const Arguments& args) {
         svr->stop();
         return Local<Value>();
     }
-    CATCH("Fail in stop!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpServerClass::isRunning(const Arguments& args) {
     try {
         return Boolean::newBoolean(svr->is_running());
     }
-    CATCH("Fail in isRunning!");
+    CATCH_AND_THROW;
 }
 
 Local<Object> Headers2Object(const Headers& headers) {
@@ -833,7 +815,7 @@ Local<Value> HttpRequestClass::getHeaders() {
     try {
         return Headers2Object(req->headers);
     }
-    CATCH("Fail in getHeaders!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getHeader(const Arguments& args) {
@@ -850,56 +832,56 @@ Local<Value> HttpRequestClass::getHeader(const Arguments& args) {
         }
         return arr;
     }
-    CATCH("Fail in getHeader!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getBody() {
     try {
         return String::newString(req->body);
     }
-    CATCH("Fail in getBody!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getMethod() {
     try {
         return String::newString(req->method);
     }
-    CATCH("Fail in getMethod!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getPath() {
     try {
         return String::newString(req->path);
     }
-    CATCH("Fail in getPath!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getParams() {
     try {
         return Params2Object(req->params);
     }
-    CATCH("Fail in getParams!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getRemoteAddr() {
     try {
         return String::newString(req->remote_addr);
     }
-    CATCH("Fail in getRemoteAddr!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getRemotePort() {
     try {
         return Number::newNumber(req->remote_port);
     }
-    CATCH("Fail in getRemotePort!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getVersion() {
     try {
         return String::newString(req->version);
     }
-    CATCH("Fail in getVersion!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpRequestClass::getRegexMatches() {
@@ -911,7 +893,7 @@ Local<Value> HttpRequestClass::getRegexMatches() {
         }
         return arr;
     }
-    CATCH("Fail in getRegexMatches!");
+    CATCH_AND_THROW;
 }
 
 HttpResponseClass::HttpResponseClass(const Local<Object>& scriptObj, const Response& resp)
@@ -935,7 +917,7 @@ Local<Value> HttpResponseClass::setHeader(const Arguments& args) {
         resp->headers.insert(make_pair(key, value));
         return this->getScriptObject(); // return self
     }
-    CATCH("Fail in setHeader!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::getHeader(const Arguments& args) {
@@ -952,7 +934,7 @@ Local<Value> HttpResponseClass::getHeader(const Arguments& args) {
         }
         return arr;
     }
-    CATCH("Fail in getHeader!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::write(const Arguments& args) {
@@ -962,11 +944,11 @@ Local<Value> HttpResponseClass::write(const Arguments& args) {
         }
         return this->getScriptObject();
     }
-    CATCH("Fail in write!");
+    CATCH_AND_THROW;
 }
 
 void HttpResponseClass::setHeaders(const Local<Value>& headers) {
-    CHECK_ARG_TYPE_S(headers, ValueKind::kObject);
+    CHECK_ARG_TYPE(headers, ValueKind::kObject);
 
     try {
         auto keys = headers.asObject().getKeys();
@@ -983,78 +965,78 @@ void HttpResponseClass::setHeaders(const Local<Value>& headers) {
             resp->headers.insert(make_pair(key_str, val_str));
         }
     }
-    CATCH_S("Fail in setHeaders!");
+    CATCH_AND_THROW
 }
 
 void HttpResponseClass::setStatus(const Local<Value>& status) {
-    CHECK_ARG_TYPE_S(status, ValueKind::kNumber);
+    CHECK_ARG_TYPE(status, ValueKind::kNumber);
 
     try {
         resp->status = status.asNumber().toInt32();
     }
-    CATCH_S("Fail in setStatus!");
+    CATCH_AND_THROW
 }
 
 void HttpResponseClass::setBody(const Local<Value>& body) {
-    CHECK_ARG_TYPE_S(body, ValueKind::kString);
+    CHECK_ARG_TYPE(body, ValueKind::kString);
 
     try {
         resp->body = body.asString().toString();
     }
-    CATCH_S("Fail in setBody!");
+    CATCH_AND_THROW
 }
 
 void HttpResponseClass::setReason(const Local<Value>& reason) {
-    CHECK_ARG_TYPE_S(reason, ValueKind::kString);
+    CHECK_ARG_TYPE(reason, ValueKind::kString);
 
     try {
         resp->reason = reason.asString().toString();
     }
-    CATCH_S("Fail in setReason!");
+    CATCH_AND_THROW
 }
 
 void HttpResponseClass::setVersion(const Local<Value>& version) {
-    CHECK_ARG_TYPE_S(version, ValueKind::kString);
+    CHECK_ARG_TYPE(version, ValueKind::kString);
 
     try {
         resp->version = version.asString().toString();
     }
-    CATCH_S("Fail in setVersion!");
+    CATCH_AND_THROW
 }
 
 Local<Value> HttpResponseClass::getHeaders() {
     try {
         return Headers2Object(resp->headers);
     }
-    CATCH("Fail in getHeaders!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::getStatus() {
     try {
         return Number::newNumber(resp->status);
     }
-    CATCH("Fail in getStatus!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::getBody() {
     try {
         return String::newString(resp->body);
     }
-    CATCH("Fail in getBody!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::getReason() {
     try {
         return String::newString(resp->reason);
     }
-    CATCH("Fail in getReason!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> HttpResponseClass::getVersion() {
     try {
         return String::newString(resp->version);
     }
-    CATCH("Fail in getVersion!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// Ported from LiteLoaderBDS ////////////////////
@@ -1211,7 +1193,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
         }
         return Boolean::newBoolean(HttpGet(target, lambda));
     }
-    CATCH("Fail in HttpGet");
+    CATCH_AND_THROW;
 }
 
 Local<Value> NetworkClass::httpPost(const Arguments& args) {
@@ -1264,7 +1246,7 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
             HttpPost(target, args[1].asString().toString(), args[2].asString().toString(), lambda)
         );
     }
-    CATCH("Fail in HttpPost");
+    CATCH_AND_THROW;
 }
 
 Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
@@ -1283,7 +1265,7 @@ Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
         res.set("data", result);
         return res;
     }
-    CATCH("Fail in HttpGetSync");
+    CATCH_AND_THROW;
 }
 
 // For compatibility

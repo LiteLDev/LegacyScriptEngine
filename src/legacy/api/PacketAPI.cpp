@@ -78,7 +78,7 @@ Local<Value> PacketClass::getName() {
         }
         return String::newString(pkt->getName());
     }
-    CATCH("Fail in getPacketName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PacketClass::getId() {
@@ -89,7 +89,7 @@ Local<Value> PacketClass::getId() {
         }
         return Number::newNumber((int)pkt->getId());
     }
-    CATCH("Fail in getPacketId!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// BinaryStream Classes ////////////////////
@@ -117,14 +117,14 @@ Local<Value> BinaryStreamClass::getAndReleaseData() {
         stream->mBuffer.swap(data);
         return String::newString(data);
     }
-    CATCH("Fail in BinaryStream getData!");
+    CATCH_AND_THROW;
 }
 
 BinaryStreamClass* BinaryStreamClass::constructor(const Arguments& args) {
     try {
         return new BinaryStreamClass(args.thiz());
     }
-    CATCH_C("Fail in Create BinaryStreamClass!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::reset() {
@@ -136,7 +136,7 @@ Local<Value> BinaryStreamClass::reset() {
         stream->mBuffer.clear();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream reset!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::reserve(const Arguments& args) {
@@ -145,7 +145,7 @@ Local<Value> BinaryStreamClass::reserve(const Arguments& args) {
     try {
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream reserve!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeBool(const Arguments& args) {
@@ -159,7 +159,7 @@ Local<Value> BinaryStreamClass::writeBool(const Arguments& args) {
         stream->writeBool(args[0].asBoolean().value(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeBool!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeByte(const Arguments& args) {
@@ -173,7 +173,7 @@ Local<Value> BinaryStreamClass::writeByte(const Arguments& args) {
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeByte!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeDouble(const Arguments& args) {
@@ -187,7 +187,7 @@ Local<Value> BinaryStreamClass::writeDouble(const Arguments& args) {
         stream->writeDouble(args[0].asNumber().toDouble(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeDouble!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeFloat(const Arguments& args) {
@@ -201,7 +201,7 @@ Local<Value> BinaryStreamClass::writeFloat(const Arguments& args) {
         stream->writeFloat(args[0].asNumber().toFloat(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeFloat!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeSignedBigEndianInt(const Arguments& args) {
@@ -215,7 +215,7 @@ Local<Value> BinaryStreamClass::writeSignedBigEndianInt(const Arguments& args) {
         stream->writeSignedBigEndianInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeSignedBigEndianInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeSignedInt(const Arguments& args) {
@@ -229,7 +229,7 @@ Local<Value> BinaryStreamClass::writeSignedInt(const Arguments& args) {
         stream->writeSignedInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeSignedInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeSignedInt64(const Arguments& args) {
@@ -243,7 +243,7 @@ Local<Value> BinaryStreamClass::writeSignedInt64(const Arguments& args) {
         stream->writeSignedInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeSignedInt64!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeSignedShort(const Arguments& args) {
@@ -257,7 +257,7 @@ Local<Value> BinaryStreamClass::writeSignedShort(const Arguments& args) {
         stream->writeSignedShort(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeSignedShort!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeString(const Arguments& args) {
@@ -271,7 +271,7 @@ Local<Value> BinaryStreamClass::writeString(const Arguments& args) {
         stream->writeString(args[0].asString().toString(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeString!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedChar(const Arguments& args) {
@@ -285,7 +285,7 @@ Local<Value> BinaryStreamClass::writeUnsignedChar(const Arguments& args) {
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedChar!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedInt(const Arguments& args) {
@@ -299,7 +299,7 @@ Local<Value> BinaryStreamClass::writeUnsignedInt(const Arguments& args) {
         stream->writeUnsignedInt((uint32_t)args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedInt64(const Arguments& args) {
@@ -313,7 +313,7 @@ Local<Value> BinaryStreamClass::writeUnsignedInt64(const Arguments& args) {
         stream->writeUnsignedInt64((uint64_t)args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedInt64!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedShort(const Arguments& args) {
@@ -327,7 +327,7 @@ Local<Value> BinaryStreamClass::writeUnsignedShort(const Arguments& args) {
         stream->writeUnsignedShort((uint16_t)args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedShort!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedVarInt(const Arguments& args) {
@@ -341,7 +341,7 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt(const Arguments& args) {
         stream->writeUnsignedVarInt((uint32_t)args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedVarInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeUnsignedVarInt64(const Arguments& args) {
@@ -355,7 +355,7 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt64(const Arguments& args) {
         stream->writeUnsignedVarInt64((uint64_t)args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeUnsignedVarInt64!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeVarInt(const Arguments& args) {
@@ -369,7 +369,7 @@ Local<Value> BinaryStreamClass::writeVarInt(const Arguments& args) {
         stream->writeVarInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeVarInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeVarInt64(const Arguments& args) {
@@ -383,7 +383,7 @@ Local<Value> BinaryStreamClass::writeVarInt64(const Arguments& args) {
         stream->writeVarInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeVarInt64!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
@@ -402,7 +402,7 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
         stream->writeFloat(posObj->getVec3().z, nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeVec3!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
@@ -421,7 +421,7 @@ Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
         stream->writeVarInt(posObj->getBlockPos().z, nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeVec3!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
@@ -438,7 +438,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
         stream->writeType(*nbt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeCompoundTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
@@ -455,7 +455,7 @@ Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
         ItemStackSerializerHelpers::write(NetworkItemStackDescriptor(*item), *stream);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in BinaryStream writeCompoundTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> BinaryStreamClass::createPacket(const Arguments& args) {
@@ -469,5 +469,5 @@ Local<Value> BinaryStreamClass::createPacket(const Arguments& args) {
         pkt->read(*stream);
         return PacketClass::newPacket(pkt);
     }
-    CATCH("Fail in BinaryStream createPacket!");
+    CATCH_AND_THROW;
 }

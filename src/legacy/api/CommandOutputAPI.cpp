@@ -34,14 +34,14 @@ Local<Value> CommandOutputClass::empty() {
     try {
         return Boolean::newBoolean(get()->mMessages.empty());
     }
-    CATCH("Fail in empty!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
         return Number::newNumber(static_cast<int64_t>(get()->mSuccessCount));
     }
-    CATCH("Fail in getSuccessCount!");
+    CATCH_AND_THROW;
 };
 
 // Local<Value> CommandOutputClass::getType()
@@ -50,7 +50,7 @@ Local<Value> CommandOutputClass::getSuccessCount() {
 //     {
 //         return String::newString(magic_enum::enum_name(get()->getType()));
 //     }
-//     CATCH("Fail in getType!");
+//     CATCH_AND_THROW;
 // };
 
 Local<Value> CommandOutputClass::success(const Arguments& args) {
@@ -76,7 +76,7 @@ Local<Value> CommandOutputClass::success(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in success!");
+    CATCH_AND_THROW;
 };
 
 Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
@@ -104,7 +104,7 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addMessage!");
+    CATCH_AND_THROW;
 };
 
 Local<Value> CommandOutputClass::error(const Arguments& args) {
@@ -127,7 +127,7 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in error!");
+    CATCH_AND_THROW;
 };
 
 void CommandOutputClass::send() {
@@ -137,12 +137,12 @@ void CommandOutputClass::send() {
         output->mSuccessCount = 0;
         output->mMessages.clear();
     }
-    CATCH_WITHOUT_RETURN("Fail in sendCommandOutput!");
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOutputClass::toString(const Arguments&) {
     try {
         return String::newString("<CommandOutput>");
     }
-    CATCH("Fail in toString!");
+    CATCH_AND_THROW;
 };

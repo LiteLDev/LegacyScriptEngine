@@ -366,7 +366,7 @@ Local<Value> McClass::getPlayerNbt(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getPlayerNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::setPlayerNbt(const Arguments& args) {
@@ -394,7 +394,7 @@ Local<Value> McClass::setPlayerNbt(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setPlayerNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
@@ -448,7 +448,7 @@ Local<Value> McClass::setPlayerNbtTags(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setPlayerNbtTags!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::deletePlayerNbt(const Arguments& args) {
@@ -480,7 +480,7 @@ Local<Value> McClass::deletePlayerNbt(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in deletePlayerNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getPlayerScore(const Arguments& args) {
@@ -515,7 +515,7 @@ Local<Value> McClass::getPlayerScore(const Arguments& args) {
         }
         return Number::newNumber(objective->getPlayerScore(sid).mValue);
     }
-    CATCH("Fail in getPlayerScore!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::setPlayerScore(const Arguments& args) {
@@ -553,7 +553,7 @@ Local<Value> McClass::setPlayerScore(const Arguments& args) {
             .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Set);
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in setPlayerScore!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::addPlayerScore(const Arguments& args) {
@@ -591,7 +591,7 @@ Local<Value> McClass::addPlayerScore(const Arguments& args) {
             .modifyPlayerScore(isSuccess, sid, *objective, args[2].asNumber().toInt32(), PlayerScoreSetFunction::Add);
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in addPlayerScore!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::reducePlayerScore(const Arguments& args) {
@@ -634,7 +634,7 @@ Local<Value> McClass::reducePlayerScore(const Arguments& args) {
         );
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in reducePlayerScore!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::deletePlayerScore(const Arguments& args) {
@@ -669,7 +669,7 @@ Local<Value> McClass::deletePlayerScore(const Arguments& args) {
         scoreboard.resetPlayerScore(sid, *objective);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in deletePlayerScore!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getPlayer(const Arguments& args) {
@@ -718,7 +718,7 @@ Local<Value> McClass::getPlayer(const Arguments& args) {
         });
         return found ? PlayerClass::newPlayer(found) : Local<Value>(); // Player/Null
     }
-    CATCH("Fail in GetPlayer!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getOnlinePlayers(const Arguments&) {
@@ -733,7 +733,7 @@ Local<Value> McClass::getOnlinePlayers(const Arguments&) {
         }
         return list;
     }
-    CATCH("Fail in GetOnlinePlayers!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::broadcast(const Arguments& args) {
@@ -751,7 +751,7 @@ Local<Value> McClass::broadcast(const Arguments& args) {
         pkt.sendToClients();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in Broadcast!")
+    CATCH_AND_THROW
 }
 
 // 成员函数
@@ -770,7 +770,7 @@ Local<Value> PlayerClass::getName() {
 
         return String::newString(player->mName);
     }
-    CATCH("Fail in getPlayerName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getPos() {
@@ -780,7 +780,7 @@ Local<Value> PlayerClass::getPos() {
 
         return FloatPos::newPos(player->getPosition(), player->getDimensionId().id);
     }
-    CATCH("Fail in getPlayerPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getFeetPos() {
@@ -790,7 +790,7 @@ Local<Value> PlayerClass::getFeetPos() {
 
         return FloatPos::newPos(player->getFeetPos(), player->getDimensionId().id);
     }
-    CATCH("Fail in getPlayerFeetPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getBlockPos() {
@@ -800,7 +800,7 @@ Local<Value> PlayerClass::getBlockPos() {
 
         return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId().id);
     }
-    CATCH("Fail in getPlayerBlockPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getLastDeathPos() {
@@ -816,7 +816,7 @@ Local<Value> PlayerClass::getLastDeathPos() {
         }
         return IntPos::newPos(pos.value(), dim->id);
     }
-    CATCH("Fail in getLastDeathPos!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getXuid() {
@@ -833,7 +833,7 @@ Local<Value> PlayerClass::getXuid() {
         }
         return String::newString(xuid);
     }
-    CATCH("Fail in getXuid!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getUuid() {
@@ -850,7 +850,7 @@ Local<Value> PlayerClass::getUuid() {
         }
         return String::newString(uuid);
     }
-    CATCH("Fail in getUuid!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getRealName() {
@@ -860,7 +860,7 @@ Local<Value> PlayerClass::getRealName() {
 
         return String::newString(player->getRealName());
     }
-    CATCH("Fail in getRealName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getIP() {
@@ -870,7 +870,7 @@ Local<Value> PlayerClass::getIP() {
 
         return String::newString(player->getNetworkIdentifier().getAddress());
     }
-    CATCH("Fail in GetIP!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getPermLevel() {
@@ -880,7 +880,7 @@ Local<Value> PlayerClass::getPermLevel() {
 
         return Number::newNumber(magic_enum::enum_integer(player->getCommandPermissionLevel()));
     }
-    CATCH("Fail in getPlayerPermLevel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getGameMode() {
@@ -890,7 +890,7 @@ Local<Value> PlayerClass::getGameMode() {
 
         return Number::newNumber((int)player->getPlayerGameType()); //==========???
     }
-    CATCH("Fail in getGameMode!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanSleep() {
@@ -900,7 +900,7 @@ Local<Value> PlayerClass::getCanSleep() {
 
         return Boolean::newBoolean(player->canSleep());
     }
-    CATCH("Fail in getCanSleep!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanFly() {
@@ -910,7 +910,7 @@ Local<Value> PlayerClass::getCanFly() {
 
         return Boolean::newBoolean(player->canFly());
     }
-    CATCH("Fail in getCanFly!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanBeSeenOnMap() {
@@ -926,7 +926,7 @@ Local<Value> PlayerClass::getCanBeSeenOnMap() {
         ItemStack const& item = player->getItemSlot(SharedTypes::Legacy::EquipmentSlot::Legs);
         return Boolean::newBoolean(item.isHumanoidWearableBlockItem());
     }
-    CATCH("Fail in getCanBeSeenOnMap!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanFreeze() {
@@ -938,7 +938,7 @@ Local<Value> PlayerClass::getCanFreeze() {
 
         return Boolean::newBoolean(player->canFreeze());
     }
-    CATCH("Fail in getCanFreeze!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanSeeDaylight() {
@@ -950,7 +950,7 @@ Local<Value> PlayerClass::getCanSeeDaylight() {
 
         return Boolean::newBoolean(player->canSeeDaylight());
     }
-    CATCH("Fail in getCanSeeDaylight!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanShowNameTag() {
@@ -962,7 +962,7 @@ Local<Value> PlayerClass::getCanShowNameTag() {
 
         return Boolean::newBoolean(player->canShowNameTag());
     }
-    CATCH("Fail in getCanShowNameTag!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanStartSleepInBed() {
@@ -974,7 +974,7 @@ Local<Value> PlayerClass::getCanStartSleepInBed() {
 
         return Boolean::newBoolean(player->canStartSleepInBed());
     }
-    CATCH("Fail in getCanStartSleepInBed!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getCanPickupItems() {
@@ -986,7 +986,7 @@ Local<Value> PlayerClass::getCanPickupItems() {
 
         return Boolean::newBoolean(player->mCanPickupItems);
     }
-    CATCH("Fail in getCanPickupItems!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isSneaking() {
@@ -998,7 +998,7 @@ Local<Value> PlayerClass::isSneaking() {
             SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Sneaking)
         );
     }
-    CATCH("Fail in isSneaking!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getSpeed() {
@@ -1008,7 +1008,7 @@ Local<Value> PlayerClass::getSpeed() {
 
         return Number::newNumber(player->getPosDeltaPerSecLength());
     }
-    CATCH("Fail in getSpeed!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getDirection() {
@@ -1020,7 +1020,7 @@ Local<Value> PlayerClass::getDirection() {
         Vec2 vec = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
-    CATCH("Fail in getDirection!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getMaxHealth() {
@@ -1030,7 +1030,7 @@ Local<Value> PlayerClass::getMaxHealth() {
 
         return Number::newNumber(player->getMaxHealth());
     }
-    CATCH("Fail in GetMaxHealth!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getHealth() {
@@ -1040,7 +1040,7 @@ Local<Value> PlayerClass::getHealth() {
 
         return Number::newNumber(player->getHealth());
     }
-    CATCH("Fail in GetHealth!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInAir() {
@@ -1050,7 +1050,7 @@ Local<Value> PlayerClass::getInAir() {
 
         return Boolean::newBoolean(!player->isOnGround() && !player->isInWater());
     }
-    CATCH("Fail in GetInAir!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInWater() {
@@ -1060,7 +1060,7 @@ Local<Value> PlayerClass::getInWater() {
 
         return Boolean::newBoolean(player->isInWater());
     }
-    CATCH("Fail in getInWater!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInLava() {
@@ -1072,7 +1072,7 @@ Local<Value> PlayerClass::getInLava() {
             ActorMobilityUtils::shouldApplyLava(player->getDimensionBlockSourceConst(), player->getEntityContext())
         );
     }
-    CATCH("Fail in getInLava!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInRain() {
@@ -1082,7 +1082,7 @@ Local<Value> PlayerClass::getInRain() {
 
         return Boolean::newBoolean(player->isInRain());
     }
-    CATCH("Fail in getInRain!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInSnow() {
@@ -1092,7 +1092,7 @@ Local<Value> PlayerClass::getInSnow() {
 
         return Boolean::newBoolean(player->isInSnow());
     }
-    CATCH("Fail in getInSnow!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInWall() {
@@ -1106,7 +1106,7 @@ Local<Value> PlayerClass::getInWall() {
             player->getAttachPos(SharedTypes::Legacy::ActorLocation::BreathingPoint)
         ));
     }
-    CATCH("Fail in getInWall!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInWaterOrRain() {
@@ -1116,7 +1116,7 @@ Local<Value> PlayerClass::getInWaterOrRain() {
 
         return Boolean::newBoolean(player->isInWaterOrRain());
     }
-    CATCH("Fail in getInWaterOrRain!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInWorld() {
@@ -1126,7 +1126,7 @@ Local<Value> PlayerClass::getInWorld() {
 
         return Boolean::newBoolean(player->isInWorld());
     }
-    CATCH("Fail in getInWorld!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getInClouds() {
@@ -1140,7 +1140,7 @@ Local<Value> PlayerClass::getInClouds() {
         float y           = player->getPosition().y;
         return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
-    CATCH("Fail in getInClouds!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getUniqueID() {
@@ -1149,7 +1149,7 @@ Local<Value> PlayerClass::getUniqueID() {
         if (!player) return Local<Value>();
         else return String::newString(std::to_string(player->getOrCreateUniqueID().rawID));
     }
-    CATCH("Fail in getUniqueID!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getRuntimeID() {
@@ -1158,7 +1158,7 @@ Local<Value> PlayerClass::getRuntimeID() {
         if (!player) return Local<Value>();
         else return String::newString(std::to_string(player->getRuntimeID().rawID));
     }
-    CATCH("Fail in getUniqueID!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::getLangCode() {
@@ -1169,7 +1169,7 @@ Local<Value> PlayerClass::getLangCode() {
         auto language = player->getLocaleCode();
         return String::newString(language.empty() ? "unknown" : language);
     }
-    CATCH("Fail in getLangCode!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::isLoading() {
@@ -1181,7 +1181,7 @@ Local<Value> PlayerClass::isLoading() {
 
         return Boolean::newBoolean(player->isLoading());
     }
-    CATCH("Fail in isLoading!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isInvisible() {
@@ -1193,7 +1193,7 @@ Local<Value> PlayerClass::isInvisible() {
 
         return Boolean::newBoolean(player->isInvisible());
     }
-    CATCH("Fail in isInvisible!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isInsidePortal() {
@@ -1212,7 +1212,7 @@ Local<Value> PlayerClass::isInsidePortal() {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in isInsidePortal!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isHurt() {
@@ -1228,7 +1228,7 @@ Local<Value> PlayerClass::isHurt() {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in isHurt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isTrusting() {
@@ -1242,7 +1242,7 @@ Local<Value> PlayerClass::isTrusting() {
             SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Trusting)
         );
     }
-    CATCH("Fail in isTrusting!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isTouchingDamageBlock() {
@@ -1254,7 +1254,7 @@ Local<Value> PlayerClass::isTouchingDamageBlock() {
 
         return Boolean::newBoolean(player->isTouchingDamageBlock());
     }
-    CATCH("Fail in isTouchingDamageBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isHungry() {
@@ -1269,7 +1269,7 @@ Local<Value> PlayerClass::isHungry() {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in isHungry!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isOnFire() {
@@ -1281,7 +1281,7 @@ Local<Value> PlayerClass::isOnFire() {
 
         return Boolean::newBoolean(player->isOnFire());
     }
-    CATCH("Fail in isOnFire!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isOnGround() {
@@ -1293,7 +1293,7 @@ Local<Value> PlayerClass::isOnGround() {
 
         return Boolean::newBoolean(player->isOnGround());
     }
-    CATCH("Fail in isOnGround!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isOnHotBlock() {
@@ -1305,7 +1305,7 @@ Local<Value> PlayerClass::isOnHotBlock() {
 
         return Boolean::newBoolean(player->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
     }
-    CATCH("Fail in isOnHotBlock!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isTrading() {
@@ -1317,7 +1317,7 @@ Local<Value> PlayerClass::isTrading() {
 
         return Boolean::newBoolean(player->isTrading());
     }
-    CATCH("Fail in isTrading!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isAdventure() {
@@ -1329,7 +1329,7 @@ Local<Value> PlayerClass::isAdventure() {
 
         return Boolean::newBoolean(player->isAdventure());
     }
-    CATCH("Fail in isAdventure!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isGliding() {
@@ -1341,7 +1341,7 @@ Local<Value> PlayerClass::isGliding() {
 
         return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Gliding));
     }
-    CATCH("Fail in isGliding!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isSurvival() {
@@ -1353,7 +1353,7 @@ Local<Value> PlayerClass::isSurvival() {
 
         return Boolean::newBoolean(player->isSurvival());
     }
-    CATCH("Fail in isSurvival!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isSpectator() {
@@ -1365,7 +1365,7 @@ Local<Value> PlayerClass::isSpectator() {
 
         return Boolean::newBoolean(player->isSpectator());
     }
-    CATCH("Fail in isSpectator!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isRiding() {
@@ -1377,7 +1377,7 @@ Local<Value> PlayerClass::isRiding() {
 
         return Boolean::newBoolean(player->isRiding());
     }
-    CATCH("Fail in isRiding!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isDancing() {
@@ -1391,7 +1391,7 @@ Local<Value> PlayerClass::isDancing() {
             SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Dancing)
         );
     }
-    CATCH("Fail in isDancing!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isCreative() {
@@ -1403,7 +1403,7 @@ Local<Value> PlayerClass::isCreative() {
 
         return Boolean::newBoolean(player->isCreative());
     }
-    CATCH("Fail in isCreative!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isFlying() {
@@ -1415,7 +1415,7 @@ Local<Value> PlayerClass::isFlying() {
 
         return Boolean::newBoolean(player->isFlying());
     }
-    CATCH("Fail in isFlying!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isSleeping() {
@@ -1427,7 +1427,7 @@ Local<Value> PlayerClass::isSleeping() {
 
         return Boolean::newBoolean(player->isSleeping());
     }
-    CATCH("Fail in isSleeping!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isMoving() {
@@ -1441,7 +1441,7 @@ Local<Value> PlayerClass::isMoving() {
             SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
         );
     }
-    CATCH("Fail in isMoving!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::teleport(const Arguments& args) {
@@ -1504,7 +1504,7 @@ Local<Value> PlayerClass::teleport(const Arguments& args) {
         player->teleport(pos.getVec3(), pos.dim, angle);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in TeleportPlayer!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::kill(const Arguments&) {
@@ -1515,7 +1515,7 @@ Local<Value> PlayerClass::kill(const Arguments&) {
         player->kill();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in KillPlayer!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::isOP(const Arguments&) {
@@ -1525,7 +1525,7 @@ Local<Value> PlayerClass::isOP(const Arguments&) {
 
         return Boolean::newBoolean(player->isOperator());
     }
-    CATCH("Fail in IsOP!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
@@ -1559,7 +1559,7 @@ Local<Value> PlayerClass::setPermLevel(const Arguments& args) {
         }
         return Boolean::newBoolean(res);
     }
-    CATCH("Fail in setPlayerPermLevel!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setGameMode(const Arguments& args) {
@@ -1578,7 +1578,7 @@ Local<Value> PlayerClass::setGameMode(const Arguments& args) {
         }
         return Boolean::newBoolean(res);
     }
-    CATCH("Fail in setGameMode!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::runcmd(const Arguments& args) {
@@ -1596,7 +1596,7 @@ Local<Value> PlayerClass::runcmd(const Arguments& args) {
         ll::service::getMinecraft()->mCommands->executeCommand(context, false);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in runcmd!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::kick(const Arguments& args) {
@@ -1612,7 +1612,7 @@ Local<Value> PlayerClass::kick(const Arguments& args) {
         player->disconnect(msg);
         return Boolean::newBoolean(true); //=======???
     }
-    CATCH("Fail in kickPlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::tell(const Arguments& args) {
@@ -1634,7 +1634,7 @@ Local<Value> PlayerClass::tell(const Arguments& args) {
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in tell!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setTitle(const Arguments& args) {
@@ -1674,7 +1674,7 @@ Local<Value> PlayerClass::setTitle(const Arguments& args) {
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setTitle!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::talkAs(const Arguments& args) {
@@ -1699,7 +1699,7 @@ Local<Value> PlayerClass::talkAs(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in talkAs!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::talkTo(const Arguments& args) {
@@ -1719,7 +1719,7 @@ Local<Value> PlayerClass::talkTo(const Arguments& args) {
         target->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in talkTo!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getHand(const Arguments&) {
@@ -1729,7 +1729,7 @@ Local<Value> PlayerClass::getHand(const Arguments&) {
 
         return ItemClass::newItem(&const_cast<ItemStack&>(player->getSelectedItem()));
     }
-    CATCH("Fail in getHand!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getOffHand(const Arguments&) {
@@ -1739,7 +1739,7 @@ Local<Value> PlayerClass::getOffHand(const Arguments&) {
 
         return ItemClass::newItem(const_cast<ItemStack*>(&player->getOffhandSlot()));
     }
-    CATCH("Fail in getOffHand!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getInventory(const Arguments&) {
@@ -1749,7 +1749,7 @@ Local<Value> PlayerClass::getInventory(const Arguments&) {
 
         return ContainerClass::newContainer(player->mInventory->mInventory.get());
     }
-    CATCH("Fail in getInventory!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getArmor(const Arguments&) {
@@ -1759,7 +1759,7 @@ Local<Value> PlayerClass::getArmor(const Arguments&) {
 
         return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(player->getEntityContext()));
     }
-    CATCH("Fail in getArmor!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getEnderChest(const Arguments&) {
@@ -1772,7 +1772,7 @@ Local<Value> PlayerClass::getEnderChest(const Arguments&) {
         }
         return {};
     }
-    CATCH("Fail in getEnderChest!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getRespawnPosition(const Arguments&) {
@@ -1783,7 +1783,7 @@ Local<Value> PlayerClass::getRespawnPosition(const Arguments&) {
         DimensionType dim      = player->getExpectedSpawnDimensionId();
         return IntPos::newPos(position, dim);
     }
-    CATCH("Fail in getRespawnPosition!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
@@ -1828,7 +1828,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
         player->setRespawnPosition(pos.getBlockPos(), pos.dim);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setRespawnPosition!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::refreshItems(const Arguments&) {
@@ -1839,7 +1839,7 @@ Local<Value> PlayerClass::refreshItems(const Arguments&) {
         player->refreshInventory();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in refreshItems!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::rename(const Arguments& args) {
@@ -1853,7 +1853,7 @@ Local<Value> PlayerClass::rename(const Arguments& args) {
         player->_sendDirtyActorData();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in RenamePlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::addLevel(const Arguments& args) {
@@ -1867,7 +1867,7 @@ Local<Value> PlayerClass::addLevel(const Arguments& args) {
         player->addLevels(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addLevel!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::reduceLevel(const Arguments& args) {
@@ -1883,7 +1883,7 @@ Local<Value> PlayerClass::reduceLevel(const Arguments& args) {
         player->addLevels(-args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in reduceLevel!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getLevel(const Arguments&) {
@@ -1893,7 +1893,7 @@ Local<Value> PlayerClass::getLevel(const Arguments&) {
 
         return Number::newNumber(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
     }
-    CATCH("Fail in getLevel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setLevel(const Arguments& args) {
@@ -1909,7 +1909,7 @@ Local<Value> PlayerClass::setLevel(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setLevel!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setScale(const Arguments& args) {
@@ -1923,7 +1923,7 @@ Local<Value> PlayerClass::setScale(const Arguments& args) {
         SynchedActorDataAccess::setBoundingBoxScale(player->getEntityContext(), args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setScale!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::resetLevel(const Arguments&) {
@@ -1934,7 +1934,7 @@ Local<Value> PlayerClass::resetLevel(const Arguments&) {
         player->resetPlayerLevel();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in resetLevel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::addExperience(const Arguments& args) {
@@ -1948,7 +1948,7 @@ Local<Value> PlayerClass::addExperience(const Arguments& args) {
         player->addExperience(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addExperience!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
@@ -1997,7 +1997,7 @@ Local<Value> PlayerClass::reduceExperience(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in reduceExperience!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getCurrentExperience(const Arguments&) {
@@ -2009,7 +2009,7 @@ Local<Value> PlayerClass::getCurrentExperience(const Arguments&) {
 
         return Number::newNumber((long long)PlayerHelper::getXpEarnedAtCurrentLevel(player));
     }
-    CATCH("Fail in getCurrentExperience!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
@@ -2025,7 +2025,7 @@ Local<Value> PlayerClass::setCurrentExperience(const Arguments& args) {
         PlayerHelper::setXpEarnedAtCurrentLevel(player, args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setCurrentExperience!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
@@ -2052,7 +2052,7 @@ Local<Value> PlayerClass::getTotalExperience(const Arguments&) {
         }
         return Number::newNumber((long long)(totalXp + PlayerHelper::getXpEarnedAtCurrentLevel(player)));
     }
-    CATCH("Fail in getTotalExperience!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setTotalExperience(const Arguments& args) {
@@ -2068,7 +2068,7 @@ Local<Value> PlayerClass::setTotalExperience(const Arguments& args) {
         player->addExperience(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setTotalExperience!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getXpNeededForNextLevel(const Arguments&) {
@@ -2080,7 +2080,7 @@ Local<Value> PlayerClass::getXpNeededForNextLevel(const Arguments&) {
 
         return Number::newNumber(player->getXpNeededForNextLevel());
     }
-    CATCH("Fail in getXpNeededForNextLevel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::transServer(const Arguments& args) {
@@ -2096,7 +2096,7 @@ Local<Value> PlayerClass::transServer(const Arguments& args) {
         player->sendNetworkPacket(packet);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in transServer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::crash(const Arguments&) {
@@ -2113,7 +2113,7 @@ Local<Value> PlayerClass::crash(const Arguments&) {
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in crashPlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getBlockStandingOn(const Arguments&) {
@@ -2123,7 +2123,7 @@ Local<Value> PlayerClass::getBlockStandingOn(const Arguments&) {
 
         return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimensionId().id);
     }
-    CATCH("Fail in getBlockStandingOn!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getDevice(const Arguments&) {
@@ -2132,7 +2132,7 @@ Local<Value> PlayerClass::getDevice(const Arguments&) {
         if (!player) return Local<Value>();
         return DeviceClass::newDevice(player);
     }
-    CATCH("Fail in getDevice!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getScore(const Arguments& args) {
@@ -2154,7 +2154,7 @@ Local<Value> PlayerClass::getScore(const Arguments& args) {
         }
         return Number::newNumber(obj->getPlayerScore(id).mValue);
     }
-    CATCH("Fail in getScore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setScore(const Arguments& args) {
@@ -2183,7 +2183,7 @@ Local<Value> PlayerClass::setScore(const Arguments& args) {
         scoreboard.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in setScore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::addScore(const Arguments& args) {
@@ -2208,7 +2208,7 @@ Local<Value> PlayerClass::addScore(const Arguments& args) {
         scoreboard.modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in addScore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::reduceScore(const Arguments& args) {
@@ -2234,7 +2234,7 @@ Local<Value> PlayerClass::reduceScore(const Arguments& args) {
             .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
         return Boolean::newBoolean(isSuccess == ScoreboardOperationResult::Success);
     }
-    CATCH("Fail in reduceScore!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::deleteScore(const Arguments& args) {
@@ -2257,7 +2257,7 @@ Local<Value> PlayerClass::deleteScore(const Arguments& args) {
         scoreboard.resetPlayerScore(id, *obj);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in deleteScore!");
+    CATCH_AND_THROW;
 }
 
 SetDisplayObjectivePacket::SetDisplayObjectivePacket()               = default;
@@ -2306,7 +2306,7 @@ Local<Value> PlayerClass::setSidebar(const Arguments& args) {
         setPkt.sendTo(*player);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setSidebar!")
+    CATCH_AND_THROW
 }
 
 RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
@@ -2321,7 +2321,7 @@ Local<Value> PlayerClass::removeSidebar(const Arguments&) {
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeSidebar!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setBossBar(const Arguments& args) {
@@ -2387,7 +2387,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
             pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
-        CATCH("Fail in addBossBar!")
+        CATCH_AND_THROW
     }
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -2411,7 +2411,7 @@ Local<Value> PlayerClass::setBossBar(const Arguments& args) {
         pkt->sendTo(*player);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setBossBar!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
@@ -2427,7 +2427,7 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
             pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
-        CATCH("Fail in removeBossBar!")
+        CATCH_AND_THROW
     } else {
         CHECK_ARGS_COUNT(args, 1);
         CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -2442,7 +2442,7 @@ Local<Value> PlayerClass::removeBossBar(const Arguments& args) {
             pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }
-        CATCH("Fail in removeBossBar!")
+        CATCH_AND_THROW
     }
 }
 
@@ -2500,7 +2500,7 @@ Local<Value> PlayerClass::sendSimpleForm(const Arguments& args) {
 
         return Number::newNumber(1);
     }
-    CATCH("Fail in sendSimpleForm!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
@@ -2548,7 +2548,7 @@ Local<Value> PlayerClass::sendModalForm(const Arguments& args) {
 
         return Number::newNumber(2);
     }
-    CATCH("Fail in sendModalForm!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
@@ -2597,7 +2597,7 @@ Local<Value> PlayerClass::sendCustomForm(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return {};
     }
-    CATCH("Fail in sendCustomForm!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::sendForm(const Arguments& args) {
@@ -2621,7 +2621,7 @@ Local<Value> PlayerClass::sendForm(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in sendForm!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::closeForm(const Arguments&) {
@@ -2632,7 +2632,7 @@ Local<Value> PlayerClass::closeForm(const Arguments&) {
         ClientboundCloseFormPacket().sendTo(*player);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in sendForm!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::sendPacket(const Arguments& args) {
@@ -2647,7 +2647,7 @@ Local<Value> PlayerClass::sendPacket(const Arguments& args) {
         player->sendNetworkPacket(*pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in sendPacket");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setExtraData(const Arguments& args) {
@@ -2664,7 +2664,7 @@ Local<Value> PlayerClass::setExtraData(const Arguments& args) {
         getEngineOwnData()->playerDataDB[player->getRealName() + "-" + key] = args[1];
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setExtraData!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getExtraData(const Arguments& args) {
@@ -2683,7 +2683,7 @@ Local<Value> PlayerClass::getExtraData(const Arguments& args) {
         if (res == db.end() || res->second.isEmpty()) return Local<Value>();
         else return res->second.get();
     }
-    CATCH("Fail in getExtraData!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::delExtraData(const Arguments& args) {
@@ -2700,7 +2700,7 @@ Local<Value> PlayerClass::delExtraData(const Arguments& args) {
         getEngineOwnData()->playerDataDB.erase(player->getRealName() + "-" + key);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in delExtraData!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::hurt(const Arguments& args) {
@@ -2731,7 +2731,7 @@ Local<Value> PlayerClass::hurt(const Arguments& args) {
         damageSource.mCause = (SharedTypes::Legacy::ActorDamageCause)type;
         return Boolean::newBoolean(player->_hurt(damageSource, damage, true, false));
     }
-    CATCH("Fail in hurt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::heal(const Arguments& args) {
@@ -2744,7 +2744,7 @@ Local<Value> PlayerClass::heal(const Arguments& args) {
         player->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in heal!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setHealth(const Arguments& args) {
@@ -2766,7 +2766,7 @@ Local<Value> PlayerClass::setHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setHealth!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
@@ -2788,7 +2788,7 @@ Local<Value> PlayerClass::setMaxHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMaxHealth!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
@@ -2810,7 +2810,7 @@ Local<Value> PlayerClass::setAbsorption(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setAbsorptionAttribute!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
@@ -2832,7 +2832,7 @@ Local<Value> PlayerClass::setAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setAttackDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
@@ -2854,7 +2854,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMaxAttackDamage!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
@@ -2876,7 +2876,7 @@ Local<Value> PlayerClass::setFollowRange(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setFollowRange!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
@@ -2898,7 +2898,7 @@ Local<Value> PlayerClass::setKnockbackResistance(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setKnockbackResistance!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setLuck(const Arguments& args) {
@@ -2920,7 +2920,7 @@ Local<Value> PlayerClass::setLuck(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setLuck!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
@@ -2942,7 +2942,7 @@ Local<Value> PlayerClass::setMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
@@ -2964,7 +2964,7 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setUnderwaterMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
@@ -2986,7 +2986,7 @@ Local<Value> PlayerClass::setLavaMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setLavaMovementSpeed!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setHungry(const Arguments& args) {
@@ -3004,7 +3004,7 @@ Local<Value> PlayerClass::setHungry(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in setHungry!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setFire(const Arguments& args) {
@@ -3022,7 +3022,7 @@ Local<Value> PlayerClass::setFire(const Arguments& args) {
         player->setOnFire(time, isEffectValue);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setFire!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::stopFire(const Arguments&) {
@@ -3033,7 +3033,7 @@ Local<Value> PlayerClass::stopFire(const Arguments&) {
         player->stopFire();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in stopFire!");
+    CATCH_AND_THROW;
 }
 
 // For Compatibility
@@ -3050,7 +3050,7 @@ Local<Value> PlayerClass::setOnFire(const Arguments& args) {
         player->setOnFire(time, true);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setOnFire!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::refreshChunks(const Arguments&) {
@@ -3061,7 +3061,7 @@ Local<Value> PlayerClass::refreshChunks(const Arguments&) {
         player->mChunkPublisherView->clearRegion();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in refreshChunks!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::giveItem(const Arguments& args) {
@@ -3087,7 +3087,7 @@ Local<Value> PlayerClass::giveItem(const Arguments& args) {
         }
         return Boolean::newBoolean(Util::LootTableUtils::givePlayer(*player, items, true));
     }
-    CATCH("Fail in giveItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::clearItem(const Arguments& args) {
@@ -3129,7 +3129,7 @@ Local<Value> PlayerClass::clearItem(const Arguments& args) {
         player->refreshInventory();
         return Number::newNumber(result);
     }
-    CATCH("Fail in clearItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::isSprinting(const Arguments& args) {
@@ -3139,7 +3139,7 @@ Local<Value> PlayerClass::isSprinting(const Arguments& args) {
 
         return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Sprinting));
     }
-    CATCH("Fail in isSprinting!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setSprinting(const Arguments& args) {
@@ -3153,7 +3153,7 @@ Local<Value> PlayerClass::setSprinting(const Arguments& args) {
         player->setSprinting(args[0].asBoolean().value());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in setSprinting!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getNbt(const Arguments&) {
@@ -3165,7 +3165,7 @@ Local<Value> PlayerClass::getNbt(const Arguments&) {
         player->save(*tag);
         return NbtCompoundClass::pack(std::move(tag));
     }
-    CATCH("Fail in getNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setNbt(const Arguments& args) {
@@ -3181,7 +3181,7 @@ Local<Value> PlayerClass::setNbt(const Arguments& args) {
         }
         return Boolean::newBoolean(player->load(*nbt, MoreGlobal::defaultDataLoadHelper()));
     }
-    CATCH("Fail in setNbt!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::addTag(const Arguments& args) {
@@ -3194,7 +3194,7 @@ Local<Value> PlayerClass::addTag(const Arguments& args) {
 
         return Boolean::newBoolean(player->addTag(args[0].asString().toString()));
     }
-    CATCH("Fail in addTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::removeTag(const Arguments& args) {
@@ -3207,7 +3207,7 @@ Local<Value> PlayerClass::removeTag(const Arguments& args) {
 
         return Boolean::newBoolean(player->removeTag(args[0].asString().toString()));
     }
-    CATCH("Fail in removeTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::hasTag(const Arguments& args) {
@@ -3220,7 +3220,7 @@ Local<Value> PlayerClass::hasTag(const Arguments& args) {
 
         return Boolean::newBoolean(player->hasTag(args[0].asString().toString()));
     }
-    CATCH("Fail in hasTag!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getAllTags(const Arguments&) {
@@ -3238,7 +3238,7 @@ Local<Value> PlayerClass::getAllTags(const Arguments&) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getAllTags!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getAbilities(const Arguments&) {
@@ -3255,7 +3255,7 @@ Local<Value> PlayerClass::getAbilities(const Arguments&) {
             return Object::newObject();
         }
     }
-    CATCH("Fail in getAbilities!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getAttributes(const Arguments&) {
@@ -3277,7 +3277,7 @@ Local<Value> PlayerClass::getAttributes(const Arguments&) {
             return Array::newArray();
         }
     }
-    CATCH("Fail in getAttributes!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
@@ -3296,7 +3296,7 @@ Local<Value> PlayerClass::getEntityFromViewVector(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in getEntityFromViewVector!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
@@ -3357,7 +3357,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(const Arguments& args) {
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());
     }
-    CATCH("Fail in getBlockFromViewVector!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::isSimulatedPlayer(const Arguments&) {
@@ -3366,7 +3366,7 @@ Local<Value> PlayerClass::isSimulatedPlayer(const Arguments&) {
         if (!actor) return Local<Value>();
         return Boolean::newBoolean(actor->isSimulatedPlayer());
     }
-    CATCH("Fail in isSimulatedPlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
@@ -3377,7 +3377,7 @@ Local<Value> PlayerClass::quickEvalMolangScript(const Arguments& args) {
         if (!actor) return Local<Value>();
         return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
-    CATCH("Fail in quickEvalMolangScript!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// For LLMoney ////////////////////
@@ -3389,7 +3389,7 @@ Local<Value> PlayerClass::getMoney(const Arguments&) {
         auto xuid = player->getXuid();
         return xuid.empty() ? Local<Value>() : Number::newNumber(EconomySystem::getMoney(xuid));
     }
-    CATCH("Fail in getMoney!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::reduceMoney(const Arguments& args) {
@@ -3403,7 +3403,7 @@ Local<Value> PlayerClass::reduceMoney(const Arguments& args) {
         return xuid.empty() ? Local<Value>()
                             : Boolean::newBoolean(EconomySystem::reduceMoney(xuid, args[0].asNumber().toInt64()));
     }
-    CATCH("Fail in reduceMoney!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::setMoney(const Arguments& args) {
@@ -3417,7 +3417,7 @@ Local<Value> PlayerClass::setMoney(const Arguments& args) {
         return xuid.empty() ? Local<Value>()
                             : Boolean::newBoolean(EconomySystem::setMoney(xuid, args[0].asNumber().toInt64()));
     }
-    CATCH("Fail in setMoney!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::addMoney(const Arguments& args) {
@@ -3431,7 +3431,7 @@ Local<Value> PlayerClass::addMoney(const Arguments& args) {
         return xuid.empty() ? Local<Value>()
                             : Boolean::newBoolean(EconomySystem::addMoney(xuid, args[0].asNumber().toInt64()));
     }
-    CATCH("Fail in addMoney!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::transMoney(const Arguments& args) {
@@ -3458,7 +3458,7 @@ Local<Value> PlayerClass::transMoney(const Arguments& args) {
                  ? Local<Value>()
                  : Boolean::newBoolean(EconomySystem::transMoney(xuid, targetXuid, args[1].asNumber().toInt64(), note));
     }
-    CATCH("Fail in transMoney!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getMoneyHistory(const Arguments& args) {
@@ -3473,7 +3473,7 @@ Local<Value> PlayerClass::getMoneyHistory(const Arguments& args) {
                  ? Local<Value>()
                  : objectificationMoneyHistory(EconomySystem::getMoneyHist(xuid, args[0].asNumber().toInt32()));
     }
-    CATCH("Fail in getMoneyHistory!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// For Compatibility ////////////////////
@@ -3526,7 +3526,7 @@ Local<Value> PlayerClass::getAllItems(const Arguments&) {
 
         return result;
     }
-    CATCH("Fail in getAllItems!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::removeItem(const Arguments& args) {
@@ -3543,7 +3543,7 @@ Local<Value> PlayerClass::removeItem(const Arguments& args) {
         container->removeItem(inventoryId, count);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeItem!")
+    CATCH_AND_THROW
 }
 
 ToastRequestPacket::ToastRequestPacket()               = default;
@@ -3564,7 +3564,7 @@ Local<Value> PlayerClass::sendToast(const Arguments& args) {
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in sendToast!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::distanceTo(const Arguments& args) {
@@ -3625,7 +3625,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
 
         return Number::newNumber(player->getPosition().distanceTo(pos.getVec3()));
     }
-    CATCH("Fail in distanceTo!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
@@ -3686,7 +3686,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
 
         return Number::newNumber(player->getPosition().distanceToSqr(pos.getVec3()));
     }
-    CATCH("Fail in distanceToSqr!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::setAbility(const Arguments& args) {
@@ -3711,7 +3711,7 @@ Local<Value> PlayerClass::setAbility(const Arguments& args) {
         return Boolean::newBoolean(true);
     }
 
-    CATCH("Fail in setAbility!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getBiomeId() {
@@ -3721,7 +3721,7 @@ Local<Value> PlayerClass::getBiomeId() {
         Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return Number::newNumber(bio.mId->mValue);
     }
-    CATCH("Fail in getBiomeId!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getBiomeName() {
@@ -3731,7 +3731,7 @@ Local<Value> PlayerClass::getBiomeName() {
         Biome const& bio = player->getDimensionBlockSource().getBiome(player->getFeetBlockPos());
         return String::newString(bio.mHash->getString());
     }
-    CATCH("Fail in getBiomeName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::getAllEffects() {
@@ -3746,7 +3746,7 @@ Local<Value> PlayerClass::getAllEffects() {
         }
         return effectList;
     }
-    CATCH("Fail in getAllEffects!")
+    CATCH_AND_THROW
 }
 
 Local<Value> PlayerClass::addEffect(const Arguments& args) {
@@ -3771,7 +3771,7 @@ Local<Value> PlayerClass::addEffect(const Arguments& args) {
         player->addEffect(effect);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in addEffect!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::removeEffect(const Arguments& args) {
@@ -3786,12 +3786,12 @@ Local<Value> PlayerClass::removeEffect(const Arguments& args) {
         player->removeEffect(id);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeEffect!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> PlayerClass::toEntity(const Arguments&) {
     try {
         return EntityClass::newEntity(get());
     }
-    CATCH("Fail in toEntity!");
+    CATCH_AND_THROW;
 }

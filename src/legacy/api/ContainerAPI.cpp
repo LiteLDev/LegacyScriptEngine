@@ -50,14 +50,14 @@ Local<Value> ContainerClass::getSize() {
     try {
         return Number::newNumber(container->getContainerSize());
     }
-    CATCH("Fail in getSize!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ContainerClass::getType() {
     try {
         return String::newString(container->getTypeName());
     }
-    CATCH("Fail in getType!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ContainerClass::addItem(const Arguments& args) {
@@ -78,7 +78,7 @@ Local<Value> ContainerClass::addItem(const Arguments& args) {
         }
         return Boolean::newBoolean(container->addItem(*item));
     }
-    CATCH("Fail in addItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
@@ -91,7 +91,7 @@ Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
         }
         return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
     }
-    CATCH("Fail in addItemToFirstEmptySlot!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
@@ -104,7 +104,7 @@ Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
         }
         return Boolean::newBoolean(container->hasRoomForItem(*item));
     }
-    CATCH("Fail in hasRoomFor!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::removeItem(const Arguments& args) {
@@ -116,7 +116,7 @@ Local<Value> ContainerClass::removeItem(const Arguments& args) {
         container->removeItem(args[0].asNumber().toInt32(), args[1].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::getItem(const Arguments& args) {
@@ -126,12 +126,12 @@ Local<Value> ContainerClass::getItem(const Arguments& args) {
     try {
         ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].asNumber().toInt32()));
         if (!item) {
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to get slot from container!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to get slot from container!");
             return Local<Value>();
         }
         return ItemClass::newItem(item);
     }
-    CATCH("Fail in getItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::setItem(const Arguments& args) {
@@ -147,7 +147,7 @@ Local<Value> ContainerClass::setItem(const Arguments& args) {
         container->setItem(args[0].asNumber().toInt32(), *item);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in getItem!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::getAllItems(const Arguments&) {
@@ -160,7 +160,7 @@ Local<Value> ContainerClass::getAllItems(const Arguments&) {
         }
         return res;
     }
-    CATCH("Fail in getAllItems!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::removeAllItems(const Arguments&) {
@@ -168,12 +168,12 @@ Local<Value> ContainerClass::removeAllItems(const Arguments&) {
         container->removeAllItems();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in removeAllItems!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ContainerClass::isEmpty(const Arguments&) {
     try {
         return Boolean::newBoolean(container->isEmpty());
     }
-    CATCH("Fail in isEmpty!");
+    CATCH_AND_THROW;
 }

@@ -2,24 +2,6 @@
 
 using namespace DB;
 
-#define CATCH_AND_THROW(LOG)                                                                                           \
-    catch (const Exception& e) {                                                                                       \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
-        return Local<Value>();                                                                                         \
-    }                                                                                                                  \
-    catch (const std::exception& e) {                                                                                  \
-        throw Exception(ll::string_utils::tou8str(e.what()));                                                          \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Uncaught Exception Detected!");                                    \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        lse::LegacyScriptEngine::getLogger().error("In API: " __FUNCTION__);                                           \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
-        return Local<Value>();                                                                                         \
-    }
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<KVDBClass> KVDBClassBuilder = defineClass<KVDBClass>("KVDatabase")
@@ -189,15 +171,15 @@ KVDBClass::KVDBClass(const std::string& dir) : ScriptClass(script::ScriptClass::
 KVDBClass::~KVDBClass() {}
 
 KVDBClass* KVDBClass::constructor(const Arguments& args) {
-    CHECK_ARGS_COUNT_C(args, 1);
-    CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         auto res = new KVDBClass(args.thiz(), args[0].asString().toString());
         if (res->isValid()) return res;
         else return nullptr;
     }
-    CATCH_C("Fail in Open Database!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> KVDBClass::get(const Arguments& args) {
@@ -212,7 +194,7 @@ Local<Value> KVDBClass::get(const Arguments& args) {
 
         return JsonToValue(*res);
     }
-    CATCH_AND_THROW("Fail in DbGet!");
+    CATCH_AND_THROW
 }
 
 Local<Value> KVDBClass::set(const Arguments& args) {
@@ -225,7 +207,7 @@ Local<Value> KVDBClass::set(const Arguments& args) {
         kvdb->set(args[0].asString().toString(), ValueToJson(args[1]));
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW("Fail in DbSet!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> KVDBClass::del(const Arguments& args) {
@@ -237,7 +219,7 @@ Local<Value> KVDBClass::del(const Arguments& args) {
 
         return Boolean::newBoolean(kvdb->del(args[0].asString().toString()));
     }
-    CATCH_AND_THROW("Fail in DbDel!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> KVDBClass::close(const Arguments&) {
@@ -247,7 +229,7 @@ Local<Value> KVDBClass::close(const Arguments&) {
         kvdb.reset();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW("Fail in DbClose!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> KVDBClass::listKey(const Arguments&) {
@@ -260,7 +242,7 @@ Local<Value> KVDBClass::listKey(const Arguments&) {
         }
         return array;
     }
-    CATCH_AND_THROW("Fail in DbListKey!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// Classes DBSession ////////////////////
@@ -297,8 +279,8 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
             }
         }
         case 2: {
-            CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
-            CHECK_ARG_TYPE_C(args[1], ValueKind::kObject);
+            CHECK_ARG_TYPE(args[0], ValueKind::kString);
+            CHECK_ARG_TYPE(args[1], ValueKind::kObject);
             auto       obj = args[1].asObject();
             ConnParams params;
             params["type"] = args[0].asString().toString();
@@ -311,7 +293,7 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
         }
         return result;
     }
-    CATCH_C("Fail in Open Database!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBSessionClass::query(const Arguments& args) {
@@ -322,7 +304,7 @@ Local<Value> DBSessionClass::query(const Arguments& args) {
         auto res = session->query(args[0].asString().toString());
         return RowSetToLocalValue(res);
     }
-    CATCH_AND_THROW("Fail in query!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBSessionClass::exec(const Arguments& args) {
@@ -333,7 +315,7 @@ Local<Value> DBSessionClass::exec(const Arguments& args) {
         session->execute(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in exec!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBSessionClass::prepare(const Arguments& args) {
@@ -344,7 +326,7 @@ Local<Value> DBSessionClass::prepare(const Arguments& args) {
         auto stmt = new DBStmtClass(session->prepare(args[0].asString().toString()));
         return stmt->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in exec!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBSessionClass::close(const Arguments& args) {
@@ -353,7 +335,7 @@ Local<Value> DBSessionClass::close(const Arguments& args) {
         session->close();
         return Boolean::newBoolean(true);
     }
-    CATCH_WITHOUT_RETURN("Fail in close!");
+    CATCH("Fail in close!");
     return Boolean::newBoolean(false);
 }
 Local<Value> DBSessionClass::isOpen(const Arguments& args) {
@@ -361,7 +343,7 @@ Local<Value> DBSessionClass::isOpen(const Arguments& args) {
     try {
         return Boolean::newBoolean(session->isOpen());
     }
-    CATCH_AND_THROW("Fail in isOpen!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// Classes DBStmt ////////////////////
@@ -384,7 +366,7 @@ Local<Value> DBStmtClass::getAffectedRows() {
         if (res > LLONG_MAX) return Number::newNumber((double)res);
         return Number::newNumber((int64_t)res);
     }
-    CATCH_AND_THROW("Fail in getAffectedRows!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::getInsertId() {
@@ -394,7 +376,7 @@ Local<Value> DBStmtClass::getInsertId() {
         if (res > LLONG_MAX) return Number::newNumber((double)res);
         return Number::newNumber((int64_t)res);
     }
-    CATCH_AND_THROW("Fail in getInsertId!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::bind(const Arguments& args) {
@@ -429,7 +411,7 @@ Local<Value> DBStmtClass::bind(const Arguments& args) {
         }
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in bind!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::execute(const Arguments& args) {
@@ -437,14 +419,14 @@ Local<Value> DBStmtClass::execute(const Arguments& args) {
         stmt->execute();
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in reset!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::step(const Arguments& args) {
     try {
         return Boolean::newBoolean(stmt->step());
     }
-    CATCH_WITHOUT_RETURN("Fail in step!");
+    CATCH("Fail in step!");
     return Boolean::newBoolean(false);
 }
 
@@ -452,7 +434,7 @@ Local<Value> DBStmtClass::fetch(const Arguments& args) {
     try {
         return RowToLocalValue(stmt->fetch());
     }
-    CATCH_AND_THROW("Fail in fetch!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::fetchAll(const Arguments& args) {
@@ -474,7 +456,7 @@ Local<Value> DBStmtClass::fetchAll(const Arguments& args) {
         }
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in fetchAll!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::reset(const Arguments& args) {
@@ -482,7 +464,7 @@ Local<Value> DBStmtClass::reset(const Arguments& args) {
         stmt->reset();
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in reset!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::reexec(const Arguments& args) {
@@ -490,7 +472,7 @@ Local<Value> DBStmtClass::reexec(const Arguments& args) {
         stmt->reexec();
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in reexec!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DBStmtClass::clear(const Arguments& args) {
@@ -498,5 +480,5 @@ Local<Value> DBStmtClass::clear(const Arguments& args) {
         stmt->clear();
         return this->getScriptObject();
     }
-    CATCH_AND_THROW("Fail in clear!");
+    CATCH_AND_THROW;
 }

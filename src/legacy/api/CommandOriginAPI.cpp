@@ -40,21 +40,21 @@ Local<Value> CommandOriginClass::getOriginType() {
     try {
         return Number::newNumber((int)get()->getOriginType());
     }
-    CATCH("Fail in getOriginType!");
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getOriginTypeName() {
     try {
         return String::newString(magic_enum::enum_name(get()->getOriginType()));
     }
-    CATCH("Fail in getOriginTypeName!");
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getOriginName() {
     try {
         return String::newString(get()->getName());
     }
-    CATCH("Fail in getOriginName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::getBlockPosition() {
@@ -62,7 +62,7 @@ Local<Value> CommandOriginClass::getBlockPosition() {
         auto dim = get()->getDimension();
         return IntPos::newPos(get()->getBlockPosition(), dim ? (int)dim->getDimensionId() : 0);
     }
-    CATCH("Fail in getBlockPosition!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::getPosition() {
@@ -70,7 +70,7 @@ Local<Value> CommandOriginClass::getPosition() {
         auto dim = get()->getDimension();
         return FloatPos::newPos(get()->getWorldPosition(), dim ? (int)dim->getDimensionId() : 0);
     }
-    CATCH("Fail in getPosition!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::getEntity() {
@@ -79,7 +79,7 @@ Local<Value> CommandOriginClass::getEntity() {
         if (!entity) return Local<Value>();
         return EntityClass::newEntity(entity);
     }
-    CATCH("Fail in getEntity!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::getPlayer() {
@@ -88,19 +88,19 @@ Local<Value> CommandOriginClass::getPlayer() {
         if (!player) return Local<Value>();
         return PlayerClass::newPlayer(static_cast<Player*>(player));
     }
-    CATCH("Fail in getPlayer!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::getNbt(const Arguments&) {
     try {
         return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get()->serialize()));
     }
-    CATCH("Fail in getNbt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> CommandOriginClass::toString() {
     try {
         return String::newString("<CommandOrigin>");
     }
-    CATCH("Fail in toString!");
+    CATCH_AND_THROW;
 }

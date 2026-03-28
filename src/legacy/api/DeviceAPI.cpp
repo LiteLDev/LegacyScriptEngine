@@ -64,7 +64,7 @@ Local<Value> DeviceClass::getIP() {
 
         return String::newString(player->getNetworkIdentifier().getIPAndPort());
     }
-    CATCH("Fail in GetIP!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getAvgPing() {
@@ -74,7 +74,7 @@ Local<Value> DeviceClass::getAvgPing() {
 
         return Number::newNumber(player->getNetworkStatus()->mAveragePing);
     }
-    CATCH("Fail in getAvgPing!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getAvgPacketLoss() {
@@ -84,7 +84,7 @@ Local<Value> DeviceClass::getAvgPacketLoss() {
 
         return Number::newNumber(player->getNetworkStatus()->mAveragePacketLoss);
     }
-    CATCH("Fail in getAvgPacketLoss!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getLastPing() {
@@ -94,7 +94,7 @@ Local<Value> DeviceClass::getLastPing() {
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPing);
     }
-    CATCH("Fail in getLastPing!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getLastPacketLoss() {
@@ -104,7 +104,7 @@ Local<Value> DeviceClass::getLastPacketLoss() {
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPacketLoss);
     }
-    CATCH("Fail in getLastPacketLoss!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getOs() {
@@ -114,7 +114,7 @@ Local<Value> DeviceClass::getOs() {
 
         return String::newString(magic_enum::enum_name(player->mBuildPlatform));
     }
-    CATCH("Fail in getOs!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getServerAddress() {
@@ -126,7 +126,7 @@ Local<Value> DeviceClass::getServerAddress() {
         Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
         return String::newString(requestJson["ServerAddress"].asString("unknown"));
     }
-    CATCH("Fail in getServerAddress!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getClientId() {
@@ -136,7 +136,7 @@ Local<Value> DeviceClass::getClientId() {
 
         return String::newString(player->getConnectionRequest()->getDeviceId());
     }
-    CATCH("Fail in getClientId!")
+    CATCH_AND_THROW
 }
 
 Local<Value> DeviceClass::getInputMode() {
@@ -147,7 +147,7 @@ Local<Value> DeviceClass::getInputMode() {
         Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
         return Number::newNumber(requestJson["CurrentInputMode"].asInt(0));
     }
-    CATCH("Fail in getInputMode!")
+    CATCH_AND_THROW
 }
 
 // Local<Value> DeviceClass::getPlayMode() {
@@ -157,5 +157,5 @@ Local<Value> DeviceClass::getInputMode() {
 
 //         return Number::newNumber(0);
 //     }
-//     CATCH("Fail in getPlayMode!")
+//     CATCH_AND_THROW
 // }

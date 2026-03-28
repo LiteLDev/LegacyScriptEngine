@@ -127,7 +127,7 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : -1
         ));
     }
-    CATCH("Fail in SystemCmd");
+    CATCH_AND_THROW;
 }
 
 Local<Value> SystemClass::newProcess(const Arguments& args) {
@@ -165,14 +165,14 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : -1
         ));
     }
-    CATCH("Fail in newProcess");
+    CATCH_AND_THROW;
 }
 
 Local<Value> SystemClass::getTimeStr(const Arguments&) {
     try {
         return String::newString(Raw_GetDateTimeStr());
     }
-    CATCH("Fail in GetTimeStr!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SystemClass::getTimeObj(const Arguments&) {
@@ -189,7 +189,7 @@ Local<Value> SystemClass::getTimeObj(const Arguments&) {
         res.set("ms", Number::newNumber((int)st.wMilliseconds));
         return res;
     }
-    CATCH("Fail in GetTimeNow!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SystemClass::randomGuid(const Arguments&) { return String::newString(Raw_RandomGuid()); }

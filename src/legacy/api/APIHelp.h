@@ -3,7 +3,6 @@
 #include "engine/EngineOwnData.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "lse/Entry.h"
-#include "main/Global.h"
 #include "mc/world/level/Level.h"
 #include "utils/JsonHelper.h"
 #include "utils/UsingScriptX.h"
@@ -20,15 +19,12 @@ bool inline IsInstanceOf(Local<Value> v) {
 
 std::string ValueKindToString(const ValueKind& kind);
 
-#if !defined(NEW_DEFINES)
-
 // 输出脚本调用堆栈，API名称，以及插件名
 inline void CREATE_EXCEPTION_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
     throw script::Exception(fmt::format("In API: {}, In Plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
 }
 
-inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
-    lse::LegacyScriptEngine::getLogger().error(msg);
+inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}) {
     lse::LegacyScriptEngine::getLogger().error("In API: " + func);
     lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
 }
@@ -51,7 +47,7 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
 // 至少COUNT个参数
 #define CHECK_ARGS_COUNT(ARGS, COUNT)                                                                                  \
     if (ARGS.size() < COUNT) {                                                                                         \
-        THROW_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
+        THROW_TOO_FEW_ARGS(__FUNCTION__);                                                                              \
     }
 
 // 检查是否TYPE类型
@@ -61,7 +57,7 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
     }
 
 // 截获引擎异常
-#define CATCH(LOG)                                                                                                     \
+#define CATCH_AND_THROW                                                                                                \
     catch (script::Exception const& e) {                                                                               \
         throw e;                                                                                                       \
     }                                                                                                                  \
@@ -69,72 +65,37 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
         throw script::Exception(e.what());                                                                             \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        throw script::Exception(fmt::format("Unknown exception in {}", __func__));                                     \
+        throw script::Exception(                                                                                       \
+            fmt::format("{}\nfunction: {}", ll::error_utils::makeExceptionString(std::current_exception()), __func__)  \
+        );                                                                                                             \
     }
 
-// 至少COUNT个参数_Constructor
-#define CHECK_ARGS_COUNT_C(ARGS, COUNT)                                                                                \
-    if (ARGS.size() < COUNT) {                                                                                         \
-        THROW_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
-    }
-
-// 检查是否TYPE类型_Constructor
-#define CHECK_ARG_TYPE_C(ARG, TYPE)                                                                                    \
-    if (ARG.getKind() != TYPE) {                                                                                       \
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
-    }
-
-// 检查是否TYPE类型_Setter
-#define CHECK_ARG_TYPE_S(ARG, TYPE)                                                                                    \
-    if (ARG.getKind() != TYPE) {                                                                                       \
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
-    }
-
-// 截获引擎异常_Constructor
-#define CATCH_C(LOG)                                                                                                   \
+#define CATCH                                                                                                          \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return nullptr;                                                                                                \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return nullptr;                                                                                                \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }
 
-// 截获引擎异常_Setter
-#define CATCH_S(LOG)                                                                                                   \
+#define CATCH_WITH_MESSAGE(LOG)                                                                                        \
     catch (const Exception& e) {                                                                                       \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return;                                                                                                        \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return;                                                                                                        \
-    }
-
-// 截获引擎异常_Constructor
-#define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
-    catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
         lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
         lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
     }                                                                                                                  \
@@ -143,66 +104,6 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
         lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
         lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
     }
-#else
-
-// 新的宏定义, 把异常抛入脚本层处理
-
-#define CATCH_AND_THROW                                                                                                \
-    catch (const Exception& e) {                                                                                       \
-        throw e;                                                                                                       \
-    }                                                                                                                  \
-    catch (const std::exception& e) {                                                                                  \
-        throw Exception(e.what());                                                                                     \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        throw Exception("Unknown exception in " __FUNCTION__);                                                         \
-    }
-
-#define CHECK_ARGS_COUNT(count)                                                                                        \
-    if (args.size() != count) {                                                                                        \
-        throw Exception(                                                                                               \
-            fmt::format("Invalid arguments count: {}, expect {}, in API {}", args.size(), count, __FUNCTION__)         \
-        );                                                                                                             \
-    }
-
-#define CHECK_ARGS_LEAST_COUNT(count)                                                                                  \
-    if (args.size() < count) {                                                                                         \
-        throw Exception(                                                                                               \
-            fmt::format(                                                                                               \
-                "Invalid arguments count: {}, expect at least {}, in API {}",                                          \
-                args.size(),                                                                                           \
-                count,                                                                                                 \
-                __FUNCTION__                                                                                           \
-            )                                                                                                          \
-        );                                                                                                             \
-    }
-
-#define CHECK_ARG_TYPE(index, type)                                                                                    \
-    if (args[index].getKind() != ValueKind::type) {                                                                    \
-        throw Exception(                                                                                               \
-            fmt::format(                                                                                               \
-                "Wrong type of arguments[{}]: {}, expect {}, in API {}",                                               \
-                index,                                                                                                 \
-                ValueKindToString(args[index].getKind()),                                                              \
-                ValueKindToString(ValueKind::type),                                                                    \
-                __FUNCTION__                                                                                           \
-            )                                                                                                          \
-        );                                                                                                             \
-    }
-
-#define CHECK_VAL_TYPE(val, type)                                                                                      \
-    if (val.getKind() != ValueKind::type) {                                                                            \
-        throw Exception(                                                                                               \
-            fmt::format(                                                                                               \
-                "Wrong type of value: {}, expect {}, in API {}",                                                       \
-                ValueKindToString(val.getKind()),                                                                      \
-                ValueKindToString(ValueKind::type),                                                                    \
-                __FUNCTION__                                                                                           \
-            )                                                                                                          \
-        );                                                                                                             \
-    }
-
-#endif
 
 // 判断是否为浮点数
 bool CheckIsFloat(const Local<Value>& num);

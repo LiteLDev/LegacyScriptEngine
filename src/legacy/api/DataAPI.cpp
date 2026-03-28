@@ -99,7 +99,7 @@ Local<Value> ConfBaseClass::getPath(const Arguments&) {
     try {
         return String::newString(confPath);
     }
-    CATCH("Fail in confGetPath!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ConfBaseClass::read(const Arguments&) {
@@ -108,7 +108,7 @@ Local<Value> ConfBaseClass::read(const Arguments&) {
         if (!content) return Local<Value>();
         else return String::newString(*content);
     }
-    CATCH("Fail in confRead!")
+    CATCH_AND_THROW
 }
 
 //////////////////// Classes ConfJson ////////////////////
@@ -129,9 +129,9 @@ ConfJsonClass::ConfJsonClass(const string& path, const string& defContent)
 ConfJsonClass::~ConfJsonClass() { close(); }
 
 ConfJsonClass* ConfJsonClass::constructor(const Arguments& args) {
-    CHECK_ARGS_COUNT_C(args, 1);
-    CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
-    if (args.size() >= 2) CHECK_ARG_TYPE_C(args[1], ValueKind::kString);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
         string path = args[0].asString().toString();
@@ -140,7 +140,7 @@ ConfJsonClass* ConfJsonClass::constructor(const Arguments& args) {
         if (args.size() >= 2) return new ConfJsonClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfJsonClass(args.thiz(), path, "{}");
     }
-    CATCH_C("Fail in Open JsonConfigFile!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::init(const Arguments& args) {
@@ -158,7 +158,7 @@ Local<Value> ConfJsonClass::init(const Arguments& args) {
         flush();
         return args[1];
     }
-    CATCH("Fail in confJsonSet!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::get(const Arguments& args) {
@@ -172,7 +172,7 @@ Local<Value> ConfJsonClass::get(const Arguments& args) {
     } catch (const ordered_json::exception&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
     }
-    CATCH("Fail in confJsonGet!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ConfJsonClass::set(const Arguments& args) {
@@ -185,7 +185,7 @@ Local<Value> ConfJsonClass::set(const Arguments& args) {
     } catch (const ordered_json::exception&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in confJsonSet!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::del(const Arguments& args) {
@@ -199,7 +199,7 @@ Local<Value> ConfJsonClass::del(const Arguments& args) {
     } catch (const ordered_json::exception&) {
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in confJsonDelete!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::reload(const Arguments&) {
@@ -210,14 +210,14 @@ Local<Value> ConfJsonClass::reload(const Arguments&) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in confJsonReload!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::close(const Arguments&) {
     try {
         return Boolean::newBoolean(close());
     }
-    CATCH("Fail in confJsonClose!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfJsonClass::write(const Arguments& args) {
@@ -230,7 +230,7 @@ Local<Value> ConfJsonClass::write(const Arguments& args) {
         reload();
         return Boolean::newBoolean(res);
     }
-    CATCH("Fail in confJsonWrite!");
+    CATCH_AND_THROW;
 }
 
 bool ConfJsonClass::flush() {
@@ -280,9 +280,9 @@ ConfIniClass::ConfIniClass(const string& path, const string& defContent)
 ConfIniClass::~ConfIniClass() { close(); }
 
 ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
-    CHECK_ARGS_COUNT_C(args, 1);
-    CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
-    if (args.size() >= 2) CHECK_ARG_TYPE_C(args[1], ValueKind::kString);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
         string path = args[0].asString().toString();
@@ -291,7 +291,7 @@ ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
         if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfIniClass(args.thiz(), path, "");
     }
-    CATCH_C("Fail in Open IniConfigFile!");
+    CATCH_AND_THROW;
 }
 
 bool ConfIniClass::flush() { return iniConf->SaveFile(iniConf->filePath.c_str(), true); }
@@ -367,13 +367,13 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
             break;
         }
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
             return Local<Value>();
             break;
         }
         return res;
     }
-    CATCH("Fail in confIniInit!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ConfIniClass::set(const Arguments& args) {
@@ -398,14 +398,14 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
             iniConf->setBool(section, key, args[2].asBoolean().value());
             break;
         default:
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
             return Local<Value>();
             break;
         }
         flush();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in confIniSet!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ConfIniClass::getStr(const Arguments& args) {
@@ -423,7 +423,7 @@ Local<Value> ConfIniClass::getStr(const Arguments& args) {
             args.size() >= 3 ? args[2].asString().toString() : ""
         ));
     }
-    CATCH("Fail in confIniGetStr!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ConfIniClass::getInt(const Arguments& args) {
@@ -441,7 +441,7 @@ Local<Value> ConfIniClass::getInt(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : 0
         ));
     }
-    CATCH("Fail in ConfIniGetInt!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::getFloat(const Arguments& args) {
@@ -459,7 +459,7 @@ Local<Value> ConfIniClass::getFloat(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0f
         ));
     }
-    CATCH("Fail in ConfIniGetFloat!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::getBool(const Arguments& args) {
@@ -477,7 +477,7 @@ Local<Value> ConfIniClass::getBool(const Arguments& args) {
             args.size() >= 3 ? args[2].asBoolean().value() : false
         ));
     }
-    CATCH("Fail in ConfIniGetBool");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::del(const Arguments& args) {
@@ -492,14 +492,14 @@ Local<Value> ConfIniClass::del(const Arguments& args) {
         flush();
         return Boolean::newBoolean(res);
     }
-    CATCH("Fail in confIniDelete!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::reload(const Arguments&) {
     try {
         return Boolean::newBoolean(reload());
     }
-    CATCH("Fail in confReload!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::write(const Arguments& args) {
@@ -512,14 +512,14 @@ Local<Value> ConfIniClass::write(const Arguments& args) {
         reload();
         return Boolean::newBoolean(res);
     }
-    CATCH("Fail in confIniWrite!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ConfIniClass::close(const Arguments&) {
     try {
         return Boolean::newBoolean(close());
     }
-    CATCH("Fail in confClose!");
+    CATCH_AND_THROW;
 }
 
 //////////////////// APIs ////////////////////
@@ -542,7 +542,7 @@ Local<Value> MoneyClass::set(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in MoneySet!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> MoneyClass::get(const Arguments& args) {
@@ -560,7 +560,7 @@ Local<Value> MoneyClass::get(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Number::newNumber(0);
     }
-    CATCH("Fail in MoneyGet!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> MoneyClass::add(const Arguments& args) {
@@ -581,7 +581,7 @@ Local<Value> MoneyClass::add(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in MoneyAdd!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> MoneyClass::reduce(const Arguments& args) {
@@ -602,7 +602,7 @@ Local<Value> MoneyClass::reduce(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in MoneyReduce!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> MoneyClass::trans(const Arguments& args) {
@@ -631,7 +631,7 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in MoneyTrans!");
+    CATCH_AND_THROW;
 }
 
 Local<Array> objectificationMoneyHistory(const string& res) {
@@ -673,7 +673,7 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Local<Value>();
     }
-    CATCH("Fail in MoneyGetHistory!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> MoneyClass::clearHistory(const Arguments& args) {
@@ -684,7 +684,7 @@ Local<Value> MoneyClass::clearHistory(const Arguments& args) {
         EconomySystem::clearMoneyHist(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in MoneyClearHistory!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::xuid2name(const Arguments& args) {
@@ -699,7 +699,7 @@ Local<Value> DataClass::xuid2name(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in XuidToName!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::name2xuid(const Arguments& args) {
@@ -714,7 +714,7 @@ Local<Value> DataClass::name2xuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in NameToXuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::name2uuid(const Arguments& args) {
@@ -729,7 +729,7 @@ Local<Value> DataClass::name2uuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in NameToUuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::xuid2uuid(const Arguments& args) {
@@ -744,7 +744,7 @@ Local<Value> DataClass::xuid2uuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in XuidToUuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
@@ -762,7 +762,7 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
         }
         return arr;
     }
-    CATCH("Fail in getAllPlayerInfo!");
+    CATCH_AND_THROW;
 }
 
 // New API for LSE
@@ -783,7 +783,7 @@ Local<Value> DataClass::fromUuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in NameToUuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::fromXuid(const Arguments& args) {
@@ -802,7 +802,7 @@ Local<Value> DataClass::fromXuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in NameToUuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::fromName(const Arguments& args) {
@@ -821,7 +821,7 @@ Local<Value> DataClass::fromName(const Arguments& args) {
             return {};
         }
     }
-    CATCH("Fail in NameToUuid!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::toJson(const Arguments& args) {
@@ -838,11 +838,11 @@ Local<Value> DataClass::toJson(const Arguments& args) {
             return String::newString(ValueToJson(args[0], spaces));
         } catch (...) {
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
             return Local<Value>();
         }
     }
-    CATCH("Fail in ToJson!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::parseJson(const Arguments& args) {
@@ -854,11 +854,11 @@ Local<Value> DataClass::parseJson(const Arguments& args) {
             return JsonToValue(args[0].asString().toString());
         } catch (...) {
             ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
+            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
             return Local<Value>();
         }
     }
-    CATCH("Fail in ParseJson!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::toMD5(const Arguments& args) {
@@ -876,7 +876,7 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::MD5, data));
     }
-    CATCH("Fail in ToMD5!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::toSHA1(const Arguments& args) {
@@ -894,7 +894,7 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::SHA1, data));
     }
-    CATCH("Fail in ToSHA1!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::toBase64(const Arguments& args) {
@@ -911,7 +911,7 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
         }
         return String::newString(ll::base64_utils::encode(data));
     }
-    CATCH("Fail in ToBase64!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::fromBase64(const Arguments& args) {
@@ -931,7 +931,7 @@ Local<Value> DataClass::fromBase64(const Arguments& args) {
             return String::newString(data);
         }
     }
-    CATCH("Fail in FromBase64!");
+    CATCH_AND_THROW;
 }
 
 // For Compatibility
@@ -985,7 +985,7 @@ Local<Value> DataClass::openConfig(const Arguments& args) {
             else return ConfJsonClass::newConf(path, "{}");
         }
     }
-    CATCH("Fail in OpenConfig!");
+    CATCH_AND_THROW;
 }
 
 Local<Value> DataClass::openDB(const Arguments& args) {

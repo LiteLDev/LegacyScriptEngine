@@ -79,7 +79,7 @@ Local<Value> McClass::regPlayerCmd(const Arguments& args) {
         LLSERegisterNewCmd(true, cmd, describe, level, args[2].asFunction());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in RegisterPlayerCmd!");
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::regConsoleCmd(const Arguments& args) {
@@ -95,7 +95,7 @@ Local<Value> McClass::regConsoleCmd(const Arguments& args) {
         LLSERegisterNewCmd(false, cmd, describe, 4, args[2].asFunction());
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in RegisterConsoleCmd!");
+    CATCH_AND_THROW
 }
 
 // Helper
@@ -112,7 +112,7 @@ Local<Value> McClass::sendCmdOutput(const Arguments& args) {
     try {
         return Boolean::newBoolean(SendCmdOutput(args[0].asString().toString()));
     }
-    CATCH("Fail in SendCmdOutput!");
+    CATCH_AND_THROW
 }
 
 void ProcessRegCmdQueue() {

@@ -61,14 +61,14 @@ Local<Value> LlClass::getLanguage() {
     try {
         return String::newString(ll::i18n::getDefaultLocaleCode());
     }
-    CATCH("Fail in getLanguage")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::isWine() {
     try {
         return Boolean::newBoolean(ll::sys_utils::isWine());
     }
-    CATCH("Fail in isWine")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::isDebugMode() {
@@ -88,7 +88,7 @@ Local<Value> LlClass::isRelease() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isRelease")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::isBeta() {
@@ -100,7 +100,7 @@ Local<Value> LlClass::isBeta() {
             return Boolean::newBoolean(false);
         }
     }
-    CATCH("Fail in isBeta")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::isDev() {
@@ -112,7 +112,7 @@ Local<Value> LlClass::isDev() {
             return Boolean::newBoolean(true);
         }
     }
-    CATCH("Fail in isDev");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::getMajorVersion() {
@@ -124,7 +124,7 @@ Local<Value> LlClass::getMajorVersion() {
             return Number::newNumber(0);
         }
     }
-    CATCH("Fail in getMajorVersion")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::getMinorVersion() {
@@ -136,7 +136,7 @@ Local<Value> LlClass::getMinorVersion() {
             return Number::newNumber(0);
         }
     }
-    CATCH("Fail in getMinorVersion")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::getRevisionVersion() {
@@ -148,14 +148,14 @@ Local<Value> LlClass::getRevisionVersion() {
             return Number::newNumber(0);
         }
     }
-    CATCH("Fail in getRevisionVersion")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::getScriptEngineVersion() {
     try {
         return String::newString(EngineScope::currentEngine()->getEngineVersion());
     }
-    CATCH("Fail in getScriptEngineVersion")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::getVersionStatus() {
@@ -177,7 +177,7 @@ Local<Value> LlClass::getPluginsRoot() {
     try {
         return String::newString(ll::mod::getModsRoot().u8string());
     }
-    CATCH("Fail in getPluginsRoot")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::registerPlugin(const Arguments& args) {
@@ -288,7 +288,7 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
 
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in registerPlugin");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::getPluginInfo(const Arguments& args) {
@@ -329,7 +329,7 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in getPluginInfo");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
@@ -363,7 +363,7 @@ Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in getCurrentPluginInfo");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::versionString(const Arguments&) {
@@ -375,7 +375,7 @@ Local<Value> LlClass::versionString(const Arguments&) {
             return String::newString("0.0.0");
         }
     }
-    CATCH("Fail in versionString!")
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::requireVersion(const Arguments&) { return Boolean::newBoolean(true); }
@@ -417,7 +417,7 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
         }
         return plugins;
     }
-    CATCH("Fail in getAllPluginInfo");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::onUnload(const script::Arguments& args) {
@@ -433,7 +433,7 @@ Local<Value> LlClass::onUnload(const script::Arguments& args) {
         );
         return {};
     }
-    CATCH("Fail in onUnload");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::listPlugins(const Arguments&) {
@@ -445,7 +445,7 @@ Local<Value> LlClass::listPlugins(const Arguments&) {
         }
         return plugins;
     }
-    CATCH("Fail in listPlugins");
+    CATCH_AND_THROW;
 }
 
 Local<Value> LlClass::require(const Arguments&) { return Boolean::newBoolean(true); }
@@ -456,7 +456,7 @@ Local<Value> LlClass::eval(const Arguments& args) {
     try {
         return EngineScope::currentEngine()->eval(args[0].asString().toString());
     }
-    CATCH("Fail in eval!")
+    CATCH_AND_THROW
 }
 
 // For Compatibility
@@ -476,5 +476,5 @@ Local<Value> LlClass::version(const Arguments&) {
             return Object::newObject();
         }
     }
-    CATCH("Fail in version!")
+    CATCH_AND_THROW
 }

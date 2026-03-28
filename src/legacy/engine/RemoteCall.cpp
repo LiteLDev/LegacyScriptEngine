@@ -153,7 +153,7 @@ Local<Value> LlClass::exportFunc(const Arguments& args)
     {
         return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].asString().toString()));
     }
-    CATCH("Fail in LLSEExport!");
+    CATCH_AND_THROW;
 #endif
 }
 
@@ -180,7 +180,7 @@ Local<Value> LlClass::importFunc(const Arguments &args)
             return MakeRemoteCall(funcName, args);
         });
     }
-    CATCH("Fail in LLSEImport!")
+    CATCH_AND_THROW
 #endif
 }
 #endif

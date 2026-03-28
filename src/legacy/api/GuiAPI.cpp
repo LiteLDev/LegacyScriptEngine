@@ -92,7 +92,7 @@ Local<Value> SimpleFormClass::setTitle(const Arguments& args) {
         form.setTitle(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in setTitle!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SimpleFormClass::setContent(const Arguments& args) {
@@ -103,7 +103,7 @@ Local<Value> SimpleFormClass::setContent(const Arguments& args) {
         form.setContent(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in setTitle!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SimpleFormClass::addButton(const Arguments& args) {
@@ -117,7 +117,7 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
         form.appendButton(args[0].asString().toString(), image, type);
         return this->getScriptObject();
     }
-    CATCH("Fail in addButton!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SimpleFormClass::addHeader(const Arguments& args) {
@@ -128,7 +128,7 @@ Local<Value> SimpleFormClass::addHeader(const Arguments& args) {
         form.appendLabel(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in addHeader!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
@@ -139,7 +139,7 @@ Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
         form.appendLabel(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in addLabel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
@@ -147,7 +147,7 @@ Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
         form.appendDivider();
         return this->getScriptObject();
     }
-    CATCH("Fail in addDivider!")
+    CATCH_AND_THROW
 }
 
 //////////////////// Custom Form ////////////////////
@@ -207,7 +207,7 @@ Local<Value> CustomFormClass::setTitle(const Arguments& args) {
         form.setTitle(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in setTitle!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::setSubmitButton(const Arguments& args) {
@@ -218,7 +218,7 @@ Local<Value> CustomFormClass::setSubmitButton(const Arguments& args) {
         form.setSubmitButton(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in setSubmitButton!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addHeader(const Arguments& args) {
@@ -229,7 +229,7 @@ Local<Value> CustomFormClass::addHeader(const Arguments& args) {
         form.appendLabel(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in addHeader!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addLabel(const Arguments& args) {
@@ -240,7 +240,7 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
         form.appendLabel(args[0].asString().toString());
         return this->getScriptObject();
     }
-    CATCH("Fail in addLabel!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addDivider(const Arguments& args) {
@@ -248,7 +248,7 @@ Local<Value> CustomFormClass::addDivider(const Arguments& args) {
         form.appendDivider();
         return this->getScriptObject();
     }
-    CATCH("Fail in addDivider!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addInput(const Arguments& args) {
@@ -266,7 +266,7 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
         form.appendInput("", args[0].asString().toString(), placeholder, def, tooltip);
         return this->getScriptObject();
     }
-    CATCH("Fail in addInput!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
@@ -287,7 +287,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
         form.appendToggle("", args[0].asString().toString(), def, tooltip);
         return this->getScriptObject();
     }
-    CATCH("Fail in addSwitch!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
@@ -311,7 +311,7 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
         form.appendDropdown("", args[0].asString().toString(), options, def, tooltip);
         return this->getScriptObject();
     }
-    CATCH("Fail in addDropdown!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addSlider(const Arguments& args) {
@@ -336,7 +336,7 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
         form.appendSlider("", args[0].asString().toString(), minValue, maxValue, step, defValue, tooltip);
         return this->getScriptObject();
     }
-    CATCH("Fail in addSlider!")
+    CATCH_AND_THROW
 }
 
 Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
@@ -358,7 +358,7 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
         form.appendStepSlider("", args[0].asString().toString(), steps, defIndex, tooltip);
         return this->getScriptObject();
     }
-    CATCH("Fail in addStepSlider!")
+    CATCH_AND_THROW
 }
 
 //////////////////// APIs ////////////////////

@@ -52,7 +52,7 @@ Local<Value> ObjectiveClass::getName() {
     try {
         return String::newString(objname);
     }
-    CATCH("Fail in getName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ObjectiveClass::getDisplayName() {
@@ -61,7 +61,7 @@ Local<Value> ObjectiveClass::getDisplayName() {
         if (!obj) return Local<Value>();
         return String::newString(obj->mDisplayName);
     }
-    CATCH("Fail in getDisplayName!")
+    CATCH_AND_THROW
 }
 
 Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
@@ -80,7 +80,7 @@ Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
             ll::service::getLevel()->getScoreboard().setDisplayObjective(slot, *obj, (ObjectiveSortOrder)sort)
         );
     }
-    CATCH("Fail in setDisplay");
+    CATCH_AND_THROW;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in setScore");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ObjectiveClass::addScore(const Arguments& args) {
@@ -171,7 +171,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in addScore");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
@@ -216,7 +216,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
         }
         return Local<Value>();
     }
-    CATCH("Fail in removeScore");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
@@ -254,7 +254,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
-    CATCH("Fail in deleteScore");
+    CATCH_AND_THROW;
 }
 
 Local<Value> ObjectiveClass::getScore(const Arguments& args) {
@@ -281,7 +281,7 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
-    CATCH("Fail in getScore");
+    CATCH_AND_THROW;
 }
 
 //////////////////// APIs ////////////////////
@@ -297,7 +297,7 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
         if (!res) return Local<Value>();
         return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
     }
-    CATCH("Fail in GetDisplayObjective");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
@@ -311,7 +311,7 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
         if (!res) return Boolean::newBoolean(false);
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in ClearDisplayObjective");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::getScoreObjective(const Arguments& args) {
@@ -329,7 +329,7 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
         }
         return {};
     }
-    CATCH("Fail in GetScoreObjective");
+    CATCH_AND_THROW;
 }
 
 Local<Value> McClass::newScoreObjective(const Arguments& args) {
@@ -347,7 +347,7 @@ Local<Value> McClass::newScoreObjective(const Arguments& args) {
             scoreboard.addObjective(name, display, *const_cast<ObjectiveCriteria*>(scoreboard.getCriteria(criteria)));
         return obj ? ObjectiveClass::newObjective(obj) : Local<Value>();
     }
-    CATCH("Fail in NewScoreObjective!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::removeScoreObjective(const Arguments& args) {
@@ -363,7 +363,7 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH("Fail in RemoveScoreObjective!")
+    CATCH_AND_THROW
 }
 
 Local<Value> McClass::getAllScoreObjectives(const Arguments&) {
@@ -376,5 +376,5 @@ Local<Value> McClass::getAllScoreObjectives(const Arguments&) {
         }
         return res;
     }
-    CATCH("Fail in GetAllScoreObjectives!")
+    CATCH_AND_THROW
 }

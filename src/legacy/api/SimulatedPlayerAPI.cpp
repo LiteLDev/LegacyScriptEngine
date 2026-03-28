@@ -92,7 +92,6 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
         }
 
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 };

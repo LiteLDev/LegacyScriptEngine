@@ -39,19 +39,19 @@ inline void THROW_WRONG_ARG_TYPE(std::string const& func = {}) {
 }
 
 // 参数数量错误输出
-inline void LOG_TOO_FEW_ARGS(std::string const& func = {}) {
+inline void THROW_TOO_FEW_ARGS(std::string const& func = {}) {
     CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Too Few arguments!");
 }
 
 // 参数数量错误输出
-inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
+inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
     CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
 }
 
 // 至少COUNT个参数
 #define CHECK_ARGS_COUNT(ARGS, COUNT)                                                                                  \
     if (ARGS.size() < COUNT) {                                                                                         \
-        LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
+        THROW_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
     }
 
 // 检查是否TYPE类型
@@ -75,7 +75,7 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
 // 至少COUNT个参数_Constructor
 #define CHECK_ARGS_COUNT_C(ARGS, COUNT)                                                                                \
     if (ARGS.size() < COUNT) {                                                                                         \
-        LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
+        THROW_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
     }
 
 // 检查是否TYPE类型_Constructor

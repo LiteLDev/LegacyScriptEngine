@@ -758,8 +758,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
@@ -820,8 +819,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
@@ -1631,8 +1629,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                 aabb.max = aabb.min + 1;
             }
         } else {
-            LOG_TOO_FEW_ARGS(__FUNCTION__);
-            return Local<Value>();
+            THROW_TOO_FEW_ARGS(__FUNCTION__);
         }
         aabb.max += dis;
         aabb.min -= dis;
@@ -1713,8 +1710,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
         ActorDefinitionIdentifier id(ac->getTypeName());
         Mob*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
@@ -1771,8 +1767,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         ActorDefinitionIdentifier id(name);
@@ -1837,8 +1832,7 @@ Local<Value> McClass::explode(const Arguments& args) {
             };
             break;
         default:
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
             break;
         }
         std::optional<Actor*> source = EntityClass::tryExtractActor(args[beginIndex]); // Can be nullptr

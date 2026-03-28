@@ -444,8 +444,7 @@ Local<Value> McClass::getBlock(const Arguments& args) {
                 args[3].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         auto dimPtr = ll::service::getLevel()->getDimension(pos.dim).lock();
@@ -524,8 +523,7 @@ Local<Value> McClass::setBlock(const Arguments& args) {
                 tileData = args[5].asNumber().toInt32();
             }
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         if (block.isString()) {
@@ -613,8 +611,7 @@ Local<Value> McClass::spawnParticle(const Arguments& args) {
             };
             type = args[4];
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         ll::service::getLevel()->spawnParticleEffect(

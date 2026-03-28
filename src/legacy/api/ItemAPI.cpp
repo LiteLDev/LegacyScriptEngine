@@ -473,8 +473,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 item->reinit(type, cnt, 0);
                 return ItemClass::newItem(std::move(item));
             } else {
-                LOG_TOO_FEW_ARGS(__FUNCTION__);
-                return Local<Value>();
+                THROW_TOO_FEW_ARGS(__FUNCTION__);
             }
         } else {
             auto nbt = NbtCompoundClass::extract(args[0]);
@@ -526,8 +525,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         ItemStack* it = ItemClass::extract(args[0]);

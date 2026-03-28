@@ -1823,8 +1823,7 @@ Local<Value> PlayerClass::setRespawnPosition(const Arguments& args) {
                 args[3].asNumber().toInt32()
             };
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
         player->setRespawnPosition(pos.getBlockPos(), pos.dim);
         return Boolean::newBoolean(true);
@@ -3619,8 +3618,7 @@ Local<Value> PlayerClass::distanceTo(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
@@ -3681,8 +3679,7 @@ Local<Value> PlayerClass::distanceToSqr(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            LOG_WRONG_ARGS_COUNT(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
         }
 
         if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);

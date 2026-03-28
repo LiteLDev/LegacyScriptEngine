@@ -954,7 +954,7 @@ void NbtListClassAddHelper(ListTag* tag, Local<Array>& arr) {
                 tag->add(std::move(objTag));
             }
         } else {
-            throw script::Exception("Wrong Type of data to set into NBT List!");
+            throw Exception("Wrong Type of data to set into NBT List!");
         }
     }
 }
@@ -1221,7 +1221,6 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
-            return Local<Value>();
         }
 
         if (IsInstanceOf<NbtByteClass>(
@@ -1248,7 +1247,6 @@ Local<Value> NbtListClass::setTag(const Arguments& args) {
             list[index] = NbtCompoundClass::extract(args[1])->clone();
         } else {
             CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot set Tag into List");
-            return Local<Value>();
         }
         return this->getScriptObject();
     }
@@ -1281,7 +1279,6 @@ Local<Value> NbtListClass::addTag(const Arguments& args) {
             getPtr()->add(NbtCompoundClass::extract(args[0])->clone());
         } else {
             CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot add Tag into List");
-            return Local<Value>();
         }
         return this->getScriptObject();
     }
@@ -1298,7 +1295,6 @@ Local<Value> NbtListClass::removeTag(const Arguments& args) {
 
         if (index >= list.size() || index < 0) {
             CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Bad Index of NBT List!");
-            return Local<Value>();
         }
 
         list.erase(list.begin() + index);
@@ -1691,7 +1687,6 @@ Local<Value> NbtCompoundClass::setTag(const Arguments& args) {
             getPtr()->at(key) = *NbtCompoundClass::extract(args[1])->clone();
         } else {
             CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Unknown type! Cannot set Tag into Compound");
-            return Local<Value>();
         }
         return this->getScriptObject();
     }
@@ -1710,7 +1705,6 @@ Local<Value> NbtCompoundClass::removeTag(const Arguments& args) {
         return this->getScriptObject();
     } catch (const std::out_of_range&) {
         CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Key no found in NBT Compound!");
-        return Local<Value>();
     }
     CATCH_AND_THROW;
 }

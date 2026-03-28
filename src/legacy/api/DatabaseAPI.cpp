@@ -277,6 +277,7 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
             } else {
                 THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
+            break;
         }
         case 2: {
             CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -335,7 +336,7 @@ Local<Value> DBSessionClass::close(const Arguments& args) {
         session->close();
         return Boolean::newBoolean(true);
     }
-    CATCH("Fail in close!");
+    CATCH
     return Boolean::newBoolean(false);
 }
 Local<Value> DBSessionClass::isOpen(const Arguments& args) {
@@ -426,7 +427,7 @@ Local<Value> DBStmtClass::step(const Arguments& args) {
     try {
         return Boolean::newBoolean(stmt->step());
     }
-    CATCH("Fail in step!");
+    CATCH
     return Boolean::newBoolean(false);
 }
 

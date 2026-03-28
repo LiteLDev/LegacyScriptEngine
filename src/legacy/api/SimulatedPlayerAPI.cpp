@@ -72,7 +72,7 @@ SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
 Local<Value> PlayerClass::simulateSneak(const Arguments&) {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(sp->simulateSneaking());
     }
@@ -82,7 +82,7 @@ Local<Value> PlayerClass::simulateSneak(const Arguments&) {
 Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
 
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateAttack());
 
@@ -92,6 +92,7 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
         }
 
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 };
@@ -99,7 +100,7 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
 Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
 
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateDestroyLookAt());
 
@@ -109,18 +110,18 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[index]);
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getBlockPos();
             index = 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[index]);
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getVec3();
             index = 1;
         } else if (IsInstanceOf<BlockClass>(args[0])) {
             auto block = EngineScope::currentEngine()->getNativeInstance<BlockClass>(args[0]);
             auto pos   = IntPos::extractPos(block->getPos());
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getBlockPos();
             index = 1;
         }
@@ -175,18 +176,18 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[index]);
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getBlockPos();
             index = 1;
         } else if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[index]);
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getVec3();
             index = 1;
         } else if (IsInstanceOf<BlockClass>(args[0])) {
             auto block = EngineScope::currentEngine()->getNativeInstance<BlockClass>(args[0]);
             auto pos   = IntPos::extractPos(block->getPos());
-            if (dimid != pos->getDimensionId()) return Local<Value>();
+            if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
             bpos  = pos->getBlockPos();
             index = 1;
         }
@@ -237,7 +238,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
         Vec3   target;
         float  speed = 1.0f;
         size_t index = 0;
@@ -279,7 +280,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
         Vec3   target;
         float  speed = 1.0f;
         size_t index = 0;
@@ -321,7 +322,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
         Vec3   target;
         float  speed = 1.0f;
         size_t index = 0;
@@ -475,17 +476,19 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             }
             sp->simulateNavigateToLocations(std::move(path), speed);
             return Boolean::newBoolean(true);
-        } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
+        }
+        if (auto actor = EntityClass::tryExtractActor(args[0])) {
             auto res = sp->simulateNavigateToEntity(*actor, speed);
             return NavigateResultToObject(res);
-        } else if (IsInstanceOf<IntPos>(args[0]) || IsInstanceOf<FloatPos>(args[0])) {
+        }
+        if (IsInstanceOf<IntPos>(args[0]) || IsInstanceOf<FloatPos>(args[0])) {
             Vec3 pos = IsInstanceOf<IntPos>(args[0]) ? IntPos::extractPos(args[0])->getBlockPos().bottomCenter()
                                                      : FloatPos::extractPos(args[0])->getVec3();
             auto res = sp->simulateNavigateToLocation(pos, speed);
             return NavigateResultToObject(res);
         }
 #ifdef ENABLE_NUMBERS_AS_POS
-        else if (args[0].isNumber()) {
+        if (args[0].isNumber()) {
             CHECK_ARGS_COUNT(args, 3);
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -499,12 +502,10 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             return NavigateResultToObject(res);
         }
 #endif // ENABLE_NUMBERS_AS_POS
-        else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
-        }
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     CATCH_AND_THROW
-};
+}
 
 // bool simulateSetItem(class ItemStack&, bool, int);
 
@@ -517,7 +518,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
 Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return Boolean::newBoolean(false);
 
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateUseItem());
 

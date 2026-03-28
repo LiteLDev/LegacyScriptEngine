@@ -76,7 +76,7 @@ Local<Value> McClass::getTime(const Arguments& args) {
     case 2:
         return Number::newNumber(ll::service::getLevel()->getTime() / 24000);
     default:
-        throw script::Exception("The range of this argument is between 0 and 2");
+        throw Exception("The range of this argument is between 0 and 2");
     }
 }
 

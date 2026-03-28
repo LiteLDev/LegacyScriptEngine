@@ -4,8 +4,6 @@
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/nbt/CompoundTag.h"
-#include "mc/nbt/ListTag.h"
-#include "mc/world/level/block/Block.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/levelgen/structure/BoundingBox.h"
 #include "mc/world/level/levelgen/structure/StructureTemplate.h"
@@ -67,7 +65,7 @@ Local<Value> McClass::setStructure(const Arguments& args) {
         CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
         auto rawMirror = args[2].asNumber().toInt32();
         if (rawMirror > 3 || rawMirror < 0) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         mirror = static_cast<Mirror>(rawMirror);
     }
@@ -75,7 +73,7 @@ Local<Value> McClass::setStructure(const Arguments& args) {
         CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
         auto rawRotation = args[3].asNumber().toInt32();
         if (rawRotation > 4 || rawRotation < 0) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         rotation = static_cast<Rotation>(rawRotation);
     }

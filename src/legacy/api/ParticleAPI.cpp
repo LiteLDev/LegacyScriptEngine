@@ -5,14 +5,10 @@
 
 #include "McAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/deps/core/math/Color.h"
 #include "mc/network/packet/SpawnParticleEffectPacket.h"
-#include "mc/util/MolangVariable.h"
-#include "mc/util/MolangVariableMap.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/phys/AABB.h"
 
 #define GETVEC3(v, d, u)                                                                                               \
     if (IsInstanceOf<IntPos>(u)) {                                                                                     \

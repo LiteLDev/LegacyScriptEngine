@@ -391,7 +391,7 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         if (!IsInstanceOf<FloatPos>(args[0])) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
@@ -410,7 +410,7 @@ Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         if (!IsInstanceOf<IntPos>(args[0])) {
             THROW_WRONG_ARG_TYPE(__FUNCTION__);
@@ -429,7 +429,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
@@ -446,7 +446,7 @@ Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return Boolean::newBoolean(false);
         }
         auto item = ItemClass::extract(args[0]);
         if (!item) {

@@ -1595,7 +1595,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // IntPos
                     IntPos* posObj = IntPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                         return Local<Value>();
                     }
                     aabb.max = Vec3(posObj->x, posObj->y, posObj->z) + 1;
@@ -1605,7 +1605,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // FloatPos
                     FloatPos* posObj = FloatPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
                         return Local<Value>();
                     }
                     aabb.max = posObj->getVec3();
@@ -1637,7 +1637,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
         if (!dimension.lock()) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+            LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
             return Local<Value>();
         }
         BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
@@ -1674,7 +1674,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
     try {
         Actor* ac = EntityClass::extract(args[0]);
         if (!ac) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__); // Null
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         FloatVec4 pos;
@@ -1833,7 +1833,6 @@ Local<Value> McClass::explode(const Arguments& args) {
             break;
         default:
             THROW_WRONG_ARGS_COUNT(__FUNCTION__);
-            break;
         }
         std::optional<Actor*> source = EntityClass::tryExtractActor(args[beginIndex]); // Can be nullptr
 

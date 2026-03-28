@@ -221,8 +221,7 @@ bool LLSEExportFunc(
             }
             return pack(scriptCallback.call({}, scriptParams));
         }
-        CATCH("Fail in Remote Call");
-        return "";
+        CATCH
     };
     if (RemoteCall::exportFunc(nameSpace, funcName, std::move(cb))) {
         getEngineData(engine)->exportFuncs.emplace(

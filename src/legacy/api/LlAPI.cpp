@@ -257,8 +257,7 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
                     }
                 }
             } else {
-                THROW_WRONG_ARG_TYPE("registerPlugin");
-                return Boolean::newBoolean(false);
+                THROW_WRONG_ARG_TYPE("ll::registerPlugin");
             }
         }
 

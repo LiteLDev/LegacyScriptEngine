@@ -13,35 +13,34 @@
 
 // 实例类类型检查
 template <typename T>
-bool inline IsInstanceOf(Local<Value> v) {
+bool IsInstanceOf(Local<Value> v) {
     return EngineScope::currentEngine()->isInstanceOf<T>(v);
 }
 
 std::string ValueKindToString(const ValueKind& kind);
 
 // 输出脚本调用堆栈，API名称，以及插件名
-inline void CREATE_EXCEPTION_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
-    throw script::Exception(fmt::format("In API: {}, In Plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
+inline Exception CREATE_EXCEPTION_WITH_SCRIPT_INFO(std::string const& func, std::string const& msg) {
+    return Exception(fmt::format("In API: {}, In Plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
 }
 
-inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}) {
-    lse::LegacyScriptEngine::getLogger().error("In API: " + func);
-    lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func) {
+    lse::LegacyScriptEngine::getLogger().error("In API: {}, In Plugin: {}", func, getEngineOwnData()->pluginName);
 }
 
 // 参数类型错误输出
-inline void THROW_WRONG_ARG_TYPE(std::string const& func = {}) {
-    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
+inline void THROW_WRONG_ARG_TYPE(std::string const& func) {
+    throw CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
 }
 
 // 参数数量错误输出
-inline void THROW_TOO_FEW_ARGS(std::string const& func = {}) {
-    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Too Few arguments!");
+inline void THROW_TOO_FEW_ARGS(std::string const& func) {
+    throw CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Too Few arguments!");
 }
 
 // 参数数量错误输出
-inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
-    CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
+inline void THROW_WRONG_ARGS_COUNT(std::string const& func) {
+    throw CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong number of arguments!");
 }
 
 // 至少COUNT个参数
@@ -58,14 +57,14 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func = {}) {
 
 // 截获引擎异常
 #define CATCH_AND_THROW                                                                                                \
-    catch (script::Exception const& e) {                                                                               \
+    catch (Exception const& e) {                                                                                       \
         throw e;                                                                                                       \
     }                                                                                                                  \
     catch (std::exception const& e) {                                                                                  \
-        throw script::Exception(e.what());                                                                             \
+        throw Exception(e.what());                                                                                     \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        throw script::Exception(                                                                                       \
+        throw Exception(                                                                                               \
             fmt::format("{}\nfunction: {}", ll::error_utils::makeExceptionString(std::current_exception()), __func__)  \
         );                                                                                                             \
     }

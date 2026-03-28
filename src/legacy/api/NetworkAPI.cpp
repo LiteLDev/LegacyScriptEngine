@@ -741,7 +741,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
             port = args[0].asNumber().toInt32();
         }
         if (port < 0 || port > 65535) {
-            throw script::Exception("Invalid port number! (0~65535)");
+            throw Exception("Invalid port number! (0~65535)");
         }
         RecordOperation(getEngineOwnData()->pluginName, "StartHttpServer", fmt::format("on {}:{}", addr, port));
         std::thread([this, addr, port]() {

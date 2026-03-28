@@ -13,13 +13,11 @@
 Local<Value> McClass::getStructure(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     if (!IsInstanceOf<IntPos>(args[0])) {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
 
     if (!IsInstanceOf<IntPos>(args[1])) {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     auto argsSize       = args.size();
     bool ignoreBlocks   = false;
@@ -57,12 +55,10 @@ Local<Value> McClass::setStructure(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 2);
     auto nbt = NbtCompoundClass::extract(args[0]);
     if (!nbt) {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     if (!IsInstanceOf<IntPos>(args[1])) {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     auto     argsSize = args.size();
     Mirror   mirror   = Mirror::None;

@@ -175,7 +175,8 @@ void CustomFormClass::sendForm(
 ) {
     script::Global<Function> callbackFunc{callback};
     auto                     cb = [engine{EngineScope::currentEngine()},
-               callback{std::move(callbackFunc)
+               callback{
+                   std::move(callbackFunc)
                }](Player& player, lse::form::CustomFormResult const& data, FormCancelReason reason) {
         if (ll::getGamingStatus() != ll::GamingStatus::Running) return;
         if (!EngineManager::isValid(engine)) return;
@@ -273,8 +274,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) {
         if (!args[1].isBoolean() && !args[1].isNumber()) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);

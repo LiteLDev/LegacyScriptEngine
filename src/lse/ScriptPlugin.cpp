@@ -1,8 +1,9 @@
+#include "lse/ScriptPlugin.h"
+
 #include "legacy/engine/EngineOwnData.h"
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"
 #include "lse/Entry.h"
-#include "lse/ScriptPlugin.h"
 
 namespace lse {
 

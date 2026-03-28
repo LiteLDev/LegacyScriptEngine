@@ -23,13 +23,13 @@ using namespace ll::coro;
 #define CATCH_CALLBACK(LOG)                                                                                            \
     catch (const Exception& e) {                                                                                       \
         EngineScope enter(engine);                                                                                     \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                       \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         EngineScope enter(engine);                                                                                     \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         return;                                                                                                        \
@@ -38,13 +38,13 @@ using namespace ll::coro;
 #define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
     catch (const Exception& e) {                                                                                       \
         EngineScope enterCoro(engine);                                                                                 \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
         co_return;                                                                                                     \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                       \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         EngineScope enterCoro(engine);                                                                                 \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
         co_return;                                                                                                     \
@@ -361,9 +361,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 if (callback.isEmpty()) return;
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
-                lse::LegacyScriptEngine::getLogger().error(
-                    "WSClientClass::connectAsync Failed!"
-                );
+                lse::LegacyScriptEngine::getLogger().error("WSClientClass::connectAsync Failed!");
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
                 lse::LegacyScriptEngine::getLogger().error("In Plugin: " + pluginName);
             }
@@ -383,8 +381,7 @@ Local<Value> WSClientClass::send(const Arguments& args) {
         else if (args[0].isByteBuffer())
             ws->SendBinary((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return Boolean::newBoolean(true);
     } catch (const std::runtime_error&) {
@@ -749,8 +746,7 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
         CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
     } else {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
 
     try {

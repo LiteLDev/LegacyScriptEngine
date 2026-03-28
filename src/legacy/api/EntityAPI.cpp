@@ -424,8 +424,7 @@ Local<Value> EntityClass::setPosDelta(const Arguments& args) {
         Vec3 delta;
         if (args.size() == 1) {
             if (!IsInstanceOf<FloatPos>(args[0])) {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             delta = EngineScope::currentEngine()->getNativeInstance<FloatPos>(args[0])->getVec3();
         } else if (args.size() == 3) {
@@ -670,8 +669,7 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Boolean::newBoolean(false);
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
                 auto angle      = DirectionAngle::extract(args[1]);
@@ -697,8 +695,7 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
                 rotationIsValid = true;
             }
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Boolean::newBoolean(false);
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (!rotationIsValid) {
             // getRotation()
@@ -747,8 +744,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) { // x, y, z, dimId
             // number pos
@@ -810,8 +806,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 4) {
             // number pos
@@ -1595,8 +1590,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                 aabb.min         = posObj->getVec3();
                 dim              = posObj->dim;
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             if (args.size() > 1) {
                 if (IsInstanceOf<IntPos>(args[1])) {
@@ -1622,15 +1616,13 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     aabb.max = aabb.min + 1;
                     dis      = args[1].asNumber().toFloat();
                 } else {
-                    LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                    return Local<Value>();
+                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
                 }
                 if (args.size() > 2) {
                     if (args[2].getKind() == ValueKind::kNumber) {
                         dis = args[2].asNumber().toFloat();
                     } else {
-                        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                        return Local<Value>();
+                        THROW_WRONG_ARG_TYPE(__FUNCTION__);
                     }
                 } else {
                     aabb.max = aabb.min + 1;
@@ -1685,8 +1677,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
     try {
         Actor* ac = EntityClass::extract(args[0]);
         if (!ac) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>(); // Null
+            THROW_WRONG_ARG_TYPE(__FUNCTION__); // Null
         }
 
         FloatVec4 pos;
@@ -1707,8 +1698,7 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos
@@ -1766,8 +1756,7 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos
@@ -1829,8 +1818,7 @@ Local<Value> McClass::explode(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             break;
         case 8:

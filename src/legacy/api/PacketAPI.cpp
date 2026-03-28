@@ -394,8 +394,7 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
             return Local<Value>();
         }
         if (!IsInstanceOf<FloatPos>(args[0])) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         FloatPos* posObj = FloatPos::extractPos(args[0]);
         stream->writeFloat(posObj->getVec3().x, nullptr, nullptr);
@@ -414,8 +413,7 @@ Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
             return Local<Value>();
         }
         if (!IsInstanceOf<IntPos>(args[0])) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         IntPos* posObj = IntPos::extractPos(args[0]);
         stream->writeVarInt(posObj->getBlockPos().x, nullptr, nullptr);
@@ -435,8 +433,7 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
         }
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         stream->writeType(*nbt);
         return Boolean::newBoolean(true);
@@ -453,8 +450,7 @@ Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
         }
         auto item = ItemClass::extract(args[0]);
         if (!item) {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         ItemStackSerializerHelpers::write(NetworkItemStackDescriptor(*item), *stream);
         return Boolean::newBoolean(true);

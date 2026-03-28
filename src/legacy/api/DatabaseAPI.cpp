@@ -4,23 +4,19 @@ using namespace DB;
 
 #define CATCH_AND_THROW(LOG)                                                                                           \
     catch (const Exception& e) {                                                                                       \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
-        );                                                                                                             \
+        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
         return Local<Value>();                                                                                         \
     }                                                                                                                  \
     catch (const std::exception& e) {                                                                                  \
         throw Exception(ll::string_utils::tou8str(e.what()));                                                          \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Uncaught Exception Detected!");            \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
-        lse::LegacyScriptEngine::getLogger().error("In API: " __FUNCTION__);                   \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
-        );                                                                                                             \
+        lse::LegacyScriptEngine::getLogger().error("Uncaught Exception Detected!");                                    \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        lse::LegacyScriptEngine::getLogger().error("In API: " __FUNCTION__);                                           \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
         return Local<Value>();                                                                                         \
     }
 
@@ -297,9 +293,8 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
                 for (auto& key : obj.getKeys()) params[key.toString()] = LocalValueToAny(obj.get(key));
                 result = new DBSessionClass(args.thiz(), params);
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
-            break;
         }
         case 2: {
             CHECK_ARG_TYPE_C(args[0], ValueKind::kString);
@@ -312,8 +307,7 @@ DBSessionClass* DBSessionClass::constructor(const Arguments& args) {
             break;
         }
         default:
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            break;
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         return result;
     }
@@ -429,7 +423,7 @@ Local<Value> DBStmtClass::bind(const Arguments& args) {
             } else if (args[1].isString()) {
                 stmt->bind(LocalValueToAny(args[0]), args[1].asString().toString());
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         }
         }

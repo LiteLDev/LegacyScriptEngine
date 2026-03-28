@@ -91,8 +91,7 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
             return Boolean::newBoolean(sp->attack(*actor, SharedTypes::Legacy::ActorDamageCause::EntityAttack));
         }
 
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
@@ -136,8 +135,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (args.size() > index) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
@@ -203,8 +201,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         return Boolean::newBoolean(sp->simulateInteract(bpos, face));
@@ -264,8 +261,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -307,8 +303,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -350,8 +345,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -374,7 +368,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
         auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
             if (!args[1].isNumber()) {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
             lookDuration = static_cast<sim::LookDuration>(args[1].asNumber().toInt32());
         }
@@ -410,8 +404,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Local<Value>();
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     CATCH("Fail in " __FUNCTION__ "!")
 };
@@ -469,8 +462,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
                 else if (arr.get(index).isArray()) {
                     auto posArr = arr.get(index).asArray();
                     if (posArr.size() != 3 || !posArr.get(0).isNumber()) {
-                        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                        return Local<Value>();
+                        THROW_WRONG_ARG_TYPE(__FUNCTION__);
                     }
                     path.emplace_back(
                         posArr.get(0).asNumber().toFloat(),
@@ -478,8 +470,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
                         posArr.get(2).asNumber().toFloat()
                     );
                 } else {
-                    LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                    return Local<Value>();
+                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
                 }
             }
             sp->simulateNavigateToLocations(std::move(path), speed);
@@ -509,8 +500,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
     CATCH("Fail in " __FUNCTION__ "!")
@@ -536,8 +526,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         if (args[0].isNumber()) slot = args[0].asNumber().toInt32();
         else if (IsInstanceOf<ItemClass>(args[0])) item = ItemClass::extract(args[0]);
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (args.size() == 1) {
             if (item) return Boolean::newBoolean(SimulatedPlayerHelper::simulateUseItem(*sp, *item));
@@ -550,8 +539,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         if (IsInstanceOf<IntPos>(args[1])) bpos = IntPos::extractPos(args[1])->getBlockPos();
         else if (IsInstanceOf<FloatPos>(args[1])) bpos = FloatPos::extractPos(args[1])->getVec3();
         else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
@@ -560,8 +548,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
                 if (IsInstanceOf<FloatPos>(args[3])) {
                     relativePos = FloatPos::extractPos(args[3])->getVec3();
                 } else {
-                    LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                    return Local<Value>();
+                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
                 }
             }
         }

@@ -37,7 +37,7 @@ public:
 
     lse::form::RawCustomForm* get() { return &form; }
 
-    static Local<Object>                 newForm();
+    static Local<Object>             newForm();
     static lse::form::RawCustomForm* extract(Local<Value> v);
     static void
     sendForm(lse::form::RawCustomForm* form, Player* player, script::Local<Function>& callback, bool update = true);

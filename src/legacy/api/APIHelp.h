@@ -24,14 +24,7 @@ std::string ValueKindToString(const ValueKind& kind);
 
 // 输出脚本调用堆栈，API名称，以及插件名
 inline void CREATE_EXCEPTION_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
-    auto e = script::Exception(msg);
-    lse::LegacyScriptEngine::getLogger().error(
-        "script::Exception: {0}\n{1}",
-        e.message(),
-        e.stacktrace()
-    );
-    lse::LegacyScriptEngine::getLogger().error("In API: " + func);
-    lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
+    throw script::Exception(fmt::format("In API: {}, In Plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
 }
 
 inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}, std::string const& msg = {}) {
@@ -41,7 +34,7 @@ inline void LOG_ERROR_WITH_SCRIPT_INFO(std::string const& func = {}, std::string
 }
 
 // 参数类型错误输出
-inline void LOG_WRONG_ARG_TYPE(std::string const& func = {}) {
+inline void THROW_WRONG_ARG_TYPE(std::string const& func = {}) {
     CREATE_EXCEPTION_WITH_SCRIPT_INFO(func, "Wrong type of argument!");
 }
 
@@ -59,61 +52,54 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
 #define CHECK_ARGS_COUNT(ARGS, COUNT)                                                                                  \
     if (ARGS.size() < COUNT) {                                                                                         \
         LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
-        return Local<Value>();                                                                                         \
     }
 
 // 检查是否TYPE类型
 #define CHECK_ARG_TYPE(ARG, TYPE)                                                                                      \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
-        return Local<Value>();                                                                                         \
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
     }
 
 // 截获引擎异常
 #define CATCH(LOG)                                                                                                     \
-    catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                            \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return Local<Value>();                                                                                         \
+    catch (script::Exception const& e) {                                                                               \
+        throw e;                                                                                                       \
+    }                                                                                                                  \
+    catch (std::exception const& e) {                                                                                  \
+        throw script::Exception(e.what());                                                                             \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
-        return Local<Value>();                                                                                         \
+        throw script::Exception(fmt::format("Unknown exception in {}", __func__));                                     \
     }
 
 // 至少COUNT个参数_Constructor
 #define CHECK_ARGS_COUNT_C(ARGS, COUNT)                                                                                \
     if (ARGS.size() < COUNT) {                                                                                         \
         LOG_TOO_FEW_ARGS(__FUNCTION__);                                                                                \
-        return nullptr;                                                                                                \
     }
 
 // 检查是否TYPE类型_Constructor
 #define CHECK_ARG_TYPE_C(ARG, TYPE)                                                                                    \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
-        return nullptr;                                                                                                \
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
     }
 
 // 检查是否TYPE类型_Setter
 #define CHECK_ARG_TYPE_S(ARG, TYPE)                                                                                    \
     if (ARG.getKind() != TYPE) {                                                                                       \
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);                                                                              \
-        return;                                                                                                        \
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
     }
 
 // 截获引擎异常_Constructor
 #define CATCH_C(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                            \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return nullptr;                                                                                                \
     }
@@ -121,13 +107,13 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
 // 截获引擎异常_Setter
 #define CATCH_S(LOG)                                                                                                   \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                            \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
         return;                                                                                                        \
     }
@@ -135,35 +121,27 @@ inline void LOG_WRONG_ARGS_COUNT(std::string const& func = {}) {
 // 截获引擎异常_Constructor
 #define CATCH_WITHOUT_RETURN(LOG)                                                                                      \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                            \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__, LOG);                                                                 \
     }
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(callback)                                                                                    \
     catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());              \
-        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                            \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            std::string("In callback for ") + callback                                                                 \
-        );                                                                                                             \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
-        );                                                                                                             \
+        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
+        lse::LegacyScriptEngine::getLogger().error(e.stacktrace());                                                    \
+        lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());          \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            std::string("In callback for ") + callback                                                                 \
-        );                                                                                                             \
-        lse::LegacyScriptEngine::getLogger().error(                                            \
-            "In Plugin: " + getEngineOwnData()->pluginName                                                             \
-        );                                                                                                             \
+        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
+        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
     }
 #else
 
@@ -302,11 +280,7 @@ struct EnumDefineBuilder {
                 try {
                     return Number::newNumber(static_cast<int64_t>(val));
                 } catch (const std::exception&) {
-                    lse::LegacyScriptEngine::getLogger().error(
-                        "Error in get {}.{}",
-                        enumName,
-                        name
-                    );
+                    lse::LegacyScriptEngine::getLogger().error("Error in get {}.{}", enumName, name);
                 }
                 return Local<Value>();
             });

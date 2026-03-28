@@ -483,8 +483,7 @@ Local<Value> McClass::newItem(const Arguments& args) {
                 ItemHelper::load(*newItem, *nbt);
                 return ItemClass::newItem(std::move(newItem));
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         }
     }
@@ -512,8 +511,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
                     pos = *posObj;
                 }
             } else {
-                LOG_WRONG_ARG_TYPE(__FUNCTION__);
-                return Local<Value>();
+                THROW_WRONG_ARG_TYPE(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos
@@ -546,8 +544,7 @@ Local<Value> McClass::spawnItem(const Arguments& args) {
             if (!entity) return Local<Value>(); // Null
             else return EntityClass::newEntity(entity);
         } else {
-            LOG_WRONG_ARG_TYPE(__FUNCTION__);
-            return Local<Value>();
+            THROW_WRONG_ARG_TYPE(__FUNCTION__);
         }
     }
     CATCH("Fail in SpawnItem!");
@@ -557,8 +554,7 @@ Local<Value> ItemClass::match(const Arguments& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kObject)
     if (!IsInstanceOf<ItemClass>(args[0])) {
-        LOG_WRONG_ARG_TYPE(__FUNCTION__);
-        return Boolean::newBoolean(false);
+        THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
 
     try {

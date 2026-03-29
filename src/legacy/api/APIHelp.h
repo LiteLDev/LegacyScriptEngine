@@ -96,12 +96,12 @@ inline void THROW_WRONG_ARGS_COUNT(std::string const& func) {
     catch (const Exception& e) {                                                                                       \
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
         lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);                    \
+        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
     }
 
 // 判断是否为浮点数
@@ -111,7 +111,7 @@ bool CheckIsFloat(const Local<Value>& num);
 template <typename T>
 void PrintValue(T& out, Local<Value> v);
 
-std::string ValueToString(Local<Value> v);
+std::string ValueToString(Local<Value> const& v);
 
 // Json 序列化 反序列化
 Local<Value> JsonToValue(std::string jsonStr);
@@ -132,7 +132,7 @@ struct EnumDefineBuilder {
         } catch (const std::exception&) {
             lse::LegacyScriptEngine::getLogger().error("Error in " __FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
 
     inline static Local<Value> toObject() {
@@ -145,22 +145,22 @@ struct EnumDefineBuilder {
         } catch (const std::exception&) {
             lse::LegacyScriptEngine::getLogger().error("Error in " __FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
 
     inline static Local<Value> getName(const Arguments& args) {
         try {
-            if (args.size() < 1) return Local<Value>();
+            if (args.size() < 1) return {};
             if (args[0].isString())
                 return magic_enum::enum_cast<Type>(args[0].asString().toString()).has_value() ? args[0]
                                                                                               : Local<Value>();
             if (args[0].isNumber())
                 return String::newString(magic_enum::enum_name(static_cast<Type>(args[0].asNumber().toInt32())));
-            return Local<Value>();
+            return {};
         } catch (const std::exception&) {
             lse::LegacyScriptEngine::getLogger().error("Error in " __FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
 
     inline static Local<Value> toString() {
@@ -169,7 +169,7 @@ struct EnumDefineBuilder {
         } catch (const std::exception&) {
             lse::LegacyScriptEngine::getLogger().error("Error in " __FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
 
     inline static ClassDefine<void> build(std::string const& enumName) {
@@ -182,7 +182,7 @@ struct EnumDefineBuilder {
                 } catch (const std::exception&) {
                     lse::LegacyScriptEngine::getLogger().error("Error in get {}.{}", enumName, name);
                 }
-                return Local<Value>();
+                return {};
             });
         }
 

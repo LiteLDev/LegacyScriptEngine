@@ -48,12 +48,12 @@ enum class OldParameterType : size_t {
 };
 
 class CommandClass : public ScriptClass {
-    std::string                        commandName;
-    std::string                        description;
-    inline ll::command::CommandHandle& get() {
+    std::string                 commandName;
+    std::string                 description;
+    ll::command::CommandHandle& get() const {
         return ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(commandName);
     }
-    inline std::vector<std::string> parseStringList(Local<Array> arr) {
+    static std::vector<std::string> parseStringList(Local<Array> const& arr) {
         if (arr.size() == 0 || !arr.get(0).isString()) return {};
         std::vector<std::string> strs;
         for (size_t i = 0; i < arr.size(); ++i) {
@@ -61,7 +61,7 @@ class CommandClass : public ScriptClass {
         }
         return std::move(strs);
     }
-    inline Local<Value> getStringArray(std::vector<std::string> values) {
+    static Local<Value> getStringArray(std::vector<std::string> const& values) {
         Local<Array> arr = Array::newArray(values.size());
         for (auto& str : values) {
             arr.add(String::newString(str));
@@ -70,8 +70,8 @@ class CommandClass : public ScriptClass {
     }
 
 public:
-    CommandClass(std::string& name);
-    static Local<Object> newCommand(std::string& name);
+    CommandClass(std::string const& name);
+    static Local<Object> newCommand(std::string const& name);
     Local<Value>         getName();
     Local<Value>         setAlias(const Arguments& args);
     Local<Value>         setEnum(const Arguments& args);

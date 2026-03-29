@@ -15,8 +15,6 @@
 #include "ll/api/utils/StringUtils.h"
 #include "main/Global.h"
 
-#include <cmath>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -42,7 +40,7 @@ void PrintValue(T& out, Local<Value> v) {
         if (arr.size() == 0) out << "[]";
         else {
             static std::vector<Local<Array>> arrStack = {};
-            if (std::find(arrStack.begin(), arrStack.end(), arr) == arrStack.end()) {
+            if (std::ranges::find(arrStack, arr) == arrStack.end()) {
                 arrStack.push_back(arr);
                 out << '[';
                 PrintValue(out, arr.get(0));
@@ -144,7 +142,7 @@ void PrintValue(T& out, Local<Value> v) {
         if (keys.empty()) out << "{}";
         else {
             static std::vector<Local<Object>> objStack = {};
-            if (std::find(objStack.begin(), objStack.end(), obj) == objStack.end()) {
+            if (std::ranges::find(objStack, obj) == objStack.end()) {
                 objStack.push_back(obj);
                 out << '{';
                 out << keys[0] + ":";
@@ -163,7 +161,7 @@ void PrintValue(T& out, Local<Value> v) {
     }
     case ValueKind::kByteBuffer: {
         Local<ByteBuffer> bytes = v.asByteBuffer();
-        out << ((const char*)bytes.getRawBytes(), bytes.byteLength());
+        out.write(static_cast<const char*>(bytes.getRawBytes()), static_cast<std::streamsize>(bytes.byteLength()));
         break;
     }
     case ValueKind::kFunction: {
@@ -179,7 +177,7 @@ void PrintValue(T& out, Local<Value> v) {
 
 template void PrintValue(std::ostream& out, Local<Value> v);
 
-std::string ValueToString(Local<Value> v) {
+std::string ValueToString(Local<Value> const& v) {
     std::ostringstream sout;
     PrintValue(sout, v);
     return sout.str();
@@ -195,21 +193,21 @@ bool CheckIsFloat(const Local<Value>& num) {
 
 ///////////////////// Json To Value /////////////////////
 
-Local<Value> BigInteger_Helper(ordered_json& i) {
+Local<Value> BigInteger_Helper(ordered_json const& i) {
     if (i.is_number_integer()) {
         if (i.is_number_unsigned()) {
             auto ui = i.get<uint64_t>();
-            if (ui <= LLONG_MAX) return Number::newNumber((int64_t)ui);
-            return Number::newNumber((double)ui);
+            if (ui <= LLONG_MAX) return Number::newNumber(static_cast<int64_t>(ui));
+            return Number::newNumber(static_cast<double>(ui));
         }
         return Number::newNumber(i.get<int64_t>());
     }
     return Local<Value>();
 }
 
-void JsonToValue_Helper(Local<Array>& res, ordered_json& j);
+void JsonToValue_Helper(Local<Array> const& res, ordered_json& j);
 
-void JsonToValue_Helper(Local<Object>& res, const string& key, ordered_json& j) {
+void JsonToValue_Helper(Local<Object> const& res, const string& key, ordered_json& j) {
     switch (j.type()) {
     case ordered_json::value_t::string:
         res.set(key, String::newString(j.get<string>()));
@@ -246,7 +244,7 @@ void JsonToValue_Helper(Local<Object>& res, const string& key, ordered_json& j) 
     }
 }
 
-void JsonToValue_Helper(Local<Array>& res, ordered_json& j) {
+void JsonToValue_Helper(Local<Array> const& res, ordered_json& j) {
     switch (j.type()) {
     case ordered_json::value_t::string:
         res.add(String::newString(j.get<string>()));
@@ -429,7 +427,7 @@ void ValueToJson_Obj_Helper(ordered_json& res, const Local<Object>& v) {
     }
 }
 
-std::string ValueToJson(Local<Value> v, int formatIndent) {
+std::string ValueToJson(Local<Value> const& v, int formatIndent) {
     string result;
     switch (v.getKind()) {
     case ValueKind::kString:

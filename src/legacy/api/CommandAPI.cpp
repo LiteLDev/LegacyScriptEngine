@@ -20,7 +20,6 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "magic_enum.hpp"
 #include "mc/_HeaderOutputPredefine.h"
-#include "mc/common/SharedPtr.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/deps/json/FastWriter.h"
 #include "mc/deps/json/Value.h"
@@ -287,11 +286,11 @@ Local<Value> McClass::newCommand(const Arguments& args) {
 
 //////////////////// Command APIs ////////////////////
 
-CommandClass::CommandClass(std::string& name)
+CommandClass::CommandClass(std::string const& name)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandClass>{}),
   commandName(name) {};
 
-Local<Object> CommandClass::newCommand(std::string& name) {
+Local<Object> CommandClass::newCommand(std::string const& name) {
     auto newp = new CommandClass(name);
     return newp->getScriptObject();
 }
@@ -390,9 +389,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
                         }
                     }
                 }
-            } catch (std::out_of_range&) {
-                continue;
-            }
+            } catch (std::out_of_range&) {}
         }
         localShareData->commandCallbacks[commandName].func.get().call({}, cmd, ori, outp, args);
         std::swap(output.mMessages, outp->output->mMessages);
@@ -646,6 +643,7 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
         THROW_WRONG_ARG_TYPE(__FUNCTION__);
     }
     CATCH_AND_THROW
+    return Boolean::newBoolean(false);
 }
 
 // function (command, origin, output, results){}
@@ -678,7 +676,7 @@ Local<Value> CommandClass::toString(const Arguments&) {
     try {
         return String::newString(fmt::format("<Command({})>", commandName));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
@@ -698,7 +696,7 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
@@ -718,7 +716,7 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
@@ -738,7 +736,7 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
@@ -755,7 +753,7 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
         }
         return {};
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
@@ -769,5 +767,5 @@ Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
         }
         return getStringArray(names);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

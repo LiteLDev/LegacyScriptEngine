@@ -1,8 +1,5 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "mc/world/Container.h"
-
-#include <string>
 
 //////////////////// Classes ////////////////////
 class Container;
@@ -14,22 +11,22 @@ private:
 public:
     explicit ContainerClass(Container* p);
 
-    Container* get() { return container; }
+    Container* get() const { return container; }
 
     static Local<Object> newContainer(Container* p);
-    static Container*    extract(Local<Value> v);
+    static Container*    extract(Local<Value> const& v);
 
-    Local<Value> getSize();
-    Local<Value> getType();
+    Local<Value> getSize() const;
+    Local<Value> getType() const;
 
-    Local<Value> addItem(const Arguments& args);
-    Local<Value> addItemToFirstEmptySlot(const Arguments& args);
-    Local<Value> hasRoomFor(const Arguments& args);
-    Local<Value> removeItem(const Arguments& args);
-    Local<Value> getItem(const Arguments& args);
-    Local<Value> setItem(const Arguments& args);
-    Local<Value> getAllItems(const Arguments& args);
-    Local<Value> removeAllItems(const Arguments& args);
-    Local<Value> isEmpty(const Arguments& args);
+    Local<Value> addItem(Arguments const& args) const;
+    Local<Value> addItemToFirstEmptySlot(Arguments const& args) const;
+    Local<Value> hasRoomFor(Arguments const& args) const;
+    Local<Value> removeItem(Arguments const& args) const;
+    Local<Value> getItem(Arguments const& args) const;
+    Local<Value> setItem(Arguments const& args) const;
+    Local<Value> getAllItems(Arguments const& args) const;
+    Local<Value> removeAllItems(Arguments const& args) const;
+    Local<Value> isEmpty(Arguments const& args) const;
 };
 extern ClassDefine<ContainerClass> ContainerClassBuilder;

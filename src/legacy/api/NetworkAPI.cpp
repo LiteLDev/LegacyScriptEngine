@@ -28,7 +28,7 @@ using namespace ll::coro;
         lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         EngineScope enterCoro(engine);                                                                                 \
-        LOG_ERROR_WITH_SCRIPT_INFO(__FUNCTION__);                                                                      \
+        LogErrorWithInfo(__FUNCTION__);                                                                                \
         co_return;                                                                                                     \
     }
 //////////////////// Classes ////////////////////
@@ -54,9 +54,9 @@ ClassDefine<WSClientClass> WSClientClassBuilder =
         .instanceFunction("shutdown", &WSClientClass::shutdown)
         .instanceFunction("errorCode", &WSClientClass::errorCode)
 
-        .property("Open", [] { return Number::newNumber((int)WebSocketClient::Status::Open); })
-        .property("Closing", [] { return Number::newNumber((int)WebSocketClient::Status::Closing); })
-        .property("Closed", [] { return Number::newNumber((int)WebSocketClient::Status::Closed); })
+        .property("Open", [] { return Number::newNumber(static_cast<int>(WebSocketClient::Status::Open)); })
+        .property("Closing", [] { return Number::newNumber(static_cast<int>(WebSocketClient::Status::Closing)); })
+        .property("Closed", [] { return Number::newNumber(static_cast<int>(WebSocketClient::Status::Closed)); })
         .build();
 
 ClassDefine<HttpServerClass> HttpServerClassBuilder =
@@ -113,7 +113,7 @@ ClassDefine<HttpResponseClass> HttpResponseClassBuilder =
         .build();
 
 // 生成函数
-WSClientClass::WSClientClass(const Local<Object>& scriptObj)
+WSClientClass::WSClientClass(Local<Object> const& scriptObj)
 : ScriptClass(scriptObj),
   ws(std::make_shared<WebSocketClient>()) {
     initListeners();
@@ -126,28 +126,30 @@ WSClientClass::WSClientClass()
 }
 
 void WSClientClass::initListeners() {
-    ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]}](WebSocketClient&, string msg) {
-        if (!nowList->empty())
-            for (auto& listener : *nowList) {
-                if (!EngineManager::isValid(listener.engine)) return;
-                EngineScope enter(listener.engine);
-                // dangerous
-                NewTimeout(listener.func.get(), {String::newString(msg)}, 1);
-            }
-    });
-
-    ws->OnBinaryReceived(
-        [nowList{&listeners[int(WSClientEvents::onBinaryReceived)]}](WebSocketClient&, vector<uint8_t> data) {
+    ws->OnTextReceived(
+        [nowList{&listeners[static_cast<int>(WSClientEvents::onTextReceived)]}](WebSocketClient&, string const& msg) {
             if (!nowList->empty())
                 for (auto& listener : *nowList) {
                     if (!EngineManager::isValid(listener.engine)) return;
                     EngineScope enter(listener.engine);
-                    NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+                    // dangerous
+                    NewTimeout(listener.func.get(), {String::newString(msg)}, 1);
                 }
         }
     );
 
-    ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]}](WebSocketClient&, string msg) {
+    ws->OnBinaryReceived([nowList{
+                             &listeners[static_cast<int>(WSClientEvents::onBinaryReceived)]
+                         }](WebSocketClient&, vector<uint8_t> data) {
+        if (!nowList->empty())
+            for (auto& listener : *nowList) {
+                if (!EngineManager::isValid(listener.engine)) return;
+                EngineScope enter(listener.engine);
+                NewTimeout(listener.func.get(), {ByteBuffer::newByteBuffer(data.data(), data.size())}, 1);
+            }
+    });
+
+    ws->OnError([nowList{&listeners[static_cast<int>(WSClientEvents::onError)]}](WebSocketClient&, string const& msg) {
         if (!nowList->empty())
             for (auto& listener : *nowList) {
                 if (!EngineManager::isValid(listener.engine)) return;
@@ -156,18 +158,20 @@ void WSClientClass::initListeners() {
             }
     });
 
-    ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]}](WebSocketClient&, int code) {
-        if (!nowList->empty())
-            for (auto& listener : *nowList) {
-                if (!EngineManager::isValid(listener.engine)) return;
-                EngineScope enter(listener.engine);
-                NewTimeout(listener.func.get(), {Number::newNumber(code)}, 1);
-            }
-    });
+    ws->OnLostConnection(
+        [nowList{&listeners[static_cast<int>(WSClientEvents::onLostConnection)]}](WebSocketClient&, int code) {
+            if (!nowList->empty())
+                for (auto& listener : *nowList) {
+                    if (!EngineManager::isValid(listener.engine)) return;
+                    EngineScope enter(listener.engine);
+                    NewTimeout(listener.func.get(), {Number::newNumber(code)}, 1);
+                }
+        }
+    );
 }
 
 void WSClientClass::initListeners_s() {
-    ws->OnTextReceived([nowList{&listeners[int(WSClientEvents::onTextReceived)]},
+    ws->OnTextReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onTextReceived)]},
                         engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
         ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
@@ -189,7 +193,7 @@ void WSClientClass::initListeners_s() {
         }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
-    ws->OnBinaryReceived([nowList{&listeners[int(WSClientEvents::onBinaryReceived)]},
+    ws->OnBinaryReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onBinaryReceived)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, std::vector<uint8_t> data) {
         ll::coro::keepThis([nowList, engine, data = std::move(data)]() mutable -> ll::coro::CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
@@ -211,7 +215,7 @@ void WSClientClass::initListeners_s() {
         }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
-    ws->OnError([nowList{&listeners[int(WSClientEvents::onError)]},
+    ws->OnError([nowList{&listeners[static_cast<int>(WSClientEvents::onError)]},
                  engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
         ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
@@ -233,7 +237,7 @@ void WSClientClass::initListeners_s() {
         }).launch(ll::thread::ThreadPoolExecutor::getDefault());
     });
 
-    ws->OnLostConnection([nowList{&listeners[int(WSClientEvents::onLostConnection)]},
+    ws->OnLostConnection([nowList{&listeners[static_cast<int>(WSClientEvents::onLostConnection)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, int code) {
         ll::coro::keepThis([nowList, engine, code]() -> ll::coro::CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
@@ -256,48 +260,48 @@ void WSClientClass::initListeners_s() {
     });
 }
 
-void WSClientClass::clearListeners() {
+void WSClientClass::clearListeners() const {
     ws->OnTextReceived([](WebSocketClient&, std::string) {});
     ws->OnBinaryReceived([](WebSocketClient&, std::vector<uint8_t>) {});
     ws->OnError([](WebSocketClient&, std::string) {});
     ws->OnLostConnection([](WebSocketClient&, int) {});
 }
 
-WSClientClass* WSClientClass::constructor(const Arguments& args) { return new WSClientClass(args.thiz()); }
+WSClientClass* WSClientClass::constructor(Arguments const& args) { return new WSClientClass(args.thiz()); }
 
 // 成员函数
-void WSClientClass::addListener(const string& event, Local<Function> func) {
+void WSClientClass::addListener(string const& event, Local<Function> const& func) {
     if (event == "onTextReceived")
-        listeners[(int)WSClientEvents::onTextReceived].push_back(
+        listeners[static_cast<int>(WSClientEvents::onTextReceived)].push_back(
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else if (event == "onBinaryReceived")
-        listeners[(int)WSClientEvents::onBinaryReceived].push_back(
+        listeners[static_cast<int>(WSClientEvents::onBinaryReceived)].push_back(
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else if (event == "onError")
-        listeners[(int)WSClientEvents::onError].push_back(
+        listeners[static_cast<int>(WSClientEvents::onError)].push_back(
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else if (event == "onLostConnection")
-        listeners[(int)WSClientEvents::onLostConnection].push_back(
+        listeners[static_cast<int>(WSClientEvents::onLostConnection)].push_back(
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
+        throw CreateExceptionWithInfo(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
     }
 }
 
-Local<Value> WSClientClass::getStatus() {
+Local<Value> WSClientClass::getStatus() const {
     try {
-        return Number::newNumber((int)ws->GetStatus());
-    } catch (const std::runtime_error&) {
+        return Number::newNumber(static_cast<int>(ws->GetStatus()));
+    } catch (std::runtime_error const&) {
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::connect(const Arguments& args) {
+Local<Value> WSClientClass::connect(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -305,14 +309,14 @@ Local<Value> WSClientClass::connect(const Arguments& args) {
         RecordOperation(getEngineOwnData()->pluginName, "ConnectToWebsocketServer", target);
         ws->Connect(target);
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // 异步连接ws客户端
-Local<Value> WSClientClass::connectAsync(const Arguments& args) {
+Local<Value> WSClientClass::connectAsync(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -332,7 +336,7 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
                 try {
                     ws->Connect(target);
                     result = true;
-                } catch (const std::runtime_error&) {
+                } catch (std::runtime_error const&) {
                     result = false;
                 }
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
@@ -349,30 +353,33 @@ Local<Value> WSClientClass::connectAsync(const Arguments& args) {
             }
         }).detach();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::send(const Arguments& args) {
+Local<Value> WSClientClass::send(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         if (args[0].isString()) ws->SendText(args[0].asString().toString());
         else if (args[0].isByteBuffer())
-            ws->SendBinary((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
+            ws->SendBinary(
+                static_cast<char*>(args[0].asByteBuffer().getRawBytes()),
+                args[0].asByteBuffer().byteLength()
+            );
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::listen(const Arguments& args) {
+Local<Value> WSClientClass::listen(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -380,39 +387,39 @@ Local<Value> WSClientClass::listen(const Arguments& args) {
     try {
         addListener(args[0].asString().toString(), args[1].asFunction());
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::close(const Arguments&) {
+Local<Value> WSClientClass::close(Arguments const&) const {
     try {
         ws->Close();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::shutdown(const Arguments&) {
+Local<Value> WSClientClass::shutdown(Arguments const&) const {
     try {
         ws->Shutdown();
         return Boolean::newBoolean(true);
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> WSClientClass::errorCode(const Arguments&) {
+Local<Value> WSClientClass::errorCode(Arguments const&) {
     try {
         return Number::newNumber(WSAGetLastError());
-    } catch (const std::runtime_error&) {
+    } catch (std::runtime_error const&) {
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// Class HttpServer ////////////////////
@@ -422,7 +429,7 @@ using namespace httplib;
 // ll::thread::TickSyncTaskPool taskPool;
 
 void ADD_CALLBACK(
-    std::shared_ptr<httplib::Server>                svr,
+    std::shared_ptr<httplib::Server> const&         svr,
     std::multimap<std::string, HttpServerCallback>& callbacks,
     HttpRequestType const&                          method,
     std::string const&                              path,
@@ -432,7 +439,7 @@ void ADD_CALLBACK(
         make_pair(path, HttpServerCallback{EngineScope::currentEngine(), script::Global<Function>{func}, method, path})
     );
     auto receiveMethod =
-        [engine = EngineScope::currentEngine(), method, callbacks](const Request& req, Response& resp) {
+        [engine = EngineScope::currentEngine(), method, callbacks](Request const& req, Response& resp) {
             if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -485,18 +492,26 @@ void ADD_CALLBACK(
     }
 }
 
-HttpServerClass::HttpServerClass(const Local<Object>& scriptObj)
+HttpServerClass::HttpServerClass(Local<Object> const& scriptObj)
 : ScriptClass(scriptObj),
-  svr(std::make_shared<Server>()) {}
+  svr(std::make_shared<Server>()),
+  errorCallback(),
+  exceptionCallback(),
+  preRoutingCallback(),
+  postRoutingCallback() {}
 HttpServerClass::HttpServerClass()
 : ScriptClass(ScriptClass::ConstructFromCpp<HttpServerClass>{}),
-  svr(std::make_shared<Server>()) {}
+  svr(std::make_shared<Server>()),
+  errorCallback(),
+  exceptionCallback(),
+  preRoutingCallback(),
+  postRoutingCallback() {}
 
 HttpServerClass::~HttpServerClass() { svr->stop(); }
 
-HttpServerClass* HttpServerClass::constructor(const Arguments& args) { return new HttpServerClass(args.thiz()); }
+HttpServerClass* HttpServerClass::constructor(Arguments const& args) { return new HttpServerClass(args.thiz()); }
 
-Local<Value> HttpServerClass::onGet(const Arguments& args) {
+Local<Value> HttpServerClass::onGet(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -510,7 +525,7 @@ Local<Value> HttpServerClass::onGet(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onPut(const Arguments& args) {
+Local<Value> HttpServerClass::onPut(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -521,10 +536,10 @@ Local<Value> HttpServerClass::onPut(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Put, path, func);
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onPost(const Arguments& args) {
+Local<Value> HttpServerClass::onPost(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -535,10 +550,10 @@ Local<Value> HttpServerClass::onPost(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Post, path, func);
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onPatch(const Arguments& args) {
+Local<Value> HttpServerClass::onPatch(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -549,10 +564,10 @@ Local<Value> HttpServerClass::onPatch(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Patch, path, func);
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onDelete(const Arguments& args) {
+Local<Value> HttpServerClass::onDelete(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -563,10 +578,10 @@ Local<Value> HttpServerClass::onDelete(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Delete, path, func);
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onOptions(const Arguments& args) {
+Local<Value> HttpServerClass::onOptions(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -577,16 +592,16 @@ Local<Value> HttpServerClass::onOptions(const Arguments& args) {
         ADD_CALLBACK(svr, callbacks, HttpRequestType::Options, path, func);
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
+Local<Value> HttpServerClass::onPreRouting(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
         preRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
-        svr->set_pre_routing_handler([this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
+        svr->set_pre_routing_handler([this, engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
@@ -614,17 +629,17 @@ Local<Value> HttpServerClass::onPreRouting(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
+Local<Value> HttpServerClass::onPostRouting(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
         postRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_post_routing_handler([this,
-                                       engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
+                                       engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -646,16 +661,16 @@ Local<Value> HttpServerClass::onPostRouting(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onError(const Arguments& args) {
+Local<Value> HttpServerClass::onError(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
         errorCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
-        svr->set_error_handler([this, engine = EngineScope::currentEngine()](const Request& req, Response& resp) {
+        svr->set_error_handler([this, engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -677,17 +692,17 @@ Local<Value> HttpServerClass::onError(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::onException(const Arguments& args) {
+Local<Value> HttpServerClass::onException(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
         exceptionCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_exception_handler([this, engine = EngineScope::currentEngine()](
-                                       const Request&     req,
+                                       Request const&     req,
                                        Response&          resp,
                                        std::exception_ptr e
                                    ) {
@@ -707,7 +722,7 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
                     if (e) {
                         try {
                             std::rethrow_exception(e);
-                        } catch (const std::exception& exp) {
+                        } catch (std::exception const& exp) {
                             this->exceptionCallback.func.get().call({}, reqObj, respObj, String::newString(exp.what()));
                         }
                     }
@@ -718,17 +733,17 @@ Local<Value> HttpServerClass::onException(const Arguments& args) {
         });
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::listen(const Arguments& args) {
+Local<Value> HttpServerClass::listen(Arguments const& args) const {
     if (args.size() == 1) {
         CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     } else if (args.size() == 2) {
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
         CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
     } else {
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
 
     try {
@@ -754,29 +769,29 @@ Local<Value> HttpServerClass::listen(const Arguments& args) {
         }).detach();
         return this->getScriptObject(); // return self
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::stop(const Arguments& args) {
+Local<Value> HttpServerClass::stop(Arguments const& args) const {
     try {
         RecordOperation(getEngineOwnData()->pluginName, "StopHttpServer", "");
         svr->stop();
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpServerClass::isRunning(const Arguments& args) {
+Local<Value> HttpServerClass::isRunning(Arguments const& args) const {
     try {
         return Boolean::newBoolean(svr->is_running());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Object> Headers2Object(const Headers& headers) {
+Local<Object> Headers2Object(Headers const& headers) {
     auto obj = Object::newObject();
-    for (auto& header : headers) {
-        obj.set(header.first, Array::newArray());
+    for (auto const& key : headers | std::views::keys) {
+        obj.set(key, Array::newArray());
     }
     for (auto& header : headers) {
         auto arr = obj.get(header.first).asArray();
@@ -786,7 +801,7 @@ Local<Object> Headers2Object(const Headers& headers) {
     return obj;
 }
 
-Local<Object> Params2Object(const Params& params) {
+Local<Object> Params2Object(Params const& params) {
     auto obj = Object::newObject();
     for (auto& param : params) {
         if (params.count(param.first) == 1) obj.set(param.first, param.second);
@@ -802,29 +817,29 @@ Local<Object> Params2Object(const Params& params) {
     return obj;
 }
 
-HttpRequestClass::HttpRequestClass(const Local<Object>& scriptObj, const Request& req)
+HttpRequestClass::HttpRequestClass(Local<Object> const& scriptObj, Request const& req)
 : ScriptClass(scriptObj),
   req(std::make_shared<Request>(req)) {}
-HttpRequestClass::HttpRequestClass(const Request& req)
+HttpRequestClass::HttpRequestClass(Request const& req)
 : ScriptClass(ScriptClass::ConstructFromCpp<HttpRequestClass>{}),
   req(std::make_shared<Request>(req)) {}
 
 std::shared_ptr<Request> HttpRequestClass::get() { return req; }
 
-Local<Value> HttpRequestClass::getHeaders() {
+Local<Value> HttpRequestClass::getHeaders() const {
     try {
         return Headers2Object(req->headers);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getHeader(const Arguments& args) {
+Local<Value> HttpRequestClass::getHeader(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         auto key = args[0].asString().toString();
-        if (req->headers.count(key) == 0) return Array::newArray();
+        if (!req->headers.contains(key)) return Array::newArray();
         auto value = req->headers.equal_range(key);
         auto arr   = Array::newArray();
         for (auto it = value.first; it != value.second; ++it) {
@@ -832,59 +847,59 @@ Local<Value> HttpRequestClass::getHeader(const Arguments& args) {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getBody() {
+Local<Value> HttpRequestClass::getBody() const {
     try {
         return String::newString(req->body);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getMethod() {
+Local<Value> HttpRequestClass::getMethod() const {
     try {
         return String::newString(req->method);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getPath() {
+Local<Value> HttpRequestClass::getPath() const {
     try {
         return String::newString(req->path);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getParams() {
+Local<Value> HttpRequestClass::getParams() const {
     try {
         return Params2Object(req->params);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getRemoteAddr() {
+Local<Value> HttpRequestClass::getRemoteAddr() const {
     try {
         return String::newString(req->remote_addr);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getRemotePort() {
+Local<Value> HttpRequestClass::getRemotePort() const {
     try {
         return Number::newNumber(req->remote_port);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getVersion() {
+Local<Value> HttpRequestClass::getVersion() const {
     try {
         return String::newString(req->version);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpRequestClass::getRegexMatches() {
+Local<Value> HttpRequestClass::getRegexMatches() const {
     try {
         auto smt = req->matches;
         auto arr = Array::newArray();
@@ -893,19 +908,19 @@ Local<Value> HttpRequestClass::getRegexMatches() {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-HttpResponseClass::HttpResponseClass(const Local<Object>& scriptObj, const Response& resp)
+HttpResponseClass::HttpResponseClass(Local<Object> const& scriptObj, Response const& resp)
 : ScriptClass(scriptObj),
   resp(std::make_shared<Response>(resp)) {}
-HttpResponseClass::HttpResponseClass(const Response& resp)
+HttpResponseClass::HttpResponseClass(Response const& resp)
 : ScriptClass(ScriptClass::ConstructFromCpp<HttpResponseClass>{}),
   resp(std::make_shared<Response>(resp)) {}
 
 std::shared_ptr<Response> HttpResponseClass::get() { return resp; }
 
-Local<Value> HttpResponseClass::setHeader(const Arguments& args) {
+Local<Value> HttpResponseClass::setHeader(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -917,16 +932,16 @@ Local<Value> HttpResponseClass::setHeader(const Arguments& args) {
         resp->headers.insert(make_pair(key, value));
         return this->getScriptObject(); // return self
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getHeader(const Arguments& args) {
+Local<Value> HttpResponseClass::getHeader(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         auto key = args[0].asString().toString();
-        if (resp->headers.count(key) == 0) return Array::newArray();
+        if (!resp->headers.contains(key)) return Array::newArray();
         auto value = resp->headers.equal_range(key);
         auto arr   = Array::newArray();
         for (auto it = value.first; it != value.second; ++it) {
@@ -934,20 +949,20 @@ Local<Value> HttpResponseClass::getHeader(const Arguments& args) {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::write(const Arguments& args) {
+Local<Value> HttpResponseClass::write(Arguments const& args) const {
     try {
         for (size_t i = 0ULL, mEnd = args.size(); i < mEnd; ++i) {
             resp->body += ValueToString(args[i]);
         }
         return this->getScriptObject();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-void HttpResponseClass::setHeaders(const Local<Value>& headers) {
+void HttpResponseClass::setHeaders(Local<Value> const& headers) const {
     CHECK_ARG_TYPE(headers, ValueKind::kObject);
 
     try {
@@ -968,7 +983,7 @@ void HttpResponseClass::setHeaders(const Local<Value>& headers) {
     CATCH_AND_THROW
 }
 
-void HttpResponseClass::setStatus(const Local<Value>& status) {
+void HttpResponseClass::setStatus(Local<Value> const& status) const {
     CHECK_ARG_TYPE(status, ValueKind::kNumber);
 
     try {
@@ -977,7 +992,7 @@ void HttpResponseClass::setStatus(const Local<Value>& status) {
     CATCH_AND_THROW
 }
 
-void HttpResponseClass::setBody(const Local<Value>& body) {
+void HttpResponseClass::setBody(Local<Value> const& body) const {
     CHECK_ARG_TYPE(body, ValueKind::kString);
 
     try {
@@ -986,7 +1001,7 @@ void HttpResponseClass::setBody(const Local<Value>& body) {
     CATCH_AND_THROW
 }
 
-void HttpResponseClass::setReason(const Local<Value>& reason) {
+void HttpResponseClass::setReason(Local<Value> const& reason) const {
     CHECK_ARG_TYPE(reason, ValueKind::kString);
 
     try {
@@ -995,7 +1010,7 @@ void HttpResponseClass::setReason(const Local<Value>& reason) {
     CATCH_AND_THROW
 }
 
-void HttpResponseClass::setVersion(const Local<Value>& version) {
+void HttpResponseClass::setVersion(Local<Value> const& version) const {
     CHECK_ARG_TYPE(version, ValueKind::kString);
 
     try {
@@ -1004,44 +1019,44 @@ void HttpResponseClass::setVersion(const Local<Value>& version) {
     CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getHeaders() {
+Local<Value> HttpResponseClass::getHeaders() const {
     try {
         return Headers2Object(resp->headers);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getStatus() {
+Local<Value> HttpResponseClass::getStatus() const {
     try {
         return Number::newNumber(resp->status);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getBody() {
+Local<Value> HttpResponseClass::getBody() const {
     try {
         return String::newString(resp->body);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getReason() {
+Local<Value> HttpResponseClass::getReason() const {
     try {
         return String::newString(resp->reason);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> HttpResponseClass::getVersion() {
+Local<Value> HttpResponseClass::getVersion() const {
     try {
         return String::newString(resp->version);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// Ported from LiteLoaderBDS ////////////////////
 
-void SplitHttpUrl(const std::string& url, string& host, string& path) {
+void SplitHttpUrl(std::string const& url, string& host, string& path) {
     host = url;
 
     bool foundProtocol = host.find('/') != string::npos;
@@ -1055,9 +1070,9 @@ void SplitHttpUrl(const std::string& url, string& host, string& path) {
     }
 }
 bool HttpGet(
-    const std::string&                           url,
-    const httplib::Headers&                      headers,
-    const std::function<void(int, std::string)>& callback,
+    std::string const&                           url,
+    httplib::Headers const&                      headers,
+    std::function<void(int, std::string)> const& callback,
     int                                          timeout = -1
 ) {
     string host, path;
@@ -1070,7 +1085,7 @@ bool HttpGet(
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
     std::thread(
-        [headers, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> cli) {
+        [headers, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> const& cli) {
             try {
                 auto response = cli->Get(path.c_str(), headers);
 
@@ -1085,16 +1100,16 @@ bool HttpGet(
     return true;
 }
 
-bool HttpGet(const std::string& url, const std::function<void(int, std::string)>& callback, int timeout = -1) {
+bool HttpGet(std::string const& url, std::function<void(int, std::string)> const& callback, int timeout = -1) {
     return HttpGet(url, {}, callback, timeout);
 }
 
 bool HttpPost(
-    const std::string&                           url,
-    const httplib::Headers&                      headers,
-    const std::string&                           data,
-    const std::string&                           type,
-    const std::function<void(int, std::string)>& callback,
+    std::string const&                           url,
+    httplib::Headers const&                      headers,
+    std::string const&                           data,
+    std::string const&                           type,
+    std::function<void(int, std::string)> const& callback,
     int                                          timeout = -1
 ) {
     std::string host, path;
@@ -1106,7 +1121,7 @@ bool HttpPost(
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
     std::thread(
-        [headers, data, type, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> cli) {
+        [headers, data, type, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> const& cli) {
             try {
                 auto response = cli->Post(path.c_str(), headers, data, type.c_str());
                 if (!response) callback(-1, "");
@@ -1120,16 +1135,16 @@ bool HttpPost(
 }
 
 bool HttpPost(
-    const string&                           url,
-    const string&                           data,
-    const string&                           type,
-    const std::function<void(int, string)>& callback,
+    string const&                           url,
+    string const&                           data,
+    string const&                           type,
+    std::function<void(int, string)> const& callback,
     int                                     timeout = -1
 ) {
     return HttpPost(url, {}, data, type, callback, timeout);
 }
 
-bool HttpGetSync(const std::string& url, int* statusRtn, std::string* dataRtn, int timeout = -1) {
+bool HttpGetSync(std::string const& url, int* statusRtn, std::string* dataRtn, int timeout = -1) {
     string host, path;
     SplitHttpUrl(url, host, path);
 
@@ -1151,7 +1166,7 @@ bool HttpGetSync(const std::string& url, int* statusRtn, std::string* dataRtn, i
 
 //////////////////// APIs ////////////////////
 
-Local<Value> NetworkClass::httpGet(const Arguments& args) {
+Local<Value> NetworkClass::httpGet(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() > 2) {
@@ -1167,7 +1182,7 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
         auto lambda = [callback{std::move(callbackFunc)},
-                       engine{EngineScope::currentEngine()}](int status, string body) {
+                       engine{EngineScope::currentEngine()}](int status, string const& body) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -1193,10 +1208,10 @@ Local<Value> NetworkClass::httpGet(const Arguments& args) {
         }
         return Boolean::newBoolean(HttpGet(target, lambda));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> NetworkClass::httpPost(const Arguments& args) {
+Local<Value> NetworkClass::httpPost(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 4);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[2], ValueKind::kString);
@@ -1215,7 +1230,7 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
         script::Global<Function> callbackFunc{args[args.size() - 1].asFunction()};
 
         auto lambda = [callback{std::move(callbackFunc)},
-                       engine{EngineScope::currentEngine()}](int status, string body) {
+                       engine{EngineScope::currentEngine()}](int status, string const& body) {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
@@ -1246,10 +1261,10 @@ Local<Value> NetworkClass::httpPost(const Arguments& args) {
             HttpPost(target, args[1].asString().toString(), args[2].asString().toString(), lambda)
         );
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
+Local<Value> NetworkClass::httpGetSync(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -1265,11 +1280,11 @@ Local<Value> NetworkClass::httpGetSync(const Arguments& args) {
         res.set("data", result);
         return res;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // For compatibility
-Local<Value> NetworkClass::newWebSocket(const Arguments&) {
+Local<Value> NetworkClass::newWebSocket(Arguments const&) {
     auto newp = new WSClientClass();
     return newp->getScriptObject();
 }

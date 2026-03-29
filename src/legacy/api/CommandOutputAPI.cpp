@@ -24,7 +24,10 @@ ClassDefine<CommandOutputClass> CommandOutputClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOutputClass::CommandOutputClass(std::shared_ptr<CommandOutput> out, std::shared_ptr<CommandOrigin const> ori)
+CommandOutputClass::CommandOutputClass(
+    std::shared_ptr<CommandOutput> const&       out,
+    std::shared_ptr<CommandOrigin const> const& ori
+)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOutputClass>{}),
   output(out),
   origin(ori),
@@ -34,14 +37,14 @@ Local<Value> CommandOutputClass::empty() {
     try {
         return Boolean::newBoolean(get()->mMessages.empty());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOutputClass::getSuccessCount() {
     try {
         return Number::newNumber(static_cast<int64_t>(get()->mSuccessCount));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 };
 
 // Local<Value> CommandOutputClass::getType()
@@ -50,10 +53,10 @@ Local<Value> CommandOutputClass::getSuccessCount() {
 //     {
 //         return String::newString(magic_enum::enum_name(get()->getType()));
 //     }
-//     CATCH_AND_THROW;
+//     CATCH_AND_THROW
 // };
 
-Local<Value> CommandOutputClass::success(const Arguments& args) {
+Local<Value> CommandOutputClass::success(Arguments const& args) {
     try {
         if (args.size() == 0) {
             ++get()->mSuccessCount;
@@ -76,10 +79,10 @@ Local<Value> CommandOutputClass::success(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 };
 
-Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
+Local<Value> CommandOutputClass::addMessage(Arguments const& args) {
     try {
         CHECK_ARG_TYPE(args[0], ValueKind::kString);
         auto msg = args[0].asString().toString();
@@ -92,11 +95,11 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
             }
             if (args.size() >= 3) {
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-                get()->addMessage(msg, param, (CommandOutputMessageType)args[2].asNumber().toInt32());
+                get()->addMessage(msg, param, static_cast<CommandOutputMessageType>(args[2].asNumber().toInt32()));
                 send();
                 return Boolean::newBoolean(true);
             }
-            get()->addMessage(msg, param, (CommandOutputMessageType)0);
+            get()->addMessage(msg, param, static_cast<CommandOutputMessageType>(0));
             send();
             return Boolean::newBoolean(true);
         }
@@ -104,10 +107,10 @@ Local<Value> CommandOutputClass::addMessage(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 };
 
-Local<Value> CommandOutputClass::error(const Arguments& args) {
+Local<Value> CommandOutputClass::error(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -127,10 +130,10 @@ Local<Value> CommandOutputClass::error(const Arguments& args) {
         send();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 };
 
-void CommandOutputClass::send() {
+void CommandOutputClass::send() const {
     try {
         if (!isAsync) return;
         ll::service::getMinecraft()->mCommands->handleOutput(*origin, *output);
@@ -140,9 +143,9 @@ void CommandOutputClass::send() {
     CATCH_AND_THROW
 }
 
-Local<Value> CommandOutputClass::toString(const Arguments&) {
+Local<Value> CommandOutputClass::toString(Arguments const&) {
     try {
         return String::newString("<CommandOutput>");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 };

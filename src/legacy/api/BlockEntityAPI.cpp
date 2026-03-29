@@ -6,12 +6,10 @@
 #include "api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
-#include "main/Global.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 #include "mc/nbt/CompoundTag.h"
 #include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/BlockSource.h"
-#include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 
@@ -41,35 +39,35 @@ Local<Object> BlockEntityClass::newBlockEntity(BlockActor* be, int dim) {
 }
 
 // 生成函数
-BlockActor* BlockEntityClass::extract(Local<Value> v) {
+BlockActor* BlockEntityClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<BlockEntityClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<BlockEntityClass>(v)->get();
     else return nullptr;
 }
 
 // 成员函数
-Local<Value> BlockEntityClass::getPos() {
+Local<Value> BlockEntityClass::getPos() const {
     try {
         return IntPos::newPos(blockEntity->mPosition, dim);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> BlockEntityClass::getName() {
+Local<Value> BlockEntityClass::getName() const {
     try {
         return String::newString(blockEntity->getName());
     }
     CATCH_AND_THROW
 }
 
-Local<Value> BlockEntityClass::getType() {
+Local<Value> BlockEntityClass::getType() const {
     try {
-        return Number::newNumber((int)blockEntity->mType);
+        return Number::newNumber(static_cast<int>(blockEntity->mType));
     }
     CATCH_AND_THROW
 }
 
-Local<Value> BlockEntityClass::getNbt(const Arguments&) {
+Local<Value> BlockEntityClass::getNbt(Arguments const&) const {
     try {
         auto tag = std::make_unique<CompoundTag>();
         blockEntity->save(*tag, *SaveContextFactory::createCloneSaveContext());
@@ -78,7 +76,7 @@ Local<Value> BlockEntityClass::getNbt(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
+Local<Value> BlockEntityClass::setNbt(Arguments const& args) const {
     using namespace lse::api;
     CHECK_ARGS_COUNT(args, 1);
 
@@ -93,7 +91,7 @@ Local<Value> BlockEntityClass::setNbt(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> BlockEntityClass::getBlock(const Arguments&) {
+Local<Value> BlockEntityClass::getBlock(Arguments const&) const {
     try {
         BlockPos blockPos = blockEntity->mPosition;
         auto&    block =

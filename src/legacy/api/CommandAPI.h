@@ -72,22 +72,22 @@ class CommandClass : public ScriptClass {
 public:
     CommandClass(std::string const& name);
     static Local<Object> newCommand(std::string const& name);
-    Local<Value>         getName();
-    Local<Value>         setAlias(const Arguments& args);
-    Local<Value>         setEnum(const Arguments& args);
-    Local<Value>         newParameter(const Arguments& args);
-    Local<Value>         mandatory(const Arguments& args);
-    Local<Value>         optional(const Arguments& args);
-    Local<Value>         addOverload(const Arguments& args);
-    Local<Value>         setCallback(const Arguments& args);
-    Local<Value>         setup(const Arguments& args);
+    Local<Value>         getName() const;
+    Local<Value>         setAlias(Arguments const& args);
+    Local<Value>         setEnum(Arguments const& args);
+    Local<Value>         newParameter(Arguments const& args) const;
+    Local<Value>         mandatory(Arguments const& args) const;
+    Local<Value>         optional(Arguments const& args) const;
+    Local<Value>         addOverload(Arguments const& args);
+    Local<Value>         setCallback(Arguments const& args) const;
+    Local<Value>         setup(Arguments const& args) const;
     Local<Value>         isRegistered();
-    Local<Value>         toString(const Arguments& args);
-    Local<Value>         setSoftEnum(const Arguments& args);
-    Local<Value>         addSoftEnumValues(const Arguments& args);
-    Local<Value>         removeSoftEnumValues(const Arguments& args);
-    Local<Value>         getSoftEnumValues(const Arguments& args);
-    Local<Value>         getSoftEnumNames(const Arguments& args);
+    Local<Value>         toString(Arguments const& args);
+    Local<Value>         setSoftEnum(Arguments const& args);
+    Local<Value>         addSoftEnumValues(Arguments const& args);
+    Local<Value>         removeSoftEnumValues(Arguments const& args);
+    Local<Value>         getSoftEnumValues(Arguments const& args);
+    Local<Value>         getSoftEnumNames(Arguments const& args);
 };
 
 extern ClassDefine<CommandClass> CommandClassBuilder;

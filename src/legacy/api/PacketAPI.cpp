@@ -2,7 +2,6 @@
 
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
-#include "api/EntityAPI.h"
 #include "api/ItemAPI.h"
 #include "api/NbtAPI.h"
 #include "lse/api/helper/ItemStackSerializerHelpers.h"
@@ -53,17 +52,15 @@ ClassDefine<BinaryStreamClass> BinaryStreamClassBuilder =
 
 //////////////////// Packet Classes ////////////////////
 
-PacketClass::PacketClass(std::shared_ptr<Packet> p) : ScriptClass(ScriptClass::ConstructFromCpp<PacketClass>{}) {
-    set(p);
-}
+PacketClass::PacketClass(std::shared_ptr<Packet> const& p) : ScriptClass(ConstructFromCpp<PacketClass>{}) { set(p); }
 
 // generating function
-Local<Object> PacketClass::newPacket(std::shared_ptr<class Packet> pkt) {
+Local<Object> PacketClass::newPacket(std::shared_ptr<Packet> const& pkt) {
     auto out = new PacketClass(pkt);
     return out->getScriptObject();
 }
 
-std::shared_ptr<Packet> PacketClass::extract(Local<Value> v) {
+std::shared_ptr<Packet> PacketClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<PacketClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<PacketClass>(v)->get();
     else return nullptr;
@@ -78,7 +75,7 @@ Local<Value> PacketClass::getName() {
         }
         return String::newString(pkt->getName());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> PacketClass::getId() {
@@ -87,15 +84,15 @@ Local<Value> PacketClass::getId() {
         if (!pkt) {
             return Local<Value>();
         }
-        return Number::newNumber((int)pkt->getId());
+        return Number::newNumber(static_cast<int>(pkt->getId()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// BinaryStream Classes ////////////////////
 
-BinaryStreamClass::BinaryStreamClass(std::shared_ptr<BinaryStream> bs)
-: ScriptClass(ScriptClass::ConstructFromCpp<BinaryStreamClass>{}) {
+BinaryStreamClass::BinaryStreamClass(std::shared_ptr<BinaryStream> const& bs)
+: ScriptClass(ConstructFromCpp<BinaryStreamClass>{}) {
     set(bs);
 }
 
@@ -117,14 +114,14 @@ Local<Value> BinaryStreamClass::getAndReleaseData() {
         stream->mBuffer.swap(data);
         return String::newString(data);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-BinaryStreamClass* BinaryStreamClass::constructor(const Arguments& args) {
+BinaryStreamClass* BinaryStreamClass::constructor(Arguments const& args) {
     try {
         return new BinaryStreamClass(args.thiz());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> BinaryStreamClass::reset() {
@@ -136,19 +133,19 @@ Local<Value> BinaryStreamClass::reset() {
         stream->mBuffer.clear();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::reserve(const Arguments& args) {
+Local<Value> BinaryStreamClass::reserve(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeBool(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeBool(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
     try {
@@ -159,10 +156,10 @@ Local<Value> BinaryStreamClass::writeBool(const Arguments& args) {
         stream->writeBool(args[0].asBoolean().value(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeByte(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeByte(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -173,10 +170,10 @@ Local<Value> BinaryStreamClass::writeByte(const Arguments& args) {
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeDouble(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeDouble(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -187,10 +184,10 @@ Local<Value> BinaryStreamClass::writeDouble(const Arguments& args) {
         stream->writeDouble(args[0].asNumber().toDouble(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeFloat(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeFloat(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -201,10 +198,10 @@ Local<Value> BinaryStreamClass::writeFloat(const Arguments& args) {
         stream->writeFloat(args[0].asNumber().toFloat(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeSignedBigEndianInt(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeSignedBigEndianInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -215,10 +212,10 @@ Local<Value> BinaryStreamClass::writeSignedBigEndianInt(const Arguments& args) {
         stream->writeSignedBigEndianInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeSignedInt(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeSignedInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -229,10 +226,10 @@ Local<Value> BinaryStreamClass::writeSignedInt(const Arguments& args) {
         stream->writeSignedInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeSignedInt64(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeSignedInt64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -243,10 +240,10 @@ Local<Value> BinaryStreamClass::writeSignedInt64(const Arguments& args) {
         stream->writeSignedInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeSignedShort(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeSignedShort(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -257,10 +254,10 @@ Local<Value> BinaryStreamClass::writeSignedShort(const Arguments& args) {
         stream->writeSignedShort(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeString(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeString(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -271,10 +268,10 @@ Local<Value> BinaryStreamClass::writeString(const Arguments& args) {
         stream->writeString(args[0].asString().toString(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedChar(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedChar(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -285,10 +282,10 @@ Local<Value> BinaryStreamClass::writeUnsignedChar(const Arguments& args) {
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedInt(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -296,13 +293,13 @@ Local<Value> BinaryStreamClass::writeUnsignedInt(const Arguments& args) {
         if (!stream) {
             return Local<Value>();
         }
-        stream->writeUnsignedInt((uint32_t)args[0].asNumber().toInt32(), nullptr, nullptr);
+        stream->writeUnsignedInt(static_cast<uint32_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedInt64(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedInt64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -310,13 +307,13 @@ Local<Value> BinaryStreamClass::writeUnsignedInt64(const Arguments& args) {
         if (!stream) {
             return Local<Value>();
         }
-        stream->writeUnsignedInt64((uint64_t)args[0].asNumber().toInt64(), nullptr, nullptr);
+        stream->writeUnsignedInt64(static_cast<uint64_t>(args[0].asNumber().toInt64()), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedShort(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedShort(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -324,13 +321,13 @@ Local<Value> BinaryStreamClass::writeUnsignedShort(const Arguments& args) {
         if (!stream) {
             return Local<Value>();
         }
-        stream->writeUnsignedShort((uint16_t)args[0].asNumber().toInt32(), nullptr, nullptr);
+        stream->writeUnsignedShort(static_cast<uint16_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedVarInt(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedVarInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -338,13 +335,13 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt(const Arguments& args) {
         if (!stream) {
             return Local<Value>();
         }
-        stream->writeUnsignedVarInt((uint32_t)args[0].asNumber().toInt32(), nullptr, nullptr);
+        stream->writeUnsignedVarInt(static_cast<uint32_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeUnsignedVarInt64(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeUnsignedVarInt64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -352,13 +349,13 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt64(const Arguments& args) {
         if (!stream) {
             return Local<Value>();
         }
-        stream->writeUnsignedVarInt64((uint64_t)args[0].asNumber().toInt64(), nullptr, nullptr);
+        stream->writeUnsignedVarInt64(static_cast<uint64_t>(args[0].asNumber().toInt64()), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeVarInt(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeVarInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -369,10 +366,10 @@ Local<Value> BinaryStreamClass::writeVarInt(const Arguments& args) {
         stream->writeVarInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeVarInt64(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeVarInt64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -383,10 +380,10 @@ Local<Value> BinaryStreamClass::writeVarInt64(const Arguments& args) {
         stream->writeVarInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeVec3(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto stream = get();
@@ -394,7 +391,7 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         if (!IsInstanceOf<FloatPos>(args[0])) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         FloatPos* posObj = FloatPos::extractPos(args[0]);
         stream->writeFloat(posObj->getVec3().x, nullptr, nullptr);
@@ -402,10 +399,10 @@ Local<Value> BinaryStreamClass::writeVec3(const Arguments& args) {
         stream->writeFloat(posObj->getVec3().z, nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeBlockPos(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto stream = get();
@@ -413,7 +410,7 @@ Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
             return Boolean::newBoolean(false);
         }
         if (!IsInstanceOf<IntPos>(args[0])) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         IntPos* posObj = IntPos::extractPos(args[0]);
         stream->writeVarInt(posObj->getBlockPos().x, nullptr, nullptr);
@@ -421,10 +418,10 @@ Local<Value> BinaryStreamClass::writeBlockPos(const Arguments& args) {
         stream->writeVarInt(posObj->getBlockPos().z, nullptr, nullptr);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeCompoundTag(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto stream = get();
@@ -433,15 +430,15 @@ Local<Value> BinaryStreamClass::writeCompoundTag(const Arguments& args) {
         }
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         stream->writeType(*nbt);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
+Local<Value> BinaryStreamClass::writeItem(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto stream = get();
@@ -450,24 +447,24 @@ Local<Value> BinaryStreamClass::writeItem(const Arguments& args) {
         }
         auto item = ItemClass::extract(args[0]);
         if (!item) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         ItemStackSerializerHelpers::write(NetworkItemStackDescriptor(*item), *stream);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::createPacket(const Arguments& args) {
+Local<Value> BinaryStreamClass::createPacket(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto stream = get();
         if (!stream) {
             return Local<Value>();
         }
-        auto pkt = MinecraftPackets::createPacket((MinecraftPacketIds)args[0].asNumber().toInt32());
+        auto pkt = MinecraftPackets::createPacket(static_cast<MinecraftPacketIds>(args[0].asNumber().toInt32()));
         pkt->read(*stream);
         return PacketClass::newPacket(pkt);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

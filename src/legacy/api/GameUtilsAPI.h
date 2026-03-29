@@ -1,4 +1,4 @@
 #pragma once
 #include "api/APIHelp.h"
 
-extern ClassDefine<void> TextClassBuilder;
+extern ClassDefine<> TextClassBuilder;

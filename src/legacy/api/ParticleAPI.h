@@ -67,25 +67,25 @@ public:
         FAWN,
     };
 
-    explicit ParticleSpawner(const Local<Object>& scriptObj) : ScriptClass(scriptObj) {}
+    explicit ParticleSpawner(Local<Object> const& scriptObj) : ScriptClass(scriptObj) {}
 
-    static ParticleSpawner* create(const Arguments& args);
+    static ParticleSpawner* create(Arguments const& args);
 
     Local<Value> getDisplayRadius() { return Number::newNumber(static_cast<long long>(1024)); }
     Local<Value> getHighDetial() { return Boolean::newBoolean(true); }
     Local<Value> getDoubleSide() { return Boolean::newBoolean(false); }
-    void         setDisplayRadius(const Local<Value>& value) {}
-    void         setHighDetial(const Local<Value>& value) {}
-    void         setDoubleSide(const Local<Value>& value) {}
+    void         setDisplayRadius(Local<Value> const& value) {}
+    void         setHighDetial(Local<Value> const& value) {}
+    void         setDoubleSide(Local<Value> const& value) {}
 
-    Local<Value> spawnParticle(const Arguments& args);
+    Local<Value> spawnParticle(Arguments const& args);
 
-    Local<Value> drawPoint(const Arguments& args);
-    Local<Value> drawNumber(const Arguments& args);
-    Local<Value> drawAxialLine(const Arguments& args);
-    Local<Value> drawOrientedLine(const Arguments& args);
-    Local<Value> drawCuboid(const Arguments& args);
-    Local<Value> drawCircle(const Arguments& args);
+    Local<Value> drawPoint(Arguments const& args);
+    Local<Value> drawNumber(Arguments const& args);
+    Local<Value> drawAxialLine(Arguments const& args);
+    Local<Value> drawOrientedLine(Arguments const& args);
+    Local<Value> drawCuboid(Arguments const& args);
+    Local<Value> drawCircle(Arguments const& args);
 };
 
 extern ClassDefine<ParticleSpawner> ParticleSpawnerBuilder;

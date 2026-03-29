@@ -51,7 +51,7 @@ void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveCmdCallback(std::shared_ptr<ScriptEngine> engine);
-bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> engine);
+bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> const& engine);
 bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine);
 bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
 
@@ -206,7 +206,7 @@ ll::Expected<> PluginManager::enable(std::string_view name) {
         // Try loadFile
         try {
             scriptEngine->loadFile(entryPath.u8string());
-        } catch (const Exception&) {
+        } catch (Exception const&) {
             // loadFile failed, try eval
             auto pluginEntryContent = ll::file_utils::readFile(entryPath);
             if (!pluginEntryContent) {
@@ -225,7 +225,7 @@ ll::Expected<> PluginManager::enable(std::string_view name) {
         }
 
         return {};
-    } catch (const Exception& e) {
+    } catch (Exception const& e) {
         if (scriptEngine) {
             auto error = [&] {
                 EngineScope engineScope(scriptEngine.get());
@@ -286,9 +286,9 @@ ll::Expected<> PluginManager::disable(std::string_view name) {
             }
         }
         return {};
-    } catch (const Exception&) {
+    } catch (Exception const&) {
         return ll::makeStringError("Failed to disable plugin {0}: {1}"_tr(name, "Unknown script exception"));
-    } catch (const std::exception& e) {
+    } catch (std::exception const& e) {
         return ll::makeStringError("Failed to disable plugin {0}: {1}"_tr(name, e.what()));
     }
 }

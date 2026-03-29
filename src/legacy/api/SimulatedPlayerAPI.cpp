@@ -21,7 +21,7 @@
 
 using lse::api::SimulatedPlayerHelper;
 
-Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
+Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -61,7 +61,7 @@ Local<Value> McClass::spawnSimulatedPlayer(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
+SimulatedPlayer* PlayerClass::asSimulatedPlayer() const {
     Player* ptr = get();
     if (ptr && ptr->isSimulatedPlayer()) {
         return static_cast<SimulatedPlayer*>(ptr);
@@ -69,7 +69,7 @@ SimulatedPlayer* PlayerClass::asSimulatedPlayer() {
     return nullptr;
 }
 
-Local<Value> PlayerClass::simulateSneak(const Arguments&) {
+Local<Value> PlayerClass::simulateSneak(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Boolean::newBoolean(false);
@@ -79,7 +79,7 @@ Local<Value> PlayerClass::simulateSneak(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
+Local<Value> PlayerClass::simulateAttack(Arguments const& args) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Boolean::newBoolean(false);
@@ -91,12 +91,12 @@ Local<Value> PlayerClass::simulateAttack(const Arguments& args) {
             return Boolean::newBoolean(sp->attack(*actor, SharedTypes::Legacy::ActorDamageCause::EntityAttack));
         }
 
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
+Local<Value> PlayerClass::simulateDestroy(Arguments const& args) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Boolean::newBoolean(false);
@@ -106,7 +106,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         int                                 dimid = sp->getDimensionId().id;
         BlockPos                            bpos;
         size_t                              index = 0;
-        ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
+        ScriptModuleMinecraft::ScriptFacing face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[index]);
             if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
@@ -135,11 +135,11 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         if (args.size() > index) {
             CHECK_ARG_TYPE(args[index], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[index].asNumber().toInt32();
+            face = static_cast<ScriptModuleMinecraft::ScriptFacing>(args[index].asNumber().toInt32());
         }
 
         return Boolean::newBoolean(sp->simulateDestroyBlock(bpos, face));
@@ -147,7 +147,7 @@ Local<Value> PlayerClass::simulateDestroy(const Arguments& args) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
+Local<Value> PlayerClass::simulateDisconnect(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -159,7 +159,7 @@ Local<Value> PlayerClass::simulateDisconnect(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
+Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -172,7 +172,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         int                                 dimid = sp->getDimensionId().id;
         BlockPos                            bpos;
         size_t                              index = 0;
-        ScriptModuleMinecraft::ScriptFacing face  = (ScriptModuleMinecraft::ScriptFacing)0;
+        ScriptModuleMinecraft::ScriptFacing face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[index]);
             if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
@@ -201,7 +201,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         return Boolean::newBoolean(sp->simulateInteract(bpos, face));
@@ -209,7 +209,7 @@ Local<Value> PlayerClass::simulateInteract(const Arguments& args) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateJump(const Arguments&) {
+Local<Value> PlayerClass::simulateJump(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -218,7 +218,7 @@ Local<Value> PlayerClass::simulateJump(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
+Local<Value> PlayerClass::simulateRespawn(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -233,7 +233,7 @@ Local<Value> PlayerClass::simulateRespawn(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
+Local<Value> PlayerClass::simulateLocalMove(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
@@ -261,7 +261,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -275,7 +275,7 @@ Local<Value> PlayerClass::simulateLocalMove(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
+Local<Value> PlayerClass::simulateWorldMove(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
@@ -303,7 +303,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -317,7 +317,7 @@ Local<Value> PlayerClass::simulateWorldMove(const Arguments& args) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
+Local<Value> PlayerClass::simulateMoveTo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
@@ -345,7 +345,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
         }
 #endif // ENABLE_NUMBERS_AS_POS
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         if (args.size() > index) {
@@ -359,7 +359,7 @@ Local<Value> PlayerClass::simulateMoveTo(const Arguments& args) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
+Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
@@ -368,7 +368,7 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
         auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
             if (!args[1].isNumber()) {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
             lookDuration = static_cast<sim::LookDuration>(args[1].asNumber().toInt32());
         }
@@ -404,13 +404,13 @@ Local<Value> PlayerClass::simulateLookAt(const Arguments& args) {
             sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
 };
 
 // void simulateSetBodyRotation(float);
-Local<Value> PlayerClass::simulateSetBodyRotation(const Arguments& args) {
+Local<Value> PlayerClass::simulateSetBodyRotation(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -439,7 +439,7 @@ inline Local<Value> NavigateResultToObject(ScriptModuleGameTest::ScriptNavigatio
 // struct ScriptNavigationResult simulateNavigateToEntity(class Actor&, float);
 // struct ScriptNavigationResult simulateNavigateToLocation(class Vec3 const&,
 // float); void simulateNavigateToLocations(std::vector<class Vec3>&&, float);
-Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
+Local<Value> PlayerClass::simulateNavigateTo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -462,7 +462,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
                 else if (arr.get(index).isArray()) {
                     auto posArr = arr.get(index).asArray();
                     if (posArr.size() != 3 || !posArr.get(0).isNumber()) {
-                        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                        throw WrongArgTypeException(__FUNCTION__);
                     }
                     path.emplace_back(
                         posArr.get(0).asNumber().toFloat(),
@@ -470,7 +470,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
                         posArr.get(2).asNumber().toFloat()
                     );
                 } else {
-                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                    throw WrongArgTypeException(__FUNCTION__);
                 }
             }
             sp->simulateNavigateToLocations(std::move(path), speed);
@@ -501,7 +501,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
             return NavigateResultToObject(res);
         }
 #endif // ENABLE_NUMBERS_AS_POS
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
 }
@@ -514,7 +514,7 @@ Local<Value> PlayerClass::simulateNavigateTo(const Arguments& args) {
 // bool simulateUseItemInSlotOnBlock(int, class BlockPos const&, enum
 // ScriptFacing, class Vec3 const&); bool simulateUseItemOnBlock(class
 // ItemStack&, class BlockPos const&, enum ScriptFacing, class Vec3 const&);
-Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
+Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Boolean::newBoolean(false);
@@ -526,7 +526,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         if (args[0].isNumber()) slot = args[0].asNumber().toInt32();
         else if (IsInstanceOf<ItemClass>(args[0])) item = ItemClass::extract(args[0]);
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         if (args.size() == 1) {
             if (item) return Boolean::newBoolean(SimulatedPlayerHelper::simulateUseItem(*sp, *item));
@@ -534,21 +534,21 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
         }
 
         BlockPos                            bpos;
-        ScriptModuleMinecraft::ScriptFacing face        = (ScriptModuleMinecraft::ScriptFacing)0;
+        ScriptModuleMinecraft::ScriptFacing face        = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
         Vec3                                relativePos = {0.5, 0.5, 0.5};
         if (IsInstanceOf<IntPos>(args[1])) bpos = IntPos::extractPos(args[1])->getBlockPos();
         else if (IsInstanceOf<FloatPos>(args[1])) bpos = FloatPos::extractPos(args[1])->getVec3();
         else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         if (args.size() > 2) {
             CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
-            face = (ScriptModuleMinecraft::ScriptFacing)args[2].asNumber().toInt32();
+            face = static_cast<ScriptModuleMinecraft::ScriptFacing>(args[2].asNumber().toInt32());
             if (args.size() > 3) {
                 if (IsInstanceOf<FloatPos>(args[3])) {
                     relativePos = FloatPos::extractPos(args[3])->getVec3();
                 } else {
-                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                    throw WrongArgTypeException(__FUNCTION__);
                 }
             }
         }
@@ -561,7 +561,7 @@ Local<Value> PlayerClass::simulateUseItem(const Arguments& args) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
+Local<Value> PlayerClass::simulateStopDestroyingBlock(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -571,7 +571,7 @@ Local<Value> PlayerClass::simulateStopDestroyingBlock(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
+Local<Value> PlayerClass::simulateStopInteracting(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -581,7 +581,7 @@ Local<Value> PlayerClass::simulateStopInteracting(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
+Local<Value> PlayerClass::simulateStopMoving(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -591,7 +591,7 @@ Local<Value> PlayerClass::simulateStopMoving(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
+Local<Value> PlayerClass::simulateStopUsingItem(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();
@@ -601,7 +601,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(const Arguments&) {
     CATCH_AND_THROW
 };
 
-Local<Value> PlayerClass::simulateStopSneaking(const Arguments&) {
+Local<Value> PlayerClass::simulateStopSneaking(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return Local<Value>();

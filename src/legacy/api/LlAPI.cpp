@@ -3,7 +3,6 @@
 #include "api/APIHelp.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "ll/api/Versions.h"
 #include "ll/api/data/Version.h"
 #include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManagerRegistry.h"
@@ -81,8 +80,7 @@ Local<Value> LlClass::isDebugMode() {
 
 Local<Value> LlClass::isRelease() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(!ver->preRelease.has_value() && !ver->build.has_value());
         } else {
             return Boolean::newBoolean(false);
@@ -93,8 +91,7 @@ Local<Value> LlClass::isRelease() {
 
 Local<Value> LlClass::isBeta() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(ver->preRelease.has_value());
         } else {
             return Boolean::newBoolean(false);
@@ -105,20 +102,18 @@ Local<Value> LlClass::isBeta() {
 
 Local<Value> LlClass::isDev() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(ver->build.has_value());
         } else {
             return Boolean::newBoolean(true);
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> LlClass::getMajorVersion() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->major);
         } else {
             return Number::newNumber(0);
@@ -129,8 +124,7 @@ Local<Value> LlClass::getMajorVersion() {
 
 Local<Value> LlClass::getMinorVersion() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->minor);
         } else {
             return Number::newNumber(0);
@@ -141,8 +135,7 @@ Local<Value> LlClass::getMinorVersion() {
 
 Local<Value> LlClass::getRevisionVersion() {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->patch);
         } else {
             return Number::newNumber(0);
@@ -159,8 +152,7 @@ Local<Value> LlClass::getScriptEngineVersion() {
 }
 
 Local<Value> LlClass::getVersionStatus() {
-    auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-    if (ver) {
+    if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
         if (ver->preRelease.has_value()) {
             return Number::newNumber(1);
         } else if (ver->build.has_value()) {
@@ -180,7 +172,7 @@ Local<Value> LlClass::getPluginsRoot() {
     CATCH_AND_THROW
 }
 
-Local<Value> LlClass::registerPlugin(const Arguments& args) {
+Local<Value> LlClass::registerPlugin(Arguments const& args) {
     if (args.size() == 0) {
         return Boolean::newBoolean(true);
     } else {
@@ -257,7 +249,7 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
                     }
                 }
             } else {
-                THROW_WRONG_ARG_TYPE("ll::registerPlugin");
+                throw WrongArgTypeException("ll::registerPlugin");
             }
         }
 
@@ -281,16 +273,16 @@ Local<Value> LlClass::registerPlugin(const Arguments& args) {
             }
             ll::file_utils::writeFile(
                 getEngineOwnData()->plugin->getModDir() / "manifest.json",
-                ll::reflection::serialize<nlohmann::ordered_json>(newManifest)->dump(4)
+                ll::reflection::serialize<ordered_json>(newManifest)->dump(4)
             );
         }
 
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::getPluginInfo(const Arguments& args) {
+Local<Value> LlClass::getPluginInfo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -318,7 +310,7 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
             result.set("filePath", plugin->getManifest().entry);
             if (plugin->getManifest().extraInfo.has_value()) {
                 auto others = Object::newObject();
-                for (const auto& [k, v] : plugin->getManifest().extraInfo.value()) {
+                for (auto const& [k, v] : plugin->getManifest().extraInfo.value()) {
                     others.set(k, v);
                 }
                 result.set("others", others);
@@ -328,13 +320,12 @@ Local<Value> LlClass::getPluginInfo(const Arguments& args) {
         }
         return {};
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
+Local<Value> LlClass::getCurrentPluginInfo(Arguments const& args) {
     try {
-        auto plugin = getEngineOwnData()->plugin;
-        if (plugin) {
+        if (auto plugin = getEngineOwnData()->plugin) {
             auto result = Object::newObject();
 
             result.set("name", plugin->getManifest().name);
@@ -352,7 +343,7 @@ Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
             result.set("filePath", plugin->getManifest().entry);
             if (plugin->getManifest().extraInfo.has_value()) {
                 auto others = Object::newObject();
-                for (const auto& [k, v] : plugin->getManifest().extraInfo.value()) {
+                for (auto const& [k, v] : plugin->getManifest().extraInfo.value()) {
                     others.set(k, v);
                 }
                 result.set("others", others);
@@ -362,13 +353,12 @@ Local<Value> LlClass::getCurrentPluginInfo(const Arguments& args) {
         }
         return {};
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::versionString(const Arguments&) {
+Local<Value> LlClass::versionString(Arguments const&) {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return String::newString(ver->to_string());
         } else {
             return String::newString("0.0.0");
@@ -377,9 +367,9 @@ Local<Value> LlClass::versionString(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> LlClass::requireVersion(const Arguments&) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::requireVersion(Arguments const&) { return Boolean::newBoolean(true); }
 
-Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
+Local<Value> LlClass::getAllPluginInfo(Arguments const&) {
     try {
         Local<Array> plugins = Array::newArray();
 
@@ -405,7 +395,7 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
 
             if (mod.getManifest().extraInfo.has_value()) {
                 auto others = Object::newObject();
-                for (const auto& [k, v] : mod.getManifest().extraInfo.value()) {
+                for (auto const& [k, v] : mod.getManifest().extraInfo.value()) {
                     others.set(k, v);
                 }
                 pluginObject.set("others", others);
@@ -416,26 +406,26 @@ Local<Value> LlClass::getAllPluginInfo(const Arguments&) {
         }
         return plugins;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::onUnload(const script::Arguments& args) {
+Local<Value> LlClass::onUnload(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
     try {
         getEngineOwnData()->addUnloadCallback(
-            [func = script::Global<Function>(args[0].asFunction())](std::shared_ptr<ScriptEngine> engine) {
+            [func = script::Global(args[0].asFunction())](std::shared_ptr<ScriptEngine> engine) {
                 EngineScope enter(engine.get());
                 func.get().call();
             }
         );
         return {};
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::listPlugins(const Arguments&) {
+Local<Value> LlClass::listPlugins(Arguments const&) {
     try {
         Local<Array> plugins = Array::newArray();
 
@@ -444,12 +434,12 @@ Local<Value> LlClass::listPlugins(const Arguments&) {
         }
         return plugins;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> LlClass::require(const Arguments&) { return Boolean::newBoolean(true); }
+Local<Value> LlClass::require(Arguments const&) { return Boolean::newBoolean(true); }
 
-Local<Value> LlClass::eval(const Arguments& args) {
+Local<Value> LlClass::eval(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -459,10 +449,9 @@ Local<Value> LlClass::eval(const Arguments& args) {
 }
 
 // For Compatibility
-Local<Value> LlClass::version(const Arguments&) {
+Local<Value> LlClass::version(Arguments const&) {
     try {
-        auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version;
-        if (ver) {
+        if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             auto version = Object::newObject();
             version.set("major", ver->major);
             version.set("minor", ver->minor);

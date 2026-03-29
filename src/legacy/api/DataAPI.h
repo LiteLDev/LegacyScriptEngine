@@ -10,42 +10,42 @@
 
 class DataClass {
 public:
-    static Local<Value> xuid2name(const Arguments& args);
-    static Local<Value> name2xuid(const Arguments& args);
-    static Local<Value> xuid2uuid(const Arguments& args);
-    static Local<Value> name2uuid(const Arguments& args);
-    static Local<Value> getAllPlayerInfo(const Arguments& args);
+    static Local<Value> xuid2name(Arguments const& args);
+    static Local<Value> name2xuid(Arguments const& args);
+    static Local<Value> xuid2uuid(Arguments const& args);
+    static Local<Value> name2uuid(Arguments const& args);
+    static Local<Value> getAllPlayerInfo(Arguments const& args);
     // New API for LSE
-    static Local<Value> fromUuid(const Arguments& args);
-    static Local<Value> fromXuid(const Arguments& args);
-    static Local<Value> fromName(const Arguments& args);
+    static Local<Value> fromUuid(Arguments const& args);
+    static Local<Value> fromXuid(Arguments const& args);
+    static Local<Value> fromName(Arguments const& args);
 
-    static Local<Value> parseJson(const Arguments& args);
-    static Local<Value> toJson(const Arguments& args);
-    static Local<Value> toMD5(const Arguments& args);
-    static Local<Value> toSHA1(const Arguments& args);
-    static Local<Value> toBase64(const Arguments& args);
-    static Local<Value> fromBase64(const Arguments& args);
+    static Local<Value> parseJson(Arguments const& args);
+    static Local<Value> toJson(Arguments const& args);
+    static Local<Value> toMD5(Arguments const& args);
+    static Local<Value> toSHA1(Arguments const& args);
+    static Local<Value> toBase64(Arguments const& args);
+    static Local<Value> fromBase64(Arguments const& args);
 
     // For Compatibility
-    static Local<Value> openConfig(const Arguments& args);
-    static Local<Value> openDB(const Arguments& args);
+    static Local<Value> openConfig(Arguments const& args);
+    static Local<Value> openDB(Arguments const& args);
 };
 extern ClassDefine<void> DataClassBuilder;
 
-Local<Array> objectificationMoneyHistory(const std::string& res);
+Local<Array> objectificationMoneyHistory(std::string const& res);
 
 //////////////////// Money Static ////////////////////
 
 class MoneyClass {
 public:
-    static Local<Value> set(const Arguments& args);
-    static Local<Value> get(const Arguments& args);
-    static Local<Value> add(const Arguments& args);
-    static Local<Value> reduce(const Arguments& args);
-    static Local<Value> trans(const Arguments& args);
-    static Local<Value> getHistory(const Arguments& args);
-    static Local<Value> clearHistory(const Arguments& args);
+    static Local<Value> set(Arguments const& args);
+    static Local<Value> get(Arguments const& args);
+    static Local<Value> add(Arguments const& args);
+    static Local<Value> reduce(Arguments const& args);
+    static Local<Value> trans(Arguments const& args);
+    static Local<Value> getHistory(Arguments const& args);
+    static Local<Value> clearHistory(Arguments const& args);
 };
 extern ClassDefine<void> MoneyClassBuilder;
 
@@ -59,13 +59,13 @@ protected:
     virtual bool reload() = 0;
 
 public:
-    explicit ConfBaseClass(const std::string& dir);
+    explicit ConfBaseClass(std::string const& dir);
 
-    virtual Local<Value> reload(const Arguments& args) = 0;
-    virtual Local<Value> close(const Arguments& args)  = 0;
-    Local<Value>         getPath(const Arguments& args);
-    Local<Value>         read(const Arguments& args);
-    virtual Local<Value> write(const Arguments& args) = 0;
+    virtual Local<Value> reload(Arguments const& args) = 0;
+    virtual Local<Value> close(Arguments const& args)  = 0;
+    Local<Value>         getPath(Arguments const& args) const;
+    Local<Value>         read(Arguments const& args) const;
+    virtual Local<Value> write(Arguments const& args) = 0;
     virtual ~ConfBaseClass()                          = default;
 };
 
@@ -77,21 +77,21 @@ private:
     bool         reload() override;
 
 public:
-    explicit ConfJsonClass(const Local<Object>& scriptObj, const std::string& path, const std::string& defContent);
-    explicit ConfJsonClass(const std::string& path, const std::string& defContent);
-    ~ConfJsonClass();
-    static ConfJsonClass* constructor(const Arguments& args);
+    explicit ConfJsonClass(Local<Object> const& scriptObj, std::string const& path, std::string const& defContent);
+    explicit ConfJsonClass(std::string const& path, std::string const& defContent);
+    ~ConfJsonClass() override;
+    static ConfJsonClass* constructor(Arguments const& args);
 
-    Local<Value>         init(const Arguments& args);
-    Local<Value>         get(const Arguments& args);
-    Local<Value>         set(const Arguments& args);
-    Local<Value>         del(const Arguments& args);
-    virtual Local<Value> reload(const Arguments& args) override;
-    virtual Local<Value> close(const Arguments& args) override;
-    virtual Local<Value> write(const Arguments& args) override;
+    Local<Value>         init(Arguments const& args);
+    Local<Value>         get(Arguments const& args);
+    Local<Value>         set(Arguments const& args);
+    Local<Value>         del(Arguments const& args);
+    virtual Local<Value> reload(Arguments const& args) override;
+    virtual Local<Value> close(Arguments const& args) override;
+    virtual Local<Value> write(Arguments const& args) override;
 
     // For Compatibility
-    static Local<Value> newConf(const std::string& path, const std::string& defContent = "");
+    static Local<Value> newConf(std::string const& path, std::string const& defContent = "");
 };
 extern ClassDefine<ConfJsonClass> ConfJsonClassBuilder;
 
@@ -103,25 +103,25 @@ private:
     bool                       reload() override;
 
 public:
-    explicit ConfIniClass(const Local<Object>& scriptObj, const std::string& path, const std::string& defContent);
-    explicit ConfIniClass(const std::string& path, const std::string& defContent);
-    ~ConfIniClass();
-    static ConfIniClass* constructor(const Arguments& args);
+    explicit ConfIniClass(Local<Object> const& scriptObj, std::string const& path, std::string const& defContent);
+    explicit ConfIniClass(std::string const& path, std::string const& defContent);
+    ~ConfIniClass() override;
+    static ConfIniClass* constructor(Arguments const& args);
 
-    bool isValid() { return iniConf != nullptr; }
+    bool isValid() const { return iniConf != nullptr; }
 
-    Local<Value>         init(const Arguments& args);
-    Local<Value>         set(const Arguments& args);
-    Local<Value>         getStr(const Arguments& args);
-    Local<Value>         getInt(const Arguments& args);
-    Local<Value>         getFloat(const Arguments& args);
-    Local<Value>         getBool(const Arguments& args);
-    Local<Value>         del(const Arguments& args);
-    virtual Local<Value> reload(const Arguments& args) override;
-    virtual Local<Value> close(const Arguments& args) override;
-    virtual Local<Value> write(const Arguments& args) override;
+    Local<Value>         init(Arguments const& args);
+    Local<Value>         set(Arguments const& args);
+    Local<Value>         getStr(Arguments const& args);
+    Local<Value>         getInt(Arguments const& args);
+    Local<Value>         getFloat(Arguments const& args);
+    Local<Value>         getBool(Arguments const& args);
+    Local<Value>         del(Arguments const& args);
+    virtual Local<Value> reload(Arguments const& args) override;
+    virtual Local<Value> close(Arguments const& args) override;
+    virtual Local<Value> write(Arguments const& args) override;
 
     // For Compatibility
-    static Local<Value> newConf(const std::string& path, const std::string& defContent = "");
+    static Local<Value> newConf(std::string const& path, std::string const& defContent = "");
 };
 extern ClassDefine<ConfIniClass> ConfIniClassBuilder;

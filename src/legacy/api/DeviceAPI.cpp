@@ -10,7 +10,6 @@
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/world/actor/player/Player.h"
-#include "mc/world/level/Level.h"
 
 #include <string>
 
@@ -34,7 +33,7 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 //////////////////// Classes ////////////////////
 
 // 生成函数
-DeviceClass::DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
+DeviceClass::DeviceClass(Player const* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
     try {
         if (player) {
             mWeakEntity = player->getWeakEntity();
@@ -43,13 +42,13 @@ DeviceClass::DeviceClass(Player* player) : ScriptClass(ScriptClass::ConstructFro
     } catch (...) {}
 }
 
-Local<Object> DeviceClass::newDevice(Player* player) {
+Local<Object> DeviceClass::newDevice(Player const* player) {
     auto newp = new DeviceClass(player);
     return newp->getScriptObject();
 }
 
 // 成员函数
-Player* DeviceClass::getPlayer() {
+Player* DeviceClass::getPlayer() const {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();
     } else {
@@ -57,7 +56,7 @@ Player* DeviceClass::getPlayer() {
     }
 }
 
-Local<Value> DeviceClass::getIP() {
+Local<Value> DeviceClass::getIP() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -67,7 +66,7 @@ Local<Value> DeviceClass::getIP() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getAvgPing() {
+Local<Value> DeviceClass::getAvgPing() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -77,7 +76,7 @@ Local<Value> DeviceClass::getAvgPing() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getAvgPacketLoss() {
+Local<Value> DeviceClass::getAvgPacketLoss() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -87,7 +86,7 @@ Local<Value> DeviceClass::getAvgPacketLoss() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getLastPing() {
+Local<Value> DeviceClass::getLastPing() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -97,7 +96,7 @@ Local<Value> DeviceClass::getLastPing() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getLastPacketLoss() {
+Local<Value> DeviceClass::getLastPacketLoss() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -107,7 +106,7 @@ Local<Value> DeviceClass::getLastPacketLoss() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getOs() {
+Local<Value> DeviceClass::getOs() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -117,7 +116,7 @@ Local<Value> DeviceClass::getOs() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getServerAddress() {
+Local<Value> DeviceClass::getServerAddress() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -129,7 +128,7 @@ Local<Value> DeviceClass::getServerAddress() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getClientId() {
+Local<Value> DeviceClass::getClientId() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();
@@ -139,7 +138,7 @@ Local<Value> DeviceClass::getClientId() {
     CATCH_AND_THROW
 }
 
-Local<Value> DeviceClass::getInputMode() {
+Local<Value> DeviceClass::getInputMode() const {
     try {
         Player* player = getPlayer();
         if (!player) return Local<Value>();

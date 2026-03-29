@@ -7,8 +7,8 @@ class FloatVec4;
 
 class IntVec4 {
 public:
-    int x, y, z;
-    int dim;
+    int x = 0, y = 0, z = 0;
+    int dim = 0;
 
     [[nodiscard]] inline BlockPos getBlockPos() const { return {x, y, z}; }
 
@@ -19,15 +19,15 @@ public:
 
 class FloatVec4 {
 public:
-    float x, y, z;
-    int   dim;
+    float x = 0, y = 0, z = 0;
+    int   dim = 0;
 
     [[nodiscard]] inline Vec3 getVec3() const { return {x, y, z}; }
 
     [[nodiscard]] inline int getDimensionId() const { return dim; }
 
     [[nodiscard]] inline IntVec4 toIntVec4() const {
-        IntVec4 pos{};
+        IntVec4 pos;
         pos = *this;
         return pos;
     }
@@ -36,16 +36,16 @@ public:
 };
 
 inline IntVec4& IntVec4::operator=(FloatVec4 const& rhs) {
-    x   = (int)floor(rhs.x);
-    y   = (int)floor(rhs.y);
-    z   = (int)floor(rhs.z);
+    x   = static_cast<int>(floor(rhs.x));
+    y   = static_cast<int>(floor(rhs.y));
+    z   = static_cast<int>(floor(rhs.z));
     dim = rhs.dim;
     return *this;
 };
 inline FloatVec4& FloatVec4::operator=(IntVec4 const& rhs) {
-    x   = (float)rhs.x;
-    y   = (float)rhs.y;
-    z   = (float)rhs.z;
+    x   = static_cast<float>(rhs.x);
+    y   = static_cast<float>(rhs.y);
+    z   = static_cast<float>(rhs.z);
     dim = rhs.dim;
     return *this;
 };

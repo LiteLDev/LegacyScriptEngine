@@ -1,9 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
-#include "main/Global.h"
 #include "mc/deps/core/utility/BinaryStream.h"
-
-#include <string>
 
 //////////////////// Classes ////////////////////
 class Packet;
@@ -14,14 +11,14 @@ private:
     std::shared_ptr<Packet> packet = nullptr;
 
 public:
-    explicit PacketClass(std::shared_ptr<Packet> p);
-    static std::shared_ptr<Packet> extract(Local<Value> v);
+    explicit PacketClass(std::shared_ptr<Packet> const& p);
+    static std::shared_ptr<Packet> extract(Local<Value> const& v);
 
     std::shared_ptr<Packet> get() { return packet; }
 
-    void set(std::shared_ptr<Packet> pkt) { packet = pkt; };
+    void set(std::shared_ptr<Packet> const& pkt) { packet = pkt; };
 
-    static Local<Object> newPacket(std::shared_ptr<Packet> pkt);
+    static Local<Object> newPacket(std::shared_ptr<Packet> const& pkt);
 
     Local<Value> getId();
     Local<Value> getName();
@@ -33,44 +30,44 @@ private:
     std::shared_ptr<BinaryStream> binaryStream = nullptr;
 
 public:
-    explicit BinaryStreamClass(std::shared_ptr<BinaryStream> bs);
+    explicit BinaryStreamClass(std::shared_ptr<BinaryStream> const& bs);
 
-    BinaryStreamClass(const Local<Object>& scriptObj)
+    BinaryStreamClass(Local<Object> const& scriptObj)
     : ScriptClass(scriptObj),
       binaryStream(std::make_shared<BinaryStream>()) {}
 
     std::shared_ptr<BinaryStream> get() { return binaryStream; }
-    void                          set(std::shared_ptr<BinaryStream> bs) { binaryStream = bs; };
+    void                          set(std::shared_ptr<BinaryStream> const& bs) { binaryStream = bs; };
 
     static Local<Object>      newBinaryStream();
-    static BinaryStreamClass* constructor(const Arguments& args);
+    static BinaryStreamClass* constructor(Arguments const& args);
 
     Local<Value> getAndReleaseData();
     Local<Value> reset();
 
-    Local<Value> reserve(const Arguments& args);
-    Local<Value> writeBool(const Arguments& args);
-    Local<Value> writeByte(const Arguments& args);
-    Local<Value> writeDouble(const Arguments& args);
-    Local<Value> writeFloat(const Arguments& args);
-    Local<Value> writeSignedBigEndianInt(const Arguments& args);
-    Local<Value> writeSignedInt(const Arguments& args);
-    Local<Value> writeSignedInt64(const Arguments& args);
-    Local<Value> writeSignedShort(const Arguments& args);
-    Local<Value> writeString(const Arguments& args);
-    Local<Value> writeUnsignedChar(const Arguments& args);
-    Local<Value> writeUnsignedInt(const Arguments& args);
-    Local<Value> writeUnsignedInt64(const Arguments& args);
-    Local<Value> writeUnsignedShort(const Arguments& args);
-    Local<Value> writeUnsignedVarInt(const Arguments& args);
-    Local<Value> writeUnsignedVarInt64(const Arguments& args);
-    Local<Value> writeVarInt(const Arguments& args);
-    Local<Value> writeVarInt64(const Arguments& args);
-    Local<Value> writeVec3(const Arguments& args);
-    Local<Value> writeBlockPos(const Arguments& args);
-    Local<Value> writeCompoundTag(const Arguments& args);
-    Local<Value> writeItem(const Arguments& args);
+    Local<Value> reserve(Arguments const& args);
+    Local<Value> writeBool(Arguments const& args);
+    Local<Value> writeByte(Arguments const& args);
+    Local<Value> writeDouble(Arguments const& args);
+    Local<Value> writeFloat(Arguments const& args);
+    Local<Value> writeSignedBigEndianInt(Arguments const& args);
+    Local<Value> writeSignedInt(Arguments const& args);
+    Local<Value> writeSignedInt64(Arguments const& args);
+    Local<Value> writeSignedShort(Arguments const& args);
+    Local<Value> writeString(Arguments const& args);
+    Local<Value> writeUnsignedChar(Arguments const& args);
+    Local<Value> writeUnsignedInt(Arguments const& args);
+    Local<Value> writeUnsignedInt64(Arguments const& args);
+    Local<Value> writeUnsignedShort(Arguments const& args);
+    Local<Value> writeUnsignedVarInt(Arguments const& args);
+    Local<Value> writeUnsignedVarInt64(Arguments const& args);
+    Local<Value> writeVarInt(Arguments const& args);
+    Local<Value> writeVarInt64(Arguments const& args);
+    Local<Value> writeVec3(Arguments const& args);
+    Local<Value> writeBlockPos(Arguments const& args);
+    Local<Value> writeCompoundTag(Arguments const& args);
+    Local<Value> writeItem(Arguments const& args);
 
-    Local<Value> createPacket(const Arguments& args);
+    Local<Value> createPacket(Arguments const& args);
 };
 extern ClassDefine<BinaryStreamClass> BinaryStreamClassBuilder;

@@ -153,7 +153,7 @@ Local<Value> LlClass::exportFunc(const Arguments& args)
     {
         return Boolean::newBoolean(LLSEExportFunc(EngineScope::currentEngine(), args[0].asFunction(), args[1].asString().toString()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 #endif
 }
 

@@ -1,8 +1,6 @@
 #pragma once
 #include "api/APIHelp.h"
 
-#include <string>
-
 //////////////////// Classes ////////////////////
 class BlockActor;
 class BlockEntityClass : public ScriptClass {
@@ -14,17 +12,17 @@ private:
 public:
     explicit BlockEntityClass(BlockActor* be, int dim);
 
-    BlockActor* get() { return blockEntity; }
+    BlockActor* get() const { return blockEntity; }
 
     static Local<Object> newBlockEntity(BlockActor* be, int dim);
-    static BlockActor*   extract(Local<Value> v);
+    static BlockActor*   extract(Local<Value> const& v);
 
-    Local<Value> getName();
-    Local<Value> getPos();
-    Local<Value> getType();
+    Local<Value> getName() const;
+    Local<Value> getPos() const;
+    Local<Value> getType() const;
 
-    Local<Value> getNbt(const Arguments& args);
-    Local<Value> setNbt(const Arguments& args);
-    Local<Value> getBlock(const Arguments& args);
+    Local<Value> getNbt(Arguments const& args) const;
+    Local<Value> setNbt(Arguments const& args) const;
+    Local<Value> getBlock(Arguments const& args) const;
 };
 extern ClassDefine<BlockEntityClass> BlockEntityClassBuilder;

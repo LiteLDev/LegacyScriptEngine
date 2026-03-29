@@ -9,10 +9,10 @@ struct EventListener;
 void InitBasicEventListeners();
 void EnableEventListener(int eventId);
 optional_ref<EventListener>
-     LLSEAddEventListener(ScriptEngine* engine, const std::string& eventName, const Local<Function>& func);
+     LLSEAddEventListener(ScriptEngine* engine, std::string const& eventName, Local<Function> const& func);
 bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
-bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine);
-bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine);
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine);
 
 //////////////////// Callback ////////////////////
 
@@ -148,14 +148,14 @@ struct EventListener {
     : engine(engine),
       func(std::move(func)),
       type(type) {};
-    EventListener(const EventListener&) = delete;
+    EventListener(EventListener const&) = delete;
 };
 
 // 监听器表
-extern std::list<EventListener> listenerList[int(EVENT_TYPES::EVENT_COUNT)];
+extern std::list<EventListener> listenerList[static_cast<int>(EVENT_TYPES::EVENT_COUNT)];
 
 // 监听器历史
-extern bool hasListened[int(EVENT_TYPES::EVENT_COUNT)];
+extern bool hasListened[static_cast<int>(EVENT_TYPES::EVENT_COUNT)];
 
 // 监听器异常拦截
 inline std::string EventTypeToString(EVENT_TYPES e) { return std::string(magic_enum::enum_name(e)); }
@@ -178,7 +178,7 @@ void CallEventImpl(EventListener& listener, bool& returnValue, EVENT_TYPES type,
         if (result.isBoolean() && result.asBoolean().value() == false) {
             returnValue = false;
         }
-    } catch (const Exception& e) {
+    } catch (Exception const& e) {
         lse::LegacyScriptEngine::getLogger().error("CallEvent Callback Failed!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));
@@ -203,7 +203,7 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
     if (listener.engine == engine) {
         try {
             listener.func.get().call({}, args...);
-        } catch (const Exception& e) {
+        } catch (Exception const& e) {
             lse::LegacyScriptEngine::getLogger().error("FakeCallEvent Callback Failed!");
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
             lse::LegacyScriptEngine::getLogger().error("In Event: " + EventTypeToString(type));

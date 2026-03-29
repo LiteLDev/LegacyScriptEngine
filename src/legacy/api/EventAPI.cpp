@@ -73,14 +73,14 @@ using lse::api::thread::checkClientIsServerThread;
 //////////////////// Listeners ////////////////////
 
 // 监听器表
-std::list<EventListener> listenerList[int(EVENT_TYPES::EVENT_COUNT)];
+std::list<EventListener> listenerList[static_cast<int>(EVENT_TYPES::EVENT_COUNT)];
 
 // 监听器历史
-bool hasListened[int(EVENT_TYPES::EVENT_COUNT)] = {false};
+bool hasListened[static_cast<int>(EVENT_TYPES::EVENT_COUNT)] = {false};
 
 //////////////////// APIs ////////////////////
 
-Local<Value> McClass::listen(const Arguments& args) {
+Local<Value> McClass::listen(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -90,16 +90,16 @@ Local<Value> McClass::listen(const Arguments& args) {
         auto listener  = LLSEAddEventListener(EngineScope::currentEngine(), eventName, args[1].asFunction());
         return Boolean::newBoolean(listener.has_value());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// Funcs ////////////////////
 
 optional_ref<EventListener>
-LLSEAddEventListener(ScriptEngine* engine, const string& eventName, const Local<Function>& func) {
+LLSEAddEventListener(ScriptEngine* engine, string const& eventName, Local<Function> const& func) {
     try {
         auto  event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
-        auto  eventId    = int(event_enum.value());
+        auto  eventId    = static_cast<int>(event_enum.value());
         auto& listener   = listenerList[eventId].emplace_back(engine, script::Global<Function>(func), *event_enum);
         if (!hasListened[eventId]) {
             hasListened[eventId] = true;
@@ -120,7 +120,7 @@ bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine) {
     return true;
 }
 
-bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine) {
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine) {
     FakeCallEvent(engine.get(), EVENT_TYPES::onServerStarted);
 
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
@@ -135,14 +135,14 @@ bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine) {
     return true;
 }
 
-bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine) {
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine) {
     // Players may be online when the server is stopping
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
         FakeCallEvent(engine.get(), EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
         return true;
     });
     EngineScope scope(engine.get());
-    for (auto& [index, cb] : getEngineData(engine)->unloadCallbacks) {
+    for (auto& cb : getEngineData(engine)->unloadCallbacks | std::views::values) {
         try {
             cb(engine);
         }
@@ -157,7 +157,7 @@ bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine) {
 void EnableEventListener(int eventId) {
     using namespace ll::event;
     EventBus& bus = EventBus::getInstance();
-    switch ((EVENT_TYPES)eventId) {
+    switch (static_cast<EVENT_TYPES>(eventId)) {
     case EVENT_TYPES::onJoin:
         bus.emplaceListener<PlayerJoinEvent>([](PlayerJoinEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onJoin) {
@@ -185,7 +185,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onLeft:
-        bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent& ev) {
+        bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
                 if (checkClientIsServerThread() && ll::getGamingStatus() != ll::GamingStatus::Stopping) {
                     CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
@@ -217,7 +217,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onPlayerSwing:
-        bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent& ev) {
+        bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
                 if (checkClientIsServerThread()) {
                     CallEvent(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self())); // Not cancellable
@@ -250,7 +250,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onPlayerDie:
-        bus.emplaceListener<ll::event::PlayerDieEvent>([](ll::event::PlayerDieEvent& ev) {
+        bus.emplaceListener<PlayerDieEvent>([](PlayerDieEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerDie) {
                 if (checkClientIsServerThread()) {
                     Actor* source = ev.self().getDimension().fetchEntity(ev.source().getEntityUniqueID(), false);
@@ -266,7 +266,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onRespawn:
-        bus.emplaceListener<ll::event::PlayerRespawnEvent>([](ll::event::PlayerRespawnEvent& ev) {
+        bus.emplaceListener<PlayerRespawnEvent>([](PlayerRespawnEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
                 if (checkClientIsServerThread()) {
                     CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self())); // Not cancellable
@@ -321,6 +321,8 @@ void EnableEventListener(int eventId) {
                     case 5:
                         ++truePos.x;
                         break;
+                    default:
+                        break;
                     }
                     auto block = ev.self().getCarriedItem().mBlock;
                     if (!CallEvent(
@@ -328,7 +330,7 @@ void EnableEventListener(int eventId) {
                             PlayerClass::newPlayer(&ev.self()),
                             block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId().id)
                                   : BlockClass::newBlock(truePos, ev.self().getDimensionId().id),
-                            Number::newNumber((schar)ev.face())
+                            Number::newNumber(static_cast<schar>(ev.face()))
                         )) {
                         ev.cancel();
                     }
@@ -339,7 +341,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::afterPlaceBlock:
-        bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent& ev) {
+        bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -353,7 +355,7 @@ void EnableEventListener(int eventId) {
         });
         break;
     case EVENT_TYPES::onJump:
-        bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent& ev) {
+        bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onJump) {
                 if (checkClientIsServerThread()) {
                     CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); // Not cancellable
@@ -424,7 +426,7 @@ void EnableEventListener(int eventId) {
                             ItemClass::newItem(&ev.item()),
                             ev.block() ? BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id)
                                        : BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id),
-                            Number::newNumber((schar)ev.face()),
+                            Number::newNumber(static_cast<schar>(ev.face())),
                             FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId().id)
                         )) {
                         ev.cancel();
@@ -455,7 +457,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onChangeSprinting:
-        bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent& ev) {
+        bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -467,7 +469,7 @@ void EnableEventListener(int eventId) {
             }
             IF_LISTENED_END(EVENT_TYPES::onChangeSprinting);
         });
-        bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent& ev) {
+        bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -609,7 +611,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobDie:
-        bus.emplaceListener<MobDieEvent>([](MobDieEvent& ev) {
+        bus.emplaceListener<MobDieEvent>([](MobDieEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobDie) {
                 if (checkClientIsServerThread()) {
                     Actor* source = nullptr;
@@ -624,7 +626,7 @@ void EnableEventListener(int eventId) {
                         EVENT_TYPES::onMobDie,
                         EntityClass::newEntity(&ev.self()),
                         (source ? EntityClass::newEntity(source) : Local<Value>()),
-                        Number::newNumber((int)ev.source().mCause)
+                        Number::newNumber(static_cast<int>(ev.source().mCause))
                     ); // Not cancellable
                 }
             }
@@ -712,7 +714,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onBlockChanged:
-        bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent& ev) {
+        bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -734,7 +736,7 @@ void EnableEventListener(int eventId) {
         lse::LegacyScriptEngine::getLogger().warn(
             "Event 'onMobSpawn' is outdated, please use 'onMobTrySpawn' instead."
         );
-        bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
+        bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -766,7 +768,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onMobSpawned:
-        bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent& ev) {
+        bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
                 if (checkClientIsServerThread()) {
                     CallEvent(
@@ -952,13 +954,13 @@ void InitBasicEventListeners() {
         while (true) {
             co_await 1_tick;
             for (auto& type : dirtyEventTypes) {
-                auto& list = listenerList[int(type)];
+                auto& list = listenerList[static_cast<int>(type)];
                 for (auto iter = list.begin(); iter != list.end();) {
                     if (iter->removed) {
                         EngineScope scope(iter->engine);
                         iter = list.erase(iter);
                     } else {
-                        iter++;
+                        ++iter;
                     }
                 }
             }
@@ -994,7 +996,7 @@ void InitBasicEventListeners() {
 
 bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
-    case LLMoneyEvent::Add: {
+    case Add: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyAdd) {
             if (!CallEvent(EVENT_TYPES::beforeMoneyAdd, String::newString(to), Number::newNumber(value))) {
                 return false;
@@ -1003,7 +1005,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyAdd);
         break;
     }
-    case LLMoneyEvent::Reduce: {
+    case Reduce: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyReduce) {
             if (!CallEvent(EVENT_TYPES::beforeMoneyReduce, String::newString(to), Number::newNumber(value))) {
                 return false;
@@ -1012,7 +1014,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyReduce);
         break;
     }
-    case LLMoneyEvent::Trans: {
+    case Trans: {
         IF_LISTENED(EVENT_TYPES::beforeMoneyTrans) {
             if (!CallEvent(
                     EVENT_TYPES::beforeMoneyTrans,
@@ -1026,7 +1028,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
         IF_LISTENED_END(EVENT_TYPES::beforeMoneyTrans);
         break;
     }
-    case LLMoneyEvent::Set: {
+    case Set: {
         IF_LISTENED(EVENT_TYPES::beforeMoneySet) {
             if (!CallEvent(EVENT_TYPES::beforeMoneySet, String::newString(to), Number::newNumber(value))) {
                 return false;
@@ -1043,7 +1045,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
 
 bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
-    case LLMoneyEvent::Add: {
+    case Add: {
         IF_LISTENED(EVENT_TYPES::onMoneyAdd) {
             if (!CallEvent(EVENT_TYPES::onMoneyAdd, String::newString(to), Number::newNumber(value))) {
                 return false;
@@ -1052,7 +1054,7 @@ bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, lon
         IF_LISTENED_END(EVENT_TYPES::onMoneyAdd);
         break;
     }
-    case LLMoneyEvent::Reduce: {
+    case Reduce: {
         IF_LISTENED(EVENT_TYPES::onMoneyReduce) {
             if (!CallEvent(EVENT_TYPES::onMoneyReduce, String::newString(to), Number::newNumber(value))) {
                 return false;
@@ -1061,7 +1063,7 @@ bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, lon
         IF_LISTENED_END(EVENT_TYPES::onMoneyReduce);
         break;
     }
-    case LLMoneyEvent::Trans: {
+    case Trans: {
         IF_LISTENED(EVENT_TYPES::onMoneyTrans) {
             if (!CallEvent(
                     EVENT_TYPES::onMoneyTrans,
@@ -1075,7 +1077,7 @@ bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, lon
         IF_LISTENED_END(EVENT_TYPES::onMoneyTrans);
         break;
     }
-    case LLMoneyEvent::Set: {
+    case Set: {
         IF_LISTENED(EVENT_TYPES::onMoneySet) {
             if (!CallEvent(EVENT_TYPES::onMoneySet, String::newString(to), Number::newNumber(value))) {
                 return false;

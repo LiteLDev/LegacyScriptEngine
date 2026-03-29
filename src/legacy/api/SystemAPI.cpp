@@ -6,7 +6,6 @@
 #include "ll/api/chrono/GameChrono.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/service/ServerInfo.h"
 #include "ll/api/thread/ThreadPoolExecutor.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "main/SafeGuardRecord.h"
@@ -43,7 +42,7 @@ bool NewProcess(
     }
 
     STARTUPINFOW        si = {0};
-    PROCESS_INFORMATION pi = {0};
+    PROCESS_INFORMATION pi = {nullptr};
     si.cb                  = sizeof(STARTUPINFO);
     GetStartupInfoW(&si);
     si.hStdOutput = si.hStdError = hWrite;
@@ -92,7 +91,7 @@ bool NewProcess(
     return true;
 }
 
-Local<Value> SystemClass::cmd(const Arguments& args) {
+Local<Value> SystemClass::cmd(Arguments const& args) {
     using namespace ll::chrono_literals;
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -127,10 +126,10 @@ Local<Value> SystemClass::cmd(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : -1
         ));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> SystemClass::newProcess(const Arguments& args) {
+Local<Value> SystemClass::newProcess(Arguments const& args) {
     using namespace ll::chrono_literals;
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -165,17 +164,17 @@ Local<Value> SystemClass::newProcess(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : -1
         ));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> SystemClass::getTimeStr(const Arguments&) {
+Local<Value> SystemClass::getTimeStr(Arguments const&) {
     try {
         return String::newString(Raw_GetDateTimeStr());
     }
     CATCH_AND_THROW
 }
 
-Local<Value> SystemClass::getTimeObj(const Arguments&) {
+Local<Value> SystemClass::getTimeObj(Arguments const&) {
     try {
         SYSTEMTIME st;
         GetLocalTime(&st);
@@ -192,4 +191,4 @@ Local<Value> SystemClass::getTimeObj(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> SystemClass::randomGuid(const Arguments&) { return String::newString(Raw_RandomGuid()); }
+Local<Value> SystemClass::randomGuid(Arguments const&) { return String::newString(Raw_RandomGuid()); }

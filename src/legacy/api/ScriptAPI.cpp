@@ -7,17 +7,14 @@
 #include "engine/TimeTaskSystem.h"
 
 #include <chrono>
-#include <map>
 #include <memory>
 #include <sstream>
-#include <thread>
-#include <windows.h>
 
 using ll::hash_utils::doHash;
 
 //////////////////// APIs ////////////////////
 
-Local<Value> Log(const Arguments& args) {
+Local<Value> Log(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -27,10 +24,10 @@ Local<Value> Log(const Arguments& args) {
         getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ColorLog(const Arguments& args) {
+Local<Value> ColorLog(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -82,8 +79,7 @@ Local<Value> ColorLog(const Arguments& args) {
             prefix = "\x1b[97m";
             break;
         default:
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Invalid color!");
-            break;
+            throw CreateExceptionWithInfo(__FUNCTION__, "Invalid color!");
         }
         std::ostringstream sout;
         sout << prefix;
@@ -92,10 +88,10 @@ Local<Value> ColorLog(const Arguments& args) {
         getEngineOwnData()->logger->info(sout.str());
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FastLog(const Arguments& args) {
+Local<Value> FastLog(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -107,18 +103,18 @@ Local<Value> FastLog(const Arguments& args) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// APIs ////////////////////
 
-Local<Value> SetTimeout(const Arguments& args) {
+Local<Value> SetTimeout(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         int timeout = args[1].asNumber().toInt32();
@@ -130,14 +126,14 @@ Local<Value> SetTimeout(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SetInterval(const Arguments& args) {
+Local<Value> SetInterval(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
         bool isFunc = args[0].getKind() == ValueKind::kFunction;
         if (!isFunc && args[0].getKind() != ValueKind::kString) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         int timeout = args[1].asNumber().toInt32();
@@ -150,7 +146,7 @@ Local<Value> SetInterval(const Arguments& args) {
 }
 
 // ClearInterval
-Local<Value> ClearInterval(const Arguments& args) {
+Local<Value> ClearInterval(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 

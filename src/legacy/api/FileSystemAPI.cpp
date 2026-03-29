@@ -7,7 +7,6 @@
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/utils/StringUtils.h"
 
-#include <corecrt_io.h>
 #include <filesystem>
 #include <fstream>
 #include <ll/api/io/FileUtils.h>
@@ -47,9 +46,9 @@ ClassDefine<FileClass> FileClassBuilder =
         .instanceFunction("errorCode", &FileClass::errorCode)
         .instanceFunction("clear", &FileClass::clear)
 
-        .property("ReadMode", [] { return Number::newNumber((int)FileOpenMode::ReadMode); })
-        .property("WriteMode", [] { return Number::newNumber((int)FileOpenMode::WriteMode); })
-        .property("AppendMode", [] { return Number::newNumber((int)FileOpenMode::AppendMode); })
+        .property("ReadMode", [] { return Number::newNumber(static_cast<int>(FileOpenMode::ReadMode)); })
+        .property("WriteMode", [] { return Number::newNumber(static_cast<int>(FileOpenMode::WriteMode)); })
+        .property("AppendMode", [] { return Number::newNumber(static_cast<int>(FileOpenMode::AppendMode)); })
 
         .function("readFrom", &FileClass::readFromStatic)
         .function("writeTo", &FileClass::writeToStatic)
@@ -73,21 +72,21 @@ ClassDefine<FileClass> FileClassBuilder =
 //////////////////// Classes ////////////////////
 
 // 生成函数
-FileClass::FileClass(const Local<Object>& scriptObj, std::fstream&& f, const std::string& path, bool isBinary)
+FileClass::FileClass(Local<Object> const& scriptObj, std::fstream&& f, std::string const& path, bool isBinary)
 : ScriptClass(scriptObj) {
     this->file     = std::move(f);
     this->path     = path;
     this->isBinary = isBinary;
 }
 
-FileClass::FileClass(std::fstream&& f, const std::string& path, bool isBinary)
+FileClass::FileClass(std::fstream&& f, std::string const& path, bool isBinary)
 : ScriptClass(ScriptClass::ConstructFromCpp<FileClass>{}) {
     this->file     = std::move(f);
     this->path     = path;
     this->isBinary = isBinary;
 }
 
-FileClass* FileClass::constructor(const Arguments& args) {
+FileClass* FileClass::constructor(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -100,12 +99,9 @@ FileClass* FileClass::constructor(const Arguments& args) {
                 std::filesystem::create_directories(path.parent_path());
             }
         } else {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "File " + args[0].asString().toString() + " doesn't exist!"
-            );
+            throw CreateExceptionWithInfo(__FUNCTION__, "File " + args[0].asString().toString() + " doesn't exist!");
         }
-        FileOpenMode fMode = (FileOpenMode)(args[1].asNumber().toInt32());
+        FileOpenMode fMode = static_cast<FileOpenMode>(args[1].asNumber().toInt32());
         // Auto Create
         if (fMode == FileOpenMode::ReadMode || fMode == FileOpenMode::WriteMode) {
             std::fstream tmp(path, std::ios_base::app);
@@ -130,28 +126,26 @@ FileClass* FileClass::constructor(const Arguments& args) {
 
         std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + path.string() + "!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File " + path.string() + "!");
         }
         return new FileClass(args.thiz(), std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // 成员函数
-Local<Value> FileClass::getPath() {
+Local<Value> FileClass::getPath() const {
     try {
         return String::newString(path);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::getAbsolutePath() {
+Local<Value> FileClass::getAbsolutePath() const {
     try {
         return String::newString(canonical(std::filesystem::path(ll::string_utils::str2wstr(path))).u8string());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> FileClass::getSize() {
@@ -161,12 +155,12 @@ Local<Value> FileClass::getSize() {
         size_t size = file.tellg();
         file.seekg(cur, file.beg);
 
-        return Number::newNumber((long long)size);
+        return Number::newNumber(static_cast<long long>(size));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::readSync(const Arguments& args) {
+Local<Value> FileClass::readSync(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -180,44 +174,44 @@ Local<Value> FileClass::readSync(const Arguments& args) {
                                     : String::newString(std::string_view(buf.data(), bytes)).asValue();
         return res;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::readLineSync(const Arguments&) {
+Local<Value> FileClass::readLineSync(Arguments const&) {
     try {
         std::string buf;
         getline(file, buf);
         return String::newString(buf);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::readAllSync(const Arguments&) {
+Local<Value> FileClass::readAllSync(Arguments const&) {
     try {
         std::string res((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         return isBinary ? ByteBuffer::newByteBuffer(res.data(), res.size()).asValue()
                         : String::newString(res).asValue();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::writeSync(const Arguments& args) {
+Local<Value> FileClass::writeSync(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         if (args[0].isString()) {
             file << args[0].asString().toString();
         } else if (args[0].isByteBuffer()) {
-            file.write((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength());
+            file.write(static_cast<char*>(args[0].asByteBuffer().getRawBytes()), args[0].asByteBuffer().byteLength());
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Boolean::newBoolean(!file.fail() && !file.bad());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::writeLineSync(const Arguments& args) {
+Local<Value> FileClass::writeLineSync(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -225,10 +219,10 @@ Local<Value> FileClass::writeLineSync(const Arguments& args) {
         file << args[0].asString().toString() << "\n";
         return Boolean::newBoolean(!file.fail() && !file.bad());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::read(const Arguments& args) {
+Local<Value> FileClass::read(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -265,10 +259,10 @@ Local<Value> FileClass::read(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::readLine(const Arguments& args) {
+Local<Value> FileClass::readLine(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
@@ -294,10 +288,10 @@ Local<Value> FileClass::readLine(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::readAll(const Arguments& args) {
+Local<Value> FileClass::readAll(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
 
@@ -326,10 +320,10 @@ Local<Value> FileClass::readAll(const Arguments& args) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::write(const Arguments& args) {
+Local<Value> FileClass::write(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
 
@@ -341,10 +335,13 @@ Local<Value> FileClass::write(const Arguments& args) {
         } else if (args[0].isByteBuffer()) {
             isString = false;
             data     = std::move(
-                std::string((char*)args[0].asByteBuffer().getRawBytes(), args[0].asByteBuffer().byteLength())
+                std::string(
+                    static_cast<char*>(args[0].asByteBuffer().getRawBytes()),
+                    args[0].asByteBuffer().byteLength()
+                )
             );
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         script::Global<Function> callbackFunc;
@@ -375,10 +372,10 @@ Local<Value> FileClass::write(const Arguments& args) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::writeLine(const Arguments& args) {
+Local<Value> FileClass::writeLine(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kFunction);
@@ -412,10 +409,10 @@ Local<Value> FileClass::writeLine(const Arguments& args) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::seekTo(const Arguments& args) {
+Local<Value> FileClass::seekTo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
@@ -441,35 +438,35 @@ Local<Value> FileClass::seekTo(const Arguments& args) {
         }
         return Boolean::newBoolean(!file.fail() && !file.bad());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::setSize(const Arguments& args) {
+Local<Value> FileClass::setSize(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::close(const Arguments&) {
+Local<Value> FileClass::close(Arguments const&) {
     try {
         file.close();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::isEOF(const Arguments&) {
+Local<Value> FileClass::isEOF(Arguments const&) const {
     try {
         return Boolean::newBoolean(file.eof());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::flush(const Arguments&) {
+Local<Value> FileClass::flush(Arguments const&) {
     try {
         pool.execute([fp{&file}, lock{&lock}]() {
             lock->lock();
@@ -478,40 +475,38 @@ Local<Value> FileClass::flush(const Arguments&) {
         });
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::errorCode(const Arguments&) {
+Local<Value> FileClass::errorCode(Arguments const&) {
     try {
         file.flush();
         return Number::newNumber(errno);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileClass::clear(const Arguments&) {
+Local<Value> FileClass::clear(Arguments const&) {
     try {
         file.clear();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// APIs ////////////////////
 
-Local<Value> DirCreate(const Arguments& args) {
+Local<Value> DirCreate(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return Boolean::newBoolean(std::filesystem::create_directories(args[0].asString().toU8string()));
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Create Dir " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> PathDelete(const Arguments& args) {
+Local<Value> PathDelete(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -519,25 +514,21 @@ Local<Value> PathDelete(const Arguments& args) {
         return Boolean::newBoolean(
             std::filesystem::remove_all(ll::string_utils::str2wstr(args[0].asString().toString())) > 0
         );
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Delete " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> PathExists(const Arguments& args) {
+Local<Value> PathExists(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return Boolean::newBoolean(std::filesystem::exists(ll::string_utils::str2wstr(args[0].asString().toString())));
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Check " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> PathCopy(const Arguments& args) {
+Local<Value> PathCopy(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -548,13 +539,11 @@ Local<Value> PathCopy(const Arguments& args) {
             ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Copy " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> PathRename(const Arguments& args) {
+Local<Value> PathRename(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -565,13 +554,11 @@ Local<Value> PathRename(const Arguments& args) {
             ll::string_utils::str2wstr(args[1].asString().toString())
         );
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Rename " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> PathMove(const Arguments& args) {
+Local<Value> PathMove(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -583,13 +570,11 @@ Local<Value> PathMove(const Arguments& args) {
         );
         remove_all(ll::string_utils::str2wstr(args[0].asString().toString()));
         return Boolean::newBoolean(true);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Move " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> CheckIsDir(const Arguments& args) {
+Local<Value> CheckIsDir(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -598,13 +583,11 @@ Local<Value> CheckIsDir(const Arguments& args) {
         if (!exists(p)) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(directory_entry(p).is_directory());
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Type of " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> GetFileSize(const Arguments& args) {
+Local<Value> GetFileSize(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -614,14 +597,12 @@ Local<Value> GetFileSize(const Arguments& args) {
         if (directory_entry(p).is_directory()) return Number::newNumber(0);
 
         auto sz = file_size(p);
-        return Number::newNumber((int64_t)sz);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Get Size of " + args[0].asString().toString() + "!");
+        return Number::newNumber(static_cast<int64_t>(sz));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> GetFilesList(const Arguments& args) {
+Local<Value> GetFilesList(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -637,10 +618,10 @@ Local<Value> GetFilesList(const Arguments& args) {
 
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileReadFrom(const Arguments& args) {
+Local<Value> FileReadFrom(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -649,10 +630,10 @@ Local<Value> FileReadFrom(const Arguments& args) {
         if (!content) return {}; // Null
         return String::newString(content.value());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileWriteTo(const Arguments& args) {
+Local<Value> FileWriteTo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -663,23 +644,17 @@ Local<Value> FileWriteTo(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                    __FUNCTION__,
-                    "Fail to create directory " + path.parent_path().string() + "!"
-                );
+                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
             }
         } else {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "Fail to create directory of " + args[0].asString().toString() + "!"
-            );
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory of " + args[0].asString().toString() + "!");
         }
         return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].asString().toString(), false));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> FileWriteLine(const Arguments& args) {
+Local<Value> FileWriteLine(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -690,16 +665,10 @@ Local<Value> FileWriteLine(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                    __FUNCTION__,
-                    "Fail to create directory " + path.parent_path().string() + "!"
-                );
+                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
             }
         } else {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "Fail to create directory of " + args[0].asString().toString() + "!"
-            );
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory of " + args[0].asString().toString() + "!");
         }
 
         std::ofstream fileWrite(path, std::ios::app);
@@ -707,12 +676,12 @@ Local<Value> FileWriteLine(const Arguments& args) {
         fileWrite << args[1].asString().toString() << std::endl;
         return Boolean::newBoolean(fileWrite.good());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// For Compatibility ////////////////////
 
-Local<Value> OpenFile(const Arguments& args) {
+Local<Value> OpenFile(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -724,19 +693,13 @@ Local<Value> OpenFile(const Arguments& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                    __FUNCTION__,
-                    "Fail to create directory " + path.parent_path().string() + "!"
-                );
+                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
             }
         } else {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(
-                __FUNCTION__,
-                "Fail to create directory " + args[0].asString().toString() + "!"
-            );
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + args[0].asString().toString() + "!");
         }
 
-        FileOpenMode            fMode = (FileOpenMode)(args[1].asNumber().toInt32());
+        FileOpenMode            fMode = static_cast<FileOpenMode>(args[1].asNumber().toInt32());
         std::ios_base::openmode mode  = std::ios_base::in;
         if (fMode == FileOpenMode::WriteMode) {
             std::fstream tmp(path, std::ios_base::app);
@@ -753,16 +716,14 @@ Local<Value> OpenFile(const Arguments& args) {
 
         std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + path.string() + "!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File " + path.string() + "!");
         }
         return FileClass::newFile(std::move(fs), path.string(), isBinary);
-    } catch (const filesystem_error&) {
-        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to Open File " + args[0].asString().toString() + "!");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Object> FileClass::newFile(std::fstream&& f, const std::string& path, bool isBinary) {
+Local<Object> FileClass::newFile(std::fstream&& f, std::string const& path, bool isBinary) {
     auto newp = new FileClass(std::move(f), path, isBinary);
     return newp->getScriptObject();
 }

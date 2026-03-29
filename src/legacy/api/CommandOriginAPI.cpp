@@ -32,13 +32,13 @@ ClassDefine<CommandOriginClass> CommandOriginClassBuilder =
 
 //////////////////// APIs ////////////////////
 
-CommandOriginClass::CommandOriginClass(std::shared_ptr<CommandOrigin const> ori)
+CommandOriginClass::CommandOriginClass(std::shared_ptr<CommandOrigin const> const& ori)
 : ScriptClass(ScriptClass::ConstructFromCpp<CommandOriginClass>{}),
   origin(ori) {};
 
 Local<Value> CommandOriginClass::getOriginType() {
     try {
-        return Number::newNumber((int)get()->getOriginType());
+        return Number::newNumber(static_cast<int>(get()->getOriginType()));
     }
     CATCH_AND_THROW
 }
@@ -54,23 +54,23 @@ Local<Value> CommandOriginClass::getOriginName() {
     try {
         return String::newString(get()->getName());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getBlockPosition() {
     try {
         auto dim = get()->getDimension();
-        return IntPos::newPos(get()->getBlockPosition(), dim ? (int)dim->getDimensionId() : 0);
+        return IntPos::newPos(get()->getBlockPosition(), dim ? static_cast<int>(dim->getDimensionId()) : 0);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getPosition() {
     try {
         auto dim = get()->getDimension();
-        return FloatPos::newPos(get()->getWorldPosition(), dim ? (int)dim->getDimensionId() : 0);
+        return FloatPos::newPos(get()->getWorldPosition(), dim ? static_cast<int>(dim->getDimensionId()) : 0);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getEntity() {
@@ -79,7 +79,7 @@ Local<Value> CommandOriginClass::getEntity() {
         if (!entity) return Local<Value>();
         return EntityClass::newEntity(entity);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::getPlayer() {
@@ -88,19 +88,19 @@ Local<Value> CommandOriginClass::getPlayer() {
         if (!player) return Local<Value>();
         return PlayerClass::newPlayer(static_cast<Player*>(player));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> CommandOriginClass::getNbt(const Arguments&) {
+Local<Value> CommandOriginClass::getNbt(Arguments const&) {
     try {
         return NbtCompoundClass::pack(std::make_unique<CompoundTag>(get()->serialize()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 Local<Value> CommandOriginClass::toString() {
     try {
         return String::newString("<CommandOrigin>");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

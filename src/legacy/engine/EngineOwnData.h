@@ -3,7 +3,6 @@
 #include "lse/ScriptPlugin.h"
 #include "utils/UsingScriptX.h"
 
-#include <ll/api/Expected.h>
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/Logger.h>
 #include <ll/api/io/LoggerRegistry.h>
@@ -45,11 +44,11 @@ struct EngineOwnData {
     // Unload Callbacks, use for close database...
     int                                                                         index = 0;
     std::unordered_map<int, std::function<void(std::shared_ptr<ScriptEngine>)>> unloadCallbacks;
-    inline int addUnloadCallback(std::function<void(std::shared_ptr<ScriptEngine>)>&& cb) {
+    int addUnloadCallback(std::function<void(std::shared_ptr<ScriptEngine>)>&& cb) {
         unloadCallbacks[++index] = cb;
         return index;
     }
-    inline bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
+    bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
 
     static void clearEngineObjects(std::shared_ptr<ScriptEngine> engine) {
         EngineScope scope(engine.get());

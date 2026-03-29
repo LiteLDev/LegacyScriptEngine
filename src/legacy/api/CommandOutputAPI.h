@@ -14,13 +14,16 @@ public:
     inline std::shared_ptr<CommandOutput> get() { return output; }
 
 public:
-    CommandOutputClass(std::shared_ptr<CommandOutput> output, std::shared_ptr<CommandOrigin const> origin);
+    CommandOutputClass(
+        std::shared_ptr<CommandOutput> const&       output,
+        std::shared_ptr<CommandOrigin const> const& origin
+    );
 
     Local<Value> empty();
     Local<Value> getSuccessCount();
-    Local<Value> success(const Arguments& args);
-    Local<Value> addMessage(const Arguments& args);
-    Local<Value> error(const Arguments& args);
-    void         send();
-    Local<Value> toString(const Arguments& args);
+    Local<Value> success(Arguments const& args);
+    Local<Value> addMessage(Arguments const& args);
+    Local<Value> error(Arguments const& args);
+    void         send() const;
+    Local<Value> toString(Arguments const& args);
 };

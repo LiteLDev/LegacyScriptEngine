@@ -2,7 +2,6 @@
 
 #include "api/APIHelp.h"
 #include "api/ItemAPI.h"
-#include "ll/api/utils/StringUtils.h"
 #include "mc/world/item/ItemStack.h"
 
 //////////////////// Class Definition ////////////////////
@@ -39,34 +38,34 @@ Local<Object> ContainerClass::newContainer(Container* p) {
     auto newp = new ContainerClass(p);
     return newp->getScriptObject();
 }
-Container* ContainerClass::extract(Local<Value> v) {
+Container* ContainerClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<ContainerClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<ContainerClass>(v)->get();
     else return nullptr;
 }
 
 // 成员函数
-Local<Value> ContainerClass::getSize() {
+Local<Value> ContainerClass::getSize() const {
     try {
         return Number::newNumber(container->getContainerSize());
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::getType() {
+Local<Value> ContainerClass::getType() const {
     try {
         return String::newString(container->getTypeName());
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::addItem(const Arguments& args) {
+Local<Value> ContainerClass::addItem(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -78,36 +77,36 @@ Local<Value> ContainerClass::addItem(const Arguments& args) {
         }
         return Boolean::newBoolean(container->addItem(*item));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::addItemToFirstEmptySlot(const Arguments& args) {
+Local<Value> ContainerClass::addItemToFirstEmptySlot(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Boolean::newBoolean(container->addItemToFirstEmptySlot(*item));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::hasRoomFor(const Arguments& args) {
+Local<Value> ContainerClass::hasRoomFor(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         ItemStack* item = ItemClass::extract(args[0]);
         if (!item) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Boolean::newBoolean(container->hasRoomForItem(*item));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::removeItem(const Arguments& args) {
+Local<Value> ContainerClass::removeItem(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -116,41 +115,40 @@ Local<Value> ContainerClass::removeItem(const Arguments& args) {
         container->removeItem(args[0].asNumber().toInt32(), args[1].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::getItem(const Arguments& args) {
+Local<Value> ContainerClass::getItem(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
         ItemStack* item = &const_cast<ItemStack&>(container->getItem(args[0].asNumber().toInt32()));
         if (!item) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Fail to get slot from container!");
-            return Local<Value>();
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to get slot from container!");
         }
         return ItemClass::newItem(item);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::setItem(const Arguments& args) {
+Local<Value> ContainerClass::setItem(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
     try {
         ItemStack* item = ItemClass::extract(args[1]);
         if (!item) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         container->setItem(args[0].asNumber().toInt32(), *item);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::getAllItems(const Arguments&) {
+Local<Value> ContainerClass::getAllItems(Arguments const&) const {
     try {
         auto list = container->getSlots();
 
@@ -160,20 +158,20 @@ Local<Value> ContainerClass::getAllItems(const Arguments&) {
         }
         return res;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::removeAllItems(const Arguments&) {
+Local<Value> ContainerClass::removeAllItems(Arguments const&) const {
     try {
         container->removeAllItems();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ContainerClass::isEmpty(const Arguments&) {
+Local<Value> ContainerClass::isEmpty(Arguments const&) const {
     try {
         return Boolean::newBoolean(container->isEmpty());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

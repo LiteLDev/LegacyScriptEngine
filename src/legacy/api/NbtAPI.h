@@ -16,16 +16,16 @@
 // NBT Static
 class NbtStatic : public ScriptClass {
 public:
-    static Local<Value> newTag(const Arguments& args);
-    static Local<Value> parseSNBT(const Arguments& args);
-    static Local<Value> parseBinaryNBT(const Arguments& args);
+    static Local<Value> newTag(Arguments const& args);
+    static Local<Value> parseSNBT(Arguments const& args);
+    static Local<Value> parseBinaryNBT(Arguments const& args);
 
     template <Tag::Type T>
     static Local<Value> getType() {
-        return Number::newNumber((int)T);
+        return Number::newNumber(static_cast<int>(T));
     }
 };
-extern ClassDefine<void> NbtStaticBuilder;
+extern ClassDefine<> NbtStaticBuilder;
 
 // NBT Byte
 class NbtByteClass : public ScriptClass {
@@ -33,26 +33,26 @@ public:
     std::variant<std::monostate, std::unique_ptr<ByteTag>, ByteTag*> nbt;
 
     explicit NbtByteClass(
-        const Local<Object>&                                             scriptObj,
+        Local<Object> const&                                             scriptObj,
         std::variant<std::monostate, std::unique_ptr<ByteTag>, ByteTag*> nbt
     );
     explicit NbtByteClass(std::variant<std::monostate, std::unique_ptr<ByteTag>, ByteTag*> nbt);
 
-    ByteTag* getPtr() {
+    ByteTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<ByteTag>>(nbt)) return std::get<std::unique_ptr<ByteTag>>(nbt).get();
         return std::get<ByteTag*>(nbt);
     }
 
-    static NbtByteClass* constructor(const Arguments& args);
-    static ByteTag*      extract(Local<Value> v);
+    static NbtByteClass* constructor(Arguments const& args);
+    static ByteTag*      extract(Local<Value> const& v);
     static Local<Value>  pack(ByteTag* tag);
     static Local<Value>  pack(std::unique_ptr<ByteTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtByteClass> NbtByteClassBuilder;
 
@@ -62,27 +62,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<ShortTag>, ShortTag*> nbt;
 
     explicit NbtShortClass(
-        const Local<Object>&                                               scriptObj,
+        Local<Object> const&                                               scriptObj,
         std::variant<std::monostate, std::unique_ptr<ShortTag>, ShortTag*> nbt
     );
     explicit NbtShortClass(std::variant<std::monostate, std::unique_ptr<ShortTag>, ShortTag*> nbt);
 
-    ShortTag* getPtr() {
+    ShortTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<ShortTag>>(nbt))
             return std::get<std::unique_ptr<ShortTag>>(nbt).get();
         return std::get<ShortTag*>(nbt);
     }
 
-    static NbtShortClass* constructor(const Arguments& args);
-    static ShortTag*      extract(Local<Value> v);
+    static NbtShortClass* constructor(Arguments const& args);
+    static ShortTag*      extract(Local<Value> const& v);
     static Local<Value>   pack(ShortTag* tag);
     static Local<Value>   pack(std::unique_ptr<ShortTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtShortClass> NbtShortClassBuilder;
 
@@ -92,26 +92,26 @@ public:
     std::variant<std::monostate, std::unique_ptr<IntTag>, IntTag*> nbt;
 
     explicit NbtIntClass(
-        const Local<Object>&                                           scriptObj,
+        Local<Object> const&                                           scriptObj,
         std::variant<std::monostate, std::unique_ptr<IntTag>, IntTag*> nbt
     );
     explicit NbtIntClass(std::variant<std::monostate, std::unique_ptr<IntTag>, IntTag*> nbt);
 
-    IntTag* getPtr() {
+    IntTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<IntTag>>(nbt)) return std::get<std::unique_ptr<IntTag>>(nbt).get();
         return std::get<IntTag*>(nbt);
     }
 
-    static NbtIntClass* constructor(const Arguments& args);
-    static IntTag*      extract(Local<Value> v);
+    static NbtIntClass* constructor(Arguments const& args);
+    static IntTag*      extract(Local<Value> const& v);
     static Local<Value> pack(IntTag* tag);
     static Local<Value> pack(std::unique_ptr<IntTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtIntClass> NbtIntClassBuilder;
 
@@ -121,27 +121,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<Int64Tag>, Int64Tag*> nbt;
 
     explicit NbtLongClass(
-        const Local<Object>&                                               scriptObj,
+        Local<Object> const&                                               scriptObj,
         std::variant<std::monostate, std::unique_ptr<Int64Tag>, Int64Tag*> nbt
     );
     explicit NbtLongClass(std::variant<std::monostate, std::unique_ptr<Int64Tag>, Int64Tag*> nbt);
 
-    Int64Tag* getPtr() {
+    Int64Tag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<Int64Tag>>(nbt))
             return std::get<std::unique_ptr<Int64Tag>>(nbt).get();
         return std::get<Int64Tag*>(nbt);
     }
 
-    static NbtLongClass* constructor(const Arguments& args);
-    static Int64Tag*     extract(Local<Value> v);
+    static NbtLongClass* constructor(Arguments const& args);
+    static Int64Tag*     extract(Local<Value> const& v);
     static Local<Value>  pack(Int64Tag* tag);
     static Local<Value>  pack(std::unique_ptr<Int64Tag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtLongClass> NbtLongClassBuilder;
 
@@ -151,27 +151,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<FloatTag>, FloatTag*> nbt;
 
     explicit NbtFloatClass(
-        const Local<Object>&                                               scriptObj,
+        Local<Object> const&                                               scriptObj,
         std::variant<std::monostate, std::unique_ptr<FloatTag>, FloatTag*> nbt
     );
     explicit NbtFloatClass(std::variant<std::monostate, std::unique_ptr<FloatTag>, FloatTag*> nbt);
 
-    FloatTag* getPtr() {
+    FloatTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<FloatTag>>(nbt))
             return std::get<std::unique_ptr<FloatTag>>(nbt).get();
         return std::get<FloatTag*>(nbt);
     }
 
-    static NbtFloatClass* constructor(const Arguments& args);
-    static FloatTag*      extract(Local<Value> v);
+    static NbtFloatClass* constructor(Arguments const& args);
+    static FloatTag*      extract(Local<Value> const& v);
     static Local<Value>   pack(FloatTag* tag);
     static Local<Value>   pack(std::unique_ptr<FloatTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtFloatClass> NbtFloatClassBuilder;
 
@@ -181,27 +181,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<DoubleTag>, DoubleTag*> nbt;
 
     explicit NbtDoubleClass(
-        const Local<Object>&                                                 scriptObj,
+        Local<Object> const&                                                 scriptObj,
         std::variant<std::monostate, std::unique_ptr<DoubleTag>, DoubleTag*> nbt
     );
     explicit NbtDoubleClass(std::variant<std::monostate, std::unique_ptr<DoubleTag>, DoubleTag*> nbt);
 
-    DoubleTag* getPtr() {
+    DoubleTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<DoubleTag>>(nbt))
             return std::get<std::unique_ptr<DoubleTag>>(nbt).get();
         return std::get<DoubleTag*>(nbt);
     }
 
-    static NbtDoubleClass* constructor(const Arguments& args);
-    static DoubleTag*      extract(Local<Value> v);
+    static NbtDoubleClass* constructor(Arguments const& args);
+    static DoubleTag*      extract(Local<Value> const& v);
     static Local<Value>    pack(DoubleTag* tag);
     static Local<Value>    pack(std::unique_ptr<DoubleTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtDoubleClass> NbtDoubleClassBuilder;
 
@@ -211,27 +211,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<StringTag>, StringTag*> nbt;
 
     explicit NbtStringClass(
-        const Local<Object>&                                                 scriptObj,
+        Local<Object> const&                                                 scriptObj,
         std::variant<std::monostate, std::unique_ptr<StringTag>, StringTag*> nbt
     );
     explicit NbtStringClass(std::variant<std::monostate, std::unique_ptr<StringTag>, StringTag*> nbt);
 
-    StringTag* getPtr() {
+    StringTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<StringTag>>(nbt))
             return std::get<std::unique_ptr<StringTag>>(nbt).get();
         return std::get<StringTag*>(nbt);
     }
 
-    static NbtStringClass* constructor(const Arguments& args);
-    static StringTag*      extract(Local<Value> v);
+    static NbtStringClass* constructor(Arguments const& args);
+    static StringTag*      extract(Local<Value> const& v);
     static Local<Value>    pack(StringTag* tag);
     static Local<Value>    pack(std::unique_ptr<StringTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtStringClass> NbtStringClassBuilder;
 
@@ -241,27 +241,27 @@ public:
     std::variant<std::monostate, std::unique_ptr<ByteArrayTag>, ByteArrayTag*> nbt;
 
     explicit NbtByteArrayClass(
-        const Local<Object>&                                                       scriptObj,
+        Local<Object> const&                                                       scriptObj,
         std::variant<std::monostate, std::unique_ptr<ByteArrayTag>, ByteArrayTag*> nbt
     );
     explicit NbtByteArrayClass(std::variant<std::monostate, std::unique_ptr<ByteArrayTag>, ByteArrayTag*> nbt);
 
-    ByteArrayTag* getPtr() {
+    ByteArrayTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<ByteArrayTag>>(nbt))
             return std::get<std::unique_ptr<ByteArrayTag>>(nbt).get();
         return std::get<ByteArrayTag*>(nbt);
     }
 
-    static NbtByteArrayClass* constructor(const Arguments& args);
-    static ByteArrayTag*      extract(Local<Value> v);
+    static NbtByteArrayClass* constructor(Arguments const& args);
+    static ByteArrayTag*      extract(Local<Value> const& v);
     static Local<Value>       pack(ByteArrayTag* tag);
     static Local<Value>       pack(std::unique_ptr<ByteArrayTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> get(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> set(Arguments const& args) const;
+    Local<Value> get(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtByteArrayClass> NbtByteArrayClassBuilder;
 
@@ -271,44 +271,44 @@ public:
     std::variant<std::monostate, std::unique_ptr<ListTag>, ListTag*> nbt;
 
     explicit NbtListClass(
-        const Local<Object>&                                             scriptObj,
+        Local<Object> const&                                             scriptObj,
         std::variant<std::monostate, std::unique_ptr<ListTag>, ListTag*> nbt
     );
     explicit NbtListClass(std::variant<std::monostate, std::unique_ptr<ListTag>, ListTag*> nbt);
 
-    ListTag* getPtr() {
+    ListTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<ListTag>>(nbt)) return std::get<std::unique_ptr<ListTag>>(nbt).get();
         return std::get<ListTag*>(nbt);
     }
 
-    static NbtListClass* constructor(const Arguments& args);
-    static ListTag*      extract(Local<Value> v);
+    static NbtListClass* constructor(Arguments const& args);
+    static ListTag*      extract(Local<Value> const& v);
     static Local<Value>  pack(ListTag* tag);
     static Local<Value>  pack(std::unique_ptr<ListTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> getSize(const Arguments& args);
-    Local<Value> getTypeOf(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> getSize(Arguments const& args) const;
+    Local<Value> getTypeOf(Arguments const& args) const;
 
-    Local<Value> setEnd(const Arguments& args);
-    Local<Value> setByte(const Arguments& args);
-    Local<Value> setInt(const Arguments& args);
-    Local<Value> setShort(const Arguments& args);
-    Local<Value> setLong(const Arguments& args);
-    Local<Value> setFloat(const Arguments& args);
-    Local<Value> setDouble(const Arguments& args);
-    Local<Value> setString(const Arguments& args);
-    Local<Value> setByteArray(const Arguments& args);
-    Local<Value> setTag(const Arguments& args);
-    Local<Value> addTag(const Arguments& args);
-    Local<Value> removeTag(const Arguments& args);
+    Local<Value> setEnd(Arguments const& args) const;
+    Local<Value> setByte(Arguments const& args) const;
+    Local<Value> setInt(Arguments const& args) const;
+    Local<Value> setShort(Arguments const& args) const;
+    Local<Value> setLong(Arguments const& args) const;
+    Local<Value> setFloat(Arguments const& args) const;
+    Local<Value> setDouble(Arguments const& args) const;
+    Local<Value> setString(Arguments const& args) const;
+    Local<Value> setByteArray(Arguments const& args) const;
+    Local<Value> setTag(Arguments const& args) const;
+    Local<Value> addTag(Arguments const& args) const;
+    Local<Value> removeTag(Arguments const& args) const;
 
-    Local<Value> getData(const Arguments& args);
-    Local<Value> getTag(const Arguments& args);
+    Local<Value> getData(Arguments const& args) const;
+    Local<Value> getTag(Arguments const& args) const;
 
-    Local<Value> toArray(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> toArray(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtListClass> NbtListClassBuilder;
 
@@ -318,53 +318,53 @@ public:
     std::variant<std::monostate, std::unique_ptr<CompoundTag>, CompoundTag*> nbt;
 
     explicit NbtCompoundClass(
-        const Local<Object>&                                                     scriptObj,
+        Local<Object> const&                                                     scriptObj,
         std::variant<std::monostate, std::unique_ptr<CompoundTag>, CompoundTag*> nbt
     );
     explicit NbtCompoundClass(std::variant<std::monostate, std::unique_ptr<CompoundTag>, CompoundTag*> nbt);
 
-    CompoundTag* getPtr() {
+    CompoundTag* getPtr() const {
         if (std::holds_alternative<std::monostate>(nbt)) return nullptr;
         if (std::holds_alternative<std::unique_ptr<CompoundTag>>(nbt))
             return std::get<std::unique_ptr<CompoundTag>>(nbt).get();
         return std::get<CompoundTag*>(nbt);
     }
 
-    static NbtCompoundClass* constructor(const Arguments& args);
-    static CompoundTag*      extract(Local<Value> v);
+    static NbtCompoundClass* constructor(Arguments const& args);
+    static CompoundTag*      extract(Local<Value> const& v);
     static Local<Value>      pack(CompoundTag* tag);
     static Local<Value>      pack(std::unique_ptr<CompoundTag> tag);
 
-    Local<Value> getType(const Arguments& args);
-    Local<Value> getKeys(const Arguments& args);
-    Local<Value> getTypeOf(const Arguments& args);
+    Local<Value> getType(Arguments const& args);
+    Local<Value> getKeys(Arguments const& args) const;
+    Local<Value> getTypeOf(Arguments const& args) const;
 
-    Local<Value> setEnd(const Arguments& args);
-    Local<Value> setByte(const Arguments& args);
-    Local<Value> setInt(const Arguments& args);
-    Local<Value> setShort(const Arguments& args);
-    Local<Value> setLong(const Arguments& args);
-    Local<Value> setFloat(const Arguments& args);
-    Local<Value> setDouble(const Arguments& args);
-    Local<Value> setString(const Arguments& args);
-    Local<Value> setByteArray(const Arguments& args);
-    Local<Value> setTag(const Arguments& args);
-    Local<Value> removeTag(const Arguments& args);
+    Local<Value> setEnd(Arguments const& args) const;
+    Local<Value> setByte(Arguments const& args) const;
+    Local<Value> setInt(Arguments const& args) const;
+    Local<Value> setShort(Arguments const& args) const;
+    Local<Value> setLong(Arguments const& args) const;
+    Local<Value> setFloat(Arguments const& args) const;
+    Local<Value> setDouble(Arguments const& args) const;
+    Local<Value> setString(Arguments const& args) const;
+    Local<Value> setByteArray(Arguments const& args) const;
+    Local<Value> setTag(Arguments const& args) const;
+    Local<Value> removeTag(Arguments const& args) const;
 
-    Local<Value> getData(const Arguments& args);
-    Local<Value> getTag(const Arguments& args);
+    Local<Value> getData(Arguments const& args) const;
+    Local<Value> getTag(Arguments const& args) const;
 
-    Local<Value> toObject(const Arguments& args);
-    Local<Value> toSNBT(const Arguments& args);
-    Local<Value> toBinaryNBT(const Arguments& args);
-    Local<Value> toString(const Arguments& args);
+    Local<Value> toObject(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
+    Local<Value> toBinaryNBT(Arguments const& args) const;
+    Local<Value> toString(Arguments const& args) const;
 
-    Local<Value> destroy(const Arguments& args);
+    Local<Value> destroy(Arguments const& args);
 };
 extern ClassDefine<NbtCompoundClass> NbtCompoundClassBuilder;
 
 // Helper
-bool         IsNbtClass(Local<Value> value);
+bool         IsNbtClass(Local<Value> const& value);
 Local<Value> Tag2Value(Tag* nbt, bool autoExpansion = false);
-void         NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object>& obj);
-void         NbtListClassAddHelper(ListTag* tag, Local<Array>& arr);
+void         NbtCompoundClassAddHelper(CompoundTag* tag, Local<Object> const& obj);
+void         NbtListClassAddHelper(ListTag* tag, Local<Array> const& arr);

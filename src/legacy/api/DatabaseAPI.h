@@ -12,21 +12,21 @@ private:
     int                                   unloadCallbackIndex = -1;
 
 public:
-    explicit KVDBClass(const Local<Object>& scriptObj, const std::string& dir);
-    explicit KVDBClass(const std::string& dir);
-    ~KVDBClass();
-    static KVDBClass* constructor(const Arguments& args);
+    explicit KVDBClass(Local<Object> const& scriptObj, std::string const& dir);
+    explicit KVDBClass(std::string const& dir);
+    ~KVDBClass() override;
+    static KVDBClass* constructor(Arguments const& args);
 
-    bool isValid() { return kvdb.get(); }
+    bool isValid() const { return kvdb.get(); }
 
-    Local<Value> get(const Arguments& args);
-    Local<Value> set(const Arguments& args);
-    Local<Value> del(const Arguments& args);
-    Local<Value> close(const Arguments& args);
-    Local<Value> listKey(const Arguments& args);
+    Local<Value> get(Arguments const& args);
+    Local<Value> set(Arguments const& args);
+    Local<Value> del(Arguments const& args);
+    Local<Value> close(Arguments const& args);
+    Local<Value> listKey(Arguments const& args);
 
     // For Compatibility
-    static Local<Value> newDb(const std::string& dir);
+    static Local<Value> newDb(std::string const& dir);
 };
 extern ClassDefine<KVDBClass> KVDBClassBuilder;
 
@@ -36,16 +36,16 @@ private:
     DB::SharedPointer<DB::Session> session;
 
 public:
-    explicit DBSessionClass(const Local<Object>& scriptObj, const DB::ConnParams& params);
-    explicit DBSessionClass(const DB::ConnParams& params);
-    ~DBSessionClass();
-    static DBSessionClass* constructor(const Arguments& args);
+    explicit DBSessionClass(Local<Object> const& scriptObj, DB::ConnParams const& params);
+    explicit DBSessionClass(DB::ConnParams const& params);
+    ~DBSessionClass() override;
+    static DBSessionClass* constructor(Arguments const& args);
 
-    Local<Value> query(const Arguments& args);
-    Local<Value> exec(const Arguments& args);
-    Local<Value> prepare(const Arguments& args);
-    Local<Value> close(const Arguments& args);
-    Local<Value> isOpen(const Arguments& args);
+    Local<Value> query(Arguments const& args) const;
+    Local<Value> exec(Arguments const& args) const;
+    Local<Value> prepare(Arguments const& args) const;
+    Local<Value> close(Arguments const& args) const;
+    Local<Value> isOpen(Arguments const& args) const;
 };
 extern ClassDefine<DBSessionClass> DBSessionClassBuilder;
 
@@ -54,20 +54,20 @@ private:
     DB::SharedPointer<DB::Stmt> stmt;
 
 public:
-    explicit DBStmtClass(const Local<Object>& scriptObj, const DB::SharedPointer<DB::Stmt>& stmt);
-    explicit DBStmtClass(const DB::SharedPointer<DB::Stmt>& stmt);
-    ~DBStmtClass();
+    explicit DBStmtClass(Local<Object> const& scriptObj, DB::SharedPointer<DB::Stmt> const& stmt);
+    explicit DBStmtClass(DB::SharedPointer<DB::Stmt> const& stmt);
+    ~DBStmtClass() override;
 
-    Local<Value> getAffectedRows();
-    Local<Value> getInsertId();
+    Local<Value> getAffectedRows() const;
+    Local<Value> getInsertId() const;
 
-    Local<Value> bind(const Arguments& args);
-    Local<Value> execute(const Arguments& args);
-    Local<Value> step(const Arguments& args);
-    Local<Value> fetch(const Arguments& args);
-    Local<Value> fetchAll(const Arguments& args);
-    Local<Value> reset(const Arguments& args);
-    Local<Value> reexec(const Arguments& args);
-    Local<Value> clear(const Arguments& args);
+    Local<Value> bind(Arguments const& args) const;
+    Local<Value> execute(Arguments const& args) const;
+    Local<Value> step(Arguments const& args) const;
+    Local<Value> fetch(Arguments const& args) const;
+    Local<Value> fetchAll(Arguments const& args) const;
+    Local<Value> reset(Arguments const& args) const;
+    Local<Value> reexec(Arguments const& args) const;
+    Local<Value> clear(Arguments const& args) const;
 };
 extern ClassDefine<DBStmtClass> DBStmtClassBuilder;

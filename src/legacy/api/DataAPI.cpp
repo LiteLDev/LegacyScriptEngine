@@ -57,11 +57,11 @@ ClassDefine<ConfJsonClass> ConfJsonClassBuilder =
         .instanceFunction("delete", &ConfJsonClass::del)
         .instanceFunction(
             "reload",
-            selectOverloadedFunc<Local<Value> (ConfJsonClass::*)(const Arguments&)>(&ConfJsonClass::reload)
+            selectOverloadedFunc<Local<Value> (ConfJsonClass::*)(Arguments const&)>(&ConfJsonClass::reload)
         )
         .instanceFunction(
             "close",
-            selectOverloadedFunc<Local<Value> (ConfJsonClass::*)(const Arguments&)>(&ConfJsonClass::close)
+            selectOverloadedFunc<Local<Value> (ConfJsonClass::*)(Arguments const&)>(&ConfJsonClass::close)
         )
         .instanceFunction("getPath", &ConfJsonClass::getPath)
         .instanceFunction("read", &ConfJsonClass::read)
@@ -80,11 +80,11 @@ ClassDefine<ConfIniClass> ConfIniClassBuilder =
         .instanceFunction("delete", &ConfIniClass::del)
         .instanceFunction(
             "reload",
-            selectOverloadedFunc<Local<Value> (ConfIniClass::*)(const Arguments&)>(&ConfIniClass::reload)
+            selectOverloadedFunc<Local<Value> (ConfIniClass::*)(Arguments const&)>(&ConfIniClass::reload)
         )
         .instanceFunction(
             "close",
-            selectOverloadedFunc<Local<Value> (ConfIniClass::*)(const Arguments&)>(&ConfIniClass::close)
+            selectOverloadedFunc<Local<Value> (ConfIniClass::*)(Arguments const&)>(&ConfIniClass::close)
         )
         .instanceFunction("getPath", &ConfIniClass::getPath)
         .instanceFunction("read", &ConfIniClass::read)
@@ -93,16 +93,16 @@ ClassDefine<ConfIniClass> ConfIniClassBuilder =
 
 //////////////////// Classes ConfBase ////////////////////
 
-ConfBaseClass::ConfBaseClass(const string& dir) : confPath(dir) {}
+ConfBaseClass::ConfBaseClass(string const& dir) : confPath(dir) {}
 
-Local<Value> ConfBaseClass::getPath(const Arguments&) {
+Local<Value> ConfBaseClass::getPath(Arguments const&) const {
     try {
         return String::newString(confPath);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ConfBaseClass::read(const Arguments&) {
+Local<Value> ConfBaseClass::read(Arguments const&) const {
     try {
         auto content = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
         if (!content) return Local<Value>();
@@ -114,21 +114,21 @@ Local<Value> ConfBaseClass::read(const Arguments&) {
 //////////////////// Classes ConfJson ////////////////////
 
 // 生成函数
-ConfJsonClass::ConfJsonClass(const Local<Object>& scriptObj, const string& path, const string& defContent)
+ConfJsonClass::ConfJsonClass(Local<Object> const& scriptObj, string const& path, string const& defContent)
 : ScriptClass(scriptObj),
   ConfBaseClass(path) {
     jsonConf = CreateJson(path, defContent);
 }
 
-ConfJsonClass::ConfJsonClass(const string& path, const string& defContent)
+ConfJsonClass::ConfJsonClass(string const& path, string const& defContent)
 : ScriptClass(ScriptClass::ConstructFromCpp<ConfJsonClass>{}),
   ConfBaseClass(path) {
     jsonConf = CreateJson(path, defContent);
 }
 
-ConfJsonClass::~ConfJsonClass() { close(); }
+ConfJsonClass::~ConfJsonClass() { ConfJsonClass::close(); }
 
-ConfJsonClass* ConfJsonClass::constructor(const Arguments& args) {
+ConfJsonClass* ConfJsonClass::constructor(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -140,55 +140,55 @@ ConfJsonClass* ConfJsonClass::constructor(const Arguments& args) {
         if (args.size() >= 2) return new ConfJsonClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfJsonClass(args.thiz(), path, "{}");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::init(const Arguments& args) {
+Local<Value> ConfJsonClass::init(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return JsonToValue(jsonConf.at(args[0].asString().toString()));
-    } catch (const std::out_of_range&) {
+    } catch (std::out_of_range const&) {
         jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
-    } catch (const ordered_json::exception&) {
+    } catch (ordered_json::exception const&) {
         jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         flush();
         return args[1];
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::get(const Arguments& args) {
+Local<Value> ConfJsonClass::get(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return JsonToValue(jsonConf.at(args[0].asString().toString()));
-    } catch (const std::out_of_range&) {
+    } catch (std::out_of_range const&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
-    } catch (const ordered_json::exception&) {
+    } catch (ordered_json::exception const&) {
         return args.size() >= 2 ? args[1] : Local<Value>();
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::set(const Arguments& args) {
+Local<Value> ConfJsonClass::set(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         jsonConf[args[0].asString().toString()] = ordered_json::parse(ValueToJson(args[1]));
         return Boolean::newBoolean(flush());
-    } catch (const ordered_json::exception&) {
+    } catch (ordered_json::exception const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::del(const Arguments& args) {
+Local<Value> ConfJsonClass::del(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -196,31 +196,31 @@ Local<Value> ConfJsonClass::del(const Arguments& args) {
         if (jsonConf.erase(args[0].asString().toString()) <= 0) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(flush());
-    } catch (const ordered_json::exception&) {
+    } catch (ordered_json::exception const&) {
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::reload(const Arguments&) {
+Local<Value> ConfJsonClass::reload(Arguments const&) {
     try {
         return Boolean::newBoolean(reload());
-    } catch (const ordered_json::exception& e) {
+    } catch (ordered_json::exception const& e) {
         lse::LegacyScriptEngine::getLogger().error("Fail to parse json content in file!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::close(const Arguments&) {
+Local<Value> ConfJsonClass::close(Arguments const&) {
     try {
         return Boolean::newBoolean(close());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfJsonClass::write(const Arguments& args) {
+Local<Value> ConfJsonClass::write(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -230,7 +230,7 @@ Local<Value> ConfJsonClass::write(const Arguments& args) {
         reload();
         return Boolean::newBoolean(res);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 bool ConfJsonClass::flush() {
@@ -265,21 +265,21 @@ bool ConfJsonClass::reload() {
 //////////////////// Classes ConfIni ////////////////////
 
 // 生成函数
-ConfIniClass::ConfIniClass(const Local<Object>& scriptObj, const string& path, const string& defContent)
+ConfIniClass::ConfIniClass(Local<Object> const& scriptObj, string const& path, string const& defContent)
 : ScriptClass(scriptObj),
   ConfBaseClass(path) {
     iniConf = SimpleIni::create(path, defContent);
 }
 
-ConfIniClass::ConfIniClass(const string& path, const string& defContent)
+ConfIniClass::ConfIniClass(string const& path, string const& defContent)
 : ScriptClass(ScriptClass::ConstructFromCpp<ConfIniClass>{}),
   ConfBaseClass(path) {
     iniConf = SimpleIni::create(path, defContent);
 }
 
-ConfIniClass::~ConfIniClass() { close(); }
+ConfIniClass::~ConfIniClass() { ConfIniClass::close(); }
 
-ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
+ConfIniClass* ConfIniClass::constructor(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -291,7 +291,7 @@ ConfIniClass* ConfIniClass::constructor(const Arguments& args) {
         if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].asString().toString());
         else return new ConfIniClass(args.thiz(), path, "");
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 bool ConfIniClass::flush() { return iniConf->SaveFile(iniConf->filePath.c_str(), true); }
@@ -311,7 +311,7 @@ bool ConfIniClass::reload() {
     return true;
 }
 
-Local<Value> ConfIniClass::init(const Arguments& args) {
+Local<Value> ConfIniClass::init(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -367,14 +367,14 @@ Local<Value> ConfIniClass::init(const Arguments& args) {
             break;
         }
         default:
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Ini file don't support this type of data!");
         }
         return res;
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::set(const Arguments& args) {
+Local<Value> ConfIniClass::set(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -396,7 +396,7 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
             iniConf->setBool(section, key, args[2].asBoolean().value());
             break;
         default:
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Ini file don't support this type of data!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Ini file don't support this type of data!");
         }
         flush();
         return Boolean::newBoolean(true);
@@ -404,7 +404,7 @@ Local<Value> ConfIniClass::set(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getStr(const Arguments& args) {
+Local<Value> ConfIniClass::getStr(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -422,7 +422,7 @@ Local<Value> ConfIniClass::getStr(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getInt(const Arguments& args) {
+Local<Value> ConfIniClass::getInt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -437,10 +437,10 @@ Local<Value> ConfIniClass::getInt(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toInt32() : 0
         ));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getFloat(const Arguments& args) {
+Local<Value> ConfIniClass::getFloat(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -455,10 +455,10 @@ Local<Value> ConfIniClass::getFloat(const Arguments& args) {
             args.size() >= 3 ? args[2].asNumber().toFloat() : 0.0f
         ));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getBool(const Arguments& args) {
+Local<Value> ConfIniClass::getBool(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -473,10 +473,10 @@ Local<Value> ConfIniClass::getBool(const Arguments& args) {
             args.size() >= 3 ? args[2].asBoolean().value() : false
         ));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::del(const Arguments& args) {
+Local<Value> ConfIniClass::del(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -488,17 +488,17 @@ Local<Value> ConfIniClass::del(const Arguments& args) {
         flush();
         return Boolean::newBoolean(res);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::reload(const Arguments&) {
+Local<Value> ConfIniClass::reload(Arguments const&) {
     try {
         return Boolean::newBoolean(reload());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::write(const Arguments& args) {
+Local<Value> ConfIniClass::write(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -508,19 +508,19 @@ Local<Value> ConfIniClass::write(const Arguments& args) {
         reload();
         return Boolean::newBoolean(res);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::close(const Arguments&) {
+Local<Value> ConfIniClass::close(Arguments const&) {
     try {
         return Boolean::newBoolean(close());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// APIs ////////////////////
 
-Local<Value> MoneyClass::set(const Arguments& args) {
+Local<Value> MoneyClass::set(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -529,37 +529,37 @@ Local<Value> MoneyClass::set(const Arguments& args) {
         return Boolean::newBoolean(
             EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneySet!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneySet!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> MoneyClass::get(const Arguments& args) {
+Local<Value> MoneyClass::get(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return Number::newNumber(EconomySystem::getMoney(args[0].asString().toString()));
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGet!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Number::newNumber(0);
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGet!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Number::newNumber(0);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> MoneyClass::add(const Arguments& args) {
+Local<Value> MoneyClass::add(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -568,19 +568,19 @@ Local<Value> MoneyClass::add(const Arguments& args) {
         return Boolean::newBoolean(
             EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyAdd!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyAdd!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> MoneyClass::reduce(const Arguments& args) {
+Local<Value> MoneyClass::reduce(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -589,19 +589,19 @@ Local<Value> MoneyClass::reduce(const Arguments& args) {
         return Boolean::newBoolean(
             EconomySystem::reduceMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyReduce!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyReduce!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> MoneyClass::trans(const Arguments& args) {
+Local<Value> MoneyClass::trans(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -618,19 +618,19 @@ Local<Value> MoneyClass::trans(const Arguments& args) {
                 note
             )
         );
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyTrans!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyTrans!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Array> objectificationMoneyHistory(const string& res) {
+Local<Array> objectificationMoneyHistory(string const& res) {
     Local<Array> arr = Array::newArray();
     ll::string_utils::splitByPattern(
         [&](std::string_view str) -> bool {
@@ -652,7 +652,7 @@ Local<Array> objectificationMoneyHistory(const string& res) {
     return arr;
 }
 
-Local<Value> MoneyClass::getHistory(const Arguments& args) {
+Local<Value> MoneyClass::getHistory(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -660,19 +660,19 @@ Local<Value> MoneyClass::getHistory(const Arguments& args) {
     try {
         string res{EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32())};
         return objectificationMoneyHistory(res);
-    } catch (const std::invalid_argument& e) {
+    } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Local<Value>();
-    } catch (const std::out_of_range& e) {
+    } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> MoneyClass::clearHistory(const Arguments& args) {
+Local<Value> MoneyClass::clearHistory(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -680,70 +680,66 @@ Local<Value> MoneyClass::clearHistory(const Arguments& args) {
         EconomySystem::clearMoneyHist(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::xuid2name(const Arguments& args) {
+Local<Value> DataClass::xuid2name(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString())) {
             return String::newString(playerInfo->name);
         } else {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::name2xuid(const Arguments& args) {
+Local<Value> DataClass::name2xuid(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString())) {
             return String::newString(playerInfo->xuid);
         } else {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::name2uuid(const Arguments& args) {
+Local<Value> DataClass::name2uuid(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString())) {
             return String::newString(playerInfo->uuid.asString());
         } else {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::xuid2uuid(const Arguments& args) {
+Local<Value> DataClass::xuid2uuid(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString())) {
             return String::newString(playerInfo->uuid.asString());
         } else {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
+Local<Value> DataClass::getAllPlayerInfo(Arguments const& args) {
     try {
         auto arr   = Array::newArray();
         auto level = ll::service::getLevel();
@@ -758,11 +754,11 @@ Local<Value> DataClass::getAllPlayerInfo(const Arguments& args) {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // New API for LSE
-Local<Value> DataClass::fromUuid(const Arguments& args) {
+Local<Value> DataClass::fromUuid(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -779,16 +775,15 @@ Local<Value> DataClass::fromUuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::fromXuid(const Arguments& args) {
+Local<Value> DataClass::fromXuid(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString())) {
             auto object = Object::newObject();
             object.set("xuid", playerInfo->xuid);
             object.set("name", playerInfo->name);
@@ -798,16 +793,15 @@ Local<Value> DataClass::fromXuid(const Arguments& args) {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::fromName(const Arguments& args) {
+Local<Value> DataClass::fromName(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString());
-        if (playerInfo) {
+        if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString())) {
             auto object = Object::newObject();
             object.set("xuid", playerInfo->xuid);
             object.set("name", playerInfo->name);
@@ -817,45 +811,35 @@ Local<Value> DataClass::fromName(const Arguments& args) {
             return {};
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::toJson(const Arguments& args) {
+Local<Value> DataClass::toJson(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
-    try {
-        int spaces = -1;
-        if (args.size() >= 2) {
-            int newSpaces = args[1].asNumber().toInt32();
-            if (newSpaces > 0) spaces = newSpaces;
-        }
-        try {
-            return String::newString(ValueToJson(args[0], spaces));
-        } catch (...) {
-            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to transform into Json.");
-        }
+    int spaces = -1;
+    if (args.size() >= 2) {
+        int newSpaces = args[1].asNumber().toInt32();
+        if (newSpaces > 0) spaces = newSpaces;
     }
-    CATCH_AND_THROW;
+    try {
+        return String::newString(ValueToJson(args[0], spaces));
+    }
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::parseJson(const Arguments& args) {
+Local<Value> DataClass::parseJson(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        try {
-            return JsonToValue(args[0].asString().toString());
-        } catch (...) {
-            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Failed to parse from Json.");
-        }
+        return JsonToValue(args[0].asString().toString());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::toMD5(const Arguments& args) {
+Local<Value> DataClass::toMD5(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -863,17 +847,17 @@ Local<Value> DataClass::toMD5(const Arguments& args) {
         if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
-            data                  = string((char*)buf.getRawBytes(), buf.byteLength());
+            data                  = string(static_cast<char*>(buf.getRawBytes()), buf.byteLength());
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::MD5, data));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::toSHA1(const Arguments& args) {
+Local<Value> DataClass::toSHA1(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -881,17 +865,17 @@ Local<Value> DataClass::toSHA1(const Arguments& args) {
         if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
-            data                  = string((char*)buf.getRawBytes(), buf.byteLength());
+            data                  = string(static_cast<char*>(buf.getRawBytes()), buf.byteLength());
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         using namespace lse::api::hash;
         return String::newString(caculateHash(HashType::SHA1, data));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::toBase64(const Arguments& args) {
+Local<Value> DataClass::toBase64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -899,16 +883,16 @@ Local<Value> DataClass::toBase64(const Arguments& args) {
         if (args[0].isString()) data = args[0].asString().toString();
         else if (args[0].isByteBuffer()) {
             Local<ByteBuffer> buf = args[0].asByteBuffer();
-            data                  = string((char*)buf.getRawBytes(), buf.byteLength());
+            data                  = string(static_cast<char*>(buf.getRawBytes()), buf.byteLength());
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return String::newString(ll::base64_utils::encode(data));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::fromBase64(const Arguments& args) {
+Local<Value> DataClass::fromBase64(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -920,17 +904,17 @@ Local<Value> DataClass::fromBase64(const Arguments& args) {
         }
         auto data = ll::base64_utils::decode(args[0].asString().toString());
         if (isBinary) {
-            return ByteBuffer::newByteBuffer((void*)data.c_str(), data.size());
+            return ByteBuffer::newByteBuffer(const_cast<char*>(data.c_str()), data.size());
         } else {
             return String::newString(data);
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // For Compatibility
 
-Local<Value> KVDBClass::newDb(const string& dir) {
+Local<Value> KVDBClass::newDb(string const& dir) {
     auto newp = new KVDBClass(dir);
 
     if (newp->isValid()) return newp->getScriptObject();
@@ -940,18 +924,17 @@ Local<Value> KVDBClass::newDb(const string& dir) {
     }
 }
 
-Local<Value> ConfJsonClass::newConf(const string& path, const string& defContent) {
+Local<Value> ConfJsonClass::newConf(string const& path, string const& defContent) {
     auto newp = new ConfJsonClass(path, defContent);
     return newp->getScriptObject();
 }
 
-Local<Value> ConfIniClass::newConf(const string& path, const string& defContent) {
-    auto newp = new ConfIniClass(path, defContent);
-    if (newp) return newp->getScriptObject();
+Local<Value> ConfIniClass::newConf(string const& path, string const& defContent) {
+    if (auto newp = new ConfIniClass(path, defContent)) return newp->getScriptObject();
     else return Local<Value>();
 }
 
-Local<Value> DataClass::openConfig(const Arguments& args) {
+Local<Value> DataClass::openConfig(Arguments const& args) {
     enum GlobalConfType { json, ini };
 
     CHECK_ARGS_COUNT(args, 1);
@@ -979,10 +962,10 @@ Local<Value> DataClass::openConfig(const Arguments& args) {
             else return ConfJsonClass::newConf(path, "{}");
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DataClass::openDB(const Arguments& args) {
+Local<Value> DataClass::openDB(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 

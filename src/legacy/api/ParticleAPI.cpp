@@ -21,12 +21,12 @@
         v         = Vec3(pos2->x, pos2->y, pos2->z);                                                                   \
         d         = pos2->dim;                                                                                         \
     } else {                                                                                                           \
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);                                                                            \
+        throw WrongArgTypeException(__FUNCTION__);                                                                     \
     }
 
 namespace {
 template <typename T>
-std::string fto_string(const T a_value) {
+std::string fto_string(T const a_value) {
     std::ostringstream out;
     out << a_value;
     return out.str();
@@ -88,7 +88,7 @@ ParticleSpawner::ColorPalette getColorType(std::string s) {
 }
 } // namespace
 
-ParticleSpawner* ParticleSpawner::create(const Arguments& args) {
+ParticleSpawner* ParticleSpawner::create(Arguments const& args) {
     if (args.size() < 3) return nullptr;
     try {
         ParticleSpawner* p = new ParticleSpawner(args.thiz());
@@ -97,7 +97,7 @@ ParticleSpawner* ParticleSpawner::create(const Arguments& args) {
         return nullptr;
     }
 }
-Local<Value> McClass::newParticleSpawner(const Arguments& args) {
+Local<Value> McClass::newParticleSpawner(Arguments const& args) {
     auto         size          = args.size();
     unsigned int displayRadius = UINT_MAX;
     bool         highDetial    = true;
@@ -118,17 +118,15 @@ Local<Value> McClass::newParticleSpawner(const Arguments& args) {
     return EngineScope::currentEngine()->newNativeClass<ParticleSpawner>(displayRadius, highDetial, doubleSide);
 }
 
-Local<Value> ParticleSpawner::spawnParticle(const Arguments& args) {
+Local<Value> ParticleSpawner::spawnParticle(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
-    Vec3        pos;
-    int         dimId;
-    std::string particleName;
+    Vec3 pos;
+    int  dimId;
     GETVEC3(pos, dimId, args[0])
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
-    particleName = args[1].asString().toString();
-    auto dim     = ll::service::getLevel()->getDimension(dimId).lock();
-    if (dim) {
-        dim->forEachPlayer([&](Player& player) {
+    std::string particleName = args[1].asString().toString();
+    if (auto dim = ll::service::getLevel()->getDimension(dimId).lock()) {
+        dim->forEachPlayer([&](Player const& player) {
             SpawnParticleEffectPacket pkt(pos, particleName, dimId, std::nullopt);
             player.sendNetworkPacket(pkt);
             return true;
@@ -136,13 +134,13 @@ Local<Value> ParticleSpawner::spawnParticle(const Arguments& args) {
     }
     return Boolean::newBoolean(true);
 }
-Local<Value> ParticleSpawner::drawPoint(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawPoint(Arguments const& args) { return Boolean::newBoolean(true); }
 
-Local<Value> ParticleSpawner::drawNumber(const Arguments& args) { return Boolean::newBoolean(true); }
-Local<Value> ParticleSpawner::drawAxialLine(const Arguments& args) { return Boolean::newBoolean(true); }
-Local<Value> ParticleSpawner::drawOrientedLine(const Arguments& args) { return Boolean::newBoolean(true); }
-Local<Value> ParticleSpawner::drawCuboid(const Arguments& args) { return Boolean::newBoolean(true); }
-Local<Value> ParticleSpawner::drawCircle(const Arguments& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawNumber(Arguments const& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawAxialLine(Arguments const& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawOrientedLine(Arguments const& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawCuboid(Arguments const& args) { return Boolean::newBoolean(true); }
+Local<Value> ParticleSpawner::drawCircle(Arguments const& args) { return Boolean::newBoolean(true); }
 
 ClassDefine<ParticleSpawner> ParticleSpawnerBuilder =
     defineClass<ParticleSpawner>("ParticleSpawner")
@@ -160,7 +158,7 @@ ClassDefine<ParticleSpawner> ParticleSpawnerBuilder =
         .instanceFunction("drawCircle", &ParticleSpawner::drawCircle)
         .build();
 // clang-format off
-ClassDefine<void> ParticleColorBuilder =
+ClassDefine<> ParticleColorBuilder =
     defineClass("ParticleColor")
         .property("Black",    []() { return String::newString("B"); })
         .property("Indigo",   []() { return String::newString("I"); })
@@ -182,7 +180,7 @@ ClassDefine<void> ParticleColorBuilder =
 // clang-format on
 
 // clang-format off
-ClassDefine<void> DirectionBuilder =
+ClassDefine<> DirectionBuilder =
     defineClass("Direction")
         .property("NEG_Y", []() { return Number::newNumber(0); })
         .property("POS_Y", []() { return Number::newNumber(1); })

@@ -10,10 +10,9 @@
 #include "mc/network/packet/SetTimePacket.h"
 #include "mc/world/level/storage/LevelData.h"
 
-#include <cstdint>
 #include <ll/api/service/ServerInfo.h>
 
-Local<Value> McClass::setMotd(const Arguments& args) {
+Local<Value> McClass::setMotd(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
@@ -23,9 +22,9 @@ Local<Value> McClass::setMotd(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::crashBDS(const Arguments&) { return Boolean::newBoolean(false); }
+Local<Value> McClass::crashBDS(Arguments const&) { return Boolean::newBoolean(false); }
 
-Local<Value> McClass::setMaxNumPlayers(const Arguments& args) {
+Local<Value> McClass::setMaxNumPlayers(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
@@ -60,7 +59,7 @@ Local<Value> McClass::setMaxNumPlayers(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::getTime(const Arguments& args) {
+Local<Value> McClass::getTime(Arguments const& args) {
     int option = 0; // option: 0: daytime, 1: gametime, 2: day
 
     if (args.size() > 0) {
@@ -80,7 +79,7 @@ Local<Value> McClass::getTime(const Arguments& args) {
     }
 }
 
-Local<Value> McClass::setTime(const Arguments& args) {
+Local<Value> McClass::setTime(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
@@ -104,21 +103,21 @@ Local<Value> McClass::setTime(const Arguments& args) {
     return Boolean::newBoolean(true);
 }
 
-Local<Value> McClass::getWeather(const Arguments&) { // weather: 0: Clear, 1: Rain, 2: Thunder
+Local<Value> McClass::getWeather(Arguments const&) { // weather: 0: Clear, 1: Rain, 2: Thunder
     if (ll::service::getLevel()->getLevelData().mLightningLevel > 0.0f) return Number::newNumber(2);
     else if (ll::service::getLevel()->getLevelData().mRainLevel > 0.0f) return Number::newNumber(1);
 
     return Number::newNumber(0);
 }
 
-Local<Value> McClass::setWeather(const Arguments& args) {
+Local<Value> McClass::setWeather(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
-    int duration = 0;
-    int weather  = args[0].asNumber().toInt32(); // weather: 0: Clear, 1: Rain, 2: Thunder
+    int weather = args[0].asNumber().toInt32(); // weather: 0: Clear, 1: Rain, 2: Thunder
 
     try {
+        int duration = 0;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             duration = args[1].asNumber().toInt32();

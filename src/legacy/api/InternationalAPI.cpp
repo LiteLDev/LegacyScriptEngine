@@ -5,14 +5,14 @@
 #include <FMT/args.h>
 
 void FormatHelper(
-    std::vector<Local<Value>>&                          args,
-    const std::vector<const char*>&                     names,
+    std::vector<Local<Value>> const&                    args,
+    std::vector<char const*> const&                     names,
     bool                                                enableObject,
     fmt::dynamic_format_arg_store<fmt::format_context>& s
 ) {
     for (size_t i = 0; i < args.size(); ++i) {
         auto&       arg  = args[i];
-        const char* name = (i < names.size()) ? names[i] : nullptr;
+        char const* name = (i < names.size()) ? names[i] : nullptr;
 
         auto pushArg = [&](auto value) {
             if (name) {
@@ -50,7 +50,7 @@ void FormatHelper(
 
                 std::vector<std::string> nameStrs;
                 nameStrs.reserve(keys.size());
-                std::vector<const char*> nextNames;
+                std::vector<char const*> nextNames;
                 nextNames.reserve(keys.size());
 
                 for (size_t j = 0; j < keys.size(); ++j) {
@@ -69,7 +69,7 @@ void FormatHelper(
     }
 }
 
-Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, const std::string& localeName = "") {
+Local<Value> TrFormat(Arguments const& args, size_t offset, std::string key, std::string const& localeName = "") {
     try {
         size_t argsLength = args.size() - offset;
         key               = getEngineOwnData()->i18n.get(key, localeName);
@@ -87,7 +87,7 @@ Local<Value> TrFormat(const Arguments& args, size_t offset, std::string key, con
             auto result = String::newString(fmt::vformat(key, s));
             return result;
         }
-    } catch (const fmt::format_error&) {
+    } catch (fmt::format_error const&) {
         return String::newString(key);
     }
 }
@@ -99,17 +99,17 @@ ClassDefine<void> I18nClassBuilder = defineClass<void>("i18n")
                                          .function("load", &I18nClass::load)
                                          .build();
 
-Local<Value> I18nClass::tr(const Arguments& args) {
+Local<Value> I18nClass::tr(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1); // At least 1
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
         return TrFormat(args, 1ULL, args[0].asString().toString());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> I18nClass::trl(const Arguments& args) {
+Local<Value> I18nClass::trl(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -117,10 +117,10 @@ Local<Value> I18nClass::trl(const Arguments& args) {
     try {
         return TrFormat(args, 2ULL, args[1].asString().toString(), args[0].asString().toString());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> I18nClass::get(const Arguments& args) {
+Local<Value> I18nClass::get(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() == 2) {
@@ -135,10 +135,10 @@ Local<Value> I18nClass::get(const Arguments& args) {
         }
         return String::newString(getEngineOwnData()->i18n.get(key, localeName));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> I18nClass::load(const Arguments& args) {
+Local<Value> I18nClass::load(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() > 1) {
@@ -182,5 +182,5 @@ Local<Value> I18nClass::load(const Arguments& args) {
         }
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

@@ -29,12 +29,12 @@ struct HttpServerCallback {
 
 class NetworkClass {
 public:
-    static Local<Value> httpGet(const Arguments& args);
-    static Local<Value> httpPost(const Arguments& args);
-    static Local<Value> httpGetSync(const Arguments& args);
+    static Local<Value> httpGet(Arguments const& args);
+    static Local<Value> httpPost(Arguments const& args);
+    static Local<Value> httpGetSync(Arguments const& args);
 
     // For Compatibility
-    static Local<Value> newWebSocket(const Arguments& args);
+    static Local<Value> newWebSocket(Arguments const& args);
 };
 extern ClassDefine<void> NetworkClassBuilder;
 
@@ -43,27 +43,27 @@ extern ClassDefine<void> NetworkClassBuilder;
 class WSClientClass : public ScriptClass {
 private:
     std::shared_ptr<WebSocketClient> ws = nullptr;
-    std::list<ListenerListType>      listeners[(int)WSClientEvents::EVENT_COUNT];
-    void                             addListener(const string& event, Local<Function> func);
+    std::list<ListenerListType>      listeners[static_cast<int>(WSClientEvents::EVENT_COUNT)];
+    void                             addListener(string const& event, Local<Function> const& func);
 
 public:
-    explicit WSClientClass(const Local<Object>& scriptObj);
+    explicit WSClientClass(Local<Object> const& scriptObj);
     explicit WSClientClass();
     void initListeners();
     void initListeners_s();
-    void clearListeners();
-    ~WSClientClass() { ws->Shutdown(); }
-    static WSClientClass* constructor(const Arguments& args);
+    void clearListeners() const;
+    ~WSClientClass() override { ws->Shutdown(); }
+    static WSClientClass* constructor(Arguments const& args);
 
-    Local<Value> getStatus();
+    Local<Value> getStatus() const;
 
-    Local<Value> connect(const Arguments& args);
-    Local<Value> connectAsync(const Arguments& args);
-    Local<Value> send(const Arguments& args);
-    Local<Value> listen(const Arguments& args);
-    Local<Value> close(const Arguments& args);
-    Local<Value> shutdown(const Arguments& args);
-    Local<Value> errorCode(const Arguments& args);
+    Local<Value> connect(Arguments const& args) const;
+    Local<Value> connectAsync(Arguments const& args);
+    Local<Value> send(Arguments const& args) const;
+    Local<Value> listen(Arguments const& args);
+    Local<Value> close(Arguments const& args) const;
+    Local<Value> shutdown(Arguments const& args) const;
+    Local<Value> errorCode(Arguments const& args);
 
     // For Compatibility
     static Local<Object> newWSClient();
@@ -78,26 +78,26 @@ protected:
     HttpServerCallback errorCallback, exceptionCallback, preRoutingCallback, postRoutingCallback;
 
 public:
-    HttpServerClass(const Local<Object>& scriptObj);
+    HttpServerClass(Local<Object> const& scriptObj);
     HttpServerClass();
-    ~HttpServerClass();
-    static HttpServerClass* constructor(const Arguments& args);
+    ~HttpServerClass() override;
+    static HttpServerClass* constructor(Arguments const& args);
 
-    Local<Value> onGet(const Arguments& args);
-    Local<Value> onPut(const Arguments& args);
-    Local<Value> onPost(const Arguments& args);
-    Local<Value> onPatch(const Arguments& args);
-    Local<Value> onDelete(const Arguments& args);
-    Local<Value> onOptions(const Arguments& args);
+    Local<Value> onGet(Arguments const& args);
+    Local<Value> onPut(Arguments const& args);
+    Local<Value> onPost(Arguments const& args);
+    Local<Value> onPatch(Arguments const& args);
+    Local<Value> onDelete(Arguments const& args);
+    Local<Value> onOptions(Arguments const& args);
 
-    Local<Value> onPreRouting(const Arguments& args);
-    Local<Value> onPostRouting(const Arguments& args);
-    Local<Value> onError(const Arguments& args);
-    Local<Value> onException(const Arguments& args);
+    Local<Value> onPreRouting(Arguments const& args);
+    Local<Value> onPostRouting(Arguments const& args);
+    Local<Value> onError(Arguments const& args);
+    Local<Value> onException(Arguments const& args);
 
-    Local<Value> listen(const Arguments& args);
-    Local<Value> stop(const Arguments& args);
-    Local<Value> isRunning(const Arguments& args);
+    Local<Value> listen(Arguments const& args) const;
+    Local<Value> stop(Arguments const& args) const;
+    Local<Value> isRunning(Arguments const& args) const;
 };
 extern ClassDefine<HttpServerClass> HttpServerClassBuilder;
 
@@ -105,21 +105,21 @@ class HttpRequestClass : public ScriptClass {
     std::shared_ptr<httplib::Request> req = nullptr;
 
 public:
-    HttpRequestClass(const Local<Object>& scriptObj, const httplib::Request& req = {});
-    HttpRequestClass(const httplib::Request& req = {});
+    HttpRequestClass(Local<Object> const& scriptObj, httplib::Request const& req = {});
+    HttpRequestClass(httplib::Request const& req = {});
     // static HttpRequestClass* constructor(const Arguments& args);
     std::shared_ptr<httplib::Request> get();
 
-    Local<Value> getHeaders();
-    Local<Value> getHeader(const Arguments& args);
-    Local<Value> getBody();
-    Local<Value> getMethod();
-    Local<Value> getPath();
-    Local<Value> getParams();
-    Local<Value> getRemoteAddr();
-    Local<Value> getRemotePort();
-    Local<Value> getVersion();
-    Local<Value> getRegexMatches();
+    Local<Value> getHeaders() const;
+    Local<Value> getHeader(Arguments const& args) const;
+    Local<Value> getBody() const;
+    Local<Value> getMethod() const;
+    Local<Value> getPath() const;
+    Local<Value> getParams() const;
+    Local<Value> getRemoteAddr() const;
+    Local<Value> getRemotePort() const;
+    Local<Value> getVersion() const;
+    Local<Value> getRegexMatches() const;
     // Local<Value> getMultiFormData();
 };
 extern ClassDefine<HttpRequestClass> HttpRequestClassBuilder;
@@ -128,25 +128,25 @@ class HttpResponseClass : public ScriptClass {
     std::shared_ptr<httplib::Response> resp = nullptr;
 
 public:
-    HttpResponseClass(const Local<Object>& scriptObj, const httplib::Response& resp = {});
-    HttpResponseClass(const httplib::Response& resp);
+    HttpResponseClass(Local<Object> const& scriptObj, httplib::Response const& resp = {});
+    HttpResponseClass(httplib::Response const& resp);
     // static HttpResponseClass* constructor(const Arguments& args);
     std::shared_ptr<httplib::Response> get();
 
-    Local<Value> setHeader(const Arguments& args);
-    Local<Value> getHeader(const Arguments& args);
-    Local<Value> write(const Arguments& args);
+    Local<Value> setHeader(Arguments const& args) const;
+    Local<Value> getHeader(Arguments const& args) const;
+    Local<Value> write(Arguments const& args) const;
 
-    void setHeaders(const Local<Value>& headers);
-    void setStatus(const Local<Value>& status);
-    void setBody(const Local<Value>& body);
-    void setReason(const Local<Value>& reason);
-    void setVersion(const Local<Value>& version);
+    void setHeaders(Local<Value> const& headers) const;
+    void setStatus(Local<Value> const& status) const;
+    void setBody(Local<Value> const& body) const;
+    void setReason(Local<Value> const& reason) const;
+    void setVersion(Local<Value> const& version) const;
 
-    Local<Value> getHeaders();
-    Local<Value> getStatus();
-    Local<Value> getBody();
-    Local<Value> getReason();
-    Local<Value> getVersion();
+    Local<Value> getHeaders() const;
+    Local<Value> getStatus() const;
+    Local<Value> getBody() const;
+    Local<Value> getReason() const;
+    Local<Value> getVersion() const;
 };
 extern ClassDefine<HttpResponseClass> HttpResponseClassBuilder;

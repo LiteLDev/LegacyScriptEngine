@@ -172,7 +172,7 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const& value) {
 
 //////////////////// MC APIs ////////////////////
 
-Local<Value> McClass::runcmd(const Arguments& args) {
+Local<Value> McClass::runcmd(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CommandContext context = CommandContext(
@@ -191,7 +191,7 @@ Local<Value> McClass::runcmd(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::runcmdEx(const Arguments& args) {
+Local<Value> McClass::runcmdEx(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     try {
@@ -208,7 +208,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
         if (command) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
-            static std::shared_ptr<const Localization> localization =
+            static std::shared_ptr<Localization const> localization =
                 getI18n().getLocaleFor(getI18n().getCurrentLanguage()->mCode);
             for (auto& msg : output.mMessages) {
                 outputStr += getI18n().get(msg.mMessageId, msg.mParams, localization).append("\n");
@@ -231,7 +231,7 @@ Local<Value> McClass::runcmdEx(const Arguments& args) {
 }
 
 // name, description, permission, flag, alias
-Local<Value> McClass::newCommand(const Arguments& args) {
+Local<Value> McClass::newCommand(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -295,14 +295,14 @@ Local<Object> CommandClass::newCommand(std::string const& name) {
     return newp->getScriptObject();
 }
 
-Local<Value> CommandClass::getName() {
+Local<Value> CommandClass::getName() const {
     try {
         return String::newString(commandName);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::setAlias(const Arguments& args) {
+Local<Value> CommandClass::setAlias(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     try {
@@ -322,7 +322,7 @@ Local<Value> CommandClass::setAlias(const Arguments& args) {
 }
 
 // string, vector<string>
-Local<Value> CommandClass::setEnum(const Arguments& args) {
+Local<Value> CommandClass::setEnum(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kArray)
@@ -403,7 +403,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
 // name, type, description, identifier, option
 // name, type, optional, description, option
 // name, type, description, option
-Local<Value> CommandClass::newParameter(const Arguments& args) {
+Local<Value> CommandClass::newParameter(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -432,7 +432,7 @@ Local<Value> CommandClass::newParameter(const Arguments& args) {
 
 // name, type, description, identifier, option
 // name, type, description, option
-Local<Value> CommandClass::mandatory(const Arguments& args) {
+Local<Value> CommandClass::mandatory(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -459,7 +459,7 @@ Local<Value> CommandClass::mandatory(const Arguments& args) {
 
 // name, type, description, identifier, option
 // name, type, description, option
-Local<Value> CommandClass::optional(const Arguments& args) {
+auto CommandClass::optional(Arguments const& args) const -> Local<Value> {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -486,7 +486,7 @@ Local<Value> CommandClass::optional(const Arguments& args) {
 
 // vector<identifier>
 // vector<index>
-Local<Value> CommandClass::addOverload(const Arguments& args) {
+Local<Value> CommandClass::addOverload(Arguments const& args) {
     try {
         auto overloadFunc = [e(
                                 EngineScope::currentEngine()
@@ -563,7 +563,8 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 cmd.execute(onExecute);
             }
             return Boolean::newBoolean(true);
-        } else if (args[0].isString()) {
+        }
+        if (args[0].isString()) {
             if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                 std::vector<std::string> paramNames;
                 for (int i = 0; i < args.size(); ++i) {
@@ -581,7 +582,8 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 cmd.execute(onExecute);
             }
             return Boolean::newBoolean(true);
-        } else if (args[0].isArray()) {
+        }
+        if (args[0].isArray()) {
             auto arr = args[0].asArray();
             if (arr.size() == 0) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
@@ -620,7 +622,8 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                     cmd.execute(onExecute);
                 }
                 return Boolean::newBoolean(true);
-            } else if (arr.get(0).isString()) {
+            }
+            if (arr.get(0).isString()) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                     std::vector<std::string> paramNames;
                     for (int i = 0; i < arr.size(); ++i) {
@@ -640,14 +643,13 @@ Local<Value> CommandClass::addOverload(const Arguments& args) {
                 return Boolean::newBoolean(true);
             }
         }
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
-    return Boolean::newBoolean(false);
 }
 
 // function (command, origin, output, results){}
-Local<Value> CommandClass::setCallback(const Arguments& args) {
+Local<Value> CommandClass::setCallback(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
     try {
@@ -660,10 +662,10 @@ Local<Value> CommandClass::setCallback(const Arguments& args) {
 }
 
 // setup(Function<Command, Origin, Output, Map<String, Any>>)
-Local<Value> CommandClass::setup(const Arguments& args) {
+Local<Value> CommandClass::setup(Arguments const& args) const {
     try {
         if (args.size() > 0) {
-            setCallback(args);
+            return setCallback(args);
         }
         return Boolean::newBoolean(true);
     }
@@ -672,14 +674,14 @@ Local<Value> CommandClass::setup(const Arguments& args) {
 
 Local<Value> CommandClass::isRegistered() { return Boolean::newBoolean(true); }
 
-Local<Value> CommandClass::toString(const Arguments&) {
+Local<Value> CommandClass::toString(Arguments const&) {
     try {
         return String::newString(fmt::format("<Command({})>", commandName));
     }
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
+Local<Value> CommandClass::setSoftEnum(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
@@ -699,7 +701,7 @@ Local<Value> CommandClass::setSoftEnum(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
+Local<Value> CommandClass::addSoftEnumValues(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
@@ -719,7 +721,7 @@ Local<Value> CommandClass::addSoftEnumValues(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
+Local<Value> CommandClass::removeSoftEnumValues(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
@@ -739,7 +741,7 @@ Local<Value> CommandClass::removeSoftEnumValues(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
+Local<Value> CommandClass::getSoftEnumValues(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -756,7 +758,7 @@ Local<Value> CommandClass::getSoftEnumValues(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CommandClass::getSoftEnumNames(const Arguments&) {
+Local<Value> CommandClass::getSoftEnumNames(Arguments const&) {
     try {
         auto registry = ll::service::getCommandRegistry();
         if (!registry) return {};

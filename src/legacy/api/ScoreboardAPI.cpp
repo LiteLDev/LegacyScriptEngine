@@ -11,8 +11,6 @@
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
 
-#include <optional>
-
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<ObjectiveClass> ObjectiveClassBuilder =
@@ -43,19 +41,19 @@ void ObjectiveClass::set(Objective* obj) {
     }
 }
 
-Objective* ObjectiveClass::get() {
+Objective* ObjectiveClass::get() const {
     if (isValid) return ll::service::getLevel()->getScoreboard().getObjective(objname);
     return nullptr;
 }
 
-Local<Value> ObjectiveClass::getName() {
+Local<Value> ObjectiveClass::getName() const {
     try {
         return String::newString(objname);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::getDisplayName() {
+Local<Value> ObjectiveClass::getDisplayName() const {
     try {
         Objective* obj = get();
         if (!obj) return Local<Value>();
@@ -64,7 +62,7 @@ Local<Value> ObjectiveClass::getDisplayName() {
     CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
+Local<Value> ObjectiveClass::setDisplay(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() == 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
@@ -77,15 +75,17 @@ Local<Value> ObjectiveClass::setDisplay(const Arguments& args) {
         int         sort = 0;
         if (args.size() == 2) sort = args[1].asNumber().toInt32();
         return Boolean::newBoolean(
-            ll::service::getLevel()->getScoreboard().setDisplayObjective(slot, *obj, (ObjectiveSortOrder)sort)
+            ll::service::getLevel()
+                ->getScoreboard()
+                .setDisplayObjective(slot, *obj, static_cast<ObjectiveSortOrder>(sort))
         );
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 ///////////////////////////////////////////////////////////////////
 
-Local<Value> ObjectiveClass::setScore(const Arguments& args) {
+Local<Value> ObjectiveClass::setScore(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
@@ -99,7 +99,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(name);
+            ScoreboardId const& id = scoreboard.getScoreboardId(name);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
@@ -113,7 +113,7 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(*player);
+            ScoreboardId const& id = scoreboard.getScoreboardId(*player);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
@@ -122,14 +122,14 @@ Local<Value> ObjectiveClass::setScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Set);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::addScore(const Arguments& args) {
+Local<Value> ObjectiveClass::addScore(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
@@ -143,7 +143,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(name);
+            ScoreboardId const& id = scoreboard.getScoreboardId(name);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
@@ -158,7 +158,7 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(*player);
+            ScoreboardId const& id = scoreboard.getScoreboardId(*player);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
@@ -167,14 +167,14 @@ Local<Value> ObjectiveClass::addScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Add);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
+Local<Value> ObjectiveClass::reduceScore(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
@@ -188,7 +188,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(name);
+            ScoreboardId const& id = scoreboard.getScoreboardId(name);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(name);
             }
@@ -203,7 +203,7 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(*player);
+            ScoreboardId const& id = scoreboard.getScoreboardId(*player);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 scoreboard.createScoreboardId(*player);
             }
@@ -212,14 +212,14 @@ Local<Value> ObjectiveClass::reduceScore(const Arguments& args) {
                 .modifyPlayerScore(isSuccess, id, *obj, args[1].asNumber().toInt32(), PlayerScoreSetFunction::Subtract);
             if (isSuccess == ScoreboardOperationResult::Success) return Number::newNumber(score);
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
+Local<Value> ObjectiveClass::deleteScore(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
@@ -229,7 +229,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(args[0].asString().toString());
+            ScoreboardId const& id = scoreboard.getScoreboardId(args[0].asString().toString());
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 return Boolean::newBoolean(true);
             }
@@ -243,7 +243,7 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             if (!obj) {
                 return Boolean::newBoolean(false);
             }
-            const ScoreboardId& id = scoreboard.getScoreboardId(*player);
+            ScoreboardId const& id = scoreboard.getScoreboardId(*player);
             if (id.mRawID == ScoreboardId::INVALID().mRawID) {
                 return Boolean::newBoolean(true);
             }
@@ -251,13 +251,13 @@ Local<Value> ObjectiveClass::deleteScore(const Arguments& args) {
             scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> ObjectiveClass::getScore(const Arguments& args) {
+Local<Value> ObjectiveClass::getScore(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
@@ -278,15 +278,15 @@ Local<Value> ObjectiveClass::getScore(const Arguments& args) {
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// APIs ////////////////////
 
-Local<Value> McClass::getDisplayObjective(const Arguments& args) {
+Local<Value> McClass::getDisplayObjective(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -297,10 +297,10 @@ Local<Value> McClass::getDisplayObjective(const Arguments& args) {
         if (!res) return Local<Value>();
         return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
+Local<Value> McClass::clearDisplayObjective(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -311,10 +311,10 @@ Local<Value> McClass::clearDisplayObjective(const Arguments& args) {
         if (!res) return Boolean::newBoolean(false);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::getScoreObjective(const Arguments& args) {
+Local<Value> McClass::getScoreObjective(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -329,10 +329,10 @@ Local<Value> McClass::getScoreObjective(const Arguments& args) {
         }
         return {};
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::newScoreObjective(const Arguments& args) {
+Local<Value> McClass::newScoreObjective(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString)
@@ -350,14 +350,13 @@ Local<Value> McClass::newScoreObjective(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::removeScoreObjective(const Arguments& args) {
+Local<Value> McClass::removeScoreObjective(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
     try {
         std::string name = args[0].asString().toString();
-        auto        obj  = ll::service::getLevel()->getScoreboard().getObjective(name);
-        if (obj) {
+        if (auto obj = ll::service::getLevel()->getScoreboard().getObjective(name)) {
             ll::service::getLevel()->getScoreboard().removeObjective(obj);
             return Boolean::newBoolean(true);
         }
@@ -366,7 +365,7 @@ Local<Value> McClass::removeScoreObjective(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::getAllScoreObjectives(const Arguments&) {
+Local<Value> McClass::getAllScoreObjectives(Arguments const&) {
     try {
         Local<Array> res = Array::newArray();
 

@@ -3,10 +3,10 @@
 
 //////////////////// APIs ////////////////////
 
-Local<Value> Log(const Arguments& args);
-Local<Value> ColorLog(const Arguments& args);
-Local<Value> FastLog(const Arguments& args);
+Local<Value> Log(Arguments const& args);
+Local<Value> ColorLog(Arguments const& args);
+Local<Value> FastLog(Arguments const& args);
 
-Local<Value> SetTimeout(const Arguments& args);
-Local<Value> SetInterval(const Arguments& args);
-Local<Value> ClearInterval(const Arguments& args);
+Local<Value> SetTimeout(Arguments const& args);
+Local<Value> SetInterval(Arguments const& args);
+Local<Value> ClearInterval(Arguments const& args);

@@ -8,14 +8,14 @@
 #include "mc/world/level/levelgen/structure/BoundingBox.h"
 #include "mc/world/level/levelgen/structure/StructureTemplate.h"
 
-Local<Value> McClass::getStructure(const Arguments& args) {
+Local<Value> McClass::getStructure(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     if (!IsInstanceOf<IntPos>(args[0])) {
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
 
     if (!IsInstanceOf<IntPos>(args[1])) {
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     auto argsSize       = args.size();
     bool ignoreBlocks   = false;
@@ -32,8 +32,7 @@ Local<Value> McClass::getStructure(const Arguments& args) {
         IntPos* pos1 = IntPos::extractPos(args[0]);
         IntPos* pos2 = IntPos::extractPos(args[1]);
         if (pos1->getDimensionId() != pos2->getDimensionId()) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Pos should in the same dimension!");
-            return Local<Value>();
+            throw CreateExceptionWithInfo(__FUNCTION__, "Pos should in the same dimension!");
         }
 
         auto structure = StructureTemplate::create(
@@ -46,17 +45,17 @@ Local<Value> McClass::getStructure(const Arguments& args) {
 
         return NbtCompoundClass::pack(structure->save());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::setStructure(const Arguments& args) {
+Local<Value> McClass::setStructure(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     auto nbt = NbtCompoundClass::extract(args[0]);
     if (!nbt) {
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     if (!IsInstanceOf<IntPos>(args[1])) {
-        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+        throw WrongArgTypeException(__FUNCTION__);
     }
     auto     argsSize = args.size();
     Mirror   mirror   = Mirror::None;
@@ -88,5 +87,5 @@ Local<Value> McClass::setStructure(const Arguments& args) {
         );
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

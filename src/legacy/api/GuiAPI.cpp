@@ -41,7 +41,7 @@ ClassDefine<CustomFormClass> CustomFormClassBuilder =
 
 //////////////////// Simple Form ////////////////////
 
-SimpleFormClass::SimpleFormClass() : ScriptClass(ScriptClass::ConstructFromCpp<SimpleFormClass>{}), form("", "") {}
+SimpleFormClass::SimpleFormClass() : ScriptClass(ConstructFromCpp<SimpleFormClass>{}), form("", "") {}
 
 // 生成函数
 Local<Object> SimpleFormClass::newForm() {
@@ -49,20 +49,20 @@ Local<Object> SimpleFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> v) {
+ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<SimpleFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<SimpleFormClass>(v)->get();
     else return nullptr;
 }
 
 void SimpleFormClass::sendForm(
-    ll::form::SimpleForm*    form,
-    Player*                  player,
-    script::Local<Function>& callback,
-    bool                     update
+    ll::form::SimpleForm*  form,
+    Player*                player,
+    Local<Function> const& callback,
+    bool                   update
 ) {
-    script::Global<Function> callbackFunc{callback};
-    auto                     cb = [engine{EngineScope::currentEngine()},
+    script::Global callbackFunc{callback};
+    auto           cb = [engine{EngineScope::currentEngine()},
                callback{std::move(callbackFunc)}](Player& pl, int chosen, FormCancelReason reason) {
         if ((ll::getGamingStatus() != ll::GamingStatus::Running)) return;
         if (!EngineManager::isValid(engine)) return;
@@ -74,7 +74,7 @@ void SimpleFormClass::sendForm(
                 {},
                 PlayerClass::newPlayer(&pl),
                 chosen >= 0 ? Number::newNumber(chosen) : Local<Value>(),
-                reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>()
+                reason.has_value() ? Number::newNumber(static_cast<uchar>(reason.value())) : Local<Value>()
             );
         }
         CATCH_IN_CALLBACK("sendForm")
@@ -84,7 +84,7 @@ void SimpleFormClass::sendForm(
 }
 
 // 成员函数
-Local<Value> SimpleFormClass::setTitle(const Arguments& args) {
+Local<Value> SimpleFormClass::setTitle(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -95,7 +95,7 @@ Local<Value> SimpleFormClass::setTitle(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SimpleFormClass::setContent(const Arguments& args) {
+Local<Value> SimpleFormClass::setContent(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -106,7 +106,7 @@ Local<Value> SimpleFormClass::setContent(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SimpleFormClass::addButton(const Arguments& args) {
+Local<Value> SimpleFormClass::addButton(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -120,7 +120,7 @@ Local<Value> SimpleFormClass::addButton(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SimpleFormClass::addHeader(const Arguments& args) {
+Local<Value> SimpleFormClass::addHeader(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -131,7 +131,7 @@ Local<Value> SimpleFormClass::addHeader(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
+Local<Value> SimpleFormClass::addLabel(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -142,7 +142,7 @@ Local<Value> SimpleFormClass::addLabel(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
+Local<Value> SimpleFormClass::addDivider(Arguments const& args) {
     try {
         form.appendDivider();
         return this->getScriptObject();
@@ -152,7 +152,7 @@ Local<Value> SimpleFormClass::addDivider(const Arguments& args) {
 
 //////////////////// Custom Form ////////////////////
 
-CustomFormClass::CustomFormClass() : ScriptClass(ScriptClass::ConstructFromCpp<CustomFormClass>{}), form() {}
+CustomFormClass::CustomFormClass() : ScriptClass(ConstructFromCpp<CustomFormClass>{}), form() {}
 
 // 生成函数
 Local<Object> CustomFormClass::newForm() {
@@ -160,7 +160,7 @@ Local<Object> CustomFormClass::newForm() {
     return newp->getScriptObject();
 }
 
-lse::form::RawCustomForm* CustomFormClass::extract(Local<Value> v) {
+lse::form::RawCustomForm* CustomFormClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<CustomFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<CustomFormClass>(v)->get();
     else return nullptr;
@@ -170,7 +170,7 @@ lse::form::RawCustomForm* CustomFormClass::extract(Local<Value> v) {
 void CustomFormClass::sendForm(
     lse::form::RawCustomForm* form,
     Player*                   player,
-    script::Local<Function>&  callback,
+    Local<Function> const&    callback,
     bool                      update
 ) {
     script::Global<Function> callbackFunc{callback};
@@ -185,11 +185,11 @@ void CustomFormClass::sendForm(
         EngineScope  scope(engine);
         Local<Value> result;
         if (data) {
-            auto dataJson = nlohmann::ordered_json::parse(*data);
+            auto dataJson = ordered_json::parse(*data);
             result        = JsonToValue(dataJson);
             if (result.isNull()) result = Array::newArray();
         }
-        auto reasonVal = reason.has_value() ? Number::newNumber((uchar)reason.value()) : Local<Value>();
+        auto reasonVal = reason.has_value() ? Number::newNumber(static_cast<uchar>(reason.value())) : Local<Value>();
         try {
             callback.get().call({}, PlayerClass::newPlayer(&player), result, reasonVal);
         }
@@ -199,7 +199,7 @@ void CustomFormClass::sendForm(
     else form->sendRawTo(*player, std::move(cb));
 }
 
-Local<Value> CustomFormClass::setTitle(const Arguments& args) {
+Local<Value> CustomFormClass::setTitle(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
@@ -210,7 +210,7 @@ Local<Value> CustomFormClass::setTitle(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::setSubmitButton(const Arguments& args) {
+Local<Value> CustomFormClass::setSubmitButton(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
@@ -221,7 +221,7 @@ Local<Value> CustomFormClass::setSubmitButton(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addHeader(const Arguments& args) {
+Local<Value> CustomFormClass::addHeader(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
@@ -232,7 +232,7 @@ Local<Value> CustomFormClass::addHeader(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addLabel(const Arguments& args) {
+Local<Value> CustomFormClass::addLabel(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
 
@@ -243,7 +243,7 @@ Local<Value> CustomFormClass::addLabel(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addDivider(const Arguments& args) {
+Local<Value> CustomFormClass::addDivider(Arguments const& args) {
     try {
         form.appendDivider();
         return this->getScriptObject();
@@ -251,7 +251,7 @@ Local<Value> CustomFormClass::addDivider(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addInput(const Arguments& args) {
+Local<Value> CustomFormClass::addInput(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -269,12 +269,12 @@ Local<Value> CustomFormClass::addInput(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
+Local<Value> CustomFormClass::addSwitch(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     if (args.size() >= 2) {
         if (!args[1].isBoolean() && !args[1].isNumber()) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
     }
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString);
@@ -290,7 +290,7 @@ Local<Value> CustomFormClass::addSwitch(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
+Local<Value> CustomFormClass::addDropdown(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
@@ -314,7 +314,7 @@ Local<Value> CustomFormClass::addDropdown(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addSlider(const Arguments& args) {
+Local<Value> CustomFormClass::addSlider(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -339,7 +339,7 @@ Local<Value> CustomFormClass::addSlider(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
+Local<Value> CustomFormClass::addStepSlider(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2)
     CHECK_ARG_TYPE(args[0], ValueKind::kString)
     CHECK_ARG_TYPE(args[1], ValueKind::kArray);
@@ -363,6 +363,6 @@ Local<Value> CustomFormClass::addStepSlider(const Arguments& args) {
 
 //////////////////// APIs ////////////////////
 
-Local<Value> McClass::newSimpleForm(const Arguments&) { return SimpleFormClass::newForm(); }
+Local<Value> McClass::newSimpleForm(Arguments const&) { return SimpleFormClass::newForm(); }
 
-Local<Value> McClass::newCustomForm(const Arguments&) { return CustomFormClass::newForm(); }
+Local<Value> McClass::newCustomForm(Arguments const&) { return CustomFormClass::newForm(); }

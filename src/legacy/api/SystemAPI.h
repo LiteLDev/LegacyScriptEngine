@@ -5,11 +5,11 @@
 
 class SystemClass {
 public:
-    static Local<Value> getTimeStr(const Arguments& args);
-    static Local<Value> getTimeObj(const Arguments& args);
-    static Local<Value> randomGuid(const Arguments& args);
+    static Local<Value> getTimeStr(Arguments const& args);
+    static Local<Value> getTimeObj(Arguments const& args);
+    static Local<Value> randomGuid(Arguments const& args);
 
-    static Local<Value> cmd(const Arguments& args);
-    static Local<Value> newProcess(const Arguments& args);
+    static Local<Value> cmd(Arguments const& args);
+    static Local<Value> newProcess(Arguments const& args);
 };
-extern ClassDefine<void> SystemClassBuilder;
+extern ClassDefine<> SystemClassBuilder;

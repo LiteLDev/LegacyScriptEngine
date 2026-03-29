@@ -5,9 +5,7 @@
 #include "main/Global.h"
 #include "mc/common/Common.h"
 #include "mc/common/SharedConstants.h"
-#include "mc/world/Facing.h"
 
-#include <cmath>
 #include <mc/world/actor/ActorDamageSource.h>
 #include <mc/world/level/BlockSource.h>
 
@@ -55,7 +53,7 @@ ClassDefine<DirectionAngle> DirectionAngleBuilder =
 
 //////////////////// IntPos ////////////////////
 
-IntPos* IntPos::create(const Arguments& args) {
+IntPos* IntPos::create(Arguments const& args) {
     if (args.size() < 3) return nullptr;
     try {
         IntPos* p = new IntPos(args.thiz());
@@ -73,34 +71,34 @@ Local<Object> IntPos::newPos(int x, int y, int z, int dim) {
     return EngineScope::currentEngine()->newNativeClass<IntPos>(x, y, z, dim);
 }
 
-Local<Object> IntPos::newPos(const BlockPos& b, int dim) { return IntPos::newPos(b.x, b.y, b.z, dim); }
+Local<Object> IntPos::newPos(BlockPos const& b, int dim) { return IntPos::newPos(b.x, b.y, b.z, dim); }
 
-Local<Object> IntPos::newPos(const IntVec4& v) { return IntPos::newPos(v.x, v.y, v.z, v.dim); }
+Local<Object> IntPos::newPos(IntVec4 const& v) { return IntPos::newPos(v.x, v.y, v.z, v.dim); }
 
-Local<Object> IntPos::newPos(const BlockPos* b, int dim) { return IntPos::newPos(b->x, b->y, b->z, dim); }
+Local<Object> IntPos::newPos(BlockPos const* b, int dim) { return IntPos::newPos(b->x, b->y, b->z, dim); }
 
-Local<Object> IntPos::newPos(const BlockPos* b, BlockSource* bs) {
-    return IntPos::newPos(b->x, b->y, b->z, (int)bs->getDimensionId());
+Local<Object> IntPos::newPos(BlockPos const* b, BlockSource const* bs) {
+    return IntPos::newPos(b->x, b->y, b->z, bs->getDimensionId());
 }
 
-IntPos* IntPos::extractPos(Local<Value> v) {
+IntPos* IntPos::extractPos(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<IntPos>(v))
         return EngineScope::currentEngine()->getNativeInstance<IntPos>(v);
     else return nullptr;
 }
 
-Local<Value> IntPos::getDim() { return String::newString(DimId2Name(dim)); }
+Local<Value> IntPos::getDim() const { return String::newString(DimId2Name(dim)); }
 
 Local<Value> IntPos::toString() {
     try {
         return String::newString(fmt::format("{}({}, {}, {})", DimId2Name(dim), x, y, z));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// FloatPos ////////////////////
 
-FloatPos* FloatPos::create(const Arguments& args) {
+FloatPos* FloatPos::create(Arguments const& args) {
     if (args.size() < 3) return nullptr;
     try {
         FloatPos* p = new FloatPos(args.thiz());
@@ -118,17 +116,17 @@ Local<Object> FloatPos::newPos(double x, double y, double z, int dim) {
     return EngineScope::currentEngine()->newNativeClass<FloatPos>(x, y, z, dim);
 }
 
-Local<Object> FloatPos::newPos(const Vec3& v, int dim) { return FloatPos::newPos(v.x, v.y, v.z, dim); }
+Local<Object> FloatPos::newPos(Vec3 const& v, int dim) { return FloatPos::newPos(v.x, v.y, v.z, dim); }
 
-Local<Object> FloatPos::newPos(const FloatVec4& v) { return FloatPos::newPos(v.x, v.y, v.z, v.dim); }
+Local<Object> FloatPos::newPos(FloatVec4 const& v) { return FloatPos::newPos(v.x, v.y, v.z, v.dim); }
 
-FloatPos* FloatPos::extractPos(Local<Value> v) {
+FloatPos* FloatPos::extractPos(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<FloatPos>(v))
         return EngineScope::currentEngine()->getNativeInstance<FloatPos>(v);
     else return nullptr;
 }
 
-Local<Value> FloatPos::getDim() {
+Local<Value> FloatPos::getDim() const {
     std::string name;
     switch (dim) {
     case 0:
@@ -151,12 +149,12 @@ Local<Value> FloatPos::toString() {
     try {
         return String::newString(fmt::format("{}({}, {}, {})", DimId2Name(dim), x, y, z));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 //////////////////// DirectionAngle ////////////////////
 
-DirectionAngle* DirectionAngle::create(const Arguments& args) {
+DirectionAngle* DirectionAngle::create(Arguments const& args) {
     if (args.size() < 2) return nullptr;
     try {
         DirectionAngle* pa = new DirectionAngle(args.thiz());
@@ -168,7 +166,7 @@ DirectionAngle* DirectionAngle::create(const Arguments& args) {
     }
 }
 
-DirectionAngle* DirectionAngle::extract(Local<Value> v) {
+DirectionAngle* DirectionAngle::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<DirectionAngle>(v))
         return EngineScope::currentEngine()->getNativeInstance<DirectionAngle>(v);
     else return nullptr;
@@ -178,19 +176,17 @@ Local<Value> DirectionAngle::toString() {
     try {
         return String::newString(fmt::format("({}, {})", pitch, yaw));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> DirectionAngle::toFacing() {
-    int facing = -1;
+Local<Value> DirectionAngle::toFacing() const {
     // Facing::convertYRotationToFacingDirection
     float value  = yaw * 0.011111111f + 0.5f;
     int   result = static_cast<int>(value) - 1;
     if (static_cast<float>(static_cast<int>(value)) <= value) {
         result = static_cast<int>(value);
     }
-    facing = (result + 2) % 4;
-    return Number::newNumber(facing);
+    return Number::newNumber((result + 2) % 4);
 }
 
 Local<Object> DirectionAngle::newAngle(float pitch, float yaw) {
@@ -199,7 +195,7 @@ Local<Object> DirectionAngle::newAngle(float pitch, float yaw) {
 
 //////////////////// APIs ////////////////////
 
-Local<Value> McClass::newIntPos(const Arguments& args) {
+Local<Value> McClass::newIntPos(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 4)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
@@ -217,7 +213,7 @@ Local<Value> McClass::newIntPos(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::newFloatPos(const Arguments& args) {
+Local<Value> McClass::newFloatPos(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 4)
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
@@ -235,14 +231,14 @@ Local<Value> McClass::newFloatPos(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::getBDSVersion(const Arguments&) {
+Local<Value> McClass::getBDSVersion(Arguments const&) {
     try {
         return String::newString(Common::getGameVersionString());
     }
     CATCH_AND_THROW
 }
 
-Local<Value> McClass::getServerProtocolVersion(const Arguments&) {
+Local<Value> McClass::getServerProtocolVersion(Arguments const&) {
     try {
         return Number::newNumber(SharedConstants::NetworkProtocolVersion());
     }

@@ -11,15 +11,15 @@ public:
     explicit ObjectiveClass(Objective* obj) : ScriptClass(ScriptClass::ConstructFromCpp<ObjectiveClass>{}) { set(obj); }
 
     void                 set(Objective* obj);
-    Objective*           get();
+    Objective*           get() const;
     static Local<Object> newObjective(Objective* obj);
-    Local<Value>         getName();
-    Local<Value>         getDisplayName();
-    Local<Value>         setDisplay(const Arguments& args);
-    Local<Value>         setScore(const Arguments& args);
-    Local<Value>         addScore(const Arguments& args);
-    Local<Value>         reduceScore(const Arguments& args);
-    Local<Value>         deleteScore(const Arguments& args);
-    Local<Value>         getScore(const Arguments& args);
+    Local<Value>         getName() const;
+    Local<Value>         getDisplayName() const;
+    Local<Value>         setDisplay(Arguments const& args) const;
+    Local<Value>         setScore(Arguments const& args) const;
+    Local<Value>         addScore(Arguments const& args) const;
+    Local<Value>         reduceScore(Arguments const& args) const;
+    Local<Value>         deleteScore(Arguments const& args) const;
+    Local<Value>         getScore(Arguments const& args) const;
 };
 extern ClassDefine<ObjectiveClass> ObjectiveClassBuilder;

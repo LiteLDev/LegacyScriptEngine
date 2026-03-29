@@ -158,7 +158,7 @@ ClassDefine<EntityClass> EntityClassBuilder =
 
 //////////////////// Classes ////////////////////
 
-EntityClass::EntityClass(Actor* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) {
+EntityClass::EntityClass(Actor const* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) {
     try {
         if (actor) {
             mWeakEntity = actor->getWeakEntity();
@@ -168,25 +168,25 @@ EntityClass::EntityClass(Actor* actor) : ScriptClass(ScriptClass::ConstructFromC
 }
 
 // 生成函数
-Local<Object> EntityClass::newEntity(Actor* actor) {
-    auto newp = new EntityClass(actor);
+Local<Object> EntityClass::newEntity(Actor const* actor) {
+    auto const newp = new EntityClass(actor);
     return newp->getScriptObject();
 }
 
-Actor* EntityClass::extract(Local<Value> v) {
+Actor* EntityClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<EntityClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<EntityClass>(v)->get();
     else return nullptr;
 }
 
-Actor* EntityClass::tryExtractActor(Local<Value> v) {
+Actor* EntityClass::tryExtractActor(Local<Value> const& v) {
     if (IsInstanceOf<EntityClass>(v)) return EntityClass::extract(v);
     if (IsInstanceOf<PlayerClass>(v)) return PlayerClass::extract(v);
     return nullptr;
 }
 
 // 成员函数
-Actor* EntityClass::get() {
+Actor* EntityClass::get() const {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Actor>().as_ptr();
     } else {
@@ -194,27 +194,27 @@ Actor* EntityClass::get() {
     }
 }
 
-Local<Value> EntityClass::getUniqueID() {
+Local<Value> EntityClass::getUniqueID() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
         else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getRuntimeID() {
+Local<Value> EntityClass::getRuntimeID() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
         else return String::newString(std::to_string(entity->getRuntimeID().rawID));
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isInvisible() {
+Local<Value> EntityClass::isInvisible() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInvisible());
@@ -222,13 +222,12 @@ Local<Value> EntityClass::isInvisible() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isInsidePortal() {
+Local<Value> EntityClass::isInsidePortal() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        auto component = entity->getEntityContext().tryGetComponent<InsideBlockComponent>();
-        if (component) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<InsideBlockComponent>()) {
             auto& fullName = component->mInsideBlock->getBlockType().mNameInfo->mFullName;
             return Boolean::newBoolean(
                 *fullName == VanillaBlockTypeIds::Portal() || *fullName == VanillaBlockTypeIds::EndPortal()
@@ -239,7 +238,7 @@ Local<Value> EntityClass::isInsidePortal() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isTrusting() {
+Local<Value> EntityClass::isTrusting() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -251,9 +250,9 @@ Local<Value> EntityClass::isTrusting() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isTouchingDamageBlock() {
+Local<Value> EntityClass::isTouchingDamageBlock() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isTouchingDamageBlock());
@@ -261,9 +260,9 @@ Local<Value> EntityClass::isTouchingDamageBlock() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isOnFire() {
+Local<Value> EntityClass::isOnFire() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isOnFire());
@@ -271,9 +270,9 @@ Local<Value> EntityClass::isOnFire() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isOnGround() {
+Local<Value> EntityClass::isOnGround() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isOnGround());
@@ -281,7 +280,7 @@ Local<Value> EntityClass::isOnGround() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isOnHotBlock() {
+Local<Value> EntityClass::isOnHotBlock() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -291,9 +290,9 @@ Local<Value> EntityClass::isOnHotBlock() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isTrading() {
+Local<Value> EntityClass::isTrading() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isTrading());
@@ -301,9 +300,9 @@ Local<Value> EntityClass::isTrading() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isRiding() {
+Local<Value> EntityClass::isRiding() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isRiding());
@@ -311,7 +310,7 @@ Local<Value> EntityClass::isRiding() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isDancing() {
+Local<Value> EntityClass::isDancing() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -323,9 +322,9 @@ Local<Value> EntityClass::isDancing() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isSleeping() {
+Local<Value> EntityClass::isSleeping() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isSleeping());
@@ -333,7 +332,7 @@ Local<Value> EntityClass::isSleeping() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isAngry() {
+Local<Value> EntityClass::isAngry() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -343,9 +342,9 @@ Local<Value> EntityClass::isAngry() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isBaby() {
+Local<Value> EntityClass::isBaby() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isBaby());
@@ -353,7 +352,7 @@ Local<Value> EntityClass::isBaby() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isMoving() {
+Local<Value> EntityClass::isMoving() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -365,9 +364,9 @@ Local<Value> EntityClass::isMoving() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getName() {
+Local<Value> EntityClass::getName() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return String::newString(CommandUtils::getActorName(*entity));
@@ -375,9 +374,9 @@ Local<Value> EntityClass::getName() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getType() {
+Local<Value> EntityClass::getType() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return String::newString(entity->getTypeName());
@@ -385,9 +384,9 @@ Local<Value> EntityClass::getType() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getId() {
+Local<Value> EntityClass::getId() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Number::newNumber(enum_integer(entity->getEntityTypeId()));
@@ -395,9 +394,9 @@ Local<Value> EntityClass::getId() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getPos() {
+Local<Value> EntityClass::getPos() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return FloatPos::newPos(entity->getPosition(), entity->getDimensionId().id);
@@ -405,9 +404,9 @@ Local<Value> EntityClass::getPos() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getPosDelta() {
+Local<Value> EntityClass::getPosDelta() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId().id);
@@ -415,7 +414,7 @@ Local<Value> EntityClass::getPosDelta() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setPosDelta(const Arguments& args) {
+Local<Value> EntityClass::setPosDelta(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
@@ -424,7 +423,7 @@ Local<Value> EntityClass::setPosDelta(const Arguments& args) {
         Vec3 delta;
         if (args.size() == 1) {
             if (!IsInstanceOf<FloatPos>(args[0])) {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
             delta = EngineScope::currentEngine()->getNativeInstance<FloatPos>(args[0])->getVec3();
         } else if (args.size() == 3) {
@@ -443,9 +442,9 @@ Local<Value> EntityClass::setPosDelta(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getFeetPos() {
+Local<Value> EntityClass::getFeetPos() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId().id);
@@ -453,9 +452,9 @@ Local<Value> EntityClass::getFeetPos() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getBlockPos() {
+Local<Value> EntityClass::getBlockPos() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId().id);
@@ -463,9 +462,9 @@ Local<Value> EntityClass::getBlockPos() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getMaxHealth() {
+Local<Value> EntityClass::getMaxHealth() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Number::newNumber(entity->getMaxHealth());
@@ -473,9 +472,9 @@ Local<Value> EntityClass::getMaxHealth() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getHealth() {
+Local<Value> EntityClass::getHealth() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Number::newNumber(entity->getHealth());
@@ -483,9 +482,9 @@ Local<Value> EntityClass::getHealth() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getCanFly() {
+Local<Value> EntityClass::getCanFly() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->canFly());
@@ -493,9 +492,9 @@ Local<Value> EntityClass::getCanFly() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getCanFreeze() {
+Local<Value> EntityClass::getCanFreeze() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->canFreeze());
@@ -503,9 +502,9 @@ Local<Value> EntityClass::getCanFreeze() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getCanSeeDaylight() {
+Local<Value> EntityClass::getCanSeeDaylight() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->canSeeDaylight());
@@ -513,9 +512,9 @@ Local<Value> EntityClass::getCanSeeDaylight() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getCanPickupItems() {
+Local<Value> EntityClass::getCanPickupItems() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->mCanPickupItems);
@@ -523,9 +522,9 @@ Local<Value> EntityClass::getCanPickupItems() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInAir() {
+Local<Value> EntityClass::getInAir() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(!entity->isOnGround() && !entity->isInWater());
@@ -533,9 +532,9 @@ Local<Value> EntityClass::getInAir() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInWater() {
+Local<Value> EntityClass::getInWater() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInWater());
@@ -543,19 +542,19 @@ Local<Value> EntityClass::getInWater() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInClouds() {
+Local<Value> EntityClass::getInClouds() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
-        float cloudHeight = entity->getDimension().getCloudHeight();
-        float y           = entity->getPosition().y;
+        float const cloudHeight = entity->getDimension().getCloudHeight();
+        float const y           = entity->getPosition().y;
         return Boolean::newBoolean(y > cloudHeight && y < cloudHeight + 4.0f);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInLava() {
+Local<Value> EntityClass::getInLava() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -567,9 +566,9 @@ Local<Value> EntityClass::getInLava() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInRain() {
+Local<Value> EntityClass::getInRain() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInRain());
@@ -577,9 +576,9 @@ Local<Value> EntityClass::getInRain() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInSnow() {
+Local<Value> EntityClass::getInSnow() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInSnow());
@@ -587,9 +586,9 @@ Local<Value> EntityClass::getInSnow() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInWall() {
+Local<Value> EntityClass::getInWall() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         // The original Actor::isInWall() was moved to MobSuffocationSystemImpl::isInWall() in 1.21.60.10, but the later
@@ -601,9 +600,9 @@ Local<Value> EntityClass::getInWall() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInWaterOrRain() {
+Local<Value> EntityClass::getInWaterOrRain() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInWaterOrRain());
@@ -611,9 +610,9 @@ Local<Value> EntityClass::getInWaterOrRain() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getInWorld() {
+Local<Value> EntityClass::getInWorld() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isInWorld());
@@ -621,9 +620,9 @@ Local<Value> EntityClass::getInWorld() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getSpeed() {
+Local<Value> EntityClass::getSpeed() const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Number::newNumber(entity->getPosDeltaPerSecLength());
@@ -631,19 +630,19 @@ Local<Value> EntityClass::getSpeed() {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getDirection() {
+Local<Value> EntityClass::getDirection() const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
         // getRotation()
-        Vec2 vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::teleport(const Arguments& args) {
+Local<Value> EntityClass::teleport(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1)
 
     try {
@@ -656,26 +655,26 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
         if (args.size() <= 2) {
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[0]);
+                IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[0]);
+                FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
             if (args.size() == 2 && IsInstanceOf<DirectionAngle>(args[1])) {
-                auto angle      = DirectionAngle::extract(args[1]);
-                ang.x           = angle->pitch;
-                ang.y           = angle->yaw;
-                rotationIsValid = true;
+                auto const angle = DirectionAngle::extract(args[1]);
+                ang.x            = angle->pitch;
+                ang.y            = angle->yaw;
+                rotationIsValid  = true;
             }
         } else if (args.size() <= 5) { // teleport(x,y,z,dimid[,rot])
             // number pos
@@ -689,13 +688,13 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
             if (args.size() == 5 && IsInstanceOf<DirectionAngle>(args[4])) {
-                auto angle      = DirectionAngle::extract(args[4]);
-                ang.x           = angle->pitch;
-                ang.y           = angle->yaw;
-                rotationIsValid = true;
+                auto const angle = DirectionAngle::extract(args[4]);
+                ang.x            = angle->pitch;
+                ang.y            = angle->yaw;
+                rotationIsValid  = true;
             }
         } else {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
         if (!rotationIsValid) {
             // getRotation()
@@ -707,44 +706,44 @@ Local<Value> EntityClass::teleport(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::distanceTo(const Arguments& args) {
+Local<Value> EntityClass::distanceTo(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         FloatVec4 pos{};
 
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
 
         if (args.size() == 1) { // pos | player | entity
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[0]);
+                IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[0]);
+                FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
+                Actor const* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
-                Vec3 targetActorPos = targetActor->getPosition();
+                Vec3 const targetActorPos = targetActor->getPosition();
 
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
         } else if (args.size() == 4) { // x, y, z, dimId
             // number pos
@@ -758,7 +757,7 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
+            throw WrongArgsCountException(__FUNCTION__);
         }
 
         if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
@@ -768,44 +767,44 @@ Local<Value> EntityClass::distanceTo(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
+Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
 
     try {
         FloatVec4 pos;
 
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
 
         if (args.size() == 1) {
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[0]);
+                IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[0]);
+                FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Local<Value>();
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
-                Actor* targetActor = EntityClass::tryExtractActor(args[0]);
+                Actor const* targetActor = EntityClass::tryExtractActor(args[0]);
                 if (!targetActor) return Local<Value>();
 
-                Vec3 targetActorPos = targetActor->getPosition();
+                Vec3 const targetActorPos = targetActor->getPosition();
 
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
                 pos.dim = targetActor->getDimensionId().id;
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
         } else if (args.size() == 4) {
             // number pos
@@ -819,7 +818,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
             pos.z   = args[2].asNumber().toFloat();
             pos.dim = args[3].asNumber().toInt32();
         } else {
-            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
+            throw WrongArgsCountException(__FUNCTION__);
         }
 
         if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
@@ -829,7 +828,7 @@ Local<Value> EntityClass::distanceToSqr(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::kill(const Arguments&) {
+Local<Value> EntityClass::kill(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -840,7 +839,7 @@ Local<Value> EntityClass::kill(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::despawn(const Arguments&) {
+Local<Value> EntityClass::despawn(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -851,7 +850,7 @@ Local<Value> EntityClass::despawn(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::remove(const Arguments&) {
+Local<Value> EntityClass::remove(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -862,9 +861,9 @@ Local<Value> EntityClass::remove(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isPlayer(const Arguments&) {
+Local<Value> EntityClass::isPlayer(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->isType(ActorType::Player));
@@ -872,19 +871,19 @@ Local<Value> EntityClass::isPlayer(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::toPlayer(const Arguments&) {
+Local<Value> EntityClass::toPlayer(Arguments const&) const {
     try {
-        if (auto player = mWeakEntity.tryUnwrap<Player>()) {
+        if (auto const player = mWeakEntity.tryUnwrap<Player>()) {
             return PlayerClass::newPlayer(player);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::isItemEntity(const Arguments&) {
+Local<Value> EntityClass::isItemEntity(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->hasCategory(ActorCategory::Item));
@@ -892,7 +891,7 @@ Local<Value> EntityClass::isItemEntity(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::toItem(const Arguments&) {
+Local<Value> EntityClass::toItem(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
@@ -901,30 +900,30 @@ Local<Value> EntityClass::toItem(const Arguments&) {
             return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getBlockStandingOn(const Arguments&) {
+Local<Value> EntityClass::getBlockStandingOn(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId().id);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getArmor(const Arguments&) {
+Local<Value> EntityClass::getArmor(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
         return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(entity->getEntityContext()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::refreshItems(const Arguments&) {
+Local<Value> EntityClass::refreshItems(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -932,33 +931,33 @@ Local<Value> EntityClass::refreshItems(const Arguments&) {
         static_cast<Mob*>(entity)->refreshInventory();
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::hasContainer(const Arguments&) {
+Local<Value> EntityClass::hasContainer(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
-        Vec3 pos = entity->getPosition();
+        Vec3 const pos = entity->getPosition();
         return Boolean::newBoolean(entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos)) ? true : false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getContainer(const Arguments&) {
+Local<Value> EntityClass::getContainer(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
-        Vec3       pos       = entity->getPosition();
+        Vec3 const pos       = entity->getPosition();
         Container* container = entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos));
         return container ? ContainerClass::newContainer(container) : Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::hurt(const Arguments& args) {
+Local<Value> EntityClass::hurt(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -966,29 +965,29 @@ Local<Value> EntityClass::hurt(const Arguments& args) {
         if (!entity) {
             return Boolean::newBoolean(false);
         }
-        float damage = args[0].asNumber().toFloat();
-        int   type   = 0;
+        float const damage = args[0].asNumber().toFloat();
+        int         type   = 0;
         if (args.size() >= 2) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            Actor* source = EntityClass::tryExtractActor(args[2]);
+            Actor const* source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource damageBySource =
-                ActorDamageByActorSource(*source, (SharedTypes::Legacy::ActorDamageCause)type);
+            ActorDamageByActorSource const damageBySource =
+                ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
             return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
         ActorDamageSource damageSource;
-        damageSource.mCause = (SharedTypes::Legacy::ActorDamageCause)type;
+        damageSource.mCause = static_cast<SharedTypes::Legacy::ActorDamageCause>(type);
         return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::heal(const Arguments& args) {
+Local<Value> EntityClass::heal(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -998,10 +997,10 @@ Local<Value> EntityClass::heal(const Arguments& args) {
         entity->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setHealth(const Arguments& args) {
+Local<Value> EntityClass::setHealth(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1009,7 +1008,7 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1020,10 +1019,10 @@ Local<Value> EntityClass::setHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setAbsorption(const Arguments& args) {
+Local<Value> EntityClass::setAbsorption(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1031,7 +1030,7 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1042,10 +1041,10 @@ Local<Value> EntityClass::setAbsorption(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
+Local<Value> EntityClass::setAttackDamage(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1053,7 +1052,7 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1064,10 +1063,10 @@ Local<Value> EntityClass::setAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
+Local<Value> EntityClass::setMaxAttackDamage(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1075,7 +1074,7 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setMaxValue(
                     component->mAttributes,
@@ -1086,10 +1085,10 @@ Local<Value> EntityClass::setMaxAttackDamage(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setFollowRange(const Arguments& args) {
+Local<Value> EntityClass::setFollowRange(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1097,7 +1096,7 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1108,10 +1107,10 @@ Local<Value> EntityClass::setFollowRange(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
+Local<Value> EntityClass::setKnockbackResistance(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1119,7 +1118,7 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1130,10 +1129,10 @@ Local<Value> EntityClass::setKnockbackResistance(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setLuck(const Arguments& args) {
+Local<Value> EntityClass::setLuck(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1141,7 +1140,7 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1152,10 +1151,10 @@ Local<Value> EntityClass::setLuck(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
+Local<Value> EntityClass::setMovementSpeed(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1163,7 +1162,7 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1174,10 +1173,10 @@ Local<Value> EntityClass::setMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
+Local<Value> EntityClass::setUnderwaterMovementSpeed(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1185,7 +1184,7 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1196,10 +1195,10 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
+Local<Value> EntityClass::setLavaMovementSpeed(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1207,7 +1206,7 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setCurrentValue(
                     component->mAttributes,
@@ -1218,10 +1217,10 @@ Local<Value> EntityClass::setLavaMovementSpeed(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
+Local<Value> EntityClass::setMaxHealth(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1229,7 +1228,7 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        if (auto component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
+        if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
                 AttributeHelper::setMaxValue(
                     component->mAttributes,
@@ -1240,11 +1239,11 @@ Local<Value> EntityClass::setMaxHealth(const Arguments& args) {
         }
         return Boolean::newBoolean(false);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
 // For Compatibility
-Local<Value> EntityClass::setOnFire(const Arguments& args) {
+Local<Value> EntityClass::setOnFire(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1252,14 +1251,14 @@ Local<Value> EntityClass::setOnFire(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        int time = args[0].asNumber().toInt32();
+        int const time = args[0].asNumber().toInt32();
         entity->setOnFire(time, true);
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setFire(const Arguments& args) {
+Local<Value> EntityClass::setFire(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
@@ -1268,8 +1267,8 @@ Local<Value> EntityClass::setFire(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        int  time     = args[0].asNumber().toInt32();
-        bool isEffect = args[1].asBoolean().value();
+        int const  time     = args[0].asNumber().toInt32();
+        bool const isEffect = args[1].asBoolean().value();
 
         entity->setOnFire(time, isEffect);
         return Boolean::newBoolean(true);
@@ -1277,7 +1276,7 @@ Local<Value> EntityClass::setFire(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::stopFire(const Arguments&) {
+Local<Value> EntityClass::stopFire(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
@@ -1288,7 +1287,7 @@ Local<Value> EntityClass::stopFire(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setScale(const Arguments& args) {
+Local<Value> EntityClass::setScale(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1302,9 +1301,9 @@ Local<Value> EntityClass::setScale(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getNbt(const Arguments&) {
+Local<Value> EntityClass::getNbt(Arguments const&) const {
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         std::unique_ptr<CompoundTag> tag = std::make_unique<CompoundTag>();
@@ -1314,7 +1313,7 @@ Local<Value> EntityClass::getNbt(const Arguments&) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::setNbt(const Arguments& args) {
+Local<Value> EntityClass::setNbt(Arguments const& args) const {
     using namespace lse::api;
     CHECK_ARGS_COUNT(args, 1);
 
@@ -1322,7 +1321,7 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        auto nbt = NbtCompoundClass::extract(args[0]);
+        auto const nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
             return Local<Value>();
         }
@@ -1332,7 +1331,7 @@ Local<Value> EntityClass::setNbt(const Arguments& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::addTag(const Arguments& args) {
+Local<Value> EntityClass::addTag(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -1342,10 +1341,10 @@ Local<Value> EntityClass::addTag(const Arguments& args) {
 
         return Boolean::newBoolean(entity->addTag(args[0].asString().toString()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::removeTag(const Arguments& args) {
+Local<Value> EntityClass::removeTag(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -1355,30 +1354,30 @@ Local<Value> EntityClass::removeTag(const Arguments& args) {
 
         return Boolean::newBoolean(entity->removeTag(args[0].asString().toString()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::hasTag(const Arguments& args) {
+Local<Value> EntityClass::hasTag(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        Actor* entity = get();
+        Actor const* entity = get();
         if (!entity) return Local<Value>();
 
         return Boolean::newBoolean(entity->hasTag(args[0].asString().toString()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getAllTags(const Arguments&) {
+Local<Value> EntityClass::getAllTags(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity) return Local<Value>();
 
-        Local<Array> arr       = Array::newArray();
-        auto         component = entity->getEntityContext().tryGetComponent<TagsComponent<IDType<LevelTagSetIDType>>>();
-        if (component) {
+        Local<Array> arr = Array::newArray();
+        if (auto const component =
+                entity->getEntityContext().tryGetComponent<TagsComponent<IDType<LevelTagSetIDType>>>()) {
             for (auto& tag : get()->getLevel().getTagRegistry().getTagsInSet(component->mTagSetID)) {
                 arr.add(String::newString(tag));
             }
@@ -1386,32 +1385,32 @@ Local<Value> EntityClass::getAllTags(const Arguments&) {
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getEntityFromViewVector(const Arguments& args) {
+Local<Value> EntityClass::getEntityFromViewVector(Arguments const& args) const {
 
     try {
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
         float maxDistance = 5.25f;
         if (args.size() > 0) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
             maxDistance = args[0].asNumber().toFloat();
         }
-        HitResult result = actor->traceRay(maxDistance, true, false);
-        Actor*    entity = result.getEntity();
+        HitResult const result = actor->traceRay(maxDistance, true, false);
+        Actor const*    entity = result.getEntity();
         if (result.mType != HitResultType::NoHit && entity) {
             return EntityClass::newEntity(entity);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
+Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
     try {
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
         bool  includeLiquid = false;
         bool  solidOnly     = false;
@@ -1433,7 +1432,7 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
             CHECK_ARG_TYPE(args[3], ValueKind::kBoolean);
             fullOnly = args[3].asBoolean().value();
         }
-        HitResult res = actor->traceRay(
+        HitResult const res = actor->traceRay(
             maxDistance,
             false,
             true,
@@ -1466,10 +1465,10 @@ Local<Value> EntityClass::getBlockFromViewVector(const Arguments& args) {
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::quickEvalMolangScript(const Arguments& args) {
+Local<Value> EntityClass::quickEvalMolangScript(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
@@ -1477,45 +1476,45 @@ Local<Value> EntityClass::quickEvalMolangScript(const Arguments& args) {
         if (!actor) return Local<Value>();
         return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getBiomeId() {
+Local<Value> EntityClass::getBiomeId() const {
     try {
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return Number::newNumber(bio.mId->mValue);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getBiomeName() {
+Local<Value> EntityClass::getBiomeName() const {
     try {
-        Actor* actor = get();
+        Actor const* actor = get();
         if (!actor) return Local<Value>();
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return String::newString(bio.mHash->getString());
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::getAllEffects() {
+Local<Value> EntityClass::getAllEffects() const {
     try {
         Actor* actor = get();
         if (!actor) {
             return Local<Value>();
         }
         Local<Array> effectList = Array::newArray();
-        for (auto& effect : actor->_getAllEffectsNonConst()) {
-            effectList.add(Number::newNumber((long long)effect.mId));
+        for (auto const& effect : actor->_getAllEffectsNonConst()) {
+            effectList.add(Number::newNumber(static_cast<long long>(effect.mId)));
         }
         return effectList;
     }
     CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::addEffect(const Arguments& args) {
+Local<Value> EntityClass::addEffect(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 4);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -1526,21 +1525,21 @@ Local<Value> EntityClass::addEffect(const Arguments& args) {
         if (!actor) {
             return Boolean::newBoolean(false);
         }
-        unsigned int      id = args[0].asNumber().toInt32();
-        EffectDuration    duration{args[1].asNumber().toInt32()};
-        int               level         = args[2].asNumber().toInt32();
-        bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect(id);
+        unsigned int const id = args[0].asNumber().toInt32();
+        EffectDuration     duration{args[1].asNumber().toInt32()};
+        int const          level         = args[2].asNumber().toInt32();
+        bool const         showParticles = args[3].asBoolean().value();
+        MobEffectInstance  effect(id);
         effect.mDuration      = duration;
         effect.mAmplifier     = level;
         effect.mEffectVisible = showParticles;
         actor->addEffect(effect);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> EntityClass::removeEffect(const Arguments& args) {
+Local<Value> EntityClass::removeEffect(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
@@ -1548,14 +1547,14 @@ Local<Value> EntityClass::removeEffect(const Arguments& args) {
         if (!actor) {
             return Boolean::newBoolean(false);
         }
-        int id = args[0].asNumber().toInt32();
+        int const id = args[0].asNumber().toInt32();
         actor->removeEffect(id);
         return Boolean::newBoolean(true);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::getAllEntities(const Arguments&) {
+Local<Value> McClass::getAllEntities(Arguments const&) {
     try {
         auto& entityList = ll::service::getLevel()->getEntities();
         auto  arr        = Array::newArray();
@@ -1566,10 +1565,10 @@ Local<Value> McClass::getAllEntities(const Arguments&) {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::getEntities(const Arguments& args) {
+Local<Value> McClass::getEntities(Arguments const& args) {
     try {
         int   dim;
         float dis = 2.0f;
@@ -1588,14 +1587,14 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                 aabb.min         = posObj->getVec3();
                 dim              = posObj->dim;
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
             if (args.size() > 1) {
                 if (IsInstanceOf<IntPos>(args[1])) {
                     // IntPos
                     IntPos* posObj = IntPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        throw CreateExceptionWithInfo(__FUNCTION__, "Wrong Dimension!");
                     }
                     aabb.max = Vec3(posObj->x, posObj->y, posObj->z) + 1;
                     dim      = posObj->dim;
@@ -1604,7 +1603,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     // FloatPos
                     FloatPos* posObj = FloatPos::extractPos(args[1]);
                     if (dim != posObj->dim) {
-                        CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+                        throw CreateExceptionWithInfo(__FUNCTION__, "Wrong Dimension!");
                     }
                     aabb.max = posObj->getVec3();
                     dim      = posObj->dim;
@@ -1612,13 +1611,13 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                     aabb.max = aabb.min + 1;
                     dis      = args[1].asNumber().toFloat();
                 } else {
-                    THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                    throw WrongArgTypeException(__FUNCTION__);
                 }
                 if (args.size() > 2) {
                     if (args[2].getKind() == ValueKind::kNumber) {
                         dis = args[2].asNumber().toFloat();
                     } else {
-                        THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                        throw WrongArgTypeException(__FUNCTION__);
                     }
                 } else {
                     aabb.max = aabb.min + 1;
@@ -1627,7 +1626,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
                 aabb.max = aabb.min + 1;
             }
         } else {
-            THROW_TOO_FEW_ARGS(__FUNCTION__);
+            throw TooFewArgsException(__FUNCTION__);
         }
         aabb.max += dis;
         aabb.min -= dis;
@@ -1635,7 +1634,7 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         auto arr       = Array::newArray();
         auto dimension = ll::service::getLevel()->getDimension(dim);
         if (!dimension.lock()) {
-            CREATE_EXCEPTION_WITH_SCRIPT_INFO(__FUNCTION__, "Wrong Dimension!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Wrong Dimension!");
         }
         BlockSource& bs         = dimension.lock()->getBlockSourceFromMainChunkSource();
         auto         entityList = bs.getEntities(aabb);
@@ -1644,34 +1643,34 @@ Local<Value> McClass::getEntities(const Arguments& args) {
         }
         return arr;
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::getEntity(const Arguments& args) {
+Local<Value> McClass::getEntity(Arguments const& args) {
     try {
         CHECK_ARGS_COUNT(args, 1)
         CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
 
-        auto level = ll::service::getLevel();
+        auto const level = ll::service::getLevel();
 
-        if (auto* entity = level->fetchEntity(ActorUniqueID(args[0].asNumber().toInt64()), false)) {
+        if (auto const* entity = level->fetchEntity(ActorUniqueID(args[0].asNumber().toInt64()), false)) {
             return EntityClass::newEntity(entity);
         }
-        if (auto* entity = level->getRuntimeEntity(ActorRuntimeID(args[0].asNumber().toInt64()), false)) {
+        if (auto const* entity = level->getRuntimeEntity(ActorRuntimeID(args[0].asNumber().toInt64()), false)) {
             return EntityClass::newEntity(entity);
         }
         return Local<Value>();
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::cloneMob(const Arguments& args) {
+Local<Value> McClass::cloneMob(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
 
     try {
-        Actor* ac = EntityClass::extract(args[0]);
+        Actor const* ac = EntityClass::extract(args[0]);
         if (!ac) {
-            THROW_WRONG_ARG_TYPE(__FUNCTION__);
+            throw WrongArgTypeException(__FUNCTION__);
         }
 
         FloatVec4 pos;
@@ -1679,20 +1678,20 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
         if (args.size() == 2) {
             if (IsInstanceOf<IntPos>(args[1])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[1]);
+                IntPos const* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[1]);
+                FloatPos const* posObj = FloatPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos
@@ -1707,10 +1706,10 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
+            throw WrongArgsCountException(__FUNCTION__);
         }
-        ActorDefinitionIdentifier id(ac->getTypeName());
-        Mob*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
+        ActorDefinitionIdentifier const id(ac->getTypeName());
+        Mob const*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
             ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
             id,
             nullptr,
@@ -1722,10 +1721,10 @@ Local<Value> McClass::cloneMob(const Arguments& args) {
         if (!entity) return Local<Value>(); // Null
         else return EntityClass::newEntity(entity);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::spawnMob(const Arguments& args) {
+Local<Value> McClass::spawnMob(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
@@ -1736,20 +1735,20 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
         if (args.size() == 2) {
             if (IsInstanceOf<IntPos>(args[1])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[1]);
+                IntPos const* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[1]);
+                FloatPos const* posObj = FloatPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
         } else if (args.size() == 5) {
             // Number Pos
@@ -1764,11 +1763,11 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
                 args[4].asNumber().toInt32()
             };
         } else {
-            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
+            throw WrongArgsCountException(__FUNCTION__);
         }
 
-        ActorDefinitionIdentifier id(name);
-        Mob*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
+        ActorDefinitionIdentifier const id(name);
+        Mob const*                      entity = ll::service::getLevel()->getSpawner().spawnMob(
             ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
             id,
             nullptr,
@@ -1780,10 +1779,10 @@ Local<Value> McClass::spawnMob(const Arguments& args) {
         if (!entity) return Local<Value>(); // Null
         else return EntityClass::newEntity(entity);
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }
 
-Local<Value> McClass::explode(const Arguments& args) {
+Local<Value> McClass::explode(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 5);
 
     try {
@@ -1797,20 +1796,20 @@ Local<Value> McClass::explode(const Arguments& args) {
 
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
-                IntPos* posObj = IntPos::extractPos(args[0]);
+                IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
-                FloatPos* posObj = FloatPos::extractPos(args[0]);
+                FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
                 else {
-                    pos = *posObj;
+                    pos = static_cast<FloatVec4>(*posObj);
                 }
             } else {
-                THROW_WRONG_ARG_TYPE(__FUNCTION__);
+                throw WrongArgTypeException(__FUNCTION__);
             }
             break;
         case 8:
@@ -1829,7 +1828,7 @@ Local<Value> McClass::explode(const Arguments& args) {
             };
             break;
         default:
-            THROW_WRONG_ARGS_COUNT(__FUNCTION__);
+            throw WrongArgsCountException(__FUNCTION__);
         }
         std::optional<Actor*> source = EntityClass::tryExtractActor(args[beginIndex]); // Can be nullptr
 
@@ -1838,9 +1837,9 @@ Local<Value> McClass::explode(const Arguments& args) {
             CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kBoolean);
             CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
 
-            float radius    = args[beginIndex + 1].asNumber().toFloat();
-            bool  isDestroy = args[beginIndex + 2].asBoolean().value();
-            bool  isFire    = args[beginIndex + 3].asBoolean().value();
+            float const radius    = args[beginIndex + 1].asNumber().toFloat();
+            bool const  isDestroy = args[beginIndex + 2].asBoolean().value();
+            bool const  isFire    = args[beginIndex + 3].asBoolean().value();
 
             return Boolean::newBoolean(
                 ll::service::getLevel()->explode(
@@ -1860,10 +1859,10 @@ Local<Value> McClass::explode(const Arguments& args) {
             CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
             CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
 
-            float maxResistance = args[beginIndex + 1].asNumber().toFloat();
-            float radius        = args[beginIndex + 2].asNumber().toFloat();
-            bool  isDestroy     = args[beginIndex + 3].asBoolean().value();
-            bool  isFire        = args[beginIndex + 4].asBoolean().value();
+            float const maxResistance = args[beginIndex + 1].asNumber().toFloat();
+            float const radius        = args[beginIndex + 2].asNumber().toFloat();
+            bool const  isDestroy     = args[beginIndex + 3].asBoolean().value();
+            bool const  isFire        = args[beginIndex + 4].asBoolean().value();
 
             return Boolean::newBoolean(
                 ll::service::getLevel()->explode(
@@ -1879,5 +1878,5 @@ Local<Value> McClass::explode(const Arguments& args) {
             );
         }
     }
-    CATCH_AND_THROW;
+    CATCH_AND_THROW
 }

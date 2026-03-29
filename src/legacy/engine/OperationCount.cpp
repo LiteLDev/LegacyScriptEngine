@@ -3,23 +3,17 @@
 #include "engine/GlobalShareData.h"
 #include "ll/api/mod/ModManager.h"
 
-#include <vector>
+OperationCount::OperationCount(string const& name) : name(name) {}
 
-OperationCount::OperationCount(const string& name) : name(name) {}
-
-OperationCount OperationCount::create(const string& name) {
+OperationCount OperationCount::create(string const& name) {
     if (exists(name)) return OperationCount("");
-    else {
-        globalShareData->operationCountData[name] = 0;
-        return OperationCount(name);
-    }
+    globalShareData->operationCountData[name] = 0;
+    return OperationCount(name);
 }
 
-bool OperationCount::exists(const string& name) {
-    return globalShareData->operationCountData.find(name) != globalShareData->operationCountData.end();
-}
+bool OperationCount::exists(string const& name) { return globalShareData->operationCountData.contains(name); }
 
-bool OperationCount::remove() {
+bool OperationCount::remove() const {
     auto p = globalShareData->operationCountData.find(name);
     if (p != globalShareData->operationCountData.end()) {
         globalShareData->operationCountData.erase(p);
@@ -28,24 +22,24 @@ bool OperationCount::remove() {
     return false;
 }
 
-bool OperationCount::done() {
+bool OperationCount::done() const {
     auto p = globalShareData->operationCountData.find(name);
     if (p != globalShareData->operationCountData.end()) {
-        InterlockedIncrement((LONG*)&(p->second));
+        InterlockedIncrement(reinterpret_cast<LONG*>(&(p->second)));
         return true;
     }
     return false;
 }
 
-int OperationCount::get() {
+int OperationCount::get() const {
     if (exists(name)) return globalShareData->operationCountData[name];
     else return -1;
 }
 
-bool OperationCount::hasReachCount(int count) { return get() >= count; }
+bool OperationCount::hasReachCount(int count) const { return get() >= count; }
 
-bool OperationCount::hasReachMaxEngineCount() {
+bool OperationCount::hasReachMaxEngineCount() const {
     return hasReachCount(lse::LegacyScriptEngine::getInstance().getManager().getModCount());
 }
 
-bool OperationCount::hasReachMaxBackendCount() { return hasReachCount(LLSE_VALID_BACKENDS_COUNT); }
+bool OperationCount::hasReachMaxBackendCount() const { return hasReachCount(LLSE_VALID_BACKENDS_COUNT); }

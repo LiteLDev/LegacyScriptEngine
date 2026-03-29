@@ -8,6 +8,7 @@
 #include "api/LlAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PlayerAPI.h"
+#include "engine/EngineManager.h"
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
 #include "ll/api/service/GamingStatus.h"

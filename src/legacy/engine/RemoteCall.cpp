@@ -5,8 +5,6 @@
 #include "engine/GlobalShareData.h"
 #include "engine/MessageSystem.h"
 
-#include <map>
-#include <process.h>
 #include <sstream>
 #include <string>
 
@@ -84,9 +82,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
     }
 }
 
-void RemoteSyncCallReturn(ModuleMessage& msg) {
-    // lse::LegacyScriptEngine::getLogger().debug("*** Remote call result message received.");
-    // lse::LegacyScriptEngine::getLogger().debug("*** Result: {}", msg.getData());
+void RemoteSyncCallReturn(ModuleMessage const& msg) {
     remoteResultMap[msg.getId()] = msg.getData();
     OperationCount(std::to_string(msg.getId())).done();
 }

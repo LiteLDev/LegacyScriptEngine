@@ -3,40 +3,36 @@
 #include "engine/OperationCount.h"
 
 #include <ScriptX/ScriptX.h>
-#include <map>
+#include <Windows.h>
 #include <string>
-#include <vector>
-#include <windows.h>
 
 using std::string;
 
 //////////////////// Class ////////////////////
 
 class ModuleMessageResult {
-private:
     int                                      msgId;
     OperationCount                           resultCount;
     std::list<std::shared_ptr<ScriptEngine>> engineList;
 
     friend class ModuleMessage;
-    ModuleMessageResult(int messageId, std::list<std::shared_ptr<ScriptEngine>> engineList);
+    ModuleMessageResult(int messageId, std::list<std::shared_ptr<ScriptEngine>> const& engineList);
 
 public:
-    ModuleMessageResult() : resultCount("") {}
+    ModuleMessageResult() : msgId(0), resultCount("") {}
     ~ModuleMessageResult();
-    operator bool();
+    operator bool() const;
 
-    size_t getSentCount() { return engineList.size(); }
-    int    getMsgId() { return msgId; }
+    size_t getSentCount() const { return engineList.size(); }
+    int    getMsgId() const { return msgId; }
 
     bool waitForAllResults(int maxWaitTime = -1);
     bool waitForOneResult(int maxWaitTime = -1);
     bool waitForResultCount(size_t targetCount, int maxWaitTime = -1);
-    bool cancel();
+    bool cancel() const;
 };
 
 class ModuleMessage {
-private:
     static int getNextMessageId();
 
 public:
@@ -64,20 +60,20 @@ public:
     MessageHeader* header;
     std::string*   data;
 
-    unsigned    getId() { return header->id; }
-    MessageType getType() { return type; }
-    std::string getData() { return *data; }
+    unsigned    getId() const { return header->id; }
+    MessageType getType() const { return type; }
+    std::string getData() const { return *data; }
 
-    static ModuleMessageResult broadcastLocal(MessageType type, std::string data, int64_t delay = 0);
-    static ModuleMessageResult broadcastGlobal(MessageType type, std::string data, int64_t delay = 0);
+    static ModuleMessageResult broadcastLocal(MessageType type, std::string const& data, int64_t delay = 0);
+    static ModuleMessageResult broadcastGlobal(MessageType type, std::string const& data, int64_t delay = 0);
     static ModuleMessageResult
-    broadcastTo(std::string toModuleType, MessageType type, std::string data, int64_t delay = 0);
+    broadcastTo(std::string const& toModuleType, MessageType type, std::string const& data, int64_t delay = 0);
     static ModuleMessageResult
-    sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string data, int64_t delay = 0);
+    sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string const& data, int64_t delay = 0);
     static ModuleMessageResult
-    sendToRandom(std::string toModuleType, MessageType type, std::string data, int64_t delay = 0);
+    sendToRandom(std::string const& toModuleType, MessageType type, std::string const& data, int64_t delay = 0);
 
-    bool sendResult(MessageType type, std::string data, int64_t delay = 0);
+    bool sendResult(MessageType type, std::string const& data, int64_t delay = 0) const;
 
     static void handle(script::utils::Message& engineMsg);
     static void cleanup(script::utils::Message& engineMsg);

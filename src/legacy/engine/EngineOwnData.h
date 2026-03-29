@@ -10,8 +10,8 @@
 #include <unordered_map>
 
 struct FormCallbackData {
-    script::ScriptEngine*            engine;
-    script::Global<script::Function> func;
+    ScriptEngine*            engine;
+    script::Global<Function> func;
 };
 
 struct RemoteCallData {
@@ -50,7 +50,7 @@ struct EngineOwnData {
     }
     bool removeUnloadCallback(int pIndex) { return unloadCallbacks.erase(pIndex); }
 
-    static void clearEngineObjects(std::shared_ptr<ScriptEngine> engine) {
+    static void clearEngineObjects(std::shared_ptr<ScriptEngine> const& engine) {
         EngineScope scope(engine.get());
         auto        data = std::static_pointer_cast<EngineOwnData>(engine->getData());
         data->playerDataDB.clear();
@@ -65,10 +65,10 @@ inline std::shared_ptr<EngineOwnData> getEngineOwnData() {
     return std::static_pointer_cast<EngineOwnData>(EngineScope::currentEngine()->getData());
 }
 
-inline std::shared_ptr<EngineOwnData> getEngineData(script::ScriptEngine* engine) {
+inline std::shared_ptr<EngineOwnData> getEngineData(ScriptEngine* engine) {
     return std::static_pointer_cast<EngineOwnData>(engine->getData());
 }
 
-inline std::shared_ptr<EngineOwnData> getEngineData(std::shared_ptr<script::ScriptEngine> engine) {
+inline std::shared_ptr<EngineOwnData> getEngineData(std::shared_ptr<ScriptEngine> const& engine) {
     return std::static_pointer_cast<EngineOwnData>(engine->getData());
 }

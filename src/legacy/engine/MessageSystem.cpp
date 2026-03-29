@@ -1,29 +1,28 @@
 #include "engine/MessageSystem.h"
 
 #include "api/APIHelp.h"
+#include "engine/EngineManager.h"
 #include "engine/GlobalShareData.h"
 #include "engine/LocalShareData.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStoppingEvent.h"
 #include "ll/api/service/GamingStatus.h"
+#include "ll/api/service/ServerInfo.h"
 #include "utils/IniHelper.h"
 #include "utils/Utils.h"
 
-#include <exception>
-#include <ll/api/event/EventBus.h>
-#include <ll/api/service/ServerInfo.h>
 #include <mutex>
-#include <process.h>
 #include <processthreadsapi.h>
-#include <shared_mutex>
 
 using namespace script;
 
-inline ModuleMessage::MessageType    GET_MESSAGE_TYPE(utils::Message& e) { return (ModuleMessage::MessageType)e.data0; }
-inline ModuleMessage::MessageHeader* GET_MESSAGE_HEADER(utils::Message& e) {
-    return (ModuleMessage::MessageHeader*)e.ptr0;
+inline ModuleMessage::MessageType GET_MESSAGE_TYPE(utils::Message& e) {
+    return static_cast<ModuleMessage::MessageType>(e.data0);
 }
-inline std::string* GET_MESSAGE_DATA_PTR(utils::Message& e) { return (std::string*)e.ptr1; }
+inline ModuleMessage::MessageHeader* GET_MESSAGE_HEADER(utils::Message const& e) {
+    return static_cast<ModuleMessage::MessageHeader*>(e.ptr0);
+}
+inline std::string* GET_MESSAGE_DATA_PTR(utils::Message const& e) { return static_cast<std::string*>(e.ptr1); }
 #define MESSAGE_TYPE     data0
 #define MESSAGE_HEADER   ptr0
 #define MESSAGE_DATA_PTR ptr1
@@ -64,23 +63,28 @@ void ModuleMessage::cleanup(utils::Message& engineMsg) {
 
 /////////////////////////// Helper ///////////////////////////
 
-utils::Message
-PackEngineMessage(string toModuleType, ModuleMessage::MessageType type, string data, int* messageId = nullptr) {
+utils::Message PackEngineMessage(
+    string const&              toModuleType,
+    ModuleMessage::MessageType type,
+    string const&              data,
+    int*                       messageId = nullptr
+) {
     auto& callbacks = globalShareData->messageSystemHandlers[toModuleType];
 
     utils::Message engineMsg(callbacks.handler, callbacks.cleaner);
-    engineMsg.MESSAGE_TYPE     = (int64_t)type;
+    engineMsg.MESSAGE_TYPE     = static_cast<int64_t>(type);
     engineMsg.MESSAGE_HEADER   = new ModuleMessage::MessageHeader();
     engineMsg.MESSAGE_DATA_PTR = new string(data);
     if (messageId) *messageId = (GET_MESSAGE_HEADER(engineMsg))->id;
     return engineMsg;
 }
 
-utils::Message PackEngineMessage(string toModuleType, int messageId, ModuleMessage::MessageType type, string data) {
+utils::Message
+PackEngineMessage(string const& toModuleType, int messageId, ModuleMessage::MessageType type, string const& data) {
     auto& callbacks = globalShareData->messageSystemHandlers[toModuleType];
 
     utils::Message engineMsg(callbacks.handler, callbacks.cleaner);
-    engineMsg.MESSAGE_TYPE              = (int64_t)type;
+    engineMsg.MESSAGE_TYPE              = static_cast<int64_t>(type);
     engineMsg.MESSAGE_HEADER            = new ModuleMessage::MessageHeader();
     (GET_MESSAGE_HEADER(engineMsg))->id = messageId;
     engineMsg.MESSAGE_DATA_PTR          = new string(data);
@@ -89,9 +93,11 @@ utils::Message PackEngineMessage(string toModuleType, int messageId, ModuleMessa
 
 /////////////////////////// Module Message ///////////////////////////
 
-int ModuleMessage::getNextMessageId() { return InterlockedIncrement((LONG*)&(globalShareData->messageSystemNextId)); }
+int ModuleMessage::getNextMessageId() {
+    return InterlockedIncrement(reinterpret_cast<LONG*>(&(globalShareData->messageSystemNextId)));
+}
 
-ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data, int64_t delay) {
+ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string const& data, int64_t delay) {
     std::list<std::shared_ptr<ScriptEngine>> engineList;
     int                                      msgId = -1;
 
@@ -103,7 +109,7 @@ ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data,
                 std::chrono::milliseconds(delay)
             );
             engineList.push_back(engine);
-        } catch (const Exception& e) {
+        } catch (Exception const& e) {
             EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getLogger().error(
                 "Fail to post message to plugin {}",
@@ -122,7 +128,7 @@ ModuleMessageResult ModuleMessage::broadcastLocal(MessageType type, string data,
     return ModuleMessageResult(msgId, engineList);
 }
 
-ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string data, int64_t delay) {
+ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string const& data, int64_t delay) {
     std::list<std::shared_ptr<ScriptEngine>> engineList;
     int                                      msgId = -1;
 
@@ -134,7 +140,7 @@ ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string data
                 std::chrono::milliseconds(delay)
             );
             engineList.push_back(engine);
-        } catch (const Exception& e) {
+        } catch (Exception const& e) {
             EngineScope scope(engine.get());
             lse::LegacyScriptEngine::getLogger().error(
                 "Fail to post message to plugin {}",
@@ -153,7 +159,8 @@ ModuleMessageResult ModuleMessage::broadcastGlobal(MessageType type, string data
     return ModuleMessageResult(msgId, engineList);
 }
 
-ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, MessageType type, string data, int64_t delay) {
+ModuleMessageResult
+ModuleMessage::broadcastTo(std::string const& toModuleType, MessageType type, string const& data, int64_t delay) {
     std::list<std::shared_ptr<ScriptEngine>> engineList;
     int                                      msgId = -1;
 
@@ -166,7 +173,7 @@ ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, Message
                     std::chrono::milliseconds(delay)
                 );
                 engineList.push_back(engine);
-            } catch (const Exception& e) {
+            } catch (Exception const& e) {
                 EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getLogger().error(
                     "Fail to post message to plugin {}",
@@ -187,7 +194,7 @@ ModuleMessageResult ModuleMessage::broadcastTo(std::string toModuleType, Message
 }
 
 ModuleMessageResult
-ModuleMessage::sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string data, int64_t delay) {
+ModuleMessage::sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string const& data, int64_t delay) {
     int    msgId        = -1;
     string toModuleType = LLSE_BACKEND_TYPE;
 
@@ -197,7 +204,7 @@ ModuleMessage::sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, st
             std::chrono::milliseconds(delay)
         );
         return ModuleMessageResult(msgId, {engine});
-    } catch (const Exception& e) {
+    } catch (Exception const& e) {
         EngineScope scope(engine.get());
         lse::LegacyScriptEngine::getLogger().error(
             "Fail to post message to plugin {}",
@@ -216,7 +223,7 @@ ModuleMessage::sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, st
 }
 
 ModuleMessageResult
-ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::string data, int64_t delay) {
+ModuleMessage::sendToRandom(std::string const& toModuleType, MessageType type, std::string const& data, int64_t delay) {
     int msgId = -1;
 
     auto engines = EngineManager::getGlobalEngines();
@@ -228,7 +235,7 @@ ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::str
                     std::chrono::milliseconds(delay)
                 );
                 return ModuleMessageResult(msgId, {engine});
-            } catch (const Exception& e) {
+            } catch (Exception const& e) {
                 EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getLogger().error(
                     "Fail to post message to plugin {}",
@@ -248,7 +255,7 @@ ModuleMessage::sendToRandom(std::string toModuleType, MessageType type, std::str
     return ModuleMessageResult(msgId, {});
 }
 
-bool ModuleMessage::sendResult(MessageType typ, std::string dat, int64_t delay) {
+bool ModuleMessage::sendResult(MessageType typ, std::string const& dat, int64_t delay) const {
     int           msgId  = header->id;
     ScriptEngine* engine = header->fromEngine;
 
@@ -258,7 +265,7 @@ bool ModuleMessage::sendResult(MessageType typ, std::string dat, int64_t delay) 
             std::chrono::milliseconds(delay)
         );
         return true;
-    } catch (const Exception& e) {
+    } catch (Exception const& e) {
         EngineScope scope(engine);
         lse::LegacyScriptEngine::getLogger().error(
             "Fail to post message to plugin {}",
@@ -277,12 +284,12 @@ bool ModuleMessage::sendResult(MessageType typ, std::string dat, int64_t delay) 
 
 /////////////////////////// Module Message Result ///////////////////////////
 
-ModuleMessageResult::ModuleMessageResult(int messageId, std::list<std::shared_ptr<ScriptEngine>> engineList)
+ModuleMessageResult::ModuleMessageResult(int messageId, std::list<std::shared_ptr<ScriptEngine>> const& engineList)
 : msgId(messageId),
-  engineList(engineList),
-  resultCount(OperationCount::create(std::to_string(messageId))) {}
+  resultCount(OperationCount::create(std::to_string(messageId))),
+  engineList(engineList) {}
 
-ModuleMessageResult::operator bool() { return getSentCount() > 0; }
+ModuleMessageResult::operator bool() const { return getSentCount() > 0; }
 
 ModuleMessageResult::~ModuleMessageResult() { resultCount.remove(); }
 
@@ -305,11 +312,11 @@ bool ModuleMessageResult::waitForResultCount(size_t targetCount, int maxWaitTime
     return res;
 }
 
-bool ModuleMessageResult::cancel() {
+bool ModuleMessageResult::cancel() const {
     int id = msgId;
     for (auto& engine : engineList) {
         EngineScope scope(engine.get());
-        engine->messageQueue()->removeMessageIf([id](utils::Message& message) {
+        engine->messageQueue()->removeMessageIf([id](utils::Message const& message) {
             return (GET_MESSAGE_HEADER(message))->id == id
                      ? utils::MessageQueue::RemoveMessagePredReturnType::kRemoveAndContinue
                      : utils::MessageQueue::RemoveMessagePredReturnType::kDontRemove;
@@ -337,7 +344,7 @@ void MessageSystemLoopOnce() {
                     EngineScope enter(engine.get());
                     engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
                 }
-            } catch (const Exception& e) {
+            } catch (Exception const& e) {
                 EngineScope scope(engine.get());
                 lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());

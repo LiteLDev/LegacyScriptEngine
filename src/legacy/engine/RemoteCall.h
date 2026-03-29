@@ -10,4 +10,4 @@ bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> const& engine);
 
 class ModuleMessage;
 void RemoteSyncCallRequest(ModuleMessage& msg);
-void RemoteSyncCallReturn(ModuleMessage& msg);
+void RemoteSyncCallReturn(ModuleMessage const& msg);

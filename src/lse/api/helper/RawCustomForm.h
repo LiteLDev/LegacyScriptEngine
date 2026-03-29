@@ -9,19 +9,19 @@ namespace lse::form {
 
 using CustomFormResult = std::optional<std::string>;
 
-class RawCustomForm : public ::ll::form::CustomForm {
+class RawCustomForm : public ll::form::CustomForm {
 
 public:
-    using RawCallback = ll::form::Form::RawFormCallback;
+    using RawCallback = RawFormCallback;
 
-    inline RawCustomForm& sendRawTo(Player& player, RawCallback&& callback = {}) {
-        ll::form::Form::sendRawTo(player, getFormData(), std::move(callback));
+    RawCustomForm& sendRawTo(Player& player, RawCallback&& callback = {}) {
+        Form::sendRawTo(player, getFormData(), std::move(callback));
         return *this;
-    };
+    }
 
-    inline RawCustomForm& sendRawUpdate(Player& player, RawCallback&& callback = {}) {
-        ll::form::Form::sendRawUpdate(player, getFormData(), std::move(callback));
+    RawCustomForm& sendRawUpdate(Player& player, RawCallback&& callback = {}) {
+        Form::sendRawUpdate(player, getFormData(), std::move(callback));
         return *this;
-    };
+    }
 };
 } // namespace lse::form

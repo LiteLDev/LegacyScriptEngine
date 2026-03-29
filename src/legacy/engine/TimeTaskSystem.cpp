@@ -36,7 +36,7 @@ std::unordered_map<uint64, ScriptEngine*> timeTaskMap;
         lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);            \
     }
 
-int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
+int NewTimeout(const Local<Function>& func, std::vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 
@@ -77,7 +77,7 @@ int NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeou
     return tid;
 }
 
-int NewTimeout(Local<String> func, int timeout) {
+int NewTimeout(Local<String> const& func, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 
@@ -113,7 +113,7 @@ int NewTimeout(Local<String> func, int timeout) {
     return tid;
 }
 
-int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeout) {
+int NewInterval(Local<Function> const& func, std::vector<Local<Value>> paras, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 
@@ -156,7 +156,7 @@ int NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeo
     return tid;
 }
 
-int NewInterval(Local<String> func, int timeout) {
+int NewInterval(Local<String> const& func, int timeout) {
     int          tid = ++timeTaskId;
     TimeTaskData data;
 
@@ -209,7 +209,7 @@ bool ClearTimeTask(int const& id) {
     return true;
 }
 
-void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine) {
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> const& engine) {
     // enter scope to prevent script::Global::~Global() from crashing
     EngineScope enter(engine.get());
     try {

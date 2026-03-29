@@ -3,7 +3,7 @@
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
-#include "engine/GlobalShareData.h"
+#include "engine/EngineManager.h"
 #include "ll/api/form/FormBase.h"
 #include "ll/api/form/SimpleForm.h"
 #include "ll/api/service/GamingStatus.h"
@@ -173,8 +173,8 @@ void CustomFormClass::sendForm(
     Local<Function> const&    callback,
     bool                      update
 ) {
-    script::Global<Function> callbackFunc{callback};
-    auto                     cb = [engine{EngineScope::currentEngine()},
+    script::Global callbackFunc{callback};
+    auto           cb = [engine{EngineScope::currentEngine()},
                callback{
                    std::move(callbackFunc)
                }](Player& player, lse::form::CustomFormResult const& data, FormCancelReason reason) {

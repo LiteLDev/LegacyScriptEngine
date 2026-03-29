@@ -1,9 +1,8 @@
+#pragma once
 #include "api/APIHelp.h"
-#include "engine/EngineManager.h"
 
 #include <list>
 #include <map>
-#include <mutex>
 #include <shared_mutex>
 #include <string>
 #include <vector>

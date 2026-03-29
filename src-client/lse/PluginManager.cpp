@@ -47,12 +47,12 @@ constexpr auto PluginManagerName = "lse-nodejs";
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
 void BindAPIs(std::shared_ptr<ScriptEngine> engine);
-void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine);
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> const& engine);
 bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveCmdCallback(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> const& engine);
-bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine);
 bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
 
 namespace lse {

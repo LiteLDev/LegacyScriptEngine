@@ -2,13 +2,11 @@
 
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
-#include "ll/api/utils/StringUtils.h"
 
 #if defined(LSE_BACKEND_NODEJS)
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
-#include <map>
 #include <mutex>
 #include <shared_mutex>
 
@@ -16,7 +14,7 @@ using namespace script;
 
 ///////////////////////////////// API /////////////////////////////////
 
-bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> toDelete) {
+bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> const& toDelete) {
     std::unique_lock lock(globalShareData->engineListLock);
     for (auto engine = globalShareData->globalEngineList.begin(); engine != globalShareData->globalEngineList.end();
          ++engine) {
@@ -28,13 +26,13 @@ bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> toDelete) {
     return false;
 }
 
-bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> engine) {
+bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> const& engine) {
     std::unique_lock lock(globalShareData->engineListLock);
     globalShareData->globalEngineList.push_back(engine);
     return true;
 }
 
-std::shared_ptr<ScriptEngine> EngineManager::newEngine(std::string pluginName) {
+std::shared_ptr<ScriptEngine> EngineManager::newEngine(std::string const& pluginName) {
     std::shared_ptr<ScriptEngine> engine = nullptr;
 
 #if defined(LSE_BACKEND_NODEJS)
@@ -65,7 +63,7 @@ bool EngineManager::isValid(ScriptEngine* engine, bool onlyCheckLocal) {
     return false;
 }
 
-bool EngineManager::isValid(std::shared_ptr<ScriptEngine> engine, bool onlyCheckLocal) {
+bool EngineManager::isValid(std::shared_ptr<ScriptEngine> const& engine, bool onlyCheckLocal) {
     return isValid(engine.get(), onlyCheckLocal);
 }
 
@@ -99,7 +97,7 @@ std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getGlobalEngines() {
     return res;
 }
 
-std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string name, bool onlyLocalEngine) {
+std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string const& name, bool onlyLocalEngine) {
     std::shared_lock lock(globalShareData->engineListLock);
     for (auto& engine : globalShareData->globalEngineList) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
@@ -109,7 +107,7 @@ std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string name, bool on
     return nullptr;
 }
 
-std::string EngineManager::getEngineType(std::shared_ptr<ScriptEngine> engine) {
+std::string EngineManager::getEngineType(std::shared_ptr<ScriptEngine> const& engine) {
     return getEngineData(engine)->engineType;
 }
 

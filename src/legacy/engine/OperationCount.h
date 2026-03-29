@@ -7,17 +7,17 @@ private:
     string name;
 
 public:
-    OperationCount(const string& name);
-    static OperationCount create(const string& name);
-    static bool           exists(const string& name);
-    bool                  remove();
-                          operator bool() { return exists(name); }
+    OperationCount(string const& name);
+    static OperationCount create(string const& name);
+    static bool           exists(string const& name);
+    bool                  remove() const;
+                          operator bool() const { return exists(name); }
 
-    bool        done();
-    inline bool finish() { return done(); }
+    bool        done() const;
+    inline bool finish() const { return done(); }
 
-    int  get();
-    bool hasReachCount(int count);
-    bool hasReachMaxEngineCount();
-    bool hasReachMaxBackendCount();
+    int  get() const;
+    bool hasReachCount(int count) const;
+    bool hasReachMaxEngineCount() const;
+    bool hasReachMaxBackendCount() const;
 };

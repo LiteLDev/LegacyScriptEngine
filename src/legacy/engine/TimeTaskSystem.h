@@ -13,13 +13,13 @@
 //     ScriptEngine*                engine = EngineScope::currentEngine()
 // );
 
-int  NewTimeout(Local<Function> func, std::vector<Local<Value>> paras, int timeout);
-int  NewTimeout(Local<String> func, int timeout);
-int  NewInterval(Local<Function> func, std::vector<Local<Value>> paras, int timeout);
-int  NewInterval(Local<String> func, int timeout);
+int  NewTimeout(Local<Function> const& func, std::vector<Local<Value>> paras, int timeout);
+int  NewTimeout(Local<String> const& func, int timeout);
+int  NewInterval(Local<Function> const& func, std::vector<Local<Value>> paras, int timeout);
+int  NewInterval(Local<String> const& func, int timeout);
 bool ClearTimeTask(int const& id);
 bool CheckTimeTask(int const& id);
 
 ///////////////////////// Func /////////////////////////
 
-void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> engine);
+void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> const& engine);

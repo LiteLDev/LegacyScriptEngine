@@ -12,6 +12,7 @@
 #include "api/McAPI.h"
 #include "api/NbtAPI.h"
 #include "api/PacketAPI.h"
+#include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "ll/api/chrono/GameChrono.h"

@@ -1,7 +1,5 @@
 #include "engine/LocalShareData.h"
 
-#include <mutex>
-
 // DLL本地共享数据
 std::unique_ptr<LocalDataType> localShareData = nullptr;
 

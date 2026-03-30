@@ -95,7 +95,7 @@ Local<Value> MakeRemoteCall(const string& funcName, const Arguments& args)
     if (data == globalShareData->exportedFuncs.end())
     {
         lse::LegacyScriptEngine::getLogger().error("Fail to import! Function [{}] has not been exported!", funcName);
-        return Local<Value>();
+        return {};
     }
 
     std::vector<std::string> params;

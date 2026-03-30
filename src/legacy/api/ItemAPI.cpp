@@ -335,7 +335,7 @@ Local<Value> ItemClass::set(Arguments const& args) const {
 
     try {
         auto itemNew = ItemClass::extract(args[0]);
-        if (!itemNew) return Local<Value>(); // Null
+        if (!itemNew) return {}; // Null
 
         auto tag = itemNew->save(*SaveContextFactory::createCloneSaveContext());
         if (std::holds_alternative<std::unique_ptr<ItemStack>>(item)) {
@@ -351,7 +351,7 @@ Local<Value> ItemClass::set(Arguments const& args) const {
 Local<Value> ItemClass::clone(Arguments const&) const {
     try {
         auto itemStack = get();
-        if (!itemStack) return Local<Value>();
+        if (!itemStack) return {};
         return ItemClass::newItem(std::make_unique<ItemStack>(*itemStack));
     }
     CATCH_AND_THROW
@@ -441,7 +441,7 @@ Local<Value> ItemClass::setNbt(Arguments const& args) {
 
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt) return Local<Value>(); // Null
+        if (!nbt) return {}; // Null
         ItemHelper::load(*get(), *nbt);
         // update Pre Data
         preloadData();
@@ -520,7 +520,7 @@ Local<Value> McClass::spawnItem(Arguments const& args) {
                 pos.getVec3(),
                 pos.dim
             );
-            if (!entity) return Local<Value>(); // Null
+            if (!entity) return {}; // Null
             return EntityClass::newEntity(entity);
         }
         throw WrongArgTypeException(__FUNCTION__);

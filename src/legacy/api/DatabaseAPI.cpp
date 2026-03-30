@@ -76,7 +76,7 @@ template <>
 Local<Value> any_to(Any const& val) {
     switch (val.type) {
     case Any::Type::Null:
-        return Local<Value>();
+        return {};
     case Any::Type::Boolean:
         return Boolean::newBoolean(std::get<bool>(val.value));
     case Any::Type::Integer:
@@ -118,12 +118,12 @@ Local<Value> any_to(Any const& val) {
     default:
         break;
     }
-    return Local<Value>();
+    return {};
 }
 
 Local<Value> RowSetToLocalValue(RowSet const& rows) {
     if (rows.empty() || !rows.header) {
-        return Local<Value>();
+        return {};
     }
     Local<Array> arr    = Array::newArray();
     Local<Array> header = Array::newArray();
@@ -187,10 +187,10 @@ Local<Value> KVDBClass::get(Arguments const& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         auto res = kvdb->get(args[0].asString().toString());
-        if (!res) return Local<Value>();
+        if (!res) return {};
 
         return JsonToValue(*res);
     }
@@ -202,7 +202,7 @@ Local<Value> KVDBClass::set(Arguments const& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         kvdb->set(args[0].asString().toString(), ValueToJson(args[1]));
         return Boolean::newBoolean(true);
@@ -215,7 +215,7 @@ Local<Value> KVDBClass::del(Arguments const& args) {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         return Boolean::newBoolean(kvdb->del(args[0].asString().toString()));
     }
@@ -234,7 +234,7 @@ Local<Value> KVDBClass::close(Arguments const&) {
 
 Local<Value> KVDBClass::listKey(Arguments const&) {
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         Local<Array> array = Array::newArray();
         for (auto const& [key, _] : kvdb->iter()) {

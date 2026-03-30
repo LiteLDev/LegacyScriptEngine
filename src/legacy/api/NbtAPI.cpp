@@ -1020,7 +1020,7 @@ Local<Value> NbtListClass::getTypeOf(Arguments const& args) const {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= list->size() || index < 0) {
-            return Local<Value>();
+            return {};
         }
 
         return Number::newNumber(static_cast<int>(list[index].getId()));
@@ -1320,7 +1320,7 @@ Local<Value> NbtListClass::getData(Arguments const& args) const {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= getPtr()->size() || index < 0) {
-            return Local<Value>();
+            return {};
         }
 
         return Tag2Value(getPtr()->at(index).get());
@@ -1336,7 +1336,7 @@ Local<Value> NbtListClass::getTag(Arguments const& args) const {
         auto index = args[0].asNumber().toInt32();
 
         if (index >= getPtr()->size() || index < 0) {
-            return Local<Value>();
+            return {};
         }
 
         Local<Value> res;
@@ -1730,7 +1730,7 @@ Local<Value> NbtCompoundClass::getData(Arguments const& args) const {
         if (auto* tag = getPtr(); tag && tag->contains(key)) {
             return Tag2Value(tag->at(key).get().as_ptr<Tag>());
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -1743,7 +1743,7 @@ Local<Value> NbtCompoundClass::getTag(Arguments const& args) const {
         auto key = args[0].asString().toString();
 
         if (auto* tag = getPtr(); !tag || !tag->contains(key)) {
-            return Local<Value>();
+            return {};
         }
 
         Local<Value> res;
@@ -1947,7 +1947,7 @@ Local<Value> NbtStatic::parseSNBT(Arguments const& args) {
     try {
         auto tag = CompoundTag::fromSnbt(args[0].asString().toString());
         if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
-        else return Local<Value>();
+        else return {};
     }
     CATCH_AND_THROW
 }
@@ -1961,7 +1961,7 @@ Local<Value> NbtStatic::parseBinaryNBT(Arguments const& args) {
         auto tag =
             CompoundTag::fromBinaryNbt(std::string_view(static_cast<char*>(data.getRawBytes()), data.byteLength()));
         if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
-        else return Local<Value>();
+        else return {};
     }
     CATCH_AND_THROW
 }

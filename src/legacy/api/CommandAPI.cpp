@@ -329,7 +329,7 @@ Local<Value> CommandClass::setEnum(Arguments const& args) {
     try {
         auto enumName = args[0].asString().toString();
         auto enumArr  = args[1].asArray();
-        if (enumArr.size() == 0 || !enumArr.get(0).isString()) return Local<Value>();
+        if (enumArr.size() == 0 || !enumArr.get(0).isString()) return {};
         std::vector<std::pair<std::string, uint64>> enumValues;
         for (int i = 0; i < enumArr.size(); ++i) {
             enumValues.push_back({enumArr.get(i).asString().toString(), i});

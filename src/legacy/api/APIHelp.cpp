@@ -202,7 +202,7 @@ Local<Value> BigInteger_Helper(ordered_json const& i) {
         }
         return Number::newNumber(i.get<int64_t>());
     }
-    return Local<Value>();
+    return {};
 }
 
 void JsonToValue_Helper(Local<Array> const& res, ordered_json& j);

@@ -56,7 +56,7 @@ Local<Value> ObjectiveClass::getName() const {
 Local<Value> ObjectiveClass::getDisplayName() const {
     try {
         Objective* obj = get();
-        if (!obj) return Local<Value>();
+        if (!obj) return {};
         return String::newString(obj->mDisplayName);
     }
     CATCH_AND_THROW
@@ -69,7 +69,7 @@ Local<Value> ObjectiveClass::setDisplay(Arguments const& args) const {
 
     try {
         Objective* obj = get();
-        if (!obj) return Local<Value>();
+        if (!obj) return {};
 
         std::string slot = args[0].asString().toString();
         int         sort = 0;
@@ -124,7 +124,7 @@ Local<Value> ObjectiveClass::setScore(Arguments const& args) const {
         } else {
             throw WrongArgTypeException(__FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -169,7 +169,7 @@ Local<Value> ObjectiveClass::addScore(Arguments const& args) const {
         } else {
             throw WrongArgTypeException(__FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -214,7 +214,7 @@ Local<Value> ObjectiveClass::reduceScore(Arguments const& args) const {
         } else {
             throw WrongArgTypeException(__FUNCTION__);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -294,7 +294,7 @@ Local<Value> McClass::getDisplayObjective(Arguments const& args) {
         std::string slot = args[0].asString().toString();
         auto        res  = ll::service::getLevel()->getScoreboard().getDisplayObjective(slot);
 
-        if (!res) return Local<Value>();
+        if (!res) return {};
         return ObjectiveClass::newObjective(const_cast<Objective*>(res->mObjective));
     }
     CATCH_AND_THROW

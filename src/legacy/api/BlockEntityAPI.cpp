@@ -83,7 +83,7 @@ Local<Value> BlockEntityClass::setNbt(Arguments const& args) const {
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
-            return Local<Value>();
+            return {};
         }
         blockEntity->load(*ll::service::getLevel(), *nbt, MoreGlobal::defaultDataLoadHelper());
         return Boolean::newBoolean(true);

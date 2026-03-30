@@ -71,7 +71,7 @@ Local<Value> PacketClass::getName() {
     try {
         std::shared_ptr<Packet> pkt = get();
         if (!pkt) {
-            return Local<Value>();
+            return {};
         }
         return String::newString(pkt->getName());
     }
@@ -82,7 +82,7 @@ Local<Value> PacketClass::getId() {
     try {
         std::shared_ptr<Packet> pkt = get();
         if (!pkt) {
-            return Local<Value>();
+            return {};
         }
         return Number::newNumber(static_cast<int>(pkt->getId()));
     }
@@ -108,7 +108,7 @@ Local<Value> BinaryStreamClass::getAndReleaseData() {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         std::string data;
         stream->mBuffer.swap(data);
@@ -128,7 +128,7 @@ Local<Value> BinaryStreamClass::reset() {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->mBuffer.clear();
         return Boolean::newBoolean(true);
@@ -151,7 +151,7 @@ Local<Value> BinaryStreamClass::writeBool(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeBool(args[0].asBoolean().value(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -165,7 +165,7 @@ Local<Value> BinaryStreamClass::writeByte(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -179,7 +179,7 @@ Local<Value> BinaryStreamClass::writeDouble(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeDouble(args[0].asNumber().toDouble(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -193,7 +193,7 @@ Local<Value> BinaryStreamClass::writeFloat(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeFloat(args[0].asNumber().toFloat(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -207,7 +207,7 @@ Local<Value> BinaryStreamClass::writeSignedBigEndianInt(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeSignedBigEndianInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -221,7 +221,7 @@ Local<Value> BinaryStreamClass::writeSignedInt(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeSignedInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -235,7 +235,7 @@ Local<Value> BinaryStreamClass::writeSignedInt64(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeSignedInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -249,7 +249,7 @@ Local<Value> BinaryStreamClass::writeSignedShort(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeSignedShort(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -263,7 +263,7 @@ Local<Value> BinaryStreamClass::writeString(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeString(args[0].asString().toString(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -277,7 +277,7 @@ Local<Value> BinaryStreamClass::writeUnsignedChar(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeByte(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -291,7 +291,7 @@ Local<Value> BinaryStreamClass::writeUnsignedInt(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeUnsignedInt(static_cast<uint32_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -305,7 +305,7 @@ Local<Value> BinaryStreamClass::writeUnsignedInt64(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeUnsignedInt64(static_cast<uint64_t>(args[0].asNumber().toInt64()), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -319,7 +319,7 @@ Local<Value> BinaryStreamClass::writeUnsignedShort(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeUnsignedShort(static_cast<uint16_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -333,7 +333,7 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeUnsignedVarInt(static_cast<uint32_t>(args[0].asNumber().toInt32()), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -347,7 +347,7 @@ Local<Value> BinaryStreamClass::writeUnsignedVarInt64(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeUnsignedVarInt64(static_cast<uint64_t>(args[0].asNumber().toInt64()), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -361,7 +361,7 @@ Local<Value> BinaryStreamClass::writeVarInt(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeVarInt(args[0].asNumber().toInt32(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -375,7 +375,7 @@ Local<Value> BinaryStreamClass::writeVarInt64(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         stream->writeVarInt64(args[0].asNumber().toInt64(), nullptr, nullptr);
         return Boolean::newBoolean(true);
@@ -460,7 +460,7 @@ Local<Value> BinaryStreamClass::createPacket(Arguments const& args) {
     try {
         auto stream = get();
         if (!stream) {
-            return Local<Value>();
+            return {};
         }
         auto pkt = MinecraftPackets::createPacket(static_cast<MinecraftPacketIds>(args[0].asNumber().toInt32()));
         pkt->read(*stream);

@@ -5,6 +5,7 @@
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeInstanceConstRef.h"
+#include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
 
 namespace lse::api {
 

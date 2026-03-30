@@ -59,7 +59,7 @@ Player* DeviceClass::getPlayer() const {
 Local<Value> DeviceClass::getIP() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return String::newString(player->getNetworkIdentifier().getIPAndPort());
     }
@@ -69,7 +69,7 @@ Local<Value> DeviceClass::getIP() const {
 Local<Value> DeviceClass::getAvgPing() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return Number::newNumber(player->getNetworkStatus()->mAveragePing);
     }
@@ -79,7 +79,7 @@ Local<Value> DeviceClass::getAvgPing() const {
 Local<Value> DeviceClass::getAvgPacketLoss() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return Number::newNumber(player->getNetworkStatus()->mAveragePacketLoss);
     }
@@ -89,7 +89,7 @@ Local<Value> DeviceClass::getAvgPacketLoss() const {
 Local<Value> DeviceClass::getLastPing() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPing);
     }
@@ -99,7 +99,7 @@ Local<Value> DeviceClass::getLastPing() const {
 Local<Value> DeviceClass::getLastPacketLoss() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return Number::newNumber(player->getNetworkStatus()->mCurrentPacketLoss);
     }
@@ -109,7 +109,7 @@ Local<Value> DeviceClass::getLastPacketLoss() const {
 Local<Value> DeviceClass::getOs() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return String::newString(magic_enum::enum_name(player->mBuildPlatform));
     }
@@ -119,7 +119,7 @@ Local<Value> DeviceClass::getOs() const {
 Local<Value> DeviceClass::getServerAddress() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         if (player->isSimulatedPlayer()) String::newString("unknown");
         Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
@@ -131,7 +131,7 @@ Local<Value> DeviceClass::getServerAddress() const {
 Local<Value> DeviceClass::getClientId() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         return String::newString(player->getConnectionRequest()->getDeviceId());
     }
@@ -141,7 +141,7 @@ Local<Value> DeviceClass::getClientId() const {
 Local<Value> DeviceClass::getInputMode() const {
     try {
         Player* player = getPlayer();
-        if (!player) return Local<Value>();
+        if (!player) return {};
 
         Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
         return Number::newNumber(requestJson["CurrentInputMode"].asInt(0));
@@ -152,7 +152,7 @@ Local<Value> DeviceClass::getInputMode() const {
 // Local<Value> DeviceClass::getPlayMode() {
 //     try {
 //         Player* player = getPlayer();
-//         if (!player) return Local<Value>();
+//         if (!player) return {};
 
 //         return Number::newNumber(0);
 //     }

@@ -37,6 +37,7 @@
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/Attribute.h"
+#include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -197,7 +198,7 @@ Actor* EntityClass::get() const {
 Local<Value> EntityClass::getUniqueID() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
         else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
     }
     CATCH_AND_THROW
@@ -206,7 +207,7 @@ Local<Value> EntityClass::getUniqueID() const {
 Local<Value> EntityClass::getRuntimeID() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
         else return String::newString(std::to_string(entity->getRuntimeID().rawID));
     }
     CATCH_AND_THROW
@@ -215,7 +216,7 @@ Local<Value> EntityClass::getRuntimeID() const {
 Local<Value> EntityClass::isInvisible() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInvisible());
     }
@@ -225,7 +226,7 @@ Local<Value> EntityClass::isInvisible() const {
 Local<Value> EntityClass::isInsidePortal() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<InsideBlockComponent>()) {
             auto& fullName = component->mInsideBlock->getBlockType().mNameInfo->mFullName;
@@ -241,7 +242,7 @@ Local<Value> EntityClass::isInsidePortal() const {
 Local<Value> EntityClass::isTrusting() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Trusting)
@@ -253,7 +254,7 @@ Local<Value> EntityClass::isTrusting() const {
 Local<Value> EntityClass::isTouchingDamageBlock() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isTouchingDamageBlock());
     }
@@ -263,7 +264,7 @@ Local<Value> EntityClass::isTouchingDamageBlock() const {
 Local<Value> EntityClass::isOnFire() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isOnFire());
     }
@@ -273,7 +274,7 @@ Local<Value> EntityClass::isOnFire() const {
 Local<Value> EntityClass::isOnGround() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isOnGround());
     }
@@ -283,7 +284,7 @@ Local<Value> EntityClass::isOnGround() const {
 Local<Value> EntityClass::isOnHotBlock() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
     }
@@ -293,7 +294,7 @@ Local<Value> EntityClass::isOnHotBlock() const {
 Local<Value> EntityClass::isTrading() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isTrading());
     }
@@ -303,7 +304,7 @@ Local<Value> EntityClass::isTrading() const {
 Local<Value> EntityClass::isRiding() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isRiding());
     }
@@ -313,7 +314,7 @@ Local<Value> EntityClass::isRiding() const {
 Local<Value> EntityClass::isDancing() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Dancing)
@@ -325,7 +326,7 @@ Local<Value> EntityClass::isDancing() const {
 Local<Value> EntityClass::isSleeping() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isSleeping());
     }
@@ -335,7 +336,7 @@ Local<Value> EntityClass::isSleeping() const {
 Local<Value> EntityClass::isAngry() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Angry));
     }
@@ -345,7 +346,7 @@ Local<Value> EntityClass::isAngry() const {
 Local<Value> EntityClass::isBaby() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isBaby());
     }
@@ -355,7 +356,7 @@ Local<Value> EntityClass::isBaby() const {
 Local<Value> EntityClass::isMoving() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
@@ -367,7 +368,7 @@ Local<Value> EntityClass::isMoving() const {
 Local<Value> EntityClass::getName() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return String::newString(CommandUtils::getActorName(*entity));
     }
@@ -377,7 +378,7 @@ Local<Value> EntityClass::getName() const {
 Local<Value> EntityClass::getType() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return String::newString(entity->getTypeName());
     }
@@ -387,7 +388,7 @@ Local<Value> EntityClass::getType() const {
 Local<Value> EntityClass::getId() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Number::newNumber(enum_integer(entity->getEntityTypeId()));
     }
@@ -397,7 +398,7 @@ Local<Value> EntityClass::getId() const {
 Local<Value> EntityClass::getPos() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return FloatPos::newPos(entity->getPosition(), entity->getDimensionId().id);
     }
@@ -407,7 +408,7 @@ Local<Value> EntityClass::getPos() const {
 Local<Value> EntityClass::getPosDelta() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId().id);
     }
@@ -445,7 +446,7 @@ Local<Value> EntityClass::setPosDelta(Arguments const& args) const {
 Local<Value> EntityClass::getFeetPos() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId().id);
     }
@@ -455,7 +456,7 @@ Local<Value> EntityClass::getFeetPos() const {
 Local<Value> EntityClass::getBlockPos() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId().id);
     }
@@ -465,7 +466,7 @@ Local<Value> EntityClass::getBlockPos() const {
 Local<Value> EntityClass::getMaxHealth() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Number::newNumber(entity->getMaxHealth());
     }
@@ -475,7 +476,7 @@ Local<Value> EntityClass::getMaxHealth() const {
 Local<Value> EntityClass::getHealth() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Number::newNumber(entity->getHealth());
     }
@@ -485,7 +486,7 @@ Local<Value> EntityClass::getHealth() const {
 Local<Value> EntityClass::getCanFly() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->canFly());
     }
@@ -495,7 +496,7 @@ Local<Value> EntityClass::getCanFly() const {
 Local<Value> EntityClass::getCanFreeze() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->canFreeze());
     }
@@ -505,7 +506,7 @@ Local<Value> EntityClass::getCanFreeze() const {
 Local<Value> EntityClass::getCanSeeDaylight() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->canSeeDaylight());
     }
@@ -515,7 +516,7 @@ Local<Value> EntityClass::getCanSeeDaylight() const {
 Local<Value> EntityClass::getCanPickupItems() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->mCanPickupItems);
     }
@@ -525,7 +526,7 @@ Local<Value> EntityClass::getCanPickupItems() const {
 Local<Value> EntityClass::getInAir() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(!entity->isOnGround() && !entity->isInWater());
     }
@@ -535,7 +536,7 @@ Local<Value> EntityClass::getInAir() const {
 Local<Value> EntityClass::getInWater() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInWater());
     }
@@ -545,7 +546,7 @@ Local<Value> EntityClass::getInWater() const {
 Local<Value> EntityClass::getInClouds() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         float const cloudHeight = entity->getDimension().getCloudHeight();
         float const y           = entity->getPosition().y;
@@ -557,7 +558,7 @@ Local<Value> EntityClass::getInClouds() const {
 Local<Value> EntityClass::getInLava() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(
             ActorMobilityUtils::shouldApplyLava(entity->getDimensionBlockSourceConst(), entity->getEntityContext())
@@ -569,7 +570,7 @@ Local<Value> EntityClass::getInLava() const {
 Local<Value> EntityClass::getInRain() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInRain());
     }
@@ -579,7 +580,7 @@ Local<Value> EntityClass::getInRain() const {
 Local<Value> EntityClass::getInSnow() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInSnow());
     }
@@ -589,7 +590,7 @@ Local<Value> EntityClass::getInSnow() const {
 Local<Value> EntityClass::getInWall() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         // The original Actor::isInWall() was moved to MobSuffocationSystemImpl::isInWall() in 1.21.60.10, but the later
         // needs too many parameters.
@@ -603,7 +604,7 @@ Local<Value> EntityClass::getInWall() const {
 Local<Value> EntityClass::getInWaterOrRain() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInWaterOrRain());
     }
@@ -613,7 +614,7 @@ Local<Value> EntityClass::getInWaterOrRain() const {
 Local<Value> EntityClass::getInWorld() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isInWorld());
     }
@@ -623,7 +624,7 @@ Local<Value> EntityClass::getInWorld() const {
 Local<Value> EntityClass::getSpeed() const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Number::newNumber(entity->getPosDeltaPerSecLength());
     }
@@ -633,7 +634,7 @@ Local<Value> EntityClass::getSpeed() const {
 Local<Value> EntityClass::getDirection() const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         // getRotation()
         Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
@@ -713,20 +714,20 @@ Local<Value> EntityClass::distanceTo(Arguments const& args) const {
         FloatVec4 pos{};
 
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
 
         if (args.size() == 1) { // pos | player | entity
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Local<Value>();
+                if (posObj->dim < 0) return {};
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Local<Value>();
+                if (posObj->dim < 0) return {};
                 else {
                     pos = static_cast<FloatVec4>(*posObj);
                 }
@@ -734,7 +735,7 @@ Local<Value> EntityClass::distanceTo(Arguments const& args) const {
                 // Player or Entity
 
                 Actor const* targetActor = EntityClass::tryExtractActor(args[0]);
-                if (!targetActor) return Local<Value>();
+                if (!targetActor) return {};
 
                 Vec3 const targetActorPos = targetActor->getPosition();
 
@@ -774,20 +775,20 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
         FloatVec4 pos;
 
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
 
         if (args.size() == 1) {
             if (IsInstanceOf<IntPos>(args[0])) {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Local<Value>();
+                if (posObj->dim < 0) return {};
                 else {
                     pos = *posObj;
                 }
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
-                if (posObj->dim < 0) return Local<Value>();
+                if (posObj->dim < 0) return {};
                 else {
                     pos = static_cast<FloatVec4>(*posObj);
                 }
@@ -795,7 +796,7 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
                 // Player or Entity
 
                 Actor const* targetActor = EntityClass::tryExtractActor(args[0]);
-                if (!targetActor) return Local<Value>();
+                if (!targetActor) return {};
 
                 Vec3 const targetActorPos = targetActor->getPosition();
 
@@ -831,7 +832,7 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
 Local<Value> EntityClass::kill(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         entity->kill();
         return Boolean::newBoolean(true);
@@ -842,7 +843,7 @@ Local<Value> EntityClass::kill(Arguments const&) const {
 Local<Value> EntityClass::despawn(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         entity->despawn();
         return Boolean::newBoolean(true);
@@ -853,7 +854,7 @@ Local<Value> EntityClass::despawn(Arguments const&) const {
 Local<Value> EntityClass::remove(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         entity->remove();
         return Boolean::newBoolean(true);
@@ -864,7 +865,7 @@ Local<Value> EntityClass::remove(Arguments const&) const {
 Local<Value> EntityClass::isPlayer(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->isType(ActorType::Player));
     }
@@ -876,7 +877,7 @@ Local<Value> EntityClass::toPlayer(Arguments const&) const {
         if (auto const player = mWeakEntity.tryUnwrap<Player>()) {
             return PlayerClass::newPlayer(player);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -884,7 +885,7 @@ Local<Value> EntityClass::toPlayer(Arguments const&) const {
 Local<Value> EntityClass::isItemEntity(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->hasCategory(ActorCategory::Item));
     }
@@ -895,7 +896,7 @@ Local<Value> EntityClass::toItem(Arguments const&) const {
     try {
         Actor* entity = get();
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
-            return Local<Value>();
+            return {};
         } else {
             return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
         }
@@ -906,7 +907,7 @@ Local<Value> EntityClass::toItem(Arguments const&) const {
 Local<Value> EntityClass::getBlockStandingOn(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId().id);
     }
@@ -916,7 +917,7 @@ Local<Value> EntityClass::getBlockStandingOn(Arguments const&) const {
 Local<Value> EntityClass::getArmor(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return ContainerClass::newContainer(&ActorEquipment::getArmorContainer(entity->getEntityContext()));
     }
@@ -926,7 +927,7 @@ Local<Value> EntityClass::getArmor(Arguments const&) const {
 Local<Value> EntityClass::refreshItems(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         static_cast<Mob*>(entity)->refreshInventory();
         return Boolean::newBoolean(true);
@@ -937,7 +938,7 @@ Local<Value> EntityClass::refreshItems(Arguments const&) const {
 Local<Value> EntityClass::hasContainer(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         Vec3 const pos = entity->getPosition();
         return Boolean::newBoolean(entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos)) ? true : false);
@@ -948,7 +949,7 @@ Local<Value> EntityClass::hasContainer(Arguments const&) const {
 Local<Value> EntityClass::getContainer(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         Vec3 const pos       = entity->getPosition();
         Container* container = entity->getDimensionBlockSource().tryGetContainer(BlockPos(pos));
@@ -992,7 +993,7 @@ Local<Value> EntityClass::heal(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         entity->heal(args[0].asNumber().toInt32());
         return Boolean::newBoolean(true);
@@ -1006,7 +1007,7 @@ Local<Value> EntityClass::setHealth(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1028,7 +1029,7 @@ Local<Value> EntityClass::setAbsorption(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1050,7 +1051,7 @@ Local<Value> EntityClass::setAttackDamage(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1072,7 +1073,7 @@ Local<Value> EntityClass::setMaxAttackDamage(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1094,7 +1095,7 @@ Local<Value> EntityClass::setFollowRange(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1116,7 +1117,7 @@ Local<Value> EntityClass::setKnockbackResistance(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1138,7 +1139,7 @@ Local<Value> EntityClass::setLuck(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1160,7 +1161,7 @@ Local<Value> EntityClass::setMovementSpeed(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1182,7 +1183,7 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(Arguments const& args) cons
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1204,7 +1205,7 @@ Local<Value> EntityClass::setLavaMovementSpeed(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1226,7 +1227,7 @@ Local<Value> EntityClass::setMaxHealth(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
@@ -1249,7 +1250,7 @@ Local<Value> EntityClass::setOnFire(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         int const time = args[0].asNumber().toInt32();
         entity->setOnFire(time, true);
@@ -1265,7 +1266,7 @@ Local<Value> EntityClass::setFire(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         int const  time     = args[0].asNumber().toInt32();
         bool const isEffect = args[1].asBoolean().value();
@@ -1279,7 +1280,7 @@ Local<Value> EntityClass::setFire(Arguments const& args) const {
 Local<Value> EntityClass::stopFire(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         entity->stopFire();
         return Boolean::newBoolean(true);
@@ -1293,7 +1294,7 @@ Local<Value> EntityClass::setScale(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         SynchedActorDataAccess::setBoundingBoxScale(entity->getEntityContext(), args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
@@ -1304,7 +1305,7 @@ Local<Value> EntityClass::setScale(Arguments const& args) const {
 Local<Value> EntityClass::getNbt(Arguments const&) const {
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         std::unique_ptr<CompoundTag> tag = std::make_unique<CompoundTag>();
         entity->save(*tag);
@@ -1319,11 +1320,11 @@ Local<Value> EntityClass::setNbt(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         auto const nbt = NbtCompoundClass::extract(args[0]);
         if (!nbt) {
-            return Local<Value>();
+            return {};
         }
 
         return Boolean::newBoolean(entity->load(*nbt, MoreGlobal::defaultDataLoadHelper()));
@@ -1337,7 +1338,7 @@ Local<Value> EntityClass::addTag(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->addTag(args[0].asString().toString()));
     }
@@ -1350,7 +1351,7 @@ Local<Value> EntityClass::removeTag(Arguments const& args) const {
 
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->removeTag(args[0].asString().toString()));
     }
@@ -1363,7 +1364,7 @@ Local<Value> EntityClass::hasTag(Arguments const& args) const {
 
     try {
         Actor const* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         return Boolean::newBoolean(entity->hasTag(args[0].asString().toString()));
     }
@@ -1373,7 +1374,7 @@ Local<Value> EntityClass::hasTag(Arguments const& args) const {
 Local<Value> EntityClass::getAllTags(Arguments const&) const {
     try {
         Actor* entity = get();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
 
         Local<Array> arr = Array::newArray();
         if (auto const component =
@@ -1383,7 +1384,7 @@ Local<Value> EntityClass::getAllTags(Arguments const&) const {
             }
             return arr;
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -1392,7 +1393,7 @@ Local<Value> EntityClass::getEntityFromViewVector(Arguments const& args) const {
 
     try {
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
         float maxDistance = 5.25f;
         if (args.size() > 0) {
             CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
@@ -1403,7 +1404,7 @@ Local<Value> EntityClass::getEntityFromViewVector(Arguments const& args) const {
         if (result.mType != HitResultType::NoHit && entity) {
             return EntityClass::newEntity(entity);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -1411,7 +1412,7 @@ Local<Value> EntityClass::getEntityFromViewVector(Arguments const& args) const {
 Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
     try {
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
         bool  includeLiquid = false;
         bool  solidOnly     = false;
         float maxDistance   = 5.25f;
@@ -1450,7 +1451,7 @@ Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
             }
         );
         if (res.mType == HitResultType::NoHit) {
-            return Local<Value>();
+            return {};
         }
         BlockPos bp;
         if (includeLiquid && res.mIsHitLiquid) {
@@ -1461,7 +1462,7 @@ Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
         Block const&     bl     = actor->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
         if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
-            return Local<Value>();
+            return {};
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());
     }
@@ -1473,7 +1474,7 @@ Local<Value> EntityClass::quickEvalMolangScript(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
         Actor* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
         return Number::newNumber(actor->evalMolang(args[0].asString().toString()));
     }
     CATCH_AND_THROW
@@ -1482,7 +1483,7 @@ Local<Value> EntityClass::quickEvalMolangScript(Arguments const& args) const {
 Local<Value> EntityClass::getBiomeId() const {
     try {
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return Number::newNumber(bio.mId->mValue);
     }
@@ -1492,7 +1493,7 @@ Local<Value> EntityClass::getBiomeId() const {
 Local<Value> EntityClass::getBiomeName() const {
     try {
         Actor const* actor = get();
-        if (!actor) return Local<Value>();
+        if (!actor) return {};
         auto& bio = actor->getDimensionBlockSource().getBiome(actor->getFeetBlockPos());
         return String::newString(bio.mHash->getString());
     }
@@ -1503,7 +1504,7 @@ Local<Value> EntityClass::getAllEffects() const {
     try {
         Actor* actor = get();
         if (!actor) {
-            return Local<Value>();
+            return {};
         }
         Local<Array> effectList = Array::newArray();
         for (auto const& effect : actor->_getAllEffectsNonConst()) {
@@ -1659,7 +1660,7 @@ Local<Value> McClass::getEntity(Arguments const& args) {
         if (auto const* entity = level->getRuntimeEntity(ActorRuntimeID(args[0].asNumber().toInt64()), false)) {
             return EntityClass::newEntity(entity);
         }
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -1718,7 +1719,7 @@ Local<Value> McClass::cloneMob(Arguments const& args) {
             true,
             false
         );
-        if (!entity) return Local<Value>(); // Null
+        if (!entity) return {}; // Null
         else return EntityClass::newEntity(entity);
     }
     CATCH_AND_THROW
@@ -1776,7 +1777,7 @@ Local<Value> McClass::spawnMob(Arguments const& args) {
             true,
             false
         );
-        if (!entity) return Local<Value>(); // Null
+        if (!entity) return {}; // Null
         else return EntityClass::newEntity(entity);
     }
     CATCH_AND_THROW

@@ -105,7 +105,7 @@ Local<Value> ConfBaseClass::getPath(Arguments const&) const {
 Local<Value> ConfBaseClass::read(Arguments const&) const {
     try {
         auto content = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
-        if (!content) return Local<Value>();
+        if (!content) return {};
         else return String::newString(*content);
     }
     CATCH_AND_THROW
@@ -317,7 +317,7 @@ Local<Value> ConfIniClass::init(Arguments const& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         string       section = args[0].asString().toString();
         string       key     = args[1].asString().toString();
@@ -380,7 +380,7 @@ Local<Value> ConfIniClass::set(Arguments const& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         string section = args[0].asString().toString();
         string key     = args[1].asString().toString();
@@ -411,7 +411,7 @@ Local<Value> ConfIniClass::getStr(Arguments const& args) const {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kString)
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         return String::newString(iniConf->getString(
             args[0].asString().toString(),
@@ -429,7 +429,7 @@ Local<Value> ConfIniClass::getInt(Arguments const& args) const {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber)
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         return Number::newNumber(iniConf->getInt(
             args[0].asString().toString(),
@@ -447,7 +447,7 @@ Local<Value> ConfIniClass::getFloat(Arguments const& args) const {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         return Number::newNumber(iniConf->getFloat(
             args[0].asString().toString(),
@@ -465,7 +465,7 @@ Local<Value> ConfIniClass::getBool(Arguments const& args) const {
     if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kBoolean);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         return Boolean::newBoolean(iniConf->getBool(
             args[0].asString().toString(),
@@ -482,7 +482,7 @@ Local<Value> ConfIniClass::del(Arguments const& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
 
     try {
-        if (!isValid()) return Local<Value>();
+        if (!isValid()) return {};
 
         bool res = iniConf->deleteKey(args[0].asString().toString(), args[1].asString().toString());
         flush();
@@ -663,11 +663,11 @@ Local<Value> MoneyClass::getHistory(Arguments const& args) {
     } catch (std::invalid_argument const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Local<Value>();
+        return {};
     } catch (std::out_of_range const& e) {
         lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
         ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -920,7 +920,7 @@ Local<Value> KVDBClass::newDb(string const& dir) {
     if (newp->isValid()) return newp->getScriptObject();
     else {
         delete newp;
-        return Local<Value>();
+        return {};
     }
 }
 
@@ -931,7 +931,7 @@ Local<Value> ConfJsonClass::newConf(string const& path, string const& defContent
 
 Local<Value> ConfIniClass::newConf(string const& path, string const& defContent) {
     if (auto newp = new ConfIniClass(path, defContent)) return newp->getScriptObject();
-    else return Local<Value>();
+    else return {};
 }
 
 Local<Value> DataClass::openConfig(Arguments const& args) {

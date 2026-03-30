@@ -296,7 +296,7 @@ Local<Value> WSClientClass::getStatus() const {
     try {
         return Number::newNumber(static_cast<int>(ws->GetStatus()));
     } catch (std::runtime_error const&) {
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -417,7 +417,7 @@ Local<Value> WSClientClass::errorCode(Arguments const&) {
     try {
         return Number::newNumber(WSAGetLastError());
     } catch (std::runtime_error const&) {
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -776,7 +776,7 @@ Local<Value> HttpServerClass::stop(Arguments const& args) const {
     try {
         RecordOperation(getEngineOwnData()->pluginName, "StopHttpServer", "");
         svr->stop();
-        return Local<Value>();
+        return {};
     }
     CATCH_AND_THROW
 }

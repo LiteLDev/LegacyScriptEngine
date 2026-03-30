@@ -30,7 +30,7 @@ Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
         if (args.size() == 1) {
             if (auto sp = SimulatedPlayer::create(name, ll::service::getLevel()->getSharedSpawnPos()))
                 return PlayerClass::newPlayer(sp);
-            else return Local<Value>();
+            else return {};
         }
         auto dimId = 0;
         Vec3 spawnPos;
@@ -56,7 +56,7 @@ Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
                     .bottomCenter();
         }
         if (auto sp = SimulatedPlayer::create(name, spawnPos, dimId)) return PlayerClass::newPlayer(sp);
-        else return Local<Value>();
+        else return {};
     }
     CATCH_AND_THROW
 }
@@ -150,7 +150,7 @@ Local<Value> PlayerClass::simulateDestroy(Arguments const& args) {
 Local<Value> PlayerClass::simulateDisconnect(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->disconnect();
         sp->remove();
         sp->setGameTestHelper(nullptr);
@@ -162,7 +162,7 @@ Local<Value> PlayerClass::simulateDisconnect(Arguments const&) const {
 Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateInteract());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
@@ -212,7 +212,7 @@ Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
 Local<Value> PlayerClass::simulateJump(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         return Boolean::newBoolean(sp->simulateJump());
     }
     CATCH_AND_THROW
@@ -221,7 +221,7 @@ Local<Value> PlayerClass::simulateJump(Arguments const&) const {
 Local<Value> PlayerClass::simulateRespawn(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         if (sp->simulateRespawn()) {
             auto& spawnPoint = sp->mPlayerRespawnPoint;
             get()->teleport(spawnPoint->mPlayerPosition->bottomCenter(), spawnPoint->mDimension);
@@ -363,7 +363,7 @@ Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         int  dimid        = sp->getDimensionId().id;
         auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
@@ -415,7 +415,7 @@ Local<Value> PlayerClass::simulateSetBodyRotation(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->simulateSetBodyRotation(args[0].asNumber().toFloat());
         return Boolean::newBoolean(true);
     }
@@ -445,7 +445,7 @@ Local<Value> PlayerClass::simulateNavigateTo(Arguments const& args) {
     try {
 
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         float speed = 1.f;
         if (args.size() > 1) {
             CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
@@ -564,7 +564,7 @@ Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
 Local<Value> PlayerClass::simulateStopDestroyingBlock(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->simulateStopDestroyingBlock();
         return Boolean::newBoolean(true);
     }
@@ -574,7 +574,7 @@ Local<Value> PlayerClass::simulateStopDestroyingBlock(Arguments const&) const {
 Local<Value> PlayerClass::simulateStopInteracting(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->deleteContainerManager();
         return Boolean::newBoolean(true);
     }
@@ -584,7 +584,7 @@ Local<Value> PlayerClass::simulateStopInteracting(Arguments const&) const {
 Local<Value> PlayerClass::simulateStopMoving(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->simulateStopMoving();
         return Boolean::newBoolean(true);
     }
@@ -594,7 +594,7 @@ Local<Value> PlayerClass::simulateStopMoving(Arguments const&) const {
 Local<Value> PlayerClass::simulateStopUsingItem(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
         sp->simulateStopUsingItem();
         return Boolean::newBoolean(true);
     }
@@ -604,7 +604,7 @@ Local<Value> PlayerClass::simulateStopUsingItem(Arguments const&) const {
 Local<Value> PlayerClass::simulateStopSneaking(Arguments const&) const {
     try {
         auto sp = asSimulatedPlayer();
-        if (!sp) return Local<Value>();
+        if (!sp) return {};
 
         return Boolean::newBoolean(sp->simulateStopSneaking());
     }

@@ -299,7 +299,7 @@ Local<Value> BlockClass::setNbt(Arguments const& args) {
 
     try {
         auto nbt = NbtCompoundClass::extract(args[0]);
-        if (!nbt) return Local<Value>(); // Null
+        if (!nbt) return {}; // Null
 
         // update Pre Data
         auto result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt, nullptr);

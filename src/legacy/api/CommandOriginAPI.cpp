@@ -76,7 +76,7 @@ Local<Value> CommandOriginClass::getPosition() {
 Local<Value> CommandOriginClass::getEntity() {
     try {
         auto entity = get()->getEntity();
-        if (!entity) return Local<Value>();
+        if (!entity) return {};
         return EntityClass::newEntity(entity);
     }
     CATCH_AND_THROW
@@ -85,7 +85,7 @@ Local<Value> CommandOriginClass::getEntity() {
 Local<Value> CommandOriginClass::getPlayer() {
     try {
         Actor* player = get()->getEntity();
-        if (!player) return Local<Value>();
+        if (!player) return {};
         return PlayerClass::newPlayer(static_cast<Player*>(player));
     }
     CATCH_AND_THROW

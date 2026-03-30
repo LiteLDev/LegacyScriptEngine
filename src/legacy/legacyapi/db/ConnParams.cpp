@@ -20,7 +20,7 @@ struct URL {
     std::string                        fragment;
 };
 
-URL ParseURL(const std::string& url) {
+URL ParseURL(std::string const& url) {
     URL         result;
     std::string cur = url;
 
@@ -114,11 +114,11 @@ ConnParams::ConnParams(const std::initializer_list<Any>& list) : std::unordered_
     if (host.find(':') != std::string::npos) {
         host            = host.substr(0, host.find_last_of(':'));
         auto port       = host.substr(host.find_last_of(':') + 1);
-        (*this)["host"] = host;
-        (*this)["port"] = std::stoi(port);
+        (*this)["host"] = Any(host);
+        (*this)["port"] = Any(std::stoi(port));
     }
 }
-ConnParams::ConnParams(const std::initializer_list<std::pair<std::string, Any>>& list)
+ConnParams::ConnParams(std::initializer_list<std::pair<std::string, Any>> const& list)
 : std::unordered_map<std::string, Any>() {
     for (auto& item : list) {
         insert(item);
@@ -127,33 +127,33 @@ ConnParams::ConnParams(const std::initializer_list<std::pair<std::string, Any>>&
     if (host.find(':') != std::string::npos) {
         host            = host.substr(0, host.find_last_of(':'));
         auto port       = host.substr(host.find_last_of(':') + 1);
-        (*this)["host"] = host;
-        (*this)["port"] = std::stoi(port);
+        (*this)["host"] = Any(host);
+        (*this)["port"] = Any(std::stoi(port));
     }
 }
-ConnParams::ConnParams(const std::string& str) : std::unordered_map<std::string, Any>() {
+ConnParams::ConnParams(std::string const& str) : std::unordered_map<std::string, Any>() {
     raw      = str;
     auto url = ParseURL(str);
 #if defined(LLDB_DEBUG_MODE)
     PrintURL(url);
 #endif
 
-    if (!url.scheme.empty()) insert({"scheme", url.scheme});
-    if (!url.host.empty()) insert({"host", url.host});
-    if (url.port) insert({"port", url.port});
-    if (!url.user.empty()) insert({"user", url.user});
-    if (!url.password.empty()) insert({"password", url.password});
+    if (!url.scheme.empty()) insert(std::pair("scheme", url.scheme));
+    if (!url.host.empty()) insert(std::pair("host", url.host));
+    if (url.port) insert(std::pair("port", url.port));
+    if (!url.user.empty()) insert(std::pair("user", url.user));
+    if (!url.password.empty()) insert(std::pair("password", url.password));
     if (!url.path.empty()) {
         std::string path = url.path;
         if (path[0] == '/') path = path.substr(1);
-        insert({"path", path});
+        insert(std::pair("path", path));
     }
-    if (!url.fragment.empty()) insert({"fragment", url.fragment});
+    if (!url.fragment.empty()) insert(std::pair("fragment", url.fragment));
     for (auto& pair : url.query) {
         insert({pair.first, Any::str2any(pair.second)});
     }
 }
-ConnParams::ConnParams(const char* str) : std::unordered_map<std::string, Any>() {
+ConnParams::ConnParams(char const* str) : std::unordered_map<std::string, Any>() {
     *this = ConnParams(std::string(str));
 }
 

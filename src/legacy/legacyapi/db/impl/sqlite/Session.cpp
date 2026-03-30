@@ -8,22 +8,28 @@
 namespace DB {
 
 SQLiteSession::SQLiteSession() {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession: Constructed! this: {}", (void*)this);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
+        "SQLiteSession: Constructed! this: {}",
+        static_cast<void*>(this)
+    );
 }
-SQLiteSession::SQLiteSession(const ConnParams& params) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession: Constructed! this: {}", (void*)this);
-    open(params);
+SQLiteSession::SQLiteSession(ConnParams const& params) {
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
+        "SQLiteSession: Constructed! this: {}",
+        static_cast<void*>(this)
+    );
+    SQLiteSession::open(params);
 }
 
 SQLiteSession::~SQLiteSession() {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "SQLiteSession::~SQLiteSession: Destructor: this: {}",
-        (void*)this
+        static_cast<void*>(this)
     );
-    close();
+    SQLiteSession::close();
 }
 
-void SQLiteSession::open(const ConnParams& params) {
+void SQLiteSession::open(ConnParams const& params) {
     // see https://www.sqlite.org/c3ref/open.html
     auto p    = params; // Copy to avoid modifying the origin.
     auto path = p.getPath();
@@ -57,10 +63,10 @@ void SQLiteSession::open(const ConnParams& params) {
     if (p.get<bool>({"nofollow", "no_follow"}, false, false)) {
         flags |= SQLITE_OPEN_NOFOLLOW;
     }
-    if (!params.count("readonly") && !params.count("readwrite")) {
+    if (!params.contains("readonly") && !params.contains("readwrite")) {
         flags |= SQLITE_OPEN_READWRITE;
     }
-    if (!params.count("create")) {
+    if (!params.contains("create")) {
         flags |= SQLITE_OPEN_CREATE;
     }
     auto res = sqlite3_open_v2(path.c_str(), &conn, flags, nullptr);
@@ -70,26 +76,26 @@ void SQLiteSession::open(const ConnParams& params) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::open: Opened database: " + std::string(path));
 }
 
-bool SQLiteSession::execute(const std::string& query) {
+bool SQLiteSession::execute(std::string const& query) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::execute: Executing > " + query);
     auto     res = sqlite3_exec(conn, query.c_str(), nullptr, nullptr, nullptr);
     return res == SQLITE_OK;
 }
 
-Session& SQLiteSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
+Session& SQLiteSession::query(std::string const& query, std::function<bool(Row const&)> callback) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::query: Querying > " + query);
-    auto     stmt = prepare(query);
+    auto     stmt = prepare(query, false);
     stmt->fetchAll(callback);
     return *this;
 }
 
-SharedPointer<Stmt> SQLiteSession::prepare(const std::string& query, bool autoExecute) {
+SharedPointer<Stmt> SQLiteSession::prepare(std::string const& query, bool autoExecute) {
     auto stmt = SQLiteStmt::create(getOrSetSelf(), query, autoExecute);
     stmtPool.push_back(stmt);
     return stmt;
 }
 
-std::string SQLiteSession::getLastError() const { return std::string(sqlite3_errmsg(conn)); }
+std::string SQLiteSession::getLastError() const { return sqlite3_errmsg(conn); }
 
 uint64_t SQLiteSession::getAffectedRows() const { return sqlite3_changes(conn); }
 
@@ -121,6 +127,6 @@ bool SQLiteSession::isOpen() { return conn != nullptr; }
 
 DBType SQLiteSession::getType() { return DBType::SQLite; }
 
-SharedPointer<Stmt> SQLiteSession::operator<<(const std::string& query) { return prepare(query, true); }
+SharedPointer<Stmt> SQLiteSession::operator<<(std::string const& query) { return prepare(query, true); }
 
 } // namespace DB

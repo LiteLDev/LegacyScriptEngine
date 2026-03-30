@@ -38,7 +38,7 @@ void RowSet::add(const Row& row) {
     }
 }
 
-bool RowSet::valid() {
+bool RowSet::valid() const {
     if (!header) return false;
     size_t rowSize = header->size();
     if (!rowSize) return false;
@@ -51,18 +51,18 @@ bool RowSet::valid() {
 void RowSet::push_back(const Row& row) { add(row); }
 
 std::string RowSet::toTableString(const std::string& nullPattern) const {
-    if (!header || !header->size()) return "";
+    if (!header || header->empty()) return "";
     std::string result, dividingLine;
     // Get the field widths
     std::vector<size_t> colWidths;
-    for (size_t i = 0; i < header->size(); ++i) {
-        colWidths.push_back(header->at(i).size());
+    for (const auto & i : *header) {
+        colWidths.push_back(i.size());
     }
     for (auto& row : *this) {
         for (size_t i = 0; i < row.size(); ++i) {
             auto val = row.data()[i];
             if (val.is_null()) {
-                colWidths[i] = std::max(sizeof(nullPattern) - 1, colWidths[i]);
+                colWidths[i] = std::max(nullPattern.size() - 1, colWidths[i]);
             }
             colWidths[i] = std::max(val.get<std::string>().size(), colWidths[i]);
         }

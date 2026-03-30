@@ -284,7 +284,7 @@ DBSessionClass* DBSessionClass::constructor(Arguments const& args) {
             CHECK_ARG_TYPE(args[1], ValueKind::kObject);
             auto       obj = args[1].asObject();
             ConnParams params;
-            params["type"] = args[0].asString().toString();
+            params["type"] = Any(args[0].asString().toString());
             for (auto& key : obj.getKeys()) params[key.toString()] = LocalValueToAny(obj.get(key));
             result = new DBSessionClass(args.thiz(), ConnParams(params));
             break;
@@ -324,7 +324,7 @@ Local<Value> DBSessionClass::prepare(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        auto stmt = new DBStmtClass(session->prepare(args[0].asString().toString()));
+        auto stmt = new DBStmtClass(session->prepare(args[0].asString().toString(), false));
         return stmt->getScriptObject();
     }
     CATCH_AND_THROW

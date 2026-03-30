@@ -18,7 +18,7 @@ public:
      * @param list  An initializer list like `{"host", "localhost", "port", 3306}`
      * @throw std::invalid_argument  If the type of key is not supported
      */
-    ConnParams(const std::initializer_list<Any>& list);
+    ConnParams(std::initializer_list<Any> const& list);
     /**
      * @brief Construct a new ConnParams object
      *
@@ -26,21 +26,21 @@ public:
      * "value2"}}`
      */
 
-    ConnParams(const std::initializer_list<std::pair<std::string, Any>>& list);
+    ConnParams(std::initializer_list<std::pair<std::string, Any>> const& list);
     /**
      * @brief Construct a new ConnParams object
      *
      * @param str  Connection string like
      * `mysql://localhost:3306?key1=value1&key2=value2`
      */
-    ConnParams(const std::string& str);
+    explicit ConnParams(std::string const& str);
     /**
      * @brief Construct a new ConnParams object
      *
      * @param str  Connection string like
      * `mysql://localhost:3306?key1=value1&key2=value2`
      */
-    ConnParams(const char* str);
+    explicit ConnParams(char const* str);
 
     /**
      * @brief Get the scheme.
@@ -107,13 +107,13 @@ public:
      *          the first one(keys[0]) will be returned.
      */
     template <typename T>
-    inline T get(const std::vector<std::string>& keys, bool ignoreCase = true, T defaultValue = T()) {
+    inline T get(std::vector<std::string> const& keys, bool ignoreCase = true, T defaultValue = T()) {
         Any value;
         int w = INT_MAX;
         for (auto& [k, v] : *this) {
             std::string lowerKey = k;
             if (ignoreCase) {
-                std::transform(lowerKey.begin(), lowerKey.end(), lowerKey.begin(), ::tolower);
+                std::ranges::transform(lowerKey, lowerKey.begin(), ::tolower);
             }
             int i = 0;
             for (auto& key : keys) {

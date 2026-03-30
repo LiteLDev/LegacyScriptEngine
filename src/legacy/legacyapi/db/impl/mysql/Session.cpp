@@ -10,25 +10,28 @@ namespace DB {
 MySQLSession::MySQLSession() {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
         "MySQLSession::MySQLSession: Constructed! this: {}",
-        (void*)this
+        static_cast<void*>(this)
     );
     conn = mysql_init(nullptr);
 }
-MySQLSession::MySQLSession(const ConnParams& params) {
+MySQLSession::MySQLSession(ConnParams const& params) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
         "MySQLSession::MySQLSession: Constructed! this: {}",
-        (void*)this
+        static_cast<void*>(this)
     );
     conn = mysql_init(nullptr);
-    open(params);
+    MySQLSession::open(params);
 }
 
 MySQLSession::~MySQLSession() {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().info("MySQLSession::MySQLSession: Destructor: this: {}", (void*)this);
-    close();
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
+        "MySQLSession::MySQLSession: Destructor: this: {}",
+        static_cast<void*>(this)
+    );
+    MySQLSession::close();
 }
 
-void MySQLSession::setSSL(const ConnParams& params) {
+void MySQLSession::setSSL(ConnParams const& params) const {
     auto p      = params;
     auto key    = p.get<std::string>({"sslkey", "ssl_key", "ssl-key"});          // Private key path
     auto cert   = p.get<std::string>({"sslcert", "ssl_cert", "ssl-cert"});       // Public certificate path
@@ -48,7 +51,7 @@ void MySQLSession::setSSL(const ConnParams& params) {
     ); // Always returns 0
 }
 
-void MySQLSession::open(const ConnParams& params) {
+void MySQLSession::open(ConnParams const& params) {
     auto          p     = params;
     unsigned long flags = 0;
     uint16_t      port  = 0;
@@ -102,20 +105,20 @@ void MySQLSession::open(const ConnParams& params) {
 #endif
 }
 
-bool MySQLSession::execute(const std::string& query) {
+bool MySQLSession::execute(std::string const& query) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::execute: Executing > " + query);
     auto     res = mysql_query(conn, query.c_str());
     return res == OK;
 }
 
-bool MySQLSession::relogin(const std::string& user, const std::string& password, const std::string& db) {
+bool MySQLSession::relogin(std::string const& user, std::string const& password, std::string const& db) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger()
         .debug("MySQLSession::change: Changing user to{} and database to {} ", user, db);
     auto res = mysql_change_user(conn, user.c_str(), password.c_str(), (db.empty() ? nullptr : db.c_str()));
     return res == OK;
 }
 
-Session& MySQLSession::query(const std::string& query, std::function<bool(const Row&)> callback) {
+Session& MySQLSession::query(std::string const& query, std::function<bool(Row const&)> callback) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::query: Querying > " + query);
     auto     res = mysql_query(conn, query.c_str());
     if (res != OK) {
@@ -140,7 +143,7 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
         Row r(header);
         for (unsigned int i = 0; i < numFields; i++) {
             auto        type = fields[i].type;
-            const char* col  = row[i];
+            char const* col  = row[i];
             if (!col) {
                 // NULL column -> push a null/empty Any and continue
                 r.push_back(Any());
@@ -153,14 +156,14 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
             case MYSQL_TYPE_LONGLONG:
             case MYSQL_TYPE_INT24:
             case MYSQL_TYPE_YEAR:
-                if (fields[i].flags & UNSIGNED_FLAG) r.push_back(std::stoull(row[i]));
-                else r.push_back(std::stoll(row[i]));
+                if (fields[i].flags & UNSIGNED_FLAG) r.push_back(Any(std::stoull(row[i])));
+                else r.push_back(Any(std::stoll(row[i])));
                 break;
             case MYSQL_TYPE_FLOAT:
-                r.push_back(std::stof(row[i]));
+                r.push_back(Any(std::stof(row[i])));
                 break;
             case MYSQL_TYPE_DOUBLE:
-                r.push_back(std::stod(row[i]));
+                r.push_back(Any(std::stod(row[i])));
                 break;
             case MYSQL_TYPE_BIT: {
                 uint64_t val = 0;
@@ -168,7 +171,7 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
                 for (unsigned int j = 0; j < len; j++) {
                     if (row[i][j] == '1') val |= (1ULL << j);
                 }
-                r.push_back(val);
+                r.push_back(Any(val));
                 break;
             }
             case MYSQL_TYPE_STRING:
@@ -177,7 +180,7 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
             case MYSQL_TYPE_SET:
             case MYSQL_TYPE_VARCHAR:
             case MYSQL_TYPE_JSON:
-                r.push_back(std::string(row[i]));
+                r.push_back(Any(std::string(row[i])));
                 break;
             case MYSQL_TYPE_DECIMAL:
             case MYSQL_TYPE_NEWDECIMAL: {
@@ -189,7 +192,7 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
             case MYSQL_TYPE_MEDIUM_BLOB:
             case MYSQL_TYPE_LONG_BLOB:
             case MYSQL_TYPE_BLOB:
-                r.push_back(ByteArray(row[i], row[i] + strlen(row[i])));
+                r.push_back(Any(ByteArray(row[i], row[i] + strlen(row[i]))));
                 break;
             case MYSQL_TYPE_GEOMETRY:
             default:
@@ -204,13 +207,13 @@ Session& MySQLSession::query(const std::string& query, std::function<bool(const 
     return *this;
 }
 
-SharedPointer<Stmt> MySQLSession::prepare(const std::string& query, bool autoExecute) {
+SharedPointer<Stmt> MySQLSession::prepare(std::string const& query, bool autoExecute) {
     auto stmt = MySQLStmt::create(getOrSetSelf(), query, autoExecute);
     stmtPool.push_back(stmt);
     return stmt;
 }
 
-std::string MySQLSession::getLastError() const { return std::string(mysql_error(conn)); }
+std::string MySQLSession::getLastError() const { return mysql_error(conn); }
 
 uint64_t MySQLSession::getAffectedRows() const { return mysql_affected_rows(conn); }
 
@@ -228,6 +231,6 @@ bool MySQLSession::isOpen() { return mysql_ping(conn) == OK; }
 
 DBType MySQLSession::getType() { return DBType::MySQL; }
 
-SharedPointer<Stmt> MySQLSession::operator<<(const std::string& query) { return prepare(query, true); }
+SharedPointer<Stmt> MySQLSession::operator<<(std::string const& query) { return prepare(query, true); }
 
 } // namespace DB

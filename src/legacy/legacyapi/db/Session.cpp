@@ -10,14 +10,14 @@ namespace DB {
 
 void Session::setDebugOutput(bool enable) { debugOutput = enable; }
 
-bool Session::relogin(const std::string&, const std::string&, const std::string&) {
+bool Session::relogin(std::string const&, std::string const&, std::string const&) {
     throw std::runtime_error("Session::relogin: Not implemented");
 }
 
-ResultSet Session::query(const std::string& query) {
+ResultSet Session::query(std::string const& query) {
     bool      headerSet = false;
     ResultSet result;
-    this->query(query, [&](const Row& row) {
+    this->query(query, [&](Row const& row) {
         if (!headerSet) {
             result.header = row.header;
             headerSet     = true;
@@ -48,10 +48,10 @@ std::weak_ptr<Session> Session::getOrSetSelf() {
     return self;
 }
 
-SharedPointer<Stmt> Session::operator<<(const std::string& query) { return prepare(query); }
+SharedPointer<Stmt> Session::operator<<(std::string const& query) { return prepare(query, false); }
 
 SharedPointer<Session> Session::create(DBType type) { return _Create(type); }
-SharedPointer<Session> Session::create(const ConnParams& params) {
+SharedPointer<Session> Session::create(ConnParams const& params) {
     static std::unordered_map<std::string, DBType> names{
         {"sqlite",  DBType::SQLite},
         {"sqlite3", DBType::SQLite},
@@ -61,43 +61,43 @@ SharedPointer<Session> Session::create(const ConnParams& params) {
     };
     ConnParams copy   = params;
     auto       scheme = copy.getScheme();
-    std::transform(scheme.begin(), scheme.end(), scheme.begin(), ::tolower);
-    if (names.count(scheme)) {
+    std::ranges::transform(scheme, scheme.begin(), ::tolower);
+    if (names.contains(scheme)) {
         return _Create(names[scheme], params);
     } else {
         throw std::runtime_error("Session::create: Unknown/Unsupported database type");
     }
 }
-SharedPointer<Session> Session::create(DBType type, const ConnParams& params) { return _Create(type, params); }
+SharedPointer<Session> Session::create(DBType type, ConnParams const& params) { return _Create(type, params); }
 SharedPointer<Session> Session::create(
     DBType             type,
-    const std::string& host,
+    std::string const& host,
     uint16_t           port,
-    const std::string& user,
-    const std::string& password,
-    const std::string& database
+    std::string const& user,
+    std::string const& password,
+    std::string const& database
 ) {
     return _Create(
         type,
         {
-            {"host",     host    },
-            {"port",     port    },
-            {"user",     user    },
-            {"password", password},
-            {"database", database}
+            {"host",     Any(host)    },
+            {"port",     Any(port)    },
+            {"user",     Any(user)    },
+            {"password", Any(password)},
+            {"database", Any(database)}
     }
     );
 }
-SharedPointer<Session> Session::create(DBType type, const std::string& path) {
+SharedPointer<Session> Session::create(DBType type, std::string const& path) {
     return _Create(
         type,
         {
-            {"path", path}
+            {"path", Any(path)}
     }
     );
 }
 
-SharedPointer<Session> Session::_Create(DBType type, const ConnParams& params) {
+SharedPointer<Session> Session::_Create(DBType type, ConnParams const& params) {
     std::shared_ptr<Session> session = nullptr;
     switch (type) {
     case DBType::SQLite:

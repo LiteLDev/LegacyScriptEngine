@@ -22,27 +22,27 @@ Any::Any(double v) {
     type  = Type::Floating;
     value = v;
 }
-Any::Any(const std::string& v) {
+Any::Any(std::string const& v) {
     type  = Type::String;
     value = v;
 }
-Any::Any(const char* v) {
+Any::Any(char const* v) {
     type  = Type::String;
     value = v;
 }
-Any::Any(char* v, size_t len) {
+Any::Any(char const* v, size_t len) {
     type  = Type::String;
     value = std::string(v, len);
 }
-Any::Any(const Date& v) {
+Any::Any(Date const& v) {
     type  = Type::Date;
     value = v;
 }
-Any::Any(const Time& v) {
+Any::Any(Time const& v) {
     type  = Type::Time;
     value = v;
 }
-Any::Any(const DateTime& v) {
+Any::Any(DateTime const& v) {
     type  = Type::DateTime;
     value = v;
 }
@@ -82,13 +82,13 @@ Any::Any(float v) {
     type  = Type::Floating;
     value = v;
 }
-Any::Any(const ByteArray& v) {
+Any::Any(ByteArray const& v) {
     type  = Type::Blob;
     value = v;
 }
-Any::Any(const Any& v) { *this = v; }
+Any::Any(Any const& v) { *this = v; }
 
-Any& Any::operator=(const Any& v) {
+Any& Any::operator=(Any const& v) {
     if (this == &v) return *this;
     type  = v.type;
     value = v.value;
@@ -134,7 +134,7 @@ std::string Any::type2str(Any::Type type) {
     }
 }
 
-Any Any::str2any(const std::string& str) {
+Any Any::str2any(std::string const& str) {
     if (str.empty()) return Any();
     bool isInteger  = true;
     bool isFloating = false;
@@ -155,12 +155,13 @@ Any Any::str2any(const std::string& str) {
         }
     }
     if (isFloating) return Any(std::stod(str));
-    else if (isInteger) {
+    if (isInteger) {
         auto floating = std::stod(str);
         if (floating > ULLONG_MAX || floating < LLONG_MIN) return Any(floating);
-        else if (floating > LLONG_MAX) return Any(std::stoull(str));
+        if (floating > LLONG_MAX) return Any(std::stoull(str));
         return Any(std::stoll(str));
-    } else return Any(str);
+    }
+    return Any(str);
 }
 
 } // namespace DB

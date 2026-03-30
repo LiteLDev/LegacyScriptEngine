@@ -9,15 +9,18 @@
 
 namespace DB {
 
-SQLiteStmt::SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute)
+SQLiteStmt::SQLiteStmt(sqlite3_stmt* stmt, std::weak_ptr<Session> const& parent, bool autoExecute)
 : Stmt(parent, autoExecute),
   stmt(stmt) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::SQLiteStmt: Constructed! this: {}", (void*)this);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
+        "SQLiteStmt::SQLiteStmt: Constructed! this: {}",
+        static_cast<void*>(this)
+    );
     totalParamsCount = sqlite3_bind_parameter_count(stmt);
-    if (!totalParamsCount && autoExecute) execute(); // Execute without params
+    if (!totalParamsCount && autoExecute) SQLiteStmt::execute(); // Execute without params
 }
 
-int SQLiteStmt::getNextParamIndex() {
+int SQLiteStmt::getNextParamIndex() const {
     int result = -1;
     for (int i = 0; i < boundIndexes.size() && i < totalParamsCount; i++) {
         if (boundIndexes[i] == result + 1) {
@@ -43,11 +46,14 @@ void SQLiteStmt::fetchResultHeader() {
 }
 
 SQLiteStmt::~SQLiteStmt() {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::~SQLiteStmt: Destructor: this: {}", (void*)this);
-    close();
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
+        "SQLiteStmt::~SQLiteStmt: Destructor: this: {}",
+        static_cast<void*>(this)
+    );
+    SQLiteStmt::close();
 }
 
-Stmt& SQLiteStmt::bind(const Any& value, int index) {
+Stmt& SQLiteStmt::bind(Any const& value, int index) {
     ++index; // Index starts at 1, but we need to start at 0
     if (index <= 0 || index > totalParamsCount) {
         throw std::invalid_argument("SQLiteStmt::bind: Invalid argument `index`");
@@ -69,9 +75,9 @@ Stmt& SQLiteStmt::bind(const Any& value, int index) {
         if (val > LLONG_MAX) {
             // The conversion of uint64 to double may result in loss of precision,
             // so it is recommended to use string/blob for big numbers
-            res = sqlite3_bind_double(stmt, index, (double)val);
+            res = sqlite3_bind_double(stmt, index, static_cast<double>(val));
         } else {
-            res = sqlite3_bind_int64(stmt, index, (int64_t)val);
+            res = sqlite3_bind_int64(stmt, index, static_cast<int64_t>(val));
         }
         break;
     }
@@ -89,7 +95,7 @@ Stmt& SQLiteStmt::bind(const Any& value, int index) {
             stmt,
             index,
             value.get<ByteArray>().data(),
-            (int)value.get<ByteArray>().size(),
+            static_cast<int>(value.get<ByteArray>().size()),
             SQLITE_TRANSIENT
         );
         break;
@@ -109,7 +115,7 @@ Stmt& SQLiteStmt::bind(const Any& value, int index) {
     if (!getUnboundParams() && autoExecute) execute(); // Execute the statement if all the parameters are bound
     return *this;
 }
-Stmt& SQLiteStmt::bind(const Any& value, const std::string& name) {
+Stmt& SQLiteStmt::bind(Any const& value, std::string const& name) {
     if (name.empty()) {
         throw std::runtime_error("SQLiteStmt::bind: The name is empty");
     }
@@ -132,7 +138,7 @@ Stmt& SQLiteStmt::bind(const Any& value, const std::string& name) {
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::bind: Parameter `{}` is at index {}", name, index);
     return bind(value, index - 1);
 }
-Stmt& SQLiteStmt::bind(const Any& value) { return bind(value, getNextParamIndex()); }
+Stmt& SQLiteStmt::bind(Any const& value) { return bind(value, getNextParamIndex()); }
 
 Stmt& SQLiteStmt::execute() {
     step();
@@ -182,22 +188,22 @@ Row SQLiteStmt::_Fetch() {
     for (int i = 0; i < resultHeader->size(); i++) {
         switch (sqlite3_column_type(stmt, i)) {
         case SQLITE_INTEGER:
-            row.push_back(sqlite3_column_int64(stmt, i));
+            row.push_back(Any(sqlite3_column_int64(stmt, i)));
             break;
         case SQLITE_FLOAT:
-            row.push_back(sqlite3_column_double(stmt, i));
+            row.push_back(Any(sqlite3_column_double(stmt, i)));
             break;
         case SQLITE_TEXT: {
-            std::string text(reinterpret_cast<const char*>(sqlite3_column_text(stmt, i)));
+            std::string text(reinterpret_cast<char const*>(sqlite3_column_text(stmt, i)));
             IF_ENDBG    lse::LegacyScriptEngine::getLogger()
                 .debug("SQLiteStmt::_Fetch: Fetched TEXT type column: {} {}", i, text);
-            row.push_back(text);
+            row.push_back(Any(text));
             break;
         }
         case SQLITE_BLOB: {
             ByteArray arr(
-                reinterpret_cast<const uint8_t*>(sqlite3_column_blob(stmt, i)),
-                reinterpret_cast<const uint8_t*>(sqlite3_column_blob(stmt, i)) + sqlite3_column_bytes(stmt, i)
+                static_cast<uint8_t const*>(sqlite3_column_blob(stmt, i)),
+                static_cast<uint8_t const*>(sqlite3_column_blob(stmt, i)) + sqlite3_column_bytes(stmt, i)
             );
             IF_ENDBG {
                 std::string out = "SQLiteStmt::_Fetch: Fetched BLOB type column: " + std::to_string(i) + " ";
@@ -206,7 +212,7 @@ Row SQLiteStmt::_Fetch() {
                 }
                 lse::LegacyScriptEngine::getLogger().debug(out);
             }
-            row.push_back(arr);
+            row.push_back(Any(arr));
             break;
         }
         case SQLITE_NULL:
@@ -284,22 +290,22 @@ uint64_t SQLiteStmt::getAffectedRows() const { return affectedRowCount; }
 
 uint64_t SQLiteStmt::getInsertId() const { return insertRowId; }
 
-int SQLiteStmt::getUnboundParams() const { return totalParamsCount - boundParamsCount; }
+unsigned long SQLiteStmt::getUnboundParams() const { return totalParamsCount - boundParamsCount; }
 
-int SQLiteStmt::getBoundParams() const { return boundParamsCount; }
+unsigned long SQLiteStmt::getBoundParams() const { return boundParamsCount; }
 
-int SQLiteStmt::getParamsCount() const { return totalParamsCount; }
+unsigned long SQLiteStmt::getParamsCount() const { return totalParamsCount; }
 
 DBType SQLiteStmt::getType() const { return DBType::SQLite; }
 
 SharedPointer<Stmt>
-SQLiteStmt::create(const std::weak_ptr<Session>& session, const std::string& sql, bool autoExecute) {
+SQLiteStmt::create(std::weak_ptr<Session> const& session, std::string const& sql, bool autoExecute) {
     auto s = session.lock();
     if (!s || s->getType() != DBType::SQLite) {
         throw std::invalid_argument("SQLiteStmt::create: Session is invalid");
     }
     sqlite3_stmt* stmt = nullptr;
-    auto          raw  = (SQLiteSession*)s.get();
+    auto          raw  = static_cast<SQLiteSession*>(s.get());
     int           res  = sqlite3_prepare_v2(raw->conn, sql.c_str(), -1, &stmt, nullptr);
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteStmt::create: " + s->getLastError());

@@ -19,41 +19,41 @@ public:
      *
      * @param header  The header(column names) of rows(shared_ptr)
      */
-    RowSet(const std::shared_ptr<RowHeader>& header = nullptr);
+    explicit RowSet(std::shared_ptr<RowHeader> const& header = nullptr);
     /**
      * @brief Construct a new Row Set object
      *
      * @param header  The header(column names) of rows
      */
-    RowSet(const RowHeader& header);
+    explicit RowSet(RowHeader const& header);
     /// Move constructor
     RowSet(RowSet&& set) noexcept;
     /// Copy constructor
-    RowSet(const RowSet& set);
+    RowSet(RowSet const& set);
     /// Move assignment operator
     RowSet& operator=(RowSet&& set) noexcept;
     /// Copy assignment operator
-    RowSet& operator=(const RowSet& set);
+    RowSet& operator=(RowSet const& set);
 
     /**
      * @brief Add a row to the set.
      *
      * @param row  The row to add
      */
-    void add(const Row& row);
+    void add(Row const& row);
     /**
      * @brief Get if the set is valid
      *
      * @return bool  True if valid
      */
-    bool valid();
+    [[nodiscard]] bool valid() const;
     /**
      * @brief Add a row to the set.
      *
      * @param row  The row to add
      * @see   add(const Row&)
      */
-    void push_back(const Row& row);
+    void push_back(Row const& row);
     /**
      * @brief Convert to the table string.
      *
@@ -70,7 +70,7 @@ public:
      * |=====|========|
      * @endcode
      */
-    std::string toTableString(const std::string& nullPattern = "<NULL>") const;
+    [[nodiscard]] std::string toTableString(std::string const& nullPattern = "<NULL>") const;
 };
 
 using ResultSet = RowSet;

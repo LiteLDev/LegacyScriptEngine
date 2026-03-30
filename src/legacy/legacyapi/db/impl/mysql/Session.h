@@ -11,25 +11,25 @@ class MySQLSession : public Session {
 
     MYSQL* conn = nullptr;
 
-    void setSSL(const ConnParams& params);
+    void setSSL(ConnParams const& params) const;
 
 public:
     MySQLSession();
-    MySQLSession(const ConnParams& params);
-    ~MySQLSession();
-    void                open(const ConnParams& params);
-    bool                execute(const std::string& query);
-    bool                relogin(const std::string& user, const std::string& password, const std::string& db = "");
-    Session&            query(const std::string& query, std::function<bool(const Row&)> callback);
-    SharedPointer<Stmt> prepare(const std::string& query, bool autoExecute = false);
-    std::string         getLastError() const;
-    uint64_t            getAffectedRows() const;
-    uint64_t            getLastInsertId() const;
-    void                close();
-    bool                isOpen();
-    DBType              getType();
+    explicit MySQLSession(ConnParams const& params);
+    ~MySQLSession() override;
+    void                open(ConnParams const& params) override;
+    bool                execute(std::string const& query) override;
+    bool                relogin(std::string const& user, std::string const& password, std::string const& db) override;
+    Session&            query(std::string const& query, std::function<bool(Row const&)> callback) override;
+    SharedPointer<Stmt> prepare(std::string const& query, bool autoExecute) override;
+    [[nodiscard]] std::string getLastError() const override;
+    [[nodiscard]] uint64_t    getAffectedRows() const override;
+    [[nodiscard]] uint64_t    getLastInsertId() const override;
+    void                      close() override;
+    bool                      isOpen() override;
+    DBType                    getType() override;
 
-    SharedPointer<Stmt> operator<<(const std::string& query);
+    SharedPointer<Stmt> operator<<(std::string const& query) override;
 
     friend class MySQLStmt;
 };

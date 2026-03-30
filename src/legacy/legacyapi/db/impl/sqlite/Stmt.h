@@ -20,37 +20,37 @@ class SQLiteStmt : public Stmt {
     bool                       executed         = false;
     std::vector<int>           boundIndexes;
 
-    int  getNextParamIndex();
+    int  getNextParamIndex() const;
     void fetchResultHeader();
 
 public:
-    SQLiteStmt(sqlite3_stmt* stmt, const std::weak_ptr<Session> parent, bool autoExecute);
-    ~SQLiteStmt();
-    Stmt& bind(const Any& value, int index);
-    Stmt& bind(const Any& value, const std::string& name);
-    Stmt& bind(const Any& value);
-    Stmt& execute();
-    bool  step();
-    bool  next();
-    bool  done();
-    Row   _Fetch();
-    Stmt& reset();
+    SQLiteStmt(sqlite3_stmt* stmt, std::weak_ptr<Session> const& parent, bool autoExecute);
+    ~SQLiteStmt() override;
+    Stmt& bind(Any const& value, int index) override;
+    Stmt& bind(Any const& value, std::string const& name) override;
+    Stmt& bind(Any const& value) override;
+    Stmt& execute() override;
+    bool  step() override;
+    bool  next() override;
+    bool  done() override;
+    Row   _Fetch() override;
+    Stmt& reset() override;
     /**
      * @see Stmt::reexec for details
      * @see https://www.sqlite.org/c3ref/reexec.html
      */
-    Stmt&    reexec();
-    Stmt&    clear();
-    void     close();
-    uint64_t getAffectedRows() const;
-    uint64_t getInsertId() const;
-    int      getUnboundParams() const;
-    int      getBoundParams() const;
-    int      getParamsCount() const;
-    DBType   getType() const;
+    Stmt&                       reexec() override;
+    Stmt&                       clear() override;
+    void                        close() override;
+    [[nodiscard]] uint64_t      getAffectedRows() const override;
+    [[nodiscard]] uint64_t      getInsertId() const override;
+    [[nodiscard]] unsigned long getUnboundParams() const override;
+    [[nodiscard]] unsigned long getBoundParams() const override;
+    [[nodiscard]] unsigned long getParamsCount() const override;
+    [[nodiscard]] DBType        getType() const override;
 
     static SharedPointer<Stmt>
-    create(const std::weak_ptr<Session>& sess, const std::string& sql, bool autoExecute = false);
+    create(std::weak_ptr<Session> const& sess, std::string const& sql, bool autoExecute = false);
 };
 
 } // namespace DB

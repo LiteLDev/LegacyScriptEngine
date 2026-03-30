@@ -2,9 +2,9 @@
 
 namespace DB {
 
-Stmt::Stmt(const std::weak_ptr<Session>& parent, bool autoExecute) : parent(parent), autoExecute(autoExecute) {}
+Stmt::Stmt(std::weak_ptr<Session> const& parent, bool autoExecute) : autoExecute(autoExecute), parent(parent) {}
 
-Stmt::~Stmt() {}
+Stmt::~Stmt() = default;
 
 void Stmt::setDebugOutput(bool enable) { debugOutput = enable; }
 
@@ -12,9 +12,9 @@ std::weak_ptr<Session> Stmt::getParent() const { return parent; }
 
 SharedPointer<Stmt> Stmt::getSharedPointer() const {
     if (!self.expired()) {
-        return self.lock();
+        return SharedPointer(self.lock());
     }
-    return nullptr;
+    return SharedPointer<Stmt>(nullptr);
     /* Get the stmt ptr
     if (!session.expired())
     {
@@ -40,7 +40,7 @@ SharedPointer<Stmt> Stmt::getSharedPointer() const {
     */
 }
 
-SharedPointer<Stmt> Stmt::operator,(const BindType& b) {
+SharedPointer<Stmt> Stmt::operator,(BindType const& b) {
     if (b.name.empty() && b.idx == -1) {
         bind(b.value);
     } else if (!b.name.empty()) {

@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-// #define LLDB_DEBUG_MODE
 
 namespace DB {
 
@@ -17,14 +16,14 @@ struct Date {
 };
 
 struct Time {
-    int hour;
-    int minute;
-    int second;
+    int hour{};
+    int minute{};
+    int second{};
     int timezone = -1;
 };
 
 struct DateTime {
-    Date date;
+    Date date{};
     Time time;
 };
 

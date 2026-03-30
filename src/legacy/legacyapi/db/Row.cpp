@@ -6,21 +6,21 @@
 
 namespace DB {
 
-RowHeader::RowHeader(const std::initializer_list<std::string>& list) : std::vector<std::string>(list) {}
+RowHeader::RowHeader(std::initializer_list<std::string> const& list) : std::vector<std::string>(list) {}
 
-RowHeader::~RowHeader() {}
+RowHeader::~RowHeader() = default;
 
-size_t RowHeader::add(const std::string& name) {
+size_t RowHeader::add(std::string const& name) {
     push_back(name);
     hashes.push_back(ll::hash_utils::doHash2(name));
     return size() - 1;
 }
 
-bool RowHeader::contains(const std::string& name) {
-    return std::find(hashes.begin(), hashes.end(), ll::hash_utils::doHash2(name)) != hashes.end();
+bool RowHeader::contains(std::string const& name) {
+    return std::ranges::find(hashes, ll::hash_utils::doHash2(name)) != hashes.end();
 }
 
-void RowHeader::remove(const std::string& name) {
+void RowHeader::remove(std::string const& name) {
     auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) {
@@ -32,7 +32,7 @@ void RowHeader::remove(const std::string& name) {
     throw std::runtime_error("RowHeader::remove: Column " + name + " is not found");
 }
 
-size_t RowHeader::at(const std::string& name) {
+size_t RowHeader::at(std::string const& name) const {
     auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) return i;
@@ -49,7 +49,7 @@ std::vector<std::string>::iterator RowHeader::begin() { return Base::begin(); }
 
 std::vector<std::string>::iterator RowHeader::end() { return Base::end(); }
 
-bool RowHeader::check(const Row& row) const {
+bool RowHeader::check(Row const& row) const {
     if (row.header.get() == this) return true;
 
     if (row.size() == size()) {
@@ -62,7 +62,7 @@ bool RowHeader::check(const Row& row) const {
     return false;
 }
 
-size_t RowHeader::operator[](const std::string& name) {
+size_t RowHeader::operator[](std::string const& name) {
     auto hs = ll::hash_utils::doHash2(name);
     for (size_t i = 0; i < size(); ++i) {
         if (hashes[i] == hs) return i;
@@ -71,76 +71,76 @@ size_t RowHeader::operator[](const std::string& name) {
 }
 std::string& RowHeader::operator[](size_t index) { return at(index); }
 
-Row::Row(const std::shared_ptr<RowHeader>& header) : header(header) {}
-Row::Row(const RowHeader& header) : header(std::make_shared<RowHeader>(header)) {}
-Row::Row(const std::initializer_list<Any>& list, const RowHeader& header)
+Row::Row(std::shared_ptr<RowHeader> const& header) : header(header) {}
+Row::Row(RowHeader const& header) : header(std::make_shared<RowHeader>(header)) {}
+Row::Row(std::initializer_list<Any> const& list, RowHeader const& header)
 : std::vector<Any>(list),
   header(std::make_shared<RowHeader>(header)) {
     if (!header.empty() && list.size() != header.size()) {
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
 }
-Row::Row(const std::initializer_list<Any>& list, const std::shared_ptr<RowHeader>& header)
+Row::Row(std::initializer_list<Any> const& list, std::shared_ptr<RowHeader> const& header)
 : std::vector<Any>(list),
   header(header) {
     if (header != nullptr && list.size() != header->size()) {
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
 }
-Row::Row(std::vector<Any>&& list, const RowHeader& header)
+Row::Row(std::vector<Any>&& list, RowHeader const& header)
 : std::vector<Any>(std::move(list)),
   header(std::make_shared<RowHeader>(header)) {
     if (size() != header.size()) {
-        list = std::move(*this); // Restore
+        list = static_cast<vector>(std::move(*this)); // Restore
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
 }
-Row::Row(const std::vector<Any>& list, const RowHeader& header)
+Row::Row(std::vector<Any> const& list, RowHeader const& header)
 : std::vector<Any>(list),
   header(std::make_shared<RowHeader>(header)) {
     if (list.size() != header.size()) {
         throw std::invalid_argument("Row::Row: The row and the header mismatch");
     }
 }
-Row::Row(const std::initializer_list<std::pair<std::string, Any>>& list) : header(std::make_shared<RowHeader>()) {
+Row::Row(std::initializer_list<std::pair<std::string, Any>> const& list) : header(std::make_shared<RowHeader>()) {
     for (auto& pair : list) {
         header->add(pair.first);
         this->push_back(pair.second);
     }
 }
 Row::Row(Row&& row) noexcept : header(row.header) { *this = std::move(row); }
-Row::Row(const Row& row) : header(row.header) { *this = row; }
+Row::Row(Row const& row) : header(row.header) { *this = row; }
 
 Row& Row::operator=(Row&& row) noexcept {
     header = row.header;
     this->swap(row);
     return *this;
 }
-Row& Row::operator=(const Row& row) {
+Row& Row::operator=(Row const& row) {
     header = row.header;
     this->assign(row.begin(), row.end());
     return *this;
 }
 
-Any& Row::operator[](const std::string& name) {
+Any& Row::operator[](std::string const& name) {
     auto idx = (*header)[name];
-    if (idx < (int)size()) return std::vector<Any>::at(idx);
+    if (idx < static_cast<int>(size())) return std::vector<Any>::at(idx);
     resize((size_t)idx + 1, Any());
     return std::vector<Any>::at(idx);
 }
-const Any& Row::operator[](const std::string& name) const { return std::vector<Any>::at(header->at(name)); }
+Any const& Row::operator[](std::string const& name) const { return std::vector<Any>::at(header->at(name)); }
 
-Any&       Row::at(const std::string& name) { return std::vector<Any>::at(header->at(name)); }
-const Any& Row::at(const std::string& name) const { return std::vector<Any>::at(header->at(name)); }
+Any&       Row::at(std::string const& name) { return std::vector<Any>::at(header->at(name)); }
+Any const& Row::at(std::string const& name) const { return std::vector<Any>::at(header->at(name)); }
 
-void Row::forEach_ref(std::function<bool(const std::string&, Any&)> cb) {
+void Row::forEach_ref(std::function<bool(std::string const&, Any&)> const& cb) {
     if (!this->header) return;
     for (auto& col : *this->header) {
         if (!cb(col, this->at(col))) break;
     }
 }
 
-void Row::forEach(std::function<bool(const std::string&, const Any&)> cb) const {
+void Row::forEach(std::function<bool(std::string const&, Any const&)> const& cb) const {
     if (!this->header) return;
     int i = 0;
     for (auto& col : *this->header) {

@@ -28,7 +28,7 @@ public:
      * @par Implementation
      * @see SQLiteSession::open
      */
-    virtual void open(const ConnParams& params) = 0;
+    virtual void open(ConnParams const& params) = 0;
     /**
      * @brief Turn on/off debug output.
      *
@@ -46,7 +46,7 @@ public:
      * @par Implementation
      *  None
      */
-    virtual bool relogin(const std::string& user, const std::string& password, const std::string& db = "");
+    virtual bool relogin(std::string const& user, std::string const& password, std::string const& db);
     /**
      * @brief Execute a query.
      *
@@ -57,21 +57,21 @@ public:
      * @par Implementation
      * @see SQLiteSession::query
      */
-    virtual Session& query(const std::string& query, std::function<bool(const Row&)> callback) = 0;
+    virtual Session& query(std::string const& query, std::function<bool(Row const&)> callback) = 0;
     /**
      * @brief Execute a query.
      *
      * @param  query     The query to execute
      * @return ResultSet Result set
      */
-    virtual ResultSet query(const std::string& query);
+    virtual ResultSet query(std::string const& query);
     /**
      * @brief Execute a query without results.
      *
      * @param  query  The query to execute
      * @return bool   Success or not
      */
-    virtual bool execute(const std::string& query) = 0;
+    virtual bool execute(std::string const& query) = 0;
     /**
      * @brief Prepare a query.
      *
@@ -87,25 +87,25 @@ public:
      * stmt.close();
      * @endcode
      */
-    virtual SharedPointer<Stmt> prepare(const std::string& query, bool autoExecute = false) = 0;
+    virtual SharedPointer<Stmt> prepare(std::string const& query, bool autoExecute) = 0;
     /**
      * @brief Get the last error message
      *
      * @return std::string  Error message
      */
-    virtual std::string getLastError() const;
+    [[nodiscard]] virtual std::string getLastError() const;
     /**
      * @brief Get the number of affected rows by the last query.
      *
      * @return uint64_t  The number of affected rows
      */
-    virtual uint64_t getAffectedRows() const = 0;
+    [[nodiscard]] virtual uint64_t getAffectedRows() const = 0;
     /**
      * @brief Get the last insert id
      *
      * @return uint64_t  The row id of the last inserted row
      */
-    virtual uint64_t getLastInsertId() const = 0;
+    [[nodiscard]] virtual uint64_t getLastInsertId() const = 0;
     /**
      * @brief Close the session.
      *
@@ -142,7 +142,7 @@ public:
      * @note It is not recommended to store the DB::Stmt reference returned by
      * this method, it will be closed on the next execution.
      */
-    virtual SharedPointer<Stmt> operator<<(const std::string& query);
+    virtual SharedPointer<Stmt> operator<<(std::string const& query);
 
     /**
      * @brief Create a new session.
@@ -157,7 +157,7 @@ public:
      * @param  params  Connection parameters
      * @return SharedPointer<Session>  The session
      */
-    static SharedPointer<Session> create(const ConnParams& params);
+    static SharedPointer<Session> create(ConnParams const& params);
     /**
      * @brief Create and open a new session.
      *
@@ -165,7 +165,7 @@ public:
      * @param  params  Connection parameters
      * @return SharedPointer<Session>  The session
      */
-    static SharedPointer<Session> create(DBType type, const ConnParams& params);
+    static SharedPointer<Session> create(DBType type, ConnParams const& params);
     /**
      * @brief Create and open a new session.
      *
@@ -179,11 +179,11 @@ public:
      */
     static SharedPointer<Session> create(
         DBType             type,
-        const std::string& host,
+        std::string const& host,
         uint16_t           port,
-        const std::string& user,
-        const std::string& password,
-        const std::string& database
+        std::string const& user,
+        std::string const& password,
+        std::string const& database
     );
     /**
      * @brief Create and open a new session.
@@ -192,7 +192,7 @@ public:
      * @param  path  Path to the database file
      * @return SharedPointer<Session>  The session
      */
-    static SharedPointer<Session> create(DBType type, const std::string& path);
+    static SharedPointer<Session> create(DBType type, std::string const& path);
 
 private:
     /**
@@ -202,9 +202,8 @@ private:
      * @param  params  Connection parameters
      * @return SharedPointer<Session>  The session
      */
-    static SharedPointer<Session> _Create(DBType type, const ConnParams& params = {});
+    static SharedPointer<Session> _Create(DBType type, ConnParams const& params = {});
 
-private:
     static std::vector<std::weak_ptr<Session>> sessionPool; ///< List of sessions(weak pointers)
 
 public:
@@ -214,7 +213,7 @@ public:
      * @param  session  The (this) pointer
      * @return std::shared_ptr<Session>  The Session ptr
      */
-    static std::shared_ptr<Session> getSession(Session* session) {
+    static std::shared_ptr<Session> getSession(Session const* session) {
         for (auto& s : sessionPool) {
             if (s.expired()) continue;
             auto ptr = s.lock();

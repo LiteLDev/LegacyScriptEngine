@@ -10,20 +10,20 @@ class SQLiteSession : public Session {
 
 public:
     SQLiteSession();
-    SQLiteSession(const ConnParams& params);
-    ~SQLiteSession();
-    void                open(const ConnParams& params);
-    bool                execute(const std::string& query);
-    Session&            query(const std::string& query, std::function<bool(const Row&)> callback);
-    SharedPointer<Stmt> prepare(const std::string& query, bool autoExecute = false);
-    std::string         getLastError() const;
-    uint64_t            getAffectedRows() const;
-    uint64_t            getLastInsertId() const;
-    void                close();
-    bool                isOpen();
-    DBType              getType();
+    explicit SQLiteSession(ConnParams const& params);
+    ~SQLiteSession() override;
+    void                      open(ConnParams const& params) override;
+    bool                      execute(std::string const& query) override;
+    Session&                  query(std::string const& query, std::function<bool(Row const&)> callback) override;
+    SharedPointer<Stmt>       prepare(std::string const& query, bool autoExecute) override;
+    [[nodiscard]] std::string getLastError() const override;
+    [[nodiscard]] uint64_t    getAffectedRows() const override;
+    [[nodiscard]] uint64_t    getLastInsertId() const override;
+    void                      close() override;
+    bool                      isOpen() override;
+    DBType                    getType() override;
 
-    SharedPointer<Stmt> operator<<(const std::string& query);
+    SharedPointer<Stmt> operator<<(std::string const& query) override;
 
     friend class SQLiteStmt;
 };

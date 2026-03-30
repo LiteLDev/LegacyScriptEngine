@@ -25,11 +25,11 @@ public:
      *
      * @param list  An initializer list like `{"col1", "col2", "col3"}`
      */
-    RowHeader(const std::initializer_list<std::string>& list);
+    RowHeader(std::initializer_list<std::string> const& list);
     /// Move constructor
     RowHeader(RowHeader&& other) noexcept = default;
     /// Copy constructor
-    RowHeader(const RowHeader& other) = default;
+    RowHeader(RowHeader const& other) = default;
     /// Destructor
     ~RowHeader();
     /**
@@ -38,33 +38,33 @@ public:
      * @param  name  The name of the column
      * @return int   The index of the column
      */
-    size_t add(const std::string& name);
+    size_t add(std::string const& name);
     /**
      * @brief Get whether the header contains a column.
      *
      * @param  name  The name of the column
      * @return bool  True if the column exists
      */
-    bool contains(const std::string& name);
+    bool contains(std::string const& name);
     /**
      * @brief Remove a column from the header.
      *
      * @param  name  The name of the column
      * @throws std::out_of_range  If the column does not exist
      */
-    void remove(const std::string& name);
+    void remove(std::string const& name);
     /**
      * @brief Get the size of the header.
      *
      * @return int  The size of the header
      */
-    size_t size() const;
+    [[nodiscard]] size_t size() const;
     /**
      * @brief Get weather the header is empty.
      *
      * @return bool  True if the header is empty
      */
-    bool empty() const;
+    [[nodiscard]] bool empty() const;
     /**
      * @brief Get the index of a column.
      *
@@ -72,7 +72,7 @@ public:
      * @return int   The index of the column
      * @throws std::out_of_range  If the column does not exist
      */
-    size_t at(const std::string& name);
+    [[nodiscard]] size_t at(std::string const& name) const;
     /**
      * @brief Get the index of a column.
      *
@@ -99,7 +99,7 @@ public:
      * @param  row  The row to adapt
      * @return bool True if the row can be adapted
      */
-    bool check(const Row& row) const;
+    [[nodiscard]] bool check(Row const& row) const;
 
     /**
      * @brief Get the index of a column.
@@ -108,7 +108,7 @@ public:
      * @return int   The index of the column
      * @note   It will create the column(=add) if it does not exist
      */
-    size_t operator[](const std::string& name);
+    size_t operator[](std::string const& name);
     /**
      * @brief Get the name of a column.
      *
@@ -120,7 +120,7 @@ public:
     /// Move assignment operator
     RowHeader& operator=(RowHeader&& other) noexcept = default;
     /// Copy assignment operator
-    RowHeader& operator=(const RowHeader& other) = default;
+    RowHeader& operator=(RowHeader const& other) = default;
 };
 
 class Row : public std::vector<Any> {
@@ -132,14 +132,14 @@ public:
      *
      * @param header  The header(column names) of the row(shared_ptr)
      */
-    Row(const std::shared_ptr<RowHeader>& header = nullptr);
+    explicit Row(std::shared_ptr<RowHeader> const& header = nullptr);
     /**
      * @brief Construct a new Row object.
      *
      * @param header  The header(column names) of the row
      * @note  This will create a shared_ptr of the header
      */
-    Row(const RowHeader& header);
+    explicit Row(RowHeader const& header);
     /**
      * @brief Construct a new Row object.
      *
@@ -154,7 +154,7 @@ public:
      * Row row2({514, 24, "steve"}, {"id", "age", "name"});
      * @endcode
      */
-    Row(const std::initializer_list<Any>& list, const RowHeader& header);
+    Row(std::initializer_list<Any> const& list, RowHeader const& header);
     /**
      * @brief Construct a new Row object.
      *
@@ -163,7 +163,7 @@ public:
      * @throw std::invalid_argument If the size of the list is not equal to the
      * size of the header
      */
-    Row(const std::initializer_list<Any>& list, const std::shared_ptr<RowHeader>& header = nullptr);
+    Row(std::initializer_list<Any> const& list, std::shared_ptr<RowHeader> const& header = nullptr);
     /**
      * @brief Construct a new Row object(move).
      *
@@ -172,7 +172,7 @@ public:
      * @throw std::invalid_argument If the size of the vector is not equal to the
      * size of the header
      */
-    Row(std::vector<Any>&& list, const RowHeader& header);
+    Row(std::vector<Any>&& list, RowHeader const& header);
     /**
      * @brief Construct a new Row object.
      *
@@ -181,7 +181,7 @@ public:
      * @throw std::invalid_argument If the size of the vector is not equal to the
      * size of the header
      */
-    Row(const std::vector<Any>& list, const RowHeader& header);
+    Row(std::vector<Any> const& list, RowHeader const& header);
     /**
      * @brief Construct a new Row object(move).
      *
@@ -191,15 +191,15 @@ public:
      * Row row({{"id", 114}, {"age", 2000}, {"name", "alex"}});
      * @endcode
      */
-    Row(const std::initializer_list<std::pair<std::string, Any>>& list);
+    Row(std::initializer_list<std::pair<std::string, Any>> const& list);
     /// Move constructor
     Row(Row&& other) noexcept;
     /// Copy constructor
-    Row(const Row& other);
+    Row(Row const& other);
     /// Move assignment operator
     Row& operator=(Row&& other) noexcept;
     /// Copy assignment operator
-    Row& operator=(const Row& other);
+    Row& operator=(Row const& other);
     /**
      * @brief Get the value of a column
      *
@@ -207,7 +207,7 @@ public:
      * @return Any&    The value of the column
      * @note   It will create a new Any object if the column doesn't exist
      */
-    Any& operator[](const std::string& name);
+    Any& operator[](std::string const& name);
     /**
      * @brief Get the value of a column
      *
@@ -215,7 +215,7 @@ public:
      * @return Any&    The value of the column
      * @see    Row::at
      */
-    const Any& operator[](const std::string& name) const;
+    Any const& operator[](std::string const& name) const;
     /**
      * @brief Get the value of a column
      *
@@ -223,22 +223,22 @@ public:
      * @return Any&    The value of the column
      * @throw  std::out_of_range If the column does not exist
      */
-    Any&       at(const std::string& column);
-    const Any& at(const std::string& column) const;
+    Any&                     at(std::string const& column);
+    [[nodiscard]] Any const& at(std::string const& column) const;
     /**
      * @brief Traverse the row(references)
      *
      * @param cb  The function to call for each element
      * @note  Return false in callback function to stop the iteration
      */
-    void forEach_ref(std::function<bool(const std::string&, Any&)> cb);
+    void forEach_ref(std::function<bool(std::string const&, Any&)> const& cb);
     /**
      * @brief Traverse the row
      *
      * @param cb  The function to call for each element
      * @note  Return false in callback function to stop the iteration
      */
-    void forEach(std::function<bool(const std::string&, const Any&)> cb) const;
+    void forEach(std::function<bool(std::string const&, Any const&)> const& cb) const;
 };
 
 } // namespace DB
@@ -251,11 +251,11 @@ public:
  * @return T    The converted value
  */
 template <typename T>
-inline T row_to(const DB::Row& row) {
+inline T row_to(DB::Row const& row) {
     throw std::bad_cast();
 }
 
 template <>
-inline DB::Row row_to(const DB::Row& row) {
+inline DB::Row row_to(DB::Row const& row) {
     return row;
 }

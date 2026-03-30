@@ -5,12 +5,14 @@
 #include "ll/api/io/Logger.h"
 #include "lse/Entry.h"
 
+#include <memory>
+
 #define Wptr2MySQLSession(x) ((MySQLSession*)x.lock().get())
 #pragma warning(disable : 4267)
 #pragma warning(disable : 26812)
 
 template <>
-MYSQL_TIME any_to(const DB::Any& v) {
+MYSQL_TIME any_to(DB::Any const& v) {
     switch (v.type) {
     case DB::Any::Type::Date: {
         MYSQL_TIME t;
@@ -22,6 +24,7 @@ MYSQL_TIME any_to(const DB::Any& v) {
         t.second      = 0;
         t.second_part = 0;
         t.time_type   = MYSQL_TIMESTAMP_DATE;
+        t.neg         = 0;
         return t;
     }
     case DB::Any::Type::Time: {
@@ -34,6 +37,7 @@ MYSQL_TIME any_to(const DB::Any& v) {
         t.second      = std::get<DB::Time>(v.value).second;
         t.second_part = 0;
         t.time_type   = MYSQL_TIMESTAMP_TIME;
+        t.neg         = 0;
         return t;
     }
     case DB::Any::Type::DateTime: {
@@ -46,6 +50,7 @@ MYSQL_TIME any_to(const DB::Any& v) {
         t.second      = std::get<DB::DateTime>(v.value).time.second;
         t.second_part = 0;
         t.time_type   = MYSQL_TIMESTAMP_DATETIME;
+        t.neg         = 0;
         return t;
     }
     default:
@@ -67,7 +72,7 @@ std::unordered_map<std::string, int> ParseStmtParams(std::string& query) {
     bool                                 inSingleQuote = false;
     bool                                 inDoubleQuote = false;
     bool                                 inString      = false;
-    int                                  delta         = 0;
+    size_t                               delta         = 0;
     int                                  cur           = 0;
     while (reader.isValid()) {
         char c = reader.read();
@@ -95,7 +100,7 @@ std::unordered_map<std::string, int> ParseStmtParams(std::string& query) {
                 cur++;
                 continue;
             }
-            if (result.count(name)) {
+            if (result.contains(name)) {
                 throw std::runtime_error("ParseStmtParams: Duplicate parameter name: " + name);
             }
             result[name] = cur++;
@@ -190,43 +195,43 @@ bool IsUnsigned(const MYSQL_FIELD& field) { return field.flags & UNSIGNED_FLAG; 
 /**
  * @brief Convert Receiver to Any
  *
- * @param  receiver  Receiver to convert
+ * @param  rec  Receiver to convert
  * @return Any       Converted value
  */
-Any ReceiverToAny(const Receiver& rec) {
+Any ReceiverToAny(Receiver const& rec) {
     if (rec.isNull || rec.error) {
-        return Any();
+        return {};
     }
     switch (rec.field.type) {
     case MYSQL_TYPE_NULL:
-        return Any();
+        return {};
     case MYSQL_TYPE_TINY:
-        if (IsUnsigned(rec.field)) return *reinterpret_cast<unsigned char*>(rec.buffer.get());
-        return *reinterpret_cast<char*>(rec.buffer.get());
+        if (IsUnsigned(rec.field)) return Any(*reinterpret_cast<unsigned char*>(rec.buffer.get()));
+        return Any(*reinterpret_cast<char*>(rec.buffer.get()));
     case MYSQL_TYPE_SHORT:
-        if (IsUnsigned(rec.field)) return *reinterpret_cast<unsigned short*>(rec.buffer.get());
-        return *reinterpret_cast<short*>(rec.buffer.get());
+        if (IsUnsigned(rec.field)) return Any(*reinterpret_cast<unsigned short*>(rec.buffer.get()));
+        return Any(*reinterpret_cast<short*>(rec.buffer.get()));
     case MYSQL_TYPE_INT24:
     case MYSQL_TYPE_LONG:
-        if (IsUnsigned(rec.field)) return *reinterpret_cast<unsigned int*>(rec.buffer.get());
-        return *reinterpret_cast<int*>(rec.buffer.get());
+        if (IsUnsigned(rec.field)) return Any(*reinterpret_cast<unsigned int*>(rec.buffer.get()));
+        return Any(*reinterpret_cast<int*>(rec.buffer.get()));
     case MYSQL_TYPE_BIT:
-        return *reinterpret_cast<unsigned long long*>(rec.buffer.get());
+        return Any(*reinterpret_cast<unsigned long long*>(rec.buffer.get()));
     case MYSQL_TYPE_LONGLONG:
-        if (IsUnsigned(rec.field)) return *reinterpret_cast<unsigned long long*>(rec.buffer.get());
-        return *reinterpret_cast<long long*>(rec.buffer.get());
+        if (IsUnsigned(rec.field)) return Any(*reinterpret_cast<unsigned long long*>(rec.buffer.get()));
+        return Any(*reinterpret_cast<long long*>(rec.buffer.get()));
     case MYSQL_TYPE_FLOAT:
-        return *reinterpret_cast<float*>(rec.buffer.get());
+        return Any(*reinterpret_cast<float*>(rec.buffer.get()));
     case MYSQL_TYPE_DOUBLE:
-        return *reinterpret_cast<double*>(rec.buffer.get());
+        return Any(*reinterpret_cast<double*>(rec.buffer.get()));
     case MYSQL_TYPE_YEAR:
-        return *reinterpret_cast<unsigned short*>(rec.buffer.get());
+        return Any(*reinterpret_cast<unsigned short*>(rec.buffer.get()));
     case MYSQL_TYPE_TIME:
     case MYSQL_TYPE_DATE:
     case MYSQL_TYPE_DATETIME:
     case MYSQL_TYPE_TIMESTAMP:
-        return Any();
-        break; // TODO: return Any(rec.buffer.get());
+        return {};
+        // TODO: return Any(rec.buffer.get());
     case MYSQL_TYPE_STRING:
     case MYSQL_TYPE_VAR_STRING:
     case MYSQL_TYPE_VARCHAR:
@@ -253,36 +258,36 @@ Any ReceiverToAny(const Receiver& rec) {
      case MYSQL_TYPE_NEWDECIMAL:
          // TODO: Decimal
          lse::LegacyScriptEngine::getLogger().debug("MySQL_Decimal: {}",
-         std::string(rec.buffer.get(), rec.length)); return Any();
+         std::string(rec.buffer.get(), rec.length)); return {};
      default:
          throw std::runtime_error("ReceiverToAny: Unsupported MySQL data type: " + std::to_string(rec.field.type));
     }
 }
 
-MySQLStmt::MySQLStmt(MYSQL_STMT* stmt, const std::weak_ptr<Session>& parent, bool autoExecute)
+MySQLStmt::MySQLStmt(MYSQL_STMT* stmt, std::weak_ptr<Session> const& parent, bool autoExecute)
 : Stmt(parent, autoExecute),
   stmt(stmt) {
     this->parent     = parent;
     totalParamsCount = mysql_stmt_param_count(stmt);
-    if (totalParamsCount) params.reset(new MYSQL_BIND[totalParamsCount]);
+    if (totalParamsCount) params = std::make_shared<MYSQL_BIND[]>(totalParamsCount);
     else {
-        if (autoExecute) execute(); // Execute without params
+        if (autoExecute) MySQLStmt::execute(); // Execute without params
     }
 }
 
-int MySQLStmt::getNextParamIndex() {
-    int result = -1;
+int MySQLStmt::getNextParamIndex() const {
+    int res = -1;
     // Find the first unbound parameter
     for (int i = 0; i < boundIndexes.size() && i < totalParamsCount; i++) {
-        if (boundIndexes[i] == result + 1) {
-            result++;
+        if (boundIndexes[i] == res + 1) {
+            res++;
         }
     }
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
         "MySQLStmt::getNextParamIndex: The next param index is {}",
-        result + 1
+        res + 1
     );
-    return result + 1;
+    return res + 1;
 }
 
 void MySQLStmt::bindResult() {
@@ -299,16 +304,16 @@ void MySQLStmt::bindResult() {
     // Set the attribute UPDATE_MAX_LENGTH to true
     //  so that we can get the max length of the field to allocate the buffer
     bool attr_max_length = true;
-    mysql_stmt_attr_set(stmt, STMT_ATTR_UPDATE_MAX_LENGTH, (const void*)&attr_max_length);
+    mysql_stmt_attr_set(stmt, STMT_ATTR_UPDATE_MAX_LENGTH, (void const*)&attr_max_length);
     // Store all the results to client or we can't get the max length of the field
     // later
     mysql_stmt_store_result(stmt);
     auto     cnt = mysql_num_fields(metadata);
     IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::bindResult: mysql_num_fields : {} ", cnt);
     auto     fields = mysql_fetch_fields(metadata);
-    result.reset(new MYSQL_BIND[cnt]);
+    result          = std::make_shared<MYSQL_BIND[]>(cnt);
     // Allocate result bindings
-    resultHeader.reset(new RowHeader);
+    resultHeader = std::make_shared<RowHeader>();
     // Allocate result header
     for (auto i = 0U; i < cnt; i++) {
         resultValues.push_back({});        // Allocate result values
@@ -318,31 +323,34 @@ void MySQLStmt::bindResult() {
 
         data.buffer_type = field.type;  // Set the type
         data.is_null     = &rec.isNull; // Set the isNull receiver
-        data.is_unsigned = field.flags & UNSIGNED_FLAG;
+        data.is_unsigned = static_cast<char>(field.flags & UNSIGNED_FLAG);
         data.error       = &rec.error;  // Set the error receiver
         data.length      = &rec.length; // Set the length receiver
 
-        auto&& [buffer, len] = AllocateBuffer(field); // Allocate buffer
-        rec.buffer           = buffer;                // Extend lifetime
-        data.buffer_length   = (unsigned long)len;    // Set the buffer length
-        data.buffer          = rec.buffer.get();      // Set the buffer address
+        auto&& [buffer, len] = AllocateBuffer(field);           // Allocate buffer
+        rec.buffer           = buffer;                          // Extend lifetime
+        data.buffer_length   = static_cast<unsigned long>(len); // Set the buffer length
+        data.buffer          = rec.buffer.get();                // Set the buffer address
 
         rec.field = field;             // Save the field
         resultHeader->add(field.name); // Add the field name to the header
-        IF_ENDBG lse::LegacyScriptEngine::getLogger()
-            .debug("MySQLStmt::bindResult: Bind result {} (type {}) at index {}", field.name, (int)field.type, i);
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().debug(
+            "MySQLStmt::bindResult: Bind result {} (type {}) at index {}",
+            field.name,
+            static_cast<int>(field.type),
+            i
+        );
     }
-    auto res = mysql_stmt_bind_result(stmt, result.get());
-    if (res) {
+    if (mysql_stmt_bind_result(stmt, result.get())) {
         throw std::runtime_error(
             "MySQLStmt::bindResult: Failed to bind result: " + std::string(mysql_stmt_error(stmt))
         );
     }
 }
 
-MySQLStmt::~MySQLStmt() { close(); }
+MySQLStmt::~MySQLStmt() { MySQLStmt::close(); }
 
-Stmt& MySQLStmt::bind(const Any& value, int index) {
+Stmt& MySQLStmt::bind(Any const& value, int index) {
     if (index < 0 || index > totalParamsCount) {
         throw std::invalid_argument("MySQLStmt::bind: Invalid argument `index`");
     }
@@ -358,7 +366,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     case Any::Type::Boolean:
         params[index].buffer_type = MYSQL_TYPE_TINY;
         param.buffer.reset(new char[1]);
-        param.buffer[0]             = std::get<bool>(value.value);
+        param.buffer[0]             = static_cast<char>(std::get<bool>(value.value));
         params[index].buffer        = param.buffer.get();
         params[index].buffer_length = 1;
         params[index].is_unsigned   = true;
@@ -370,8 +378,8 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         params[index].buffer                            = param.buffer.get();
         params[index].buffer_length                     = sizeof(int64_t);
         params[index].is_unsigned                       = false;
-        params[index].is_null                           = 0;
-        params[index].length                            = 0;
+        params[index].is_null                           = nullptr;
+        params[index].length                            = nullptr;
         break;
     case Any::Type::UInteger:
         params[index].buffer_type = MYSQL_TYPE_LONGLONG;
@@ -380,8 +388,8 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         params[index].buffer                             = param.buffer.get();
         params[index].buffer_length                      = sizeof(uint64_t);
         params[index].is_unsigned                        = true;
-        params[index].is_null                            = 0;
-        params[index].length                             = 0;
+        params[index].is_null                            = nullptr;
+        params[index].length                             = nullptr;
         break;
     case Any::Type::Floating:
         params[index].buffer_type = MYSQL_TYPE_DOUBLE;
@@ -390,8 +398,8 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         params[index].buffer                           = param.buffer.get();
         params[index].buffer_length                    = sizeof(double);
         params[index].is_unsigned                      = false;
-        params[index].is_null                          = 0;
-        params[index].length                           = 0;
+        params[index].is_null                          = nullptr;
+        params[index].length                           = nullptr;
         break;
     case Any::Type::String: {
         params[index].buffer_type = MYSQL_TYPE_STRING;
@@ -402,7 +410,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
                            // will be truncated
         params[index].buffer        = param.buffer.get();
         params[index].buffer_length = sz;
-        params[index].is_null       = 0;
+        params[index].is_null       = nullptr;
         params[index].length        = (unsigned long*)&param.length;
         IF_ENDBG lse::LegacyScriptEngine::getLogger()
             .debug("MySQLStmt::bind: Bound string param at {}: {}", index, param.buffer.get());
@@ -417,8 +425,8 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
         *reinterpret_cast<MYSQL_TIME*>(param.buffer.get()) = tm;
         params[index].buffer                               = param.buffer.get();
         params[index].buffer_length                        = sizeof(MYSQL_TIME);
-        params[index].is_null                              = 0;
-        params[index].length                               = 0;
+        params[index].is_null                              = nullptr;
+        params[index].length                               = nullptr;
         break;
     }
     case Any::Type::Blob: {
@@ -431,7 +439,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
                            // will be truncated
         params[index].buffer        = param.buffer.get();
         params[index].buffer_length = sz;
-        params[index].is_null       = 0;
+        params[index].is_null       = nullptr;
         params[index].length        = (unsigned long*)&param.length;
         break;
     }
@@ -441,8 +449,7 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     boundIndexes.push_back(index);
     boundParamsCount++;
     if (getUnboundParams() == 0) {
-        auto res = mysql_stmt_bind_param(stmt, params.get());
-        if (res) {
+        if (mysql_stmt_bind_param(stmt, params.get())) {
             throw std::runtime_error("MySQLStmt::bind: " + std::string(mysql_stmt_error(stmt)));
         }
         if (autoExecute) execute();
@@ -450,18 +457,17 @@ Stmt& MySQLStmt::bind(const Any& value, int index) {
     return *this;
 }
 
-Stmt& MySQLStmt::bind(const Any& value, const std::string& name) {
-    if (!paramIndexes.count(name)) {
+Stmt& MySQLStmt::bind(Any const& value, std::string const& name) {
+    if (!paramIndexes.contains(name)) {
         throw std::invalid_argument("MySQLStmt::bind: Parameter name `" + name + "` not found");
     }
     return bind(value, paramIndexes[name]);
 }
 
-Stmt& MySQLStmt::bind(const Any& value) { return bind(value, getNextParamIndex()); }
+Stmt& MySQLStmt::bind(Any const& value) { return bind(value, getNextParamIndex()); }
 
 Stmt& MySQLStmt::execute() {
-    auto res = mysql_stmt_execute(stmt); // Execute
-    if (res) {
+    if (mysql_stmt_execute(stmt)) {
         if (!parent.expired()) mysql_rollback(Wptr2MySQLSession(parent)->conn); // Rollback
         throw std::runtime_error("MySQLStmt::execute: Failed to execute stmt: " + std::string(mysql_stmt_error(stmt)));
     }
@@ -542,7 +548,7 @@ Stmt& MySQLStmt::clear() {
         throw std::runtime_error("MySQLStmt::clear: No query");
     }
     close();
-    *this = *(MySQLStmt*)create(parent, query).get();
+    *this = *static_cast<MySQLStmt*>(create(parent, query).get());
     return *this;
 }
 
@@ -576,20 +582,20 @@ uint64_t MySQLStmt::getAffectedRows() const { return mysql_stmt_affected_rows(st
 
 uint64_t MySQLStmt::getInsertId() const { return mysql_stmt_insert_id(stmt); }
 
-int MySQLStmt::getUnboundParams() const { return totalParamsCount - boundParamsCount; }
+unsigned long MySQLStmt::getUnboundParams() const { return totalParamsCount - boundParamsCount; }
 
-int MySQLStmt::getBoundParams() const { return boundParamsCount; }
+unsigned long MySQLStmt::getBoundParams() const { return boundParamsCount; }
 
-int MySQLStmt::getParamsCount() const { return totalParamsCount; }
+unsigned long MySQLStmt::getParamsCount() const { return totalParamsCount; }
 
 DBType MySQLStmt::getType() const { return DBType::MySQL; }
 
-SharedPointer<Stmt> MySQLStmt::create(const std::weak_ptr<Session>& session, const std::string& sql, bool autoExecute) {
+SharedPointer<Stmt> MySQLStmt::create(std::weak_ptr<Session> const& session, std::string const& sql, bool autoExecute) {
     auto s = session.lock();
     if (!s || s->getType() != DBType::MySQL) {
         throw std::invalid_argument("MySQLStmt::create: Session is invalid");
     }
-    auto raw  = (MySQLSession*)s.get();
+    auto raw  = static_cast<MySQLSession*>(s.get());
     auto stmt = mysql_stmt_init(raw->conn);
     if (!stmt) {
         throw std::runtime_error("MySQLStmt::create: " + s->getLastError());
@@ -603,8 +609,7 @@ SharedPointer<Stmt> MySQLStmt::create(const std::weak_ptr<Session>& session, con
             lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: - {}: {}", k, v);
         }
     }
-    auto res = mysql_stmt_prepare(stmt, query.c_str(), query.size());
-    if (res) {
+    if (mysql_stmt_prepare(stmt, query.c_str(), query.size())) {
         throw std::runtime_error("MySQLStmt::create: " + std::string(mysql_stmt_error(stmt)));
     }
     auto result          = new MySQLStmt(stmt, session, autoExecute);

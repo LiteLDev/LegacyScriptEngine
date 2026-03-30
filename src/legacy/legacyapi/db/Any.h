@@ -25,22 +25,22 @@ class Any;
  * @return T The converted value
  */
 template <typename T>
-inline T any_to(const DB::Any& v) {
+inline T any_to(DB::Any const& v) {
     throw std::bad_cast();
 }
 
 template <typename T>
-inline std::vector<DB::Any> to_any_container(const std::vector<T>& v);
+inline std::vector<DB::Any> to_any_container(std::vector<T> const& v);
 template <typename T>
-inline std::set<DB::Any> to_any_container(const std::set<T>& v);
+inline std::set<DB::Any> to_any_container(std::set<T> const& v);
 template <typename T>
-inline std::list<DB::Any> to_any_container(const std::list<T>& v);
+inline std::list<DB::Any> to_any_container(std::list<T> const& v);
 template <typename T>
-inline std::unordered_set<DB::Any> to_any_container(const std::unordered_set<T>& v);
+inline std::unordered_set<DB::Any> to_any_container(std::unordered_set<T> const& v);
 template <typename K, typename V>
-inline std::map<K, DB::Any> to_any_container(const std::map<K, V>& v);
+inline std::map<K, DB::Any> to_any_container(std::map<K, V> const& v);
 template <typename K, typename V>
-inline std::unordered_map<K, DB::Any> to_any_unordered_map(const std::unordered_map<K, V>& v);
+inline std::unordered_map<K, DB::Any> to_any_unordered_map(std::unordered_map<K, V> const& v);
 
 #pragma endregion
 
@@ -85,182 +85,182 @@ public:
      *
      * @param v The boolean value
      */
-    Any(bool v);
+    explicit Any(bool v);
     /**
      * @brief Construct a new Any object with int64 value.
      *
      * @param v The integer value
      */
-    Any(int64_t v);
+    explicit Any(int64_t v);
     /**
      * @brief Construct a new Any object with uint64 value.
      *
      * @param v The unsigned integer value
      */
-    Any(uint64_t v);
+    explicit Any(uint64_t v);
     /**
      * @brief Construct a new Any object with double value.
      *
      * @param v The floating value
      */
-    Any(double v);
+    explicit Any(double v);
     /**
      * @brief Construct a new Any object with string value.
      *
      * @param v The string value
      */
-    Any(const std::string& v);
+    explicit Any(std::string const& v);
     /**
      * @brief Construct a new Any object with const char* value.
      *
      * @param v The const char* value
      */
-    Any(const char* v);
+    explicit Any(char const* v);
     /**
      * @brief Construct a new Any object with char* value.
      *
      * @param v   The char* value
      * @param len The length of the char* value
      */
-    Any(char* v, size_t len);
+    Any(char const* v, size_t len);
     /**
      * @brief Construct a new Any object with date value.
      *
      * @param v The Date object
      */
-    Any(const Date& v);
+    explicit Any(Date const& v);
     /**
      * @brief Construct a new Any object with time value.
      *
      * @param v The Time object
      */
-    Any(const Time& v);
+    explicit Any(Time const& v);
     /**
      * @brief Construct a new Any object with date time value.
      *
      * @param v The DateTime object
      */
-    Any(const DateTime& v);
+    explicit Any(DateTime const& v);
     /**
      * @brief Construct a new Any object with int8(char) value.
      *
      * @param v The char value
      */
-    Any(char v);
+    explicit Any(char v);
     /**
      * @brief Construct a new Any object with uint8(unsigned char) value.
      *
      * @param v The unsigned char value
      */
-    Any(unsigned char v);
+    explicit Any(unsigned char v);
     /**
      * @brief Construct a new Any object with int16(short) value.
      *
      * @param v The short value
      */
-    Any(short v);
+    explicit Any(short v);
     /**
      * @brief Construct a new Any object with uint16(unsigned short) value.
      *
      * @param v The unsigned short value
      */
-    Any(unsigned short v);
+    explicit Any(unsigned short v);
     /**
      * @brief Construct a new Any object with int32(int) value.
      *
      * @param v The int value
      */
-    Any(int v);
+    explicit Any(int v);
     /**
      * @brief Construct a new Any object with uint32(unsigned int) value.
      *
      * @param v The unsigned int value
      */
-    Any(unsigned int v);
+    explicit Any(unsigned int v);
     /**
      * @brief Construct a new Any object with long value.
      *
      * @param v The long value
      */
-    Any(long v);
+    explicit Any(long v);
     /**
      * @brief Construct a new Any object with unsigned long value.
      *
      * @param v The unsigned long value
      */
-    Any(unsigned long v);
+    explicit Any(unsigned long v);
     /**
      * @brief Construct a new Any object with float value.
      *
      * @param v The float value
      */
-    Any(float v);
+    explicit Any(float v);
     /**
      * @brief Construct a new Any object with byte array value.
      *
      * @param v The byte array value
      */
-    Any(const ByteArray& v);
+    explicit Any(ByteArray const& v);
     /// Copy constructor
-    Any(const Any& v);
+    Any(Any const& v);
     /// Copy assignment operator
-    Any& operator=(const Any& v);
+    Any& operator=(Any const& v);
 
     /**
      * @brief Get if the value is null.
      *
      */
-    bool is_null() const;
+    [[nodiscard]] bool is_null() const;
     /**
      * @brief Get if the value is boolean.
      *
      */
-    bool is_boolean() const;
+    [[nodiscard]] bool is_boolean() const;
     /**
      * @brief Get if the value is (unsigned) integer.
      *
      */
-    bool is_integer() const;
+    [[nodiscard]] bool is_integer() const;
     /**
      * @brief Get if the value is unsigned integer.
      *
      */
-    bool is_uinteger() const;
+    [[nodiscard]] bool is_uinteger() const;
     /**
      * @brief Get if the value is floating.
      *
      */
-    bool is_floating() const;
+    [[nodiscard]] bool is_floating() const;
     /**
      * @brief Get if the value is string.
      *
      */
-    bool is_string() const;
+    [[nodiscard]] bool is_string() const;
     /**
      * @brief Get if the value is date.
      *
      */
-    bool is_date() const;
+    [[nodiscard]] bool is_date() const;
     /**
      * @brief Get if the value is time.
      *
      */
-    bool is_time() const;
+    [[nodiscard]] bool is_time() const;
     /**
      * @brief Get if the value is date time.
      *
      */
-    bool is_datetime() const;
+    [[nodiscard]] bool is_datetime() const;
     /**
      * @brief Get if the value is blob.
      *
      */
-    bool is_blob() const;
+    [[nodiscard]] bool is_blob() const;
     /**
      * @brief Get if the value is floating or (unsigned) integer.
      *
      */
-    bool is_number() const;
+    [[nodiscard]] bool is_number() const;
 
     /**
      * @brief Get the number value as T
@@ -275,7 +275,7 @@ public:
      * @see    is_number()
      */
     template <typename T>
-    inline T get_number() const {
+    [[nodiscard]] T get_number() const {
         switch (type) {
 #if !defined(DBANY_NO_NULL_CONVERSION)
         case Type::Null:
@@ -344,7 +344,7 @@ public:
      * @param  str  The string
      * @return Any  The converted value
      */
-    static Any str2any(const std::string& str);
+    static Any str2any(std::string const& str);
 };
 
 } // namespace DB
@@ -464,7 +464,7 @@ inline std::string Any::get<std::string>() const {
              + std::to_string(std::get<DateTime>(value).time.second);
     case Type::Blob: {
         auto blob = std::get<ByteArray>(value);
-        return std::string(blob.begin(), blob.end());
+        return {blob.begin(), blob.end()};
     }
     default:
         throw std::bad_cast();
@@ -512,7 +512,10 @@ inline ByteArray Any::get<ByteArray>() const {
         return std::get<ByteArray>(value);
     case Type::String: {
         auto str = std::get<std::string>(value);
-        return ByteArray((unsigned char*)str.data(), (unsigned char*)str.data() + str.size());
+        return {
+            reinterpret_cast<unsigned char*>(str.data()),
+            reinterpret_cast<unsigned char*>(str.data()) + str.size()
+        };
     }
     default:
         throw std::bad_cast();
@@ -522,7 +525,7 @@ inline ByteArray Any::get<ByteArray>() const {
 } // namespace DB
 
 template <typename T>
-inline std::vector<DB::Any> to_any_container(const std::vector<T>& v) {
+inline std::vector<DB::Any> to_any_container(std::vector<T> const& v) {
     std::vector<DB::Any> result;
     for (auto& i : v) {
         result.push_back(DB::Any(i));
@@ -531,7 +534,7 @@ inline std::vector<DB::Any> to_any_container(const std::vector<T>& v) {
 }
 
 template <typename T>
-inline std::set<DB::Any> to_any_container(const std::set<T>& v) {
+inline std::set<DB::Any> to_any_container(std::set<T> const& v) {
     std::set<DB::Any> result;
     for (auto& i : v) {
         result.insert(DB::Any(i));
@@ -540,7 +543,7 @@ inline std::set<DB::Any> to_any_container(const std::set<T>& v) {
 }
 
 template <typename T>
-inline std::list<DB::Any> to_any_container(const std::list<T>& v) {
+inline std::list<DB::Any> to_any_container(std::list<T> const& v) {
     std::list<DB::Any> result;
     for (auto& i : v) {
         result.push_back(DB::Any(i));
@@ -549,7 +552,7 @@ inline std::list<DB::Any> to_any_container(const std::list<T>& v) {
 }
 
 template <typename T>
-inline std::unordered_set<DB::Any> to_any_container(const std::unordered_set<T>& v) {
+inline std::unordered_set<DB::Any> to_any_container(std::unordered_set<T> const& v) {
     std::unordered_set<DB::Any> result;
     for (auto& i : v) {
         result.insert(DB::Any(i));
@@ -558,7 +561,7 @@ inline std::unordered_set<DB::Any> to_any_container(const std::unordered_set<T>&
 }
 
 template <typename K, typename V>
-inline std::map<K, DB::Any> to_any_container(const std::map<K, V>& v) {
+inline std::map<K, DB::Any> to_any_container(std::map<K, V> const& v) {
     std::map<K, DB::Any> result;
     for (auto& i : v) {
         result.insert(std::make_pair(i.first, DB::Any(i.second)));
@@ -567,7 +570,7 @@ inline std::map<K, DB::Any> to_any_container(const std::map<K, V>& v) {
 }
 
 template <typename K, typename V>
-inline std::unordered_map<K, DB::Any> to_any_unordered_map(const std::unordered_map<K, V>& v) {
+inline std::unordered_map<K, DB::Any> to_any_unordered_map(std::unordered_map<K, V> const& v) {
     std::unordered_map<K, DB::Any> result;
     for (auto& i : v) {
         result.insert(std::make_pair(i.first, DB::Any(i.second)));

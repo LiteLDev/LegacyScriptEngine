@@ -36,34 +36,34 @@ std::unordered_map<node::Environment*, bool>                                    
 std::set<node::Environment*>                                                                     uvLoopTask;
 
 ll::Expected<> PatchDelayImport(HMODULE hAddon, HMODULE hLibNode) {
-    BYTE* base = (BYTE*)hAddon;
-    auto  dos  = (PIMAGE_DOS_HEADER)base;
+    BYTE* base = reinterpret_cast<BYTE*>(hAddon);
+    auto  dos  = reinterpret_cast<PIMAGE_DOS_HEADER>(base);
     if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
         return ll::makeStringError("Invalid DOS signature.");
     }
-    auto nt = (PIMAGE_NT_HEADERS)(base + dos->e_lfanew);
+    auto nt = reinterpret_cast<PIMAGE_NT_HEADERS>(base + dos->e_lfanew);
     if (nt->Signature != IMAGE_NT_SIGNATURE) {
         return ll::makeStringError("Invalid NT signature.");
     }
     DWORD rva = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress;
     if (!rva) {};
-    auto pDesc = (PIMAGE_DELAYLOAD_DESCRIPTOR)(base + rva);
+    auto pDesc = reinterpret_cast<PIMAGE_DELAYLOAD_DESCRIPTOR>(base + rva);
     for (; pDesc->DllNameRVA; ++pDesc) {
-        char* szDll = (char*)(base + pDesc->DllNameRVA);
+        char* szDll = reinterpret_cast<char*>(base + pDesc->DllNameRVA);
         if (_stricmp(szDll, NODE_HOST_BINARY_NAME) != 0) continue;
 
-        auto pIAT = (PIMAGE_THUNK_DATA)(base + pDesc->ImportAddressTableRVA);
-        auto pINT = (PIMAGE_THUNK_DATA)(base + pDesc->ImportNameTableRVA);
+        auto pIAT = reinterpret_cast<PIMAGE_THUNK_DATA>(base + pDesc->ImportAddressTableRVA);
+        auto pINT = reinterpret_cast<PIMAGE_THUNK_DATA>(base + pDesc->ImportNameTableRVA);
 
         for (; pIAT->u1.Function; ++pIAT, ++pINT) {
-            FARPROC f = nullptr;
+            FARPROC f;
             if (pINT->u1.Ordinal & IMAGE_ORDINAL_FLAG) {
                 // Import by Ordinal
                 WORD ordinal = IMAGE_ORDINAL(pINT->u1.Ordinal);
                 f            = GetProcAddress(hLibNode, MAKEINTRESOURCEA(ordinal));
             } else {
                 // Import by name
-                auto name = (PIMAGE_IMPORT_BY_NAME)(base + pINT->u1.AddressOfData);
+                auto name = reinterpret_cast<PIMAGE_IMPORT_BY_NAME>(base + pINT->u1.AddressOfData);
                 f         = GetProcAddress(hLibNode, name->Name);
             }
             if (f) {
@@ -112,7 +112,7 @@ bool initNodeJs() {
     }
     // Init NodeJs
     auto  path  = ll::string_utils::u8str2str(ll::sys_utils::getModulePath(nullptr).value().u8string());
-    char* cPath = (char*)path.c_str();
+    char* cPath = const_cast<char*>(path.c_str());
     uv_setup_args(1, &cPath);
     auto full_args = std::vector<std::string>{path};
 #if defined(LSE_DEBUG) || defined(LSE_TEST)
@@ -131,7 +131,7 @@ bool initNodeJs() {
     );
     if (result->exit_code() != 0) {
         lse::LegacyScriptEngine::getLogger().error("Failed to initialize node! NodeJs plugins won't be loaded");
-        for (const std::string& error : result->errors()) lse::LegacyScriptEngine::getLogger().error(error);
+        for (std::string const& error : result->errors()) lse::LegacyScriptEngine::getLogger().error(error);
         return false;
     }
     args      = result->args();
@@ -139,7 +139,7 @@ bool initNodeJs() {
 
     // Init V8
     using namespace v8;
-    platform = node::MultiIsolatePlatform::Create((int)std::thread::hardware_concurrency());
+    platform = node::MultiIsolatePlatform::Create(static_cast<int>(std::thread::hardware_concurrency()));
     V8::InitializePlatform(platform.get());
     V8::Initialize();
 
@@ -169,7 +169,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
     if (!setup) {
-        for (const std::string& err : errors)
+        for (std::string const& err : errors)
             lse::LegacyScriptEngine::getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return nullptr;
     }
@@ -184,7 +184,10 @@ std::shared_ptr<ScriptEngine> newEngine() {
     std::shared_ptr<ScriptEngine> engine(new ScriptEngineImpl({}, isolate, setup->context(), false), [](ScriptEngine*) {
     });
 
-    lse::LegacyScriptEngine::getLogger().debug("Initialize ScriptEngine for node.js [{}]", (void*)engine.get());
+    lse::LegacyScriptEngine::getLogger().debug(
+        "Initialize ScriptEngine for node.js [{}]",
+        static_cast<void*>(engine.get())
+    );
     environments[engine] = env;
     setups[engine]       = std::move(setup);
     isRunning[env]       = true;
@@ -289,7 +292,7 @@ bool loadPluginCode(
         }
 
         // Set exit handler
-        node::SetProcessExitHandler(env, [](node::Environment* env_, int exit_code) {
+        node::SetProcessExitHandler(env, [](node::Environment const* env_, int exit_code) {
             auto engine = getEngine(env_);
             lse::LegacyScriptEngine::getLogger().log(
                 exit_code == 0 ? ll::io::LogLevel::Debug : ll::io::LogLevel::Error,
@@ -342,7 +345,7 @@ bool loadPluginCode(
                 using namespace ll::chrono_literals;
                 while (uvLoopTask.contains(env)) {
                     co_await 2_tick;
-                    if (!(ll::getGamingStatus() != ll::GamingStatus::Running) && (*isRunningMap)[env]) {
+                    if (ll::getGamingStatus() == ll::GamingStatus::Running && (*isRunningMap)[env]) {
                         EngineScope enter(engine.get());
                         // v8::MicrotasksScope microtaskScope(isolate, v8::MicrotasksScope::kRunMicrotasks);
                         uv_run(eventLoop, UV_RUN_NOWAIT);
@@ -364,13 +367,13 @@ bool loadPluginCode(
     }
 }
 
-node::Environment* getEnvironmentOf(std::shared_ptr<ScriptEngine> engine) {
+node::Environment* getEnvironmentOf(std::shared_ptr<ScriptEngine> const& engine) {
     auto it = environments.find(engine);
     if (it == environments.end()) return nullptr;
     return it->second;
 }
 
-v8::Isolate* getIsolateOf(std::shared_ptr<ScriptEngine> engine) {
+v8::Isolate* getIsolateOf(std::shared_ptr<ScriptEngine> const& engine) {
     auto it = setups.find(engine);
     if (it == setups.end()) return nullptr;
     return it->second->isolate();
@@ -393,24 +396,24 @@ bool stopEngine(node::Environment* env) {
 
         return true;
     } catch (...) {
-        lse::LegacyScriptEngine::getLogger().error("Fail to stop engine {}", (void*)env);
+        lse::LegacyScriptEngine::getLogger().error("Fail to stop engine {}", static_cast<void*>(env));
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
         return false;
     }
 }
 
-bool stopEngine(std::shared_ptr<ScriptEngine> engine) {
+bool stopEngine(std::shared_ptr<ScriptEngine> const& engine) {
     auto env = NodeJsHelper::getEnvironmentOf(engine);
     return stopEngine(env);
 }
 
-std::shared_ptr<ScriptEngine> getEngine(node::Environment* env) {
+std::shared_ptr<ScriptEngine> getEngine(node::Environment const* env) {
     for (auto& [engine, environment] : environments)
         if (env == environment) return engine;
     return nullptr;
 }
 
-std::string findEntryScript(const std::string& dirPath) {
+std::string findEntryScript(std::string const& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path packageFilePath = dirPath_obj / "package.json";
@@ -432,7 +435,7 @@ std::string findEntryScript(const std::string& dirPath) {
     }
 }
 
-std::string getPluginPackageName(const std::string& dirPath) {
+std::string getPluginPackageName(std::string const& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path packageFilePath = dirPath_obj / std::filesystem::path("package.json");
@@ -452,7 +455,7 @@ std::string getPluginPackageName(const std::string& dirPath) {
     }
 }
 
-bool doesPluginPackHasDependency(const std::string& dirPath) {
+bool doesPluginPackHasDependency(std::string const& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path packageFilePath = dirPath_obj / std::filesystem::path("package.json");
@@ -471,7 +474,7 @@ bool doesPluginPackHasDependency(const std::string& dirPath) {
     }
 }
 
-bool isESModulesSystem(const std::string& dirPath) {
+bool isESModulesSystem(std::string const& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path packageFilePath = dirPath_obj / std::filesystem::path("package.json");
@@ -490,7 +493,7 @@ bool isESModulesSystem(const std::string& dirPath) {
     }
 }
 
-bool processConsoleNpmCmd(const std::string& cmd) {
+bool processConsoleNpmCmd(std::string const& cmd) {
 #ifdef LSE_BACKEND_NODEJS
     if (cmd.starts_with("npm ") || cmd.starts_with("npx ")) {
         executeNpmCommand(SplitCmdLine(cmd));
@@ -537,7 +540,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
     // CHECK_EQ(start_io_thread_async_initialized.exchange(true), false) fail!
 
     if (!setup) {
-        for (const std::string& err : errors)
+        for (std::string const& err : errors)
             lse::LegacyScriptEngine::getLogger().error("CommonEnvironmentSetup Error: {}", err.c_str());
         return -1;
     }

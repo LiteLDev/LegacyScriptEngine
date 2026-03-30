@@ -3,7 +3,6 @@
 
 #include "Global.h"
 #include "engine/EngineManager.h"
-#include "engine/RemoteCall.h"
 #include "engine/TimeTaskSystem.h"
 #include "legacy/api/CommandAPI.h"
 #include "ll/api/utils/StringUtils.h"
@@ -14,7 +13,7 @@
 #include <filesystem>
 #include <toml++/toml.h>
 
-const unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
+constexpr unsigned long PIP_EXECUTE_TIMEOUT = 1800 * 1000;
 
 // pre-declare
 extern bool                            InConsoleDebugMode;
@@ -23,13 +22,13 @@ extern std::shared_ptr<ll::io::Logger> DebugCmdLogger;
 
 struct PyConfig;
 typedef PyObject* (*create_stdio_func_type)(
-    const PyConfig* config,
+    PyConfig const* config,
     PyObject*       io,
     int             fd,
     int             write_mode,
-    const char*     name,
-    const wchar_t*  encoding,
-    const wchar_t*  errors
+    char const*     name,
+    wchar_t const*  encoding,
+    wchar_t const*  errors
 );
 
 namespace PythonHelper {
@@ -39,13 +38,13 @@ bool pythonInited = false;
 bool initPythonRuntime() {
     if (!pythonInited) {
         script::py_interop::setPythonHomePath(lse::LegacyScriptEngine::getInstance().getSelf().getModDir());
-        const char*               pathEnv = std::getenv("PATH");
+        char const*               pathEnv = std::getenv("PATH");
         auto                      paths   = ll::string_utils::splitByPattern(pathEnv, ";");
         std::vector<std::wstring> modulePaths;
         modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "lib");
         modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "DLLs");
         modulePaths.push_back(lse::LegacyScriptEngine::getInstance().getSelf().getModDir() / "site-packages");
-        for (const auto& p : paths) {
+        for (auto const& p : paths) {
             if (p.find("Python") != std::string::npos) {
                 std::wstring wstr = ll::string_utils::str2wstr(p);
                 modulePaths.push_back(wstr + L"\\DLLs");
@@ -60,22 +59,22 @@ bool initPythonRuntime() {
 }
 
 bool loadPluginCode(
-    std::shared_ptr<script::ScriptEngine> engine,
-    std::string                           entryScriptPath,
-    std::string                           pluginDirPath
+    std::shared_ptr<script::ScriptEngine> const& engine,
+    std::string const&                           entryScriptPath,
+    std::string                                  pluginDirPath
 ) {
     // TODO: add import path to sys.path
     try {
         engine->loadFile(String::newString(entryScriptPath));
-    } catch (const Exception& e1) {
+    } catch (Exception const&) {
         // Fail
         lse::LegacyScriptEngine::getLogger().error("Fail in Loading Script Plugin!");
-        throw e1;
+        throw;
     }
     return true;
 }
 
-std::string findEntryScript(const std::string& dirPath) {
+std::string findEntryScript(std::string const& dirPath) {
     auto dirPath_obj = std::filesystem::path(dirPath);
 
     std::filesystem::path entryFilePath = dirPath_obj / "__init__.py";
@@ -83,7 +82,7 @@ std::string findEntryScript(const std::string& dirPath) {
     else return ll::string_utils::u8str2str(entryFilePath.u8string());
 }
 
-std::string getPluginPackageName(const std::string& dirPath) {
+std::string getPluginPackageName(std::string const& dirPath) {
     auto        dirPath_obj       = std::filesystem::path(dirPath);
     std::string defaultReturnName = ll::string_utils::u8str2str(std::filesystem::path(dirPath).filename().u8string());
 
@@ -103,7 +102,7 @@ std::string getPluginPackageName(const std::string& dirPath) {
     }
 }
 
-std::string getPluginPackDependencyFilePath(const std::string& dirPath) {
+std::string getPluginPackDependencyFilePath(std::string const& dirPath) {
     auto                  dirPath_obj             = std::filesystem::path(dirPath);
     std::filesystem::path packageFilePath         = dirPath_obj / std::filesystem::path("pyproject.toml");
     std::filesystem::path requirementsFilePath    = dirPath_obj / std::filesystem::path("requirements.txt");
@@ -159,7 +158,7 @@ static PyObject* getPyGlobalDict() {
     return PyModule_GetDict(m);
 }
 
-bool processPythonDebugEngine(const std::string& cmd) {
+bool processPythonDebugEngine(std::string const& cmd) {
     auto& logger = lse::LegacyScriptEngine::getLogger();
     if (cmd == LLSE_DEBUG_CMD) {
         if (InConsoleDebugMode) {
@@ -224,7 +223,7 @@ bool processPythonDebugEngine(const std::string& cmd) {
     return true;
 }
 
-bool processConsolePipCmd(const std::string& cmd) {
+bool processConsolePipCmd(std::string const& cmd) {
 #ifdef LSE_BACKEND_PYTHON
     if (cmd == "pip" || cmd.starts_with("pip ")) {
         PythonHelper::executePipCommand(cmd);
@@ -251,7 +250,7 @@ int executePipCommand(std::string cmd) {
     sa.bInheritHandle       = TRUE;
 
     STARTUPINFOW        si = {0};
-    PROCESS_INFORMATION pi = {0};
+    PROCESS_INFORMATION pi = {nullptr};
     si.cb                  = sizeof(STARTUPINFO);
     GetStartupInfoW(&si);
 

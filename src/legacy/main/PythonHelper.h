@@ -1,7 +1,6 @@
 #pragma once
 #include <ScriptX/ScriptX.h>
 #include <filesystem>
-#include <map>
 #include <string>
 
 namespace PythonHelper {
@@ -10,18 +9,18 @@ bool initPythonRuntime();
 
 // raw, will throw exception if fail
 bool loadPluginCode(
-    std::shared_ptr<script::ScriptEngine> engine,
-    std::string                           entryScriptPath,
-    std::string                           pluginDirPath
+    std::shared_ptr<script::ScriptEngine> const& engine,
+    std::string const&                           entryScriptPath,
+    std::string                                  pluginDirPath
 );
 
-std::string findEntryScript(const std::string& dirPath);
-std::string getPluginPackageName(const std::string& dirPath);
-std::string getPluginPackDependencyFilePath(const std::string& dirPath);
+std::string findEntryScript(std::string const& dirPath);
+std::string getPluginPackageName(std::string const& dirPath);
+std::string getPluginPackDependencyFilePath(std::string const& dirPath);
 
-bool processPythonDebugEngine(const std::string& cmd);
+bool processPythonDebugEngine(std::string const& cmd);
 
-bool processConsolePipCmd(const std::string& cmd);
+bool processConsolePipCmd(std::string const& cmd);
 int  executePipCommand(std::string cmd);
 
 } // namespace PythonHelper

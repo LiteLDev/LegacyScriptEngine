@@ -53,7 +53,7 @@ bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveCmdCallback(std::shared_ptr<ScriptEngine> engine);
 bool LLSERemoveAllExportedFuncs(std::shared_ptr<ScriptEngine> const& engine);
 bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine);
-bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> engine);
+bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine);
 
 namespace lse {
 

@@ -8,7 +8,7 @@
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
-#include "engine/EngineManager.h"
+#include "engine/EngineManager.h" // IWYU pragma: keep
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
@@ -123,11 +123,11 @@ bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine) {
 bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine) {
     FakeCallEvent(engine.get(), EVENT_TYPES::onServerStarted);
 
-    ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+    ll::service::getLevel()->forEachPlayer([&](Player const& pl) -> bool {
         FakeCallEvent(engine.get(), EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&pl));
         return true;
     });
-    ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+    ll::service::getLevel()->forEachPlayer([&](Player const& pl) -> bool {
         FakeCallEvent(engine.get(), EVENT_TYPES::onJoin, PlayerClass::newPlayer(&pl));
         return true;
     });
@@ -137,7 +137,7 @@ bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine) {
 
 bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine) {
     // Players may be online when the server is stopping
-    ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
+    ll::service::getLevel()->forEachPlayer([&](Player const& pl) -> bool {
         FakeCallEvent(engine.get(), EVENT_TYPES::onLeft, PlayerClass::newPlayer(&pl));
         return true;
     });
@@ -994,6 +994,7 @@ void InitBasicEventListeners() {
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
 }
 
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
     case Add: {
@@ -1043,6 +1044,7 @@ bool MoneyBeforeEventCallback(LLMoneyEvent type, std::string from, std::string t
     return true;
 }
 
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool MoneyEventCallback(LLMoneyEvent type, std::string from, std::string to, long long value) {
     switch (type) {
     case Add: {

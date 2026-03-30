@@ -85,15 +85,18 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     if (!result.has_value()) return {};
     if (result.hold(ParamKind::Kind::Enum)) {
         return String::newString(std::get<RuntimeEnum>(result.value()).name);
-    } else if (result.hold(ParamKind::Kind::SoftEnum)) {
+    }
+    if (result.hold(ParamKind::Kind::SoftEnum)) {
         return String::newString(std::get<RuntimeSoftEnum>(result.value()));
-    } else if (result.hold(ParamKind::Kind::BlockName)) {
+    }
+    if (result.hold(ParamKind::Kind::BlockName)) {
         return BlockClass::newBlock(
             *std::get<CommandBlockName>(result.value()).resolveBlock(0).mBlock,
             BlockPos::MIN(),
             -1
         );
-    } else if (result.hold(ParamKind::Kind::Item)) {
+    }
+    if (result.hold(ParamKind::Kind::Item)) {
         auto item = std::make_unique<ItemStack>();
         item->reinit(
             ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(std::get<CommandItem>(result.value()).mId),
@@ -102,57 +105,71 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         );
         return ItemClass::newItem(std::move(item));
 
-    } else if (result.hold(ParamKind::Kind::Actor)) {
+    }
+    if (result.hold(ParamKind::Kind::Actor)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Actor>>(result.value()).results(origin)) {
             arr.add(EntityClass::newEntity(i));
         }
         return arr;
-    } else if (result.hold(ParamKind::Kind::Player)) {
+    }
+    if (result.hold(ParamKind::Kind::Player)) {
         auto arr = Array::newArray();
         for (auto i : std::get<CommandSelector<Player>>(result.value()).results(origin)) {
             arr.add(PlayerClass::newPlayer(i));
         }
         return arr;
-    } else if (result.hold(ParamKind::Kind::BlockPos)) {
+    }
+    if (result.hold(ParamKind::Kind::BlockPos)) {
         auto dim = origin.getDimension();
         return IntPos::newPos(
             std::get<CommandPosition>(result.value())
                 .getBlockPos(CommandVersion::CurrentVersion(), origin, Vec3::ZERO()),
             dim ? dim->getDimensionId().id : -1
         );
-    } else if (result.hold(ParamKind::Kind::Vec3)) {
+    }
+    if (result.hold(ParamKind::Kind::Vec3)) {
         auto dim = origin.getDimension();
         return FloatPos::newPos(
             std::get<CommandPositionFloat>(result.value())
                 .getPosition(CommandVersion::CurrentVersion(), origin, Vec3::ZERO()),
             dim ? dim->getDimensionId().id : -1
         );
-    } else if (result.hold(ParamKind::Kind::Message)) {
+    }
+    if (result.hold(ParamKind::Kind::Message)) {
         return String::newString(
             std::get<CommandMessage>(result.value())
                 .generateMessage(origin, CommandVersion::CurrentVersion())
                 .mMessage->c_str()
         );
-    } else if (result.hold(ParamKind::Kind::RawText)) {
+    }
+    if (result.hold(ParamKind::Kind::RawText)) {
         return String::newString(std::get<CommandRawText>(result.value()).mText);
-    } else if (result.hold(ParamKind::Kind::JsonValue)) {
+    }
+    if (result.hold(ParamKind::Kind::JsonValue)) {
         return String::newString(Json::FastWriter().write(std::get<Json::Value>(result.value())));
-    } else if (result.hold(ParamKind::Kind::Effect)) {
+    }
+    if (result.hold(ParamKind::Kind::Effect)) {
         return String::newString(std::get<MobEffect const*>(result.value())->mResourceName);
-    } else if (result.hold(ParamKind::Kind::Command)) {
+    }
+    if (result.hold(ParamKind::Kind::Command)) {
         return String::newString(std::get<std::unique_ptr<::Command>>(result.value())->getCommandName());
-    } else if (result.hold(ParamKind::Kind::ActorType)) {
+    }
+    if (result.hold(ParamKind::Kind::ActorType)) {
         return String::newString(
             std::get<ActorDefinitionIdentifier const*>(result.value())->mCanonicalName->getString()
         );
-    } else if (result.hold(ParamKind::Kind::Bool)) {
+    }
+    if (result.hold(ParamKind::Kind::Bool)) {
         return Boolean::newBoolean(std::get<bool>(result.value()));
-    } else if (result.hold(ParamKind::Kind::Int)) {
+    }
+    if (result.hold(ParamKind::Kind::Int)) {
         return Number::newNumber(std::get<int>(result.value()));
-    } else if (result.hold(ParamKind::Kind::Float)) {
+    }
+    if (result.hold(ParamKind::Kind::Float)) {
         return Number::newNumber(std::get<float>(result.value()));
-    } else if (result.hold(ParamKind::Kind::String)) {
+    }
+    if (result.hold(ParamKind::Kind::String)) {
         return String::newString(std::get<std::string>(result.value()));
     }
     return {};
@@ -164,7 +181,8 @@ std::enable_if_t<std::is_enum_v<T>, T> parseEnum(Local<Value> const& value) {
         auto tmp = magic_enum::enum_cast<T>(value.asString().toString());
         if (!tmp.has_value()) throw std::runtime_error("Unable to parse Enum value");
         return tmp.value();
-    } else if (value.isNumber()) {
+    }
+    if (value.isNumber()) {
         return static_cast<T>(value.asNumber().toInt32());
     }
     throw std::runtime_error("Unable to parse Enum value");
@@ -313,9 +331,8 @@ Local<Value> CommandClass::setAlias(Arguments const& args) {
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
             return Boolean::newBoolean(true);
-        } else {
-            get().alias(alias);
         }
+        get().alias(alias);
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
@@ -340,10 +357,9 @@ Local<Value> CommandClass::setEnum(Arguments const& args) {
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
             return String::newString(enumName);
-        } else {
-            if (CommandRegistrar::getInstance(false).tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
-                return String::newString(enumName);
-            }
+        }
+        if (CommandRegistrar::getInstance(false).tryRegisterRuntimeEnum(enumName, std::move(enumValues))) {
+            return String::newString(enumName);
         }
         return {};
     }

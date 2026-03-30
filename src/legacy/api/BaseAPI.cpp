@@ -84,7 +84,7 @@ Local<Object> IntPos::newPos(BlockPos const* b, BlockSource const* bs) {
 IntPos* IntPos::extractPos(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<IntPos>(v))
         return EngineScope::currentEngine()->getNativeInstance<IntPos>(v);
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> IntPos::getDim() const { return String::newString(DimId2Name(dim)); }
@@ -123,7 +123,7 @@ Local<Object> FloatPos::newPos(FloatVec4 const& v) { return FloatPos::newPos(v.x
 FloatPos* FloatPos::extractPos(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<FloatPos>(v))
         return EngineScope::currentEngine()->getNativeInstance<FloatPos>(v);
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> FloatPos::getDim() const {
@@ -169,7 +169,7 @@ DirectionAngle* DirectionAngle::create(Arguments const& args) {
 DirectionAngle* DirectionAngle::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<DirectionAngle>(v))
         return EngineScope::currentEngine()->getNativeInstance<DirectionAngle>(v);
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> DirectionAngle::toString() {

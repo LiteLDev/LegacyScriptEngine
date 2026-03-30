@@ -25,7 +25,7 @@ struct RegCmdQueue {
 struct CmdCallbackMapCmp {
     bool operator()(std::string const& a, std::string const& b) const {
         if (a.size() != b.size()) return a.size() > b.size();
-        else return a > b;
+        return a > b;
     }
 };
 

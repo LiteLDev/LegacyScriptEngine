@@ -33,7 +33,7 @@ bool OperationCount::done() const {
 
 int OperationCount::get() const {
     if (exists(name)) return globalShareData->operationCountData[name];
-    else return -1;
+    return -1;
 }
 
 bool OperationCount::hasReachCount(int count) const { return get() >= count; }

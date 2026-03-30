@@ -163,13 +163,13 @@ bool SQLiteStmt::step() {
         IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::step: Successfully");
         stepped = true;
         return true;
-    } else if (res == SQLITE_DONE) {
+    }
+    if (res == SQLITE_DONE) {
         IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::step: The statment is done");
         stepped = false;
         return false;
-    } else {
-        throw std::runtime_error("SQLiteStmt::step: Failed to step");
     }
+    throw std::runtime_error("SQLiteStmt::step: Failed to step");
 }
 
 bool SQLiteStmt::next() { return step(); }

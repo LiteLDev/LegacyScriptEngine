@@ -236,7 +236,8 @@ Local<Value> ObjectiveClass::deleteScore(Arguments const& args) const {
             // obj->_resetPlayer(id);
             scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
-        } else if (IsInstanceOf<PlayerClass>(args[0])) {
+        }
+        if (IsInstanceOf<PlayerClass>(args[0])) {
             Player*     player     = PlayerClass::extract(args[0]);
             Scoreboard& scoreboard = ll::service::getLevel()->getScoreboard();
             Objective*  obj        = get();
@@ -250,9 +251,8 @@ Local<Value> ObjectiveClass::deleteScore(Arguments const& args) const {
             // obj->_resetPlayer(id);
             scoreboard.resetPlayerScore(id, *obj);
             return Boolean::newBoolean(true);
-        } else {
-            throw WrongArgTypeException(__FUNCTION__);
         }
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
 }
@@ -269,7 +269,8 @@ Local<Value> ObjectiveClass::getScore(Arguments const& args) const {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
-        } else if (IsInstanceOf<PlayerClass>(args[0])) {
+        }
+        if (IsInstanceOf<PlayerClass>(args[0])) {
             Scoreboard&  board     = ll::service::getLevel()->getScoreboard();
             Objective*   objective = board.getObjective(objname);
             ScoreboardId sid       = board.getScoreboardId(*PlayerClass::extract(args[0]));
@@ -277,9 +278,8 @@ Local<Value> ObjectiveClass::getScore(Arguments const& args) const {
                 return {};
             }
             return Number::newNumber(objective->getPlayerScore(sid).mValue);
-        } else {
-            throw WrongArgTypeException(__FUNCTION__);
         }
+        throw WrongArgTypeException(__FUNCTION__);
     }
     CATCH_AND_THROW
 }

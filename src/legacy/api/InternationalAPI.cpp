@@ -77,16 +77,15 @@ Local<Value> TrFormat(Arguments const& args, size_t offset, std::string key, std
         if (0ULL == argsLength) {
             // Avoid fmt if only one argument
             return String::newString(key);
-        } else {
-            fmt::dynamic_format_arg_store<fmt::format_context> s;
-            std::vector<Local<Value>>                          vals;
-            for (auto i = offset; i < args.size(); ++i) {
-                vals.push_back(args[i]);
-            }
-            FormatHelper(vals, {}, true, s);
-            auto result = String::newString(fmt::vformat(key, s));
-            return result;
         }
+        fmt::dynamic_format_arg_store<fmt::format_context> s;
+        std::vector<Local<Value>>                          vals;
+        for (auto i = offset; i < args.size(); ++i) {
+            vals.push_back(args[i]);
+        }
+        FormatHelper(vals, {}, true, s);
+        auto result = String::newString(fmt::vformat(key, s));
+        return result;
     } catch (fmt::format_error const&) {
         return String::newString(key);
     }

@@ -25,10 +25,9 @@ std::unique_ptr<SimpleIni> SimpleIni::create(std::string const& path, std::strin
         lse::LegacyScriptEngine::getLogger().error("Failed in loading ini file");
         lse::LegacyScriptEngine::getLogger().error(std::string("Error Code:") + std::to_string((int)res));
         return nullptr;
-    } else {
-        root->filePath = path;
-        return root;
     }
+    root->filePath = path;
+    return root;
 }
 
 bool SimpleIni::setInt(std::string const& sec, std::string const& key, int value) {

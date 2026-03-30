@@ -351,7 +351,7 @@ NbtByteClass* NbtByteClass::constructor(Arguments const& args) {
 ByteTag* NbtByteClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtByteClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtByteClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtByteClass::pack(ByteTag* tag) {
@@ -422,7 +422,7 @@ NbtIntClass* NbtIntClass::constructor(Arguments const& args) {
 IntTag* NbtIntClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtIntClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtIntClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtIntClass::pack(IntTag* tag) {
@@ -492,7 +492,7 @@ NbtShortClass* NbtShortClass::constructor(Arguments const& args) {
 ShortTag* NbtShortClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtShortClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtShortClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtShortClass::pack(ShortTag* tag) {
@@ -562,7 +562,7 @@ NbtLongClass* NbtLongClass::constructor(Arguments const& args) {
 Int64Tag* NbtLongClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtLongClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtLongClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtLongClass::pack(Int64Tag* tag) {
@@ -632,7 +632,7 @@ NbtFloatClass* NbtFloatClass::constructor(Arguments const& args) {
 FloatTag* NbtFloatClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtFloatClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtFloatClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtFloatClass::pack(FloatTag* tag) {
@@ -703,7 +703,7 @@ NbtDoubleClass* NbtDoubleClass::constructor(Arguments const& args) {
 DoubleTag* NbtDoubleClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtDoubleClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtDoubleClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtDoubleClass::pack(DoubleTag* tag) {
@@ -775,7 +775,7 @@ NbtStringClass* NbtStringClass::constructor(Arguments const& args) {
 StringTag* NbtStringClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtStringClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtStringClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtStringClass::pack(StringTag* tag) {
@@ -853,7 +853,7 @@ NbtByteArrayClass* NbtByteArrayClass::constructor(Arguments const& args) {
 ByteArrayTag* NbtByteArrayClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtByteArrayClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtByteArrayClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtByteArrayClass::pack(ByteArrayTag* tag) {
@@ -985,7 +985,7 @@ NbtListClass* NbtListClass::constructor(Arguments const& args) {
 ListTag* NbtListClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtListClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<NbtListClass>(v)->getPtr();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtListClass::pack(ListTag* tag) {
@@ -1038,11 +1038,11 @@ Local<Value> NbtListClass::setEnd(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::End) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<EndTag>();
         }
+        if (list[0].getId() != Tag::Type::End) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<EndTag>();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1059,11 +1059,11 @@ Local<Value> NbtListClass::setByte(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Byte) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<ByteTag>()->data = args[1].asNumber().toInt32();
         }
+        if (list[0].getId() != Tag::Type::Byte) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<ByteTag>()->data = args[1].asNumber().toInt32();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1080,11 +1080,11 @@ Local<Value> NbtListClass::setInt(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Int) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<IntTag>()->data = args[1].asNumber().toInt32();
         }
+        if (list[0].getId() != Tag::Type::Int) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<IntTag>()->data = args[1].asNumber().toInt32();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1101,11 +1101,11 @@ Local<Value> NbtListClass::setShort(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Short) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<ShortTag>()->data = args[1].asNumber().toInt32();
         }
+        if (list[0].getId() != Tag::Type::Short) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<ShortTag>()->data = args[1].asNumber().toInt32();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1122,11 +1122,11 @@ Local<Value> NbtListClass::setLong(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Int64) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<Int64Tag>()->data = args[1].asNumber().toInt64();
         }
+        if (list[0].getId() != Tag::Type::Int64) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<Int64Tag>()->data = args[1].asNumber().toInt64();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1143,11 +1143,11 @@ Local<Value> NbtListClass::setFloat(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Float) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<FloatTag>()->data = args[1].asNumber().toFloat();
         }
+        if (list[0].getId() != Tag::Type::Float) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<FloatTag>()->data = args[1].asNumber().toFloat();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1164,11 +1164,11 @@ Local<Value> NbtListClass::setDouble(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::Double) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as_ptr<DoubleTag>()->data = args[1].asNumber().toDouble();
         }
+        if (list[0].getId() != Tag::Type::Double) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as_ptr<DoubleTag>()->data = args[1].asNumber().toDouble();
         return this->getScriptObject();
     }
     CATCH_AND_THROW
@@ -1185,11 +1185,11 @@ Local<Value> NbtListClass::setString(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::String) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            list[index].as<StringTag>() = args[1].asString().toString();
         }
+        if (list[0].getId() != Tag::Type::String) {
+            throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
+        }
+        list[index].as<StringTag>() = args[1].asString().toString();
 
         return this->getScriptObject();
     }
@@ -1207,13 +1207,13 @@ Local<Value> NbtListClass::setByteArray(Arguments const& args) const {
 
         if (index >= list->size() || index < 0) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Bad Index of NBT List!");
-        } else if (list[0].getId() != Tag::Type::ByteArray) {
+        }
+        if (list[0].getId() != Tag::Type::ByteArray) {
             throw CreateExceptionWithInfo(__FUNCTION__, "Set wrong type of element into NBT List!");
-        } else {
-            auto data = args[1].asByteBuffer();
-            for (char c : data.describeUtf8()) {
-                list[index].as_ptr<ByteArrayTag>()->push_back(c);
-            }
+        }
+        auto data = args[1].asByteBuffer();
+        for (char c : data.describeUtf8()) {
+            list[index].as_ptr<ByteArrayTag>()->push_back(c);
         }
         return this->getScriptObject();
     }
@@ -1484,7 +1484,7 @@ NbtCompoundClass* NbtCompoundClass::constructor(Arguments const& args) {
 CompoundTag* NbtCompoundClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<NbtCompoundClass>(v))
         return std::move(EngineScope::currentEngine()->getNativeInstance<NbtCompoundClass>(v)->getPtr());
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> NbtCompoundClass::pack(CompoundTag* tag) {
@@ -1810,7 +1810,7 @@ Local<Value> NbtCompoundClass::toSNBT(Arguments const& args) const {
     try {
         int indent = args.size() >= 1 ? args[0].asNumber().toInt32() : -1;
         if (indent == -1) return String::newString(getPtr()->toSnbt(SnbtFormat::ForceQuote, 0));
-        else return String::newString(getPtr()->toSnbt(SnbtFormat::PartialLineFeed, indent));
+        return String::newString(getPtr()->toSnbt(SnbtFormat::PartialLineFeed, indent));
     }
     CATCH_AND_THROW
 }
@@ -1947,7 +1947,7 @@ Local<Value> NbtStatic::parseSNBT(Arguments const& args) {
     try {
         auto tag = CompoundTag::fromSnbt(args[0].asString().toString());
         if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
-        else return {};
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -1961,7 +1961,7 @@ Local<Value> NbtStatic::parseBinaryNBT(Arguments const& args) {
         auto tag =
             CompoundTag::fromBinaryNbt(std::string_view(static_cast<char*>(data.getRawBytes()), data.byteLength()));
         if (tag.has_value()) return NbtCompoundClass::pack(tag->clone());
-        else return {};
+        return {};
     }
     CATCH_AND_THROW
 }

@@ -1157,10 +1157,8 @@ bool HttpGetSync(std::string const& url, int* statusRtn, std::string* dataRtn, i
     auto response = cli.Get(path.c_str());
 
     if (!response) return false;
-    else {
-        if (statusRtn) *statusRtn = response->status;
-        if (dataRtn) *dataRtn = response->body;
-    }
+    if (statusRtn) *statusRtn = response->status;
+    if (dataRtn) *dataRtn = response->body;
     return true;
 }
 

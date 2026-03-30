@@ -105,7 +105,7 @@ Local<Value> McClass::setTime(Arguments const& args) {
 
 Local<Value> McClass::getWeather(Arguments const&) { // weather: 0: Clear, 1: Rain, 2: Thunder
     if (ll::service::getLevel()->getLevelData().mLightningLevel > 0.0f) return Number::newNumber(2);
-    else if (ll::service::getLevel()->getLevelData().mRainLevel > 0.0f) return Number::newNumber(1);
+    if (ll::service::getLevel()->getLevelData().mRainLevel > 0.0f) return Number::newNumber(1);
 
     return Number::newNumber(0);
 }

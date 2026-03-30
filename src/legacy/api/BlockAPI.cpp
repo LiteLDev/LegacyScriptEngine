@@ -131,7 +131,7 @@ Local<Object> BlockClass::newBlock(IntVec4 pos) {
 Block const* BlockClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<BlockClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<BlockClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 Local<Value> BlockClass::getName() const {
@@ -417,16 +417,12 @@ Local<Value> McClass::getBlock(Arguments const& args) {
                 // IntPos
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = static_cast<IntVec4>(*posObj);
-                }
+                pos = static_cast<IntVec4>(*posObj);
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = posObj->toIntVec4();
-                }
+                pos = posObj->toIntVec4();
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -488,18 +484,14 @@ Local<Value> McClass::setBlock(Arguments const& args) {
                 // IntPos
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos   = static_cast<IntVec4>(*posObj);
-                    block = args[1];
-                }
+                pos   = static_cast<IntVec4>(*posObj);
+                block = args[1];
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos   = posObj->toIntVec4();
-                    block = args[1];
-                }
+                pos   = posObj->toIntVec4();
+                block = args[1];
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -536,7 +528,8 @@ Local<Value> McClass::setBlock(Arguments const& args) {
             return Boolean::newBoolean(
                 bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
             );
-        } else if (IsInstanceOf<NbtCompoundClass>(block)) {
+        }
+        if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
             auto                      nbt = NbtCompoundClass::extract(block);
             optional_ref<Block const> bl  = Block::tryGetFromRegistry(*nbt);
@@ -548,18 +541,14 @@ Local<Value> McClass::setBlock(Arguments const& args) {
             return Boolean::newBoolean(
                 bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
             );
-        } else {
-            // other block object
-            Block const* bl = BlockClass::extract(block);
-            if (!bl) {
-                throw WrongArgTypeException(__FUNCTION__);
-            }
-            BlockSource& bs =
-                ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(
-                bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false))
-            );
         }
+        // other block object
+        Block const* bl = BlockClass::extract(block);
+        if (!bl) {
+            throw WrongArgTypeException(__FUNCTION__);
+        }
+        BlockSource& bs = ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
+        return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false)));
     }
     CATCH_AND_THROW
 }
@@ -579,18 +568,14 @@ Local<Value> McClass::spawnParticle(Arguments const& args) {
                 // IntPos
                 IntPos* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos  = *posObj;
-                    type = args[1];
-                }
+                pos  = *posObj;
+                type = args[1];
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos  = static_cast<FloatVec4>(*posObj);
-                    type = args[1];
-                }
+                pos  = static_cast<FloatVec4>(*posObj);
+                type = args[1];
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }

@@ -121,7 +121,7 @@ Local<Value> SetTimeout(Arguments const& args) {
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewTimeout(args[0].asFunction(), {}, timeout));
-        else return Number::newNumber(NewTimeout(args[0].asString(), timeout));
+        return Number::newNumber(NewTimeout(args[0].asString(), timeout));
     }
     CATCH_AND_THROW
 }
@@ -140,7 +140,7 @@ Local<Value> SetInterval(Arguments const& args) {
         if (timeout <= 0) timeout = 1;
 
         if (isFunc) return Number::newNumber(NewInterval(args[0].asFunction(), {}, timeout));
-        else return Number::newNumber(NewInterval(args[0].asString(), timeout));
+        return Number::newNumber(NewInterval(args[0].asString(), timeout));
     }
     CATCH_AND_THROW
 }

@@ -177,7 +177,7 @@ Local<Object> EntityClass::newEntity(Actor const* actor) {
 Actor* EntityClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<EntityClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<EntityClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 Actor* EntityClass::tryExtractActor(Local<Value> const& v) {
@@ -190,16 +190,15 @@ Actor* EntityClass::tryExtractActor(Local<Value> const& v) {
 Actor* EntityClass::get() const {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Actor>().as_ptr();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 Local<Value> EntityClass::getUniqueID() const {
     try {
         Actor const* entity = get();
         if (!entity) return {};
-        else return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
+        return String::newString(std::to_string(entity->getOrCreateUniqueID().rawID));
     }
     CATCH_AND_THROW
 }
@@ -208,7 +207,7 @@ Local<Value> EntityClass::getRuntimeID() const {
     try {
         Actor const* entity = get();
         if (!entity) return {};
-        else return String::newString(std::to_string(entity->getRuntimeID().rawID));
+        return String::newString(std::to_string(entity->getRuntimeID().rawID));
     }
     CATCH_AND_THROW
 }
@@ -658,16 +657,12 @@ Local<Value> EntityClass::teleport(Arguments const& args) const {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -721,16 +716,12 @@ Local<Value> EntityClass::distanceTo(Arguments const& args) const {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
@@ -782,16 +773,12 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return {};
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else if (IsInstanceOf<PlayerClass>(args[0]) || IsInstanceOf<EntityClass>(args[0])) {
                 // Player or Entity
 
@@ -897,9 +884,8 @@ Local<Value> EntityClass::toItem(Arguments const&) const {
         Actor* entity = get();
         if (!entity || !entity->hasCategory(ActorCategory::Item)) {
             return {};
-        } else {
-            return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
         }
+        return ItemClass::newItem(&static_cast<ItemActor*>(entity)->item());
     }
     CATCH_AND_THROW
 }
@@ -1681,16 +1667,12 @@ Local<Value> McClass::cloneMob(Arguments const& args) {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -1720,7 +1702,7 @@ Local<Value> McClass::cloneMob(Arguments const& args) {
             false
         );
         if (!entity) return {}; // Null
-        else return EntityClass::newEntity(entity);
+        return EntityClass::newEntity(entity);
     }
     CATCH_AND_THROW
 }
@@ -1738,16 +1720,12 @@ Local<Value> McClass::spawnMob(Arguments const& args) {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[1])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[1]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -1778,7 +1756,7 @@ Local<Value> McClass::spawnMob(Arguments const& args) {
             false
         );
         if (!entity) return {}; // Null
-        else return EntityClass::newEntity(entity);
+        return EntityClass::newEntity(entity);
     }
     CATCH_AND_THROW
 }
@@ -1799,16 +1777,12 @@ Local<Value> McClass::explode(Arguments const& args) {
                 // IntPos
                 IntPos const* posObj = IntPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = *posObj;
-                }
+                pos = *posObj;
             } else if (IsInstanceOf<FloatPos>(args[0])) {
                 // FloatPos
                 FloatPos const* posObj = FloatPos::extractPos(args[0]);
                 if (posObj->dim < 0) return Boolean::newBoolean(false);
-                else {
-                    pos = static_cast<FloatVec4>(*posObj);
-                }
+                pos = static_cast<FloatVec4>(*posObj);
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -1854,30 +1828,29 @@ Local<Value> McClass::explode(Arguments const& args) {
                     false
                 )
             );
-        } else {
-            CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
-            CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
-            CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
-            CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
-
-            float const maxResistance = args[beginIndex + 1].asNumber().toFloat();
-            float const radius        = args[beginIndex + 2].asNumber().toFloat();
-            bool const  isDestroy     = args[beginIndex + 3].asBoolean().value();
-            bool const  isFire        = args[beginIndex + 4].asBoolean().value();
-
-            return Boolean::newBoolean(
-                ll::service::getLevel()->explode(
-                    ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
-                    source.value_or(nullptr),
-                    pos.getVec3(),
-                    radius,
-                    isFire,
-                    isDestroy,
-                    maxResistance,
-                    false
-                )
-            );
         }
+        CHECK_ARG_TYPE(args[beginIndex + 1], ValueKind::kNumber);
+        CHECK_ARG_TYPE(args[beginIndex + 2], ValueKind::kNumber);
+        CHECK_ARG_TYPE(args[beginIndex + 3], ValueKind::kBoolean);
+        CHECK_ARG_TYPE(args[beginIndex + 4], ValueKind::kBoolean);
+
+        float const maxResistance = args[beginIndex + 1].asNumber().toFloat();
+        float const radius        = args[beginIndex + 2].asNumber().toFloat();
+        bool const  isDestroy     = args[beginIndex + 3].asBoolean().value();
+        bool const  isFire        = args[beginIndex + 4].asBoolean().value();
+
+        return Boolean::newBoolean(
+            ll::service::getLevel()->explode(
+                ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource(),
+                source.value_or(nullptr),
+                pos.getVec3(),
+                radius,
+                isFire,
+                isDestroy,
+                maxResistance,
+                false
+            )
+        );
     }
     CATCH_AND_THROW
 }

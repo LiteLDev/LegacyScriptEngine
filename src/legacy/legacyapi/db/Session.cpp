@@ -64,9 +64,8 @@ SharedPointer<Session> Session::create(ConnParams const& params) {
     std::ranges::transform(scheme, scheme.begin(), ::tolower);
     if (names.contains(scheme)) {
         return _Create(names[scheme], params);
-    } else {
-        throw std::runtime_error("Session::create: Unknown/Unsupported database type");
     }
+    throw std::runtime_error("Session::create: Unknown/Unsupported database type");
 }
 SharedPointer<Session> Session::create(DBType type, ConnParams const& params) { return _Create(type, params); }
 SharedPointer<Session> Session::create(

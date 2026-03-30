@@ -52,7 +52,7 @@ Local<Object> SimpleFormClass::newForm() {
 ll::form::SimpleForm* SimpleFormClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<SimpleFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<SimpleFormClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 void SimpleFormClass::sendForm(
@@ -163,7 +163,7 @@ Local<Object> CustomFormClass::newForm() {
 lse::form::RawCustomForm* CustomFormClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<CustomFormClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<CustomFormClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 // 成员函数

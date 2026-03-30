@@ -8,8 +8,7 @@ ScoreboardId ScoreboardHelper::getId(Scoreboard const& scoreboard, PlayerScorebo
     auto  found = dict->find(playerId);
     if (found != dict->end()) {
         return found->second;
-    } else {
-        return ScoreboardId::INVALID();
     }
+    return ScoreboardId::INVALID();
 }
 } // namespace lse::api

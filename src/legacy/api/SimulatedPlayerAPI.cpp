@@ -30,7 +30,7 @@ Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
         if (args.size() == 1) {
             if (auto sp = SimulatedPlayer::create(name, ll::service::getLevel()->getSharedSpawnPos()))
                 return PlayerClass::newPlayer(sp);
-            else return {};
+            return {};
         }
         auto dimId = 0;
         Vec3 spawnPos;
@@ -56,7 +56,7 @@ Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
                     .bottomCenter();
         }
         if (auto sp = SimulatedPlayer::create(name, spawnPos, dimId)) return PlayerClass::newPlayer(sp);
-        else return {};
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -226,9 +226,8 @@ Local<Value> PlayerClass::simulateRespawn(Arguments const&) const {
             auto& spawnPoint = sp->mPlayerRespawnPoint;
             get()->teleport(spawnPoint->mPlayerPosition->bottomCenter(), spawnPoint->mDimension);
             return Boolean::newBoolean(true);
-        } else {
-            return Boolean::newBoolean(false);
         }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 };
@@ -381,7 +380,8 @@ Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
             }
             lse::LegacyScriptEngine::getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
-        } else if (IsInstanceOf<FloatPos>(args[0])) {
+        }
+        if (IsInstanceOf<FloatPos>(args[0])) {
             auto pos = FloatPos::extractPos(args[0]);
             auto did = pos->getDimensionId();
             if (dimid == did || did < 0 || did > 2) {
@@ -390,7 +390,8 @@ Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
             }
             lse::LegacyScriptEngine::getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
-        } else if (IsInstanceOf<BlockClass>(args[0])) {
+        }
+        if (IsInstanceOf<BlockClass>(args[0])) {
             auto block = EngineScope::currentEngine()->getNativeInstance<BlockClass>(args[0]);
             auto pos   = IntPos::extractPos(block->getPos());
             auto did   = pos->getDimensionId();
@@ -400,7 +401,8 @@ Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
             }
             lse::LegacyScriptEngine::getLogger().debug("Can't simulate look at other dimension!");
             return Boolean::newBoolean(false);
-        } else if (auto actor = EntityClass::tryExtractActor(args[0])) {
+        }
+        if (auto actor = EntityClass::tryExtractActor(args[0])) {
             sp->simulateLookAt(*actor, (sim::LookDuration)lookDuration);
             return Boolean::newBoolean(true);
         }
@@ -530,7 +532,7 @@ Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
         }
         if (args.size() == 1) {
             if (item) return Boolean::newBoolean(SimulatedPlayerHelper::simulateUseItem(*sp, *item));
-            else return Boolean::newBoolean(sp->simulateUseItemInSlot(slot));
+            return Boolean::newBoolean(sp->simulateUseItemInSlot(slot));
         }
 
         BlockPos                            bpos;
@@ -553,10 +555,9 @@ Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
             }
         }
         if (item) return Boolean::newBoolean(sp->simulateUseItemOnBlock(*item, bpos, face, relativePos));
-        else
-            return Boolean::newBoolean(
-                SimulatedPlayerHelper::simulateUseItemInSlotOnBlock(*sp, slot, bpos, face, relativePos)
-            );
+        return Boolean::newBoolean(
+            SimulatedPlayerHelper::simulateUseItemInSlotOnBlock(*sp, slot, bpos, face, relativePos)
+        );
     }
     CATCH_AND_THROW
 };

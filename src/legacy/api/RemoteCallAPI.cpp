@@ -99,11 +99,11 @@ Local<Value> _extractValue(RemoteCall::BlockType v) {
 Local<Value> _extractValue(RemoteCall::NumberType v) { return Number::newNumber(v.get<double>()); };
 Local<Value> _extractValue(RemoteCall::ItemType&& v) {
     if (v.own) return ItemClass::newItem(v.tryGetUniquePtr());
-    else return ItemClass::newItem(const_cast<ItemStack*>(v.ptr));
+    return ItemClass::newItem(const_cast<ItemStack*>(v.ptr));
 };
 Local<Value> _extractValue(RemoteCall::NbtType&& v) {
     if (v.own) return NbtCompoundClass::pack(v.tryGetUniquePtr());
-    else return NbtCompoundClass::pack(const_cast<CompoundTag*>(v.ptr));
+    return NbtCompoundClass::pack(const_cast<CompoundTag*>(v.ptr));
 };
 
 Local<Value> extract(RemoteCall::ValueType&& val);

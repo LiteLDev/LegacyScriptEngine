@@ -63,7 +63,7 @@ Local<Object> PacketClass::newPacket(std::shared_ptr<Packet> const& pkt) {
 std::shared_ptr<Packet> PacketClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<PacketClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<PacketClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 // member function

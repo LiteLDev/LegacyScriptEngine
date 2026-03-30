@@ -9,10 +9,9 @@ bool BlockHelper::isValidHeight(WeakRef<Dimension> const& dimension, std::varian
         if (std::holds_alternative<int>(height)) {
             int y = std::get<int>(height);
             return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;
-        } else {
-            float y = std::get<float>(height);
-            return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;
         }
+        float y = std::get<float>(height);
+        return dim->mHeightRange->mMin <= y && dim->mHeightRange->mMax >= y;
     }
 
     return false;

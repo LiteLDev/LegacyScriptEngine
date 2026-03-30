@@ -106,7 +106,7 @@ Local<Value> ConfBaseClass::read(Arguments const&) const {
     try {
         auto content = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
         if (!content) return {};
-        else return String::newString(*content);
+        return String::newString(*content);
     }
     CATCH_AND_THROW
 }
@@ -138,7 +138,7 @@ ConfJsonClass* ConfJsonClass::constructor(Arguments const& args) {
         if (path.empty()) return nullptr;
 
         if (args.size() >= 2) return new ConfJsonClass(args.thiz(), path, args[1].asString().toString());
-        else return new ConfJsonClass(args.thiz(), path, "{}");
+        return new ConfJsonClass(args.thiz(), path, "{}");
     }
     CATCH_AND_THROW
 }
@@ -239,7 +239,8 @@ bool ConfJsonClass::flush() {
         jsonFile << jsonConf.dump(4);
         jsonFile.close();
         return true;
-    } else return false;
+    }
+    return false;
 }
 
 bool ConfJsonClass::close() {
@@ -289,7 +290,7 @@ ConfIniClass* ConfIniClass::constructor(Arguments const& args) {
         if (path.empty()) return nullptr;
 
         if (args.size() >= 2) return new ConfIniClass(args.thiz(), path, args[1].asString().toString());
-        else return new ConfIniClass(args.thiz(), path, "");
+        return new ConfIniClass(args.thiz(), path, "");
     }
     CATCH_AND_THROW
 }
@@ -690,9 +691,8 @@ Local<Value> DataClass::xuid2name(Arguments const& args) {
     try {
         if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString())) {
             return String::newString(playerInfo->name);
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -704,9 +704,8 @@ Local<Value> DataClass::name2xuid(Arguments const& args) {
     try {
         if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString())) {
             return String::newString(playerInfo->xuid);
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -718,9 +717,8 @@ Local<Value> DataClass::name2uuid(Arguments const& args) {
     try {
         if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromName(args[0].asString().toString())) {
             return String::newString(playerInfo->uuid.asString());
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -732,9 +730,8 @@ Local<Value> DataClass::xuid2uuid(Arguments const& args) {
     try {
         if (auto playerInfo = ll::service::PlayerInfo::getInstance().fromXuid(args[0].asString().toString())) {
             return String::newString(playerInfo->uuid.asString());
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -771,9 +768,8 @@ Local<Value> DataClass::fromUuid(Arguments const& args) {
             object.set("name", playerInfo->name);
             object.set("uuid", playerInfo->uuid.asString());
             return object;
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -789,9 +785,8 @@ Local<Value> DataClass::fromXuid(Arguments const& args) {
             object.set("name", playerInfo->name);
             object.set("uuid", playerInfo->uuid.asString());
             return object;
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -807,9 +802,8 @@ Local<Value> DataClass::fromName(Arguments const& args) {
             object.set("name", playerInfo->name);
             object.set("uuid", playerInfo->uuid.asString());
             return object;
-        } else {
-            return {};
         }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -905,9 +899,8 @@ Local<Value> DataClass::fromBase64(Arguments const& args) {
         auto data = ll::base64_utils::decode(args[0].asString().toString());
         if (isBinary) {
             return ByteBuffer::newByteBuffer(const_cast<char*>(data.c_str()), data.size());
-        } else {
-            return String::newString(data);
         }
+        return String::newString(data);
     }
     CATCH_AND_THROW
 }
@@ -918,10 +911,8 @@ Local<Value> KVDBClass::newDb(string const& dir) {
     auto newp = new KVDBClass(dir);
 
     if (newp->isValid()) return newp->getScriptObject();
-    else {
-        delete newp;
-        return {};
-    }
+    delete newp;
+    return {};
 }
 
 Local<Value> ConfJsonClass::newConf(string const& path, string const& defContent) {
@@ -931,7 +922,7 @@ Local<Value> ConfJsonClass::newConf(string const& path, string const& defContent
 
 Local<Value> ConfIniClass::newConf(string const& path, string const& defContent) {
     if (auto newp = new ConfIniClass(path, defContent)) return newp->getScriptObject();
-    else return {};
+    return {};
 }
 
 Local<Value> DataClass::openConfig(Arguments const& args) {
@@ -955,12 +946,10 @@ Local<Value> DataClass::openConfig(Arguments const& args) {
 
         if (confType == GlobalConfType::ini) {
             if (args.size() >= 3) return ConfIniClass::newConf(path, args[2].asString().toString());
-            else return ConfIniClass::newConf(path);
-        } else // json
-        {
-            if (args.size() >= 3) return ConfJsonClass::newConf(path, args[2].asString().toString());
-            else return ConfJsonClass::newConf(path, "{}");
-        }
+            return ConfIniClass::newConf(path);
+        } // json
+        if (args.size() >= 3) return ConfJsonClass::newConf(path, args[2].asString().toString());
+        return ConfJsonClass::newConf(path, "{}");
     }
     CATCH_AND_THROW
 }

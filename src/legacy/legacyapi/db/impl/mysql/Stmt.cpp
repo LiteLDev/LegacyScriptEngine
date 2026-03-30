@@ -482,9 +482,11 @@ bool MySQLStmt::step() {
     if (res == MYSQL_NO_DATA) {
         fetched = true;
         return false;
-    } else if (res == MYSQL_DATA_TRUNCATED) {
+    }
+    if (res == MYSQL_DATA_TRUNCATED) {
         throw std::runtime_error("MySQLStmt::step: Data truncated!");
-    } else if (res) {
+    }
+    if (res) {
         throw std::runtime_error(fmt::format("MySQLStmt::step: {}", mysql_stmt_error(stmt)));
     }
     ++steps;

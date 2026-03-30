@@ -42,7 +42,7 @@ Local<Object> BlockEntityClass::newBlockEntity(BlockActor* be, int dim) {
 BlockActor* BlockEntityClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<BlockEntityClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<BlockEntityClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 // 成员函数

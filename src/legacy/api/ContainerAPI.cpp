@@ -41,7 +41,7 @@ Local<Object> ContainerClass::newContainer(Container* p) {
 Container* ContainerClass::extract(Local<Value> const& v) {
     if (EngineScope::currentEngine()->isInstanceOf<ContainerClass>(v))
         return EngineScope::currentEngine()->getNativeInstance<ContainerClass>(v)->get();
-    else return nullptr;
+    return nullptr;
 }
 
 // 成员函数

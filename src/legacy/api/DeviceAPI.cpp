@@ -51,9 +51,8 @@ Local<Object> DeviceClass::newDevice(Player const* player) {
 Player* DeviceClass::getPlayer() const {
     if (mValid) {
         return mWeakEntity.tryUnwrap<Player>().as_ptr();
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 Local<Value> DeviceClass::getIP() const {

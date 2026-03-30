@@ -33,13 +33,12 @@ bool ProcessDebugEngine(std::string const& cmd) {
         try {
             if (cmd == "stop" || cmd == LLSE_DEBUG_CMD) {
                 return true;
-            } else {
-                auto               result = DebugEngine->eval(cmd);
-                std::ostringstream sout;
-                PrintValue(sout, result);
-                logger.info(sout.str());
-                PrintDebugSign();
             }
+            auto               result = DebugEngine->eval(cmd);
+            std::ostringstream sout;
+            PrintValue(sout, result);
+            logger.info(sout.str());
+            PrintDebugSign();
         } catch (...) {
             ll::error_utils::printCurrentException(logger);
             PrintDebugSign();

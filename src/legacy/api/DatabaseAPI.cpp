@@ -50,9 +50,10 @@ Any LocalValueToAny(Local<Value> const& val) {
         return Any();
     case ValueKind::kBoolean:
         return Any(val.asBoolean().value());
-    case ValueKind::kNumber:
+    case ValueKind::kNumber: {
         if (CheckIsFloat(val.asNumber())) return Any(val.asNumber().toDouble());
-        else return Any(val.asNumber().toInt64());
+        return Any(val.asNumber().toInt64());
+    }
     case ValueKind::kString:
         return Any(val.asString().toString());
     case ValueKind::kByteBuffer:
@@ -177,7 +178,7 @@ KVDBClass* KVDBClass::constructor(Arguments const& args) {
     try {
         auto res = new KVDBClass(args.thiz(), args[0].asString().toString());
         if (res->isValid()) return res;
-        else return nullptr;
+        return nullptr;
     }
     CATCH_AND_THROW
 }

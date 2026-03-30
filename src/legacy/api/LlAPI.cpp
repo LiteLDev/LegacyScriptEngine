@@ -82,9 +82,8 @@ Local<Value> LlClass::isRelease() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(!ver->preRelease.has_value() && !ver->build.has_value());
-        } else {
-            return Boolean::newBoolean(false);
         }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -93,9 +92,8 @@ Local<Value> LlClass::isBeta() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(ver->preRelease.has_value());
-        } else {
-            return Boolean::newBoolean(false);
         }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -104,9 +102,8 @@ Local<Value> LlClass::isDev() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Boolean::newBoolean(ver->build.has_value());
-        } else {
-            return Boolean::newBoolean(true);
         }
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
 }
@@ -115,9 +112,8 @@ Local<Value> LlClass::getMajorVersion() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->major);
-        } else {
-            return Number::newNumber(0);
         }
+        return Number::newNumber(0);
     }
     CATCH_AND_THROW
 }
@@ -126,9 +122,8 @@ Local<Value> LlClass::getMinorVersion() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->minor);
-        } else {
-            return Number::newNumber(0);
         }
+        return Number::newNumber(0);
     }
     CATCH_AND_THROW
 }
@@ -137,9 +132,8 @@ Local<Value> LlClass::getRevisionVersion() {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return Number::newNumber(ver->patch);
-        } else {
-            return Number::newNumber(0);
         }
+        return Number::newNumber(0);
     }
     CATCH_AND_THROW
 }
@@ -155,14 +149,13 @@ Local<Value> LlClass::getVersionStatus() {
     if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
         if (ver->preRelease.has_value()) {
             return Number::newNumber(1);
-        } else if (ver->build.has_value()) {
-            return Number::newNumber(2);
-        } else {
-            return Number::newNumber(0);
         }
-    } else {
+        if (ver->build.has_value()) {
+            return Number::newNumber(2);
+        }
         return Number::newNumber(0);
     }
+    return Number::newNumber(0);
 }
 
 Local<Value> LlClass::getPluginsRoot() {
@@ -175,9 +168,8 @@ Local<Value> LlClass::getPluginsRoot() {
 Local<Value> LlClass::registerPlugin(Arguments const& args) {
     if (args.size() == 0) {
         return Boolean::newBoolean(true);
-    } else {
-        CHECK_ARG_TYPE(args[0], ValueKind::kString);
     }
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kString);
     if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kObject);
 
@@ -360,9 +352,8 @@ Local<Value> LlClass::versionString(Arguments const&) {
     try {
         if (auto& ver = lse::LegacyScriptEngine::getInstance().getSelf().getManifest().version) {
             return String::newString(ver->to_string());
-        } else {
-            return String::newString("0.0.0");
         }
+        return String::newString("0.0.0");
     }
     CATCH_AND_THROW
 }
@@ -460,9 +451,8 @@ Local<Value> LlClass::version(Arguments const&) {
             version.set("isRelease", !ver->preRelease.has_value());
             version.set("isDev", ver->to_string().find("+") != std::string::npos);
             return version;
-        } else {
-            return Object::newObject();
         }
+        return Object::newObject();
     }
     CATCH_AND_THROW
 }

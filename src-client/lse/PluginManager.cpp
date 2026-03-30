@@ -248,9 +248,8 @@ ll::Expected<> PluginManager::enable(std::string_view name) {
             NodeJsHelper::stopEngine(scriptEngine);
 #endif
             return error;
-        } else {
-            return ll::makeStringError("Failed to enable plugin {0}: {1}"_tr(manifest.name, "ScriptEngine is nullptr"));
         }
+        return ll::makeStringError("Failed to enable plugin {0}: {1}"_tr(manifest.name, "ScriptEngine is nullptr"));
     }
 }
 

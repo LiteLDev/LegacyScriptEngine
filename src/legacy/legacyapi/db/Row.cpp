@@ -55,7 +55,7 @@ bool RowHeader::check(Row const& row) const {
     if (row.size() == size()) {
         if (row.header && !row.header->empty()) {
             if (row.header->size() == size()) return true;
-            else return false;
+            return false;
         }
         return true;
     }

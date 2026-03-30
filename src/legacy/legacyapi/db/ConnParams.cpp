@@ -49,12 +49,12 @@ URL ParseURL(std::string const& url) {
         result.port = static_cast<uint16_t>(std::stoi(address.substr(pos + 1)));
     } else result.host = address;
     if (pos1 == std::string::npos) return result;
-    else cur = cur.substr(pos1);
+    cur = cur.substr(pos1);
 
     pos         = cur.find_first_of("?#");
     result.path = cur.substr(0, pos);
     if (pos == std::string::npos) return result;
-    else cur = cur.substr(pos);
+    cur = cur.substr(pos);
     if (cur[0] == '?') {
         cur               = cur.substr(1);
         pos               = cur.find('#');

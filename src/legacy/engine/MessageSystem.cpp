@@ -265,14 +265,8 @@ bool ModuleMessage::sendResult(MessageType typ, std::string const& dat, int64_t 
             std::chrono::milliseconds(delay)
         );
         return true;
-    } catch (Exception const& e) {
-        EngineScope scope(engine);
-        lse::LegacyScriptEngine::getLogger().error(
-            "Fail to post message to plugin {}",
-            getEngineData(engine)->pluginName
-        );
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
     } catch (...) {
+        EngineScope scope(engine);
         lse::LegacyScriptEngine::getLogger().error(
             "Fail to post message to plugin {}",
             getEngineData(engine)->pluginName
@@ -346,9 +340,8 @@ void MessageSystemLoopOnce() {
                 }
             } catch (Exception const& e) {
                 EngineScope scope(engine.get());
-                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
+                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop! In plugin: {}", getEngineOwnData()->pluginName);
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-                lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineOwnData()->pluginName);
             } catch (...) {
                 lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());

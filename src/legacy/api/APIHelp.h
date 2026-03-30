@@ -21,11 +21,11 @@ std::string ValueKindToString(ValueKind const& kind);
 
 // 输出脚本调用堆栈，API名称，以及插件名
 inline Exception CreateExceptionWithInfo(std::string const& func, std::string const& msg) {
-    return Exception(fmt::format("In API: {}, In Plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
+    return Exception(fmt::format("In API: {}, In plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
 }
 
 inline void LogErrorWithInfo(std::string const& func) {
-    lse::LegacyScriptEngine::getLogger().error("In API: {}, In Plugin: {}", func, getEngineOwnData()->pluginName);
+    lse::LegacyScriptEngine::getLogger().error("In API: {}, In plugin: {}", func, getEngineOwnData()->pluginName);
 }
 
 // 参数类型错误输出
@@ -57,11 +57,8 @@ inline Exception WrongArgsCountException(std::string const& func) {
 
 // 截获引擎异常
 #define CATCH_AND_THROW                                                                                                \
-    catch (Exception const&) {                                                                                       \
-        throw;                                                                                                       \
-    }                                                                                                                  \
-    catch (std::exception const& e) {                                                                                  \
-        throw Exception(e.what());                                                                                     \
+    catch (Exception const&) {                                                                                         \
+        throw;                                                                                                         \
     }                                                                                                                  \
     catch (...) {                                                                                                      \
         throw Exception(                                                                                               \
@@ -70,39 +67,20 @@ inline Exception WrongArgsCountException(std::string const& func) {
     }
 
 #define CATCH                                                                                                          \
-    catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
-    }                                                                                                                  \
     catch (...) {                                                                                                      \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 
-#define CATCH_WITH_MESSAGE(LOG)                                                                                        \
-    catch (const Exception& e) {                                                                                       \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
-    }                                                                                                                  \
+#define CATCH_WITH_MESSAGE(...)                                                                                        \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
+        lse::LegacyScriptEngine::getLogger().error(__VA_ARGS__);                                                       \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 
 // 截获回调函数异常
-#define CATCH_IN_CALLBACK(callback)                                                                                    \
-    catch (const Exception& e) {                                                                                       \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
-    }                                                                                                                  \
-    catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        lse::LegacyScriptEngine::getLogger().error(std::string("In callback for ") + callback);                        \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
-    }
+#define CATCH_IN_CALLBACK(...) CATCH_WITH_MESSAGE("In callback for", __VA_ARGS__)
 
 // 判断是否为浮点数
 bool CheckIsFloat(Local<Value> const& num);

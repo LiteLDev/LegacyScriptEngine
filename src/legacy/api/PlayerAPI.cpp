@@ -2618,10 +2618,6 @@ Local<Value> PlayerClass::sendCustomForm(Arguments const& args) const {
         else ll::form::Form::sendRawTo(*player, formData.dump(), std::move(formCallback));
 
         return Number::newNumber(3);
-    } catch (ordered_json::exception const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Fail to parse Json string in sendCustomForm!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return {};
     }
     CATCH_AND_THROW
 }

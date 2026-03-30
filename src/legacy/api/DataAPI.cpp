@@ -205,10 +205,6 @@ Local<Value> ConfJsonClass::del(Arguments const& args) {
 Local<Value> ConfJsonClass::reload(Arguments const&) {
     try {
         return Boolean::newBoolean(reload());
-    } catch (ordered_json::exception const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Fail to parse json content in file!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -251,15 +247,7 @@ bool ConfJsonClass::close() {
 bool ConfJsonClass::reload() {
     auto jsonTexts = ll::file_utils::readFile(ll::string_utils::str2u8str(confPath));
     if (!jsonTexts) return false;
-
-    try {
-        jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, true);
-    } catch (...) {
-        lse::LegacyScriptEngine::getLogger().error("Fail in confJsonReload!");
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-        return false;
-    }
-
+    jsonConf = ordered_json::parse(*jsonTexts, nullptr, true, true);
     return true;
 }
 
@@ -530,14 +518,6 @@ Local<Value> MoneyClass::set(Arguments const& args) {
         return Boolean::newBoolean(
             EconomySystem::setMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneySet!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneySet!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -548,14 +528,6 @@ Local<Value> MoneyClass::get(Arguments const& args) {
 
     try {
         return Number::newNumber(EconomySystem::getMoney(args[0].asString().toString()));
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGet!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Number::newNumber(0);
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGet!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Number::newNumber(0);
     }
     CATCH_AND_THROW
 }
@@ -569,14 +541,6 @@ Local<Value> MoneyClass::add(Arguments const& args) {
         return Boolean::newBoolean(
             EconomySystem::addMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyAdd!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyAdd!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -590,14 +554,6 @@ Local<Value> MoneyClass::reduce(Arguments const& args) {
         return Boolean::newBoolean(
             EconomySystem::reduceMoney(args[0].asString().toString(), args[1].asNumber().toInt64())
         );
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyReduce!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyReduce!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -619,14 +575,6 @@ Local<Value> MoneyClass::trans(Arguments const& args) {
                 note
             )
         );
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyTrans!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyTrans!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -659,16 +607,8 @@ Local<Value> MoneyClass::getHistory(Arguments const& args) {
     CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
 
     try {
-        string res{EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32())};
+        string res = EconomySystem::getMoneyHist(args[0].asString().toString(), args[1].asNumber().toInt32());
         return objectificationMoneyHistory(res);
-    } catch (std::invalid_argument const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return {};
-    } catch (std::out_of_range const& e) {
-        lse::LegacyScriptEngine::getLogger().error("Bad argument in MoneyGetHistory!");
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-        return {};
     }
     CATCH_AND_THROW
 }

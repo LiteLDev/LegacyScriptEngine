@@ -18,16 +18,10 @@ using namespace cyanray;
 using namespace ll::coro;
 
 #define CATCH_CALLBACK_IN_CORO(LOG)                                                                                    \
-    catch (const Exception& e) {                                                                                       \
-        EngineScope enterCoro(engine);                                                                                 \
-        lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        co_return;                                                                                                     \
-    }                                                                                                                  \
     catch (...) {                                                                                                      \
+        EngineScope enterCoro(engine);                                                                                 \
         lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        EngineScope enterCoro(engine);                                                                                 \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
         co_return;                                                                                                     \
     }
@@ -120,7 +114,7 @@ WSClientClass::WSClientClass(Local<Object> const& scriptObj)
 }
 
 WSClientClass::WSClientClass()
-: ScriptClass(ScriptClass::ConstructFromCpp<WSClientClass>{}),
+: ScriptClass(ConstructFromCpp<WSClientClass>{}),
   ws(std::make_shared<WebSocketClient>()) {
     initListeners();
 }
@@ -173,7 +167,7 @@ void WSClientClass::initListeners() {
 void WSClientClass::initListeners_s() {
     ws->OnTextReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onTextReceived)]},
                         engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
-        ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
+        keepThis([nowList, engine, msg = std::move(msg)]() -> CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
@@ -195,7 +189,7 @@ void WSClientClass::initListeners_s() {
 
     ws->OnBinaryReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onBinaryReceived)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, std::vector<uint8_t> data) {
-        ll::coro::keepThis([nowList, engine, data = std::move(data)]() mutable -> ll::coro::CoroTask<> {
+        keepThis([nowList, engine, data = std::move(data)]() mutable -> CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
@@ -217,7 +211,7 @@ void WSClientClass::initListeners_s() {
 
     ws->OnError([nowList{&listeners[static_cast<int>(WSClientEvents::onError)]},
                  engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
-        ll::coro::keepThis([nowList, engine, msg = std::move(msg)]() -> ll::coro::CoroTask<> {
+        keepThis([nowList, engine, msg = std::move(msg)]() -> CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
@@ -239,7 +233,7 @@ void WSClientClass::initListeners_s() {
 
     ws->OnLostConnection([nowList{&listeners[static_cast<int>(WSClientEvents::onLostConnection)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, int code) {
-        ll::coro::keepThis([nowList, engine, code]() -> ll::coro::CoroTask<> {
+        keepThis([nowList, engine, code]() -> CoroTask<> {
             if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
@@ -347,9 +341,10 @@ Local<Value> WSClientClass::connectAsync(Arguments const& args) {
                 if (callback.isEmpty()) return;
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
-                lse::LegacyScriptEngine::getLogger().error("WSClientClass::connectAsync Failed!");
+                lse::LegacyScriptEngine::getLogger().error(
+                    "WSClientClass::connectAsync Failed! In plugin: {}", pluginName
+                );
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
-                lse::LegacyScriptEngine::getLogger().error("In Plugin: " + pluginName);
             }
         }).detach();
         return Boolean::newBoolean(true);
@@ -429,7 +424,7 @@ using namespace httplib;
 // ll::thread::TickSyncTaskPool taskPool;
 
 void ADD_CALLBACK(
-    std::shared_ptr<httplib::Server> const&         svr,
+    std::shared_ptr<Server> const&                  svr,
     std::multimap<std::string, HttpServerCallback>& callbacks,
     HttpRequestType const&                          method,
     std::string const&                              path,
@@ -443,7 +438,7 @@ void ADD_CALLBACK(
             if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
-            ll::coro::keepThis([engine, req, &resp, method, callbacks]() -> ll::coro::CoroTask<> {
+            keepThis([engine, req, &resp, method, callbacks]() -> CoroTask<> {
                 if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
@@ -465,7 +460,7 @@ void ADD_CALLBACK(
                         }
                     }
                 }
-                CATCH_CALLBACK_IN_CORO("Fail in NetworkAPI callback")
+                CATCH_WITH_MESSAGE("Fail in NetworkAPI callback")
             }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         };
     switch (method) {
@@ -500,7 +495,7 @@ HttpServerClass::HttpServerClass(Local<Object> const& scriptObj)
   preRoutingCallback(),
   postRoutingCallback() {}
 HttpServerClass::HttpServerClass()
-: ScriptClass(ScriptClass::ConstructFromCpp<HttpServerClass>{}),
+: ScriptClass(ConstructFromCpp<HttpServerClass>{}),
   svr(std::make_shared<Server>()),
   errorCallback(),
   exceptionCallback(),
@@ -606,15 +601,15 @@ Local<Value> HttpServerClass::onPreRouting(Arguments const& args) {
                 || engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
-            ll::coro::keepThis([this, engine, req, &resp, &handled]() -> ll::coro::CoroTask<> {
+            keepThis([this, engine, req, &resp, &handled]() -> CoroTask<> {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
+                EngineScope enter(engine);
                 try {
-                    EngineScope enter(engine);
-                    auto        reqObj  = new HttpRequestClass(req);
-                    auto        respObj = new HttpResponseClass(resp);
+                    auto reqObj  = new HttpRequestClass(req);
+                    auto respObj = new HttpResponseClass(resp);
 
                     auto res = this->preRoutingCallback.func.get().call({}, reqObj, respObj);
                     if (res.isBoolean() && res.asBoolean().value() == false) {
@@ -622,7 +617,7 @@ Local<Value> HttpServerClass::onPreRouting(Arguments const& args) {
                     }
                     resp = *respObj->get();
                 }
-                CATCH_CALLBACK_IN_CORO("Fail in onPreRouting");
+                CATCH_WITH_MESSAGE("Fail in onPreRouting");
             }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
 
             return handled ? Server::HandlerResponse::Handled : Server::HandlerResponse::Unhandled;
@@ -644,7 +639,7 @@ Local<Value> HttpServerClass::onPostRouting(Arguments const& args) {
                 || engine->isDestroying())
                 return;
 
-            ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {
+            keepThis([this, engine, req, &resp]() -> CoroTask<> {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
@@ -656,7 +651,7 @@ Local<Value> HttpServerClass::onPostRouting(Arguments const& args) {
                     this->postRoutingCallback.func.get().call({}, reqObj, respObj);
                     resp = *respObj->get();
                 }
-                CATCH_CALLBACK_IN_CORO("Fail in onPostRouting");
+                CATCH_WITH_MESSAGE("Fail in onPostRouting");
             }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
@@ -675,7 +670,7 @@ Local<Value> HttpServerClass::onError(Arguments const& args) {
                 || engine->isDestroying())
                 return;
 
-            ll::coro::keepThis([this, engine, req, &resp]() -> ll::coro::CoroTask<> {
+            keepThis([this, engine, req, &resp]() -> CoroTask<> {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
@@ -687,7 +682,7 @@ Local<Value> HttpServerClass::onError(Arguments const& args) {
                     this->errorCallback.func.get().call({}, reqObj, respObj);
                     resp = *respObj->get();
                 }
-                CATCH_CALLBACK_IN_CORO("Fail in onError");
+                CATCH_WITH_MESSAGE("Fail in onError");
             }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
@@ -710,7 +705,7 @@ Local<Value> HttpServerClass::onException(Arguments const& args) {
                 || engine->isDestroying())
                 return;
 
-            ll::coro::keepThis([this, engine, req, &resp, e]() -> ll::coro::CoroTask<> {
+            keepThis([this, engine, req, &resp, e]() -> CoroTask<> {
                 if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
@@ -728,7 +723,7 @@ Local<Value> HttpServerClass::onException(Arguments const& args) {
                     }
                     resp = *respObj->get();
                 }
-                CATCH_CALLBACK_IN_CORO("Fail in onException");
+                CATCH_WITH_MESSAGE("Fail in onException");
             }).syncLaunch(ll::thread::ThreadPoolExecutor::getDefault());
         });
         return this->getScriptObject();
@@ -764,6 +759,7 @@ Local<Value> HttpServerClass::listen(Arguments const& args) const {
                 svr->stop();
                 svr->listen(addr, port);
             } catch (...) {
+                lse::LegacyScriptEngine::getLogger().error("Failed to listen {}:{}", addr, port);
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
         }).detach();
@@ -821,7 +817,7 @@ HttpRequestClass::HttpRequestClass(Local<Object> const& scriptObj, Request const
 : ScriptClass(scriptObj),
   req(std::make_shared<Request>(req)) {}
 HttpRequestClass::HttpRequestClass(Request const& req)
-: ScriptClass(ScriptClass::ConstructFromCpp<HttpRequestClass>{}),
+: ScriptClass(ConstructFromCpp<HttpRequestClass>{}),
   req(std::make_shared<Request>(req)) {}
 
 std::shared_ptr<Request> HttpRequestClass::get() { return req; }
@@ -915,7 +911,7 @@ HttpResponseClass::HttpResponseClass(Local<Object> const& scriptObj, Response co
 : ScriptClass(scriptObj),
   resp(std::make_shared<Response>(resp)) {}
 HttpResponseClass::HttpResponseClass(Response const& resp)
-: ScriptClass(ScriptClass::ConstructFromCpp<HttpResponseClass>{}),
+: ScriptClass(ConstructFromCpp<HttpResponseClass>{}),
   resp(std::make_shared<Response>(resp)) {}
 
 std::shared_ptr<Response> HttpResponseClass::get() { return resp; }
@@ -1071,21 +1067,21 @@ void SplitHttpUrl(std::string const& url, string& host, string& path) {
 }
 bool HttpGet(
     std::string const&                           url,
-    httplib::Headers const&                      headers,
+    Headers const&                               headers,
     std::function<void(int, std::string)> const& callback,
     int                                          timeout = -1
 ) {
     string host, path;
     SplitHttpUrl(url, host, path);
 
-    auto cli = std::make_unique<httplib::Client>(host.c_str());
+    auto cli = std::make_unique<Client>(host.c_str());
     if (!cli->is_valid()) {
         return false;
     }
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
     std::thread(
-        [headers, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> const& cli) {
+        [headers, callback, path{std::move(path)}](std::unique_ptr<Client> const& cli) {
             try {
                 auto response = cli->Get(path.c_str(), headers);
 
@@ -1106,7 +1102,7 @@ bool HttpGet(std::string const& url, std::function<void(int, std::string)> const
 
 bool HttpPost(
     std::string const&                           url,
-    httplib::Headers const&                      headers,
+    Headers const&                               headers,
     std::string const&                           data,
     std::string const&                           type,
     std::function<void(int, std::string)> const& callback,
@@ -1114,14 +1110,14 @@ bool HttpPost(
 ) {
     std::string host, path;
     SplitHttpUrl(url, host, path);
-    auto cli = std::make_unique<httplib::Client>(host.c_str());
+    auto cli = std::make_unique<Client>(host.c_str());
     if (!cli->is_valid()) {
         return false;
     }
     if (timeout > 0) cli->set_connection_timeout(timeout, 0);
 
     std::thread(
-        [headers, data, type, callback, path{std::move(path)}](std::unique_ptr<httplib::Client> const& cli) {
+        [headers, data, type, callback, path{std::move(path)}](std::unique_ptr<Client> const& cli) {
             try {
                 auto response = cli->Post(path.c_str(), headers, data, type.c_str());
                 if (!response) callback(-1, "");
@@ -1148,7 +1144,7 @@ bool HttpGetSync(std::string const& url, int* statusRtn, std::string* dataRtn, i
     string host, path;
     SplitHttpUrl(url, host, path);
 
-    httplib::Client cli(host.c_str());
+    Client cli(host.c_str());
     if (!cli.is_valid()) {
         return false;
     }
@@ -1194,9 +1190,9 @@ Local<Value> NetworkClass::httpGet(Arguments const& args) {
             CATCH_IN_CALLBACK("HttpGet")
         };
         if (args.size() > 2) {
-            httplib::Headers maps;
-            auto             obj  = args[1].asObject();
-            auto             keys = obj.getKeyNames();
+            Headers maps;
+            auto    obj  = args[1].asObject();
+            auto    keys = obj.getKeyNames();
             if (keys.size() > 0) {
                 for (size_t i = 0ULL, mEnd = keys.size(); i < mEnd; ++i) {
                     maps.insert({keys[i], obj.get(keys[i]).asString().toString()});
@@ -1242,9 +1238,9 @@ Local<Value> NetworkClass::httpPost(Arguments const& args) {
             CATCH_IN_CALLBACK("HttpPost")
         };
         if (args.size() > 4) {
-            httplib::Headers maps;
-            auto             obj  = args[1].asObject();
-            auto             keys = obj.getKeyNames();
+            Headers maps;
+            auto    obj  = args[1].asObject();
+            auto    keys = obj.getKeyNames();
             if (keys.size() > 0) {
                 for (size_t i = 0ULL, mEnd = keys.size(); i < mEnd; ++i) {
                     maps.insert({keys[i], obj.get(keys[i]).asString().toString()});

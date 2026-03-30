@@ -18,31 +18,26 @@ struct TimeTaskData {
     script::Global<Function>           func;
     std::vector<script::Global<Value>> paras;
     script::Global<String>             code;
-    ScriptEngine*                      engine;
+    ScriptEngine*                      engine = nullptr;
 };
 
 std::unordered_map<uint64, ScriptEngine*> timeTaskMap;
 
 #define TIMETASK_CATCH(TASK_TYPE)                                                                                      \
-    catch (const Exception& e) {                                                                                       \
-        EngineScope scope(data.engine);                                                                                \
-        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);                                 \
-        ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());                                      \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);            \
-    }                                                                                                                  \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Error occurred in {}", TASK_TYPE);                                 \
+        EngineScope scope(data.engine);                                                                                \
+        lse::LegacyScriptEngine::getLogger()                                                                           \
+            .error("Error occurred in {}, in plugin: {}", TASK_TYPE, getEngineData(data.engine)->pluginName);          \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(data.engine)->pluginName);            \
     }
 
-int NewTimeout(const Local<Function>& func, std::vector<Local<Value>> paras, int timeout) {
-    int          tid = ++timeTaskId;
+int NewTimeout(const Local<Function>& func, const std::vector<Local<Value>>& paras, int timeout) {
+    unsigned int tid = ++timeTaskId;
     TimeTaskData data;
 
     data.func   = func;
     data.engine = EngineScope::currentEngine();
-    for (auto& para : paras) data.paras.emplace_back(std::move(para));
+    for (auto& para : paras) data.paras.emplace_back(para);
 
     ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         co_await std::chrono::milliseconds(timeout);
@@ -78,7 +73,7 @@ int NewTimeout(const Local<Function>& func, std::vector<Local<Value>> paras, int
 }
 
 int NewTimeout(Local<String> const& func, int timeout) {
-    int          tid = ++timeTaskId;
+    unsigned int tid = ++timeTaskId;
     TimeTaskData data;
 
     data.code   = func;
@@ -113,13 +108,13 @@ int NewTimeout(Local<String> const& func, int timeout) {
     return tid;
 }
 
-int NewInterval(Local<Function> const& func, std::vector<Local<Value>> paras, int timeout) {
-    int          tid = ++timeTaskId;
+int NewInterval(Local<Function> const& func, std::vector<Local<Value>> const& paras, int timeout) {
+    unsigned int tid = ++timeTaskId;
     TimeTaskData data;
 
     data.func   = func;
     data.engine = EngineScope::currentEngine();
-    for (auto& para : paras) data.paras.emplace_back(std::move(para));
+    for (auto& para : paras) data.paras.emplace_back(para);
 
     ll::coro::keepThis([timeout, tid, data]() -> ll::coro::CoroTask<> {
         while (true) {
@@ -157,7 +152,7 @@ int NewInterval(Local<Function> const& func, std::vector<Local<Value>> paras, in
 }
 
 int NewInterval(Local<String> const& func, int timeout) {
-    int          tid = ++timeTaskId;
+    unsigned int tid = ++timeTaskId;
     TimeTaskData data;
 
     data.code   = func;
@@ -191,12 +186,12 @@ int NewInterval(Local<String> const& func, int timeout) {
     return tid;
 }
 
-bool CheckTimeTask(int const& id) {
+bool CheckTimeTask(unsigned int const& id) {
     std::lock_guard lock(locker);
     return timeTaskMap.contains(id);
 }
 
-bool ClearTimeTask(int const& id) {
+bool ClearTimeTask(unsigned int const& id) {
     try {
         std::lock_guard lock(locker);
         if (timeTaskMap.contains(id)) {

@@ -50,19 +50,19 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
             lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
         // lse::LegacyScriptEngine::getLogger().debug("*** After remote call result return");
-    } catch (const Exception& e) {
+    } catch (Exception const& e) {
         lse::LegacyScriptEngine::getLogger().error("Error occurred in remote engine!");
         if (engine) {
             EngineScope enter(engine);
+            lse::LegacyScriptEngine::getLogger().error("In plugin: {}", getEngineOwnData()->pluginName);
             ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
-            lse::LegacyScriptEngine::getLogger().error("[Error] In Plugin: " + getEngineOwnData()->pluginName);
         }
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {
             lse::LegacyScriptEngine::getLogger().error("Fail to post remote call result return!");
         }
-    } catch (const std::out_of_range&) {
+    } catch (std::out_of_range const&) {
         lse::LegacyScriptEngine::getLogger().error(
             string("Fail to import! Function [") + funcName + "] has not been exported!"
         );

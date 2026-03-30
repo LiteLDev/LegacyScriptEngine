@@ -108,7 +108,7 @@ LLSEAddEventListener(ScriptEngine* engine, std::string const& eventName, Local<F
         return {listener};
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Event {} not found!"_tr(eventName));
-        lse::LegacyScriptEngine::getLogger().error("In Plugin: " + getEngineData(engine)->pluginName);
+        lse::LegacyScriptEngine::getLogger().error("In plugin: {}", getEngineData(engine)->pluginName);
         return std::nullopt;
     }
 }

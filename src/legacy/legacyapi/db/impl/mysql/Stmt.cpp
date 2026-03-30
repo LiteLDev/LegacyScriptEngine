@@ -616,7 +616,7 @@ SharedPointer<Stmt> MySQLStmt::create(std::weak_ptr<Session> const& session, std
     result->query        = sql;
     result->paramIndexes = params;
     result->setDebugOutput(raw->debugOutput);
-    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: Prepared > " + query);
+    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("MySQLStmt::create: Prepared > {}", query);
     auto shared  = SharedPointer<Stmt>(result);
     result->self = shared;
     return shared;

@@ -73,17 +73,17 @@ void SQLiteSession::open(ConnParams const& params) {
     if (res != SQLITE_OK) {
         throw std::runtime_error("SQLiteSession::open: Failed to open database: " + std::string(sqlite3_errmsg(conn)));
     }
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::open: Opened database: " + std::string(path));
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::open: Opened database: {}", std::string(path));
 }
 
 bool SQLiteSession::execute(std::string const& query) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::execute: Executing > " + query);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::execute: Executing > {}", query);
     auto     res = sqlite3_exec(conn, query.c_str(), nullptr, nullptr, nullptr);
     return res == SQLITE_OK;
 }
 
 Session& SQLiteSession::query(std::string const& query, std::function<bool(Row const&)> callback) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::query: Querying > " + query);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("SQLiteSession::query: Querying > {}", query);
     auto     stmt = prepare(query, false);
     stmt->fetchAll(callback);
     return *this;

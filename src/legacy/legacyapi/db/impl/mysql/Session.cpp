@@ -106,7 +106,7 @@ void MySQLSession::open(ConnParams const& params) {
 }
 
 bool MySQLSession::execute(std::string const& query) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::execute: Executing > " + query);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::execute: Executing > {}", query);
     auto     res = mysql_query(conn, query.c_str());
     return res == OK;
 }
@@ -119,7 +119,7 @@ bool MySQLSession::relogin(std::string const& user, std::string const& password,
 }
 
 Session& MySQLSession::query(std::string const& query, std::function<bool(Row const&)> callback) {
-    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::query: Querying > " + query);
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("MySQLSession::query: Querying > {}", query);
     auto     res = mysql_query(conn, query.c_str());
     if (res != OK) {
         throw std::runtime_error("MySQLSession::query: Failed to query database: " + std::string(mysql_error(conn)));

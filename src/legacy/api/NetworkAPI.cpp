@@ -282,7 +282,7 @@ void WSClientClass::addListener(string const& event, Local<Function> const& func
             {EngineScope::currentEngine(), script::Global<Function>(func)}
         );
     else {
-        throw CreateExceptionWithInfo(__FUNCTION__, "WSClient Event \"" + event + "\" No Found!");
+        throw CreateExceptionWithInfo(__FUNCTION__, "WSClient Event \"{}\" No Found!", event);
     }
 }
 
@@ -342,7 +342,8 @@ Local<Value> WSClientClass::connectAsync(Arguments const& args) {
                 NewTimeout(callback.get(), {Boolean::newBoolean(result)}, 0);
             } catch (...) {
                 lse::LegacyScriptEngine::getLogger().error(
-                    "WSClientClass::connectAsync Failed! In plugin: {}", pluginName
+                    "WSClientClass::connectAsync Failed! In plugin: {}",
+                    pluginName
                 );
                 ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }

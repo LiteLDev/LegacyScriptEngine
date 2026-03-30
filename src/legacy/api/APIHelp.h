@@ -20,8 +20,9 @@ bool IsInstanceOf(Local<Value> v) {
 std::string ValueKindToString(ValueKind const& kind);
 
 // 输出脚本调用堆栈，API名称，以及插件名
-inline Exception CreateExceptionWithInfo(std::string const& func, std::string const& msg) {
-    return Exception(fmt::format("In API: {}, In plugin: {}, {}", func, getEngineOwnData()->pluginName, msg));
+template <typename... Args>
+Exception CreateExceptionWithInfo(std::string const& func, Args... msg) {
+    return Exception(fmt::format("In API: {}, In plugin: {}, {}", func, getEngineOwnData()->pluginName, msg...));
 }
 
 inline void LogErrorWithInfo(std::string const& func) {

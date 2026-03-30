@@ -412,7 +412,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
         output.mSuccessCount = outp->output->mSuccessCount;
         outp->isAsync        = true;
     }
-    CATCH_WITH_MESSAGE("Fail in executing command \"" + commandName + "\"!")
+    CATCH_WITH_MESSAGE("Fail in executing command \"{}\"!", commandName)
 }
 
 // name, type, optional, description, identifier, option

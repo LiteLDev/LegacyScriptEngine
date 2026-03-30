@@ -179,7 +179,7 @@ void CallEventImpl(EventListener& listener, bool& returnValue, EVENT_TYPES type,
             returnValue = false;
         }
     }
-    CATCH_WITH_MESSAGE("CallEvent Callback Failed! In Event: " + EventTypeToString(type))
+    CATCH_WITH_MESSAGE("CallEvent Callback Failed! In Event: {}", EventTypeToString(type))
 }
 
 #define FakeCallEvent(ENGINE, TYPE, ...)                                                                               \
@@ -205,7 +205,7 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: " + EventTypeToString(TYPE));     \
+        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: {}", EventTypeToString(TYPE));     \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
     }                                                                                                                  \
     }

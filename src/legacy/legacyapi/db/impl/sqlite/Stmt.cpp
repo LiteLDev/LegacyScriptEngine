@@ -313,7 +313,7 @@ SQLiteStmt::create(std::weak_ptr<Session> const& session, std::string const& sql
     auto result    = std::make_shared<SQLiteStmt>(stmt, session, autoExecute);
     result->parent = session;
     result->setDebugOutput(raw->debugOutput);
-    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::create: Prepared > " + sql);
+    if (raw->debugOutput) lse::LegacyScriptEngine::getLogger().debug("SQLiteStmt::create: Prepared > {}", sql);
     auto shared  = SharedPointer<Stmt>(result);
     result->self = shared;
     return shared;

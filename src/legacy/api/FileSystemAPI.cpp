@@ -99,7 +99,7 @@ FileClass* FileClass::constructor(Arguments const& args) {
                 std::filesystem::create_directories(path.parent_path());
             }
         } else {
-            throw CreateExceptionWithInfo(__FUNCTION__, "File " + args[0].asString().toString() + " doesn't exist!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "File {} doesn't exist!", args[0].asString().toString());
         }
         FileOpenMode fMode = static_cast<FileOpenMode>(args[1].asNumber().toInt32());
         // Auto Create
@@ -126,7 +126,7 @@ FileClass* FileClass::constructor(Arguments const& args) {
 
         std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File " + path.string() + "!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File {}!", path.string());
         }
         return new FileClass(args.thiz(), std::move(fs), path.string(), isBinary);
     }
@@ -644,10 +644,16 @@ Local<Value> FileWriteTo(Arguments const& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
+                throw CreateExceptionWithInfo(
+                    __FUNCTION__,
+                    "Fail to create directory " + path.parent_path().string() + "!"
+                );
             }
         } else {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory of " + args[0].asString().toString() + "!");
+            throw CreateExceptionWithInfo(
+                __FUNCTION__,
+                "Fail to create directory of " + args[0].asString().toString() + "!"
+            );
         }
         return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].asString().toString(), false));
     }
@@ -665,10 +671,16 @@ Local<Value> FileWriteLine(Arguments const& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
+                throw CreateExceptionWithInfo(
+                    __FUNCTION__,
+                    "Fail to create directory " + path.parent_path().string() + "!"
+                );
             }
         } else {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory of " + args[0].asString().toString() + "!");
+            throw CreateExceptionWithInfo(
+                __FUNCTION__,
+                "Fail to create directory of " + args[0].asString().toString() + "!"
+            );
         }
 
         std::ofstream fileWrite(path, std::ios::app);
@@ -693,10 +705,14 @@ Local<Value> OpenFile(Arguments const& args) {
             std::error_code code;
             std::filesystem::create_directories(path.parent_path(), code);
             if (code) {
-                throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + path.parent_path().string() + "!");
+                throw CreateExceptionWithInfo(
+                    __FUNCTION__,
+                    "Fail to create directory {}!",
+                    path.parent_path().string()
+                );
             }
         } else {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory " + args[0].asString().toString() + "!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to create directory {}!", args[0].asString().toString());
         }
 
         FileOpenMode            fMode = static_cast<FileOpenMode>(args[1].asNumber().toInt32());
@@ -716,7 +732,7 @@ Local<Value> OpenFile(Arguments const& args) {
 
         std::fstream fs(path, mode);
         if (!fs.is_open()) {
-            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File " + path.string() + "!");
+            throw CreateExceptionWithInfo(__FUNCTION__, "Fail to Open File {}!", path.string());
         }
         return FileClass::newFile(std::move(fs), path.string(), isBinary);
     }

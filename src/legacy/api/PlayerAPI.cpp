@@ -111,7 +111,13 @@
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
 
-SetScorePacket::SetScorePacket() = default;
+SetScorePacket::SetScorePacket() { mType = ScorePacketType::Change; }
+ToastRequestPacket::ToastRequestPacket() { mSerializationMode = SerializationMode::ManualOnly; }
+ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
+SetDisplayObjectivePacket::SetDisplayObjectivePacket() { mSerializationMode = SerializationMode::ManualOnly; }
+SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() { mSortOrder = ObjectiveSortOrder::Ascending; }
+RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
+RemoveObjectivePacket::RemoveObjectivePacket() { mSerializationMode = SerializationMode::ManualOnly; }
 
 //////////////////// Class Definition ////////////////////
 
@@ -746,8 +752,28 @@ Local<Value> McClass::broadcast(Arguments const& args) {
             int newType = args[1].asNumber().toInt32();
             if (newType >= 0 && newType <= 11) type = static_cast<TextPacketType>(newType);
         }
+
         TextPacket pkt;
-        pkt.mBody = TextPacket::MessageOnly(type, args[0].asString().toString());
+        switch (type) {
+        case TextPacketType::Raw:
+        case TextPacketType::Tip:
+        case TextPacketType::SystemMessage:
+        case TextPacketType::TextObject:
+        case TextPacketType::TextObjectWhisper:
+        case TextPacketType::TextObjectAnnouncement:
+            pkt.mBody = TextPacket::MessageOnly(type, args[0].asString().toString());
+            break;
+        case TextPacketType::Chat:
+        case TextPacketType::Whisper:
+        case TextPacketType::Announcement:
+            pkt.mBody = TextPacket::AuthorAndMessage(type, "", args[0].asString().toString());
+            break;
+        case TextPacketType::Translate:
+        case TextPacketType::Popup:
+        case TextPacketType::JukeboxPopup:
+            pkt.mBody = TextPacket::MessageAndParams(type, args[0].asString().toString(), {});
+        }
+
         pkt.sendToClients();
         return Boolean::newBoolean(true);
     }
@@ -1623,8 +1649,27 @@ Local<Value> PlayerClass::tell(Arguments const& args) const {
             if (newType >= 0 && newType <= 11) type = static_cast<TextPacketType>(newType);
         }
 
-        TextPacket pkt = TextPacket();
-        pkt.mBody      = TextPacket::MessageOnly(type, args[0].asString().toString());
+        TextPacket pkt;
+        switch (type) {
+        case TextPacketType::Raw:
+        case TextPacketType::Tip:
+        case TextPacketType::SystemMessage:
+        case TextPacketType::TextObject:
+        case TextPacketType::TextObjectWhisper:
+        case TextPacketType::TextObjectAnnouncement:
+            pkt.mBody = TextPacket::MessageOnly(type, args[0].asString().toString());
+            break;
+        case TextPacketType::Chat:
+        case TextPacketType::Whisper:
+        case TextPacketType::Announcement:
+            pkt.mBody = TextPacket::AuthorAndMessage(type, "", args[0].asString().toString());
+            break;
+        case TextPacketType::Translate:
+        case TextPacketType::Popup:
+        case TextPacketType::JukeboxPopup:
+            pkt.mBody = TextPacket::MessageAndParams(type, args[0].asString().toString(), {});
+        }
+
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }
@@ -2249,9 +2294,6 @@ Local<Value> PlayerClass::deleteScore(Arguments const& args) const {
     CATCH_AND_THROW
 }
 
-SetDisplayObjectivePacket::SetDisplayObjectivePacket()               = default;
-SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() = default;
-
 Local<Value> PlayerClass::setSidebar(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
@@ -2266,7 +2308,7 @@ Local<Value> PlayerClass::setSidebar(Arguments const& args) const {
         auto                                     source = args[1].asObject();
         auto                                     keys   = source.getKeyNames();
         for (auto& key : keys) {
-            data.push_back(make_pair(key, source.get(key).asNumber().toInt32()));
+            data.emplace_back(key, source.get(key).asNumber().toInt32());
         }
 
         int sortOrder = 1;
@@ -2297,9 +2339,6 @@ Local<Value> PlayerClass::setSidebar(Arguments const& args) const {
     }
     CATCH_AND_THROW
 }
-
-RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
-RemoveObjectivePacket::RemoveObjectivePacket()               = default;
 
 Local<Value> PlayerClass::removeSidebar(Arguments const&) const {
     try {
@@ -3531,9 +3570,6 @@ Local<Value> PlayerClass::removeItem(Arguments const& args) const {
     }
     CATCH_AND_THROW
 }
-
-ToastRequestPacket::ToastRequestPacket()               = default;
-ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
 
 Local<Value> PlayerClass::sendToast(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);

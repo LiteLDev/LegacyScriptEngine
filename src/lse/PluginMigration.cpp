@@ -7,7 +7,6 @@
 #include "lse/Entry.h"
 
 #include <filesystem>
-#include <fmt/format.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <unordered_set>
@@ -45,18 +44,18 @@ namespace lse {
 
 namespace {
 
-auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::path& path) -> void {
+auto migratePlugin(PluginManager const& pluginManager, std::filesystem::path const& path) -> void {
     auto& self = LegacyScriptEngine::getInstance().getSelf();
 
     auto& logger = self.getLogger();
 
     logger.info("Migrating legacy plugin at {0}"_tr(ll::string_utils::u8str2str(path.u8string())));
 
-    const auto& pluginType = pluginManager.getType();
+    auto const& pluginType = pluginManager.getType();
 
-    const auto& pluginFileName     = path.filename();
-    const auto& pluginFileBaseName = path.stem();
-    const auto& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
+    auto const& pluginFileName     = path.filename();
+    auto const& pluginFileBaseName = path.stem();
+    auto const& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(
@@ -115,7 +114,7 @@ auto migratePlugin(const PluginManager& pluginManager, const std::filesystem::pa
 
 } // namespace
 
-auto migratePlugins(const PluginManager& pluginManager) -> void {
+auto migratePlugins(PluginManager const& pluginManager) -> void {
     auto& self = LegacyScriptEngine::getInstance().getSelf();
 
     auto& logger = self.getLogger();
@@ -125,9 +124,9 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     // Discover plugins.
     // logger.info("Discovering legacy plugins..."_tr());
 
-    const auto& pluginBaseDir = ll::mod::getModsRoot();
+    auto const& pluginBaseDir = ll::mod::getModsRoot();
 
-    for (const auto& entry : std::filesystem::directory_iterator(pluginBaseDir)) {
+    for (auto const& entry : std::filesystem::directory_iterator(pluginBaseDir)) {
         if (!entry.is_regular_file() || entry.path().extension() != PluginExtName) {
             continue;
         }
@@ -143,7 +142,7 @@ auto migratePlugins(const PluginManager& pluginManager) -> void {
     // Migrate plugins.
     logger.info("Migrating legacy plugins..."_tr());
 
-    for (const auto& path : pluginPaths) {
+    for (auto const& path : pluginPaths) {
         migratePlugin(pluginManager, path);
     }
 

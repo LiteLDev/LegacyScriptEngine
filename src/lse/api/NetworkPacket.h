@@ -18,10 +18,10 @@ public:
     NetworkPacket()                                   = default;
     NetworkPacket(NetworkPacket&&)                    = default;
     auto operator=(NetworkPacket&&) -> NetworkPacket& = default;
-    ~NetworkPacket()                                  = default;
+    ~NetworkPacket() override                         = default;
 
-    NetworkPacket(const NetworkPacket&)                    = delete;
-    auto operator=(const NetworkPacket&) -> NetworkPacket& = delete;
+    NetworkPacket(NetworkPacket const&)                    = delete;
+    auto operator=(NetworkPacket const&) -> NetworkPacket& = delete;
 
     [[nodiscard]] auto getId() const -> MinecraftPacketIds override { return packetId; }
 

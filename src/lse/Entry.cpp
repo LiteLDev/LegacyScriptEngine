@@ -129,9 +129,9 @@ bool LegacyScriptEngine::unload() {
     return true;
 }
 
-Config const& LegacyScriptEngine::getConfig() { return config; }
+Config const& LegacyScriptEngine::getConfig() const { return config; }
 
-PluginManager& LegacyScriptEngine::getManager() {
+PluginManager& LegacyScriptEngine::getManager() const {
     if (!pluginManager) {
         throw std::runtime_error("pluginManager is null");
     }

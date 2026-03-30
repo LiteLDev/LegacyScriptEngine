@@ -275,7 +275,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EntityClass::newEntity(this),
                     damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                     Number::newNumber(damage < 0.0f ? -damage : damage),
-                    Number::newNumber((int)source.mCause)
+                    Number::newNumber(static_cast<int>(source.mCause))
                 )) {
                 return false;
             }
@@ -314,7 +314,7 @@ LL_TYPE_INSTANCE_HOOK(
                         EntityClass::newEntity(this),
                         damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
                         Number::newNumber(damage < 0.0f ? -damage : damage),
-                        Number::newNumber((int)source.mCause)
+                        Number::newNumber(static_cast<int>(source.mCause))
                     )) {
                     return 0.0f;
                 }
@@ -426,10 +426,8 @@ LL_TYPE_INSTANCE_HOOK(
 
     IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
         if (checkClientIsServerThread()) {
-            bool canceled = event.get().visit([&](auto&& arg) {
-                if constexpr (std::is_same_v<
-                                  std::decay_t<decltype(arg)>,
-                                  Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
+            bool canceled = event.get().visit([&]<typename T0>(T0&& arg) {
+                if constexpr (std::is_same_v<std::decay_t<T0>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
                     auto& griefingEvent = arg.value();
                     auto  entity        = griefingEvent.mActorContext->tryUnwrap();
                     if (entity && entity->isType(ActorType::EnderMan)) {

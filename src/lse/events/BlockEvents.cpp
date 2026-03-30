@@ -104,7 +104,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EVENT_TYPES::onChangeArmorStand,
                     EntityClass::newEntity(this),
                     PlayerClass::newPlayer(&player),
-                    Number::newNumber((int)slot)
+                    Number::newNumber(static_cast<int>(slot))
                 )) {
                 return false;
             }
@@ -318,7 +318,8 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 namespace redstone {
-inline bool RedstoneUpdateEvent(BlockSource& region, BlockPos const& pos, int& strength, bool& isFirstTime) {
+inline bool
+RedstoneUpdateEvent(BlockSource const& region, BlockPos const& pos, int const& strength, bool const& isFirstTime) {
     if (!CallEvent(
             EVENT_TYPES::onRedStoneUpdate,
             BlockClass::newBlock(pos, region.getDimensionId()),
@@ -437,16 +438,16 @@ bool materialsAreEqual(Material const& a, Material const& b) {
 }
 
 bool liquidBlockCanSpreadTo(
-    LiquidBlock&    liquidBlock,
-    BlockSource&    region,
-    BlockPos const& pos,
-    BlockPos const& flowFromPos,
-    uchar           flowFromDirection
+    LiquidBlock const& liquidBlock,
+    BlockSource&       region,
+    BlockPos const&    pos,
+    BlockPos const&    flowFromPos,
+    uchar              flowFromDirection
 ) {
     if (pos.y < region.getMinHeight()) {
         return false;
     }
-    if (const auto& block = region.getLiquidBlock(pos);
+    if (auto const& block = region.getLiquidBlock(pos);
         materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
         || block.getBlockType().mMaterial.mType == MaterialType::Lava
         || liquidBlock._isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {

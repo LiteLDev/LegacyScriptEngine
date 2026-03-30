@@ -1,4 +1,4 @@
-#include "mc/deps/core/utility/BinaryStream.h"
+#pragma once
 #include "mc/platform/Result.h"
 
 namespace ItemStackSerializerHelpers {

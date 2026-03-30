@@ -1,6 +1,5 @@
 #include "lse/api/PlayerSink.h"
 
-#include "ll/api/io/FileUtils.h"
 #include "ll/api/io/PatternFormatter.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/world/actor/player/Player.h"

@@ -4,7 +4,7 @@
 #include "mc/world/level/dimension/DimensionHeightRange.h"
 
 namespace lse::api {
-bool BlockHelper::isValidHeight(WeakRef<Dimension> dimension, std::variant<int, float> height) {
+bool BlockHelper::isValidHeight(WeakRef<Dimension> const& dimension, std::variant<int, float> height) {
     if (auto dim = dimension.lock()) {
         if (std::holds_alternative<int>(height)) {
             int y = std::get<int>(height);

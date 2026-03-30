@@ -1,3 +1,5 @@
+#pragma once
+
 #include "mc/world/scores/PlayerScoreboardId.h"
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"

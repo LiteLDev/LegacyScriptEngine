@@ -1,6 +1,5 @@
 #include "MoreGlobal.h"
 
-#include "ll/api/memory/Hook.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 
 namespace lse::api::MoreGlobal {

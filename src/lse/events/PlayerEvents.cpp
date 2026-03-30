@@ -10,11 +10,9 @@
 #include "lse/api/Thread.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
 #include "mc/network/ServerPlayerBlockUseHandler.h"
-#include "mc/server/ServerInstance.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
-#include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/FishingHook.h"
 #include "mc/world/actor/item/ItemActor.h"
@@ -23,10 +21,8 @@
 #include "mc/world/actor/player/PlayerInventory.h"
 #include "mc/world/containers/managers/models/ContainerManagerModel.h"
 #include "mc/world/effect/MobEffectInstance.h"
-#include "mc/world/events/BlockEventCoordinator.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
-#include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/inventory/network/ItemStackNetManagerBase.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
@@ -36,21 +32,16 @@
 #include "mc/world/item/ItemInstance.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/item/PotionItem.h"
-#include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChangeDimensionRequest.h"
-#include "mc/world/level/Explosion.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/block/BasePressurePlateBlock.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/RespawnAnchorBlock.h"
-#include "mc/world/level/block/actor/BarrelBlockActor.h"
-#include "mc/world/level/block/actor/ChestBlockActor.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
-#include "mc/world/phys/HitResult.h"
 
 namespace lse::events::player {
 using api::thread::checkClientIsServerThread;
@@ -176,7 +167,7 @@ LL_TYPE_INSTANCE_HOOK( // Container closed caused by piston pushing
 ) {
     if (region.getBlock(blockPos).mBlockType->isContainerBlock()) {
         IF_LISTENED(EVENT_TYPES::onCloseContainer) {
-            region.mDimension.forEachPlayer([&](Player& player) -> bool {
+            region.mDimension.forEachPlayer([&](Player const& player) -> bool {
                 if (player.mContainerManager) {
                     if (auto* pos = std::get_if<BlockPos>(&*player.mContainerManager->mScreenContext->mOwner);
                         pos && *pos == blockPos) {
@@ -230,7 +221,7 @@ LL_STATIC_HOOK(
     &ServerPlayerBlockUseHandler::onStartDestroyBlock,
     void,
     ServerPlayer&   player,
-    const BlockPos& pos,
+    BlockPos const& pos,
     int             face
 ) {
     if (checkClientIsServerThread()) {
@@ -315,7 +306,7 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
     IF_LISTENED(EVENT_TYPES::onAte) {
         if (checkClientIsServerThread()) {
-            const std::set<std::string> item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
+            std::set<std::string> const item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
             auto                        checked =
                 mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
             if (checked
@@ -577,7 +568,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onSetArmor,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    Number::newNumber((int)armorSlot),
+                    Number::newNumber(static_cast<int>(armorSlot)),
                     ItemClass::newItem(&const_cast<ItemStack&>(item))
                 )) {
                 return;

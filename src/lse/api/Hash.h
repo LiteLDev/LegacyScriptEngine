@@ -1,3 +1,5 @@
+#pragma once
+
 #include <openssl/evp.h>
 #include <string>
 
@@ -5,7 +7,7 @@ namespace lse::api::hash {
 
 enum HashType { MD5, SHA1 };
 
-std::string caculateHash(HashType type, const std::string& data) {
+inline std::string caculateHash(HashType type, std::string const& data) {
     unsigned char digest[EVP_MAX_MD_SIZE];
     unsigned int  digest_len = 0;
 

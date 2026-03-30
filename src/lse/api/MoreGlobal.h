@@ -1,3 +1,5 @@
+#pragma once
+
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
 
 namespace lse::api::MoreGlobal {

@@ -1,3 +1,5 @@
+#pragma once
+
 class Player;
 
 namespace lse::api {

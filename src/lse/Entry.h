@@ -16,9 +16,9 @@ public:
 
     [[nodiscard]] ll::mod::NativeMod& getSelf() const { return mSelf; }
 
-    [[nodiscard]] Config const& getConfig();
+    [[nodiscard]] Config const& getConfig() const;
 
-    [[nodiscard]] PluginManager& getManager();
+    [[nodiscard]] PluginManager& getManager() const;
 
     bool load();
 

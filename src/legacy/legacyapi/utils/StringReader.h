@@ -4,19 +4,19 @@
 namespace lse::legacy {
 class StringReader {
 
-    const std::string           str;
+    std::string                 str;
     size_t                      length = 0;
     std::string::const_iterator begin;
     std::string::const_iterator end;
     std::string::const_iterator it;
 
 public:
-    StringReader(const std::string& str);
-    StringReader(const char* str);
-    StringReader(const char* str, size_t len);
-    StringReader(const StringReader& other)            = default;
+    StringReader(std::string const& str);
+    StringReader(char const* str);
+    StringReader(char const* str, size_t len);
+    StringReader(StringReader const& other)            = default;
     StringReader(StringReader&& other)                 = default;
-    StringReader& operator=(const StringReader& other) = default;
+    StringReader& operator=(StringReader const& other) = default;
     StringReader& operator=(StringReader&& other)      = default;
 
     bool   isEmpty() const;
@@ -31,34 +31,34 @@ public:
     char        read(char& c);
     std::string read(size_t len);
     std::string readUntil(char c);
-    std::string readUntil(const std::string& chars);
-    std::string readUntilNot(const std::string& chars);
+    std::string readUntil(std::string const& chars);
+    std::string readUntilNot(std::string const& chars);
     std::string readUntilNot(char c);
     std::string readLine();
-    std::string readLetters(const std::string& chars = "");
-    std::string readLower(const std::string& chars = "");
-    std::string readUpper(const std::string& chars = "");
-    std::string readDigits(const std::string& chars = "");
-    std::string readLettersAndDigits(const std::string& chars = "");
+    std::string readLetters(std::string const& chars = "");
+    std::string readLower(std::string const& chars = "");
+    std::string readUpper(std::string const& chars = "");
+    std::string readDigits(std::string const& chars = "");
+    std::string readLettersAndDigits(std::string const& chars = "");
     std::string readVariableName();
     std::string readToEnd();
-    char        peek();
-    char        peek(char& c);
-    char        peek(size_t offset);
-    std::string peek(size_t offset, size_t len);
+    char        peek() const;
+    char        peek(char& c) const;
+    char        peek(size_t offset) const;
+    std::string peek(size_t offset, size_t len) const;
     void        skip();
     void        skip(size_t len);
     void        skipUntil(char c);
-    void        skipUntil(const std::string& chars);
+    void        skipUntil(std::string const& chars);
     void        skipUntilNot(char c);
-    void        skipUntilNot(const std::string& chars);
+    void        skipUntilNot(std::string const& chars);
     void        skipWhitespace();
     void        skipLine();
-    void        skipLetters(const std::string& chars = "");
-    void        skipLower(const std::string& chars = "");
-    void        skipUpper(const std::string& chars = "");
-    void        skipDigits(const std::string& chars = "");
-    void        skipLettersAndDigits(const std::string& chars = "");
+    void        skipLetters(std::string const& chars = "");
+    void        skipLower(std::string const& chars = "");
+    void        skipUpper(std::string const& chars = "");
+    void        skipDigits(std::string const& chars = "");
+    void        skipLettersAndDigits(std::string const& chars = "");
 
     template <typename T>
     inline T readInteger() {

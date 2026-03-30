@@ -1,6 +1,5 @@
 #include "legacy/main/Global.h"
 
-#include <ScriptX/ScriptX.h>
 #include <filesystem>
 #include <fstream>
 
@@ -14,6 +13,6 @@ void InitSafeGuardRecord() {
     );
 }
 
-void RecordOperation(const std::string& pluginName, const std::string& operation, const std::string& content) {
+void RecordOperation(std::string const& pluginName, std::string const& operation, std::string const& content) {
     if (record.is_open()) record << "[" << operation << "]<" << pluginName << "> " << content << std::endl;
 }

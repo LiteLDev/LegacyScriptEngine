@@ -96,7 +96,7 @@ Local<Value> McClass::listen(Arguments const& args) {
 //////////////////// Funcs ////////////////////
 
 optional_ref<EventListener>
-LLSEAddEventListener(ScriptEngine* engine, string const& eventName, Local<Function> const& func) {
+LLSEAddEventListener(ScriptEngine* engine, std::string const& eventName, Local<Function> const& func) {
     try {
         auto  event_enum = magic_enum::enum_cast<EVENT_TYPES>(eventName);
         auto  eventId    = static_cast<int>(event_enum.value());

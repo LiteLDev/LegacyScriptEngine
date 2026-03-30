@@ -1,8 +1,8 @@
 #pragma once
-
 #include "ll/api/i18n/I18n.h"
 #include "mc/deps/core/math/Vec3.h"
 #include "mc/world/level/BlockPos.h"
+
 class FloatVec4;
 
 class IntVec4 {

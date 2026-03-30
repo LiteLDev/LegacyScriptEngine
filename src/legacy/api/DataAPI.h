@@ -112,10 +112,10 @@ public:
 
     Local<Value>         init(Arguments const& args);
     Local<Value>         set(Arguments const& args);
-    Local<Value>         getStr(Arguments const& args);
-    Local<Value>         getInt(Arguments const& args);
-    Local<Value>         getFloat(Arguments const& args);
-    Local<Value>         getBool(Arguments const& args);
+    Local<Value>         getStr(Arguments const& args) const;
+    Local<Value>         getInt(Arguments const& args) const;
+    Local<Value>         getFloat(Arguments const& args) const;
+    Local<Value>         getBool(Arguments const& args) const;
     Local<Value>         del(Arguments const& args);
     virtual Local<Value> reload(Arguments const& args) override;
     virtual Local<Value> close(Arguments const& args) override;

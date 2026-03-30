@@ -22,7 +22,7 @@ std::shared_ptr<ll::io::Logger>      DebugCmdLogger = ll::io::LoggerRegistry::ge
 
 inline void PrintDebugSign() { DebugCmdLogger->info("> "); }
 
-bool ProcessDebugEngine(const std::string& cmd) {
+bool ProcessDebugEngine(std::string const& cmd) {
 #ifdef LSE_BACKEND_PYTHON
     // process python debug seperately
     return PythonHelper::processPythonDebugEngine(cmd);

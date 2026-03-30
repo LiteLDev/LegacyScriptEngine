@@ -1,5 +1,5 @@
 #pragma once
 #include <string>
 
-bool ProcessDebugEngine(const std::string& cmd);
+bool ProcessDebugEngine(std::string const& cmd);
 void RegisterDebugCommand();

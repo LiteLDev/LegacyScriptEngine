@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std::string& defContent) {
+std::unique_ptr<SimpleIni> SimpleIni::create(std::string const& path, std::string const& defContent) {
     namespace fs = std::filesystem;
     auto fpath   = fs::path(ll::string_utils::str2wstr(path));
     if (!fpath.empty() && !fs::exists(fpath)) { // Create new file
@@ -31,46 +31,46 @@ std::unique_ptr<SimpleIni> SimpleIni::create(const std::string& path, const std:
     }
 }
 
-bool SimpleIni::setInt(const std::string& sec, const std::string& key, int value) {
+bool SimpleIni::setInt(std::string const& sec, std::string const& key, int value) {
     bool isOk = SetLongValue(sec.c_str(), key.c_str(), value) >= 0;
     SaveFile(filePath.c_str());
     return isOk;
 }
 
-bool SimpleIni::setFloat(const std::string& sec, const std::string& key, float value) {
+bool SimpleIni::setFloat(std::string const& sec, std::string const& key, float value) {
     bool isOk = SetDoubleValue(sec.c_str(), key.c_str(), value) >= 0;
     SaveFile(filePath.c_str());
     return isOk;
 }
 
-bool SimpleIni::setString(const std::string& sec, const std::string& key, const std::string& value) {
+bool SimpleIni::setString(std::string const& sec, std::string const& key, std::string const& value) {
     bool isOk = SetValue(sec.c_str(), key.c_str(), value.c_str()) >= 0;
     SaveFile(filePath.c_str());
     return isOk;
 }
 
-bool SimpleIni::setBool(const std::string& sec, const std::string& key, bool value) {
+bool SimpleIni::setBool(std::string const& sec, std::string const& key, bool value) {
     bool isOk = SetBoolValue(sec.c_str(), key.c_str(), value) >= 0;
     SaveFile(filePath.c_str());
     return isOk;
 }
 
-int SimpleIni::getInt(const std::string& sec, const std::string& key, int def) {
+int SimpleIni::getInt(std::string const& sec, std::string const& key, int def) const {
     return GetLongValue(sec.c_str(), key.c_str(), def);
 }
 
-float SimpleIni::getFloat(const std::string& sec, const std::string& key, float def) {
-    return (float)GetDoubleValue(sec.c_str(), key.c_str(), def);
+float SimpleIni::getFloat(std::string const& sec, std::string const& key, float def) const {
+    return static_cast<float>(GetDoubleValue(sec.c_str(), key.c_str(), def));
 }
 
-std::string SimpleIni::getString(const std::string& sec, const std::string& key, const std::string& def) {
+std::string SimpleIni::getString(std::string const& sec, std::string const& key, std::string const& def) const {
     return GetValue(sec.c_str(), key.c_str(), def.c_str());
 }
 
-bool SimpleIni::getBool(const std::string& sec, const std::string& key, bool def) {
+bool SimpleIni::getBool(std::string const& sec, std::string const& key, bool def) const {
     return GetBoolValue(sec.c_str(), key.c_str(), def);
 }
 
-bool SimpleIni::deleteKey(const std::string& sec, const std::string& key) {
+bool SimpleIni::deleteKey(std::string const& sec, std::string const& key) {
     return Delete(sec.c_str(), key.c_str(), true);
 }

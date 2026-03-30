@@ -24,7 +24,10 @@ bool EconomySystem::reduceMoney(std::string const& player, long long money) { re
 
 bool EconomySystem::transMoney(
     std::string const& player1,
-    std::string const& player2, long long money, string const& notes) {
+    std::string const& player2,
+    long long          money,
+    string const&      notes
+) {
     return LLMoney_Trans(player1, player2, money, notes);
 }
 

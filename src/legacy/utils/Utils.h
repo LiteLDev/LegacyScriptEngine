@@ -4,13 +4,13 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> SplitCmdLine(const std::string& paras);
+std::vector<std::string> SplitCmdLine(std::string const& paras);
 
-bool IsVersionLess(const std::string& v1, const std::string& v2);
+bool IsVersionLess(std::string const& v1, std::string const& v2);
 bool IsVersionLess(int v1a, int v1b, int v1c, int v2a, int v2b, int v2c);
 
 unsigned long long   GetCurrentTimeStampMS();
-std::vector<wchar_t> str2cwstr(std::string str);
+std::vector<wchar_t> str2cwstr(std::string const& str);
 
 // System
 std::string  Raw_GetDateTimeStr();

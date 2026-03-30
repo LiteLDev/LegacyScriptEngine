@@ -13,9 +13,9 @@
 #include "ll/api/utils/ErrorUtils.h"
 #include "lse/PluginManager.h"
 #include "lse/PluginMigration.h"
+#include "main/BindAPIs.h"
 
 #include <ScriptX/ScriptX.h>
-#include <exception>
 #include <memory>
 #include <stdexcept>
 
@@ -47,7 +47,6 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 using namespace ll::i18n_literals;
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
-void                                  BindAPIs(std::shared_ptr<script::ScriptEngine> engine);
 void                                  InitBasicEventListeners();
 void                                  InitGlobalShareData();
 void                                  InitLocalShareData();
@@ -59,9 +58,9 @@ std::shared_ptr<script::ScriptEngine> DebugEngine;        // NOLINT(cppcoreguide
 
 namespace lse {
 
-void loadConfig(const ll::mod::NativeMod& self, Config& config);
-void loadDebugEngine(const ll::mod::NativeMod& self);
-void registerPluginManager(const std::shared_ptr<PluginManager>& pluginManager);
+void loadConfig(ll::mod::NativeMod const& self, Config& config);
+void loadDebugEngine(ll::mod::NativeMod const& self);
+void registerPluginManager(std::shared_ptr<PluginManager> const& pluginManager);
 
 LegacyScriptEngine& LegacyScriptEngine::getInstance() {
     static LegacyScriptEngine instance;
@@ -140,14 +139,14 @@ PluginManager& LegacyScriptEngine::getManager() {
     return *pluginManager;
 }
 
-void loadConfig(const ll::mod::NativeMod& self, Config& cfg) {
-    const auto& configFilePath = self.getConfigDir() / "config.json";
+void loadConfig(ll::mod::NativeMod const& self, Config& cfg) {
+    auto const& configFilePath = self.getConfigDir() / "config.json";
     if (!ll::config::loadConfig(cfg, configFilePath) && !ll::config::saveConfig(cfg, configFilePath)) {
         throw std::runtime_error("Cannot save default configurations to {0}"_tr(configFilePath));
     }
 }
 
-void loadDebugEngine(const ll::mod::NativeMod& self) {
+void loadDebugEngine(ll::mod::NativeMod const& self) {
 #ifndef LSE_BACKEND_NODEJS // NodeJs backend didn't enable debug engine now
     auto scriptEngine = EngineManager::newEngine();
 
@@ -174,7 +173,7 @@ void loadDebugEngine(const ll::mod::NativeMod& self) {
 #endif
 }
 
-void registerPluginManager(const std::shared_ptr<PluginManager>& pm) {
+void registerPluginManager(std::shared_ptr<PluginManager> const& pm) {
     auto& pluginManagerRegistry = ll::mod::ModManagerRegistry::getInstance();
 
     if (!pluginManagerRegistry.addManager(pm)) {

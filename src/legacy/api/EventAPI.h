@@ -1,6 +1,6 @@
 #pragma once
+#include "LLMoney.h"
 #include "api/APIHelp.h"
-#include "main/EconomicSystem.h"
 
 //////////////////// Funcs ////////////////////
 

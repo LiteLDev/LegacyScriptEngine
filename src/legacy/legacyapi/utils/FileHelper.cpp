@@ -2,11 +2,12 @@
 
 #include "ll/api/utils/StringUtils.h"
 
+#include <Windows.h>
 #include <filesystem>
 
 namespace lse::legacy {
 
-std::pair<int, std::string> NewProcessSync(const std::string& process, int timeLimit = -1, bool noReadOutput = true) {
+std::pair<int, std::string> NewProcessSync(std::string const& process, int timeLimit = -1, bool noReadOutput = true) {
     SECURITY_ATTRIBUTES sa;
     HANDLE              hRead, hWrite;
     sa.nLength              = sizeof(SECURITY_ATTRIBUTES);
@@ -62,7 +63,7 @@ std::pair<int, std::string> NewProcessSync(const std::string& process, int timeL
     return {exitCode, strOutput};
 }
 
-std::pair<int, std::string> UncompressFile(const std::string& filePath, const std::string& toDir, int processTimeout) {
+std::pair<int, std::string> UncompressFile(std::string const& filePath, std::string const& toDir, int processTimeout) {
     std::error_code ec;
     std::filesystem::create_directories(toDir, ec);
     std::string realToDir = toDir.ends_with('/') ? toDir : toDir + "/";

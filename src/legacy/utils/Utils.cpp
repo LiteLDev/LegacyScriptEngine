@@ -10,7 +10,7 @@
 #include <vector>
 #pragma comment(lib, "Ole32.lib")
 
-std::vector<std::string> SplitCmdLine(const std::string& paras) {
+std::vector<std::string> SplitCmdLine(std::string const& paras) {
     if (paras.empty()) return std::vector<std::string>();
 
     std::vector<std::string> res;
@@ -40,7 +40,7 @@ std::vector<std::string> SplitCmdLine(const std::string& paras) {
     return res;
 }
 
-bool IsVersionLess(const std::string& v1, const std::string& v2) {
+bool IsVersionLess(std::string const& v1, std::string const& v2) {
     auto vers1 = ll::string_utils::splitByPattern(v1, ".");
     auto vers2 = ll::string_utils::splitByPattern(v2, ".");
     return IsVersionLess(
@@ -57,8 +57,8 @@ bool IsVersionLess(int v1a, int v1b, int v1c, int v2a, int v2b, int v2c) {
     return (v1a < v2a || (v1a == v2a && v1b < v2b) || (v1a == v2a && v1b == v2b && v1c < v2c));
 }
 
-std::vector<wchar_t> str2cwstr(std::string str) {
-    auto                 len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+std::vector<wchar_t> str2cwstr(std::string const& str) {
+    auto                 len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
     std::vector<wchar_t> buffer(len + 1);
     MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, buffer.data(), len + 1);
     buffer[len] = L'\0';
@@ -83,7 +83,7 @@ unsigned long long GetCurrentTimeStampMS() {
 }
 
 std::string Raw_GetDateTimeStr() {
-    time_t t = time(NULL);
+    time_t t = time(nullptr);
     tm     ts;
     localtime_s(&ts, &t);
     char buf[24] = {0};

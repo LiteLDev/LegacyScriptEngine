@@ -1,6 +1,5 @@
 #pragma once
 #include "legacyapi/utils/FileHelper.h"
-#include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -13,7 +12,7 @@
 
 using namespace nlohmann;
 
-inline ordered_json CreateJson(const std::string& path, const std::string& defContent, bool allowComment = true) {
+inline ordered_json CreateJson(std::string const& path, std::string const& defContent, bool allowComment = true) {
     ordered_json jsonConf;
     if (!std::filesystem::exists(ll::string_utils::str2wstr(path))) {
         if (path.find('/') != std::string::npos) { // e.g. plugins/LeviLamina/LeviLamina.json

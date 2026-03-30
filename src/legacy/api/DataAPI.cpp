@@ -404,7 +404,7 @@ Local<Value> ConfIniClass::set(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getStr(Arguments const& args) {
+Local<Value> ConfIniClass::getStr(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -422,7 +422,7 @@ Local<Value> ConfIniClass::getStr(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getInt(Arguments const& args) {
+Local<Value> ConfIniClass::getInt(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -440,7 +440,7 @@ Local<Value> ConfIniClass::getInt(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getFloat(Arguments const& args) {
+Local<Value> ConfIniClass::getFloat(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);
@@ -458,7 +458,7 @@ Local<Value> ConfIniClass::getFloat(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> ConfIniClass::getBool(Arguments const& args) {
+Local<Value> ConfIniClass::getBool(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     CHECK_ARG_TYPE(args[1], ValueKind::kString);

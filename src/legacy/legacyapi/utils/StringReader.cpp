@@ -6,19 +6,19 @@ namespace lse::legacy {
 
 //////////////////////////////// CONSTRUCTOR ////////////////////////////////
 
-StringReader::StringReader(const std::string& str)
+StringReader::StringReader(std::string const& str)
 : str(str),
   length(str.length()),
   begin(str.begin()),
   end(str.end()),
   it(begin) {}
-StringReader::StringReader(const char* cstr)
+StringReader::StringReader(char const* cstr)
 : str(cstr),
   length(str.length()),
   begin(str.begin()),
   end(str.end()),
   it(begin) {}
-StringReader::StringReader(const char* cstr, size_t len)
+StringReader::StringReader(char const* cstr, size_t len)
 : str(cstr, len),
   length(len),
   begin(str.begin()),
@@ -69,7 +69,7 @@ std::string StringReader::readUntil(char c) {
     return result;
 }
 
-std::string StringReader::readUntil(const std::string& chars) {
+std::string StringReader::readUntil(std::string const& chars) {
     std::string result;
     while (!isEnd() && chars.find(peek()) == std::string::npos) {
         result += read();
@@ -85,7 +85,7 @@ std::string StringReader::readUntilNot(char c) {
     return result;
 }
 
-std::string StringReader::readUntilNot(const std::string& chars) {
+std::string StringReader::readUntilNot(std::string const& chars) {
     std::string result;
     while (!isEnd() && chars.find(peek()) != std::string::npos) {
         result += read();
@@ -95,7 +95,7 @@ std::string StringReader::readUntilNot(const std::string& chars) {
 
 std::string StringReader::readLine() { return readUntil('\n'); }
 
-std::string StringReader::readLetters(const std::string& chars) {
+std::string StringReader::readLetters(std::string const& chars) {
     std::string result;
     while (!isEnd() && (isalpha(peek()) || chars.find(peek()) != std::string::npos)) {
         result += read();
@@ -103,7 +103,7 @@ std::string StringReader::readLetters(const std::string& chars) {
     return result;
 }
 
-std::string StringReader::readLower(const std::string& chars) {
+std::string StringReader::readLower(std::string const& chars) {
     std::string result;
     while (!isEnd() && (islower(peek()) || chars.find(peek()) != std::string::npos)) {
         result += read();
@@ -111,7 +111,7 @@ std::string StringReader::readLower(const std::string& chars) {
     return result;
 }
 
-std::string StringReader::readUpper(const std::string& chars) {
+std::string StringReader::readUpper(std::string const& chars) {
     std::string result;
     while (!isEnd() && (isupper(peek()) || chars.find(peek()) != std::string::npos)) {
         result += read();
@@ -119,7 +119,7 @@ std::string StringReader::readUpper(const std::string& chars) {
     return result;
 }
 
-std::string StringReader::readDigits(const std::string& chars) {
+std::string StringReader::readDigits(std::string const& chars) {
     std::string result;
     while (!isEnd() && (isdigit(peek()) || chars.find(peek()) != std::string::npos)) {
         result += read();
@@ -127,7 +127,7 @@ std::string StringReader::readDigits(const std::string& chars) {
     return result;
 }
 
-std::string StringReader::readLettersAndDigits(const std::string& chars) {
+std::string StringReader::readLettersAndDigits(std::string const& chars) {
     std::string result;
     while (!isEnd() && (isalnum(peek()) || chars.find(peek()) != std::string::npos)) {
         result += read();
@@ -142,6 +142,7 @@ std::string StringReader::readVariableName() {
         if (first && isdigit(peek())) {
             return result;
         }
+        first   = false;
         result += read();
     }
     return result;
@@ -157,16 +158,16 @@ std::string StringReader::readToEnd() {
 
 //////////////////////////////// PEEK ////////////////////////////////
 
-char StringReader::peek() {
+char StringReader::peek() const {
     if (isEnd()) {
         throw std::out_of_range("StringReader::peek: The end of the string has been reached");
     }
     return *it;
 }
 
-char StringReader::peek(char& c) { return c = peek(); }
+char StringReader::peek(char& c) const { return c = peek(); }
 
-char StringReader::peek(size_t offset) {
+char StringReader::peek(size_t offset) const {
     if (isEnd()) {
         throw std::out_of_range("StringReader::peek: The end of the string has been reached");
     }
@@ -176,7 +177,7 @@ char StringReader::peek(size_t offset) {
     return *(it + offset);
 }
 
-std::string StringReader::peek(size_t offset, size_t len) {
+std::string StringReader::peek(size_t offset, size_t len) const {
     if (offset >= getRemaining()) {
         throw std::out_of_range("StringReader::peek: The offset is greater than the remaining length");
     }
@@ -208,7 +209,7 @@ void StringReader::skipUntil(char c) {
     }
 }
 
-void StringReader::skipUntil(const std::string& chars) {
+void StringReader::skipUntil(std::string const& chars) {
     while (isValid() && chars.find(peek()) == std::string::npos) {
         skip();
     }
@@ -220,37 +221,37 @@ void StringReader::skipUntilNot(char c) {
     }
 }
 
-void StringReader::skipUntilNot(const std::string& chars) {
+void StringReader::skipUntilNot(std::string const& chars) {
     while (isValid() && chars.find(peek()) != std::string::npos) {
         skip();
     }
 }
 
-void StringReader::skipLetters(const std::string& chars) {
+void StringReader::skipLetters(std::string const& chars) {
     while (isValid() && (isalpha(peek()) || chars.find(peek()) != std::string::npos)) {
         skip();
     }
 }
 
-void StringReader::skipLower(const std::string& chars) {
+void StringReader::skipLower(std::string const& chars) {
     while (isValid() && (islower(peek()) || chars.find(peek()) != std::string::npos)) {
         skip();
     }
 }
 
-void StringReader::skipUpper(const std::string& chars) {
+void StringReader::skipUpper(std::string const& chars) {
     while (isValid() && (isupper(peek()) || chars.find(peek()) != std::string::npos)) {
         skip();
     }
 }
 
-void StringReader::skipDigits(const std::string& chars) {
+void StringReader::skipDigits(std::string const& chars) {
     while (isValid() && (isdigit(peek()) || chars.find(peek()) != std::string::npos)) {
         skip();
     }
 }
 
-void StringReader::skipLettersAndDigits(const std::string& chars) {
+void StringReader::skipLettersAndDigits(std::string const& chars) {
     while (isValid() && (isalnum(peek()) || chars.find(peek()) != std::string::npos)) {
         skip();
     }

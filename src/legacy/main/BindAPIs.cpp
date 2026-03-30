@@ -1,3 +1,5 @@
+#include "main/BindAPIs.h"
+
 #include "api/APIHelp.h"
 #include "api/BaseAPI.h"
 #include "api/BlockAPI.h"
@@ -23,14 +25,13 @@
 #include "api/PlayerAPI.h"
 #include "api/ScoreboardAPI.h"
 #include "api/ScriptAPI.h"
-#include "api/ServerAPI.h"
 #include "api/SystemAPI.h"
 
 // #include "api/PermissionAPI.h"
 #include "api/InternationalAPI.h"
 #include "api/ParticleAPI.h"
 
-void BindAPIs(std::shared_ptr<ScriptEngine> engine) {
+void BindAPIs(std::shared_ptr<ScriptEngine> const& engine) {
 
     //////////////// 全局函数 ////////////////
 

@@ -57,7 +57,7 @@ inline Exception WrongArgsCountException(std::string const& func) {
 
 // 截获引擎异常
 #define CATCH_AND_THROW                                                                                                \
-    catch (Exception const& e) {                                                                                       \
+    catch (Exception const&) {                                                                                       \
         throw;                                                                                                       \
     }                                                                                                                  \
     catch (std::exception const& e) {                                                                                  \

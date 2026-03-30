@@ -1,4 +1,3 @@
-#pragma warning(disable : 4251)
 #include "PythonHelper.h"
 
 #include "Global.h"

@@ -8,8 +8,6 @@
 #include <memory>
 
 #define Wptr2MySQLSession(x) ((MySQLSession*)x.lock().get())
-#pragma warning(disable : 4267)
-#pragma warning(disable : 26812)
 
 template <>
 MYSQL_TIME any_to(DB::Any const& v) {

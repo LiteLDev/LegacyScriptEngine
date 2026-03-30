@@ -1,5 +1,4 @@
 #pragma once
-#pragma warning(disable : 4251)
 #include "legacy/main/Global.h" // IWYU pragma: keep
 #include "node.h"
 

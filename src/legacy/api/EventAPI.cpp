@@ -8,6 +8,7 @@
 #include "api/APIHelp.h"
 #include "api/McAPI.h"
 #include "api/PlayerAPI.h"
+#include "engine/EngineManager.h"
 #include "engine/EngineOwnData.h"
 #include "engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
@@ -39,6 +40,7 @@
 #include "ll/api/event/world/FireSpreadEvent.h"
 #include "ll/api/event/world/SpawnMobEvent.h"
 #include "ll/api/service/Bedrock.h"
+#include "ll/api/service/GamingStatus.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/Entry.h"
 #include "lse/api/Thread.h"
@@ -54,8 +56,6 @@
 #include "mc/world/item/Item.h"
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
-
-#include <ll/api/service/GamingStatus.h>
 
 #ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"

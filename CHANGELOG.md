@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.10] - 2026-03-31
+
+### Changed
+
+- Added globalEngineSnapshot to improve performance
+
 ## [0.17.9] - 2026-03-30
 
 ### Changed
@@ -1207,7 +1213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.9...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...HEAD
+[0.17.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.9...v0.17.10
 [0.17.9]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.8...v0.17.9
 [0.17.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.7...v0.17.8
 [0.17.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.6...v0.17.7

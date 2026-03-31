@@ -1,4 +1,4 @@
-#include "../legacyapi/utils/StringReader.h"
+#include "legacy/utils/StringReader.h"
 
 #include <stdexcept>
 

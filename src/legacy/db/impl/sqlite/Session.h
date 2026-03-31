@@ -1,5 +1,5 @@
 #pragma once
-#include "legacy/legacyapi/db/Session.h"
+#include "legacy//db/Session.h"
 
 struct sqlite3;
 namespace DB {

@@ -1,6 +1,6 @@
-#include "legacy/legacyapi/db/impl/sqlite/Stmt.h"
+#include "legacy//db/impl/sqlite/Stmt.h"
 
-#include "legacy/legacyapi/db/impl/sqlite/Session.h"
+#include "legacy//db/impl/sqlite/Session.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"

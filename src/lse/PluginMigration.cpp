@@ -31,7 +31,7 @@ constexpr auto PluginExtName = ".py";
 
 #ifdef LSE_BACKEND_NODEJS
 
-#include "legacy/legacyapi/utils/FileHelper.h"
+#include "legacy//utils/FileHelper.h"
 #include "legacy/main/NodeJsHelper.h"
 
 constexpr auto PluginExtName = ".llplugin";

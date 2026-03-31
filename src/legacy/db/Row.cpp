@@ -1,4 +1,4 @@
-#include "legacy/legacyapi/db/Row.h"
+#include "legacy//db/Row.h"
 
 #include "ll/api/utils/HashUtils.h"
 

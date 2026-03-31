@@ -1,5 +1,5 @@
 #pragma once
-#include "legacy/legacyapi/db/Types.h"
+#include "legacy//db/Types.h"
 
 #include <list>
 #include <map>

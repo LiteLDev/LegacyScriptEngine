@@ -1,6 +1,6 @@
 #pragma once
 #include "legacy/api/APIHelp.h"
-#include "legacy/legacyapi/db/Session.h"
+#include "legacy//db/Session.h"
 #include "ll/api/data/KeyValueDB.h"
 
 //////////////////// Classes ////////////////////

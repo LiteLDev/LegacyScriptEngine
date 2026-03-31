@@ -1,7 +1,7 @@
-#include "legacy/legacyapi/db/Session.h"
+#include "legacy//db/Session.h"
 
-#include "legacy/legacyapi/db/impl/mysql/Session.h"
-#include "legacy/legacyapi/db/impl/sqlite/Session.h"
+#include "legacy//db/impl/mysql/Session.h"
+#include "legacy//db/impl/sqlite/Session.h"
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"

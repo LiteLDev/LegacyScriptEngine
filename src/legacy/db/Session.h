@@ -1,8 +1,8 @@
 #pragma once
-#include "legacy/legacyapi/db/ConnParams.h"
-#include "legacy/legacyapi/db/Pointer.h"
-#include "legacy/legacyapi/db/RowSet.h"
-#include "legacy/legacyapi/db/Stmt.h"
+#include "legacy//db/ConnParams.h"
+#include "legacy//db/Pointer.h"
+#include "legacy//db/RowSet.h"
+#include "legacy//db/Stmt.h"
 
 #include <stdexcept>
 

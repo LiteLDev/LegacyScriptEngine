@@ -1,6 +1,6 @@
 #pragma once
-#include "legacy/legacyapi/db/Pointer.h"
-#include "legacy/legacyapi/db/RowSet.h"
+#include "legacy//db/Pointer.h"
+#include "legacy//db/RowSet.h"
 
 #include <ll/api/Expected.h>
 #include <ll/api/io/Logger.h>

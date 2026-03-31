@@ -1,5 +1,5 @@
 #pragma once
-#include "legacy/legacyapi/db/Stmt.h"
+#include "legacy//db/Stmt.h"
 
 #include <mariadb/mysql.h>
 

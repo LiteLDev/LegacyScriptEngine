@@ -1,4 +1,4 @@
-#include "legacy/legacyapi/db/RowSet.h"
+#include "legacy//db/RowSet.h"
 
 #include "fmt/core.h"
 

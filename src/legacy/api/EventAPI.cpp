@@ -57,6 +57,8 @@
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
 
+#include <atomic>
+
 #ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"
 #endif
@@ -966,17 +968,14 @@ void InitBasicEventListeners() {
             }
 #ifndef LSE_BACKEND_NODEJS
             try {
-                std::list<std::shared_ptr<ScriptEngine>> tmpList;
-                {
-                    std::shared_lock lock(globalShareData->engineListLock);
-                    // low efficiency
-                    tmpList = globalShareData->globalEngineList;
-                }
-                for (auto& engine : tmpList) {
-                    if (EngineManager::isValid(engine.get())
-                        && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
-                        EngineScope enter(engine.get());
-                        engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
+                auto snapshot = globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
+                if (snapshot) {
+                    for (auto& engine : *snapshot) {
+                        if (EngineManager::isValid(engine.get())
+                            && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
+                            EngineScope enter(engine.get());
+                            engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
+                        }
                     }
                 }
             } catch (...) {

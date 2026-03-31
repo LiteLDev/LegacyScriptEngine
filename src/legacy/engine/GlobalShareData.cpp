@@ -4,7 +4,9 @@
 #include "legacy/engine/LocalShareData.h"
 
 #include <Windows.h>
+#include <atomic>
 #include <string>
+#include <vector>
 
 // 全局共享数据
 GlobalDataType* globalShareData = nullptr;
@@ -40,4 +42,12 @@ void InitGlobalShareData() {
         localShareData->isFirstInstance = false;
         globalShareData                 = static_cast<GlobalDataType*>(address);
     }
+
+    globalShareData->globalEngineSnapshot.store(
+        std::make_shared<std::vector<std::shared_ptr<ScriptEngine>>>(
+            globalShareData->globalEngineList.begin(),
+            globalShareData->globalEngineList.end()
+        ),
+        std::memory_order_release
+    );
 }

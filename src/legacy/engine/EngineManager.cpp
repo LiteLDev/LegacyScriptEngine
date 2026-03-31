@@ -7,10 +7,26 @@
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
+#include <atomic>
 #include <mutex>
-#include <shared_mutex>
 
 using namespace script;
+
+namespace {
+
+void refreshEngineSnapshotLocked() {
+    auto snapshot = std::make_shared<std::vector<std::shared_ptr<ScriptEngine>>>(
+        globalShareData->globalEngineList.begin(),
+        globalShareData->globalEngineList.end()
+    );
+    globalShareData->globalEngineSnapshot.store(snapshot, std::memory_order_release);
+}
+
+std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>> loadEngineSnapshot() {
+    return globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
+}
+
+} // namespace
 
 ///////////////////////////////// API /////////////////////////////////
 
@@ -20,6 +36,7 @@ bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> const& toDele
          ++engine) {
         if (*engine == toDelete) {
             globalShareData->globalEngineList.erase(engine);
+            refreshEngineSnapshotLocked();
             return true;
         }
     }
@@ -29,6 +46,7 @@ bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> const& toDele
 bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> const& engine) {
     std::unique_lock lock(globalShareData->engineListLock);
     globalShareData->globalEngineList.push_back(engine);
+    refreshEngineSnapshotLocked();
     return true;
 }
 
@@ -52,8 +70,10 @@ std::shared_ptr<ScriptEngine> EngineManager::newEngine(std::string const& plugin
 }
 
 bool EngineManager::isValid(ScriptEngine* engine, bool onlyCheckLocal) {
-    std::shared_lock lock(globalShareData->engineListLock);
-    for (auto& i : globalShareData->globalEngineList) {
+    auto snapshot = loadEngineSnapshot();
+    if (!snapshot) return false;
+
+    for (auto& i : *snapshot) {
         if (i.get() == engine) {
             if (engine->isDestroying()) return false;
             if (onlyCheckLocal && getEngineType(engine) != LLSE_BACKEND_TYPE) return false;
@@ -68,8 +88,10 @@ bool EngineManager::isValid(std::shared_ptr<ScriptEngine> const& engine, bool on
 }
 
 std::shared_ptr<ScriptEngine> EngineManager::checkAndGet(ScriptEngine* engine, bool onlyCheckLocal) {
-    std::shared_lock lock(globalShareData->engineListLock);
-    for (auto& i : globalShareData->globalEngineList) {
+    auto snapshot = loadEngineSnapshot();
+    if (!snapshot) return nullptr;
+
+    for (auto& i : *snapshot) {
         if (i.get() == engine) {
             if (engine->isDestroying()) return nullptr;
             if (onlyCheckLocal && getEngineType(engine) != LLSE_BACKEND_TYPE) return nullptr;
@@ -81,25 +103,27 @@ std::shared_ptr<ScriptEngine> EngineManager::checkAndGet(ScriptEngine* engine, b
 
 std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getLocalEngines() {
     std::vector<std::shared_ptr<ScriptEngine>> res;
-    std::shared_lock                           lock(globalShareData->engineListLock);
-    for (auto& engine : globalShareData->globalEngineList) {
+    auto                                       snapshot = loadEngineSnapshot();
+    if (!snapshot) return res;
+
+    for (auto& engine : *snapshot) {
         if (getEngineType(engine) == LLSE_BACKEND_TYPE) res.push_back(engine);
     }
     return res;
 }
 
 std::vector<std::shared_ptr<ScriptEngine>> EngineManager::getGlobalEngines() {
-    std::vector<std::shared_ptr<ScriptEngine>> res;
-    std::shared_lock                           lock(globalShareData->engineListLock);
-    for (auto& engine : globalShareData->globalEngineList) {
-        res.push_back(engine);
-    }
-    return res;
+    auto snapshot = loadEngineSnapshot();
+    if (!snapshot) return {};
+
+    return *snapshot;
 }
 
 std::shared_ptr<ScriptEngine> EngineManager::getEngine(std::string const& name, bool onlyLocalEngine) {
-    std::shared_lock lock(globalShareData->engineListLock);
-    for (auto& engine : globalShareData->globalEngineList) {
+    auto snapshot = loadEngineSnapshot();
+    if (!snapshot) return nullptr;
+
+    for (auto& engine : *snapshot) {
         if (onlyLocalEngine && getEngineType(engine) != LLSE_BACKEND_TYPE) continue;
         auto ownerData = getEngineData(engine);
         if (ownerData->pluginName == name) return engine;

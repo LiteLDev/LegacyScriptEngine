@@ -9,9 +9,8 @@
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStoppingEvent.h"
 #include "ll/api/service/GamingStatus.h"
-#include "ll/api/service/ServerInfo.h"
 
-#include <mutex>
+#include <atomic>
 #include <processthreadsapi.h>
 
 using namespace script;
@@ -323,13 +322,10 @@ bool ModuleMessageResult::cancel() const {
 void MessageSystemLoopOnce() {
     // if (!messageLoopLock.try_lock())
     //     return;
-    std::list<std::shared_ptr<ScriptEngine>> tmpList;
-    {
-        std::unique_lock lock(globalShareData->engineListLock);
-        // low efficiency
-        tmpList = globalShareData->globalEngineList;
-    }
-    for (auto& engine : tmpList) {
+    auto snapshot = globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
+    if (!snapshot) return;
+
+    for (auto& engine : *snapshot) {
         if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
             try {
                 if (EngineScope::currentEngine() == engine.get())

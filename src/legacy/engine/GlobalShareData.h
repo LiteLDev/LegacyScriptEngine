@@ -2,7 +2,7 @@
 #include "legacy/api/APIHelp.h"
 
 #include <Windows.h>
-#include <list>
+#include <atomic>
 #include <map>
 #include <shared_mutex>
 #include <string>
@@ -27,8 +27,9 @@ struct MessageHandlers {
 // 全局共享数据
 struct GlobalDataType {
     // 引擎管理器表
-    std::shared_mutex                        engineListLock;
-    std::list<std::shared_ptr<ScriptEngine>> globalEngineList;
+    std::shared_mutex                                                        engineListLock;
+    std::vector<std::shared_ptr<ScriptEngine>>                               globalEngineList;
+    std::atomic<std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>>> globalEngineSnapshot;
 
     // 注册过的命令
     std::unordered_map<std::string, std::string> playerRegisteredCmd;

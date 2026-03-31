@@ -168,13 +168,13 @@ void WSClientClass::initListeners_s() {
     ws->OnTextReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onTextReceived)]},
                         engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
         keepThis([nowList, engine, msg = std::move(msg)]() -> CoroTask<> {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
 
             co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -190,13 +190,13 @@ void WSClientClass::initListeners_s() {
     ws->OnBinaryReceived([nowList{&listeners[static_cast<int>(WSClientEvents::onBinaryReceived)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, std::vector<uint8_t> data) {
         keepThis([nowList, engine, data = std::move(data)]() mutable -> CoroTask<> {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
 
             co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -212,13 +212,13 @@ void WSClientClass::initListeners_s() {
     ws->OnError([nowList{&listeners[static_cast<int>(WSClientEvents::onError)]},
                  engine = EngineScope::currentEngine()](WebSocketClient&, std::string msg) {
         keepThis([nowList, engine, msg = std::move(msg)]() -> CoroTask<> {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
 
             co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -234,13 +234,13 @@ void WSClientClass::initListeners_s() {
     ws->OnLostConnection([nowList{&listeners[static_cast<int>(WSClientEvents::onLostConnection)]},
                           engine = EngineScope::currentEngine()](WebSocketClient&, int code) {
         keepThis([nowList, engine, code]() -> CoroTask<> {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 co_return;
 
             co_await ll::chrono::ticks(1);
             try {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -333,7 +333,7 @@ Local<Value> WSClientClass::connectAsync(Arguments const& args) {
                 } catch (std::runtime_error const&) {
                     result = false;
                 }
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     return;
                 EngineScope enter(engine);
@@ -436,11 +436,11 @@ void ADD_CALLBACK(
     );
     auto receiveMethod =
         [engine = EngineScope::currentEngine(), method, callbacks](Request const& req, Response& resp) {
-            if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() == ll::GamingStatus::Stopping || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
             keepThis([engine, req, &resp, method, callbacks]() -> CoroTask<> {
-                if ((ll::getGamingStatus() == ll::GamingStatus::Stopping) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() == ll::GamingStatus::Stopping || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -598,12 +598,12 @@ Local<Value> HttpServerClass::onPreRouting(Arguments const& args) {
     try {
         preRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_pre_routing_handler([this, engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return Server::HandlerResponse::Unhandled;
             bool handled = false;
             keepThis([this, engine, req, &resp, &handled]() -> CoroTask<> {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -636,12 +636,12 @@ Local<Value> HttpServerClass::onPostRouting(Arguments const& args) {
         postRoutingCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_post_routing_handler([this,
                                        engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 
             keepThis([this, engine, req, &resp]() -> CoroTask<> {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -667,12 +667,12 @@ Local<Value> HttpServerClass::onError(Arguments const& args) {
     try {
         errorCallback = {EngineScope::currentEngine(), script::Global{args[0].asFunction()}};
         svr->set_error_handler([this, engine = EngineScope::currentEngine()](Request const& req, Response& resp) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 
             keepThis([this, engine, req, &resp]() -> CoroTask<> {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -702,12 +702,12 @@ Local<Value> HttpServerClass::onException(Arguments const& args) {
                                        Response&          resp,
                                        std::exception_ptr e
                                    ) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 
             keepThis([this, engine, req, &resp, e]() -> CoroTask<> {
-                if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+                if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                     || engine->isDestroying())
                     co_return;
 
@@ -1178,7 +1178,7 @@ Local<Value> NetworkClass::httpGet(Arguments const& args) {
 
         auto lambda = [callback{std::move(callbackFunc)},
                        engine{EngineScope::currentEngine()}](int status, string const& body) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 
@@ -1226,7 +1226,7 @@ Local<Value> NetworkClass::httpPost(Arguments const& args) {
 
         auto lambda = [callback{std::move(callbackFunc)},
                        engine{EngineScope::currentEngine()}](int status, string const& body) {
-            if ((ll::getGamingStatus() != ll::GamingStatus::Running) || !EngineManager::isValid(engine)
+            if (ll::getGamingStatus() != ll::GamingStatus::Running || !EngineManager::isValid(engine)
                 || engine->isDestroying())
                 return;
 

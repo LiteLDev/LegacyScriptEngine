@@ -1,4 +1,4 @@
-#include "legacyapi/db/RowSet.h"
+#include "legacy/legacyapi/db/RowSet.h"
 
 #include "fmt/core.h"
 
@@ -6,27 +6,27 @@
 
 namespace DB {
 
-RowSet::RowSet(const std::shared_ptr<RowHeader>& header) : std::vector<Row>(), header(header) {
+RowSet::RowSet(std::shared_ptr<RowHeader> const& header) : std::vector<Row>(), header(header) {
     if (!header) {
         this->header = std::make_shared<RowHeader>();
     }
 }
 
-RowSet::RowSet(const RowHeader& header) : std::vector<Row>(), header(std::make_shared<RowHeader>(header)) {}
+RowSet::RowSet(RowHeader const& header) : std::vector<Row>(), header(std::make_shared<RowHeader>(header)) {}
 RowSet::RowSet(RowSet&& set) noexcept : std::vector<Row>(std::move(set)), header(set.header) {}
-RowSet::RowSet(const RowSet& set) : std::vector<Row>(set), header(set.header) {}
+RowSet::RowSet(RowSet const& set) : std::vector<Row>(set), header(set.header) {}
 RowSet& RowSet::operator=(RowSet&& set) noexcept {
     Base::operator=(std::move(set));
     header = set.header;
     return *this;
 }
-RowSet& RowSet::operator=(const RowSet& set) {
+RowSet& RowSet::operator=(RowSet const& set) {
     Base::operator=(set);
     header = set.header;
     return *this;
 }
 
-void RowSet::add(const Row& row) {
+void RowSet::add(Row const& row) {
     if (header && !header->empty()) {
         if (!header->check(row)) throw std::runtime_error("RowSet::add: Row doesn't match header");
     } else if (row.header && !row.header->empty()) {
@@ -48,14 +48,14 @@ bool RowSet::valid() const {
     return true;
 }
 
-void RowSet::push_back(const Row& row) { add(row); }
+void RowSet::push_back(Row const& row) { add(row); }
 
-std::string RowSet::toTableString(const std::string& nullPattern) const {
+std::string RowSet::toTableString(std::string const& nullPattern) const {
     if (!header || header->empty()) return "";
     std::string result, dividingLine;
     // Get the field widths
     std::vector<size_t> colWidths;
-    for (const auto & i : *header) {
+    for (auto const& i : *header) {
         colWidths.push_back(i.size());
     }
     for (auto& row : *this) {

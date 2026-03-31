@@ -1,6 +1,6 @@
 #pragma once
-#include "api/APIHelp.h"
-#include "engine/MessageSystem.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/MessageSystem.h"
 
 #include <vector>
 

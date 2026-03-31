@@ -1,7 +1,7 @@
-#include "engine/GlobalShareData.h"
+#include "legacy/engine/GlobalShareData.h"
 
-#include "api/APIHelp.h"
-#include "engine/LocalShareData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/LocalShareData.h"
 
 #include <Windows.h>
 #include <string>

@@ -1,4 +1,4 @@
-#include "api/DatabaseAPI.h"
+#include "legacy/api/DatabaseAPI.h"
 
 using namespace DB;
 

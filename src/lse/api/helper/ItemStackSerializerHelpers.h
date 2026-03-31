@@ -3,7 +3,7 @@
 
 namespace ItemStackSerializerHelpers {
 template <typename T>
-MCAPI void write(const T& item, BinaryStream& stream);
+MCAPI void write(T const& item, BinaryStream& stream);
 template <typename T>
 MCAPI Bedrock::Result<T> read(ReadOnlyBinaryStream& stream);
 } // namespace ItemStackSerializerHelpers

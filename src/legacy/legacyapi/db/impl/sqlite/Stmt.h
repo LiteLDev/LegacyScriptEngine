@@ -1,5 +1,5 @@
 #pragma once
-#include "legacyapi/db/Stmt.h"
+#include "legacy/legacyapi/db/Stmt.h"
 
 struct sqlite3_stmt;
 

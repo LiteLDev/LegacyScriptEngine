@@ -1,4 +1,4 @@
-#include "legacyapi/db/Session.h"
+#include "legacy/legacyapi/db/Session.h"
 
 namespace DB {
 

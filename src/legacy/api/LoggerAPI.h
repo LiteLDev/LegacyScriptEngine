@@ -1,6 +1,6 @@
 #pragma once
 
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 
 //////////////////// Classes ////////////////////
 

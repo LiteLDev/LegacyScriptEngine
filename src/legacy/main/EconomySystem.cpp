@@ -1,6 +1,6 @@
 #include "LLMoney.h"
-#include "api/EventAPI.h"
-#include "main/EconomicSystem.h"
+#include "legacy/api/EventAPI.h"
+#include "legacy/main/EconomicSystem.h"
 
 #include <string>
 

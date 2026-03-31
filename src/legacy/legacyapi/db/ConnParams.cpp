@@ -1,4 +1,4 @@
-#include "legacyapi/db/ConnParams.h"
+#include "legacy/legacyapi/db/ConnParams.h"
 
 #include "ll/api/io/LoggerRegistry.h"
 #include "ll/api/utils/StringUtils.h"

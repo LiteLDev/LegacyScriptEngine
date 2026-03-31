@@ -1,6 +1,6 @@
-#include "api/DeviceAPI.h"
+#include "legacy/api/DeviceAPI.h"
 
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/certificates/WebToken.h"

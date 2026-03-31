@@ -1,6 +1,6 @@
-#include "legacyapi/db/impl/mysql/Session.h"
+#include "legacy/legacyapi/db/impl/mysql/Session.h"
 
-#include "legacyapi/db/impl/mysql/Stmt.h"
+#include "legacy/legacyapi/db/impl/mysql/Stmt.h"
 #include "lse/Entry.h"
 
 #define OK 0

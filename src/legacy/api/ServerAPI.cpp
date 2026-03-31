@@ -1,7 +1,7 @@
-#include "api/ServerAPI.h"
+#include "legacy/api/ServerAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/McAPI.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/McAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/utils/RandomUtils.h"
 #include "mc/common/IMinecraftApp.h"

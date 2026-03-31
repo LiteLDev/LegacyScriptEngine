@@ -1,9 +1,9 @@
-#include "api/FileSystemAPI.h"
+#include "legacy/api/FileSystemAPI.h"
 
-#include "api/APIHelp.h"
-#include "engine/EngineManager.h"
-#include "engine/LocalShareData.h"
-#include "engine/TimeTaskSystem.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/EngineManager.h"
+#include "legacy/engine/LocalShareData.h"
+#include "legacy/engine/TimeTaskSystem.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/utils/StringUtils.h"
 

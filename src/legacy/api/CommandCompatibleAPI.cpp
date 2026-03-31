@@ -1,12 +1,12 @@
-#include "api/APIHelp.h"
-#include "api/McAPI.h"
-#include "api/PlayerAPI.h"
-#include "engine/EngineOwnData.h"
-#include "engine/GlobalShareData.h"
-#include "engine/LocalShareData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/McAPI.h"
+#include "legacy/api/PlayerAPI.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/engine/GlobalShareData.h"
+#include "legacy/engine/LocalShareData.h"
+#include "legacy/main/Global.h"
+#include "legacy/utils/Utils.h"
 #include "ll/api/service/Bedrock.h"
-#include "main/Global.h"
-#include "utils/Utils.h"
 
 #include <string>
 #include <vector>

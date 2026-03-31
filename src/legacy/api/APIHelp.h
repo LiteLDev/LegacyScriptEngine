@@ -1,11 +1,11 @@
 ﻿#pragma once
 
-#include "engine/EngineOwnData.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/JsonHelper.h"
+#include "legacy/utils/UsingScriptX.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "lse/Entry.h"
 #include "mc/world/level/Level.h"
-#include "utils/JsonHelper.h"
-#include "utils/UsingScriptX.h"
 
 #include <exception>
 #include <magic_enum.hpp>

@@ -1,6 +1,6 @@
-#include "engine/OperationCount.h"
+#include "legacy/engine/OperationCount.h"
 
-#include "engine/GlobalShareData.h"
+#include "legacy/engine/GlobalShareData.h"
 #include "ll/api/mod/ModManager.h"
 
 OperationCount::OperationCount(string const& name) : name(name) {}

@@ -1,6 +1,6 @@
 #pragma once
-#include "api/APIHelp.h"
-#include "main/Global.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/main/Global.h"
 
 #include <string>
 

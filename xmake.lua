@@ -116,7 +116,6 @@ target("LegacyScriptEngine")
     )
     add_includedirs(
         "src",
-        "src/legacy",
         "$(builddir)/config"
     )
     if is_config("target_type", "server") then

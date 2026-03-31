@@ -1,8 +1,8 @@
-#include "api/LlAPI.h"
+#include "legacy/api/LlAPI.h"
 
-#include "api/APIHelp.h"
-#include "engine/EngineOwnData.h"
-#include "engine/GlobalShareData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/engine/GlobalShareData.h"
 #include "ll/api/data/Version.h"
 #include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManagerRegistry.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include "LLMoney.h"
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 
 //////////////////// Funcs ////////////////////
 
@@ -205,7 +205,7 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
         try
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
-        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: {}", EventTypeToString(TYPE));     \
+        lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: {}", EventTypeToString(TYPE));    \
         ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
     }                                                                                                                  \
     }

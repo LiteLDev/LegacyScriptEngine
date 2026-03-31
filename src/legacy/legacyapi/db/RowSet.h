@@ -1,5 +1,5 @@
 #pragma once
-#include "legacyapi/db/Row.h"
+#include "legacy/legacyapi/db/Row.h"
 
 #include <vector>
 

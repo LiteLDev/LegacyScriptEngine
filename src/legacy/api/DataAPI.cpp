@@ -1,15 +1,15 @@
-#include "api/DataAPI.h"
+#include "legacy/api/DataAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/DatabaseAPI.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/DatabaseAPI.h"
+#include "legacy/main/EconomicSystem.h"
+#include "legacy/utils/JsonHelper.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/service/Bedrock.h"
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/utils/Base64Utils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/api/Hash.h"
-#include "main/EconomicSystem.h"
-#include "utils/JsonHelper.h"
 
 #include <ctre/ctre.hpp>
 #include <fstream>

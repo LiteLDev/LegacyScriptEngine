@@ -1,10 +1,10 @@
-#include "api/ScriptAPI.h"
+#include "legacy/api/ScriptAPI.h"
 
-#include "api/APIHelp.h"
-#include "engine/EngineOwnData.h"
-#include "engine/GlobalShareData.h"
-#include "engine/LocalShareData.h"
-#include "engine/TimeTaskSystem.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/engine/GlobalShareData.h"
+#include "legacy/engine/LocalShareData.h"
+#include "legacy/engine/TimeTaskSystem.h"
 
 #include <chrono>
 #include <memory>

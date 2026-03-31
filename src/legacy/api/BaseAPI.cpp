@@ -1,8 +1,8 @@
-#include "api/BaseAPI.h"
+#include "legacy/api/BaseAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/McAPI.h"
-#include "main/Global.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/McAPI.h"
+#include "legacy/main/Global.h"
 #include "mc/common/Common.h"
 #include "mc/common/SharedConstants.h"
 

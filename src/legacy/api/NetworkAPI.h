@@ -1,7 +1,7 @@
 #pragma once
 #include "WebSocketClient.h"
-#include "api/APIHelp.h"
 #include "httplib.h"
+#include "legacy/api/APIHelp.h"
 
 #include <list>
 

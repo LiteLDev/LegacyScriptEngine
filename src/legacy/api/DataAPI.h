@@ -1,7 +1,7 @@
 #pragma once
-#include "api/APIHelp.h"
-#include "utils/IniHelper.h"
-#include "utils/JsonHelper.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/utils/IniHelper.h"
+#include "legacy/utils/JsonHelper.h"
 
 #include <memory>
 #include <string>

@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 #include "mc/nbt/ByteArrayTag.h"
 #include "mc/nbt/DoubleTag.h"
 #include "mc/nbt/Tag.h"

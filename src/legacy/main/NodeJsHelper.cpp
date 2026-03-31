@@ -1,7 +1,8 @@
-#include "main/NodeJsHelper.h"
+#include "legacy/main/NodeJsHelper.h"
 
-#include "engine/EngineOwnData.h"
 #include "fmt/format.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/Utils.h"
 #include "ll/api/Expected.h"
 #include "ll/api/base/Containers.h"
 #include "ll/api/chrono/GameChrono.h"
@@ -14,7 +15,6 @@
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
 #include "nlohmann/json.hpp"
-#include "utils/Utils.h"
 #include "uv/uv.h"
 #include "v8/v8.h" // IWYU pragma: keep
 

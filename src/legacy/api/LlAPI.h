@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/UsingScriptX.h"
+#include "legacy/utils/UsingScriptX.h"
 
 //////////////////// LLSE Static ////////////////////
 

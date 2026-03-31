@@ -1,7 +1,7 @@
-#include "api/ContainerAPI.h"
+#include "legacy/api/ContainerAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/ItemAPI.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/ItemAPI.h"
 #include "mc/world/item/ItemStack.h"
 
 //////////////////// Class Definition ////////////////////

@@ -1,15 +1,15 @@
-#include "engine/MessageSystem.h"
+#include "legacy/engine/MessageSystem.h"
 
-#include "api/APIHelp.h"
-#include "engine/EngineManager.h"
-#include "engine/GlobalShareData.h"
-#include "engine/LocalShareData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/EngineManager.h"
+#include "legacy/engine/GlobalShareData.h"
+#include "legacy/engine/LocalShareData.h"
+#include "legacy/utils/IniHelper.h"
+#include "legacy/utils/Utils.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/server/ServerStoppingEvent.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/service/ServerInfo.h"
-#include "utils/IniHelper.h"
-#include "utils/Utils.h"
 
 #include <mutex>
 #include <processthreadsapi.h>
@@ -29,7 +29,7 @@ inline std::string* GET_MESSAGE_DATA_PTR(utils::Message const& e) { return stati
 
 //////////////////// 消息处理注册 ////////////////////
 
-#include "engine/RemoteCall.h"
+#include "legacy/engine/RemoteCall.h"
 
 void ModuleMessage::handle(utils::Message& engineMsg) // Warning: Execute in another thread
 {
@@ -340,7 +340,10 @@ void MessageSystemLoopOnce() {
                 }
             } catch (Exception const& e) {
                 EngineScope scope(engine.get());
-                lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop! In plugin: {}", getEngineOwnData()->pluginName);
+                lse::LegacyScriptEngine::getLogger().error(
+                    "Error occurred in Engine Message Loop! In plugin: {}",
+                    getEngineOwnData()->pluginName
+                );
                 ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
             } catch (...) {
                 lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");

@@ -1,8 +1,8 @@
-#include "engine/TimeTaskSystem.h"
+#include "legacy/engine/TimeTaskSystem.h"
 
-#include "api/APIHelp.h"
-#include "engine/EngineManager.h"
-#include "engine/EngineOwnData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/EngineManager.h"
+#include "legacy/engine/EngineOwnData.h"
 #include "ll/api/coro/CoroTask.h"
 #include "ll/api/service/GamingStatus.h"
 #include "ll/api/thread/ServerThreadExecutor.h"

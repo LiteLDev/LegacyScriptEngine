@@ -1,7 +1,7 @@
-#include "legacyapi/db/impl/mysql/Stmt.h"
+#include "legacy/legacyapi/db/impl/mysql/Stmt.h"
 
-#include "legacyapi/db/impl/mysql/Session.h"
-#include "legacyapi/utils/StringReader.h"
+#include "legacy/legacyapi/db/impl/mysql/Session.h"
+#include "legacy/legacyapi/utils/StringReader.h"
 #include "ll/api/io/Logger.h"
 #include "lse/Entry.h"
 

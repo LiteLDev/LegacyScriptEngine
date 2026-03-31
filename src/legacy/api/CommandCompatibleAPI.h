@@ -1,5 +1,5 @@
 #pragma once
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 
 #include <string>
 #include <vector>

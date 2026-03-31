@@ -1,9 +1,9 @@
-#include "engine/RemoteCall.h"
+#include "legacy/engine/RemoteCall.h"
 
-#include "api/APIHelp.h"
-#include "api/LlAPI.h"
-#include "engine/GlobalShareData.h"
-#include "engine/MessageSystem.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/LlAPI.h"
+#include "legacy/engine/GlobalShareData.h"
+#include "legacy/engine/MessageSystem.h"
 
 #include <sstream>
 #include <string>

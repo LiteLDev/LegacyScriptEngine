@@ -1,6 +1,6 @@
-#include "api/GameUtilsAPI.h"
+#include "legacy/api/GameUtilsAPI.h"
 
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 
 ClassDefine<> TextClassBuilder = defineClass("Format")
                                      .property("Black", []() { return String::newString("§0"); })

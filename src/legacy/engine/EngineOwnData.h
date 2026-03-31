@@ -1,7 +1,7 @@
 #pragma once
 #include "legacy/main/Global.h"
+#include "legacy/utils/UsingScriptX.h"
 #include "lse/ScriptPlugin.h"
-#include "utils/UsingScriptX.h"
 
 #include <ll/api/i18n/I18n.h>
 #include <ll/api/io/Logger.h>

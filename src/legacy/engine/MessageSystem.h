@@ -1,6 +1,6 @@
 #pragma once
-#include "api/APIHelp.h"
-#include "engine/OperationCount.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/engine/OperationCount.h"
 
 #include <ScriptX/ScriptX.h>
 #include <Windows.h>

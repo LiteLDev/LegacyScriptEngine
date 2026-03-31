@@ -1,7 +1,7 @@
-#include "engine/EngineManager.h"
+#include "legacy/engine/EngineManager.h"
 
-#include "engine/EngineOwnData.h"
-#include "engine/GlobalShareData.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/engine/GlobalShareData.h"
 
 #if defined(LSE_BACKEND_NODEJS)
 #include "legacy/main/NodeJsHelper.h"

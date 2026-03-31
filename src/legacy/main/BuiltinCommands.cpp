@@ -1,6 +1,6 @@
-#include "main/BuiltinCommands.h"
+#include "legacy/main/BuiltinCommands.h"
 
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 #include "ll/api/command/Command.h"
 #include "ll/api/command/CommandHandle.h"
 #include "ll/api/command/CommandRegistrar.h"

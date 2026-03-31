@@ -1,4 +1,4 @@
-#include "api/CommandOutputAPI.h"
+#include "legacy/api/CommandOutputAPI.h"
 
 #include "ll/api/service/Bedrock.h"
 #include "mc/server/commands/CommandOutputMessageType.h"

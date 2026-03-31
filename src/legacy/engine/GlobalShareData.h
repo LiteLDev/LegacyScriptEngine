@@ -1,12 +1,12 @@
 #pragma once
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 
+#include <Windows.h>
 #include <list>
 #include <map>
 #include <shared_mutex>
 #include <string>
 #include <vector>
-#include <Windows.h>
 
 //////////////////// Structs ////////////////////
 

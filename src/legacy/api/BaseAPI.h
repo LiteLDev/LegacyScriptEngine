@@ -1,7 +1,7 @@
 #pragma once
 
-#include "api/APIHelp.h" // IWYU pragma: keep
-#include "main/Global.h"
+#include "legacy/api/APIHelp.h" // IWYU pragma: keep
+#include "legacy/main/Global.h"
 
 class BlockSource;
 

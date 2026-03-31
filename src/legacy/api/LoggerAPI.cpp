@@ -1,8 +1,9 @@
-#include "api/LoggerAPI.h"
+#include "legacy/api/LoggerAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/PlayerAPI.h"
-#include "engine/EngineOwnData.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/PlayerAPI.h"
+#include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/Utils.h"
 #include "ll/api/data/IndirectValue.h"
 #include "ll/api/io/DefaultSink.h"
 #include "ll/api/io/FileSink.h"
@@ -10,7 +11,6 @@
 #include "ll/api/io/PatternFormatter.h"
 #include "lse/api/PlayerSink.h"
 #include "mc/world/actor/player/Player.h"
-#include "utils/Utils.h"
 
 #include <string>
 

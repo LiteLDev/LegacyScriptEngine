@@ -1,8 +1,8 @@
-#include "api/ScoreboardAPI.h"
+#include "legacy/api/ScoreboardAPI.h"
 
-#include "api/APIHelp.h"
-#include "api/McAPI.h"
-#include "api/PlayerAPI.h"
+#include "legacy/api/APIHelp.h"
+#include "legacy/api/McAPI.h"
+#include "legacy/api/PlayerAPI.h"
 #include "ll/api/service/Bedrock.h"
 #include "mc/world/scores/DisplayObjective.h"
 #include "mc/world/scores/Objective.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 #include "mc/deps/core/utility/BinaryStream.h"
 
 //////////////////// Classes ////////////////////

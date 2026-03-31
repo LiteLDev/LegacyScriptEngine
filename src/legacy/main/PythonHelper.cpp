@@ -1,12 +1,12 @@
 #include "PythonHelper.h"
 
 #include "Global.h"
-#include "engine/EngineManager.h"
-#include "engine/TimeTaskSystem.h"
 #include "legacy/api/CommandAPI.h"
+#include "legacy/engine/EngineManager.h"
+#include "legacy/engine/TimeTaskSystem.h"
+#include "legacy/utils/Utils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
-#include "utils/Utils.h"
 
 #include <Python.h>
 #include <filesystem>

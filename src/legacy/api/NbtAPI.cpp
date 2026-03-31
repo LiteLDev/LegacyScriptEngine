@@ -1,6 +1,6 @@
-﻿#include "api/NbtAPI.h"
+﻿#include "legacy/api/NbtAPI.h"
 
-#include "api/APIHelp.h"
+#include "legacy/api/APIHelp.h"
 #include "ll/api/utils/Base64Utils.h"
 #include "mc/nbt/ByteArrayTag.h"
 #include "mc/nbt/ByteTag.h"

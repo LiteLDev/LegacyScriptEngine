@@ -1,4 +1,4 @@
-#include "api/McAPI.h"
+#include "legacy/api/McAPI.h"
 
 ClassDefine<void> McClassBuilder = defineClass("mc")
                                        .function("getBDSVersion", &McClass::getBDSVersion)

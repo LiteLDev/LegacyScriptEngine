@@ -11,6 +11,7 @@
 #include "ll/api/command/runtime/RuntimeOverload.h"
 
 #include <mc/server/commands/CommandOutput.h>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -32,37 +33,45 @@ void registerLegacyCommand(
     auto& command =
         CommandRegistrar::getInstance(false)
             .getOrCreateCommand(std::string(cmdParas[0]), description, level, CommandFlagValue::NotCheat, plugin);
-    auto overload = command.runtimeOverload(plugin);
+    auto overload      = command.runtimeOverload(plugin);
+    bool hasSubCommand = false;
     if (cmdParas.size() > 1) {
         for (size_t i = 1; i < cmdParas.size(); ++i) {
             overload.text(cmdParas[i]);
         }
     }
-    overload.optional("args", ParamKind::RawText)
-        .execute([playerFunc,
-                  consoleFunc,
-                  engine](CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& command) {
-            if (!engine) return;
-            EngineScope enterInner(engine.get());
-            if (!playerFunc && !consoleFunc) return;
-            Local<Array> params = Array::newArray();
-            if (command["args"].hold(ParamKind::RawText)) {
-                for (auto& para :
-                     ll::string_utils::splitByPattern(std::get<CommandRawText>(command["args"].value()).mText, " ")) {
-                    params.add(String::newString(para));
-                }
+    // To ensure compatibility for https://github.com/bricktea/iLand-Core
+    hasSubCommand = std::ranges::any_of(localShareData->fakeCommandsMap | std::views::keys, [&](auto const& cmd) {
+        return cmd.starts_with(name + " ");
+    });
+    if (!hasSubCommand) {
+        overload.optional("args", ParamKind::RawText);
+    }
+    overload.execute([playerFunc, consoleFunc, engine, hasSubCommand](
+                         CommandOrigin const&  origin,
+                         CommandOutput&        output,
+                         RuntimeCommand const& command
+                     ) {
+        if (!engine || (!playerFunc && !consoleFunc)) return;
+        EngineScope  enterInner(engine.get());
+        Local<Array> params = Array::newArray();
+        if (!hasSubCommand && command["args"].hold(ParamKind::RawText)) {
+            for (auto& para :
+                 ll::string_utils::splitByPattern(std::get<CommandRawText>(command["args"].value()).mText, " ")) {
+                params.add(String::newString(para));
             }
-            if (origin.getOriginType() == CommandOriginType::Player && playerFunc) {
-                if (origin.getPermissionsLevel() < command.mPermissionLevel) {
-                    output.error("You don't have permission to use this command."_tr());
-                    return;
-                }
-                playerFunc->get().call({}, PlayerClass::newPlayer(static_cast<Player*>(origin.getEntity())), params);
+        }
+        if (origin.getOriginType() == CommandOriginType::Player && playerFunc) {
+            if (origin.getPermissionsLevel() < command.mPermissionLevel) {
+                output.error("You don't have permission to use this command."_tr());
+                return;
             }
-            if (origin.getOriginType() == CommandOriginType::DedicatedServer && consoleFunc) {
-                consoleFunc->get().call({}, params);
-            }
-        });
+            playerFunc->get().call({}, PlayerClass::newPlayer(static_cast<Player*>(origin.getEntity())), params);
+        }
+        if (origin.getOriginType() == CommandOriginType::DedicatedServer && consoleFunc) {
+            consoleFunc->get().call({}, params);
+        }
+    });
 }
 
 void newLegacyCommand(

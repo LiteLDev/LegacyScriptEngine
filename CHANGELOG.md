@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.11] - 2026-04-01
+
+### Changed
+
+- Replaced legacy CommandCompatibleAPI(fake command based on event) with LegacyCommandAPI(real registered command)
+- Improved translations
+
 ## [0.17.10] - 2026-03-31
 
 ### Changed
@@ -1213,7 +1220,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...HEAD
+[0.17.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...v0.17.11
 [0.17.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.9...v0.17.10
 [0.17.9]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.8...v0.17.9
 [0.17.8]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.7...v0.17.8

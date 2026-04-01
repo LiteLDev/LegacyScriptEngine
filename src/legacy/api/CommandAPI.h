@@ -1,5 +1,6 @@
 #pragma once
-#include "legacy/api/CommandCompatibleAPI.h"
+
+#include "legacy/utils/UsingScriptX.h"
 #include "ll/api/command/CommandHandle.h"
 
 extern ClassDefine<void> ParamTypeStaticBuilder;

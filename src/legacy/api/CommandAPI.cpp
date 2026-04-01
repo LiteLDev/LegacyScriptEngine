@@ -8,6 +8,7 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/McAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
@@ -75,13 +76,11 @@ ClassDefine<CommandClass> CommandClassBuilder =
 //////////////////// Helper ////////////////////
 
 bool LLSERemoveCmdCallback(std::shared_ptr<script::ScriptEngine> engine) {
-    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) {
-        return data.second.fromEngine == engine.get();
-    });
+    std::erase_if(localShareData->commandCallbacks, [&engine](auto& data) { return data.second.fromEngine == engine; });
     return true;
 }
 
-Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& origin, CommandOutput& output) {
+Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& origin) {
     if (!result.has_value()) return {};
     if (result.hold(ParamKind::Kind::Enum)) {
         return String::newString(std::get<RuntimeEnum>(result.value()).name);
@@ -373,7 +372,7 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
         );
         return;
     }
-    EngineScope enter(localShareData->commandCallbacks[commandName].fromEngine);
+    EngineScope enter(localShareData->commandCallbacks[commandName].fromEngine.get());
     try {
         Local<Object> args = Object::newObject();
         auto          cmd  = CommandClass::newCommand(commandName);
@@ -390,17 +389,17 @@ void onExecute(CommandOrigin const& origin, CommandOutput& output, RuntimeComman
                 if (!info.name.empty()) {
                     if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
                         auto& param = runtime[info.enumName];
-                        args.set(info.name, convertResult(param, origin, output));
+                        args.set(info.name, convertResult(param, origin));
                         if (!info.identifier.empty()
                             && info.identifier != info.name) { // Keep compatibility with old plugins
-                            args.set(info.identifier, convertResult(param, origin, output));
+                            args.set(info.identifier, convertResult(param, origin));
                         }
                     } else {
                         auto& param = runtime[info.name];
-                        args.set(info.name, convertResult(param, origin, output));
+                        args.set(info.name, convertResult(param, origin));
                         if (!info.identifier.empty()
                             && info.identifier != info.name) { // Keep compatibility with old plugins
-                            args.set(info.identifier, convertResult(param, origin, output));
+                            args.set(info.identifier, convertResult(param, origin));
                         }
                     }
                 }
@@ -504,22 +503,22 @@ auto CommandClass::optional(Arguments const& args) const -> Local<Value> {
 Local<Value> CommandClass::addOverload(Arguments const& args) {
     try {
         auto overloadFunc = [e(
-                                EngineScope::currentEngine()
+                                EngineManager::checkAndGet(EngineScope::currentEngine(), true)
                             )](RuntimeOverload& cmd, std::string const& commandName, std::string const& paramName) {
             auto& paramList = getEngineData(e)->plugin->registeredCommands[commandName];
             for (auto& info : paramList) {
                 if (info.name == paramName || info.enumName == paramName || info.identifier == paramName) {
                     if (info.optional) {
                         if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                            (void)cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
+                            cmd.optional(info.enumName, info.type, info.enumName).option(info.option);
                         } else {
-                            (void)cmd.optional(info.name, info.type).option(info.option);
+                            cmd.optional(info.name, info.type).option(info.option);
                         }
                     } else {
                         if (info.type == ParamKind::Kind::Enum || info.type == ParamKind::Kind::SoftEnum) {
-                            (void)cmd.required(info.enumName, info.type, info.enumName).option(info.option);
+                            cmd.required(info.enumName, info.type, info.enumName).option(info.option);
                         } else {
-                            (void)cmd.required(info.name, info.type).option(info.option);
+                            cmd.required(info.name, info.type).option(info.option);
                         }
                     }
                 }
@@ -527,8 +526,10 @@ Local<Value> CommandClass::addOverload(Arguments const& args) {
         };
         auto delayRegFunc = [this, &overloadFunc](std::vector<std::string>& paramNames) {
             ll::coro::keepThis(
-                [paramNames, commandName(commandName), overloadFunc, e(EngineScope::currentEngine())]()
-                    -> ll::coro::CoroTask<> {
+                [paramNames,
+                 commandName(commandName),
+                 overloadFunc,
+                 e(EngineManager::checkAndGet(EngineScope::currentEngine(), true))]() -> ll::coro::CoroTask<> {
                     auto cmd = CommandRegistrar::getInstance(false)
                                    .getOrCreateCommand(commandName)
                                    .runtimeOverload(getEngineData(e)->plugin);
@@ -543,7 +544,8 @@ Local<Value> CommandClass::addOverload(Arguments const& args) {
         if (args.size() == 0) {
             if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                 ll::coro::keepThis(
-                    [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
+                    [commandName(commandName),
+                     e(EngineManager::checkAndGet(EngineScope::currentEngine(), true))]() -> ll::coro::CoroTask<> {
                         getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
                         auto cmd = CommandRegistrar::getInstance(false)
                                        .getOrCreateCommand(commandName)
@@ -603,7 +605,8 @@ Local<Value> CommandClass::addOverload(Arguments const& args) {
             if (arr.size() == 0) {
                 if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
                     ll::coro::keepThis(
-                        [commandName(commandName), e(EngineScope::currentEngine())]() -> ll::coro::CoroTask<> {
+                        [commandName(commandName),
+                         e(EngineManager::checkAndGet(EngineScope::currentEngine(), true))]() -> ll::coro::CoroTask<> {
                             getEngineData(e)->plugin->registeredCommands[commandName].push_back({});
                             auto cmd = CommandRegistrar::getInstance(false)
                                            .getOrCreateCommand(commandName)
@@ -668,9 +671,12 @@ Local<Value> CommandClass::setCallback(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kFunction);
     try {
-        auto func = args[0].asFunction();
-        localShareData
-            ->commandCallbacks[commandName] = {EngineScope::currentEngine(), 0, script::Global<Function>(func)};
+        auto func                                     = args[0].asFunction();
+        localShareData->commandCallbacks[commandName] = {
+            EngineManager::checkAndGet(EngineScope::currentEngine()),
+            CommandPermissionLevel::Any,
+            script::Global<Function>(func)
+        };
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW

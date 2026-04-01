@@ -71,9 +71,6 @@ inline std::string DimId2Name(int dimid) {
     return name;
 }
 
-// 全局变量
-extern bool isCmdRegisterEnabled;
-
 #if defined(LSE_BACKEND_QUICKJS)
 // QuickJs
 inline constexpr std::string LLSE_BACKEND_TYPE = "Js";

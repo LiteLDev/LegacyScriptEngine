@@ -1,62 +1,112 @@
 #include "legacy/api/APIHelp.h"
 #include "legacy/api/McAPI.h"
 #include "legacy/api/PlayerAPI.h"
+#include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/engine/GlobalShareData.h"
 #include "legacy/engine/LocalShareData.h"
-#include "legacy/main/Global.h"
 #include "legacy/utils/Utils.h"
-#include "ll/api/service/Bedrock.h"
+#include "ll/api/command/CommandHandle.h"
+#include "ll/api/command/runtime/RuntimeCommand.h"
+#include "ll/api/command/runtime/RuntimeOverload.h"
 
+#include <mc/server/commands/CommandOutput.h>
 #include <string>
 #include <vector>
 
-//////////////////// Helper ////////////////////
+namespace lse::fake_command {
+void registerFakeCommand(
+    std::string const&                             name,
+    std::string const&                             description,
+    CommandPermissionLevel const                   level,
+    std::shared_ptr<ScriptEngine> const&           engine,
+    std::optional<script::Global<Function>> const& playerFunc,
+    std::optional<script::Global<Function>> const& consoleFunc
+) {
+    using namespace ll::command;
 
-void RegisterCmd(std::string const& cmd, std::string const& describe, int cmdLevel) {
-    auto& registry = ll::service::getCommandRegistry().get();
-    registry.registerCommand(
-        cmd,
-        describe.c_str(),
-        static_cast<CommandPermissionLevel>(cmdLevel),
-        {static_cast<CommandFlagValue>(0)},
-        {static_cast<CommandFlagValue>(0x80)}
-    );
+    auto& plugin = getEngineData(engine)->plugin;
+
+    auto  cmdParas = ll::string_utils::splitByPattern(name, " ");
+    auto& command =
+        CommandRegistrar::getInstance(false)
+            .getOrCreateCommand(std::string(cmdParas[0]), description, level, CommandFlagValue::NotCheat, plugin);
+    auto overload = command.runtimeOverload(plugin);
+    if (cmdParas.size() > 1) {
+        for (size_t i = 1; i < cmdParas.size(); ++i) {
+            overload.text(cmdParas[i]);
+        }
+    }
+    overload.optional("args", ParamKind::RawText)
+        .execute([playerFunc,
+                  consoleFunc,
+                  engine](CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& command) {
+            if (!engine) return;
+            EngineScope enter(engine.get());
+            if (!playerFunc && !consoleFunc) return;
+            Local<Array> params = Array::newArray();
+            if (command["args"].hold(ParamKind::RawText)) {
+                for (auto& para :
+                     ll::string_utils::splitByPattern(std::get<CommandRawText>(command["args"].value()).mText, " ")) {
+                    params.add(String::newString(para));
+                }
+            }
+            if (origin.getOriginType() == CommandOriginType::Player && playerFunc) {
+                if (origin.getPermissionsLevel() < command.mPermissionLevel) {
+                    output.error("You don't have permission to use this command."_tr());
+                    return;
+                }
+                playerFunc->get().call({}, PlayerClass::newPlayer(static_cast<Player*>(origin.getEntity())), params);
+            }
+            if (origin.getOriginType() == CommandOriginType::DedicatedServer && consoleFunc) {
+                consoleFunc->get().call({}, params);
+            }
+        });
 }
-// Helper
-void LLSERegisterNewCmd(
-    bool                   isPlayerCmd,
-    std::string            cmd,
-    std::string const&     describe,
-    int                    level,
+
+void newFakeCommand(
+    bool                   isPlayer,
+    std::string            name,
+    std::string const&     description,
+    CommandPermissionLevel level,
     Local<Function> const& func
 ) {
-    if (cmd[0] == '/') cmd = cmd.erase(0, 1);
-
-    if (isPlayerCmd) {
-        localShareData->playerCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
-        globalShareData->playerRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
+    if (name[0] == '/') name = name.erase(0, 1);
+    auto& fakeCommands = localShareData->fakeCommandsMap;
+    if (isPlayer) {
+        if (fakeCommands.contains(name)) {
+            fakeCommands[name].playerFunc = script::Global(func);
+        } else {
+            fakeCommands[name] = {
+                description,
+                level,
+                EngineManager::checkAndGet(EngineScope::currentEngine()),
+                script::Global(func),
+                {}
+            };
+        }
     } else {
-        localShareData
-            ->consoleCmdCallbacks[cmd] = {EngineScope::currentEngine(), level, script::Global<Function>(func)};
-        globalShareData->consoleRegisteredCmd[cmd] = LLSE_BACKEND_TYPE;
+        if (fakeCommands.contains(name)) {
+            fakeCommands[name].consoleFunc = script::Global(func);
+        } else {
+            fakeCommands[name] = {
+                description,
+                level,
+                EngineManager::checkAndGet(EngineScope::currentEngine()),
+                {},
+                script::Global(func)
+            };
+        }
     }
-
-    // 延迟注册
-    if (isCmdRegisterEnabled) RegisterCmd(cmd, describe, level);
-    else toRegCmdQueue.push_back({cmd, describe, level});
 }
 
-bool LLSERemoveCmdRegister(std::shared_ptr<ScriptEngine> engine) {
-    std::erase_if(localShareData->playerCmdCallbacks, [&engine](auto& data) {
-        return data.second.fromEngine == engine.get();
-    });
-    std::erase_if(localShareData->consoleCmdCallbacks, [&engine](auto& data) {
-        return data.second.fromEngine == engine.get();
-    });
-    return true;
+void registerFakeCommands() {
+    for (auto& [name, data] : localShareData->fakeCommandsMap) {
+        registerFakeCommand(name, data.description, data.level, data.engine, data.playerFunc, data.consoleFunc);
+    }
+    localShareData->fakeCommandsMap.clear();
 }
-// Helper
+} // namespace lse::fake_command
 
 Local<Value> McClass::regPlayerCmd(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
@@ -66,16 +116,20 @@ Local<Value> McClass::regPlayerCmd(Arguments const& args) {
     if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kNumber);
 
     try {
-        std::string cmd      = args[0].asString().toString();
-        std::string describe = args[1].asString().toString();
-        int         level    = 0;
+        int level = 0;
 
         if (args.size() >= 4) {
             int newLevel = args[3].asNumber().toInt32();
-            if (newLevel >= 0 && newLevel <= 3) level = newLevel;
+            if (newLevel >= 0 && newLevel <= 5) level = newLevel;
         }
 
-        LLSERegisterNewCmd(true, cmd, describe, level, args[2].asFunction());
+        lse::fake_command::newFakeCommand(
+            true,
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            static_cast<CommandPermissionLevel>(level),
+            args[2].asFunction()
+        );
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
@@ -88,105 +142,25 @@ Local<Value> McClass::regConsoleCmd(Arguments const& args) {
     CHECK_ARG_TYPE(args[2], ValueKind::kFunction);
 
     try {
-        std::string cmd      = args[0].asString().toString();
-        std::string describe = args[1].asString().toString();
-
-        LLSERegisterNewCmd(false, cmd, describe, 4, args[2].asFunction());
+        lse::fake_command::newFakeCommand(
+            false,
+            args[0].asString().toString(),
+            args[1].asString().toString(),
+            CommandPermissionLevel::Owner,
+            args[2].asFunction()
+        );
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
 }
-
-// Helper
-bool SendCmdOutput(std::string const& output) {
-    lse::LegacyScriptEngine::getLogger().info(output);
-    return true;
-}
-// Helper
 
 Local<Value> McClass::sendCmdOutput(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        return Boolean::newBoolean(SendCmdOutput(args[0].asString().toString()));
+        lse::LegacyScriptEngine::getLogger().info(args[0].asString().toString());
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
-}
-
-void ProcessRegCmdQueue() {
-    for (auto& cmdData : toRegCmdQueue) {
-        RegisterCmd(cmdData.cmd, cmdData.describe, cmdData.level);
-    }
-    toRegCmdQueue.clear();
-}
-
-std::string LLSEFindCmdReg(
-    bool                      isPlayerCmd,
-    std::string const&        cmd,
-    std::vector<std::string>& receiveParas,
-    bool*                     fromOtherEngine
-) {
-    std::unordered_map<std::string, std::string>& registeredMap =
-        isPlayerCmd ? globalShareData->playerRegisteredCmd : globalShareData->consoleRegisteredCmd;
-    for (auto& [prefix, fromEngine] : registeredMap) {
-        if (cmd == prefix || (cmd.find(prefix) == 0 && cmd[prefix.size()] == ' '))
-        // 如果命令与注册前缀全匹配，或者目标前缀后面为空格
-        {
-            // Matched
-            if (fromEngine != LLSE_BACKEND_TYPE) {
-                *fromOtherEngine = true;
-                return {};
-            }
-        }
-    }
-
-    std::map<std::string, CmdCallbackData, CmdCallbackMapCmp>& cmdMap =
-        isPlayerCmd ? localShareData->playerCmdCallbacks : localShareData->consoleCmdCallbacks;
-
-    for (auto const& key : cmdMap | std::views::keys) {
-        std::string prefix = key;
-        if (cmd == prefix || (cmd.find(prefix) == 0 && cmd[prefix.size()] == ' '))
-        // 如果命令与注册前缀全匹配，或者目标前缀后面为空格
-        {
-            // Matched
-            if (cmd.size() > prefix.size()) {
-                // 除了注册前缀之外还有额外参数
-                receiveParas = SplitCmdLine(cmd.substr(prefix.size() + 1));
-            } else receiveParas = std::vector<std::string>();
-
-            return prefix;
-        }
-    }
-    return {};
-}
-
-bool CallPlayerCmdCallback(Player* player, std::string const& cmdPrefix, std::vector<std::string> const& paras) {
-    EngineScope  enter(localShareData->playerCmdCallbacks[cmdPrefix].fromEngine);
-    auto         cmdData = localShareData->playerCmdCallbacks[cmdPrefix];
-    Local<Value> res{};
-    try {
-        Local<Array> args = Array::newArray();
-        for (auto& para : paras) args.add(String::newString(para));
-        res = cmdData.func.get().call({}, PlayerClass::newPlayer(player), args);
-    }
-    CATCH_IN_CALLBACK("PlayerCmd");
-    if (res.isNull() || (res.isBoolean() && res.asBoolean().value() == false)) return false;
-
-    return true;
-}
-
-bool CallServerCmdCallback(std::string const& cmdPrefix, std::vector<std::string> const& paras) {
-    EngineScope  enter(localShareData->consoleCmdCallbacks[cmdPrefix].fromEngine);
-    auto         cmdData = localShareData->consoleCmdCallbacks[cmdPrefix];
-    Local<Value> res{};
-    try {
-        Local<Array> args = Array::newArray();
-        for (auto& para : paras) args.add(String::newString(para));
-        res = cmdData.func.get().call({}, args);
-    }
-    CATCH_IN_CALLBACK("ServerCmd");
-    if (res.isNull() || (res.isBoolean() && res.asBoolean().value() == false)) return false;
-
-    return true;
 }

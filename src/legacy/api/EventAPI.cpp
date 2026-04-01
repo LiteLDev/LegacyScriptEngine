@@ -843,7 +843,6 @@ void InitBasicEventListeners() {
 #ifndef LSE_BACKEND_NODEJS
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();
-                return;
             }
 #endif
 #ifdef LSE_BACKEND_NODEJS
@@ -857,81 +856,6 @@ void InitBasicEventListeners() {
                 return;
             }
 #endif
-            // CallEvents
-            std::vector<std::string> paras;
-            bool                     isFromOtherEngine = false;
-            std::string              prefix            = LLSEFindCmdReg(false, cmd, paras, &isFromOtherEngine);
-
-            if (!prefix.empty()) {
-                // LSE Registered Cmd
-                bool callbackRes = CallServerCmdCallback(prefix, paras);
-                IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
-                    if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
-                        ev.cancel();
-                    }
-                }
-                IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
-                if (!callbackRes) {
-                    ev.cancel();
-                    return;
-                }
-            } else {
-                if (isFromOtherEngine) {
-                    return;
-                }
-
-                // Other Cmd
-                IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
-                    if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
-                        ev.cancel();
-                    }
-                }
-                IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
-            }
-        } else if (originType == CommandOriginType::Player) {
-            std::string cmd = ev.commandContext().mCommand;
-            if (cmd.starts_with("/")) {
-                cmd.erase(0, 1);
-            }
-            std::vector<std::string> paras;
-            bool                     isFromOtherEngine = false;
-            std::string              prefix            = LLSEFindCmdReg(true, cmd, paras, &isFromOtherEngine);
-            Player*                  player            = static_cast<Player*>(ev.commandContext().mOrigin->getEntity());
-
-            if (!prefix.empty()) {
-                // LLSE Registered Cmd
-                int  perm             = localShareData->playerCmdCallbacks[prefix].perm;
-                auto permission_level = player->getCommandPermissionLevel();
-                if (static_cast<int>(permission_level) >= perm) {
-                    bool callbackRes = CallPlayerCmdCallback(player, prefix, paras);
-                    IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-                        if (!CallEvent(
-                                EVENT_TYPES::onPlayerCmd,
-                                PlayerClass::newPlayer(player),
-                                String::newString(cmd)
-                            )) {
-                            ev.cancel();
-                        }
-                    }
-                    IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
-                    if (!callbackRes) {
-                        ev.cancel();
-                        return;
-                    }
-                }
-            } else {
-                if (isFromOtherEngine) {
-                    return;
-                }
-
-                // Other Cmd
-                IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
-                    if (!CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd))) {
-                        ev.cancel();
-                    }
-                }
-                IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
-            }
         }
     });
 
@@ -946,9 +870,7 @@ void InitBasicEventListeners() {
             IF_LISTENED_END(EVENT_TYPES::onServerStarted);
         }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
-        isCmdRegisterEnabled = true;
-
-        ProcessRegCmdQueue();
+        lse::fake_command::registerFakeCommands();
     });
 
     // 植入tick

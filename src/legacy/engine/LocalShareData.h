@@ -7,22 +7,26 @@
 
 //////////////////// Structs ////////////////////
 
+enum class CommandPermissionLevel : uchar;
+
 // 命令回调信息结构体
-struct CmdCallbackData {
-    ScriptEngine*            fromEngine;
-    int                      perm;
-    script::Global<Function> func;
+struct CommandCallbackData {
+    std::shared_ptr<ScriptEngine> fromEngine;
+    CommandPermissionLevel        perm;
+    script::Global<Function>      func;
 };
 
 // 命令延迟注册队列
-struct RegCmdQueue {
-    std::string cmd;
-    std::string describe;
-    int         level;
+struct FakeCommandRegistrationData {
+    std::string                             description;
+    CommandPermissionLevel                  level;
+    std::shared_ptr<ScriptEngine>           engine;
+    std::optional<script::Global<Function>> playerFunc;
+    std::optional<script::Global<Function>> consoleFunc;
 };
 
 // 命令回调map排序
-struct CmdCallbackMapCmp {
+struct CommmandCallbackMapCmp {
     bool operator()(std::string const& a, std::string const& b) const {
         if (a.size() != b.size()) return a.size() > b.size();
         return a > b;
@@ -34,14 +38,11 @@ struct LocalDataType {
     // 是否是第一个ScriptEngine实例
     bool isFirstInstance = true;
 
-    // 玩家命令回调
-    std::map<std::string, CmdCallbackData, CmdCallbackMapCmp> playerCmdCallbacks;
-
-    // 控制台命令回调
-    std::map<std::string, CmdCallbackData, CmdCallbackMapCmp> consoleCmdCallbacks;
-
     // 真指令回调
-    std::map<std::string, CmdCallbackData, CmdCallbackMapCmp> commandCallbacks;
+    std::map<std::string, CommandCallbackData, CommmandCallbackMapCmp> commandCallbacks;
+
+    // 命令延迟注册队列
+    std::unordered_map<std::string, FakeCommandRegistrationData> fakeCommandsMap;
 };
 
 //////////////////// Externs ////////////////////
@@ -49,13 +50,8 @@ struct LocalDataType {
 // DLL本地共享数据
 extern std::unique_ptr<LocalDataType> localShareData;
 
-// 命令延迟注册队列
-extern std::vector<RegCmdQueue> toRegCmdQueue;
-
 // 线程池
 extern ll::thread::ThreadPoolExecutor pool;
-
-// extern std::mutex messageLoopLock;
 
 //////////////////// APIs ////////////////////
 

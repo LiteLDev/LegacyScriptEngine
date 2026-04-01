@@ -31,10 +31,6 @@ struct GlobalDataType {
     std::vector<std::shared_ptr<ScriptEngine>>                               globalEngineList;
     std::atomic<std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>>> globalEngineSnapshot;
 
-    // 注册过的命令
-    std::unordered_map<std::string, std::string> playerRegisteredCmd;
-    std::unordered_map<std::string, std::string> consoleRegisteredCmd;
-
     // 导出函数表
     std::unordered_map<std::string, ExportedFuncData> exportedFuncs;
 

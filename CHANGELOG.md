@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.12] - 2026-04-01
+
+### Changed
+
+- Bumped ScriptX to 2026.4.1
+- Bumped quickjs-ng to v0.13.0
+- Bumped lua to v5.5.0
+
+### Fixed
+
+- Fixed memory leak issue in Python engine [#343]
+
 ## [0.17.11] - 2026-04-01
 
 ### Changed
@@ -1215,12 +1227,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#330]: https://github.com/LiteLDev/LegacyScriptEngine/issues/330
 [#332]: https://github.com/LiteLDev/LegacyScriptEngine/issues/332
 [#339]: https://github.com/LiteLDev/LegacyScriptEngine/issues/339
+[#343]: https://github.com/LiteLDev/LegacyScriptEngine/issues/343
 [#348]: https://github.com/LiteLDev/LegacyScriptEngine/issues/348
 [#349]: https://github.com/LiteLDev/LegacyScriptEngine/issues/349
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.12...HEAD
+[0.17.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...v0.17.12
 [0.17.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...v0.17.11
 [0.17.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.9...v0.17.10
 [0.17.9]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.8...v0.17.9

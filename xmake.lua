@@ -27,19 +27,19 @@ add_requires("cpp-httplib 0.26.0", { configs = { ssl = true, zlib = true } })
 
 if is_config("backend", "lua") then
     add_requires("mariadb-connector-c 3.4.8")
-    add_requires("scriptx 2026.1.10", { configs = { backend = "Lua" } })
+    add_requires("scriptx 2026.4.1", { configs = { backend = "Lua" } })
 
 elseif is_config("backend", "quickjs") then
     add_requires("mariadb-connector-c 3.4.8")
-    add_requires("scriptx 2026.1.10", { configs = { backend = "QuickJs" } })
+    add_requires("scriptx 2026.4.1", { configs = { backend = "QuickJs" } })
 
 elseif is_config("backend", "python") then
     add_requires("mariadb-connector-c 3.4.8")
-    add_requires("scriptx 2026.1.10", { configs = { backend = "Python" } })
+    add_requires("scriptx 2026.4.1", { configs = { backend = "Python" } })
 
 elseif is_config("backend", "nodejs") then
     add_requires("mariadb-connector-c 3.4.8")
-    add_requires("scriptx 2026.1.10", { configs = { backend = "V8" } })
+    add_requires("scriptx 2026.4.1", { configs = { backend = "V8" } })
 end
 
 if not has_config("vs_runtime") then

@@ -42,7 +42,7 @@ struct LocalDataType {
     std::map<std::string, CommandCallbackData, CommmandCallbackMapCmp> commandCallbacks;
 
     // 命令延迟注册队列
-    std::unordered_map<std::string, FakeCommandRegistrationData> fakeCommandsMap;
+    std::map<std::string, FakeCommandRegistrationData> fakeCommandsMap;
 };
 
 //////////////////// Externs ////////////////////

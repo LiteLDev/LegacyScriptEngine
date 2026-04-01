@@ -9,8 +9,8 @@
 #include "ll/api/command/CommandHandle.h"
 #include "ll/api/command/runtime/RuntimeCommand.h"
 #include "ll/api/command/runtime/RuntimeOverload.h"
+#include "mc/server/commands/CommandOutput.h"
 
-#include <mc/server/commands/CommandOutput.h>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -29,13 +29,14 @@ void registerLegacyCommand(
     EngineScope enter(engine.get());
     auto&       plugin = getEngineData(engine)->plugin;
 
-    auto  cmdParas = ll::string_utils::splitByPattern(name, " ");
+    auto  cmdParas    = ll::string_utils::splitByPattern(name, " ");
+    bool  singleParam = cmdParas.size() == 1;
     auto& command =
         CommandRegistrar::getInstance(false)
             .getOrCreateCommand(std::string(cmdParas[0]), description, level, CommandFlagValue::NotCheat, plugin);
     auto overload      = command.runtimeOverload(plugin);
     bool hasSubCommand = false;
-    if (cmdParas.size() > 1) {
+    if (!singleParam) {
         for (size_t i = 1; i < cmdParas.size(); ++i) {
             overload.text(cmdParas[i]);
         }
@@ -46,6 +47,10 @@ void registerLegacyCommand(
     });
     if (!hasSubCommand) {
         overload.optional("args", ParamKind::RawText);
+    }
+    // Workaround to add description for sub commands
+    if (!singleParam) {
+        overload.optional("§e" + description + "§r", ParamKind::Bool);
     }
     overload.execute([playerFunc, consoleFunc, engine, hasSubCommand](
                          CommandOrigin const&  origin,

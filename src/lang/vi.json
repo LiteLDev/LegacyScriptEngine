@@ -1,64 +1,65 @@
 {
-  "Failed to enable: {0}": "Failed to enable: {0}",
-  "Failed to load: {0}": "Failed to load: {0}",
-  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
-  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
-  "Failed to register plugin manager": "Failed to register plugin manager",
-  "Failed to load plugin code": "Failed to load plugin code",
-  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
-  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Failed to enable: {0}": "Không thể bật: {0}",
+  "Failed to load: {0}": "Không thể tải: {0}",
+  "Cannot save default configurations to {0}": "Không thể lưu cấu hình mặc định vào {0}",
+  "Failed to read BaseLib at {0}": "Không thể đọc BaseLib tại {0}",
+  "Failed to register plugin manager": "Không thể đăng ký trình quản lý plugin",
+  "Failed to load plugin code": "Không thể tải mã plugin",
+  "Failed to read plugin entry at {0}": "Không thể đọc mục plugin tại {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Không thể tải plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Không thể gỡ plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Đang di chuyển plugin cũ tại {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Không thể di chuyển plugin cũ tại {0}: {1} đã tồn tại",
+  "Failed to create directory {0}": "Không thể tạo thư mục {0}",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrating legacy plugins..."
+        "": "Đang di chuyển các plugin cũ..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
+  "Legacy plugins have been migrated, please restart the server to load them!": "Các plugin cũ đã được di chuyển, vui lòng khởi động lại máy chủ để tải chúng!",
   "Overworld": "Thế giới chính",
   "Nether": "Địa ngục",
   "End": "The End",
-  "Other dimension": "Không gian khác",
-  "JSON parse error": "Lỗi phân tích cú pháp JSON",
+  "Other dimension": "Chiều không gian khác",
+  "JSON parse error": "Lỗi phân tích JSON",
   "Npm finished successfully": {
-    "": "Npm kết thúc thành công."
+    "": "Npm đã hoàn tất thành công"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "Đang thực thi \"npm install\" cho plugin {name}..."
+        "": "Đang chạy \"npm install\" cho plugin {name}..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "Xảy ra lỗi. Mã thoát: {code}"
+    " Exit code: {code}": "Đã xảy ra lỗi. Mã thoát: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Đang thực thi \"pip install\" cho plugin {name}..."
+        "": "Đang chạy \"pip install\" cho plugin {name}..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip kết thúc thành công."
+    "": "Pip đã hoàn tất thành công"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
-  "Failed to initialize file mapping": "Failed to initialize file mapping",
-  "Failed to initialize map file": "Failed to initialize map file",
-  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Lệnh runtime {} đã tồn tại, các thay đổi sẽ không được áp dụng ngoại trừ setOverload!",
+  "Failed to initialize file mapping": "Không thể khởi tạo ánh xạ tệp",
+  "Failed to initialize map file": "Không thể khởi tạo tệp bản đồ",
+  "Command {} failed to execute, is the plugin unloaded?": "Lệnh {} thực thi thất bại, plugin đã bị gỡ tải chưa?",
   "Could not find {} in registered commands": {
-    "": "Could not find {} in registered commands."
+    "": "Không tìm thấy {} trong các lệnh đã đăng ký."
   },
-  "Event {} not found!": "Event {} not found!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Failed to enable plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Failed to enable plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Failed to disable plugin {0}: {1}",
+  "Event {} not found!": "Không tìm thấy sự kiện {}!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Không thể bật plugin {0}: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Không thể bật plugin {0}: {1}",
+  "Failed to disable plugin {0}: {1}": "Không thể tắt plugin {0}: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Bạn không có quyền sử dụng lệnh này."
+  },
+  "Failed to register legacy command: {}": "Không thể đăng ký lệnh legacy: {}"
 }

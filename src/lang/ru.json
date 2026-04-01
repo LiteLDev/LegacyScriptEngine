@@ -1,56 +1,56 @@
 {
   "Failed to enable: {0}": "Не удалось включить: {0}",
   "Failed to load: {0}": "Не удалось загрузить: {0}",
-  "Cannot save default configurations to {0}": "Не удается сохранить конфигурации по умолчанию в {0}",
-  "Failed to read BaseLib at {0}": "Не удалось прочитать BaseLib на {0}",
+  "Cannot save default configurations to {0}": "Не удалось сохранить конфигурации по умолчанию в {0}",
+  "Failed to read BaseLib at {0}": "Не удалось прочитать BaseLib в {0}",
   "Failed to register plugin manager": "Не удалось зарегистрировать менеджер плагинов",
   "Failed to load plugin code": "Не удалось загрузить код плагина",
-  "Failed to read plugin entry at {0}": "Не удалось прочитать запись плагина на {0}",
+  "Failed to read plugin entry at {0}": "Не удалось прочитать запись плагина в {0}",
   "Failed to load plugin {0}: {1}\\n{2}": "Не удалось загрузить плагин {0}: {1}\\n{2}",
   "Failed to unload plugin {0}: {1}": "Не удалось выгрузить плагин {0}: {1}",
-  "Migrating legacy plugin at {0}": "Миграция старого плагина на {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Не удалось перенести устаревший плагин на {0}: {1} уже существует",
+  "Migrating legacy plugin at {0}": "Выполняется миграция устаревшего плагина в {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Не удалось мигрировать устаревший плагин в {0}: {1} уже существует",
   "Failed to create directory {0}": "Не удалось создать каталог {0}",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Миграция старых плагинов..."
+        "": "Выполняется миграция устаревших плагинов..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Устаревшие плагины были перенесены, пожалуйста, перезапустите сервер, чтобы загрузить их!",
+  "Legacy plugins have been migrated, please restart the server to load them!": "Устаревшие плагины были мигрированы. Перезапустите сервер, чтобы загрузить их!",
   "Overworld": "Верхний мир",
   "Nether": "Нижний мир",
   "End": "Край",
   "Other dimension": "Другое измерение",
-  "JSON parse error": "Ошибка при чтении JSON файла",
+  "JSON parse error": "Ошибка разбора JSON",
   "Npm finished successfully": {
-    "": "NPM успешно завершил свою работу."
+    "": "Npm завершился успешно"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "Запускаю команду \"npm install\" для плагина {name}..."
+        "": "Выполняется \"npm install\" для плагина {name}..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "Произошла ошибка. Код завершения: {code}"
+    " Exit code: {code}": "Произошла ошибка. Код выхода: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Выполняю \"pip install\" для плагина {name}..."
+        "": "Выполняется \"pip install\" для плагина {name}..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip успешно выполнено."
+    "": "Pip завершился успешно"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Команда Runtime {} уже существует, изменения не будут работать, кроме setOverload!",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Команда времени выполнения {} уже существует, изменения не будут применены, кроме setOverload!",
   "Failed to initialize file mapping": "Не удалось инициализировать сопоставление файлов",
   "Failed to initialize map file": "Не удалось инициализировать файл карты",
-  "Command {} failed to execute, is the plugin unloaded?": "Не удалось выполнить команду {}, не загружен ли плагин?",
+  "Command {} failed to execute, is the plugin unloaded?": "Не удалось выполнить команду {}. Плагин выгружен?",
   "Could not find {} in registered commands": {
     "": "Не удалось найти {} в зарегистрированных командах."
   },
@@ -59,6 +59,7 @@
   "Failed to enable plugin {0}: {1}": "Не удалось включить плагин {0}: {1}",
   "Failed to disable plugin {0}: {1}": "Не удалось отключить плагин {0}: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "У вас нет прав для использования этой команды."
+  },
+  "Failed to register legacy command: {}": "Не удалось зарегистрировать устаревшую команду: {}"
 }

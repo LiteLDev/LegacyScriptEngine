@@ -1,64 +1,65 @@
 {
-  "Failed to enable: {0}": "Failed to enable: {0}",
-  "Failed to load: {0}": "Failed to load: {0}",
-  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
-  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
-  "Failed to register plugin manager": "Failed to register plugin manager",
-  "Failed to load plugin code": "Failed to load plugin code",
-  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
-  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Failed to enable: {0}": "เปิดใช้งานไม่สำเร็จ: {0}",
+  "Failed to load: {0}": "โหลดไม่สำเร็จ: {0}",
+  "Cannot save default configurations to {0}": "ไม่สามารถบันทึกการตั้งค่าเริ่มต้นไปยัง {0} ได้",
+  "Failed to read BaseLib at {0}": "ไม่สามารถอ่าน BaseLib ที่ {0} ได้",
+  "Failed to register plugin manager": "ไม่สามารถลงทะเบียนตัวจัดการปลั๊กอินได้",
+  "Failed to load plugin code": "ไม่สามารถโหลดโค้ดปลั๊กอินได้",
+  "Failed to read plugin entry at {0}": "ไม่สามารถอ่านรายการปลั๊กอินที่ {0} ได้",
+  "Failed to load plugin {0}: {1}\\n{2}": "ไม่สามารถโหลดปลั๊กอิน {0} ได้: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "ไม่สามารถยกเลิกการโหลดปลั๊กอิน {0} ได้: {1}",
+  "Migrating legacy plugin at {0}": "กำลังย้ายปลั๊กอินเวอร์ชันเก่าที่ {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "ย้ายปลั๊กอินเวอร์ชันเก่าที่ {0} ไม่สำเร็จ: {1} มีอยู่แล้ว",
+  "Failed to create directory {0}": "ไม่สามารถสร้างไดเรกทอรี {0} ได้",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrating legacy plugins..."
+        "": "กำลังย้ายปลั๊กอินเวอร์ชันเก่า..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
+  "Legacy plugins have been migrated, please restart the server to load them!": "ย้ายปลั๊กอินเวอร์ชันเก่าเสร็จแล้ว โปรดรีสตาร์ตเซิร์ฟเวอร์เพื่อโหลดปลั๊กอิน!",
   "Overworld": "โลกปกติ",
   "Nether": "เนเธอร์",
-  "End": "ดิเอนด์",
-  "Other dimension": "มิติอื่นๆ",
-  "JSON parse error": "ข้อผิดพลาดในการแยกวิเคราะห์ Json",
+  "End": "เอนด์",
+  "Other dimension": "มิติอื่น",
+  "JSON parse error": "ข้อผิดพลาดในการแยกวิเคราะห์ JSON",
   "Npm finished successfully": {
-    "": "Npm เสร็จเรียบร้อยแล้ว"
+    "": "Npm ทำงานเสร็จสมบูรณ์"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "ดำเนินการ \"npm install\" สำหรับปลั๊กอิน {name}..."
+        "": "กำลังเรียกใช้ \"npm install\" สำหรับปลั๊กอิน {name}..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "เกิดข้อผิดพลาด โค้ด: {code}"
+    " Exit code: {code}": "เกิดข้อผิดพลาด รหัสออก: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Executing \"pip install\" for plugin {name}..."
+        "": "กำลังเรียกใช้ \"pip install\" สำหรับปลั๊กอิน {name}..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip finished successfully."
+    "": "Pip ทำงานเสร็จสมบูรณ์"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
-  "Failed to initialize file mapping": "Failed to initialize file mapping",
-  "Failed to initialize map file": "Failed to initialize map file",
-  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "คำสั่งรันไทม์ {} มีอยู่แล้ว การเปลี่ยนแปลงจะไม่ถูกนำไปใช้ ยกเว้น setOverload!",
+  "Failed to initialize file mapping": "เริ่มต้นการแมปไฟล์ไม่สำเร็จ",
+  "Failed to initialize map file": "เริ่มต้นไฟล์แผนที่ไม่สำเร็จ",
+  "Command {} failed to execute, is the plugin unloaded?": "คำสั่ง {} ทำงานไม่สำเร็จ ปลั๊กอินถูกยกเลิกการโหลดแล้วหรือไม่?",
   "Could not find {} in registered commands": {
-    "": "Could not find {} in registered commands."
+    "": "ไม่พบ {} ในคำสั่งที่ลงทะเบียนไว้"
   },
-  "Event {} not found!": "Event {} not found!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Failed to enable plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Failed to enable plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Failed to disable plugin {0}: {1}",
+  "Event {} not found!": "ไม่พบอีเวนต์ {}!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "เปิดใช้งานปลั๊กอิน {0} ไม่สำเร็จ: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "เปิดใช้งานปลั๊กอิน {0} ไม่สำเร็จ: {1}",
+  "Failed to disable plugin {0}: {1}": "ปิดใช้งานปลั๊กอิน {0} ไม่สำเร็จ: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "คุณไม่มีสิทธิ์ใช้คำสั่งนี้"
+  },
+  "Failed to register legacy command: {}": "ลงทะเบียนคำสั่งแบบเก่าไม่สำเร็จ: {}"
 }

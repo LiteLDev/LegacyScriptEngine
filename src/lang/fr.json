@@ -1,31 +1,31 @@
 {
   "Failed to enable: {0}": "Échec de l'activation : {0}",
-  "Failed to load: {0}": "Impossible de charger : {0}",
+  "Failed to load: {0}": "Échec du chargement : {0}",
   "Cannot save default configurations to {0}": "Impossible d'enregistrer les configurations par défaut dans {0}",
-  "Failed to read BaseLib at {0}": "Impossible de lire la BaseLib à {0}",
-  "Failed to register plugin manager": "Impossible d'enregistrer le gestionnaire de plugin",
+  "Failed to read BaseLib at {0}": "Impossible de lire BaseLib à {0}",
+  "Failed to register plugin manager": "Impossible d'enregistrer le gestionnaire de plugins",
   "Failed to load plugin code": "Impossible de charger le code du plugin",
   "Failed to read plugin entry at {0}": "Impossible de lire l'entrée du plugin à {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Impossible de charger le plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Impossible de décharger le plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migration du plugin existant à {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Impossible de migrer le plugin existant à {0}: {1} existe déjà",
+  "Failed to load plugin {0}: {1}\\n{2}": "Impossible de charger le plugin {0} : {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Impossible de décharger le plugin {0} : {1}",
+  "Migrating legacy plugin at {0}": "Migration du plugin hérité à {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Impossible de migrer le plugin hérité à {0} : {1} existe déjà",
   "Failed to create directory {0}": "Impossible de créer le répertoire {0}",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migration des plugins existants..."
+        "": "Migration des plugins hérités..."
       }
     }
   },
   "Legacy plugins have been migrated, please restart the server to load them!": "Les plugins hérités ont été migrés, veuillez redémarrer le serveur pour les charger !",
-  "Overworld": "Surface",
-  "Nether": "Le Nether",
-  "End": "L'Ender",
+  "Overworld": "Monde normal",
+  "Nether": "Nether",
+  "End": "End",
   "Other dimension": "Autre dimension",
-  "JSON parse error": "Erreur JSON parse",
+  "JSON parse error": "Erreur d'analyse JSON",
   "Npm finished successfully": {
-    "": "NPM fini avec succès."
+    "": "Npm s'est terminé avec succès"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
@@ -45,20 +45,21 @@
     }
   },
   "Pip finished successfully": {
-    "": "Pip terminé avec succès."
+    "": "Pip s'est terminé avec succès"
   },
   "Runtime command {} already exists, changes will not beapplied except for setOverload!": "La commande d'exécution {} existe déjà, les modifications ne seront pas appliquées sauf pour setOverload !",
-  "Failed to initialize file mapping": "Impossible d'initialiser le mappage du fichier",
-  "Failed to initialize map file": "Impossible d'initialiser le fichier de carte",
-  "Command {} failed to execute, is the plugin unloaded?": "La commande {} n'a pas réussi à s'exécuter, le plugin est-il déchargé ?",
+  "Failed to initialize file mapping": "Impossible d'initialiser le mappage des fichiers",
+  "Failed to initialize map file": "Impossible d'initialiser le fichier de mappage",
+  "Command {} failed to execute, is the plugin unloaded?": "L'exécution de la commande {} a échoué. Le plugin est-il déchargé ?",
   "Could not find {} in registered commands": {
     "": "Impossible de trouver {} dans les commandes enregistrées."
   },
   "Event {} not found!": "Événement {} introuvable !",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Impossible d'activer le plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Impossible d'activer le plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Impossible de désactiver le plugin {0}: {1}",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Impossible d'activer le plugin {0} : {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Impossible d'activer le plugin {0} : {1}",
+  "Failed to disable plugin {0}: {1}": "Impossible de désactiver le plugin {0} : {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Vous n'avez pas l'autorisation d'utiliser cette commande."
+  },
+  "Failed to register legacy command: {}": "Impossible d'enregistrer la commande héritée : {}"
 }

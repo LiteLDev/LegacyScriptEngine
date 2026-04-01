@@ -1,16 +1,16 @@
 {
   "Failed to enable: {0}": "有効化に失敗しました: {0}",
-  "Failed to load: {0}": "読み込みに失敗しました： {0}",
-  "Cannot save default configurations to {0}": "デフォルト設定を {0}に保存できません",
-  "Failed to read BaseLib at {0}": "{0} の BaseLib の読み込みに失敗しました",
+  "Failed to load: {0}": "読み込みに失敗しました: {0}",
+  "Cannot save default configurations to {0}": "既定の設定を {0} に保存できません",
+  "Failed to read BaseLib at {0}": "{0} の BaseLib の読み取りに失敗しました",
   "Failed to register plugin manager": "プラグインマネージャーの登録に失敗しました",
   "Failed to load plugin code": "プラグインコードの読み込みに失敗しました",
   "Failed to read plugin entry at {0}": "{0} のプラグインエントリの読み取りに失敗しました",
-  "Failed to load plugin {0}: {1}\\n{2}": "プラグイン {0}の読み込みに失敗しました: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "プラグイン {0}のアンロードに失敗しました: {1}",
-  "Migrating legacy plugin at {0}": "{0}でレガシープラグインを移行中",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "{0}でレガシープラグインを移行できませんでした: {1} は既に存在します",
-  "Failed to create directory {0}": "{0}ディレクトリの作成に失敗しました",
+  "Failed to load plugin {0}: {1}\\n{2}": "プラグイン {0} の読み込みに失敗しました: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "プラグイン {0} のアンロードに失敗しました: {1}",
+  "Migrating legacy plugin at {0}": "{0} のレガシープラグインを移行中",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "{0} のレガシープラグインの移行に失敗しました: {1} は既に存在します",
+  "Failed to create directory {0}": "ディレクトリ {0} の作成に失敗しました",
   "Migrating legacy plugins": {
     "": {
       "": {
@@ -18,47 +18,48 @@
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "以前のプラグインは移行されました。サーバーを再起動してロードしてください！",
+  "Legacy plugins have been migrated, please restart the server to load them!": "レガシープラグインの移行が完了しました。読み込むにはサーバーを再起動してください！",
   "Overworld": "オーバーワールド",
   "Nether": "ネザー",
   "End": "エンド",
-  "Other dimension": "その他のサイズ",
-  "JSON parse error": "JSONの構文エラー",
+  "Other dimension": "別ディメンション",
+  "JSON parse error": "JSON 解析エラー",
   "Npm finished successfully": {
-    "": "Npmは正常に終了しました。"
+    "": "Npm は正常に完了しました"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "プラグイン {name} の \"npm install\" を実行しています..."
+        "": "プラグイン {name} に対して \"npm install\" を実行しています..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "エラーが発生しました。終了コード： {code}"
+    " Exit code: {code}": "エラーが発生しました。終了コード: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "プラグイン {name} の \"pip install\" を実行中 ..."
+        "": "プラグイン {name} に対して \"pip install\" を実行しています..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "ピップは正常に終了しました。"
+    "": "Pip は正常に完了しました"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "ランタイムコマンド {} が既に存在します。変更は setOverload 以外は適用されません。",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "ランタイムコマンド {} は既に存在するため、setOverload 以外の変更は適用されません。",
   "Failed to initialize file mapping": "ファイルマッピングの初期化に失敗しました",
   "Failed to initialize map file": "マップファイルの初期化に失敗しました",
-  "Command {} failed to execute, is the plugin unloaded?": "コマンド {} の実行に失敗しました。プラグインがアンロードされていますか？",
+  "Command {} failed to execute, is the plugin unloaded?": "コマンド {} の実行に失敗しました。プラグインはアンロードされていますか？",
   "Could not find {} in registered commands": {
-    "": "登録されたコマンドで {} が見つかりませんでした。"
+    "": "登録済みコマンド内に {} が見つかりませんでした。"
   },
   "Event {} not found!": "イベント {} が見つかりません！",
-  "Failed to enable plugin {0}: {1}\\n{2}": "プラグイン {0}の有効化に失敗しました: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "プラグイン {0}の有効化に失敗しました: {1}",
-  "Failed to disable plugin {0}: {1}": "プラグイン {0}の無効化に失敗しました: {1}",
+  "Failed to enable plugin {0}: {1}\\n{2}": "プラグイン {0} の有効化に失敗しました: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "プラグイン {0} の有効化に失敗しました: {1}",
+  "Failed to disable plugin {0}: {1}": "プラグイン {0} の無効化に失敗しました: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "このコマンドを使用する権限がありません。"
+  },
+  "Failed to register legacy command: {}": "レガシーコマンドの登録に失敗しました: {}"
 }

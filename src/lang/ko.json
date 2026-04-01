@@ -1,64 +1,65 @@
 {
-  "Failed to enable: {0}": "Failed to enable: {0}",
-  "Failed to load: {0}": "Failed to load: {0}",
-  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
-  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
-  "Failed to register plugin manager": "Failed to register plugin manager",
-  "Failed to load plugin code": "Failed to load plugin code",
-  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
-  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Failed to enable: {0}": "활성화 실패: {0}",
+  "Failed to load: {0}": "로드 실패: {0}",
+  "Cannot save default configurations to {0}": "기본 구성을 {0}에 저장할 수 없습니다",
+  "Failed to read BaseLib at {0}": "{0}에서 BaseLib를 읽는 데 실패했습니다",
+  "Failed to register plugin manager": "플러그인 관리자를 등록하지 못했습니다",
+  "Failed to load plugin code": "플러그인 코드를 로드하지 못했습니다",
+  "Failed to read plugin entry at {0}": "{0}에서 플러그인 항목을 읽지 못했습니다",
+  "Failed to load plugin {0}: {1}\\n{2}": "플러그인 {0} 로드 실패: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "플러그인 {0} 언로드 실패: {1}",
+  "Migrating legacy plugin at {0}": "{0}의 레거시 플러그인을 마이그레이션하는 중",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "{0}의 레거시 플러그인 마이그레이션 실패: {1}이(가) 이미 존재합니다",
+  "Failed to create directory {0}": "디렉터리 {0}를 생성하지 못했습니다",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrating legacy plugins..."
+        "": "레거시 플러그인을 마이그레이션하는 중..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
+  "Legacy plugins have been migrated, please restart the server to load them!": "레거시 플러그인 마이그레이션이 완료되었습니다. 로드하려면 서버를 다시 시작하세요!",
   "Overworld": "오버월드",
   "Nether": "네더",
-  "End": "엔더",
-  "Other dimension": "다른 월드",
-  "JSON parse error": "JSON 파싱 오류",
+  "End": "엔드",
+  "Other dimension": "기타 차원",
+  "JSON parse error": "JSON 구문 분석 오류",
   "Npm finished successfully": {
-    "": "Npm이 성공적으로 설치됐습니다."
+    "": "Npm이 성공적으로 완료되었습니다"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "플러그인 {name} 에 대하여 \"npm install\" 명령어를 실행합니다."
+        "": "플러그인 {name}에 대해 \"npm install\"을 실행하는 중..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "에러가 발생했습니다. 종료 코드: {code}"
+    " Exit code: {code}": "오류가 발생했습니다. 종료 코드: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "{name} 플러그인에 대하여 pip install 명령어를 실행중입니다"
+        "": "플러그인 {name}에 대해 \"pip install\"을 실행하는 중..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "pip가 성공적으로 실행됐습니다"
+    "": "Pip이 성공적으로 완료되었습니다"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
-  "Failed to initialize file mapping": "Failed to initialize file mapping",
-  "Failed to initialize map file": "Failed to initialize map file",
-  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "런타임 명령 {}가 이미 존재하여 setOverload를 제외한 변경 사항은 적용되지 않습니다!",
+  "Failed to initialize file mapping": "파일 매핑 초기화에 실패했습니다",
+  "Failed to initialize map file": "맵 파일 초기화에 실패했습니다",
+  "Command {} failed to execute, is the plugin unloaded?": "명령 {} 실행에 실패했습니다. 플러그인이 언로드되었나요?",
   "Could not find {} in registered commands": {
-    "": "Could not find {} in registered commands."
+    "": "등록된 명령에서 {}를 찾을 수 없습니다."
   },
-  "Event {} not found!": "Event {} not found!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Failed to enable plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Failed to enable plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Failed to disable plugin {0}: {1}",
+  "Event {} not found!": "이벤트 {}를 찾을 수 없습니다!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "플러그인 {0} 활성화 실패: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "플러그인 {0} 활성화 실패: {1}",
+  "Failed to disable plugin {0}: {1}": "플러그인 {0} 비활성화 실패: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "이 명령을 사용할 권한이 없습니다."
+  },
+  "Failed to register legacy command: {}": "레거시 명령 등록 실패: {}"
 }

@@ -2,30 +2,30 @@
   "Failed to enable: {0}": "Attivazione non riuscita: {0}",
   "Failed to load: {0}": "Caricamento non riuscito: {0}",
   "Cannot save default configurations to {0}": "Impossibile salvare le configurazioni predefinite in {0}",
-  "Failed to read BaseLib at {0}": "Lettura di BaseLib su {0} non riuscita",
-  "Failed to register plugin manager": "Registrazione del gestore plugin non riuscita",
+  "Failed to read BaseLib at {0}": "Impossibile leggere BaseLib in {0}",
+  "Failed to register plugin manager": "Impossibile registrare il gestore plugin",
   "Failed to load plugin code": "Impossibile caricare il codice del plugin",
-  "Failed to read plugin entry at {0}": "Lettura della voce del plugin in {0} non riuscita",
-  "Failed to load plugin {0}: {1}\\n{2}": "Caricamento del plugin {0}non riuscito: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Scaricamento del plugin {0}non riuscito: {1}",
-  "Migrating legacy plugin at {0}": "Migrazione plugin legacy in {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Migrazione del plugin legacy in {0}non riuscita: {1} esiste già",
-  "Failed to create directory {0}": "Creazione della directory {0} non riuscita",
+  "Failed to read plugin entry at {0}": "Impossibile leggere la voce del plugin in {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Impossibile caricare il plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Impossibile scaricare il plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Migrazione del plugin legacy in {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Impossibile migrare il plugin legacy in {0}: {1} esiste già",
+  "Failed to create directory {0}": "Impossibile creare la directory {0}",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrazione plugin legacy..."
+        "": "Migrazione dei plugin legacy in corso..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "I plugin legacy sono stati migrati, si prega di riavviare il server per caricarli!",
+  "Legacy plugins have been migrated, please restart the server to load them!": "I plugin legacy sono stati migrati, riavvia il server per caricarli!",
   "Overworld": "Overworld",
   "Nether": "Nether",
-  "End": "Fine",
-  "Other dimension": "Dimensione sconosciuta",
-  "JSON parse error": "Errore di analisi JSON",
+  "End": "End",
+  "Other dimension": "Altra dimensione",
+  "JSON parse error": "Errore di parsing JSON",
   "Npm finished successfully": {
-    "": "Esecuzione di \"npm install\" completata con successo."
+    "": "Npm completato con successo"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
@@ -45,20 +45,21 @@
     }
   },
   "Pip finished successfully": {
-    "": "Pip finito con successo."
+    "": "Pip completato con successo"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Il comando Runtime {} esiste già, le modifiche non saranno applicate tranne per setOverload!",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Il comando runtime {} esiste già, le modifiche non saranno applicate tranne setOverload!",
   "Failed to initialize file mapping": "Impossibile inizializzare la mappatura dei file",
-  "Failed to initialize map file": "Impossibile inizializzare il file mappa",
-  "Command {} failed to execute, is the plugin unloaded?": "L'esecuzione del comando {} non è riuscita, il plugin è stato scaricato?",
+  "Failed to initialize map file": "Impossibile inizializzare il file di mappa",
+  "Command {} failed to execute, is the plugin unloaded?": "Esecuzione del comando {} non riuscita, il plugin è stato scaricato?",
   "Could not find {} in registered commands": {
     "": "Impossibile trovare {} nei comandi registrati."
   },
   "Event {} not found!": "Evento {} non trovato!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Attivazione del plugin {0}non riuscita: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Attivazione del plugin {0}non riuscita: {1}",
-  "Failed to disable plugin {0}: {1}": "Impossibile disabilitare il plugin {0}: {1}",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Impossibile attivare il plugin {0}: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Impossibile attivare il plugin {0}: {1}",
+  "Failed to disable plugin {0}: {1}": "Impossibile disattivare il plugin {0}: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Non hai l'autorizzazione per usare questo comando."
+  },
+  "Failed to register legacy command: {}": "Impossibile registrare il comando legacy: {}"
 }

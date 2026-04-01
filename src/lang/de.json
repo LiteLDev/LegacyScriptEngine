@@ -1,64 +1,65 @@
 {
-  "Failed to enable: {0}": "Fehler beim Aktivieren: {0}",
-  "Failed to load: {0}": "Fehler beim Laden: {0}",
+  "Failed to enable: {0}": "Aktivieren fehlgeschlagen: {0}",
+  "Failed to load: {0}": "Laden fehlgeschlagen: {0}",
   "Cannot save default configurations to {0}": "Standardkonfigurationen können nicht in {0} gespeichert werden",
-  "Failed to read BaseLib at {0}": "Fehler beim Lesen von BaseLib auf {0}",
-  "Failed to register plugin manager": "Fehler beim Registrieren des Plugin-Managers",
-  "Failed to load plugin code": "Fehler beim Laden des Plugin-Codes",
-  "Failed to read plugin entry at {0}": "Fehler beim Lesen des Plugin-Eintrags auf {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Fehler beim Laden des Plugins {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Entladen des Plugins {0}fehlgeschlagen: {1}",
-  "Migrating legacy plugin at {0}": "Altes Plugin auf {0} migrieren",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Fehler beim Migrieren des älteren Plugins auf {0}: {1} existiert bereits",
+  "Failed to read BaseLib at {0}": "BaseLib unter {0} konnte nicht gelesen werden",
+  "Failed to register plugin manager": "Plugin-Manager konnte nicht registriert werden",
+  "Failed to load plugin code": "Plugin-Code konnte nicht geladen werden",
+  "Failed to read plugin entry at {0}": "Plugin-Eintrag unter {0} konnte nicht gelesen werden",
+  "Failed to load plugin {0}: {1}\\n{2}": "Plugin {0} konnte nicht geladen werden: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Plugin {0} konnte nicht entladen werden: {1}",
+  "Migrating legacy plugin at {0}": "Legacy-Plugin unter {0} wird migriert",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Legacy-Plugin unter {0} konnte nicht migriert werden: {1} existiert bereits",
   "Failed to create directory {0}": "Verzeichnis {0} konnte nicht erstellt werden",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Alte Plugins werden migriert..."
+        "": "Legacy-Plugins werden migriert..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Alte Plugins wurden migriert, bitte starte den Server neu, um sie zu laden!",
-  "Overworld": "Overworld",
-  "Nether": "Nederland",
+  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy-Plugins wurden migriert. Bitte starte den Server neu, um sie zu laden!",
+  "Overworld": "Oberwelt",
+  "Nether": "Nether",
   "End": "Ende",
-  "Other dimension": "Sonstige Dimension",
+  "Other dimension": "Andere Dimension",
   "JSON parse error": "JSON-Parse-Fehler",
   "Npm finished successfully": {
-    "": "Npm erfolgreich abgeschlossen."
+    "": "Npm wurde erfolgreich abgeschlossen"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "Führe \"npm install\" für Plugin {name} aus ..."
+        "": "\"npm install\" für Plugin {name} wird ausgeführt..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "Fehler aufgetreten. Exit-Code: {code}"
+    " Exit code: {code}": "Ein Fehler ist aufgetreten. Exit-Code: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Führe \"pip install\" für Plugin {name} aus ..."
+        "": "\"pip install\" für Plugin {name} wird ausgeführt..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip erfolgreich abgeschlossen."
+    "": "Pip wurde erfolgreich abgeschlossen"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Laufzeitbefehl {} existiert bereits, Änderungen werden außer setOverload nicht angewendet!",
-  "Failed to initialize file mapping": "Fehler beim Initialisieren der Dateizuordnung",
-  "Failed to initialize map file": "Fehler beim Initialisieren der Kartendatei",
-  "Command {} failed to execute, is the plugin unloaded?": "Befehl {} konnte nicht ausgeführt werden, wird das Plugin entladen?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Laufzeitbefehl {} existiert bereits. Änderungen werden außer bei setOverload nicht angewendet!",
+  "Failed to initialize file mapping": "Dateizuordnung konnte nicht initialisiert werden",
+  "Failed to initialize map file": "Map-Datei konnte nicht initialisiert werden",
+  "Command {} failed to execute, is the plugin unloaded?": "Befehl {} konnte nicht ausgeführt werden. Ist das Plugin entladen?",
   "Could not find {} in registered commands": {
-    "": "Konnte {} in registrierten Befehlen nicht finden."
+    "": "{} wurde in den registrierten Befehlen nicht gefunden."
   },
-  "Event {} not found!": "Event {} nicht gefunden!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Konnte Plugin {0}nicht aktivieren: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Konnte Plugin {0}nicht aktivieren: {1}",
-  "Failed to disable plugin {0}: {1}": "Konnte Plugin {0}nicht deaktivieren: {1}",
+  "Event {} not found!": "Ereignis {} wurde nicht gefunden!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Plugin {0} konnte nicht aktiviert werden: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Plugin {0} konnte nicht aktiviert werden: {1}",
+  "Failed to disable plugin {0}: {1}": "Plugin {0} konnte nicht deaktiviert werden: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Du hast keine Berechtigung, diesen Befehl zu verwenden."
+  },
+  "Failed to register legacy command: {}": "Legacy-Befehl konnte nicht registriert werden: {}"
 }

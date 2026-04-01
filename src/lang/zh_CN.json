@@ -2,14 +2,14 @@
   "Failed to enable: {0}": "启用 {0} 失败",
   "Failed to load: {0}": "{0} 加载失败",
   "Cannot save default configurations to {0}": "无法将默认配置保存到 {0}",
-  "Failed to read BaseLib at {0}": "无法读取 位于 {0} 的BaseLib",
+  "Failed to read BaseLib at {0}": "无法读取位于 {0} 的 BaseLib",
   "Failed to register plugin manager": "注册插件管理器失败",
   "Failed to load plugin code": "加载插件代码失败",
   "Failed to read plugin entry at {0}": "在 {0} 读取插件条目失败",
   "Failed to load plugin {0}: {1}\\n{2}": "加载插件 {0} 失败: {1}\\n{2}",
   "Failed to unload plugin {0}: {1}": "卸载插件 {0} 失败: {1}",
-  "Migrating legacy plugin at {0}": "正在迁移旧版插件到 {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "迁移旧版插件失败 {0}: {1} 已经存在",
+  "Migrating legacy plugin at {0}": "正在迁移位于 {0} 的旧版插件",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "迁移位于 {0} 的旧版插件失败: {1} 已存在",
   "Failed to create directory {0}": "无法创建目录 {0}",
   "Migrating legacy plugins": {
     "": {
@@ -18,7 +18,7 @@
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "旧版插件已迁移，请重启服务器加载！",
+  "Legacy plugins have been migrated, please restart the server to load them!": "旧版插件已迁移，请重启服务器以加载它们！",
   "Overworld": "主世界",
   "Nether": "下界",
   "End": "末地",
@@ -30,35 +30,36 @@
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "为插件 {name} 执行 \"npm install\"..."
+        "": "正在为插件 {name} 执行 \"npm install\"..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "发生错误。退出代码： {code}"
+    " Exit code: {code}": "发生错误。退出代码：{code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "为插件 {name} 执行 \"pip install\"..."
+        "": "正在为插件 {name} 执行 \"pip install\"..."
       }
     }
   },
   "Pip finished successfully": {
     "": "Pip 命令成功完成"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "运行时命令 {} 已经存在，除 setOverload 外的更改将不会被应用！",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "运行时命令 {} 已存在，除 setOverload 外的更改不会被应用！",
   "Failed to initialize file mapping": "初始化文件映射失败",
   "Failed to initialize map file": "初始化映射文件失败",
-  "Command {} failed to execute, is the plugin unloaded?": "命令 {} 执行失败，是否已卸载该插件？",
+  "Command {} failed to execute, is the plugin unloaded?": "命令 {} 执行失败，插件是否已卸载？",
   "Could not find {} in registered commands": {
-    "": "在已注册的命令中找不到 {} 。"
+    "": "在已注册的命令中找不到 {}。"
   },
-  "Event {} not found!": "找不到事件 {} ！",
+  "Event {} not found!": "未找到事件 {}！",
   "Failed to enable plugin {0}: {1}\\n{2}": "启用插件 {0} 失败: {1}\\n{2}",
   "Failed to enable plugin {0}: {1}": "启用插件 {0} 失败: {1}",
   "Failed to disable plugin {0}: {1}": "禁用插件 {0} 失败: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "你没有权限使用此命令。"
+  },
+  "Failed to register legacy command: {}": "注册旧版命令失败：{}"
 }

@@ -1,31 +1,31 @@
 {
-  "Failed to enable: {0}": "Failed to enable: {0}",
-  "Failed to load: {0}": "Failed to load: {0}",
-  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
-  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
-  "Failed to register plugin manager": "Failed to register plugin manager",
-  "Failed to load plugin code": "Failed to load plugin code",
-  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
-  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Failed to enable: {0}": "Gagal mengaktifkan: {0}",
+  "Failed to load: {0}": "Gagal memuat: {0}",
+  "Cannot save default configurations to {0}": "Tidak dapat menyimpan konfigurasi default ke {0}",
+  "Failed to read BaseLib at {0}": "Gagal membaca BaseLib di {0}",
+  "Failed to register plugin manager": "Gagal mendaftarkan pengelola plugin",
+  "Failed to load plugin code": "Gagal memuat kode plugin",
+  "Failed to read plugin entry at {0}": "Gagal membaca entri plugin di {0}",
+  "Failed to load plugin {0}: {1}\\n{2}": "Gagal memuat plugin {0}: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "Gagal membongkar plugin {0}: {1}",
+  "Migrating legacy plugin at {0}": "Sedang memigrasikan plugin lawas di {0}",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "Gagal memigrasikan plugin lawas di {0}: {1} sudah ada",
+  "Failed to create directory {0}": "Gagal membuat direktori {0}",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrating legacy plugins..."
+        "": "Sedang memigrasikan plugin lawas..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
-  "Overworld": "Dunia Awal",
-  "Nether": "Dunia Neraka",
-  "End": "Dunia Akhir",
-  "Other dimension": "Dimensi Lain",
-  "JSON parse error": "Kesalahan Parsing API",
+  "Legacy plugins have been migrated, please restart the server to load them!": "Plugin lawas telah dimigrasikan, silakan mulai ulang server untuk memuatnya!",
+  "Overworld": "Overworld",
+  "Nether": "Nether",
+  "End": "End",
+  "Other dimension": "Dimensi lain",
+  "JSON parse error": "Kesalahan parse JSON",
   "Npm finished successfully": {
-    "": "Npm selesai dengan sukses."
+    "": "Npm selesai dengan sukses"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
@@ -35,30 +35,31 @@
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "Sepertinya ada kesalahan. Kode Exit: {code}"
+    " Exit code: {code}": "Terjadi kesalahan. Kode keluar: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Menjalankan perintah \"pip install\" untuk plugin {name}..."
+        "": "Menjalankan \"pip install\" untuk plugin {name}..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip selesai secara sukses."
+    "": "Pip selesai dengan sukses"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
-  "Failed to initialize file mapping": "Failed to initialize file mapping",
-  "Failed to initialize map file": "Failed to initialize map file",
-  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Perintah runtime {} sudah ada, perubahan tidak akan diterapkan kecuali setOverload!",
+  "Failed to initialize file mapping": "Gagal menginisialisasi pemetaan file",
+  "Failed to initialize map file": "Gagal menginisialisasi file peta",
+  "Command {} failed to execute, is the plugin unloaded?": "Perintah {} gagal dijalankan, apakah pluginnya sudah dibongkar?",
   "Could not find {} in registered commands": {
-    "": "Could not find {} in registered commands."
+    "": "Tidak dapat menemukan {} di perintah yang terdaftar."
   },
-  "Event {} not found!": "Event {} not found!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Failed to enable plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Failed to enable plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Failed to disable plugin {0}: {1}",
+  "Event {} not found!": "Event {} tidak ditemukan!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "Gagal mengaktifkan plugin {0}: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "Gagal mengaktifkan plugin {0}: {1}",
+  "Failed to disable plugin {0}: {1}": "Gagal menonaktifkan plugin {0}: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Anda tidak memiliki izin untuk menggunakan perintah ini."
+  },
+  "Failed to register legacy command: {}": "Gagal mendaftarkan perintah lawas: {}"
 }

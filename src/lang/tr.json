@@ -1,64 +1,65 @@
 {
-  "Failed to enable: {0}": "Failed to enable: {0}",
-  "Failed to load: {0}": "Failed to load: {0}",
-  "Cannot save default configurations to {0}": "Cannot save default configurations to {0}",
-  "Failed to read BaseLib at {0}": "Failed to read BaseLib at {0}",
-  "Failed to register plugin manager": "Failed to register plugin manager",
-  "Failed to load plugin code": "Failed to load plugin code",
-  "Failed to read plugin entry at {0}": "Failed to read plugin entry at {0}",
-  "Failed to load plugin {0}: {1}\\n{2}": "Failed to load plugin {0}: {1}\\n{2}",
-  "Failed to unload plugin {0}: {1}": "Failed to unload plugin {0}: {1}",
-  "Migrating legacy plugin at {0}": "Migrating legacy plugin at {0}",
-  "Failed to migrate legacy plugin at {0}: {1} already exists": "Failed to migrate legacy plugin at {0}: {1} already exists",
-  "Failed to create directory {0}": "Failed to create directory {0}",
+  "Failed to enable: {0}": "Etkinleştirme başarısız: {0}",
+  "Failed to load: {0}": "Yükleme başarısız: {0}",
+  "Cannot save default configurations to {0}": "Varsayılan yapılandırmalar {0} konumuna kaydedilemiyor",
+  "Failed to read BaseLib at {0}": "{0} konumundaki BaseLib okunamadı",
+  "Failed to register plugin manager": "Eklenti yöneticisi kaydedilemedi",
+  "Failed to load plugin code": "Eklenti kodu yüklenemedi",
+  "Failed to read plugin entry at {0}": "{0} konumundaki eklenti girdisi okunamadı",
+  "Failed to load plugin {0}: {1}\\n{2}": "{0} eklentisi yüklenemedi: {1}\\n{2}",
+  "Failed to unload plugin {0}: {1}": "{0} eklentisi kaldırılamadı: {1}",
+  "Migrating legacy plugin at {0}": "{0} konumundaki eski eklenti taşınıyor",
+  "Failed to migrate legacy plugin at {0}: {1} already exists": "{0} konumundaki eski eklenti taşınamadı: {1} zaten var",
+  "Failed to create directory {0}": "{0} dizini oluşturulamadı",
   "Migrating legacy plugins": {
     "": {
       "": {
-        "": "Migrating legacy plugins..."
+        "": "Eski eklentiler taşınıyor..."
       }
     }
   },
-  "Legacy plugins have been migrated, please restart the server to load them!": "Legacy plugins have been migrated, please restart the server to load them!",
-  "Overworld": "Overworld",
+  "Legacy plugins have been migrated, please restart the server to load them!": "Eski eklentiler taşındı, yüklemek için lütfen sunucuyu yeniden başlatın!",
+  "Overworld": "Ana dünya",
   "Nether": "Nether",
   "End": "End",
   "Other dimension": "Diğer boyut",
   "JSON parse error": "JSON ayrıştırma hatası",
   "Npm finished successfully": {
-    "": "Npm başarıyla tamamlandı."
+    "": "Npm başarıyla tamamlandı"
   },
   "Executing \"npm install\" for plugin {name}": {
     "": {
       "": {
-        "": "Eklenti {name} için \"npm install\" çalıştırılıyor..."
+        "": "{name} eklentisi için \"npm install\" çalıştırılıyor..."
       }
     }
   },
   "Error occurred": {
-    " Exit code: {code}": "Hata oluştu. Çıkış kodu: {code}"
+    " Exit code: {code}": "Bir hata oluştu. Çıkış kodu: {code}"
   },
   "Executing \"pip install\" for plugin {name}": {
     "": {
       "": {
-        "": "Eklenti, {name} için \"pip install\" çalıştırılıyor..."
+        "": "{name} eklentisi için \"pip install\" çalıştırılıyor..."
       }
     }
   },
   "Pip finished successfully": {
-    "": "Pip başarıyla tamamlandı."
+    "": "Pip başarıyla tamamlandı"
   },
-  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Runtime command {} already exists, changes will not beapplied except for setOverload!",
-  "Failed to initialize file mapping": "Failed to initialize file mapping",
-  "Failed to initialize map file": "Failed to initialize map file",
-  "Command {} failed to execute, is the plugin unloaded?": "Command {} failed to execute, is the plugin unloaded?",
+  "Runtime command {} already exists, changes will not beapplied except for setOverload!": "Çalışma zamanı komutu {} zaten mevcut, setOverload dışındaki değişiklikler uygulanmayacak!",
+  "Failed to initialize file mapping": "Dosya eşlemesi başlatılamadı",
+  "Failed to initialize map file": "Harita dosyası başlatılamadı",
+  "Command {} failed to execute, is the plugin unloaded?": "{} komutu çalıştırılamadı, eklenti kaldırılmış olabilir mi?",
   "Could not find {} in registered commands": {
-    "": "Could not find {} in registered commands."
+    "": "Kayıtlı komutlarda {} bulunamadı."
   },
-  "Event {} not found!": "Event {} not found!",
-  "Failed to enable plugin {0}: {1}\\n{2}": "Failed to enable plugin {0}: {1}\\n{2}",
-  "Failed to enable plugin {0}: {1}": "Failed to enable plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Failed to disable plugin {0}: {1}",
+  "Event {} not found!": "{} olayı bulunamadı!",
+  "Failed to enable plugin {0}: {1}\\n{2}": "{0} eklentisi etkinleştirilemedi: {1}\\n{2}",
+  "Failed to enable plugin {0}: {1}": "{0} eklentisi etkinleştirilemedi: {1}",
+  "Failed to disable plugin {0}: {1}": "{0} eklentisi devre dışı bırakılamadı: {1}",
   "You don't have permission to use this command": {
-    "": "You don't have permission to use this command."
-  }
+    "": "Bu komutu kullanma izniniz yok."
+  },
+  "Failed to register legacy command: {}": "Eski komut kaydedilemedi: {}"
 }

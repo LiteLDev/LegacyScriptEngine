@@ -7,24 +7,26 @@ permissions:
   contents: write
 
 jobs:
-  update:
+  synchronize-with-crowdin:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v6
 
-      - run: |
-          pip install crowdin-api-client
-
-      - run: |
-          python scripts/sync_translations.py ${{secrets.CROWDIN_API}}
-
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Sync translations
-        run: |
-          git add . && \
-          git commit -m "Sync translations from Crowdin" && \
-          git push || echo "No changes to commit"
+      - name: crowdin action
+        uses: crowdin/github-action@v2.16.0
+        with:
+          upload_sources: true
+          upload_translations: true
+          download_translations: true
+          localization_branch_name: l10n_crowdin_translations
+          create_pull_request: true
+          pull_request_title: 'New Crowdin Translations'
+          pull_request_body: 'New Crowdin translations by [Crowdin GH Action](https://github.com/crowdin/github-action)'
+          pull_request_base_branch_name: 'develop'
+          source: src/lang/en.json
+          translation: src/lang/%two_letters_code%.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_API }}

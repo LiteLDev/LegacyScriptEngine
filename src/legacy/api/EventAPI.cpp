@@ -1,17 +1,16 @@
-#include "EventAPI.h"
+#include "legacy/api/EventAPI.h"
 
-#include "BaseAPI.h"
-#include "BlockAPI.h"
-#include "CommandCompatibleAPI.h"
-#include "EntityAPI.h"
-#include "ItemAPI.h"
 #include "legacy/api/APIHelp.h"
+#include "legacy/api/BaseAPI.h"
+#include "legacy/api/BlockAPI.h"
+#include "legacy/api/EntityAPI.h"
+#include "legacy/api/ItemAPI.h"
+#include "legacy/api/LegacyCommandAPI.h"
 #include "legacy/api/McAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "legacy/engine/EngineManager.h" // IWYU pragma: keep
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/engine/GlobalShareData.h"
-#include "legacy/engine/LocalShareData.h"
 #include "legacy/main/BuiltinCommands.h" // IWYU pragma: keep
 #include "legacy/main/Global.h"
 #include "ll/api/chrono/GameChrono.h"
@@ -868,9 +867,9 @@ void InitBasicEventListeners() {
                 CallEvent(EVENT_TYPES::onServerStarted); // Not cancellable
             }
             IF_LISTENED_END(EVENT_TYPES::onServerStarted);
-        }).launch(ll::thread::ServerThreadExecutor::getDefault());
 
-        lse::fake_command::registerFakeCommands();
+            lse::legacy_command::registerLegacyCommands();
+        }).launch(ll::thread::ServerThreadExecutor::getDefault());
     });
 
     // 植入tick

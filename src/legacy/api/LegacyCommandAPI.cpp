@@ -14,8 +14,8 @@
 #include <string>
 #include <vector>
 
-namespace lse::fake_command {
-void registerFakeCommand(
+namespace lse::legacy_command {
+void registerLegacyCommand(
     std::string const&                             name,
     std::string const&                             description,
     CommandPermissionLevel const                   level,
@@ -25,7 +25,8 @@ void registerFakeCommand(
 ) {
     using namespace ll::command;
 
-    auto& plugin = getEngineData(engine)->plugin;
+    EngineScope enter(engine.get());
+    auto&       plugin = getEngineData(engine)->plugin;
 
     auto  cmdParas = ll::string_utils::splitByPattern(name, " ");
     auto& command =
@@ -42,7 +43,7 @@ void registerFakeCommand(
                   consoleFunc,
                   engine](CommandOrigin const& origin, CommandOutput& output, RuntimeCommand const& command) {
             if (!engine) return;
-            EngineScope enter(engine.get());
+            EngineScope enterInner(engine.get());
             if (!playerFunc && !consoleFunc) return;
             Local<Array> params = Array::newArray();
             if (command["args"].hold(ParamKind::RawText)) {
@@ -64,7 +65,7 @@ void registerFakeCommand(
         });
 }
 
-void newFakeCommand(
+void newLegacyCommand(
     bool                   isPlayer,
     std::string            name,
     std::string const&     description,
@@ -100,13 +101,18 @@ void newFakeCommand(
     }
 }
 
-void registerFakeCommands() {
+void registerLegacyCommands() {
     for (auto& [name, data] : localShareData->fakeCommandsMap) {
-        registerFakeCommand(name, data.description, data.level, data.engine, data.playerFunc, data.consoleFunc);
+        try {
+            registerLegacyCommand(name, data.description, data.level, data.engine, data.playerFunc, data.consoleFunc);
+        } catch (...) {
+            LegacyScriptEngine::getLogger().error("Failed to register legacy command: {}"_tr(name));
+            ll::error_utils::printCurrentException(LegacyScriptEngine::getLogger());
+        }
     }
     localShareData->fakeCommandsMap.clear();
 }
-} // namespace lse::fake_command
+} // namespace lse::legacy_command
 
 Local<Value> McClass::regPlayerCmd(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
@@ -123,7 +129,7 @@ Local<Value> McClass::regPlayerCmd(Arguments const& args) {
             if (newLevel >= 0 && newLevel <= 5) level = newLevel;
         }
 
-        lse::fake_command::newFakeCommand(
+        lse::legacy_command::newLegacyCommand(
             true,
             args[0].asString().toString(),
             args[1].asString().toString(),
@@ -142,7 +148,7 @@ Local<Value> McClass::regConsoleCmd(Arguments const& args) {
     CHECK_ARG_TYPE(args[2], ValueKind::kFunction);
 
     try {
-        lse::fake_command::newFakeCommand(
+        lse::legacy_command::newLegacyCommand(
             false,
             args[0].asString().toString(),
             args[1].asString().toString(),

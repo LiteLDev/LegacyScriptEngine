@@ -57,5 +57,8 @@
   "Event {} not found!": "找不到事件 {} ！",
   "Failed to enable plugin {0}: {1}\\n{2}": "启用插件 {0} 失败: {1}\\n{2}",
   "Failed to enable plugin {0}: {1}": "启用插件 {0} 失败: {1}",
-  "Failed to disable plugin {0}: {1}": "禁用插件 {0} 失败: {1}"
+  "Failed to disable plugin {0}: {1}": "禁用插件 {0} 失败: {1}",
+  "You don't have permission to use this command": {
+    "": "You don't have permission to use this command."
+  }
 }

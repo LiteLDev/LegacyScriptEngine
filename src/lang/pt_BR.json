@@ -57,5 +57,8 @@
   "Event {} not found!": "Evento {} não encontrado!",
   "Failed to enable plugin {0}: {1}\\n{2}": "Falha ao ativar o plugin {0}: {1}\\n{2}",
   "Failed to enable plugin {0}: {1}": "Falha ao ativar o plugin {0}: {1}",
-  "Failed to disable plugin {0}: {1}": "Falha ao desativar o plugin {0}: {1}"
+  "Failed to disable plugin {0}: {1}": "Falha ao desativar o plugin {0}: {1}",
+  "You don't have permission to use this command": {
+    "": "You don't have permission to use this command."
+  }
 }

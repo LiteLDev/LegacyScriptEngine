@@ -2,17 +2,17 @@
 
 #include "legacy/api/APIHelp.h"
 #include "ll/api/utils/Base64Utils.h"
-#include "mc/nbt/ByteArrayTag.h"
-#include "mc/nbt/ByteTag.h"
-#include "mc/nbt/CompoundTag.h"
-#include "mc/nbt/DoubleTag.h"
-#include "mc/nbt/EndTag.h"
-#include "mc/nbt/FloatTag.h"
-#include "mc/nbt/Int64Tag.h"
-#include "mc/nbt/IntTag.h"
-#include "mc/nbt/ListTag.h"
-#include "mc/nbt/ShortTag.h"
-#include "mc/nbt/StringTag.h"
+#include "mc/deps/nbt/ByteArrayTag.h"
+#include "mc/deps/nbt/ByteTag.h"
+#include "mc/deps/nbt/CompoundTag.h"
+#include "mc/deps/nbt/DoubleTag.h"
+#include "mc/deps/nbt/EndTag.h"
+#include "mc/deps/nbt/FloatTag.h"
+#include "mc/deps/nbt/Int64Tag.h"
+#include "mc/deps/nbt/IntTag.h"
+#include "mc/deps/nbt/ListTag.h"
+#include "mc/deps/nbt/ShortTag.h"
+#include "mc/deps/nbt/StringTag.h"
 
 #include <magic_enum.hpp>
 #include <memory>

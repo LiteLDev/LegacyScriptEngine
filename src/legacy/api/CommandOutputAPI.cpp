@@ -69,7 +69,7 @@ Local<Value> CommandOutputClass::success(Arguments const& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
+                param.push_back(CommandOutputParameter({paramArr.get(i).asString().toString()}));
             }
             get()->success(msg, param);
             send();
@@ -91,7 +91,7 @@ Local<Value> CommandOutputClass::addMessage(Arguments const& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
+                param.push_back(CommandOutputParameter({paramArr.get(i).asString().toString()}));
             }
             if (args.size() >= 3) {
                 CHECK_ARG_TYPE(args[2], ValueKind::kNumber);
@@ -120,7 +120,7 @@ Local<Value> CommandOutputClass::error(Arguments const& args) {
             std::vector<CommandOutputParameter> param{};
             auto                                paramArr = args[1].asArray();
             for (int i = 0; i < paramArr.size(); ++i) {
-                param.push_back(CommandOutputParameter(paramArr.get(i).asString().toString().c_str()));
+                param.push_back(CommandOutputParameter({paramArr.get(i).asString().toString()}));
             }
             get()->error(msg, param);
             send();

@@ -33,6 +33,9 @@
 #include "lse/api/helper/ScoreboardHelper.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/utility/MCRESULT.h"
+#include "mc/deps/nbt/CompoundTag.h"
+#include "mc/deps/nbt/ListTag.h"
+#include "mc/deps/nbt/StringTag.h"
 #include "mc/entity/components/ActorRotationComponent.h"
 #include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
@@ -41,9 +44,6 @@
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
-#include "mc/nbt/CompoundTag.h"
-#include "mc/nbt/ListTag.h"
-#include "mc/nbt/StringTag.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
@@ -66,7 +66,6 @@
 #include "mc/server/NetworkChunkPublisher.h"
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/commands/CommandContext.h"
-#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/MinecraftCommands.h"
 #include "mc/server/commands/PlayerCommandOrigin.h"
 #include "mc/util/BlockUtils.h"
@@ -75,6 +74,7 @@
 #include "mc/world/Minecraft.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
+#include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
 #include "mc/world/actor/player/Inventory.h"
@@ -87,7 +87,6 @@
 #include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeInstanceConstRef.h"
-#include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
 #include "mc/world/attribute/AttributeInstanceRef.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -1042,7 +1041,7 @@ Local<Value> PlayerClass::getDirection() const {
         if (!player) return {};
 
         // getRotation()
-        Vec2 vec = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        Vec2 vec = player->mBuiltInComponents->mActorRotationComponent->mRot;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH_AND_THROW
@@ -1519,7 +1518,7 @@ Local<Value> PlayerClass::teleport(Arguments const& args) const {
             throw WrongArgTypeException(__FUNCTION__);
         }
         if (!rotationIsValid) {
-            angle = player->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+            angle = player->mBuiltInComponents->mActorRotationComponent->mRot;
         }
         player->teleport(pos.getVec3(), pos.dim, angle);
         return Boolean::newBoolean(true);
@@ -1611,7 +1610,7 @@ Local<Value> PlayerClass::runcmd(Arguments const& args) const {
         CommandContext context = CommandContext(
             args[0].asString().toString(),
             std::make_unique<PlayerCommandOrigin>(ll::service::getLevel(), player->getOrCreateUniqueID()),
-            CommandVersion::CurrentVersion()
+            static_cast<int>(CurrentCmdVersion::Latest)
         );
         ll::service::getMinecraft()->mCommands->executeCommand(context, false);
         return Boolean::newBoolean(true);
@@ -3290,9 +3289,9 @@ Local<Value> PlayerClass::getAttributes(Arguments const&) const {
         player->save(tag);
         try {
             Local<Array> arr = Array::newArray();
-            tag.at("Attributes").get<ListTag>().forEachCompoundTag([&](CompoundTag const& tagP) {
-                arr.add(Tag2Value(&const_cast<CompoundTag&>(tagP), true));
-            });
+            for (auto& tagP : tag.at("Attributes").get<ListTag>()) {
+                arr.add(Tag2Value(tagP.get(), true));
+            }
             return arr;
         } catch (...) {
             return Array::newArray();

@@ -13,6 +13,7 @@
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/helper/AttributeHelper.h"
 #include "mc/deps/core/math/Vec2.h"
+#include "mc/deps/nbt/CompoundTag.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/deps/vanilla_components/ActorDataFlagComponent.h"
 #include "mc/deps/vanilla_components/StateVectorComponent.h"
@@ -23,13 +24,13 @@
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
-#include "mc/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandUtils.h"
 #include "mc/util/BlockUtils.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/item/ItemActor.h"
@@ -636,7 +637,7 @@ Local<Value> EntityClass::getDirection() const {
         if (!entity) return {};
 
         // getRotation()
-        Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRot;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH_AND_THROW
@@ -694,7 +695,7 @@ Local<Value> EntityClass::teleport(Arguments const& args) const {
         }
         if (!rotationIsValid) {
             // getRotation()
-            ang = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+            ang = entity->mBuiltInComponents->mActorRotationComponent->mRot;
         }
         entity->teleport(pos.getVec3(), pos.dim, ang);
         return Boolean::newBoolean(true);

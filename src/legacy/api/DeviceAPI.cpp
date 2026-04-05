@@ -3,7 +3,7 @@
 #include "legacy/api/APIHelp.h"
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
-#include "mc/certificates/WebToken.h"
+#include "mc/deps/certificates/WebToken.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
 #include "mc/legacy/ActorRuntimeID.h"

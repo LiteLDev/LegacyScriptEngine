@@ -3,16 +3,17 @@ add_rules("mode.debug", "mode.release")
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 3b4b0ddf0405e27c37b09dc574724c96783d7c55", {configs = {target_type = "server"}})
+    add_requires("levilamina 1312818717e46c0f788f0c9409003e08f6e45e1f", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 3b4b0ddf0405e27c37b09dc574724c96783d7c55", {configs = {target_type = "client"}})
+    add_requires("levilamina 1312818717e46c0f788f0c9409003e08f6e45e1f", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
 
+add_requires("legacyremotecall b8bf79f92e1ef3ede108be7bdc881048b4ef929f", {configs = {target_type = get_config(target_type)}})
+
 add_requires(
     "legacymoney 0.10.0",
-    "legacyremotecall 0.17.2",
     "lightwebsocketclient 1.0.1",
     "magic_enum v0.9.7",
     "nlohmann_json v3.11.3",

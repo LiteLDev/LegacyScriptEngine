@@ -968,8 +968,7 @@ Local<Value> EntityClass::hurt(Arguments const& args) const {
                 ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
             return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
-        ActorDamageSource damageSource;
-        damageSource.mCause = static_cast<SharedTypes::Legacy::ActorDamageCause>(type);
+        ActorDamageSource damageSource(static_cast<SharedTypes::Legacy::ActorDamageCause>(type), {});
         return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
     CATCH_AND_THROW

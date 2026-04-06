@@ -331,29 +331,6 @@ RedstoneUpdateEvent(BlockSource const& region, BlockPos const& pos, int const& s
     return true;
 }
 
-#define REDSTONE_EVNET_HOOK_OLD(BLOCK)                                                                                 \
-    LL_TYPE_INSTANCE_HOOK(                                                                                             \
-        BLOCK##Hook,                                                                                                   \
-        HookPriority::Normal,                                                                                          \
-        BLOCK,                                                                                                         \
-        &BLOCK::$onRedstoneUpdate,                                                                                     \
-        void,                                                                                                          \
-        BlockSource&    region,                                                                                        \
-        BlockPos const& pos,                                                                                           \
-        int             strength,                                                                                      \
-        bool            isFirstTime                                                                                    \
-    ) {                                                                                                                \
-        IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
-            if (checkClientIsServerThread()) {                                                                         \
-                if (!RedstoneUpdateEvent(region, pos, strength, isFirstTime)) {                                        \
-                    return;                                                                                            \
-                }                                                                                                      \
-            }                                                                                                          \
-        }                                                                                                              \
-        IF_LISTENED_END(EVENT_TYPES::onRedStoneUpdate);                                                                \
-        origin(region, pos, strength, isFirstTime);                                                                    \
-    }
-
 #define REDSTONE_EVNET_HOOK_1(BLOCK)                                                                                   \
     LL_TYPE_INSTANCE_HOOK(                                                                                             \
         BLOCK##Hook,                                                                                                   \
@@ -404,24 +381,23 @@ RedstoneUpdateEvent(BlockSource const& region, BlockPos const& pos, int const& s
         origin(blockEvent);                                                                                            \
     }
 
-REDSTONE_EVNET_HOOK_OLD(HopperBlock)
-REDSTONE_EVNET_HOOK_OLD(CrafterBlock)
-REDSTONE_EVNET_HOOK_OLD(CommandBlock)
-REDSTONE_EVNET_HOOK_OLD(BigDripleafBlock)
-REDSTONE_EVNET_HOOK_OLD(CopperBulbBlock)
-REDSTONE_EVNET_HOOK_OLD(DoorBlock)
-REDSTONE_EVNET_HOOK_OLD(FenceGateBlock)
-REDSTONE_EVNET_HOOK_OLD(DispenserBlock)
-REDSTONE_EVNET_HOOK_OLD(StructureBlock)
-REDSTONE_EVNET_HOOK_OLD(TrapDoorBlock)
-REDSTONE_EVNET_HOOK_OLD(NoteBlock)
-REDSTONE_EVNET_HOOK_OLD(RedstoneLampBlock)
-REDSTONE_EVNET_HOOK_OLD(TntBlock)
-
 REDSTONE_EVNET_HOOK_1(BaseRailBlock)
 REDSTONE_EVNET_HOOK_1(PoweredRailBlock)
 REDSTONE_EVNET_HOOK_1(ActivatorRailBlock)
 
+REDSTONE_EVNET_HOOK_2(HopperBlock)
+REDSTONE_EVNET_HOOK_2(CrafterBlock)
+REDSTONE_EVNET_HOOK_2(CommandBlock)
+REDSTONE_EVNET_HOOK_2(BigDripleafBlock)
+REDSTONE_EVNET_HOOK_2(CopperBulbBlock)
+REDSTONE_EVNET_HOOK_2(DoorBlock)
+REDSTONE_EVNET_HOOK_2(FenceGateBlock)
+REDSTONE_EVNET_HOOK_2(DispenserBlock)
+REDSTONE_EVNET_HOOK_2(StructureBlock)
+REDSTONE_EVNET_HOOK_2(TrapDoorBlock)
+REDSTONE_EVNET_HOOK_2(NoteBlock)
+REDSTONE_EVNET_HOOK_2(RedstoneLampBlock)
+REDSTONE_EVNET_HOOK_2(TntBlock)
 REDSTONE_EVNET_HOOK_2(RedStoneWireBlock)
 REDSTONE_EVNET_HOOK_2(RedstoneTorchBlock)
 REDSTONE_EVNET_HOOK_2(ComparatorBlock)

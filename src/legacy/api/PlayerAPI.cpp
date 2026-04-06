@@ -2748,7 +2748,7 @@ Local<Value> PlayerClass::hurt(Arguments const& args) const {
                 ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
             return Boolean::newBoolean(player->_hurt(damageBySource, damage, true, false));
         }
-        ActorDamageSource damageSource;
+        ActorDamageSource damageSource(static_cast<SharedTypes::Legacy::ActorDamageCause>(type), {});
         damageSource.mCause = static_cast<SharedTypes::Legacy::ActorDamageCause>(type);
         return Boolean::newBoolean(player->_hurt(damageSource, damage, true, false));
     }

@@ -6,7 +6,7 @@
 #include "legacy/main/EconomicSystem.h"
 #include "ll/api/Config.h"
 #include "ll/api/event/EventBus.h"
-#include "ll/api/event/command/CommandRegisterEvent.h"
+#include "ll/api/event/command/ServerCommandRegisterEvent.h"
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/mod/ModManagerRegistry.h"
@@ -110,7 +110,7 @@ bool LegacyScriptEngine::load() {
         loadDebugEngine(getSelf());
 
         using namespace ll::event;
-        EventBus::getInstance().emplaceListener<CommandRegisterEvent>([](CommandRegisterEvent&) {
+        EventBus::getInstance().emplaceListener<ServerCommandRegisterEvent>([](ServerCommandRegisterEvent&) {
             RegisterDebugCommand();
         });
         return true;

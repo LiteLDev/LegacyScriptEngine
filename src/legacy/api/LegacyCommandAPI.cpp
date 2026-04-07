@@ -52,7 +52,7 @@ void registerLegacyCommand(
     if (!singleParam) {
         overload.optional("§e" + description + "§r", ParamKind::Bool);
     }
-    overload.execute([playerFunc, consoleFunc, engine, hasSubCommand](
+    overload.execute([playerFunc, consoleFunc, engine, hasSubCommand, level](
                          CommandOrigin const&  origin,
                          CommandOutput&        output,
                          RuntimeCommand const& command
@@ -67,7 +67,7 @@ void registerLegacyCommand(
             }
         }
         if (origin.getOriginType() == CommandOriginType::Player && playerFunc) {
-            if (origin.getPermissionsLevel() < command.mPermissionLevel) {
+            if (origin.getPermissionsLevel() < level) {
                 output.error("You don't have permission to use this command."_tr());
                 return;
             }
@@ -91,6 +91,9 @@ void newLegacyCommand(
     if (isPlayer) {
         if (fakeCommands.contains(name)) {
             fakeCommands[name].playerFunc = script::Global(func);
+            // Override CommandPermissionLevel if command has been created as console command to ensure player has the
+            // permission to execute the command
+            fakeCommands[name].level = level;
         } else {
             fakeCommands[name] = {
                 description,

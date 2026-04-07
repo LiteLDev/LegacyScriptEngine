@@ -3,11 +3,11 @@
 #include "legacy/api/APIHelp.h"
 #include "legacy/api/McAPI.h"
 #include "legacy/main/Global.h"
+#include "ll/api/Versions.h"
 #include "mc/common/Common.h"
 #include "mc/common/SharedConstants.h"
-
-#include <mc/world/actor/ActorDamageSource.h>
-#include <mc/world/level/BlockSource.h>
+#include "mc/world/actor/ActorDamageSource.h"
+#include "mc/world/level/BlockSource.h"
 
 ///////////////////// Enum //////////////////////
 ClassDefine<void> DamageCauseEnumBuilder =
@@ -240,7 +240,7 @@ Local<Value> McClass::getBDSVersion(Arguments const&) {
 
 Local<Value> McClass::getServerProtocolVersion(Arguments const&) {
     try {
-        return Number::newNumber(SharedConstants::NetworkProtocolVersion());
+        return Number::newNumber(ll::getNetworkProtocolVersion());
     }
     CATCH_AND_THROW
 }

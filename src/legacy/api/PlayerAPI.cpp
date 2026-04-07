@@ -41,6 +41,7 @@
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
+#include "mc/entity/components/WasInWaterFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
@@ -87,6 +88,7 @@
 #include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeInstanceConstRef.h"
+#include "mc/world/attribute/AttributeInstanceHandle.h"
 #include "mc/world/attribute/AttributeInstanceRef.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -1072,7 +1074,9 @@ Local<Value> PlayerClass::getInAir() const {
         Player* player = get();
         if (!player) return {};
 
-        return Boolean::newBoolean(!player->isOnGround() && !player->isInWater());
+        return Boolean::newBoolean(
+            !player->isOnGround() && !player->getEntityContext().hasComponent<WasInWaterFlagComponent>()
+        );
     }
     CATCH_AND_THROW
 }
@@ -1082,7 +1086,7 @@ Local<Value> PlayerClass::getInWater() const {
         Player* player = get();
         if (!player) return {};
 
-        return Boolean::newBoolean(player->isInWater());
+        return Boolean::newBoolean(player->getEntityContext().hasComponent<WasInWaterFlagComponent>());
     }
     CATCH_AND_THROW
 }

@@ -212,7 +212,7 @@ Local<Value> ItemClass::isArmorItem() const {
 
 Local<Value> ItemClass::isBlock() const {
     try {
-        return Boolean::newBoolean(get()->isBlock());
+        return Boolean::newBoolean(get()->getBlockType().get());
     }
     CATCH_AND_THROW
 }

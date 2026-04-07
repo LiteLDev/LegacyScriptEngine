@@ -21,6 +21,7 @@
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
+#include "mc/entity/components/WasInWaterFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
@@ -528,7 +529,9 @@ Local<Value> EntityClass::getInAir() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(!entity->isOnGround() && !entity->isInWater());
+        return Boolean::newBoolean(
+            !entity->isOnGround() && !entity->getEntityContext().hasComponent<WasInWaterFlagComponent>()
+        );
     }
     CATCH_AND_THROW
 }
@@ -538,7 +541,7 @@ Local<Value> EntityClass::getInWater() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(entity->isInWater());
+        return Boolean::newBoolean(entity->getEntityContext().hasComponent<WasInWaterFlagComponent>());
     }
     CATCH_AND_THROW
 }

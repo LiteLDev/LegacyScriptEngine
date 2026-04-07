@@ -7,6 +7,8 @@
 #include "ll/api/Config.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ServerCommandRegisterEvent.h"
+#include "ll/api/event/server/ServerStartedEvent.h"
+#include "ll/api/event/server/ServerStoppingEvent.h"
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/mod/ModManagerRegistry.h"
@@ -71,6 +73,14 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 
 bool LegacyScriptEngine::enable() {
     ll::service::PlayerInfo::getInstance();
+#ifdef LL_PLAT_C
+    using namespace ll::event;
+    auto& bus = EventBus::getInstance();
+    bus.emplaceListener<ServerStartedEvent>([](ServerStartedEvent&) { getInstance().getManager().enableAllPlugins(); });
+    bus.emplaceListener<ServerStoppingEvent>([](ServerStoppingEvent&) {
+        getInstance().getManager().disableAllPlugins();
+    });
+#endif
     return true;
 }
 

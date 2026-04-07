@@ -34,13 +34,8 @@ Local<Value> McClass::setMaxNumPlayers(Arguments const& args) {
         int  activePlayerCount = handler->_getActiveAndInProgressPlayerCount(mce::UUID::EMPTY());
         bool result            = true;
 
-        if (maxPlayers <= SharedConstants::NetworkDefaultMaxConnections()) {
-            if (maxPlayers < activePlayerCount) {
-                maxPlayers = activePlayerCount;
-                result     = false;
-            }
-        } else {
-            maxPlayers = SharedConstants::NetworkDefaultMaxConnections();
+        if (maxPlayers < activePlayerCount) {
+            maxPlayers = activePlayerCount;
             result     = false;
         }
 

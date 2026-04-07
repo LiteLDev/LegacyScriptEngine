@@ -10,12 +10,12 @@
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/helper/BlockHelper.h"
 #include "mc/deps/core/utility/optional_ref.h"
+#include "mc/deps/shared_types/v1_26_0/block/LiquidReaction.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/ChunkBlockPos.h"
 #include "mc/world/level/block/BedrockBlockNames.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/BlockChangeContext.h"
-#include "mc/world/level/block/LiquidReaction.h"
 #include "mc/world/level/block/VanillaBlockTags.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
@@ -281,7 +281,7 @@ Local<Value> BlockClass::isUnbreakable() const {
 Local<Value> BlockClass::isWaterBlockingBlock() const {
     try {
         return Boolean::newBoolean(
-            block->mDirectData->mWaterDetectionRule->mOnLiquidTouches == LiquidReaction::Blocking
+            block->mDirectData->mWaterDetectionRule->mOnLiquidTouches == SharedTypes::v1_26_0::LiquidReaction::Blocking
         );
     }
     CATCH_AND_THROW
@@ -308,7 +308,14 @@ Local<Value> BlockClass::setNbt(Arguments const& args) {
                 ->getDimension(blockPos.dim)
                 .lock()
                 ->getBlockSourceFromMainChunkSource()
-                .setBlock(blockPos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false));
+                .setBlock(
+                    blockPos.getBlockPos(),
+                    *bl,
+                    3,
+                    nullptr,
+                    nullptr,
+                    BlockChangeContext(StatelessBlockChangeContext::Commands)
+                );
         }
         preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
         return Boolean::newBoolean(true);
@@ -381,7 +388,8 @@ Local<Value> BlockClass::removeBlockEntity(Arguments const&) const {
                 ->getDimension(blockPos.dim)
                 .lock()
                 ->getBlockSourceFromMainChunkSource()
-                .removeBlockEntity(blockPos.getBlockPos())
+                .getChunkAt(blockPos.getBlockPos())
+                ->removeBlockEntity(blockPos.getBlockPos())
             != nullptr
         );
     }
@@ -398,8 +406,12 @@ Local<Value> BlockClass::destroyBlock(Arguments const& args) const {
         BlockSource& bl =
             ll::service::getLevel()->getDimension(blockPos.dim).lock()->getBlockSourceFromMainChunkSource();
         return Boolean::newBoolean(
-            ll::service::getLevel()
-                ->destroyBlock(bl, blockPos.getBlockPos(), args[0].asBoolean().value(), BlockChangeContext(false))
+            ll::service::getLevel()->destroyBlock(
+                bl,
+                blockPos.getBlockPos(),
+                args[0].asBoolean().value(),
+                BlockChangeContext(StatelessBlockChangeContext::Commands)
+            )
         );
     }
     CATCH_AND_THROW
@@ -525,9 +537,14 @@ Local<Value> McClass::setBlock(Arguments const& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(
-                bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
-            );
+            return Boolean::newBoolean(bs.setBlock(
+                pos.getBlockPos(),
+                bl,
+                3,
+                nullptr,
+                nullptr,
+                BlockChangeContext(StatelessBlockChangeContext::Commands)
+            ));
         }
         if (IsInstanceOf<NbtCompoundClass>(block)) {
             // Nbt
@@ -538,9 +555,14 @@ Local<Value> McClass::setBlock(Arguments const& args) {
             }
             BlockSource& bs =
                 ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-            return Boolean::newBoolean(
-                bs.setBlock(pos.getBlockPos(), bl, 3, nullptr, nullptr, BlockChangeContext(false))
-            );
+            return Boolean::newBoolean(bs.setBlock(
+                pos.getBlockPos(),
+                bl,
+                3,
+                nullptr,
+                nullptr,
+                BlockChangeContext(StatelessBlockChangeContext::Commands)
+            ));
         }
         // other block object
         Block const* bl = BlockClass::extract(block);
@@ -548,7 +570,14 @@ Local<Value> McClass::setBlock(Arguments const& args) {
             throw WrongArgTypeException(__FUNCTION__);
         }
         BlockSource& bs = ll::service::getLevel()->getDimension(pos.dim).lock()->getBlockSourceFromMainChunkSource();
-        return Boolean::newBoolean(bs.setBlock(pos.getBlockPos(), *bl, 3, nullptr, nullptr, BlockChangeContext(false)));
+        return Boolean::newBoolean(bs.setBlock(
+            pos.getBlockPos(),
+            *bl,
+            3,
+            nullptr,
+            nullptr,
+            BlockChangeContext(StatelessBlockChangeContext::Commands)
+        ));
     }
     CATCH_AND_THROW
 }

@@ -15,23 +15,21 @@ class NetworkPacket final : public Packet {
 public:
     NetworkPacket(std::string data) : mData(std::move(data)) {}
 
-    NetworkPacket()                                   = default;
-    NetworkPacket(NetworkPacket&&)                    = default;
-    auto operator=(NetworkPacket&&) -> NetworkPacket& = default;
-    ~NetworkPacket() override                         = default;
+    NetworkPacket()                           = default;
+    NetworkPacket(NetworkPacket&&)            = default;
+    NetworkPacket& operator=(NetworkPacket&&) = default;
+    ~NetworkPacket() override                 = default;
 
-    NetworkPacket(NetworkPacket const&)                    = delete;
-    auto operator=(NetworkPacket const&) -> NetworkPacket& = delete;
+    NetworkPacket(NetworkPacket const&)            = delete;
+    NetworkPacket& operator=(NetworkPacket const&) = delete;
 
-    [[nodiscard]] auto getId() const -> MinecraftPacketIds override { return packetId; }
+    [[nodiscard]] MinecraftPacketIds getId() const override { return packetId; }
 
-    [[nodiscard]] auto getName() const -> std::string override { return "NetworkPacket"; }
+    [[nodiscard]] std::string_view getName() const override { return "NetworkPacket"; }
 
     void write(BinaryStream& stream) const override { stream.mBuffer.append(mData); }
 
-    auto _read(class ReadOnlyBinaryStream& /*stream*/) -> Bedrock::Result<void> override {
-        return Bedrock::Result<void>{};
-    }
+    Bedrock::Result<void> _read(class ReadOnlyBinaryStream& /*stream*/) override { return Bedrock::Result<void>{}; }
 
 private:
     std::string mData;

@@ -7,7 +7,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
 #include "mc/dataloadhelper/DefaultDataLoadHelper.h"
-#include "mc/nbt/CompoundTag.h"
+#include "mc/deps/nbt/CompoundTag.h"
 #include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/actor/BlockActor.h"

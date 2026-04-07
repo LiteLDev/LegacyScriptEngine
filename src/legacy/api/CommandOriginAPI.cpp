@@ -6,7 +6,7 @@
 #include "legacy/api/NbtAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "magic_enum.hpp"
-#include "mc/nbt/CompoundTag.h"
+#include "mc/deps/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandOriginType.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/level/dimension/Dimension.h"

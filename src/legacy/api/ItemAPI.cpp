@@ -212,7 +212,7 @@ Local<Value> ItemClass::isArmorItem() const {
 
 Local<Value> ItemClass::isBlock() const {
     try {
-        return Boolean::newBoolean(get()->isBlock());
+        return Boolean::newBoolean(get()->getBlockType().get());
     }
     CATCH_AND_THROW
 }
@@ -407,8 +407,10 @@ Local<Value> ItemClass::setDisplayName(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        Bedrock::Safety::RedactableString redactableString;
-        redactableString.mUnredactedString = args[0].asString().toString();
+        Bedrock::Safety::RedactableString redactableString(
+            args[0].asString().toString(),
+            args[0].asString().toString()
+        );
         get()->setCustomName(redactableString);
         return Boolean::newBoolean(true);
     }

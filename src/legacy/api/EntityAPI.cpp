@@ -13,6 +13,7 @@
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/helper/AttributeHelper.h"
 #include "mc/deps/core/math/Vec2.h"
+#include "mc/deps/nbt/CompoundTag.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/deps/vanilla_components/ActorDataFlagComponent.h"
 #include "mc/deps/vanilla_components/StateVectorComponent.h"
@@ -20,16 +21,17 @@
 #include "mc/entity/components/InsideBlockComponent.h"
 #include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
+#include "mc/entity/components/WasInWaterFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
-#include "mc/nbt/CompoundTag.h"
 #include "mc/server/commands/CommandUtils.h"
 #include "mc/util/BlockUtils.h"
 #include "mc/world/SimpleContainer.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/item/ItemActor.h"
@@ -527,7 +529,9 @@ Local<Value> EntityClass::getInAir() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(!entity->isOnGround() && !entity->isInWater());
+        return Boolean::newBoolean(
+            !entity->isOnGround() && !entity->getEntityContext().hasComponent<WasInWaterFlagComponent>()
+        );
     }
     CATCH_AND_THROW
 }
@@ -537,7 +541,7 @@ Local<Value> EntityClass::getInWater() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(entity->isInWater());
+        return Boolean::newBoolean(entity->getEntityContext().hasComponent<WasInWaterFlagComponent>());
     }
     CATCH_AND_THROW
 }
@@ -636,7 +640,7 @@ Local<Value> EntityClass::getDirection() const {
         if (!entity) return {};
 
         // getRotation()
-        Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+        Vec2 const vec = entity->mBuiltInComponents->mActorRotationComponent->mRot;
         return DirectionAngle::newAngle(vec.x, vec.y);
     }
     CATCH_AND_THROW
@@ -694,7 +698,7 @@ Local<Value> EntityClass::teleport(Arguments const& args) const {
         }
         if (!rotationIsValid) {
             // getRotation()
-            ang = entity->mBuiltInComponents->mActorRotationComponent->mRotationDegree;
+            ang = entity->mBuiltInComponents->mActorRotationComponent->mRot;
         }
         entity->teleport(pos.getVec3(), pos.dim, ang);
         return Boolean::newBoolean(true);
@@ -967,8 +971,7 @@ Local<Value> EntityClass::hurt(Arguments const& args) const {
                 ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
             return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
         }
-        ActorDamageSource damageSource;
-        damageSource.mCause = static_cast<SharedTypes::Legacy::ActorDamageCause>(type);
+        ActorDamageSource damageSource(static_cast<SharedTypes::Legacy::ActorDamageCause>(type), {});
         return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
     }
     CATCH_AND_THROW

@@ -14,6 +14,8 @@
 #include "mc/server/SimulatedPlayer.h"
 #include "mc/server/sim/LookDuration.h"
 #include "mc/world/actor/Actor.h"
+#include "mc/world/actor/ActorHurtResult.h"
+#include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <string>
@@ -166,7 +168,7 @@ Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateInteract());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()));
+            return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()).mSuccess);
         }
 
         int                                 dimid = sp->getDimensionId().id;

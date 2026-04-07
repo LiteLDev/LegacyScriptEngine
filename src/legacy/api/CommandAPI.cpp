@@ -122,7 +122,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         auto dim = origin.getDimension();
         return IntPos::newPos(
             std::get<CommandPosition>(result.value())
-                .getBlockPos(CommandVersion::CurrentVersion(), origin, Vec3::ZERO()),
+                .getBlockPos(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
             dim ? dim->getDimensionId().id : -1
         );
     }
@@ -130,14 +130,14 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         auto dim = origin.getDimension();
         return FloatPos::newPos(
             std::get<CommandPositionFloat>(result.value())
-                .getPosition(CommandVersion::CurrentVersion(), origin, Vec3::ZERO()),
+                .getPosition(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
             dim ? dim->getDimensionId().id : -1
         );
     }
     if (result.hold(ParamKind::Kind::Message)) {
         return String::newString(
             std::get<CommandMessage>(result.value())
-                .generateMessage(origin, CommandVersion::CurrentVersion())
+                .generateMessage(origin, static_cast<int>(CurrentCmdVersion::Latest))
                 .mMessage->c_str()
         );
     }
@@ -199,7 +199,7 @@ Local<Value> McClass::runcmd(Arguments const& args) {
             CommandPermissionLevel::Owner,
             0
         ),
-        CommandVersion::CurrentVersion()
+        static_cast<int>(CurrentCmdVersion::Latest)
     );
     try {
         return Boolean::newBoolean(ll::service::getMinecraft()->mCommands->executeCommand(context, false).mSuccess);
@@ -217,7 +217,7 @@ Local<Value> McClass::runcmdEx(Arguments const& args) {
         auto command = ll::service::getMinecraft()->mCommands->compileCommand(
             args[0].asString().toString(),
             origin,
-            static_cast<CurrentCmdVersion>(CommandVersion::CurrentVersion()),
+            static_cast<CurrentCmdVersion>(static_cast<int>(CurrentCmdVersion::Latest)),
             [&](std::string const& err) { outputStr.append(err).append("\n"); }
         );
         Local<Object> resObj = Object::newObject();

@@ -3,7 +3,7 @@
 #include "legacy/api/McAPI.h"
 #include "legacy/api/NbtAPI.h"
 #include "ll/api/service/Bedrock.h"
-#include "mc/nbt/CompoundTag.h"
+#include "mc/deps/nbt/CompoundTag.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/levelgen/structure/BoundingBox.h"
 #include "mc/world/level/levelgen/structure/StructureTemplate.h"

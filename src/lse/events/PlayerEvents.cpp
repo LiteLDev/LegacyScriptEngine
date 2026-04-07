@@ -13,6 +13,7 @@
 #include "mc/server/ServerPlayer.h"
 #include "mc/server/module/VanillaServerGameplayEventListener.h"
 #include "mc/world/ContainerID.h"
+#include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/FishingHook.h"
 #include "mc/world/actor/item/ItemActor.h"
@@ -23,6 +24,7 @@
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
+#include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/inventory/network/ItemStackNetManagerBase.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
@@ -584,7 +586,7 @@ LL_TYPE_INSTANCE_HOOK(
     HookPriority::Normal,
     Player,
     &Player::interact,
-    bool,
+    InteractionResult,
     Actor&      actor,
     Vec3 const& location
 ) {
@@ -596,7 +598,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EntityClass::newEntity(&actor),
                     FloatPos::newPos(location, getDimensionId().id)
                 )) {
-                return false;
+                return {false, true};
             }
         }
     }

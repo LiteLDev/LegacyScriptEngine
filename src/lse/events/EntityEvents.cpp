@@ -16,6 +16,7 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
@@ -55,7 +56,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
         if (checkClientIsServerThread()) {
             static auto& tridentName = EntityCanonicalName(ActorType::Trident);
-            if (id.mCanonicalName != tridentName) {
+            if (*id.mCanonicalName != tridentName) {
                 if (!CallEvent(
                         EVENT_TYPES::onSpawnProjectile,
                         EntityClass::newEntity(spawner),
@@ -252,7 +253,7 @@ LL_TYPE_INSTANCE_HOOK(
     HookPriority::Normal,
     Mob,
     &Mob::$_hurt,
-    bool,
+    ActorHurtResult,
     ::ActorDamageSource const& source,
     float                      damage,
     bool                       knock,
@@ -277,7 +278,7 @@ LL_TYPE_INSTANCE_HOOK(
                     Number::newNumber(damage < 0.0f ? -damage : damage),
                     Number::newNumber(static_cast<int>(source.mCause))
                 )) {
-                return false;
+                return {false, false};
             }
         }
     }

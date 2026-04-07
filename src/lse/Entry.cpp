@@ -5,6 +5,8 @@
 #include "legacy/main/BindAPIs.h"
 #include "legacy/main/EconomicSystem.h"
 #include "ll/api/Config.h"
+#include "ll/api/event/EventBus.h"
+#include "ll/api/event/command/CommandRegisterEvent.h"
 #include "ll/api/i18n/I18n.h"
 #include "ll/api/io/FileUtils.h"
 #include "ll/api/mod/ModManagerRegistry.h"
@@ -68,15 +70,7 @@ LegacyScriptEngine& LegacyScriptEngine::getInstance() {
 }
 
 bool LegacyScriptEngine::enable() {
-    auto& logger = getSelf().getLogger();
-    try {
-        ll::service::PlayerInfo::getInstance();
-        RegisterDebugCommand();
-    } catch (...) {
-        logger.error("Failed to enable: {0}"_tr(getSelf().getName()));
-        ll::error_utils::printCurrentException(logger);
-        return false;
-    }
+    ll::service::PlayerInfo::getInstance();
     return true;
 }
 
@@ -115,8 +109,11 @@ bool LegacyScriptEngine::load() {
 
         loadDebugEngine(getSelf());
 
+        using namespace ll::event;
+        EventBus::getInstance().emplaceListener<CommandRegisterEvent>([](CommandRegisterEvent&) {
+            RegisterDebugCommand();
+        });
         return true;
-
     } catch (...) {
         logger.error("Failed to load: {0}"_tr(getSelf().getName()));
         ll::error_utils::printCurrentException(logger);

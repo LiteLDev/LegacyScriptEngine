@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.13] - 2026-04-07
+
+### Fixed
+
+- Fixed potential permission issue for LegacyCommandAPI
+
 ## [0.17.12] - 2026-04-01
 
 ### Changed
@@ -1233,7 +1239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.12...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...HEAD
+[0.17.13]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.12...v0.17.13
 [0.17.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...v0.17.12
 [0.17.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...v0.17.11
 [0.17.10]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.9...v0.17.10

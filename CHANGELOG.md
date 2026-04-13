@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-04-13
+
+### Fixed
+
+- Added `onPlayerCmd` and `onConsoleCmd` event that was accidentally deleted.
+
+## [0.18.0] - 2026-04-07
+
+### Changed
+
+- Supported LeviLamina 26.10.*
+
 ## [0.17.13] - 2026-04-07
 
 ### Fixed
@@ -1239,7 +1251,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.1...HEAD
+[0.18.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.0...v0.18.1
+[0.18.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...v0.18.0
 [0.17.13]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.12...v0.17.13
 [0.17.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...v0.17.12
 [0.17.11]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.10...v0.17.11

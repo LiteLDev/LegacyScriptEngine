@@ -842,6 +842,7 @@ void InitBasicEventListeners() {
 #ifndef LSE_BACKEND_NODEJS
             if (!ProcessDebugEngine(cmd)) {
                 ev.cancel();
+                return;
             }
 #endif
 #ifdef LSE_BACKEND_NODEJS
@@ -855,6 +856,24 @@ void InitBasicEventListeners() {
                 return;
             }
 #endif
+            IF_LISTENED(EVENT_TYPES::onConsoleCmd) {
+                if (!CallEvent(EVENT_TYPES::onConsoleCmd, String::newString(cmd))) {
+                    ev.cancel();
+                }
+            }
+            IF_LISTENED_END(EVENT_TYPES::onConsoleCmd);
+        } else if (originType == CommandOriginType::Player) {
+            std::string cmd = ev.commandContext().mCommand;
+            if (cmd.starts_with("/")) {
+                cmd.erase(0, 1);
+            }
+            Player* player = static_cast<Player*>(ev.commandContext().mOrigin->getEntity());
+            IF_LISTENED(EVENT_TYPES::onPlayerCmd) {
+                if (!CallEvent(EVENT_TYPES::onPlayerCmd, PlayerClass::newPlayer(player), String::newString(cmd))) {
+                    ev.cancel();
+                }
+            }
+            IF_LISTENED_END(EVENT_TYPES::onPlayerCmd);
         }
     });
 

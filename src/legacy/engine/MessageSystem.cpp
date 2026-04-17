@@ -322,10 +322,8 @@ bool ModuleMessageResult::cancel() const {
 void MessageSystemLoopOnce() {
     // if (!messageLoopLock.try_lock())
     //     return;
-    auto snapshot = globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
-    if (!snapshot) return;
-
-    for (auto& engine : *snapshot) {
+    auto snapshot = EngineManager::getGlobalEngines();
+    for (auto& engine : snapshot) {
         if (EngineManager::isValid(engine) && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
             try {
                 if (EngineScope::currentEngine() == engine.get())

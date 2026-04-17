@@ -2,8 +2,9 @@
 #include "legacy/api/APIHelp.h"
 
 #include <Windows.h>
-#include <atomic>
 #include <map>
+#include <memory>
+#include <mutex>
 #include <shared_mutex>
 #include <string>
 #include <vector>
@@ -27,9 +28,10 @@ struct MessageHandlers {
 // 全局共享数据
 struct GlobalDataType {
     // 引擎管理器表
-    std::shared_mutex                                                        engineListLock;
+    std::mutex                                                               engineListLock;
     std::vector<std::shared_ptr<ScriptEngine>>                               globalEngineList;
-    std::atomic<std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>>> globalEngineSnapshot;
+    std::shared_mutex                                                         engineSnapshotLock;
+    std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>>              globalEngineSnapshot;
 
     // 导出函数表
     std::unordered_map<std::string, ExportedFuncData> exportedFuncs;

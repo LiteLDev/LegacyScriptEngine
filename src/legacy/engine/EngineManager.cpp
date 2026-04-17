@@ -7,8 +7,8 @@
 #include "legacy/main/NodeJsHelper.h"
 #endif
 
-#include <atomic>
 #include <mutex>
+#include <shared_mutex>
 
 using namespace script;
 
@@ -19,11 +19,14 @@ void refreshEngineSnapshotLocked() {
         globalShareData->globalEngineList.begin(),
         globalShareData->globalEngineList.end()
     );
-    globalShareData->globalEngineSnapshot.store(snapshot, std::memory_order_release);
+
+    std::unique_lock snapshotLock(globalShareData->engineSnapshotLock);
+    globalShareData->globalEngineSnapshot = std::move(snapshot);
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>> loadEngineSnapshot() {
-    return globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
+    std::shared_lock snapshotLock(globalShareData->engineSnapshotLock);
+    return globalShareData->globalEngineSnapshot;
 }
 
 } // namespace
@@ -31,7 +34,7 @@ std::shared_ptr<std::vector<std::shared_ptr<ScriptEngine>>> loadEngineSnapshot()
 ///////////////////////////////// API /////////////////////////////////
 
 bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> const& toDelete) {
-    std::unique_lock lock(globalShareData->engineListLock);
+    std::lock_guard lock(globalShareData->engineListLock);
     for (auto engine = globalShareData->globalEngineList.begin(); engine != globalShareData->globalEngineList.end();
          ++engine) {
         if (*engine == toDelete) {
@@ -44,7 +47,7 @@ bool EngineManager::unregisterEngine(std::shared_ptr<ScriptEngine> const& toDele
 }
 
 bool EngineManager::registerEngine(std::shared_ptr<ScriptEngine> const& engine) {
-    std::unique_lock lock(globalShareData->engineListLock);
+    std::lock_guard lock(globalShareData->engineListLock);
     globalShareData->globalEngineList.push_back(engine);
     refreshEngineSnapshotLocked();
     return true;

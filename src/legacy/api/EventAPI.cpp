@@ -908,14 +908,12 @@ void InitBasicEventListeners() {
             }
 #ifndef LSE_BACKEND_NODEJS
             try {
-                auto snapshot = globalShareData->globalEngineSnapshot.load(std::memory_order_acquire);
-                if (snapshot) {
-                    for (auto& engine : *snapshot) {
-                        if (EngineManager::isValid(engine.get())
-                            && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
-                            EngineScope enter(engine.get());
-                            engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
-                        }
+                auto snapshot = EngineManager::getGlobalEngines();
+                for (auto& engine : snapshot) {
+                    if (EngineManager::isValid(engine.get())
+                        && EngineManager::getEngineType(engine) == LLSE_BACKEND_TYPE) {
+                        EngineScope enter(engine.get());
+                        engine->messageQueue()->loopQueue(script::utils::MessageQueue::LoopType::kLoopOnce);
                     }
                 }
             } catch (...) {

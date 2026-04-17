@@ -4,7 +4,7 @@
 #include "legacy/engine/LocalShareData.h"
 
 #include <Windows.h>
-#include <atomic>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -43,11 +43,11 @@ void InitGlobalShareData() {
         globalShareData                 = static_cast<GlobalDataType*>(address);
     }
 
-    globalShareData->globalEngineSnapshot.store(
-        std::make_shared<std::vector<std::shared_ptr<ScriptEngine>>>(
+    {
+        std::unique_lock snapshotLock(globalShareData->engineSnapshotLock);
+        globalShareData->globalEngineSnapshot = std::make_shared<std::vector<std::shared_ptr<ScriptEngine>>>(
             globalShareData->globalEngineList.begin(),
             globalShareData->globalEngineList.end()
-        ),
-        std::memory_order_release
-    );
+        );
+    }
 }

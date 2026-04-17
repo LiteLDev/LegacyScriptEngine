@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Supported LeviLamina 26.10.*
 
+## [0.17.15] - 2026-04-17
+
+### Fixed
+
+- Fixed deadlock in some cases caused by `loadEngineSnapshot()` @ShrBox
+
 ## [0.17.14] - 2026-04-13
 
 ### Fixed
@@ -1259,7 +1265,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.1...HEAD
 [0.18.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.0...v0.18.1
-[0.18.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...v0.18.0
+[0.18.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.15...v0.18.0
+[0.17.15]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.14...v0.17.15
 [0.17.14]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...v0.17.14
 [0.17.13]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.12...v0.17.13
 [0.17.12]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.11...v0.17.12

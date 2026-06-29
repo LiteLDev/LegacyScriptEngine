@@ -22,6 +22,10 @@ public:
 
     Local<Value> getId();
     Local<Value> getName();
+
+    Local<Value> sendTo(Arguments const& args);
+    Local<Value> sendToClients(Arguments const& args);
+    Local<Value> sendToServer(Arguments const& args);
 };
 extern ClassDefine<PacketClass> PacketClassBuilder;
 
@@ -42,20 +46,24 @@ public:
     static Local<Object>      newBinaryStream();
     static BinaryStreamClass* constructor(Arguments const& args);
 
-    Local<Value> getAndReleaseData();
+    Local<Value> getReadPointer(Arguments const& args);
+    Local<Value> setReadPointer(Arguments const& args);
+    Local<Value> getData(Arguments const& args);
+    Local<Value> setData(Arguments const& args);
     Local<Value> reset();
 
     Local<Value> reserve(Arguments const& args);
     Local<Value> writeBool(Arguments const& args);
     Local<Value> writeByte(Arguments const& args);
+    Local<Value> writeBytes(Arguments const& args);
     Local<Value> writeDouble(Arguments const& args);
     Local<Value> writeFloat(Arguments const& args);
+    Local<Value> writeNormalizedFloat(Arguments const& args);
     Local<Value> writeSignedBigEndianInt(Arguments const& args);
     Local<Value> writeSignedInt(Arguments const& args);
     Local<Value> writeSignedInt64(Arguments const& args);
     Local<Value> writeSignedShort(Arguments const& args);
     Local<Value> writeString(Arguments const& args);
-    Local<Value> writeUnsignedChar(Arguments const& args);
     Local<Value> writeUnsignedInt(Arguments const& args);
     Local<Value> writeUnsignedInt64(Arguments const& args);
     Local<Value> writeUnsignedShort(Arguments const& args);
@@ -67,6 +75,7 @@ public:
     Local<Value> writeBlockPos(Arguments const& args);
     Local<Value> writeCompoundTag(Arguments const& args);
     Local<Value> writeItem(Arguments const& args);
+    Local<Value> writeUuid(Arguments const& args);
 
     Local<Value> createPacket(Arguments const& args);
 };

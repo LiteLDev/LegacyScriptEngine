@@ -75,7 +75,7 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onContainerChange,
                         PlayerClass::newPlayer(&mPlayer),
-                        BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId().id),
+                        BlockClass::newBlock(mBlockPos, mPlayer.getDimensionId()),
                         Number::newNumber(slotNumber + this->_getContainerOffset()),
                         ItemClass::newItem(&const_cast<ItemStack&>(oldItem)),
                         ItemClass::newItem(&const_cast<ItemStack&>(newItem))
@@ -425,7 +425,7 @@ bool liquidBlockCanSpreadTo(
     }
     if (auto const& block = region.getLiquidBlock(pos);
         materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
-        || block.getBlockType().mMaterial.mType == MaterialType::Lava
+        || block.getBlockType().mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Lava
         || liquidBlock._isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
         return false;
     }

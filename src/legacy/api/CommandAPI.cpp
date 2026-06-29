@@ -123,7 +123,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return IntPos::newPos(
             std::get<CommandPosition>(result.value())
                 .getBlockPos(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
-            dim ? dim->getDimensionId().id : -1
+            dim ? dim->getDimensionId().mValue : -1
         );
     }
     if (result.hold(ParamKind::Kind::Vec3)) {
@@ -131,7 +131,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return FloatPos::newPos(
             std::get<CommandPositionFloat>(result.value())
                 .getPosition(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
-            dim ? dim->getDimensionId().id : -1
+            dim ? dim->getDimensionId().mValue : -1
         );
     }
     if (result.hold(ParamKind::Kind::Message)) {

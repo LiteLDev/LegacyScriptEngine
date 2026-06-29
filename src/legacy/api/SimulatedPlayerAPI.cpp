@@ -105,7 +105,7 @@ Local<Value> PlayerClass::simulateDestroy(Arguments const& args) {
 
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateDestroyLookAt());
 
-        int                                 dimid = sp->getDimensionId().id;
+        int                                 dimid = sp->getDimensionId();
         BlockPos                            bpos;
         size_t                              index = 0;
         ScriptModuleMinecraft::ScriptFacing face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
@@ -171,7 +171,7 @@ Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
             return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()).mSuccess);
         }
 
-        int                                 dimid = sp->getDimensionId().id;
+        int                                 dimid = sp->getDimensionId();
         BlockPos                            bpos;
         size_t                              index = 0;
         ScriptModuleMinecraft::ScriptFacing face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
@@ -365,7 +365,7 @@ Local<Value> PlayerClass::simulateLookAt(Arguments const& args) const {
     try {
         auto sp = asSimulatedPlayer();
         if (!sp) return {};
-        int  dimid        = sp->getDimensionId().id;
+        int  dimid        = sp->getDimensionId();
         auto lookDuration = sim::LookDuration::UntilMove;
         if (args.size() > 1) {
             if (!args[1].isNumber()) {

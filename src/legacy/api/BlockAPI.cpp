@@ -203,7 +203,10 @@ Local<Value> BlockClass::isAir() const {
 
 Local<Value> BlockClass::isBounceBlock() const {
     try {
-        return Boolean::newBoolean(block->getBlockType().isBounceBlock());
+        return Boolean::newBoolean(block->getBlockType().getBounciness(
+            ll::service::getLevel()->getDimension(id).lock()->getBlockSourceFromMainChunkSource(),
+            blockPos.getBlockPos()
+        ));
     }
     CATCH_AND_THROW
 }

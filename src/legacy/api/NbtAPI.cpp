@@ -1878,7 +1878,7 @@ Local<Value> NbtStatic::newTag(Arguments const& args) {
             break;
         }
         case Tag::Type::Float: {
-            auto tag = std::make_unique<FloatTag>();
+            auto tag = std::make_unique<FloatTag>(0.0f);
             if (args.size() >= 2 && args[1].isNumber()) {
                 tag->data = args[1].asNumber().toFloat();
             }
@@ -1886,7 +1886,7 @@ Local<Value> NbtStatic::newTag(Arguments const& args) {
             break;
         }
         case Tag::Type::Double: {
-            auto tag = std::make_unique<DoubleTag>();
+            auto tag = std::make_unique<DoubleTag>(0.0);
             if (args.size() >= 2 && args[1].isNumber()) {
                 tag->data = args[1].asNumber().toDouble();
             }

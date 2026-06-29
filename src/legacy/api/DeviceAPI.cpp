@@ -36,7 +36,7 @@ ClassDefine<DeviceClass> DeviceClassBuilder = defineClass<DeviceClass>("LLSE_Dev
 DeviceClass::DeviceClass(Player const* player) : ScriptClass(ScriptClass::ConstructFromCpp<DeviceClass>{}) {
     try {
         if (player) {
-            mWeakEntity = player->getWeakEntity();
+            mWeakEntity = player->getEntityContext().getWeakRef();
             mValid      = true;
         }
     } catch (...) {}
@@ -70,7 +70,7 @@ Local<Value> DeviceClass::getAvgPing() const {
         Player* player = getPlayer();
         if (!player) return {};
 
-        return Number::newNumber(player->getNetworkStatus()->mAveragePing);
+        return Number::newNumber(player->getNetworkStatus()->mAveragePing.get().count());
     }
     CATCH_AND_THROW
 }
@@ -90,7 +90,7 @@ Local<Value> DeviceClass::getLastPing() const {
         Player* player = getPlayer();
         if (!player) return {};
 
-        return Number::newNumber(player->getNetworkStatus()->mCurrentPing);
+        return Number::newNumber(player->getNetworkStatus()->mCurrentPing.get().count());
     }
     CATCH_AND_THROW
 }

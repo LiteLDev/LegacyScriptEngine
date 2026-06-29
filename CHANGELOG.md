@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added packet sending APIs: `Packet::sendTo`, `Packet::sendToClients` and `Packet::sendToServer` @zimuya4153
+- Added `BinaryStream` APIs: `getReadPointer`, `setReadPointer`, `setData`, `writeBytes`, `writeUuid` and `writeNormalizedFloat` @zimuya4153
+- Added server APIs: `mc.getMotd`, `mc.getOnlinePlayerNum`, `mc.getMaxNumPlayers`, `mc.getDimensionId` and `mc.getDimensionName` @zimuya4153
+
+### Changed
+
+- `BinaryStream::getData([clear])` now supports the optional `clear` parameter and returns `ByteBuffer` instead of `String` @zimuya4153
+- `BinaryStream::createPacket(pktid[,raw])` now supports creating raw packets @zimuya4153
+- Allowed string arguments for several `BinaryStream::write*` numeric APIs to better support BigInt values @zimuya4153
+
 ## [0.18.2] - 2026-04-17
 
 ### Fixed

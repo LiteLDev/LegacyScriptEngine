@@ -20,6 +20,18 @@ The following APIs provide interfaces for customizing some server settings:
 
 
 
+### Get Server Motd String
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`mc.getMotd()`
+
+- Return value: Current server Motd string
+- Return value type: `String`
+
+
+
 ### Set Server Motd String  
 
 `mc.setMotd(motd)`
@@ -41,6 +53,33 @@ The following APIs provide interfaces for customizing some server settings:
     The maximum number of players.  
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
+
+
+
+### Get Online Player Count
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`mc.getOnlinePlayerNum([ignoreSimulatedPlayer])`
+
+- Parameters:
+  - ignoreSimulatedPlayer : `Boolean` = `false`  
+    Whether to ignore simulated players
+- Return value: Current number of online players
+- Return value type: `Number`
+
+
+
+### Get Server Maximum Player Count
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`mc.getMaxNumPlayers()`
+
+- Return value: Current maximum number of players on the server
+- Return value type: `Number`
 
 
 
@@ -88,5 +127,35 @@ Among them, daytime is the number of game ticks since dawn, gametime is the age 
     The weather you want to set (0 represents Clear, 1 represents Rain, 2 represents Thunder)
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
+
+
+
+### Get Dimension ID
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`mc.getDimensionId(name)`
+
+- Parameters:
+  - name : `String`  
+    Dimension name
+- Return value: Dimension ID corresponding to the dimension name, or `null` if the dimension name is invalid
+- Return value type: `Number`
+
+
+
+### Get Dimension Name
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`mc.getDimensionName(dimid)`
+
+- Parameters:
+  - dimid : `Integer`  
+    Dimension ID
+- Return value: Dimension name corresponding to the dimension ID, or `null` if the dimension ID is invalid
+- Return value type: `String`
 
 

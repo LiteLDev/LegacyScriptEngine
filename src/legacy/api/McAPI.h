@@ -35,10 +35,13 @@ public:
     static Local<Value> newCustomForm(Arguments const& args);
 
     static Local<Value> regConsoleCmd(Arguments const& args);
+    static Local<Value> getMotd(Arguments const& args);
     static Local<Value> setMotd(Arguments const& args);
     static Local<Value> sendCmdOutput(Arguments const& args);
     static Local<Value> crashBDS(Arguments const& args);
 
+    static Local<Value> getOnlinePlayerNum(Arguments const& args);
+    static Local<Value> getMaxNumPlayers(Arguments const& args);
     static Local<Value> setMaxNumPlayers(Arguments const& args);
 
     static Local<Value> newIntPos(Arguments const& args);
@@ -69,5 +72,8 @@ public:
     static Local<Value> setTime(Arguments const& args);
     static Local<Value> getWeather(Arguments const& args);
     static Local<Value> setWeather(Arguments const& args);
+
+    static Local<Value> getDimensionId(Arguments const& args);
+    static Local<Value> getDimensionName(Arguments const& args);
 };
 extern ClassDefine<> McClassBuilder;

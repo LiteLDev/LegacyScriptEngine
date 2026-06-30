@@ -140,6 +140,7 @@ ClassDefine<EntityClass> EntityClassBuilder =
         .instanceFunction("refreshItems", &EntityClass::refreshItems)
         .instanceFunction("setScale", &EntityClass::setScale)
         .instanceFunction("setCustomName", &EntityClass::setCustomName)
+        .instanceFunction("getCustomName", &EntityClass::getCustomName)
         .instanceFunction("setNbt", &EntityClass::setNbt)
         .instanceFunction("getNbt", &EntityClass::getNbt)
         .instanceFunction("addTag", &EntityClass::addTag)
@@ -1305,6 +1306,16 @@ Local<Value> EntityClass::setCustomName(Arguments const& args) const {
 
         entity->setNameTag(args[0].asString().toString());
         return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> EntityClass::getCustomName() const {
+    try {
+        Actor* entity = get();
+        if (!entity) return {};
+
+        return String::newString(entity->getNameTag());
     }
     CATCH_AND_THROW
 }

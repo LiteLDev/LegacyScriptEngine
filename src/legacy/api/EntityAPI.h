@@ -31,6 +31,7 @@ public:
     Local<Value> getCanFreeze() const;
     Local<Value> getCanSeeDaylight() const;
     Local<Value> getCanPickupItems() const;
+    Local<Value> getCustomName() const;
     Local<Value> getInAir() const;
     Local<Value> getInWater() const;
     Local<Value> getInClouds() const;

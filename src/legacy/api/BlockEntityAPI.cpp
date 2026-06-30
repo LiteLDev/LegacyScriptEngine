@@ -24,6 +24,8 @@ ClassDefine<BlockEntityClass> BlockEntityClassBuilder = defineClass<BlockEntityC
                                                             .instanceFunction("setNbt", &BlockEntityClass::setNbt)
                                                             .instanceFunction("getNbt", &BlockEntityClass::getNbt)
                                                             .instanceFunction("getBlock", &BlockEntityClass::getBlock)
+                                                            .instanceFunction("setCustomName", &BlockEntityClass::setCustomName)
+                                                            .instanceFunction("getCustomName", &BlockEntityClass::getCustomName)
                                                             .build();
 
 //////////////////// Classes ////////////////////
@@ -97,6 +99,24 @@ Local<Value> BlockEntityClass::getBlock(Arguments const&) const {
         auto&    block =
             ll::service::getLevel()->getDimension(dim).lock()->getBlockSourceFromMainChunkSource().getBlock(blockPos);
         return BlockClass::newBlock(block, blockPos, dim);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> BlockEntityClass::setCustomName(Arguments const& args) const {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        blockEntity->setCustomName({args[0].asString().toString(), std::nullopt});
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> BlockEntityClass::getCustomName() const {
+    try {
+        return String::newString(blockEntity->getCustomName().mUnredactedString);
     }
     CATCH_AND_THROW
 }

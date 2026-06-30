@@ -452,6 +452,16 @@ This function is only available in 0.19.0 and later.
 - Return value: Whether setting was successful
 - Return value type: `Boolean`
 
+#### Get Entity Custom Name
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`en.getCustomName()`
+
+- Return value: The entity's custom name
+- Return value type: `String`
+
 #### Get Entity Distance To Pos
 
 `en.distanceTo(pos)`

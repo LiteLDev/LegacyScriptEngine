@@ -414,5 +414,7 @@ globalThis.LXL_CustomForm = LLSE_CustomForm;
 globalThis.LXL_Item = LLSE_Item;
 globalThis.LXL_Player = LLSE_Player;
 globalThis.LXL_Objective = LLSE_Objective;
+globalThis.LXL_Packet = LLSE_Packet;
+globalThis.Packet = LLSE_Packet;
 ll.export = ll.exports;
 ll.import = ll.imports;

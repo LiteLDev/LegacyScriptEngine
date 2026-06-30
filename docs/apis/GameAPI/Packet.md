@@ -22,6 +22,21 @@ In LLSE, 「Packet Object」 is used to get information about packets.
 Call some **return packet object** function to get to the packet object given by BDS  
 See [Binary Stream Objects](#-binary-stream-object-api) for details
 
+#### Create from packet ID
+
+!!! warning
+The global aliases of this class are only available in 0.19.0 and later.
+
+`Packet.createPacket(pktid[,raw])`  
+
+- Parameters：
+  - pktid : `Integer`
+    Packet ID
+  - raw : `Boolean` (Optional parameter)
+    Create raw network packet. The default value is `false`
+- Return value：Packet object
+- Return value type： `Packet`
+
 ### Packet Objects - Functions
 
 Every packet object contains some member functions (member methods) that can be executed. For a particular entity object `pkt`, some operations can be performed on this packet by these functions
@@ -39,6 +54,26 @@ Every packet object contains some member functions (member methods) that can be 
 
 - Return value：packet id
 - Return value type： `Integer`
+
+#### Read binary stream data into packet
+
+`pkt.read(bs)`
+
+- Parameters：
+  - bs : `BinaryStream`
+    Source binary stream
+- Return value：success or not
+- Return value type： `Boolean`
+
+#### Write packet data into binary stream
+
+`pkt.write(bs)`
+
+- Parameters：
+  - bs : `BinaryStream`
+    Target binary stream
+- Return value：success or not
+- Return value type： `Boolean`
 
 #### Send packet to specified target
 

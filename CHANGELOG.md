@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added packet APIs:
-  `Packet::sendTo`, `Packet::sendToClients`, `Packet::sendToServer` @zimuya4153
+  `Packet::sendTo`, `Packet::sendToClients`, `Packet::sendToServer`,
+  `Packet` / `LXL_Packet` global aliases @zimuya4153
 - Added `BinaryStream` APIs:
   `getReadPointer`, `setReadPointer`, `setData`, `writeBytes`, `readBytes`,
   `writeUuid` @zimuya4153
@@ -20,13 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added gameplay helpers:
   `en.setCustomName`, `mc.summonMob`, `mc.loadMob`, `it.addCount`,
   `it.removeCount`, `it.setCount`, `system.randomUuid` @zimuya4153
+- Added name access APIs:
+  `be.setCustomName`, `be.getCustomName`, `en.getCustomName`,
+  `it.getDisplayName` @zimuya4153
+- Added `VaillanI18n` API for modifying Minecraft vanilla language data
+  @zimuya4153
 
 ### Changed
 
 - Improved `BinaryStream`:
-  `getData([clear])` now supports the optional `clear` parameter and returns
-  `ByteBuffer`; `createPacket(pktid[,raw])` now supports raw packets; several
-  numeric `write*` APIs now accept `String` for BigInt-friendly input
+  `getData([release])` now returns `ByteBuffer`, does not clear by default, and
+  optionally releases data after reading; `createPacket(pktid[,raw])` now
+  supports raw packets; scalar `read*` APIs were added; several numeric
+  `write*` APIs now accept `String` for BigInt-friendly input
   @zimuya4153
 - Improved file and item behavior:
   `File.readFrom(path[,isBinary])` now supports binary reads;

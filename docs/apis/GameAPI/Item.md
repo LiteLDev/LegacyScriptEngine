@@ -220,6 +220,16 @@ In 0.19.0 and later, passing an empty array will clear the item's lore.
 - Return value: Whether setting the name was successful.
 - Return value type:  `Boolean`
 
+#### Get Custom Item Name
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`it.getDisplayName()`
+
+- Return value: Custom item name
+- Return value type: `String`
+
 
 
 #### Determine if it is the same kind of item

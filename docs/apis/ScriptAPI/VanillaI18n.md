@@ -2,6 +2,11 @@
 
 This API is used to modify Minecraft vanilla language data.
 
+!!! warning
+This API is only available in 0.19.0 and later.
+
+The actual registered class name in the script engine is `VaillanI18n`.
+
 ## Get current language
 
 `VaillanI18n.getCurrentLanguage()`

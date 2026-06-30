@@ -43,6 +43,7 @@ public:
     Local<Value> getMaxDamage() const;
     Local<Value> getMaxStackSize() const;
     Local<Value> getLore() const;
+    Local<Value> getDisplayName() const;
 
     Local<Value> isArmorItem() const;
     Local<Value> isBlock() const;

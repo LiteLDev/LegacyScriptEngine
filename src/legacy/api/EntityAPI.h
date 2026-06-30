@@ -83,6 +83,7 @@ public:
     Local<Value> setFire(Arguments const& args) const;
     Local<Value> stopFire(Arguments const& args) const;
     Local<Value> setScale(Arguments const& args) const;
+    Local<Value> setCustomName(Arguments const& args) const;
 
     Local<Value> distanceTo(Arguments const& args) const;
     Local<Value> distanceToSqr(Arguments const& args) const;

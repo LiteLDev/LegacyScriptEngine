@@ -177,32 +177,72 @@ This function is only available in 0.19.0 and later.
 - Return value：success or not
 - Return value type： `Boolean`
 
-| Available functions                    | Parameter Type       |
-| -------------------------------------- | -------------------- |
-| writeBool                              | `Boolean`            |
-| writeByte                              | `Integer`            |
-| writeBytes (Added in 0.19.0)           | `ByteBuffer`         |
-| writeDouble                            | `Number` / `String`  |
-| writeFloat                             | `Float` / `String`   |
-| writeNormalizedFloat (Added in 0.19.0) | `Float` / `String`   |
-| writeSignedBigEndianInt                | `Number` / `String`  |
-| writeSignedInt                         | `Number` / `String`  |
-| writeSignedInt64                       | `Number` / `String`  |
-| writeSignedShort                       | `Integer` / `String` |
-| writeString                            | `String`             |
-| writeUnsignedChar                      | `Integer`            |
-| writeUnsignedInt                       | `Number` / `String`  |
-| writeUnsignedInt64                     | `Number` / `String`  |
-| writeUnsignedShort                     | `Integer` / `String` |
-| writeUnsignedVarInt                    | `Number` / `String`  |
-| writeUnsignedVarInt64                  | `Number` / `String`  |
-| writeVarInt                            | `Number` / `String`  |
-| writeVarInt64                          | `Number` / `String`  |
-| writeVec3                              | `FloatPos`           |
-| writeBlockPos (Added in 0.9.5)         | `BlockPos`           |
-| writeCompoundTag                       | `NbtCompound`        |
-| writeItem (Added in 0.9.5)             | `Item`               |
-| writeUuid (Added in 0.19.0)            | `String`             |
+| Available functions            | Parameter Type       |
+| ------------------------------ | -------------------- |
+| writeBool                      | `Boolean`/ `String`  |
+| writeByte                      | `Integer` / `String` |
+| writeBytes (Added in 0.19.0)   | `ByteBuffer`         |
+| writeDouble                    | `Number` / `String`  |
+| writeFloat                     | `Float` / `String`   |
+| writeSignedBigEndianInt        | `Number` / `String`  |
+| writeSignedInt                 | `Number` / `String`  |
+| writeSignedInt64               | `Number` / `String`  |
+| writeSignedShort               | `Integer` / `String` |
+| writeString                    | `String`             |
+| writeUnsignedChar              | `Integer` / `String` |
+| writeUnsignedInt               | `Number` / `String`  |
+| writeUnsignedInt64             | `Number` / `String`  |
+| writeUnsignedShort             | `Integer` / `String` |
+| writeUnsignedVarInt            | `Number` / `String`  |
+| writeUnsignedVarInt64          | `Number` / `String`  |
+| writeVarInt                    | `Number` / `String`  |
+| writeVarInt64                  | `Number` / `String`  |
+| writeVec3                      | `FloatPos`           |
+| writeBlockPos (Added in 0.9.5) | `BlockPos`           |
+| writeCompoundTag               | `NbtCompound`        |
+| writeItem (Added in 0.9.5)     | `Item`               |
+| writeUuid (Added in 0.19.0)    | `String`             |
+
+#### Read from binary stream
+
+!!! warning
+This function group is only available in 0.19.0 and later.
+
+`bs.readxxxx([asString])`  
+`bs.readBytes(length)`
+
+- Parameters:
+
+  - asString : `Boolean` (Optional parameter)
+    Only available for numeric read functions. When set to `true`, the return value is converted to `String`
+  - length : `Integer`
+    Only available for `readBytes`. Number of bytes to read. Must be greater than `0`
+
+- Return value:
+  - Read result
+
+| Available functions    | Parameter Type | Return Type         |
+| ---------------------- | -------------- | ------------------- |
+| readBool               | None           | `Boolean`           |
+| readByte               | `Boolean`      | `Number` / `String` |
+| readBytes              | `Integer`      | `ByteBuffer`        |
+| readUnsignedChar       | `Boolean`      | `Number` / `String` |
+| readDouble             | `Boolean`      | `Number` / `String` |
+| readFloat              | `Boolean`      | `Number` / `String` |
+| readSignedBigEndianInt | `Boolean`      | `Number` / `String` |
+| readSignedInt          | `Boolean`      | `Number` / `String` |
+| readSignedInt64        | `Boolean`      | `Number` / `String` |
+| readSignedShort        | `Boolean`      | `Number` / `String` |
+| readString             | None           | `String`            |
+| readUnsignedInt        | `Boolean`      | `Number` / `String` |
+| readUnsignedInt64      | `Boolean`      | `Number` / `String` |
+| readUnsignedShort      | `Boolean`      | `Number` / `String` |
+| readUnsignedVarInt     | `Boolean`      | `Number` / `String` |
+| readUnsignedVarInt64   | `Boolean`      | `Number` / `String` |
+| readVarInt             | `Boolean`      | `Number` / `String` |
+| readVarInt64           | `Boolean`      | `Number` / `String` |
+
+When `asString` is `true`, numeric `read*` functions return `String`; otherwise they return `Number`.
 
 #### Building packet from binary stream
 

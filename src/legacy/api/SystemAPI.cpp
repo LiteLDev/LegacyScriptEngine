@@ -19,6 +19,7 @@ ClassDefine<void> SystemClassBuilder = defineClass("system")
                                            .function("getTimeStr", &SystemClass::getTimeStr)
                                            .function("getTimeObj", &SystemClass::getTimeObj)
                                            .function("randomGuid", &SystemClass::randomGuid)
+                                           .function("randomUuid", &SystemClass::randomUuid)
                                            .function("cmd", &SystemClass::cmd)
                                            .function("newProcess", &SystemClass::newProcess)
                                            .build();
@@ -192,3 +193,5 @@ Local<Value> SystemClass::getTimeObj(Arguments const&) {
 }
 
 Local<Value> SystemClass::randomGuid(Arguments const&) { return String::newString(Raw_RandomGuid()); }
+
+Local<Value> SystemClass::randomUuid(Arguments const&) { return String::newString(mce::UUID::random().asString()); }

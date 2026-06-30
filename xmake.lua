@@ -87,7 +87,8 @@ target("LegacyScriptEngine")
     add_defines(
         "NOMINMAX",
         "UNICODE",
-        "_AMD64_"
+        "_AMD64_",
+        "_HAS_CXX23=1"
     )
     add_packages(
         "cpp-httplib",

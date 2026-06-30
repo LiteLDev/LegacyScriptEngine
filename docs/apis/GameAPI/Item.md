@@ -205,6 +205,9 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 - Return value: Whether setting the lore was successful.
 - Return value type:  `Boolean`
 
+!!! warning
+In 0.19.0 and later, passing an empty array will clear the item's lore.
+
 
 
 #### Set Custom Item Name
@@ -227,6 +230,45 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
   - item : `Item`  
     Judged items
 - Return value: is the same kind of item
+- Return value type:  `Boolean`
+
+#### Increase Item Count
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`it.addCount(count)`
+
+- Parameters:
+  - count : `Integer`
+    Amount to add
+- Return value: Whether setting was successful
+- Return value type:  `Boolean`
+
+#### Decrease Item Count
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`it.removeCount(count)`
+
+- Parameters:
+  - count : `Integer`
+    Amount to remove
+- Return value: Whether setting was successful
+- Return value type:  `Boolean`
+
+#### Set Item Count
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`it.setCount(count)`
+
+- Parameters:
+  - count : `Integer`
+    Amount to set
+- Return value: Whether setting was successful
 - Return value type:  `Boolean`
 
 

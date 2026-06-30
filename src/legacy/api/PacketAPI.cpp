@@ -13,6 +13,9 @@
 #include "mc/network/Packet.h"
 #include "mc/world/item/NetworkItemStackDescriptor.h"
 
+#include <limits>
+#include <type_traits>
+
 //////////////////// Class Definition ////////////////////
 
 ClassDefine<PacketClass> PacketClassBuilder = defineClass<PacketClass>("LLSE_Packet")
@@ -39,7 +42,6 @@ ClassDefine<BinaryStreamClass> BinaryStreamClassBuilder =
         .instanceFunction("writeBytes", &BinaryStreamClass::writeBytes)
         .instanceFunction("writeDouble", &BinaryStreamClass::writeDouble)
         .instanceFunction("writeFloat", &BinaryStreamClass::writeFloat)
-        .instanceFunction("writeNormalizedFloat", &BinaryStreamClass::writeNormalizedFloat)
         .instanceFunction("writeSignedBigEndianInt", &BinaryStreamClass::writeSignedBigEndianInt)
         .instanceFunction("writeSignedInt", &BinaryStreamClass::writeSignedInt)
         .instanceFunction("writeSignedInt64", &BinaryStreamClass::writeSignedInt64)
@@ -58,6 +60,24 @@ ClassDefine<BinaryStreamClass> BinaryStreamClassBuilder =
         .instanceFunction("writeCompoundTag", &BinaryStreamClass::writeCompoundTag)
         .instanceFunction("writeItem", &BinaryStreamClass::writeItem)
         .instanceFunction("writeUuid", &BinaryStreamClass::writeUuid)
+        .instanceFunction("readBool", &BinaryStreamClass::readBool)
+        .instanceFunction("readByte", &BinaryStreamClass::readByte)
+        .instanceFunction("readBytes", &BinaryStreamClass::readBytes)
+        .instanceFunction("readUnsignedChar", &BinaryStreamClass::readByte)
+        .instanceFunction("readDouble", &BinaryStreamClass::readDouble)
+        .instanceFunction("readFloat", &BinaryStreamClass::readFloat)
+        .instanceFunction("readSignedBigEndianInt", &BinaryStreamClass::readSignedBigEndianInt)
+        .instanceFunction("readSignedInt", &BinaryStreamClass::readSignedInt)
+        .instanceFunction("readSignedInt64", &BinaryStreamClass::readSignedInt64)
+        .instanceFunction("readSignedShort", &BinaryStreamClass::readSignedShort)
+        .instanceFunction("readString", &BinaryStreamClass::readString)
+        .instanceFunction("readUnsignedInt", &BinaryStreamClass::readUnsignedInt)
+        .instanceFunction("readUnsignedInt64", &BinaryStreamClass::readUnsignedInt64)
+        .instanceFunction("readUnsignedShort", &BinaryStreamClass::readUnsignedShort)
+        .instanceFunction("readUnsignedVarInt", &BinaryStreamClass::readUnsignedVarInt)
+        .instanceFunction("readUnsignedVarInt64", &BinaryStreamClass::readUnsignedVarInt64)
+        .instanceFunction("readVarInt", &BinaryStreamClass::readVarInt)
+        .instanceFunction("readVarInt64", &BinaryStreamClass::readVarInt64)
         .instanceFunction("createPacket", &BinaryStreamClass::createPacket)
 
         .build();
@@ -167,6 +187,71 @@ Local<Value> PacketClass::sendToServer(Arguments const& args) {
 }
 
 //////////////////// BinaryStream Classes ////////////////////
+
+template <typename T>
+auto parseScalarArg(Arguments const& args, std::string_view func) {
+    CHECK_ARGS_COUNT(args, 1);
+
+    auto const& value = args[0];
+    if constexpr (ll::traits::is_string_v<T>) {
+        if (value.isString()) {
+            return value.asString().toString();
+        }
+    } else {
+        if (value.isBoolean()) {
+            return static_cast<T>(value.asBoolean().value());
+        }
+        if (value.isNumber()) {
+            if (auto num = value.asNumber(); num.isInteger()) {
+                return static_cast<T>(value.asNumber().toInt64());
+            } else {
+                return static_cast<T>(value.asNumber().toDouble());
+            }
+        }
+        if (value.isString()) {
+            if constexpr (std::is_same_v<T, bool>) {
+                if (auto res = ll::string_utils::svtobool(value.asString().toString()); res) {
+                    return res.value();
+                }
+            } else if constexpr (std::is_floating_point_v<T>) {
+                if (auto res =
+                        ll::string_utils::svtonum<T>(value.asString().toString(), nullptr, std::chars_format::general);
+                    res) {
+                    return res.value();
+                }
+            } else {
+                if (auto res = ll::string_utils::svtonum<T>(value.asString().toString(), nullptr, 10); res) {
+                    return res.value();
+                }
+            }
+        }
+    }
+    throw WrongArgTypeException(std::string{func});
+}
+
+template <typename T>
+Local<Value> makeScalarResult(Bedrock::Result<T>&& res, char const* func, bool asString) {
+    if (!res) {
+        throw Exception(fmt::format("{}\nfunction: {}", res.error().code().message(), func));
+    }
+    auto& value = res.value();
+    if (asString) return String::newString(fmt::to_string(value));
+
+    if constexpr (std::is_same_v<T, bool>) {
+        return Boolean::newBoolean(res.value());
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        return String::newString(res.value());
+    } else if constexpr (std::is_floating_point_v<T>) {
+        return Number::newNumber(static_cast<double>(value));
+    } else if constexpr (std::is_unsigned_v<T>) {
+        if (value <= static_cast<T>(std::numeric_limits<int64_t>::max())) {
+            return Number::newNumber(static_cast<int64_t>(value));
+        }
+        return Number::newNumber(static_cast<double>(value));
+    } else {
+        return Number::newNumber(static_cast<int64_t>(value));
+    }
+}
 
 BinaryStreamClass::BinaryStreamClass(std::shared_ptr<BinaryStream> const& bs)
 : ScriptClass(ConstructFromCpp<BinaryStreamClass>{}) {
@@ -280,34 +365,6 @@ Local<Value> BinaryStreamClass::reserve(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeBool(Arguments const& args) {
-    CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
-    try {
-        auto stream = get();
-        if (!stream) {
-            return {};
-        }
-        stream->writeBool(args[0].asBoolean().value(), nullptr, nullptr);
-        return Boolean::newBoolean(true);
-    }
-    CATCH_AND_THROW
-}
-
-Local<Value> BinaryStreamClass::writeByte(Arguments const& args) {
-    CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
-    try {
-        auto stream = get();
-        if (!stream) {
-            return {};
-        }
-        stream->writeByte(static_cast<uchar>(args[0].asNumber().toInt32()), nullptr, nullptr);
-        return Boolean::newBoolean(true);
-    }
-    CATCH_AND_THROW
-}
-
 Local<Value> BinaryStreamClass::writeBytes(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kByteBuffer);
@@ -324,68 +381,77 @@ Local<Value> BinaryStreamClass::writeBytes(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-Local<Value> BinaryStreamClass::writeString(Arguments const& args) {
+Local<Value> BinaryStreamClass::readBytes(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
-    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+
+    auto length = args[0].asNumber().toInt32();
+    if (length <= 0) throw WrongArgTypeException(__FUNCTION__);
     try {
         auto stream = get();
         if (!stream) {
             return {};
         }
-        stream->writeString(args[0].asString().toString(), nullptr, nullptr);
-        return Boolean::newBoolean(true);
+
+        std::string buffer(length, '\0');
+        if (auto res = stream->read(buffer.data(), length); !res) {
+            throw Exception(fmt::format("{}\nfunction: {}", res.error().code().message(), __func__));
+        }
+        return ByteBuffer::newByteBuffer(buffer.data(), length);
     }
     CATCH_AND_THROW
 }
 
-#define WRITE_MACRO(FUNC_NAME, INDEX)                                                                                  \
-    Local<Value> BinaryStreamClass::FUNC_NAME(Arguments const& args) {                                                 \
-        CHECK_ARGS_COUNT(args, 1);                                                                                     \
-        CHECK_ARG_TYPE(args[0], ValueKind::kNumber && args[0].getKind() != ValueKind::kString);                        \
+#define SCALAR_STREAM_MACRO(NAME, ...)                                                                                 \
+    Local<Value> BinaryStreamClass::write##NAME(Arguments const& args) {                                               \
         try {                                                                                                          \
             auto stream = get();                                                                                       \
             if (!stream) {                                                                                             \
                 return {};                                                                                             \
             }                                                                                                          \
-            using T = ll::traits::function_traits<decltype(&BinaryStream::FUNC_NAME)>::arg<0>;                         \
-            T value{};                                                                                                 \
-            if (args[0].isNumber()) {                                                                                  \
-                value = static_cast<T>(args[0].asNumber().toInt64());                                                  \
-            } else if (args[0].isString()) {                                                                           \
-                if (auto res = ll::string_utils::svtonum<T>(args[0].asString().toString(), nullptr, INDEX); res) {     \
-                    value = res.value();                                                                               \
-                } else {                                                                                               \
-                    throw WrongArgTypeException(__FUNCTION__);                                                         \
-                }                                                                                                      \
-            }                                                                                                          \
-            stream->FUNC_NAME(value, nullptr, nullptr);                                                                \
+            auto value = parseScalarArg<ll::traits::function_traits<decltype(&BinaryStream::write##NAME)>::arg<0>>(    \
+                args,                                                                                                  \
+                __FUNCTION__                                                                                           \
+            );                                                                                                         \
+            stream->write##NAME(value, nullptr, nullptr);                                                              \
             return Boolean::newBoolean(true);                                                                          \
+        }                                                                                                              \
+        CATCH_AND_THROW                                                                                                \
+    }                                                                                                                  \
+    Local<Value> BinaryStreamClass::read##NAME(Arguments const& args) {                                                \
+        if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);                                            \
+        try {                                                                                                          \
+            auto stream = get();                                                                                       \
+            if (!stream) {                                                                                             \
+                return {};                                                                                             \
+            }                                                                                                          \
+            return makeScalarResult(                                                                                   \
+                stream->get##NAME(__VA_ARGS__),                                                                        \
+                __FUNCTION__,                                                                                          \
+                args.size() >= 1 ? args[0].asBoolean().value() : false                                                 \
+            );                                                                                                         \
         }                                                                                                              \
         CATCH_AND_THROW                                                                                                \
     }
 
-#define WRITE_INTEGER_MACRO(FUNC_NAME) WRITE_MACRO(FUNC_NAME, 10)
-#define WRITE_FLOAT_MACRO(FUNC_NAME) WRITE_MACRO(FUNC_NAME, std::chars_format::general)
+SCALAR_STREAM_MACRO(Bool);
+SCALAR_STREAM_MACRO(Byte);
+SCALAR_STREAM_MACRO(Double);
+SCALAR_STREAM_MACRO(Float);
+SCALAR_STREAM_MACRO(SignedBigEndianInt);
+SCALAR_STREAM_MACRO(SignedInt);
+SCALAR_STREAM_MACRO(SignedInt64);
+SCALAR_STREAM_MACRO(SignedShort);
+SCALAR_STREAM_MACRO(String, std::numeric_limits<uint64_t>::max());
+SCALAR_STREAM_MACRO(UnsignedInt);
+SCALAR_STREAM_MACRO(UnsignedInt64);
+SCALAR_STREAM_MACRO(UnsignedShort);
+SCALAR_STREAM_MACRO(UnsignedVarInt);
+SCALAR_STREAM_MACRO(UnsignedVarInt64);
+SCALAR_STREAM_MACRO(VarInt);
+SCALAR_STREAM_MACRO(VarInt64);
 
-WRITE_INTEGER_MACRO(writeSignedBigEndianInt);
-WRITE_INTEGER_MACRO(writeSignedInt);
-WRITE_INTEGER_MACRO(writeSignedInt64);
-WRITE_INTEGER_MACRO(writeSignedShort);
-WRITE_INTEGER_MACRO(writeUnsignedInt);
-WRITE_INTEGER_MACRO(writeUnsignedInt64);
-WRITE_INTEGER_MACRO(writeUnsignedShort);
-WRITE_INTEGER_MACRO(writeUnsignedVarInt);
-WRITE_INTEGER_MACRO(writeUnsignedVarInt64);
-WRITE_INTEGER_MACRO(writeVarInt);
-WRITE_INTEGER_MACRO(writeVarInt64);
-
-WRITE_FLOAT_MACRO(writeFloat)
-WRITE_FLOAT_MACRO(writeDouble)
-WRITE_FLOAT_MACRO(writeNormalizedFloat)
-
-#undef WRITE_MACRO
-#undef WRITE_INTEGER_MACRO
-#undef WRITE_FLOAT_MACRO
+#undef SCALAR_STREAM_MACRO
 
 Local<Value> BinaryStreamClass::writeVec3(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -500,7 +566,7 @@ Local<Value> BinaryStreamClass::createPacket(Arguments const& args) {
                   );
 
         if (auto res = pkt->read(*stream); !res) {
-            throw Exception(fmt ::format("{}\nfunction: {}", res.error().code().message(), __func__));
+            throw Exception(fmt::format("{}\nfunction: {}", res.error().code().message(), __func__));
         }
         return PacketClass::newPacket(pkt);
     }

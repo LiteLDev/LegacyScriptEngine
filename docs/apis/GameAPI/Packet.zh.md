@@ -177,32 +177,72 @@
 - 返回值：是否成功
 - 返回值类型： `Boolean`
 
-| 可用函数                             | 参数类型             |
-| ------------------------------------ | -------------------- |
-| writeBool                            | `Boolean`            |
-| writeByte                            | `Integer`            |
-| writeBytes (0.19.0 时加入)           | `ByteBuffer`         |
-| writeDouble                          | `Number` / `String`  |
-| writeFloat                           | `Float` / `String`   |
-| writeNormalizedFloat (0.19.0 时加入) | `Float` / `String`   |
-| writeSignedBigEndianInt              | `Number` / `String`  |
-| writeSignedInt                       | `Number` / `String`  |
-| writeSignedInt64                     | `Number` / `String`  |
-| writeSignedShort                     | `Integer` / `String` |
-| writeString                          | `String`             |
-| writeUnsignedChar                    | `Integer`            |
-| writeUnsignedInt                     | `Number` / `String`  |
-| writeUnsignedInt64                   | `Number` / `String`  |
-| writeUnsignedShort                   | `Integer` / `String` |
-| writeUnsignedVarInt                  | `Number` / `String`  |
-| writeUnsignedVarInt64                | `Number` / `String`  |
-| writeVarInt                          | `Number` / `String`  |
-| writeVarInt64                        | `Number` / `String`  |
-| writeVec3                            | `FloatPos`           |
-| writeBlockPos (0.9.5 时加入)         | `BlockPos`           |
-| writeCompoundTag                     | `NbtCompound`        |
-| writeItem (0.9.5 时加入)             | `Item`               |
-| writeUuid (0.19.0 时加入)            | `String`             |
+| 可用函数                     | 参数类型             |
+| ---------------------------- | -------------------- |
+| writeBool                    | `Boolean`            |
+| writeByte                    | `Integer` / `String` |
+| writeBytes (0.19.0 时加入)   | `ByteBuffer`         |
+| writeDouble                  | `Number` / `String`  |
+| writeFloat                   | `Float` / `String`   |
+| writeSignedBigEndianInt      | `Number` / `String`  |
+| writeSignedInt               | `Number` / `String`  |
+| writeSignedInt64             | `Number` / `String`  |
+| writeSignedShort             | `Integer` / `String` |
+| writeString                  | `String`             |
+| writeUnsignedChar            | `Integer`            |
+| writeUnsignedInt             | `Number` / `String`  |
+| writeUnsignedInt64           | `Number` / `String`  |
+| writeUnsignedShort           | `Integer` / `String` |
+| writeUnsignedVarInt          | `Number` / `String`  |
+| writeUnsignedVarInt64        | `Number` / `String`  |
+| writeVarInt                  | `Number` / `String`  |
+| writeVarInt64                | `Number` / `String`  |
+| writeVec3                    | `FloatPos`           |
+| writeBlockPos (0.9.5 时加入) | `BlockPos`           |
+| writeCompoundTag             | `NbtCompound`        |
+| writeItem (0.9.5 时加入)     | `Item`               |
+| writeUuid (0.19.0 时加入)    | `String`             |
+
+#### 从二进制流读取
+
+!!! warning
+此类函数仅在 0.19.0 及以后版本可用。
+
+`bs.readxxxx([asString])`  
+`bs.readBytes(length)`
+
+其中 `length` 为 `Integer` 类型，仅 `readBytes` 可用，表示要读取的字节数，必须大于 `0`。
+
+- 参数：
+
+  - asString : `Boolean`（可选参数）
+    仅数字读取函数可用。传入 `true` 时，返回值会转换为 `String`
+
+- 返回值：
+  - 读取结果
+
+| 可用函数               | 参数类型  | 返回值类型          |
+| ---------------------- | --------- | ------------------- |
+| readBool               | 无        | `Boolean`/ `String` |
+| readByte               | `Boolean` | `Number` / `String` |
+| readBytes              | `Integer` | `ByteBuffer`        |
+| readUnsignedChar       | `Boolean` | `Number` / `String` |
+| readDouble             | `Boolean` | `Number` / `String` |
+| readFloat              | `Boolean` | `Number` / `String` |
+| readSignedBigEndianInt | `Boolean` | `Number` / `String` |
+| readSignedInt          | `Boolean` | `Number` / `String` |
+| readSignedInt64        | `Boolean` | `Number` / `String` |
+| readSignedShort        | `Boolean` | `Number` / `String` |
+| readString             | 无        | `String`            |
+| readUnsignedInt        | `Boolean` | `Number` / `String` |
+| readUnsignedInt64      | `Boolean` | `Number` / `String` |
+| readUnsignedShort      | `Boolean` | `Number` / `String` |
+| readUnsignedVarInt     | `Boolean` | `Number` / `String` |
+| readUnsignedVarInt64   | `Boolean` | `Number` / `String` |
+| readVarInt             | `Boolean` | `Number` / `String` |
+| readVarInt64           | `Boolean` | `Number` / `String` |
+
+当 `asString` 为 `true` 时，数字 `read*` 函数返回 `String`；否则返回 `Number`。
 
 #### 通过二进制流构建数据包
 

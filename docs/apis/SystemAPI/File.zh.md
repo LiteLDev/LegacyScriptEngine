@@ -14,14 +14,23 @@
 
 ### 读入文件的所有内容
 
-`File.readFrom(path)`
+!!! warning
+    此函数的可选参数和 `ByteBuffer` 返回值仅在0.19.0及以后版本可用
+
+`File.readFrom(path[,isBinary])`
 
 - 参数：
   - path : `String`  
     目标文件的路径，相对路径以BDS根目录为基准
+  - isBinary : `Boolean`  
+    是否按二进制方式读取，默认为`false`
 - 返回值：文件的所有数据
-- 返回值类型：`String`
+- 返回值类型：`String` / `ByteBuffer`
   - 如返回值为 `Null` 则表示读取失败
+
+如果 `isBinary` 为 `true`，则返回 `ByteBuffer`，否则返回 `String`。
+
+在0.19.0之前，此函数只能使用 `File.readFrom(path)` 形式调用，返回值类型固定为 `String`。
 
 
 
@@ -33,7 +42,7 @@
   - path : `String`  
     目标文件的路径，相对路径以BDS根目录为基准
 
-  - text : `String`  
+  - text : `String` / `ByteBuffer`  
     要写入的内容
 
 - 返回值：是否写入成功
@@ -41,6 +50,9 @@
 - 返回值类型：`Boolean`
 
 > 注：若文件不存在会自动创建，若存在则会先将其**清空**再写入
+
+!!! warning
+    传入 `ByteBuffer` 仅在0.19.0及以后版本可用
 
 
 

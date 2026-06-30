@@ -1,5 +1,6 @@
 #include "legacy/utils/IniHelper.h"
 
+#include "ll/api/base/Macro.h"
 #include "ll/api/io/Logger.h"
 #include "lse/Entry.h"
 

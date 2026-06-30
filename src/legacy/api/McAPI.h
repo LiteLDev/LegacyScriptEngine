@@ -22,6 +22,8 @@ public:
 
     static Local<Value> newItem(Arguments const& args);
     static Local<Value> spawnMob(Arguments const& args);
+    static Local<Value> summonMob(Arguments const& args);
+    static Local<Value> loadMob(Arguments const& args);
     static Local<Value> spawnItem(Arguments const& args);
     static Local<Value> spawnSimulatedPlayer(Arguments const& args);
     static Local<Value> explode(Arguments const& args);

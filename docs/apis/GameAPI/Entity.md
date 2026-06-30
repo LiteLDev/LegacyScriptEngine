@@ -73,6 +73,52 @@ Through this function, generate a new creature at the specified location and get
 > Therefore, if there is a need to operate an entity for a long time, please obtain the real-time entity object through
 > the above methods.
 
+#### Summon New Creature and Get Its Entity Object
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+Through this function, summon a new creature at the specified location and get its corresponding entity object.
+
+`mc.summonMob(name,pos[,event])`  
+`mc.summonMob(name,x,y,z,dimid[,event])`
+
+- Parameters:
+    - name : `String`  
+      The namespace name of the creature, such as `minecraft:creeper`
+    - pos : `IntPos `/ `FloatPos`  
+      A coordinate object of where the mob is spawned (or use x, y, z, dimid to determine where to spawn).
+    - event : `String`  
+      Optional initialization event name
+- Return value: The generated entity object.
+- Return value type:  `Entity`
+    - If the return value is `Null` it means that the generation failed
+
+> Note: Do not save an entity object **long-term**.
+> When the entity corresponding to the entity object is destroyed, the corresponding entity object will become invalid.
+> Therefore, if there is a need to operate an entity for a long time, please obtain the real-time entity object through
+> the above methods.
+
+#### Load Creature From NBT and Get Its Entity Object
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+Through this function, spawn a creature with the specified NBT data at the specified location and get its corresponding
+entity object.
+
+`mc.loadMob(nbt,pos)`  
+`mc.loadMob(nbt,x,y,z,dimid)`
+
+- Parameters:
+    - nbt : `NbtCompound`  
+      Creature NBT object
+    - pos : `IntPos `/ `FloatPos`  
+      A coordinate object of where the mob is spawned (or use x, y, z, dimid to determine where to spawn).
+- Return value: The generated entity object.
+- Return value type:  `Entity`
+    - If the return value is `Null` it means that the generation failed
+
 #### Clone A Creature and Get Its Entity Object
 
 Through this function, generate a new creature at the specified location and get its corresponding entity object.
@@ -391,6 +437,19 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
     - scale : `Float`  
       New entity size
 - Return value: Whether the entity was scaled.
+- Return value type: `Boolean`
+
+#### Set Entity Custom Name
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`en.setCustomName(name)`
+
+- Parameters:
+    - name : `String`
+      The entity's new custom name
+- Return value: Whether setting was successful
 - Return value type: `Boolean`
 
 #### Get Entity Distance To Pos

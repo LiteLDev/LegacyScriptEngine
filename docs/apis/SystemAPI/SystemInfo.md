@@ -42,3 +42,15 @@ The following APIs provide interfaces to obtain necessary system information:
 - Return value type:  `String`
 
 
+
+### Randomly Generate a UUID String
+
+!!! warning
+This function is only available in 0.19.0 and later.
+
+`system.randomUuid()`
+
+- Return value: A randomly generated unique identifier UUID.
+- Return value type:  `String`
+
+

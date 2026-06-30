@@ -50,15 +50,14 @@ public:
     Local<Value> setReadPointer(Arguments const& args);
     Local<Value> getData(Arguments const& args);
     Local<Value> setData(Arguments const& args);
+    Local<Value> reserve(Arguments const& args);
     Local<Value> reset();
 
-    Local<Value> reserve(Arguments const& args);
     Local<Value> writeBool(Arguments const& args);
     Local<Value> writeByte(Arguments const& args);
     Local<Value> writeBytes(Arguments const& args);
     Local<Value> writeDouble(Arguments const& args);
     Local<Value> writeFloat(Arguments const& args);
-    Local<Value> writeNormalizedFloat(Arguments const& args);
     Local<Value> writeSignedBigEndianInt(Arguments const& args);
     Local<Value> writeSignedInt(Arguments const& args);
     Local<Value> writeSignedInt64(Arguments const& args);
@@ -76,6 +75,24 @@ public:
     Local<Value> writeCompoundTag(Arguments const& args);
     Local<Value> writeItem(Arguments const& args);
     Local<Value> writeUuid(Arguments const& args);
+
+    Local<Value> readBool(Arguments const& args);
+    Local<Value> readByte(Arguments const& args);
+    Local<Value> readBytes(Arguments const& args);
+    Local<Value> readDouble(Arguments const& args);
+    Local<Value> readFloat(Arguments const& args);
+    Local<Value> readSignedBigEndianInt(Arguments const& args);
+    Local<Value> readSignedInt(Arguments const& args);
+    Local<Value> readSignedInt64(Arguments const& args);
+    Local<Value> readSignedShort(Arguments const& args);
+    Local<Value> readString(Arguments const& args);
+    Local<Value> readUnsignedInt(Arguments const& args);
+    Local<Value> readUnsignedInt64(Arguments const& args);
+    Local<Value> readUnsignedShort(Arguments const& args);
+    Local<Value> readUnsignedVarInt(Arguments const& args);
+    Local<Value> readUnsignedVarInt64(Arguments const& args);
+    Local<Value> readVarInt(Arguments const& args);
+    Local<Value> readVarInt64(Arguments const& args);
 
     Local<Value> createPacket(Arguments const& args);
 };

@@ -8,12 +8,10 @@ else
     add_requires("levilamina 4adae278d458461eb3a16035194cde1f8b4effef", {configs = {target_type = "client"}})
 end
 
-set_toolchains("clang-cl")
-
 add_requires("levibuildscript")
 
-add_requires("legacyremotecall e172e7f9bb96bea39100fd8e8b21b3b5957a5eba", {configs = {target_type = get_config(target_type)}})
-add_requires("legacymoney c177566e0d7be49091911aaed66ffa31503e7988", {configs = {target_type = get_config(target_type)}})
+add_requires("legacyremotecall 02bdeecf8144b434ba158cd22c600ba24a9d9713", {configs = {target_type = get_config(target_type)}})
+add_requires("legacymoney 4b92e7b5d9362bbba32b3033035ac1ca91b208fc", {configs = {target_type = get_config(target_type)}})
 
 add_requires(
     "lightwebsocketclient 1.0.1",
@@ -72,38 +70,25 @@ option("backend")
 
 target("LegacyScriptEngine")
     add_rules("@levibuildscript/linkrule")
-    add_cxflags(
-        "/EHa",
-        "/utf-8",
-        "/W4",
-        "/w44265",
-        "/w44289",
-        "/w44296",
-        "/w45263",
-        "/w44738",
-        "/w45204",
-        "/Zm2000",
-        "/wd4100",
-        {force = true}
-    )
-    add_cxflags(
-        "/EHs",
-        "-Wno-microsoft-cast",
-        "-Wno-invalid-offsetof",
-        "-Wno-c++2b-extensions",
-        "-Wno-microsoft-include",
-        "-Wno-overloaded-virtual",
-        "-Wno-ignored-qualifiers",
-        "-Wno-missing-field-initializers",
-        "-Wno-potentially-evaluated-expression",
-        "-Wno-pragma-system-header-outside-header",
-        {tools = {"clang_cl"}}
-    )
-    add_defines(
-        "NOMINMAX",
-        "UNICODE",
-        "_AMD64_"
-    )
+    if is_plat("windows") then
+        add_defines("NOMINMAX", "UNICODE", "_AMC64_")
+        set_exceptions("none") -- To avoid conflicts with /EHa.
+        add_cxflags( "/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204")
+        add_cxflags(
+            "/EHs",
+            "-Wno-microsoft-cast",
+            "-Wno-invalid-offsetof",
+            "-Wno-c++2b-extensions",
+            "-Wno-microsoft-include",
+            "-Wno-overloaded-virtual",
+            "-Wno-ignored-qualifiers",
+            "-Wno-missing-field-initializers",
+            "-Wno-potentially-evaluated-expression",
+            "-Wno-pragma-system-header-outside-header",
+            {tools = {"clang_cl"}}
+        )
+        set_toolchains("clang-cl")
+    end
     add_packages(
         "cpp-httplib",
         "legacymoney",
@@ -119,7 +104,6 @@ target("LegacyScriptEngine")
         "mariadb-connector-c",
         "ctre"
     )
-    set_exceptions("none")
     set_kind("shared")
     set_languages("cxx20")
     set_symbols("debug")

@@ -3,17 +3,17 @@ add_rules("mode.debug", "mode.release")
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina dab5005c569ae9984ed62f20d209e02f77da9f89", {configs = {target_type = "server"}})
+    add_requires("levilamina 4adae278d458461eb3a16035194cde1f8b4effef", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina dab5005c569ae9984ed62f20d209e02f77da9f89", {configs = {target_type = "client"}})
+    add_requires("levilamina 4adae278d458461eb3a16035194cde1f8b4effef", {configs = {target_type = "client"}})
 end
 
 set_toolchains("clang-cl")
 
 add_requires("levibuildscript")
 
-add_requires("legacyremotecall 0c9d2595276013ba36a3ef721bd97c3810c6be1c", {configs = {target_type = get_config(target_type)}})
-add_requires("legacymoney e677306c00fcf81e62ea52095d1a97e171220fb6", {configs = {target_type = get_config(target_type)}})
+add_requires("legacyremotecall e172e7f9bb96bea39100fd8e8b21b3b5957a5eba", {configs = {target_type = get_config(target_type)}})
+add_requires("legacymoney c177566e0d7be49091911aaed66ffa31503e7988", {configs = {target_type = get_config(target_type)}})
 
 add_requires(
     "lightwebsocketclient 1.0.1",
@@ -85,6 +85,19 @@ target("LegacyScriptEngine")
         "/Zm2000",
         "/wd4100",
         {force = true}
+    )
+    add_cxflags(
+        "/EHs",
+        "-Wno-microsoft-cast",
+        "-Wno-invalid-offsetof",
+        "-Wno-c++2b-extensions",
+        "-Wno-microsoft-include",
+        "-Wno-overloaded-virtual",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-potentially-evaluated-expression",
+        "-Wno-pragma-system-header-outside-header",
+        {tools = {"clang_cl"}}
     )
     add_defines(
         "NOMINMAX",

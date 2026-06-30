@@ -12,16 +12,18 @@ private:
 
 public:
     explicit PacketClass(std::shared_ptr<Packet> const& p);
+
     static std::shared_ptr<Packet> extract(Local<Value> const& v);
+    static Local<Object>           newPacket(std::shared_ptr<Packet> const& pkt);
+    static Local<Value>            createPacket(Arguments const& args);
 
     std::shared_ptr<Packet> get() { return packet; }
-
-    void set(std::shared_ptr<Packet> const& pkt) { packet = pkt; };
-
-    static Local<Object> newPacket(std::shared_ptr<Packet> const& pkt);
+    void                    set(std::shared_ptr<Packet> const& pkt) { packet = pkt; };
 
     Local<Value> getId();
     Local<Value> getName();
+    Local<Value> read(Arguments const& args);
+    Local<Value> write(Arguments const& args);
 
     Local<Value> sendTo(Arguments const& args);
     Local<Value> sendToClients(Arguments const& args);
@@ -43,8 +45,9 @@ public:
     std::shared_ptr<BinaryStream> get() { return binaryStream; }
     void                          set(std::shared_ptr<BinaryStream> const& bs) { binaryStream = bs; };
 
-    static Local<Object>      newBinaryStream();
-    static BinaryStreamClass* constructor(Arguments const& args);
+    static Local<Object>                 newBinaryStream();
+    static BinaryStreamClass*            constructor(Arguments const& args);
+    static std::shared_ptr<BinaryStream> extract(Local<Value> const& v);
 
     Local<Value> getReadPointer(Arguments const& args);
     Local<Value> setReadPointer(Arguments const& args);

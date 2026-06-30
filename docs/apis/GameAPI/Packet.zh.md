@@ -134,12 +134,12 @@
 !!! warning
 此函数的可选参数和 `ByteBuffer` 返回值仅在 0.19.0 及以后版本可用
 
-`bs.getData([clear])`
+`bs.getData([release])`
 
 - 参数：
 
-  - clear : `Boolean`（可选参数）  
-    获取后是否清空流数据。默认值为 `true`
+  - release : `Boolean`（可选参数）  
+    获取后是否清空流数据。默认值为 `false`
 
 - 返回值：二进制流数据
 - 返回值类型： `ByteBuffer`
@@ -223,7 +223,7 @@
 
 | 可用函数               | 参数类型  | 返回值类型          |
 | ---------------------- | --------- | ------------------- |
-| readBool               | 无        | `Boolean`/ `String` |
+| readBool               | `Boolean` | `Boolean`/ `String` |
 | readByte               | `Boolean` | `Number` / `String` |
 | readBytes              | `Integer` | `ByteBuffer`        |
 | readUnsignedChar       | `Boolean` | `Number` / `String` |

@@ -1,10 +1,10 @@
-#include "VaillanI18n.h"
+#include "legacy/api/VaillanI18n.h"
 
 #include <mc/locale/I18n.h>
 #include <mc/locale/Localization.h>
 
-ClassDefine<void> VaillanI18nClassBuilder =
-    defineClass("VaillanI18n")
+ClassDefine<VaillanI18nClass> VaillanI18nClassBuilder =
+    defineClass<VaillanI18nClass>("VaillanI18n")
         .function("setCurrentLanguage", &VaillanI18nClass::setCurrentLanguage)
         .function("getCurrentLanguage", &VaillanI18nClass::getCurrentLanguage)
         .function("getSupportedLanguages", &VaillanI18nClass::getSupportedLanguages)
@@ -20,9 +20,9 @@ Local<Value> VaillanI18nClass::setCurrentLanguage(Arguments const& args) {
     std::string lang = args[0].asString().toString();
     try {
         getI18n().chooseLanguage(lang);
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
-    return Boolean::newBoolean(true);
 }
 
 Local<Value> VaillanI18nClass::getCurrentLanguage(Arguments const& args) {
@@ -49,8 +49,8 @@ Local<Value> VaillanI18nClass::translate(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
-    std::string key = args[0].asString().toString();
-    std::string lang;
+    auto key      = args[0].asString().toString();
+    auto language = getI18n().getCurrentLanguage().get();
 
     std::vector<std::string> params;
     if (args.size() >= 2) {
@@ -64,11 +64,13 @@ Local<Value> VaillanI18nClass::translate(Arguments const& args) {
 
     if (args.size() >= 3) {
         CHECK_ARG_TYPE(args[2], ValueKind::kString);
-        lang = args[2].asString().toString();
+        if (auto res = getI18n().getLocaleFor(args[2].asString().toString()); res) {
+            language = res;
+        }
     }
 
     try {
-        return String::newString(getI18n().get(key, params, getI18n().getLocaleFor(lang)));
+        return String::newString(getI18n().get(key, params, language));
     }
     CATCH_AND_THROW
 }
@@ -87,20 +89,75 @@ Local<Value> VaillanI18nClass::loadLanguage(Arguments const& args) {
             map[prop.toString()] = obj.get(prop).asString().toString();
         }
         auto loc = std::const_pointer_cast<Localization>(getI18n().getLocaleFor(lang));
-        if (!loc) getI18n().appendAdditionalTranslations(map, lang);
-        else
-            for (auto const& [key, value] : map) loc->mStrings->insert_or_assign(key, value);
+        if (!loc) {
+            getI18n().appendAdditionalTranslations(map, lang);
+        } else {
+            for (auto& [key, value] : map) {
+                loc->mStrings->insert_or_assign(key, std::move(value));
+            }
+        }
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
-    return Boolean::newBoolean(true);
 }
 
 Local<Value> VaillanI18nClass::loadLanguageFromFile(Arguments const& args) {
-    // TODO: Load language from file
-    return Boolean::newBoolean(true);
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    CHECK_ARG_TYPE(args[1], ValueKind::kString);
+
+    try {
+        auto path = std::filesystem::path{args[1].asString().toU8string()};
+        if (!std::filesystem::is_regular_file(path)) return Boolean::newBoolean(false);
+        loadLanguageFile(args[0].asString().toString(), path);
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
 }
 
 Local<Value> VaillanI18nClass::loadLanguagesFromDirectory(Arguments const& args) {
-    // TODO: Load languages from directory
-    return Boolean::newBoolean(true);
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        for (auto& entry :  std::filesystem::directory_iterator(args[0].asString().toU8string())) {
+            if (!entry.is_regular_file()) continue;
+            auto file = ll::string_utils::u8str2str(entry.path().filename().u8string());
+            if (!file.ends_with(".lang")) continue;
+            loadLanguageFile(file.substr(0, file.size() - 5), entry.path());
+        }
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+void VaillanI18nClass::loadLanguageFile(std::string const& language, std::filesystem::path const& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) return;
+    std::unordered_map<std::string, std::string> map;
+
+    for (std::string line; std::getline(file, line); ) {
+        if (line.empty()) continue;
+        ll::string_utils::replaceAll(line, "\t", "");
+        ll::string_utils::replaceAll(line, "\\n", "\n");
+        if (auto equalPos = line.find('='); equalPos != std::string::npos) {
+            auto key = line.substr(0, equalPos);
+            ll::string_utils::replaceAll(key, " ", "");
+
+            auto value = line.substr(equalPos + 1, line.find('#', equalPos + 1));
+            while (value.ends_with(' ')) value.erase(value.size() - 1);
+
+            if (!key.empty() && !value.empty()) map.insert_or_assign(key, value);
+        }
+    }
+
+    file.close();
+    auto loc = std::const_pointer_cast<Localization>(getI18n().getLocaleFor(language));
+    if (!loc) {
+        getI18n().appendAdditionalTranslations(map, language);
+    } else {
+        for (auto& [key, value] : map) {
+            loc->mStrings->insert_or_assign(key, std::move(value));
+        }
+    }
 }

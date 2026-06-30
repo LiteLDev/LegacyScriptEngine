@@ -1,5 +1,6 @@
 #include "legacy/api/PacketAPI.h"
 
+#include "PacketAPI.h"
 #include "legacy/api/APIHelp.h"
 #include "legacy/api/BaseAPI.h"
 #include "legacy/api/EntityAPI.h"
@@ -22,9 +23,13 @@ ClassDefine<PacketClass> PacketClassBuilder = defineClass<PacketClass>("LLSE_Pac
                                                   .constructor(nullptr)
                                                   .instanceFunction("getName", &PacketClass::getName)
                                                   .instanceFunction("getId", &PacketClass::getId)
+                                                  .instanceFunction("read", &PacketClass::read)
+                                                  .instanceFunction("write", &PacketClass::write)
                                                   .instanceFunction("sendTo", &PacketClass::sendTo)
                                                   .instanceFunction("sendToClients", &PacketClass::sendToClients)
                                                   .instanceFunction("sendToServer", &PacketClass::sendToServer)
+                                                  
+                                                  .function("createPacket", &PacketClass::createPacket)
 
                                                   .build();
 
@@ -117,6 +122,73 @@ Local<Value> PacketClass::getId() {
             return {};
         }
         return Number::newNumber(static_cast<int>(pkt->getId()));
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PacketClass::read(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    if (!IsInstanceOf<BinaryStreamClass>(args[0])) {
+        throw WrongArgTypeException(__FUNCTION__);
+    }
+
+    try {
+        auto pkt = get();
+        if (!pkt) {
+            return Boolean::newBoolean(false);
+        }
+
+        auto stream = BinaryStreamClass::extract(args[0]);
+        if (!stream) {
+            return Boolean::newBoolean(false);
+        }
+
+        if (auto res = pkt->read(*stream); !res) {
+            throw Exception(fmt::format("{}\nfunction: {}", res.error().code().message(), __FUNCTION__));
+        }
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PacketClass::write(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    if (!IsInstanceOf<BinaryStreamClass>(args[0])) {
+        throw WrongArgTypeException(__FUNCTION__);
+    }
+
+    try {
+        auto pkt = get();
+        if (!pkt) {
+            return Boolean::newBoolean(false);
+        }
+
+        auto stream = BinaryStreamClass::extract(args[0]);
+        if (!stream) {
+            return Boolean::newBoolean(false);
+        }
+
+        pkt->write(*stream);
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PacketClass::createPacket(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    if (args.size() >= 2) {
+        CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
+    }
+    try {
+        auto out = new PacketClass(
+            args.size() < 2 || !args[1].asBoolean().value()
+                ? MinecraftPackets::createPacket(static_cast<MinecraftPacketIds>(args[0].asNumber().toInt32()))
+                : std::make_shared<lse::api::NetworkPacket>(
+                      static_cast<MinecraftPacketIds>(args[0].asNumber().toInt32()),
+                      ""
+                  )
+        );
+        return out->getScriptObject();
     }
     CATCH_AND_THROW
 }
@@ -264,6 +336,12 @@ Local<Object> BinaryStreamClass::newBinaryStream() {
     return out->getScriptObject();
 }
 
+std::shared_ptr<BinaryStream> BinaryStreamClass::extract(Local<Value> const& v) {
+    if (EngineScope::currentEngine()->isInstanceOf<BinaryStreamClass>(v))
+        return EngineScope::currentEngine()->getNativeInstance<BinaryStreamClass>(v)->get();
+    return nullptr;
+}
+
 // member function
 
 Local<Value> BinaryStreamClass::getData(Arguments const& args) {
@@ -276,7 +354,7 @@ Local<Value> BinaryStreamClass::getData(Arguments const& args) {
         }
 
         auto result = ByteBuffer::newByteBuffer(stream->mBuffer.data(), stream->mBuffer.size());
-        if (args.size() < 1 || args[0].asBoolean().value()) {
+        if (args.size() >= 1 && args[0].asBoolean().value()) {
             stream->mBuffer.clear();
             stream->mView        = stream->mBuffer;
             stream->mReadPointer = 0;

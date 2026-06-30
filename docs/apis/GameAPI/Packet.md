@@ -134,12 +134,12 @@ This function is only available in 0.19.0 and later.
 !!! warning
 The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.0 and later.
 
-`bs.getData([clear])`
+`bs.getData([release])`
 
 - Parameters：
 
-  - clear : `Boolean` (Optional parameter)  
-    Whether to clear stream data after reading. The default value is `true`
+  - release : `Boolean` (Optional parameter)  
+    Whether to clear stream data after reading. The default value is `false`
 
 - Return value: binary stream data
 - Return value type： `ByteBuffer`
@@ -223,7 +223,7 @@ This function group is only available in 0.19.0 and later.
 
 | Available functions    | Parameter Type | Return Type         |
 | ---------------------- | -------------- | ------------------- |
-| readBool               | None           | `Boolean`           |
+| readBool               | `Boolean`      | `Boolean` / `String` |
 | readByte               | `Boolean`      | `Number` / `String` |
 | readBytes              | `Integer`      | `ByteBuffer`        |
 | readUnsignedChar       | `Boolean`      | `Number` / `String` |
@@ -242,7 +242,7 @@ This function group is only available in 0.19.0 and later.
 | readVarInt             | `Boolean`      | `Number` / `String` |
 | readVarInt64           | `Boolean`      | `Number` / `String` |
 
-When `asString` is `true`, numeric `read*` functions return `String`; otherwise they return `Number`.
+When `asString` is `true`, scalar `read*` functions return `String`.
 
 #### Building packet from binary stream
 

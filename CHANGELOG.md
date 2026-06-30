@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `be.setCustomName`, `be.getCustomName`, `en.getCustomName`,
   `it.getDisplayName` @zimuya4153
 - Added `VaillanI18n` API for modifying Minecraft vanilla language data
-  @zimuya4153
+  @zimuya4153 @xianyubb
 
 ### Changed
 

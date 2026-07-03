@@ -1,5 +1,6 @@
 #include "legacy/api/PlayerAPI.h"
 
+#include "NbtAPI.h"
 #include "legacy/api/APIHelp.h"
 #include "legacy/api/BaseAPI.h"
 #include "legacy/api/BlockAPI.h"
@@ -33,6 +34,7 @@
 #include "lse/api/helper/ScoreboardHelper.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/utility/MCRESULT.h"
+#include "mc/deps/core/utility/optional_ref.h"
 #include "mc/deps/nbt/CompoundTag.h"
 #include "mc/deps/nbt/ListTag.h"
 #include "mc/deps/nbt/StringTag.h"
@@ -360,19 +362,39 @@ using namespace lse::api;
 Local<Value> McClass::getPlayerNbt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (!mce::UUID::canParse(args[0].asString().toString())) {
+        throw CreateExceptionWithInfo(
+            __FUNCTION__,
+            fmt::format("{0} is not a valid UUID", args[0].asString().toString())
+        );
+    }
     try {
         auto uuid = mce::UUID::fromString(args[0].asString().toString());
-        auto db   = ll::service::getDBStorage();
-        if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-            std::unique_ptr<CompoundTag> playerTag =
-                db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-            if (playerTag) {
-                std::string serverId = playerTag->at("ServerId");
-                if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
-                    return NbtCompoundClass::pack(db->getCompoundTag(serverId, DBHelpers::Category::Player));
+        if (!uuid) return Boolean::newBoolean(false);
+
+        // online
+        if (auto* player = ll::service::getLevel()->getPlayer(uuid); player) {
+            auto tag = std::make_unique<CompoundTag>();
+            player->save(*tag);
+            return NbtCompoundClass::pack(std::move(tag));
+        }
+
+        auto storage = ll::service::getDBStorage();
+
+        // offline
+        if (auto playerKey = "player_" + uuid.asString(); storage->hasKey(playerKey, DBHelpers::Category::All)) {
+            if (auto data = storage->getCompoundTag(playerKey, DBHelpers::Category::All);
+                data && data->contains("ServerId", Tag::String)) {
+                if (auto serverId = (*data)["ServerId"].get<StringTag>(); !serverId.empty()) {
+                    if (storage->hasKey(serverId, DBHelpers::Category::Player)) {
+                        if (auto nbt = storage->getCompoundTag(serverId, DBHelpers::Category::Player); nbt) {
+                            return NbtCompoundClass::pack(std::move(nbt));
+                        }
+                    }
                 }
             }
         }
+
         return {};
     }
     CATCH_AND_THROW
@@ -381,26 +403,73 @@ Local<Value> McClass::getPlayerNbt(Arguments const& args) {
 Local<Value> McClass::setPlayerNbt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (!mce::UUID::canParse(args[0].asString().toString())) {
+        throw CreateExceptionWithInfo(
+            __FUNCTION__,
+            fmt::format("{0} is not a valid UUID", args[0].asString().toString())
+        );
+    }
+    if (!IsInstanceOf<NbtCompoundClass>(args[1])) {
+        throw WrongArgTypeException(__FUNCTION__);
+    }
+    if (args.size() >= 3) CHECK_ARG_TYPE(args[2], ValueKind::kBoolean); // forceCreate (default: false)
+    if (args.size() >= 4) CHECK_ARG_TYPE(args[3], ValueKind::kBoolean); // isOnlineMode (default: true)
     try {
-        mce::UUID uuid   = mce::UUID::fromString(args[0].asString().toString());
-        auto      tag    = NbtCompoundClass::extract(args[1]);
-        Player*   player = ll::service::getLevel()->getPlayer(uuid);
-        if (player && tag) {
+        auto uuid = mce::UUID::fromString(args[0].asString().toString());
+        if (!uuid) return Boolean::newBoolean(false);
+
+        auto* tag = NbtCompoundClass::extract(args[1]);
+        if (!tag) return Boolean::newBoolean(false);
+
+        // online
+        if (auto* player = ll::service::getLevel()->getPlayer(uuid); player) {
             player->load(*tag, MoreGlobal::defaultDataLoadHelper());
-        } else if (tag) {
-            auto db = ll::service::getDBStorage();
-            if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-                std::unique_ptr<CompoundTag> playerTag =
-                    db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-                if (playerTag) {
-                    std::string serverId = playerTag->at("ServerId");
-                    if (!serverId.empty()) {
-                        db->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::Player);
-                        return Boolean::newBoolean(true);
-                    }
+            return Boolean::newBoolean(true);
+        }
+
+        auto storage = ll::service::getDBStorage();
+
+        // offline
+        if (auto playerKey = "player_" + uuid.asString(); storage->hasKey(playerKey, DBHelpers::Category::All)) {
+            if (auto data = storage->getCompoundTag(playerKey, DBHelpers::Category::All);
+                data && data->contains("ServerId", Tag::String)) {
+                if (auto serverId = (*data)["ServerId"].get<StringTag>(); !serverId.empty()) {
+                    storage->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::All);
+                    return Boolean::newBoolean(true);
                 }
             }
         }
+
+        // not found
+        if (args.size() >= 3 && args[2].asBoolean().value()) {
+            auto playerKey = "player_" + uuid.asString();
+            auto serverId  = fmt::format("player_server_{0}", mce::UUID::random().asString());
+            {
+                // 这里要么 playerKey 不存在，要么 ServerId 不存在/为空，不然 offline 就能正常处理了
+                auto playerTag = storage->hasKey(playerKey, DBHelpers::Category::All)
+                                   ? storage->getCompoundTag(playerKey, DBHelpers::Category::All)
+                                   : nullptr;
+                if (!playerTag) {
+                    playerTag = std::make_unique<CompoundTag>(std::initializer_list<CompoundTag::TagMap::value_type>{
+                        {"ServerId", serverId}
+                    });
+
+                    if (args.size() < 4 || args[3].asBoolean().value()) { // isOnlineMode
+                        (*playerTag)["MsaId"]        = uuid.asString();
+                        (*playerTag)["SelfSignedId"] = mce::UUID::random().asString();
+                    } else {
+                        (*playerTag)["MsaId"]        = "";
+                        (*playerTag)["SelfSignedId"] = uuid.asString();
+                    }
+                } else {
+                    (*playerTag)["ServerId"] = serverId;
+                }
+                storage->saveData(playerKey, playerTag->toBinaryNbt(), DBHelpers::Category::All);
+            }
+            storage->saveData(serverId, tag->toBinaryNbt(), DBHelpers::Category::All);
+            return Boolean::newBoolean(true);
+        }
+
         return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
@@ -409,51 +478,62 @@ Local<Value> McClass::setPlayerNbt(Arguments const& args) {
 Local<Value> McClass::setPlayerNbtTags(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 3);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (!mce::UUID::canParse(args[0].asString().toString())) {
+        throw CreateExceptionWithInfo(
+            __FUNCTION__,
+            fmt::format("{0} is not a valid UUID", args[0].asString().toString())
+        );
+    }
+    if (!IsInstanceOf<NbtCompoundClass>(args[1])) {
+        throw WrongArgTypeException(__FUNCTION__);
+    }
     CHECK_ARG_TYPE(args[2], ValueKind::kArray);
     try {
-        mce::UUID    uuid   = mce::UUID::fromString(args[0].asString().toString());
-        auto         tag    = NbtCompoundClass::extract(args[1]);
-        Local<Array> arr    = args[2].asArray();
-        Player*      player = ll::service::getLevel()->getPlayer(uuid);
-        if (player && tag) {
-            CompoundTag loadedTag;
-            player->save(loadedTag);
+        auto uuid = mce::UUID::fromString(args[0].asString().toString());
+        if (!uuid) return Boolean::newBoolean(false);
+
+        auto* tag = NbtCompoundClass::extract(args[1]);
+        if (!tag) return Boolean::newBoolean(false);
+
+        Local<Array> arr = args[2].asArray();
+
+        auto copyTags = [&](CompoundTag& target) {
             for (size_t i = 0; i < arr.size(); ++i) {
                 auto value = arr.get(i);
-                if (value.getKind() == ValueKind::kString) {
-                    std::string tagName = value.asString().toString();
-                    if (!tag->at(tagName).is_null()) {
-                        loadedTag.at(tagName) = tag->at(tagName);
-                    }
+                if (value.getKind() != ValueKind::kString) continue;
+                std::string tagName = value.asString().toString();
+                if (tag->contains(tagName)) {
+                    target[tagName] = tag->at(tagName);
                 }
             }
+        };
+
+        // online
+        if (auto* player = ll::service::getLevel()->getPlayer(uuid)) {
+            CompoundTag loadedTag;
+            player->save(loadedTag);
+            copyTags(loadedTag);
             player->load(loadedTag, MoreGlobal::defaultDataLoadHelper());
-        } else if (tag) {
-            auto db = ll::service::getDBStorage();
-            if (db && db->hasKey("player_" + uuid.asString(), DBHelpers::Category::Player)) {
-                std::unique_ptr<CompoundTag> playerTag =
-                    db->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-                if (playerTag) {
-                    std::string serverId = playerTag->at("ServerId");
-                    if (!serverId.empty() && db->hasKey(serverId, DBHelpers::Category::Player)) {
-                        if (auto loadedTag = db->getCompoundTag(serverId, DBHelpers::Category::Player)) {
-                            for (size_t i = 0; i < arr.size(); ++i) {
-                                auto value = arr.get(i);
-                                if (value.getKind() == ValueKind::kString) {
-                                    std::string tagName = value.asString().toString();
-                                    if (!tag->at(tagName).is_null()) {
-                                        loadedTag->at(tagName) = tag->at(tagName);
-                                    }
-                                }
-                            }
-                            db->saveData(serverId, loadedTag->toBinaryNbt(), DBHelpers::Category::Player);
-                            return Boolean::newBoolean(true);
-                        }
+            return Boolean::newBoolean(true);
+        }
+
+        // offline
+        auto storage = ll::service::getDBStorage();
+
+        if (auto playerKey = "player_" + uuid.asString(); storage->hasKey(playerKey, DBHelpers::Category::All)) {
+            auto data = storage->getCompoundTag(playerKey, DBHelpers::Category::All);
+            if (data && data->contains("ServerId", Tag::String)) {
+                if (auto serverId = (*data)["ServerId"].get<StringTag>();
+                    !serverId.empty() && storage->hasKey(serverId, DBHelpers::Category::All)) {
+                    if (auto loadedTag = storage->getCompoundTag(serverId, DBHelpers::Category::All); loadedTag) {
+                        copyTags(*loadedTag);
+                        storage->saveData(serverId, loadedTag->toBinaryNbt(), DBHelpers::Category::All);
                         return Boolean::newBoolean(true);
                     }
                 }
             }
         }
+
         return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
@@ -462,31 +542,59 @@ Local<Value> McClass::setPlayerNbtTags(Arguments const& args) {
 Local<Value> McClass::deletePlayerNbt(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (!mce::UUID::canParse(args[0].asString().toString())) {
+        throw CreateExceptionWithInfo(
+            __FUNCTION__,
+            fmt::format("{0} is not a valid UUID", args[0].asString().toString())
+        );
+    }
     try {
-        mce::UUID uuid = mce::UUID::fromString(args[0].asString().toString());
-        if (uuid == mce::UUID::EMPTY()) {
-            throw std::invalid_argument(args[0].asString().toString() + " is not a valid UUID");
-        }
-        auto storage = ll::service::getLevel().transform([](auto& level) { return &level.getLevelStorage(); });
-        if (!storage) {
-            return Boolean::newBoolean(false);
-        }
-        auto playerIds = storage->getCompoundTag("player_" + uuid.asString(), DBHelpers::Category::Player);
-        if (!playerIds) {
-            return Boolean::newBoolean(false);
-        }
-        for (auto& [type, id] : *playerIds) {
-            if (!id.is_string()) {
-                continue;
-            }
-            std::string& key = id.get<StringTag>();
-            if (type == "ServerId") {
-                storage->deleteData(key, ::DBHelpers::Category::Player);
-            } else {
-                storage->deleteData("player_" + key, ::DBHelpers::Category::Player);
+        auto storage = ll::service::getDBStorage();
+
+        if (auto playerKey = "player_" + args[0].asString().toString(); storage->hasKey(playerKey, DBHelpers::Category::All)) {
+            if (auto data = storage->getCompoundTag(playerKey, DBHelpers::Category::All); data) {
+                if (data->contains("ServerId", Tag::String)) {
+                    if (auto serverId = (*data)["ServerId"].get<StringTag>(); !serverId.empty()) {
+                        storage->deleteData(serverId, DBHelpers::Category::All);
+                    }
+                }
+                return Boolean::newBoolean(true);
             }
         }
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> McClass::getAllPlayerUuids(Arguments const& args) {
+    if (args.size() >= 1) CHECK_ARG_TYPE(args[1], ValueKind::kBoolean); // isOnlineMode (default: true)
+
+    try {
+        auto isOnlineMode = args.size() >= 2 && args[1].asBoolean().value();
+
+        auto arr = Array::newArray();
+        ll::service::getDBStorage()->forEachKeyWithPrefix(
+            "player_",
+            DBHelpers::Category::All,
+            [&](std::string_view key, std::string_view content) {
+                if (key.size() != 36) return;
+
+                auto data = CompoundTag::fromBinaryNbt(content);
+                if (!data) return;
+                if (!data->contains("ServerId", Tag::String) || (*data)["ServerId"].get<StringTag>().empty()) return;
+
+                auto msaId = data->contains("MsaId", Tag::String) ? (*data)["MsaId"].get<StringTag>() : "";
+                auto selfSignedId =
+                    data->contains("SelfSignedId", Tag::String) ? (*data)["SelfSignedId"].get<StringTag>() : "";
+
+                if (!msaId.empty() && selfSignedId != key && isOnlineMode) {
+                    arr.add(String::newString(msaId));
+                } else if (!isOnlineMode && !selfSignedId.empty() && msaId != key) {
+                    arr.add(String::newString(selfSignedId));
+                }
+            }
+        );
+        return arr;
     }
     CATCH_AND_THROW
 }

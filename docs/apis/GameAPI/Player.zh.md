@@ -1464,22 +1464,23 @@
       玩家的UUID
 - 返回值：玩家的NBT对象
 - 返回值类型：`NbtCompound`
-
-此API的好处是可以获取到离线玩家NBT，无需玩家在线，无需玩家对象。
+    - 如果玩家不存在或没有存档数据，则返回值为 `Null`
 
 #### 写入玩家对应的NBT对象
 
-`mc.setPlayerNbt(uuid,nbt)`
+`mc.setPlayerNbt(uuid,nbt[,forceCreate,isOnlineMode])`
 
 - 参数：
     - uuid : `String`  
       玩家的UUID
     - nbt : `NbtCompound`  
       NBT对象
+    - forceCreate : `Boolean` 可选参数  
+      当该 UUID 没有对应存档记录时，是否创建离线玩家数据。默认值为 `false`
+    - isOnlineMode : `Boolean` 可选参数  
+      仅在 `forceCreate` 为 `true` 时生效。决定新建玩家数据是否使用在线模式。默认值为 `true`
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
-
-此API的好处是可以操作离线玩家NBT，无需玩家在线，无需玩家对象。
 
 #### 覆盖玩家对应的NBT对象的特定NbtTag
 
@@ -1490,12 +1491,10 @@
       玩家的UUID
     - nbt : `NbtCompound`  
       NBT对象
-    - tags : `Array`
-      需要覆盖的NbtTag (String)
+    - tags : `Array<String>`
+      需要覆盖的NbtTag
 - 返回值：是否成功覆盖对应的Tag
 - 返回值类型：`Boolean`
-
-此API的好处是可以操作离线玩家NBT，无需玩家在线，无需玩家对象。
 
 #### 从存档中删除玩家对应的NBT对象的全部内容
 
@@ -1507,7 +1506,15 @@
 - 返回值：是否删除成功
 - 返回值类型：`Boolean`
 
-此API的好处是可以操作离线玩家NBT，无需玩家在线，无需玩家对象。
+#### 获取全部已保存玩家 UUID
+
+`mc.getAllPlayerUuids([isOnlineMode])`
+
+- 参数：
+    - isOnlineMode : `Boolean` 可选参数  
+      为 `true` 时返回登录了微软账号玩家的 UUID；为 `false` 时返回离线模式玩家的 UUID，默认为 `false`
+- 返回值：已保存玩家 UUID 字符串列表
+- 返回值类型：`Array<String,String,...>`
 
 #### 为玩家增加一个Tag
 

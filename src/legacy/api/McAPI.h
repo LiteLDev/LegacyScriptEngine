@@ -64,6 +64,7 @@ public:
     static Local<Value> setPlayerNbt(Arguments const& args);
     static Local<Value> setPlayerNbtTags(Arguments const& args);
     static Local<Value> deletePlayerNbt(Arguments const& args);
+    static Local<Value> getAllPlayerUuids(Arguments const& args);
     static Local<Value> getPlayerScore(Arguments const& args);
     static Local<Value> setPlayerScore(Arguments const& args);
     static Local<Value> addPlayerScore(Arguments const& args);

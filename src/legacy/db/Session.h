@@ -123,6 +123,13 @@ public:
      */
     virtual DBType getType() = 0;
     /**
+     * @brief Backup the database to a file.
+     *
+     * @param  backupPath  Path to the backup file
+     * @return bool  Success or not
+     */
+    virtual bool backup(std::filesystem::path const& backupPath);
+    /**
      * @brief Get or set the self pointer
      *
      * @return std::weak_ptr<Session>  self

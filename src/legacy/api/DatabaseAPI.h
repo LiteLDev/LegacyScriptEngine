@@ -46,6 +46,7 @@ public:
     Local<Value> prepare(Arguments const& args) const;
     Local<Value> close(Arguments const& args) const;
     Local<Value> isOpen(Arguments const& args) const;
+    Local<Value> backup(Arguments const& args) const;
 };
 extern ClassDefine<DBSessionClass> DBSessionClassBuilder;
 

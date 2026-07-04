@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added name access APIs:
   `be.setCustomName`, `be.getCustomName`, `en.getCustomName`,
   `it.getDisplayName` @zimuya4153
+- Added player data API:
+  `mc.getAllPlayerUuids([isOnlineMode])` for enumerating saved player UUIDs
+- Added database API:
+  `DBSession::backup(path)` for backing up SQL sessions
 - Added `VaillanI18n` API for modifying Minecraft vanilla language data
   @zimuya4153 @xianyubb
 
@@ -39,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `File.readFrom(path[,isBinary])` now supports binary reads;
   `File.writeTo(path, text)` now accepts `ByteBuffer`;
   `it.setLore([])` now clears custom lore instead of failing @zimuya4153
+- Improved player NBT APIs:
+  `mc.getPlayerNbt(uuid)` now returns `Null` when no saved data exists and can
+  read online players directly; `mc.setPlayerNbt(uuid, nbt[, forceCreate,
+  isOnlineMode])` now supports optional offline record creation; player NBT
+  APIs now validate UUID input more strictly @zimuya4153
 
 ## [0.18.2] - 2026-04-17
 

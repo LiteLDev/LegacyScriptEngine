@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-07-04
+
+### Changed
+
+- Adapted to LeviLamina 26.20.*
+
 ## [0.18.2] - 2026-04-17
 
 ### Fixed
@@ -1257,7 +1263,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.2...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.2...v0.19.0
 [0.18.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.17.13...v0.18.0

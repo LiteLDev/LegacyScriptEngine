@@ -136,6 +136,10 @@ bool SQLiteSession::backup(std::filesystem::path const& backupPath) {
     struct DestDb {
         sqlite3* mDb{nullptr};
         explicit DestDb(std::filesystem::path const& path) {
+            {
+                std::error_code ec;
+                std::filesystem::create_directories(path.parent_path(), ec);
+            }
             if (sqlite3_open_v2(
                     ll::string_utils::u8str2str(path.u8string()).c_str(),
                     &mDb,
@@ -160,10 +164,11 @@ bool SQLiteSession::backup(std::filesystem::path const& backupPath) {
         return false;
     }
 
-    struct BackupObj {
+    sqlite3_exec(conn, "ROLLBACK", nullptr, nullptr, nullptr);
+    struct Backup {
         sqlite3_backup* mBackup{nullptr};
-        BackupObj(sqlite3* srcDb, sqlite3* destDb) : mBackup(sqlite3_backup_init(destDb, "main", srcDb, "main")) {}
-        ~BackupObj() {
+        Backup(sqlite3* srcDb, sqlite3* destDb) : mBackup(sqlite3_backup_init(destDb, "main", srcDb, "main")) {}
+        ~Backup() {
             if (mBackup) sqlite3_backup_finish(mBackup);
         }
     } backup{conn, destDb.mDb};
@@ -172,8 +177,9 @@ bool SQLiteSession::backup(std::filesystem::path const& backupPath) {
         return false;
     }
 
-    if (sqlite3_backup_step(backup.mBackup, -1) != SQLITE_DONE) {
-        IF_ENDBG lse::LegacyScriptEngine::getLogger().error("SQLiteSession::backup: Backup step failed.");
+    if (auto rc = sqlite3_backup_step(backup.mBackup, -1); rc != SQLITE_DONE) {
+        IF_ENDBG lse::LegacyScriptEngine::getLogger()
+            .error("SQLiteSession::backup: Backup step failed with code {} ({})", rc, sqlite3_errstr(rc));
         return false;
     }
 

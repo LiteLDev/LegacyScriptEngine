@@ -3,15 +3,15 @@ add_rules("mode.debug", "mode.release")
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 26.10.*", {configs = {target_type = "server"}})
+    add_requires("levilamina 26.20.0", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 26.10.*", {configs = {target_type = "client"}})
+    add_requires("levilamina 26.20.0", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")
 
-add_requires("legacyremotecall 0.18.*", {configs = {target_type = get_config(target_type)}})
-add_requires("legacymoney 0.18.*", {configs = {target_type = get_config(target_type)}})
+add_requires("legacyremotecall 0.19.0", {configs = {target_type = get_config(target_type)}})
+add_requires("legacymoney 0.19.0", {configs = {target_type = get_config(target_type)}})
 
 add_requires(
     "lightwebsocketclient 1.0.1",
@@ -104,7 +104,6 @@ target("LegacyScriptEngine")
         "mariadb-connector-c",
         "ctre"
     )
-    set_exceptions("none")
     set_kind("shared")
     set_languages("cxx20")
     set_symbols("debug")

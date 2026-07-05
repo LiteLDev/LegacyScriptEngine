@@ -46,7 +46,7 @@ The following APIs provide interfaces to obtain necessary system information:
 ### Randomly Generate a UUID String
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `system.randomUuid()`
 

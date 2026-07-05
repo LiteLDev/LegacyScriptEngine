@@ -25,7 +25,7 @@
 #### 通过数据包 ID 创建
 
 !!! warning
-此类的全局别名仅在 0.19.0 及以后版本可用
+此类的全局别名仅在 0.19.1 及以后版本可用
 
 `Packet.createPacket(pktid[,raw])`  
 
@@ -78,7 +78,7 @@
 #### 发送数据包到指定目标
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `pkt.sendTo(pos)`  
 `pkt.sendTo(x,y,z,dimid)`  
@@ -100,7 +100,7 @@
 #### 发送数据包到所有客户端
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `pkt.sendToClients()`
 
@@ -110,7 +110,7 @@
 #### 发送数据包到服务端
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `pkt.sendToServer()`
 
@@ -142,7 +142,7 @@
 #### 获取二进制流读指针
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `bs.getReadPointer()`
 
@@ -152,7 +152,7 @@
 #### 设置二进制流读指针
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `bs.setReadPointer(pos)`
 
@@ -167,7 +167,7 @@
 #### 获取二进制流数据
 
 !!! warning
-此函数的可选参数和 `ByteBuffer` 返回值仅在 0.19.0 及以后版本可用
+此函数的可选参数和 `ByteBuffer` 返回值仅在 0.19.1 及以后版本可用
 
 `bs.getData([release])`
 
@@ -179,7 +179,7 @@
 - 返回值：二进制流数据
 - 返回值类型： `ByteBuffer`
 
-在 0.19.0 之前，此函数只能使用 `bs.getData()` 形式调用。  
+在 0.19.1 之前，此函数只能使用 `bs.getData()` 形式调用。  
 当时它在获取后总是会清空流数据，且返回值类型为 `String`。
 
 由于旧版返回的是 `String`，在 JavaScript 中可能会被强制按 UTF-8 编码处理，导致二进制数据损坏，拿到的数据不正确。
@@ -187,7 +187,7 @@
 #### 设置二进制流数据
 
 !!! warning
-此函数仅在 0.19.0 及以后版本可用
+此函数仅在 0.19.1 及以后版本可用
 
 `bs.setData(data)`
 
@@ -216,7 +216,7 @@
 | ---------------------------- | -------------------- |
 | writeBool                    | `Boolean`            |
 | writeByte                    | `Integer` / `String` |
-| writeBytes (0.19.0 时加入)   | `ByteBuffer`         |
+| writeBytes (0.19.1 时加入)   | `ByteBuffer`         |
 | writeDouble                  | `Number` / `String`  |
 | writeFloat                   | `Float` / `String`   |
 | writeSignedBigEndianInt      | `Number` / `String`  |
@@ -236,12 +236,12 @@
 | writeBlockPos (0.9.5 时加入) | `BlockPos`           |
 | writeCompoundTag             | `NbtCompound`        |
 | writeItem (0.9.5 时加入)     | `Item`               |
-| writeUuid (0.19.0 时加入)    | `String`             |
+| writeUuid (0.19.1 时加入)    | `String`             |
 
 #### 从二进制流读取
 
 !!! warning
-此类函数仅在 0.19.0 及以后版本可用。
+此类函数仅在 0.19.1 及以后版本可用。
 
 `bs.readxxxx([asString])`  
 `bs.readBytes(length)`
@@ -282,7 +282,7 @@
 #### 通过二进制流构建数据包
 
 !!! warning
-此函数的可选参数仅在 0.19.0 及以后版本可用
+此函数的可选参数仅在 0.19.1 及以后版本可用
 
 `bs.createPacket(pktid[,raw])`
 
@@ -296,7 +296,7 @@
 - 返回值：数据包对象
 - 返回值类型： `Packet`
 
-在 0.19.0 之前，此函数只能使用 `bs.createPacket(pktid)` 形式调用。
+在 0.19.1 之前，此函数只能使用 `bs.createPacket(pktid)` 形式调用。
 
 ### 演示代码
 

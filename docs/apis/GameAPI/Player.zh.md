@@ -101,8 +101,8 @@
 | pl.isSleeping            | 玩家是否正在睡觉                    | `Boolean`        |
 | pl.isMoving              | 玩家是否正在移动                    | `Boolean`        |
 | pl.isSneaking            | 玩家是否正在潜行                    | `Boolean`        |
-| pl.isSwimming            | 玩家是否正在游泳（在 0.19.0 时被加入）         | `Boolean`        |
-| pl.isCrawling            | 玩家是否正在爬行（在 0.19.0 时被加入）         | `Boolean`        |
+| pl.isSwimming            | 玩家是否正在游泳（在 0.19.1 时被加入）         | `Boolean`        |
+| pl.isCrawling            | 玩家是否正在爬行（在 0.19.1 时被加入）         | `Boolean`        |
 
 这些对象属性都是只读的，无法被修改。其中：
 

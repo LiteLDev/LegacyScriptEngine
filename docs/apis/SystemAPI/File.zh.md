@@ -15,7 +15,7 @@
 ### 读入文件的所有内容
 
 !!! warning
-    此函数的可选参数和 `ByteBuffer` 返回值仅在0.19.0及以后版本可用
+    此函数的可选参数和 `ByteBuffer` 返回值仅在0.19.1及以后版本可用
 
 `File.readFrom(path[,isBinary])`
 
@@ -30,7 +30,7 @@
 
 如果 `isBinary` 为 `true`，则返回 `ByteBuffer`，否则返回 `String`。
 
-在0.19.0之前，此函数只能使用 `File.readFrom(path)` 形式调用，返回值类型固定为 `String`。
+在0.19.1之前，此函数只能使用 `File.readFrom(path)` 形式调用，返回值类型固定为 `String`。
 
 
 
@@ -52,7 +52,7 @@
 > 注：若文件不存在会自动创建，若存在则会先将其**清空**再写入
 
 !!! warning
-    传入 `ByteBuffer` 仅在0.19.0及以后版本可用
+    传入 `ByteBuffer` 仅在0.19.1及以后版本可用
 
 
 

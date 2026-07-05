@@ -73,7 +73,7 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 #### Set Block Entity Custom Name
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `be.setCustomName(name)`
 
@@ -86,7 +86,7 @@ This function is only available in 0.19.0 and later.
 #### Get Block Entity Custom Name
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `be.getCustomName()`
 

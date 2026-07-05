@@ -206,7 +206,7 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 - Return value type:  `Boolean`
 
 !!! warning
-In 0.19.0 and later, passing an empty array will clear the item's lore.
+In 0.19.1 and later, passing an empty array will clear the item's lore.
 
 
 
@@ -223,7 +223,7 @@ In 0.19.0 and later, passing an empty array will clear the item's lore.
 #### Get Custom Item Name
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `it.getDisplayName()`
 
@@ -245,7 +245,7 @@ This function is only available in 0.19.0 and later.
 #### Increase Item Count
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `it.addCount(count)`
 
@@ -258,7 +258,7 @@ This function is only available in 0.19.0 and later.
 #### Decrease Item Count
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `it.removeCount(count)`
 
@@ -271,7 +271,7 @@ This function is only available in 0.19.0 and later.
 #### Set Item Count
 
 !!! warning
-This function is only available in 0.19.0 and later.
+This function is only available in 0.19.1 and later.
 
 `it.setCount(count)`
 

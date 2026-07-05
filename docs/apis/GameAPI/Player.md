@@ -103,8 +103,8 @@ properties.
 | pl.isSleeping            | Player is sleeping                                           | `Boolean`        |
 | pl.isMoving              | Player is moving                                             | `Boolean`        |
 | pl.isSneaking            | Player is sneaking                                           | `Boolean`        |
-| pl.isSwimming            | Whether the player is swimming (Added in 0.19.0)             | `Boolean`        |
-| pl.isCrawling            | Whether the player is crawling (Added in 0.19.0)             | `Boolean`        |
+| pl.isSwimming            | Whether the player is swimming (Added in 0.19.1)             | `Boolean`        |
+| pl.isCrawling            | Whether the player is crawling (Added in 0.19.1)             | `Boolean`        |
 
 These object properties are read-only and cannot be modified. in:
 

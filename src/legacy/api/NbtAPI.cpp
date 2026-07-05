@@ -1678,25 +1678,25 @@ Local<Value> NbtCompoundClass::setTag(Arguments const& args) const {
         if (IsInstanceOf<NbtByteClass>(
                 args[1]
             )) { // Assignment refers to the rvalue, so the Tag is copied before assignment
-            getPtr()->at(key) = NbtByteClass::extract(args[1])->copy()->as<ByteTag>();
+            (*getPtr())[key] = NbtByteClass::extract(args[1])->copy()->as<ByteTag>();
         } else if (IsInstanceOf<NbtShortClass>(args[1])) {
-            getPtr()->at(key) = NbtShortClass::extract(args[1])->copy()->as<ShortTag>();
+            (*getPtr())[key] = NbtShortClass::extract(args[1])->copy()->as<ShortTag>();
         } else if (IsInstanceOf<NbtIntClass>(args[1])) {
-            getPtr()->at(key) = NbtIntClass::extract(args[1])->copy()->as<IntTag>();
+            (*getPtr())[key] = NbtIntClass::extract(args[1])->copy()->as<IntTag>();
         } else if (IsInstanceOf<NbtLongClass>(args[1])) {
-            getPtr()->at(key) = NbtLongClass::extract(args[1])->copy()->as<Int64Tag>();
+            (*getPtr())[key] = NbtLongClass::extract(args[1])->copy()->as<Int64Tag>();
         } else if (IsInstanceOf<NbtFloatClass>(args[1])) {
-            getPtr()->at(key) = NbtFloatClass::extract(args[1])->copy()->as<FloatTag>();
+            (*getPtr())[key] = NbtFloatClass::extract(args[1])->copy()->as<FloatTag>();
         } else if (IsInstanceOf<NbtDoubleClass>(args[1])) {
-            getPtr()->at(key) = NbtDoubleClass::extract(args[1])->copy()->as<DoubleTag>();
+            (*getPtr())[key] = NbtDoubleClass::extract(args[1])->copy()->as<DoubleTag>();
         } else if (IsInstanceOf<NbtStringClass>(args[1])) {
-            getPtr()->at(key) = NbtStringClass::extract(args[1])->copy()->as<StringTag>();
+            (*getPtr())[key] = NbtStringClass::extract(args[1])->copy()->as<StringTag>();
         } else if (IsInstanceOf<NbtByteArrayClass>(args[1])) {
-            getPtr()->at(key) = NbtByteArrayClass::extract(args[1])->copy()->as<ByteArrayTag>();
+            (*getPtr())[key] = NbtByteArrayClass::extract(args[1])->copy()->as<ByteArrayTag>();
         } else if (IsInstanceOf<NbtListClass>(args[1])) {
-            getPtr()->at(key) = *NbtListClass::extract(args[1])->copyList();
+            (*getPtr())[key] = *NbtListClass::extract(args[1])->copyList();
         } else if (IsInstanceOf<NbtCompoundClass>(args[1])) {
-            getPtr()->at(key) = *NbtCompoundClass::extract(args[1])->clone();
+            (*getPtr())[key] = *NbtCompoundClass::extract(args[1])->clone();
         } else {
             throw CreateExceptionWithInfo(__FUNCTION__, "Unknown type! Cannot set Tag into Compound");
         }

@@ -26,26 +26,45 @@ using magic_enum::enum_cast;
 ClassDefine<void> NbtStaticBuilder = defineClass("NBT")
                                          .function("parseSNBT", &NbtStatic::parseSNBT)
                                          .function("parseBinaryNBT", &NbtStatic::parseBinaryNBT)
-                                         .property("End", &NbtStatic::getType<Tag::Type::End>)
-                                         .property("Byte", &NbtStatic::getType<Tag::Type::Byte>)
-                                         .property("Short", &NbtStatic::getType<Tag::Type::Short>)
-                                         .property("Int", &NbtStatic::getType<Tag::Type::Int>)
-                                         .property("Long", &NbtStatic::getType<Tag::Type::Int64>)
-                                         .property("Float", &NbtStatic::getType<Tag::Type::Float>)
-                                         .property("Double", &NbtStatic::getType<Tag::Type::Double>)
-                                         .property("ByteArray", &NbtStatic::getType<Tag::Type::ByteArray>)
-                                         .property("String", &NbtStatic::getType<Tag::Type::String>)
-                                         .property("List", &NbtStatic::getType<Tag::Type::List>)
-                                         .property("Compound", &NbtStatic::getType<Tag::Type::Compound>)
+                                         .property("End", &NbtStatic::getValue<Tag::Type::End>)
+                                         .property("Byte", &NbtStatic::getValue<Tag::Type::Byte>)
+                                         .property("Short", &NbtStatic::getValue<Tag::Type::Short>)
+                                         .property("Int", &NbtStatic::getValue<Tag::Type::Int>)
+                                         .property("Long", &NbtStatic::getValue<Tag::Type::Int64>)
+                                         .property("Float", &NbtStatic::getValue<Tag::Type::Float>)
+                                         .property("Double", &NbtStatic::getValue<Tag::Type::Double>)
+                                         .property("ByteArray", &NbtStatic::getValue<Tag::Type::ByteArray>)
+                                         .property("String", &NbtStatic::getValue<Tag::Type::String>)
+                                         .property("List", &NbtStatic::getValue<Tag::Type::List>)
+                                         .property("Compound", &NbtStatic::getValue<Tag::Type::Compound>)
 
                                          // For Compatibility
                                          .function("createTag", &NbtStatic::newTag)
                                          .function("newTag", &NbtStatic::newTag)
                                          .build();
 
+ClassDefine<void> SnbtFormatEnumBuilder =
+    defineClass("SnbtFormatEnumBuilder")
+        .property("Minimize", &NbtStatic::getValue<SnbtFormat::Minimize>)
+        .property("CompoundLineFeed", &NbtStatic::getValue<SnbtFormat::CompoundLineFeed>)
+        .property("ArrayLineFeed", &NbtStatic::getValue<SnbtFormat::ArrayLineFeed>)
+        .property("Colored", &NbtStatic::getValue<SnbtFormat::Colored>)
+        .property("Console", &NbtStatic::getValue<SnbtFormat::Console>)
+        .property("ForceAscii", &NbtStatic::getValue<SnbtFormat::ForceAscii>)
+        .property("ForceQuote", &NbtStatic::getValue<SnbtFormat::ForceQuote>)
+        .property("CommentMarks", &NbtStatic::getValue<SnbtFormat::CommentMarks>)
+        .property("Jsonify", &NbtStatic::getValue<SnbtFormat::Jsonify>)
+        .property("PartialLineFeed", &NbtStatic::getValue<SnbtFormat::PartialLineFeed>)
+        .property("AlwaysLineFeed", &NbtStatic::getValue<SnbtFormat::AlwaysLineFeed>)
+        .property("PrettyFilePrint", &NbtStatic::getValue<SnbtFormat::PrettyFilePrint>)
+        .property("PrettyChatPrint", &NbtStatic::getValue<SnbtFormat::PrettyChatPrint>)
+        .property("PrettyConsolePrint", &NbtStatic::getValue<SnbtFormat::PrettyConsolePrint>)
+        .build();
+
 ClassDefine<NbtByteClass> NbtByteClassBuilder = defineClass<NbtByteClass>("NbtByte")
                                                     .constructor(&NbtByteClass::constructor)
                                                     .instanceFunction("getType", &NbtByteClass::getType)
+                                                    .instanceFunction("toSNBT", &NbtByteClass::toSNBT)
                                                     .instanceFunction("toString", &NbtByteClass::toString)
                                                     .instanceFunction("set", &NbtByteClass::set)
                                                     .instanceFunction("get", &NbtByteClass::get)
@@ -54,6 +73,7 @@ ClassDefine<NbtByteClass> NbtByteClassBuilder = defineClass<NbtByteClass>("NbtBy
 ClassDefine<NbtShortClass> NbtShortClassBuilder = defineClass<NbtShortClass>("NbtShort")
                                                       .constructor(&NbtShortClass::constructor)
                                                       .instanceFunction("getType", &NbtShortClass::getType)
+                                                      .instanceFunction("toSNBT", &NbtShortClass::toSNBT)
                                                       .instanceFunction("toString", &NbtShortClass::toString)
                                                       .instanceFunction("set", &NbtShortClass::set)
                                                       .instanceFunction("get", &NbtShortClass::get)
@@ -62,6 +82,7 @@ ClassDefine<NbtShortClass> NbtShortClassBuilder = defineClass<NbtShortClass>("Nb
 ClassDefine<NbtIntClass> NbtIntClassBuilder = defineClass<NbtIntClass>("NbtInt")
                                                   .constructor(&NbtIntClass::constructor)
                                                   .instanceFunction("getType", &NbtIntClass::getType)
+                                                  .instanceFunction("toSNBT", &NbtIntClass::toSNBT)
                                                   .instanceFunction("toString", &NbtIntClass::toString)
                                                   .instanceFunction("set", &NbtIntClass::set)
                                                   .instanceFunction("get", &NbtIntClass::get)
@@ -70,6 +91,7 @@ ClassDefine<NbtIntClass> NbtIntClassBuilder = defineClass<NbtIntClass>("NbtInt")
 ClassDefine<NbtLongClass> NbtLongClassBuilder = defineClass<NbtLongClass>("NbtLong")
                                                     .constructor(&NbtLongClass::constructor)
                                                     .instanceFunction("getType", &NbtLongClass::getType)
+                                                    .instanceFunction("toSNBT", &NbtLongClass::toSNBT)
                                                     .instanceFunction("toString", &NbtLongClass::toString)
                                                     .instanceFunction("set", &NbtLongClass::set)
                                                     .instanceFunction("get", &NbtLongClass::get)
@@ -78,6 +100,7 @@ ClassDefine<NbtLongClass> NbtLongClassBuilder = defineClass<NbtLongClass>("NbtLo
 ClassDefine<NbtFloatClass> NbtFloatClassBuilder = defineClass<NbtFloatClass>("NbtFloat")
                                                       .constructor(&NbtFloatClass::constructor)
                                                       .instanceFunction("getType", &NbtFloatClass::getType)
+                                                      .instanceFunction("toSNBT", &NbtFloatClass::toSNBT)
                                                       .instanceFunction("toString", &NbtFloatClass::toString)
                                                       .instanceFunction("set", &NbtFloatClass::set)
                                                       .instanceFunction("get", &NbtFloatClass::get)
@@ -86,6 +109,7 @@ ClassDefine<NbtFloatClass> NbtFloatClassBuilder = defineClass<NbtFloatClass>("Nb
 ClassDefine<NbtDoubleClass> NbtDoubleClassBuilder = defineClass<NbtDoubleClass>("NbtDouble")
                                                         .constructor(&NbtDoubleClass::constructor)
                                                         .instanceFunction("getType", &NbtDoubleClass::getType)
+                                                        .instanceFunction("toSNBT", &NbtDoubleClass::toSNBT)
                                                         .instanceFunction("toString", &NbtDoubleClass::toString)
                                                         .instanceFunction("set", &NbtDoubleClass::set)
                                                         .instanceFunction("get", &NbtDoubleClass::get)
@@ -94,6 +118,7 @@ ClassDefine<NbtDoubleClass> NbtDoubleClassBuilder = defineClass<NbtDoubleClass>(
 ClassDefine<NbtStringClass> NbtStringClassBuilder = defineClass<NbtStringClass>("NbtString")
                                                         .constructor(&NbtStringClass::constructor)
                                                         .instanceFunction("getType", &NbtStringClass::getType)
+                                                        .instanceFunction("toSNBT", &NbtStringClass::toSNBT)
                                                         .instanceFunction("toString", &NbtStringClass::toString)
                                                         .instanceFunction("set", &NbtStringClass::set)
                                                         .instanceFunction("get", &NbtStringClass::get)
@@ -103,6 +128,7 @@ ClassDefine<NbtByteArrayClass> NbtByteArrayClassBuilder =
     defineClass<NbtByteArrayClass>("NbtByteArray")
         .constructor(&NbtByteArrayClass::constructor)
         .instanceFunction("getType", &NbtByteArrayClass::getType)
+        .instanceFunction("toSNBT", &NbtByteArrayClass::toSNBT)
         .instanceFunction("toString", &NbtByteArrayClass::toString)
         .instanceFunction("set", &NbtByteArrayClass::set)
         .instanceFunction("get", &NbtByteArrayClass::get)
@@ -111,6 +137,7 @@ ClassDefine<NbtByteArrayClass> NbtByteArrayClassBuilder =
 ClassDefine<NbtListClass> NbtListClassBuilder = defineClass<NbtListClass>("NbtList")
                                                     .constructor(&NbtListClass::constructor)
                                                     .instanceFunction("getType", &NbtListClass::getType)
+                                                    .instanceFunction("toSNBT", &NbtListClass::toSNBT)
                                                     .instanceFunction("toString", &NbtListClass::toString)
                                                     .instanceFunction("getSize", &NbtListClass::getSize)
                                                     .instanceFunction("getTypeOf", &NbtListClass::getTypeOf)
@@ -158,6 +185,23 @@ ClassDefine<NbtCompoundClass> NbtCompoundClassBuilder =
         .build();
 
 void TagToJson_Compound_Helper(ordered_json& res, CompoundTag* nbt);
+
+template <typename TagT>
+Local<Value> TagToSNBT(TagT* tag, Arguments const& args) {
+    if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+    if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber);
+
+    if (args.size() <= 1) {
+        auto indent = args.size() >= 1 ? args[0].asNumber().toInt32() : -1;
+        return String::newString(
+            indent == -1 ? tag->toSnbt(SnbtFormat::ForceQuote, 0) : tag->toSnbt(SnbtFormat::ForceQuote, indent)
+        );
+    }
+
+    return String::newString(
+        tag->toSnbt(static_cast<SnbtFormat>(args[1].asNumber().toInt32()), args[0].asNumber().toInt32())
+    );
+}
 
 void TagToJson_List_Helper(ordered_json& res, ListTag const* nbt) {
     for (auto& tag : *nbt) {
@@ -378,6 +422,13 @@ Local<Value> NbtByteClass::get(Arguments const&) const {
     CATCH_AND_THROW
 }
 
+Local<Value> NbtByteClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
+    }
+    CATCH_AND_THROW
+}
+
 Local<Value> NbtByteClass::toString(Arguments const& args) const {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -444,6 +495,13 @@ Local<Value> NbtIntClass::getType(Arguments const&) { return Number::newNumber(s
 Local<Value> NbtIntClass::get(Arguments const&) const {
     try {
         return Number::newNumber(getPtr()->data);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> NbtIntClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }
@@ -518,6 +576,13 @@ Local<Value> NbtShortClass::get(Arguments const&) const {
     CATCH_AND_THROW
 }
 
+Local<Value> NbtShortClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
+    }
+    CATCH_AND_THROW
+}
+
 Local<Value> NbtShortClass::toString(Arguments const& args) const {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -584,6 +649,13 @@ Local<Value> NbtLongClass::getType(Arguments const&) { return Number::newNumber(
 Local<Value> NbtLongClass::get(Arguments const&) const {
     try {
         return Number::newNumber(getPtr()->data);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> NbtLongClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }
@@ -655,6 +727,13 @@ Local<Value> NbtFloatClass::getType(Arguments const&) { return Number::newNumber
 Local<Value> NbtFloatClass::get(Arguments const&) const {
     try {
         return Number::newNumber(getPtr()->data);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> NbtFloatClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }
@@ -731,6 +810,13 @@ Local<Value> NbtDoubleClass::get(Arguments const&) const {
     CATCH_AND_THROW
 }
 
+Local<Value> NbtDoubleClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
+    }
+    CATCH_AND_THROW
+}
+
 Local<Value> NbtDoubleClass::toString(Arguments const& args) const {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -799,6 +885,13 @@ Local<Value> NbtStringClass::getType(Arguments const&) {
 Local<Value> NbtStringClass::get(Arguments const&) const {
     try {
         return String::newString(getPtr()->toString());
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> NbtStringClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }
@@ -882,6 +975,13 @@ Local<Value> NbtByteArrayClass::get(Arguments const&) const {
             buf[i] = data[i];
         }
         return ByteBuffer::newByteBuffer(buf, data.size());
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> NbtByteArrayClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }
@@ -1398,6 +1498,13 @@ Local<Value> NbtListClass::toArray(Arguments const&) const {
     CATCH_AND_THROW
 }
 
+Local<Value> NbtListClass::toSNBT(Arguments const& args) const {
+    try {
+        return TagToSNBT(getPtr(), args);
+    }
+    CATCH_AND_THROW
+}
+
 Local<Value> NbtListClass::toString(Arguments const& args) const {
     if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
 
@@ -1808,9 +1915,7 @@ Local<Value> NbtCompoundClass::toObject(Arguments const&) const {
 
 Local<Value> NbtCompoundClass::toSNBT(Arguments const& args) const {
     try {
-        int indent = args.size() >= 1 ? args[0].asNumber().toInt32() : -1;
-        if (indent == -1) return String::newString(getPtr()->toSnbt(SnbtFormat::ForceQuote, 0));
-        return String::newString(getPtr()->toSnbt(SnbtFormat::PartialLineFeed, indent));
+        return TagToSNBT(getPtr(), args);
     }
     CATCH_AND_THROW
 }

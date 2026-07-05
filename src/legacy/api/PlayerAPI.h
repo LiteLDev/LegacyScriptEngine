@@ -77,6 +77,8 @@ public:
     Local<Value> isSleeping() const;
     Local<Value> isMoving() const;
     Local<Value> isSneaking() const;
+    Local<Value> isSwimming() const;
+    Local<Value> isCrawling() const;
 
     Local<Value> isOP(Arguments const& args) const;
     Local<Value> setPermLevel(Arguments const& args) const;

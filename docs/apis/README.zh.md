@@ -47,6 +47,7 @@
 - `Device` - 玩家设备信息对象（详见 玩家）- 在脚本引擎内实际注册的类名:`LLSE_Device`
 - `Container` - 容器对象（详见 容器）- 在脚本引擎内实际注册的类名:`LLSE_Container`
 - `Objective` - 计分项对象（详见 计分板）- 在脚本引擎内实际注册的类名:`LLSE_Objective`
+- `Packet` - 数据包对象（详见 数据包）- 在脚本引擎内实际注册的类名:`LLSE_Packet`
 - `NBT` - NBT Tag对象（详见 NBT）
 - `SimpleForm` - 普通表单对象（详见 表单构建器）- 在脚本引擎内实际注册的类名:`LLSE_SimpleForm`
 - `CustomForm` - 自定义表单对象（详见 表单构建器）- 在脚本引擎内实际注册的类名:`LLSE_CustomForm`

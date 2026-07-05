@@ -20,12 +20,13 @@ public:
     static Local<Value> parseSNBT(Arguments const& args);
     static Local<Value> parseBinaryNBT(Arguments const& args);
 
-    template <Tag::Type T>
-    static Local<Value> getType() {
+    template <auto T>
+    static Local<Value> getValue() {
         return Number::newNumber(static_cast<int>(T));
     }
 };
 extern ClassDefine<> NbtStaticBuilder;
+extern ClassDefine<> SnbtFormatEnumBuilder;
 
 // NBT Byte
 class NbtByteClass : public ScriptClass {
@@ -52,6 +53,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtByteClass> NbtByteClassBuilder;
@@ -82,6 +84,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtShortClass> NbtShortClassBuilder;
@@ -111,6 +114,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtIntClass> NbtIntClassBuilder;
@@ -141,6 +145,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtLongClass> NbtLongClassBuilder;
@@ -171,6 +176,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtFloatClass> NbtFloatClassBuilder;
@@ -201,6 +207,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtDoubleClass> NbtDoubleClassBuilder;
@@ -231,6 +238,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtStringClass> NbtStringClassBuilder;
@@ -261,6 +269,7 @@ public:
     Local<Value> getType(Arguments const& args);
     Local<Value> set(Arguments const& args) const;
     Local<Value> get(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtByteArrayClass> NbtByteArrayClassBuilder;
@@ -308,6 +317,7 @@ public:
     Local<Value> getTag(Arguments const& args) const;
 
     Local<Value> toArray(Arguments const& args) const;
+    Local<Value> toSNBT(Arguments const& args) const;
     Local<Value> toString(Arguments const& args) const;
 };
 extern ClassDefine<NbtListClass> NbtListClassBuilder;

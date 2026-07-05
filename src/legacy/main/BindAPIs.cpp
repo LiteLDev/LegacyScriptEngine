@@ -57,6 +57,7 @@ void BindAPIs(std::shared_ptr<ScriptEngine> const& engine) {
     engine->registerNativeClass(LlClassBuilder);
     engine->registerNativeClass(VersionClassBuilder);
     engine->registerNativeClass(NbtStaticBuilder);
+    engine->registerNativeClass(SnbtFormatEnumBuilder);
     engine->registerNativeClass(TextClassBuilder);
     engine->registerNativeClass(ParticleColorBuilder);
     engine->registerNativeClass(DirectionBuilder);

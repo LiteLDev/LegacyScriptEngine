@@ -183,6 +183,8 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceProperty("isSleeping", &PlayerClass::isSleeping)
         .instanceProperty("isMoving", &PlayerClass::isMoving)
         .instanceProperty("isSneaking", &PlayerClass::isSneaking)
+        .instanceProperty("isSwimming", &PlayerClass::isSwimming)
+        .instanceProperty("isCrawling", &PlayerClass::isCrawling)
 
         .instanceFunction("isOP", &PlayerClass::isOP)
         .instanceFunction("setPermLevel", &PlayerClass::setPermLevel)
@@ -1130,6 +1132,30 @@ Local<Value> PlayerClass::isSneaking() const {
 
         return Boolean::newBoolean(
             SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Sneaking)
+        );
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PlayerClass::isSwimming() const {
+    try {
+        Player* player = get();
+        if (!player) return {};
+
+        return Boolean::newBoolean(player->isSwimming());
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PlayerClass::isCrawling() const {
+    try {
+        Player* player = get();
+        if (!player) {
+            return {};
+        }
+
+        return Boolean::newBoolean(
+            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Crawling)
         );
     }
     CATCH_AND_THROW

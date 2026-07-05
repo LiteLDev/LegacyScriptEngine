@@ -66,3 +66,46 @@ If this NBT object stores the `ByteArray` Type, the output byte string will be b
 > If there is a need for deserialization, please use the **SNBT** interface provided by the NBT tag class.
 
 
+#### Convert NBT Object to SNBT String
+
+`nbt.toSNBT([space[,format]])`
+
+- Parameter:
+  - space : `Integer`
+    (Optional parameter) Indent width. Pass `-1` or omit it to disable pretty formatting.
+  - format : `Enum`
+    (Optional parameter) SNBT output format, using a value from the `SnbtFormat` enum.
+- Return value: The SNBT form of the NBT object.
+- Return value type: `String`
+
+Calling `nbt.toSNBT()` or `nbt.toSNBT(space)` uses `SnbtFormat.ForceQuote` by default.  
+If you need to specify another SNBT format explicitly, use `nbt.toSNBT(space, format)`.
+
+
+## 🎨 SnbtFormat Enum
+
+`SnbtFormat` is the enum used by `NbtCompound::toSNBT([space[,format]])`.
+
+The following values are available:
+
+| Enum Value                  | Numeric Value | Description |
+|----------------------------|---------------|-------------|
+| `SnbtFormat.Minimize`      | `0`           | Minimal output. |
+| `SnbtFormat.CompoundLineFeed` | `1`        | Insert line feeds for compound members. |
+| `SnbtFormat.ArrayLineFeed` | `2`           | Insert line feeds for arrays / lists. |
+| `SnbtFormat.Colored`       | `4`           | Add color formatting to output. |
+| `SnbtFormat.Console`       | `8`           | Use console-oriented formatting. |
+| `SnbtFormat.ForceAscii`    | `16`          | Force ASCII output. |
+| `SnbtFormat.ForceQuote`    | `32`          | Force quoted string output. |
+| `SnbtFormat.CommentMarks`  | `64`          | Add comment-style marks. |
+| `SnbtFormat.Jsonify`       | `96`          | Preset: `ForceQuote | CommentMarks`. |
+| `SnbtFormat.PartialLineFeed` | `1`         | Alias of `CompoundLineFeed`. |
+| `SnbtFormat.AlwaysLineFeed` | `3`          | Preset: `CompoundLineFeed | ArrayLineFeed`. |
+| `SnbtFormat.PrettyFilePrint` | `1`         | Alias of `PartialLineFeed`. |
+| `SnbtFormat.PrettyChatPrint` | `5`         | Preset: `PrettyFilePrint | Colored`. |
+| `SnbtFormat.PrettyConsolePrint` | `13`    | Preset: `PrettyFilePrint | Colored | Console`. |
+
+`CompoundLineFeed`, `ArrayLineFeed`, `Colored`, `Console`, `ForceAscii`, `ForceQuote`, and `CommentMarks` are bit flags.  
+The other entries above are predefined combinations or aliases.
+
+

@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added gameplay helpers:
   `en.setCustomName`, `mc.summonMob`, `mc.loadMob`, `it.addCount`,
   `it.removeCount`, `it.setCount`, `system.randomUuid` @zimuya4153
+- Added player state APIs:
+  `pl.isSwimming`, `pl.isCrawling` @zimuya4153
 - Added name access APIs:
   `be.setCustomName`, `be.getCustomName`, `en.getCustomName`,
   `it.getDisplayName` @zimuya4153
@@ -30,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DBSession::backup(path)` for backing up SQL sessions
 - Added `VaillanI18n` API for modifying Minecraft vanilla language data
   @zimuya4153 @xianyubb
+- Added `toSNBT([space[,format]])` to all NBT object types @zimuya4153
 
 ### Changed
 
@@ -48,6 +51,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   read online players directly; `mc.setPlayerNbt(uuid, nbt[, forceCreate,
   isOnlineMode])` now supports optional offline record creation; player NBT
   APIs now validate UUID input more strictly @zimuya4153
+- Improved NBT serialization:
+  `NbtCompound::toSNBT([space[,format]])` now supports explicitly selecting
+  `SnbtFormat`; one-argument usage still defaults to `SnbtFormat::ForceQuote`
+  @zimuya4153
+
+### Fixed
+
+- Fixed `NbtCompound::setTag` @zimuya4153
 
 ## [0.18.2] - 2026-04-17
 

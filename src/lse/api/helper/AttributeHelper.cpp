@@ -10,7 +10,7 @@ inline void AttributeHelper::setDirty(BaseAttributeMap& map, AttributeInstance c
 }
 
 bool AttributeHelper::setCurrentValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
-    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+    if (auto ptr = map.getMutableInstance(attribute).mPtr) {
         ptr->mCurrentValue = value;
         setDirty(map, ptr);
         return true;
@@ -19,7 +19,7 @@ bool AttributeHelper::setCurrentValue(BaseAttributeMap& map, Attribute const& at
 }
 
 bool AttributeHelper::setMaxValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
-    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+    if (auto ptr = map.getMutableInstance(attribute).mPtr) {
         ptr->mCurrentMaxValue = value;
         ptr->mDefaultMaxValue = value;
         float& currentValue   = ptr->mCurrentValue;
@@ -31,7 +31,7 @@ bool AttributeHelper::setMaxValue(BaseAttributeMap& map, Attribute const& attrib
 }
 
 bool AttributeHelper::setDefaultValue(BaseAttributeMap& map, Attribute const& attribute, float value) {
-    if (auto ptr = map.getMutableInstance(attribute.mIDValue).mPtr) {
+    if (auto ptr = map.getMutableInstance(attribute).mPtr) {
         float& defaultValue = ptr->mDefaultValue;
         if (value != defaultValue) {
             defaultValue       = value;

@@ -169,7 +169,7 @@ ClassDefine<EntityClass> EntityClassBuilder =
 EntityClass::EntityClass(Actor const* actor) : ScriptClass(ScriptClass::ConstructFromCpp<EntityClass>{}) {
     try {
         if (actor) {
-            mWeakEntity = actor->getWeakEntity();
+            mWeakEntity = actor->getEntityContext().getWeakRef();
             mValid      = true;
         }
     } catch (...) {}
@@ -406,7 +406,7 @@ Local<Value> EntityClass::getPos() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return FloatPos::newPos(entity->getPosition(), entity->getDimensionId().id);
+        return FloatPos::newPos(entity->getPosition(), entity->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -416,7 +416,7 @@ Local<Value> EntityClass::getPosDelta() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId().id);
+        return FloatPos::newPos(entity->getPosDelta(), entity->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -454,7 +454,7 @@ Local<Value> EntityClass::getFeetPos() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId().id);
+        return FloatPos::newPos(entity->getFeetPos(), entity->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -464,7 +464,7 @@ Local<Value> EntityClass::getBlockPos() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId().id);
+        return IntPos::newPos(entity->getFeetBlockPos(), entity->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -742,7 +742,7 @@ Local<Value> EntityClass::distanceTo(Arguments const& args) const {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId().id;
+                pos.dim = targetActor->getDimensionId();
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -761,7 +761,7 @@ Local<Value> EntityClass::distanceTo(Arguments const& args) const {
             throw WrongArgsCountException(__FUNCTION__);
         }
 
-        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->getPosition().distanceTo(pos.getVec3()));
     }
@@ -799,7 +799,7 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId().id;
+                pos.dim = targetActor->getDimensionId();
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -818,7 +818,7 @@ Local<Value> EntityClass::distanceToSqr(Arguments const& args) const {
             throw WrongArgsCountException(__FUNCTION__);
         }
 
-        if (actor->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (actor->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(actor->getPosition().distanceToSqr(pos.getVec3()));
     }
@@ -904,7 +904,7 @@ Local<Value> EntityClass::getBlockStandingOn(Arguments const&) const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId().id);
+        return BlockClass::newBlock(entity->getBlockPosCurrentlyStandingOn(nullptr), entity->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -1479,7 +1479,7 @@ Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
         }
         Block const&     bl     = actor->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
-        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
             return {};
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());

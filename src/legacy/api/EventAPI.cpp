@@ -288,7 +288,7 @@ void EnableEventListener(int eventId) {
                     if (!CallEvent(
                             EVENT_TYPES::onDestroyBlock,
                             PlayerClass::newPlayer(&ev.self()),
-                            BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
+                            BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
                         )) {
                         ev.cancel();
                     }
@@ -329,8 +329,8 @@ void EnableEventListener(int eventId) {
                     if (!CallEvent(
                             EVENT_TYPES::onPlaceBlock,
                             PlayerClass::newPlayer(&ev.self()),
-                            block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId().id)
-                                  : BlockClass::newBlock(truePos, ev.self().getDimensionId().id),
+                            block ? BlockClass::newBlock(*block, truePos, ev.self().getDimensionId())
+                                  : BlockClass::newBlock(truePos, ev.self().getDimensionId()),
                             Number::newNumber(static_cast<schar>(ev.face()))
                         )) {
                         ev.cancel();
@@ -348,7 +348,7 @@ void EnableEventListener(int eventId) {
                     CallEvent(
                         EVENT_TYPES::afterPlaceBlock,
                         PlayerClass::newPlayer(&ev.self()),
-                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId().id)
+                        BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
                     ); // Not cancellable
                 }
             }
@@ -425,10 +425,10 @@ void EnableEventListener(int eventId) {
                             EVENT_TYPES::onUseItemOn,
                             PlayerClass::newPlayer(&ev.self()),
                             ItemClass::newItem(&ev.item()),
-                            ev.block() ? BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId().id)
-                                       : BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id),
+                            ev.block() ? BlockClass::newBlock(ev.block(), ev.blockPos(), ev.self().getDimensionId())
+                                       : BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId()),
                             Number::newNumber(static_cast<schar>(ev.face())),
-                            FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId().id)
+                            FloatPos::newPos(ev.clickPos(), ev.self().getDimensionId())
                         )) {
                         ev.cancel();
                     }
@@ -670,7 +670,7 @@ void EnableEventListener(int eventId) {
                     if (!CallEvent(
                             EVENT_TYPES::onBlockInteracted,
                             PlayerClass::newPlayer(&ev.self()),
-                            BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId().id)
+                            BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
                         )) {
                         ev.cancel();
                     }

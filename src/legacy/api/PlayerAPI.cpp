@@ -115,12 +115,8 @@
 #include "mc/world/scores/ScoreboardOperationResult.h"
 
 SetScorePacket::SetScorePacket() { mType = ScorePacketType::Change; }
-ToastRequestPacket::ToastRequestPacket() { mSerializationMode = SerializationMode::ManualOnly; }
 ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
-SetDisplayObjectivePacket::SetDisplayObjectivePacket() { mSerializationMode = SerializationMode::ManualOnly; }
 SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() { mSortOrder = ObjectiveSortOrder::Ascending; }
-RemoveObjectivePacketPayload::RemoveObjectivePacketPayload() = default;
-RemoveObjectivePacket::RemoveObjectivePacket() { mSerializationMode = SerializationMode::ManualOnly; }
 
 //////////////////// Class Definition ////////////////////
 
@@ -342,7 +338,7 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
 PlayerClass::PlayerClass(Player const* player) : ScriptClass(ScriptClass::ConstructFromCpp<PlayerClass>{}) {
     try {
         if (player) {
-            mWeakEntity = player->getWeakEntity();
+            mWeakEntity = player->getEntityContext().getWeakRef();
             mValid      = true;
         }
     } catch (...) {}
@@ -914,7 +910,7 @@ Local<Value> PlayerClass::getPos() const {
         Player* player = get();
         if (!player) return {};
 
-        return FloatPos::newPos(player->getPosition(), player->getDimensionId().id);
+        return FloatPos::newPos(player->getPosition(), player->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -924,7 +920,7 @@ Local<Value> PlayerClass::getFeetPos() const {
         Player* player = get();
         if (!player) return {};
 
-        return FloatPos::newPos(player->getFeetPos(), player->getDimensionId().id);
+        return FloatPos::newPos(player->getFeetPos(), player->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -934,7 +930,7 @@ Local<Value> PlayerClass::getBlockPos() const {
         Player* player = get();
         if (!player) return {};
 
-        return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId().id);
+        return IntPos::newPos(player->getFeetBlockPos(), player->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -947,10 +943,10 @@ Local<Value> PlayerClass::getLastDeathPos() const {
         }
         auto pos = player->getLastDeathPos();
         auto dim = player->getLastDeathDimension();
-        if (!pos.has_value() || !dim.has_value() || dim->id == -1) {
+        if (!pos.has_value() || !dim.has_value() || dim == -1) {
             return {};
         }
-        return IntPos::newPos(pos.value(), dim->id);
+        return IntPos::newPos(pos.value(), dim.value());
     }
     CATCH_AND_THROW
 }
@@ -1702,14 +1698,13 @@ Local<Value> PlayerClass::setPermLevel(Arguments const& args) const {
                 fmt::format("Set Player {} Permission Level as {}.", player->getRealName(), newPerm)
             );
             player->getAbilities().mPermissions->mCommandPermissions = static_cast<CommandPermissionLevel>(newPerm);
-            auto& perm    = player->getAbilities().mPermissions->mPlayerPermissions;
-            auto  oriPerm = perm;
+            auto& perm = player->getAbilities().mPermissions->mPlayerPermissions;
             if (newPerm >= 1) {
                 perm = PlayerPermissionLevel::Operator;
             } else {
                 perm = PlayerPermissionLevel::Member;
             }
-            player->getAbilities()._handlePlayerPermissionsChange(oriPerm, perm);
+            player->getAbilities().setPlayerPermissions(perm);
             UpdateAbilitiesPacket uPkt(player->getOrCreateUniqueID(), player->getAbilities());
             player->sendNetworkPacket(uPkt);
             res = true;
@@ -2134,7 +2129,7 @@ Local<Value> PlayerClass::reduceExperience(Arguments const& args) const {
 
         float exp = args[0].asNumber().toFloat();
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            auto instance = component->mAttributes->getMutableInstance(Player::EXPERIENCE().mIDValue).mPtr;
+            auto instance = component->mAttributes->getMutableInstance(Player::EXPERIENCE()).mPtr;
             if (!instance) {
                 return Boolean::newBoolean(false);
             }
@@ -2292,7 +2287,7 @@ Local<Value> PlayerClass::getBlockStandingOn(Arguments const&) const {
         Player* player = get();
         if (!player) return {};
 
-        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimensionId().id);
+        return BlockClass::newBlock(player->getBlockPosCurrentlyStandingOn(nullptr), player->getDimensionId());
     }
     CATCH_AND_THROW
 }
@@ -3510,7 +3505,9 @@ Local<Value> PlayerClass::getBlockFromViewVector(Arguments const& args) const {
         Block const&     bl     = player->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
         // isEmpty()
-        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == MaterialType::Any)) {
+        if (bl.isAir()
+            || (legacy.mProperties == BlockProperty::None
+                && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
             return {};
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());
@@ -3753,7 +3750,7 @@ Local<Value> PlayerClass::distanceTo(Arguments const& args) const {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId().id;
+                pos.dim = targetActor->getDimensionId();
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -3772,7 +3769,7 @@ Local<Value> PlayerClass::distanceTo(Arguments const& args) const {
             throw WrongArgsCountException(__FUNCTION__);
         }
 
-        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->getPosition().distanceTo(pos.getVec3()));
     }
@@ -3810,7 +3807,7 @@ Local<Value> PlayerClass::distanceToSqr(Arguments const& args) const {
                 pos.x   = targetActorPos.x;
                 pos.y   = targetActorPos.y;
                 pos.z   = targetActorPos.z;
-                pos.dim = targetActor->getDimensionId().id;
+                pos.dim = targetActor->getDimensionId();
             } else {
                 throw WrongArgTypeException(__FUNCTION__);
             }
@@ -3829,7 +3826,7 @@ Local<Value> PlayerClass::distanceToSqr(Arguments const& args) const {
             throw WrongArgsCountException(__FUNCTION__);
         }
 
-        if (player->getDimensionId().id != pos.dim) return Number::newNumber(INT_MAX);
+        if (player->getDimensionId() != pos.dim) return Number::newNumber(INT_MAX);
 
         return Number::newNumber(player->getPosition().distanceToSqr(pos.getVec3()));
     }

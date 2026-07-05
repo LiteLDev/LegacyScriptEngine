@@ -122,7 +122,7 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onOpenContainer,
                         PlayerClass::newPlayer(static_cast<Player*>(actor)),
-                        BlockClass::newBlock(playerOpenContainerEvent.mBlockPos, actor->getDimensionId().id)
+                        BlockClass::newBlock(playerOpenContainerEvent.mBlockPos, actor->getDimensionId())
                     )) {
                     return EventResult::StopProcessing;
                 }
@@ -148,7 +148,7 @@ LL_TYPE_INSTANCE_HOOK( // When player leaves or closes the container
                     CallEvent(
                         EVENT_TYPES::onCloseContainer,
                         PlayerClass::newPlayer(this),
-                        BlockClass::newBlock(*pos, getDimensionId().id)
+                        BlockClass::newBlock(*pos, getDimensionId())
                     );
                 }
             }
@@ -176,7 +176,7 @@ LL_TYPE_INSTANCE_HOOK( // Container closed caused by piston pushing
                         CallEvent(
                             EVENT_TYPES::onCloseContainer,
                             PlayerClass::newPlayer(&player),
-                            BlockClass::newBlock(*pos, player.getDimensionId().id)
+                            BlockClass::newBlock(*pos, player.getDimensionId())
                         );
                     }
                 }
@@ -233,7 +233,7 @@ LL_STATIC_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onAttackBlock,
                     PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(pos, player.getDimensionId().id),
+                    BlockClass::newBlock(pos, player.getDimensionId()),
                     !item.isNull() ? ItemClass::newItem(&const_cast<ItemStack&>(item)) : Local<Value>()
                 )) {
                 isCancelled = true;
@@ -244,7 +244,7 @@ LL_STATIC_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onStartDestroyBlock,
                     PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(pos, player.getDimensionId().id)
+                    BlockClass::newBlock(pos, player.getDimensionId())
                 )) {
                 isCancelled = true;
             }
@@ -271,7 +271,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onUseFrameBlock,
                     PlayerClass::newPlayer(&player),
-                    BlockClass::newBlock(eventData.mPos, player.getDimensionId().id)
+                    BlockClass::newBlock(eventData.mPos, player.getDimensionId())
                 )) {
                 return;
             }
@@ -295,7 +295,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onUseFrameBlock,
                     PlayerClass::newPlayer(player),
-                    BlockClass::newBlock(pos, player->getDimensionId().id)
+                    BlockClass::newBlock(pos, player->getDimensionId())
                 )) {
                 return false;
             }
@@ -340,7 +340,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onChangeDim,
                     PlayerClass::newPlayer(&player),
-                    Number::newNumber(changeRequest.mToDimensionId->id)
+                    Number::newNumber(changeRequest.mToDimensionId->mValue)
                 )) {
                 return;
             }
@@ -408,7 +408,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onBedEnter,
                     PlayerClass::newPlayer(this),
-                    IntPos::newPos(pos, this->getDimensionId().id)
+                    IntPos::newPos(pos, this->getDimensionId())
                 )) {
                 return BedSleepingResult::Ok;
             }
@@ -503,9 +503,9 @@ LL_TYPE_INSTANCE_HOOK(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
                     ItemClass::newItem(&item),
-                    BlockClass::newBlock(pos, entity.getDimensionId().id),
+                    BlockClass::newBlock(pos, entity.getDimensionId()),
                     Number::newNumber(-1),
-                    FloatPos::newPos(pos, entity.getDimensionId().id)
+                    FloatPos::newPos(pos, entity.getDimensionId())
                 )) {
                 return false;
             }
@@ -531,9 +531,9 @@ LL_TYPE_INSTANCE_HOOK(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
                     ItemClass::newItem(&item),
-                    BlockClass::newBlock(pos, entity.getDimensionId().id),
+                    BlockClass::newBlock(pos, entity.getDimensionId()),
                     Number::newNumber(-1),
-                    FloatPos::newPos(pos, entity.getDimensionId().id)
+                    FloatPos::newPos(pos, entity.getDimensionId())
                 )) {
                 return false;
             }
@@ -596,7 +596,7 @@ LL_TYPE_INSTANCE_HOOK(
                     EVENT_TYPES::onPlayerInteractEntity,
                     PlayerClass::newPlayer(this),
                     EntityClass::newEntity(&actor),
-                    FloatPos::newPos(location, getDimensionId().id)
+                    FloatPos::newPos(location, getDimensionId())
                 )) {
                 return {false, true};
             }

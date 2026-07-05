@@ -31,7 +31,6 @@
 #include "mc/server/commands/CommandContext.h"
 #include "mc/server/commands/CommandOutputType.h"
 #include "mc/server/commands/CommandPermissionLevel.h"
-#include "mc/server/commands/CommandVersion.h"
 #include "mc/server/commands/CurrentCmdVersion.h"
 #include "mc/server/commands/GenerateMessageResult.h"
 #include "mc/server/commands/MinecraftCommands.h"
@@ -123,7 +122,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return IntPos::newPos(
             std::get<CommandPosition>(result.value())
                 .getBlockPos(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
-            dim ? dim->getDimensionId().id : -1
+            dim ? dim->getDimensionId().mValue : -1
         );
     }
     if (result.hold(ParamKind::Kind::Vec3)) {
@@ -131,7 +130,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
         return FloatPos::newPos(
             std::get<CommandPositionFloat>(result.value())
                 .getPosition(static_cast<int>(CurrentCmdVersion::Latest), origin, Vec3::ZERO()),
-            dim ? dim->getDimensionId().id : -1
+            dim ? dim->getDimensionId().mValue : -1
         );
     }
     if (result.hold(ParamKind::Kind::Message)) {
@@ -426,9 +425,9 @@ Local<Value> CommandClass::newParameter(Arguments const& args) const {
     try {
         auto                   name       = args[0].asString().toString();
         ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
-        std::string            enumName   = "";
+        std::string            enumName;
         bool                   optional   = false;
-        std::string            identifier = "";
+        std::string            identifier;
         size_t                 index      = 2;
         CommandParameterOption option     = CommandParameterOption::None;
         if (args.size() > index && args[index].isBoolean()) optional = args[index++].asBoolean().value();
@@ -455,8 +454,8 @@ Local<Value> CommandClass::mandatory(Arguments const& args) const {
     try {
         auto                   name       = args[0].asString().toString();
         ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
-        std::string            enumName   = "";
-        std::string            identifier = "";
+        std::string            enumName;
+        std::string            identifier;
         size_t                 index      = 2;
         CommandParameterOption option     = CommandParameterOption::None;
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
@@ -482,8 +481,8 @@ auto CommandClass::optional(Arguments const& args) const -> Local<Value> {
     try {
         auto                   name       = args[0].asString().toString();
         ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
-        std::string            enumName   = "";
-        std::string            identifier = "";
+        std::string            enumName;
+        std::string            identifier;
         size_t                 index      = 2;
         CommandParameterOption option     = CommandParameterOption::None;
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
@@ -754,7 +753,7 @@ Local<Value> CommandClass::removeSoftEnumValues(Arguments const& args) {
         auto enums = parseStringList(args[1].asArray());
         if (ll::getGamingStatus() == ll::GamingStatus::Starting) {
             ll::coro::keepThis([name, enums]() -> ll::coro::CoroTask<> {
-                CommandRegistrar::getInstance(false).removeSoftEnumValues(name, std::move(enums));
+                CommandRegistrar::getInstance(false).removeSoftEnumValues(name, enums);
                 co_return;
             }).launch(ll::thread::ServerThreadExecutor::getDefault());
         } else {

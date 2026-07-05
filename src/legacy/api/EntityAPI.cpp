@@ -1840,8 +1840,8 @@ Local<Value> McClass::summonMob(Arguments const& args) {
 
         if (!entity || entity->mRemoved) return {};
 
-        if (auto type = std::to_underlying(entity->getEntityTypeId());
-            (type & std::to_underlying(ActorType::Mob)) != 0 || type - 10 <= 0x35) {
+        if (auto type = static_cast<int>(entity->getEntityTypeId());
+            (type & static_cast<int>(ActorType::Mob)) != 0 || type - 10 <= 0x35) {
             entity->setPersistent();
         }
 

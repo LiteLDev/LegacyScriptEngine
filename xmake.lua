@@ -71,7 +71,7 @@ option("backend")
 target("LegacyScriptEngine")
     add_rules("@levibuildscript/linkrule")
     if is_plat("windows") then
-        add_defines("NOMINMAX", "UNICODE", "_AMC64_", "_HAS_CXX23=1")
+        add_defines("NOMINMAX", "UNICODE", "_AMC64_")
         set_exceptions("none") -- To avoid conflicts with /EHa.
         add_cxflags( "/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204")
         add_cxflags(

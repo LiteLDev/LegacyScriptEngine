@@ -64,29 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Improved `BinaryStream`:
-  `getData([release])` now returns `ByteBuffer`, does not clear by default, and
-  optionally releases data after reading; `createPacket(pktid[,raw])` now
-  supports raw packets; scalar `read*` APIs were added; several numeric
-  `write*` APIs now accept `String` for BigInt-friendly input
-  @zimuya4153
-- Improved file and item behavior:
-  `File.readFrom(path[,isBinary])` now supports binary reads;
-  `File.writeTo(path, text)` now accepts `ByteBuffer`;
-  `it.setLore([])` now clears custom lore instead of failing @zimuya4153
-- Improved player NBT APIs:
-  `mc.getPlayerNbt(uuid)` now returns `Null` when no saved data exists and can
-  read online players directly; `mc.setPlayerNbt(uuid, nbt[, forceCreate,
-  isOnlineMode])` now supports optional offline record creation; player NBT
-  APIs now validate UUID input more strictly @zimuya4153
-- Improved NBT serialization:
-  `NbtCompound::toSNBT([space[,format]])` now supports explicitly selecting
-  `SnbtFormat`; one-argument usage still defaults to `SnbtFormat::ForceQuote`
-  @zimuya4153
-
-### Fixed
-
-- Fixed `NbtCompound::setTag` @zimuya4153
+- Adapted to LeviLamina 26.20.*
 
 ## [0.18.2] - 2026-04-17
 

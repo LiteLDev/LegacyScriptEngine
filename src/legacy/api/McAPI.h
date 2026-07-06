@@ -22,6 +22,8 @@ public:
 
     static Local<Value> newItem(Arguments const& args);
     static Local<Value> spawnMob(Arguments const& args);
+    static Local<Value> summonMob(Arguments const& args);
+    static Local<Value> loadMob(Arguments const& args);
     static Local<Value> spawnItem(Arguments const& args);
     static Local<Value> spawnSimulatedPlayer(Arguments const& args);
     static Local<Value> explode(Arguments const& args);
@@ -35,10 +37,13 @@ public:
     static Local<Value> newCustomForm(Arguments const& args);
 
     static Local<Value> regConsoleCmd(Arguments const& args);
+    static Local<Value> getMotd(Arguments const& args);
     static Local<Value> setMotd(Arguments const& args);
     static Local<Value> sendCmdOutput(Arguments const& args);
     static Local<Value> crashBDS(Arguments const& args);
 
+    static Local<Value> getOnlinePlayerNum(Arguments const& args);
+    static Local<Value> getMaxNumPlayers(Arguments const& args);
     static Local<Value> setMaxNumPlayers(Arguments const& args);
 
     static Local<Value> newIntPos(Arguments const& args);
@@ -59,6 +64,7 @@ public:
     static Local<Value> setPlayerNbt(Arguments const& args);
     static Local<Value> setPlayerNbtTags(Arguments const& args);
     static Local<Value> deletePlayerNbt(Arguments const& args);
+    static Local<Value> getAllPlayerUuids(Arguments const& args);
     static Local<Value> getPlayerScore(Arguments const& args);
     static Local<Value> setPlayerScore(Arguments const& args);
     static Local<Value> addPlayerScore(Arguments const& args);
@@ -69,5 +75,8 @@ public:
     static Local<Value> setTime(Arguments const& args);
     static Local<Value> getWeather(Arguments const& args);
     static Local<Value> setWeather(Arguments const& args);
+
+    static Local<Value> getDimensionId(Arguments const& args);
+    static Local<Value> getDimensionName(Arguments const& args);
 };
 extern ClassDefine<> McClassBuilder;

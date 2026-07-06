@@ -31,6 +31,7 @@ public:
     Local<Value> getCanFreeze() const;
     Local<Value> getCanSeeDaylight() const;
     Local<Value> getCanPickupItems() const;
+    Local<Value> getCustomName() const;
     Local<Value> getInAir() const;
     Local<Value> getInWater() const;
     Local<Value> getInClouds() const;
@@ -83,6 +84,7 @@ public:
     Local<Value> setFire(Arguments const& args) const;
     Local<Value> stopFire(Arguments const& args) const;
     Local<Value> setScale(Arguments const& args) const;
+    Local<Value> setCustomName(Arguments const& args) const;
 
     Local<Value> distanceTo(Arguments const& args) const;
     Local<Value> distanceToSqr(Arguments const& args) const;

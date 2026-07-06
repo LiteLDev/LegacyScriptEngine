@@ -47,6 +47,7 @@ In addition to the above standard types, there are also some engine-defined obje
 - `Device` - Player equipment information object (see player for details)
 - `Container` - container object (see container for details)
 - `Objective` - Scored item object (see Scoreboard for details)
+- `Packet` - Packet object (see Packet for details)
 - `NBT` - NBT Tag object (see NBT for details)
 - `SimpleForm` - Normal form objects (see Form Builder for details)
 - `CustomForm` - Custom form objects (see Form Builder for details)

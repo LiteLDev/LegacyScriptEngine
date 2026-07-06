@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-07-05
+
+### Added
+
+- Added packet APIs:
+  `Packet::sendTo`, `Packet::sendToClients`, `Packet::sendToServer`,
+  `Packet` / `LXL_Packet` global aliases @zimuya4153
+- Added `BinaryStream` APIs:
+  `getReadPointer`, `setReadPointer`, `setData`, `writeBytes`, `readBytes`,
+  `writeUuid` @zimuya4153
+- Added server APIs:
+  `mc.getMotd`, `mc.getOnlinePlayerNum`, `mc.getMaxNumPlayers`,
+  `mc.getDimensionId`, `mc.getDimensionName` @zimuya4153
+- Added gameplay helpers:
+  `en.setCustomName`, `mc.summonMob`, `mc.loadMob`, `it.addCount`,
+  `it.removeCount`, `it.setCount`, `system.randomUuid` @zimuya4153
+- Added player state APIs:
+  `pl.isSwimming`, `pl.isCrawling` @zimuya4153
+- Added name access APIs:
+  `be.setCustomName`, `be.getCustomName`, `en.getCustomName`,
+  `it.getDisplayName` @zimuya4153
+- Added player data API:
+  `mc.getAllPlayerUuids([isOnlineMode])` for enumerating saved player UUIDs
+- Added database API:
+  `DBSession::backup(path)` for backing up SQL sessions
+- Added `VaillanI18n` API for modifying Minecraft vanilla language data
+  @zimuya4153 @xianyubb
+- Added `toSNBT([space[,format]])` to all NBT object types @zimuya4153
+
+### Changed
+
+- Improved `BinaryStream`:
+  `getData([release])` now returns `ByteBuffer`, does not clear by default, and
+  optionally releases data after reading; `createPacket(pktid[,raw])` now
+  supports raw packets; scalar `read*` APIs were added; several numeric
+  `write*` APIs now accept `String` for BigInt-friendly input
+  @zimuya4153
+- Improved file and item behavior:
+  `File.readFrom(path[,isBinary])` now supports binary reads;
+  `File.writeTo(path, text)` now accepts `ByteBuffer`;
+  `it.setLore([])` now clears custom lore instead of failing @zimuya4153
+- Improved player NBT APIs:
+  `mc.getPlayerNbt(uuid)` now returns `Null` when no saved data exists and can
+  read online players directly; `mc.setPlayerNbt(uuid, nbt[, forceCreate,
+  isOnlineMode])` now supports optional offline record creation; player NBT
+  APIs now validate UUID input more strictly @zimuya4153
+- Improved NBT serialization:
+  `NbtCompound::toSNBT([space[,format]])` now supports explicitly selecting
+  `SnbtFormat`; one-argument usage still defaults to `SnbtFormat::ForceQuote`
+  @zimuya4153
+
+### Fixed
+
+- Fixed `NbtCompound::setTag` @zimuya4153
+
 ## [0.19.0] - 2026-07-04
 
 ### Changed
@@ -1263,7 +1318,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.1...HEAD
+[0.19.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.2...v0.19.0
 [0.18.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.0...v0.18.1

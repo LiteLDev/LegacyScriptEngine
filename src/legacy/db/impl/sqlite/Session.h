@@ -22,6 +22,7 @@ public:
     void                      close() override;
     bool                      isOpen() override;
     DBType                    getType() override;
+    bool                      backup(std::filesystem::path const& backupPath) override;
 
     SharedPointer<Stmt> operator<<(std::string const& query) override;
 

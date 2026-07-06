@@ -70,4 +70,27 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 - Return type: The block entity's block object.
 - Return value type: `Block`
 
+#### Set Block Entity Custom Name
+
+!!! warning
+This function is only available in 0.19.1 and later.
+
+`be.setCustomName(name)`
+
+- Parameters:
+  - name : `String`
+    New block entity custom name.
+- Return type: Whether setting was successful.
+- Return value type: `Boolean`
+
+#### Get Block Entity Custom Name
+
+!!! warning
+This function is only available in 0.19.1 and later.
+
+`be.getCustomName()`
+
+- Return type: The block entity's custom name.
+- Return value type: `String`
+
 

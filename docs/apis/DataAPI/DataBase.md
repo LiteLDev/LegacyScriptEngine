@@ -209,6 +209,22 @@ The `query` method returns:
 
 ---
 
+### Backup Database
+
+`session.backup(path)`
+
+* **Parameters:**
+* `path`: `String`
+  Destination path of the backup database file.
+
+
+* **Returns:** Whether the backup operation succeeded.
+* **Return Type:** `Boolean`
+
+> Currently this is implemented for SQLite sessions.
+
+---
+
 ### Close Database Session
 
 `session.close()`

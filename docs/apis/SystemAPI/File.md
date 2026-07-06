@@ -14,14 +14,23 @@ If you need to manipulate files frequently, use the file classes below to improv
 
 ### Read in All the Contents of the File
 
-`File.readFrom(path)`
+!!! warning
+The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.1 and later.
+
+`File.readFrom(path[,isBinary])`
 
 - Parameter: 
   - path : `String`  
     The path of the target file, the relative path is based on the BDS root directory.
+  - isBinary : `Boolean`  
+    Whether to read in binary mode. The default value is `false`
 - Return value: All data in the file
-- Return value type: `String`
+- Return value type: `String` / `ByteBuffer`
   - If the return value is `Null`, the read failed.
+
+If `isBinary` is `true`, this function returns `ByteBuffer`; otherwise it returns `String`.
+
+Before 0.19.1, this function could only be used as `File.readFrom(path)`, and the return value type was always `String`.
 
 
 
@@ -33,7 +42,7 @@ If you need to manipulate files frequently, use the file classes below to improv
   - path : `String`  
     The path of the target file, the relative path is based on the BDS root directory.
 
-  - text : `String`  
+  - text : `String` / `ByteBuffer`  
     What will be written to the file.
 
 - Return value: Whether the write is successful or not.
@@ -41,6 +50,9 @@ If you need to manipulate files frequently, use the file classes below to improv
 - Return value type: `Boolean`
 
 > Note: If the file does not exist, it will be created automatically. If it exists, it will be **emptied** before writing.
+
+!!! warning
+Passing `ByteBuffer` is only available in 0.19.1 and later.
 
 
 

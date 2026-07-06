@@ -127,6 +127,69 @@ bool SQLiteSession::isOpen() { return conn != nullptr; }
 
 DBType SQLiteSession::getType() { return DBType::SQLite; }
 
+bool SQLiteSession::backup(std::filesystem::path const& backupPath) {
+    if (!conn) {
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().error("SQLiteSession::backup: No open database connection.");
+        return false;
+    }
+
+    struct DestDb {
+        sqlite3* mDb{nullptr};
+        explicit DestDb(std::filesystem::path const& path) {
+            {
+                std::error_code ec;
+                std::filesystem::create_directories(path.parent_path(), ec);
+            }
+            if (sqlite3_open_v2(
+                    ll::string_utils::u8str2str(path.u8string()).c_str(),
+                    &mDb,
+                    SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
+                    nullptr
+                )
+                != SQLITE_OK) {
+                if (mDb) sqlite3_close(mDb);
+                mDb = nullptr;
+                return;
+            }
+        }
+        ~DestDb() {
+            if (mDb) sqlite3_close(mDb);
+        }
+    } destDb{backupPath};
+    if (!destDb.mDb) {
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().error(
+            "SQLiteSession::backup: Failed to open destination database '{}'",
+            backupPath.string()
+        );
+        return false;
+    }
+
+    sqlite3_exec(conn, "ROLLBACK", nullptr, nullptr, nullptr);
+    struct Backup {
+        sqlite3_backup* mBackup{nullptr};
+        Backup(sqlite3* srcDb, sqlite3* destDb) : mBackup(sqlite3_backup_init(destDb, "main", srcDb, "main")) {}
+        ~Backup() {
+            if (mBackup) sqlite3_backup_finish(mBackup);
+        }
+    } backup{conn, destDb.mDb};
+    if (!backup.mBackup) {
+        IF_ENDBG lse::LegacyScriptEngine::getLogger().error("SQLiteSession::backup: Failed to initialize backup.");
+        return false;
+    }
+
+    if (auto rc = sqlite3_backup_step(backup.mBackup, -1); rc != SQLITE_DONE) {
+        IF_ENDBG lse::LegacyScriptEngine::getLogger()
+            .error("SQLiteSession::backup: Backup step failed with code {} ({})", rc, sqlite3_errstr(rc));
+        return false;
+    }
+
+    IF_ENDBG lse::LegacyScriptEngine::getLogger().info(
+        "SQLiteSession::backup: Database successfully backed up to '{}'",
+        backupPath.string()
+    );
+    return true;
+}
+
 SharedPointer<Stmt> SQLiteSession::operator<<(std::string const& query) { return prepare(query, true); }
 
 } // namespace DB

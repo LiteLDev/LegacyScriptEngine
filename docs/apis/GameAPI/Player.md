@@ -103,6 +103,8 @@ properties.
 | pl.isSleeping            | Player is sleeping                                           | `Boolean`        |
 | pl.isMoving              | Player is moving                                             | `Boolean`        |
 | pl.isSneaking            | Player is sneaking                                           | `Boolean`        |
+| pl.isSwimming            | Whether the player is swimming (Added in 0.19.1)             | `Boolean`        |
+| pl.isCrawling            | Whether the player is crawling (Added in 0.19.1)             | `Boolean`        |
 
 These object properties are read-only and cannot be modified. in:
 
@@ -1109,22 +1111,23 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
       Player`s UUID
 - Return value: Player's NBT object.
 - Return value type: `NbtCompound`
-
-Using this API, you can operate offline player`s nbt.
+    - If the player does not exist or no saved data is found, the return value is `Null`.
 
 #### Write to an Player's NBT Object
 
-`mc.setPlayerNbt(uuid,nbt)`
+`mc.setPlayerNbt(uuid,nbt[,forceCreate,isOnlineMode])`
 
 - Parameters:
     - uuid : `String`  
       Player`s UUID
     - nbt : `NbtCompound`  
       NBT objects
+    - forceCreate : `Boolean` (Optional parameter)  
+      Whether to create offline player data when the UUID has no saved record. The default value is `false`.
+    - isOnlineMode : `Boolean` (Optional parameter)  
+      Only used when `forceCreate` is `true`. Whether the created player data uses online mode. The default value is `true`.
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
-
-Using this API, you can operate offline player`s nbt.
 
 #### Write Data to Some Special Tags of an Player's NBT Object
 
@@ -1135,12 +1138,10 @@ Using this API, you can operate offline player`s nbt.
       Player`s UUID
     - nbt : `NbtCompound`  
       NBT objects
-    - tags : `Array`  
+    - tags : `Array<String>`  
       Tags need to write
 - Return value: Whether the write was successful or not.
 - Return value type: `Boolean`
-
-Using this API, you can operate offline player`s nbt.
 
 #### Delete an Player's NBT Object
 
@@ -1152,7 +1153,17 @@ Using this API, you can operate offline player`s nbt.
 - Return value: Whether the delete was successful or not.
 - Return value type: `Boolean`
 
-Using this API, you can operate offline player`s nbt.
+Using this API, you can delete saved offline player nbt data by UUID.
+
+#### Get All Saved Player UUIDs
+
+`mc.getAllPlayerUuids([isOnlineMode])`
+
+- Parameters:
+    - isOnlineMode : `Boolean` (Optional parameter)  
+      `true` returns UUIDs of players who logged in with a Microsoft account; `false` returns UUIDs of offline mode players, default is `false`.
+- Return value: List of saved player UUID strings.
+- Return value type: `Array<String,String,...>`
 
 #### Add a Tag for the Player
 

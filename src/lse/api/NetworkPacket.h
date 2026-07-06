@@ -10,10 +10,9 @@
 
 namespace lse::api {
 
-template <MinecraftPacketIds packetId>
 class NetworkPacket final : public Packet {
 public:
-    NetworkPacket(std::string data) : mData(std::move(data)) {}
+    NetworkPacket(MinecraftPacketIds id, std::string data) : Packet(), mPacketId(id), mData(std::move(data)) {}
 
     NetworkPacket()                           = default;
     NetworkPacket(NetworkPacket&&)            = default;
@@ -23,16 +22,20 @@ public:
     NetworkPacket(NetworkPacket const&)            = delete;
     NetworkPacket& operator=(NetworkPacket const&) = delete;
 
-    [[nodiscard]] MinecraftPacketIds getId() const override { return packetId; }
+    [[nodiscard]] MinecraftPacketIds getId() const override { return mPacketId; }
 
     [[nodiscard]] std::string_view getName() const override { return "NetworkPacket"; }
 
     void write(BinaryStream& stream) const override { stream.mBuffer.append(mData); }
 
-    Bedrock::Result<void> _read(class ReadOnlyBinaryStream& /*stream*/) override { return Bedrock::Result<void>{}; }
+    Bedrock::Result<void> _read(ReadOnlyBinaryStream& stream) override {
+        mData = stream.mView.substr(stream.mReadPointer);
+        return {};
+    }
 
 private:
-    std::string mData;
+    MinecraftPacketIds mPacketId;
+    std::string        mData;
 };
 
 } // namespace lse::api

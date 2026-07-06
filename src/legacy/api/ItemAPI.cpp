@@ -61,11 +61,15 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
                                               .instanceFunction("setAux", &ItemClass::setAux)
                                               .instanceFunction("setLore", &ItemClass::setLore)
                                               .instanceFunction("setDisplayName", &ItemClass::setDisplayName)
+                                              .instanceFunction("getDisplayName", &ItemClass::getDisplayName)
                                               .instanceFunction("setDamage", &ItemClass::setDamage)
                                               .instanceFunction("setNbt", &ItemClass::setNbt)
                                               .instanceFunction("getNbt", &ItemClass::getNbt)
 
                                               .instanceFunction("match", &ItemClass::match)
+                                              .instanceFunction("addCount", &ItemClass::addCount)
+                                              .instanceFunction("removeCount", &ItemClass::removeCount)
+                                              .instanceFunction("setCount", &ItemClass::setCount)
 
                                               // For Compatibility
                                               .instanceFunction("setTag", &ItemClass::setNbt)
@@ -394,9 +398,8 @@ Local<Value> ItemClass::setLore(Arguments const& args) const {
             auto value = arr.get(i);
             if (value.getKind() == ValueKind::kString) lores.push_back(value.asString().toString());
         }
-        if (lores.empty()) return Boolean::newBoolean(false);
 
-        get()->setCustomLore(lores);
+        lores.empty() ? get()->clearCustomLore() : get()->setCustomLore(lores);
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
@@ -413,6 +416,13 @@ Local<Value> ItemClass::setDisplayName(Arguments const& args) const {
         );
         get()->setCustomName(redactableString);
         return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ItemClass::getDisplayName() const {
+    try {
+        return String::newString(get()->getCustomName());
     }
     CATCH_AND_THROW
 }
@@ -542,6 +552,45 @@ Local<Value> ItemClass::match(Arguments const& args) const {
         if (!itemNew) return Boolean::newBoolean(false);
 
         return Boolean::newBoolean(get()->matchesItem(itemNew));
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ItemClass::addCount(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+
+    try {
+        get()->add(args[0].asNumber().toInt32());
+        // update Pre Data
+        preloadData();
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ItemClass::removeCount(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+
+    try {
+        get()->remove(args[0].asNumber().toInt32());
+        // update Pre Data
+        preloadData();
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ItemClass::setCount(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber);
+
+    try {
+        get()->set(args[0].asNumber().toInt32());
+        // update Pre Data
+        preloadData();
+        return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW
 }

@@ -26,6 +26,7 @@
 #include "legacy/api/ScoreboardAPI.h"
 #include "legacy/api/ScriptAPI.h"
 #include "legacy/api/SystemAPI.h"
+#include "legacy/api/VaillanI18n.h"
 
 // #include "legacy/api/PermissionAPI.h"
 #include "legacy/api/InternationalAPI.h"
@@ -56,6 +57,7 @@ void BindAPIs(std::shared_ptr<ScriptEngine> const& engine) {
     engine->registerNativeClass(LlClassBuilder);
     engine->registerNativeClass(VersionClassBuilder);
     engine->registerNativeClass(NbtStaticBuilder);
+    engine->registerNativeClass(SnbtFormatEnumBuilder);
     engine->registerNativeClass(TextClassBuilder);
     engine->registerNativeClass(ParticleColorBuilder);
     engine->registerNativeClass(DirectionBuilder);
@@ -110,4 +112,5 @@ void BindAPIs(std::shared_ptr<ScriptEngine> const& engine) {
     engine->registerNativeClass<HttpResponseClass>(HttpResponseClassBuilder);
     engine->registerNativeClass<BinaryStreamClass>(BinaryStreamClassBuilder);
     engine->registerNativeClass<ParticleSpawner>(ParticleSpawnerBuilder);
+    engine->registerNativeClass<VaillanI18nClass>(VaillanI18nClassBuilder);
 }

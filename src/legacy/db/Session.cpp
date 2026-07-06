@@ -40,6 +40,8 @@ ResultSet Session::query(std::string const& query) {
 
 std::string Session::getLastError() const { throw std::runtime_error("Session::getLastError: Not implemented"); }
 
+bool Session::backup(std::filesystem::path const& path) { return false; }
+
 std::weak_ptr<Session> Session::getOrSetSelf() {
     if (self.expired()) {
         IF_ENDBG lse::LegacyScriptEngine::getLogger().debug("Session::getOrSetSelf: `self` expired, trying fetching");

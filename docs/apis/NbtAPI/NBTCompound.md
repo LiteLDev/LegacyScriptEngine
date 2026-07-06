@@ -115,7 +115,7 @@ Possible return values ​​are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NB
     The name of the key to operate on.
   - tag:  `NBT Object`  
     NBT object to be written (it carries specific NBT data).
-    The write data type must be the same as the data type stored in the value corresponding to the key, and the key name may not exist.
+    If the key already exists, the original tag will be replaced. If the key does not exist, a new key-value pair will be created.
 - Return value: CompoundTag itself.
 - Return value type: `NBTCompound`
 
@@ -201,15 +201,20 @@ If an item of Compound stores a `List` or `Compound` type NBT, it will recursive
 
 
 #### Serialize NBT Tag Object to SNBT
-`nbt.toSNBT([space])`
+`comp.toSNBT([space[,format]])`
 
 - Parameter:
   - space : `Integer`  
      (Optional parameter) If you want to format the output string, pass this parameter.  
     Represents the number of spaces per indent, so the resulting string is more human-readable.  
     This parameter defaults to `-1`, i.e. the output string is not formatted.
+  - format : `Enum`
+    (Optional parameter) SNBT output format, using a value from the `SnbtFormat` enum.
 - Return value: The converted SNBT string.
 - Return value type: `String`
+
+Calling `comp.toSNBT()` or `comp.toSNBT(space)` uses `SnbtFormat.ForceQuote` by default.  
+If you need to specify another SNBT format explicitly, use `comp.toSNBT(space, format)`.
 
 > In addition to the normal binary NBT, another type of NBT that players are more familiar with is plain text, usually used in [commands](https://minecraft.wiki/w/Commands). This format is often referred to as **SNBT** (**Binary Named Tag,**, **S**tringified **NBT**)
 >

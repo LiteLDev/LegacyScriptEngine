@@ -21,6 +21,7 @@ ClassDefine<DBSessionClass> DBSessionClassBuilder = defineClass<DBSessionClass>(
                                                         .instanceFunction("prepare", &DBSessionClass::prepare)
                                                         .instanceFunction("close", &DBSessionClass::close)
                                                         .instanceFunction("isOpen", &DBSessionClass::isOpen)
+                                                        .instanceFunction("backup", &DBSessionClass::backup)
                                                         .build();
 
 ClassDefine<DBStmtClass> DBStmtClassBuilder = defineClass<DBStmtClass>("DBStmt")
@@ -344,6 +345,14 @@ Local<Value> DBSessionClass::isOpen(Arguments const& args) const {
 
     try {
         return Boolean::newBoolean(session->isOpen());
+    }
+    CATCH_AND_THROW
+}
+Local<Value> DBSessionClass::backup(Arguments const& args) const {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    try {
+        return Boolean::newBoolean(session->backup(args[0].asString().toU8string()));
     }
     CATCH_AND_THROW
 }

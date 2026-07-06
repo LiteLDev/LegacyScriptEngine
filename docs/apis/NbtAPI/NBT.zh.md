@@ -66,3 +66,46 @@
 > 如果有反序列化的需求，请使用 NBT标签类 提供的的 **SNBT** 接口
 
 
+#### 将 NBT 对象转换为 SNBT 字符串
+
+`nbt.toSNBT([space[,format]])`
+
+- 参数
+  - space : `Integer`
+    （可选参数）缩进空格数。传入 `-1` 或省略时不进行格式化输出。
+  - format : `Enum`
+    （可选参数）SNBT 输出格式，使用 `SnbtFormat` 枚举中的值。
+- 返回值：对应的 SNBT 字符串
+- 返回值类型：`String`
+
+调用 `nbt.toSNBT()` 或 `nbt.toSNBT(space)` 时，默认使用 `SnbtFormat.ForceQuote`。  
+如果需要显式指定其他 SNBT 格式，请使用 `nbt.toSNBT(space, format)`。
+
+
+## 🎨 SnbtFormat 枚举
+
+`SnbtFormat` 是 `NbtCompound::toSNBT([space[,format]])` 使用的枚举。
+
+可用的枚举值如下：
+
+| 枚举值 | 数值 | 说明 |
+| ------ | ---- | ---- |
+| `SnbtFormat.Minimize` | `0` | 最小化输出。 |
+| `SnbtFormat.CompoundLineFeed` | `1` | 对 Compound 成员进行换行。 |
+| `SnbtFormat.ArrayLineFeed` | `2` | 对数组 / 列表内容进行换行。 |
+| `SnbtFormat.Colored` | `4` | 为输出添加颜色格式。 |
+| `SnbtFormat.Console` | `8` | 使用面向控制台的格式。 |
+| `SnbtFormat.ForceAscii` | `16` | 强制使用 ASCII 输出。 |
+| `SnbtFormat.ForceQuote` | `32` | 强制字符串使用引号输出。 |
+| `SnbtFormat.CommentMarks` | `64` | 添加注释风格标记。 |
+| `SnbtFormat.Jsonify` | `96` | 预设组合：`ForceQuote | CommentMarks`。 |
+| `SnbtFormat.PartialLineFeed` | `1` | `CompoundLineFeed` 的别名。 |
+| `SnbtFormat.AlwaysLineFeed` | `3` | 预设组合：`CompoundLineFeed | ArrayLineFeed`。 |
+| `SnbtFormat.PrettyFilePrint` | `1` | `PartialLineFeed` 的别名。 |
+| `SnbtFormat.PrettyChatPrint` | `5` | 预设组合：`PrettyFilePrint | Colored`。 |
+| `SnbtFormat.PrettyConsolePrint` | `13` | 预设组合：`PrettyFilePrint | Colored | Console`。 |
+
+其中 `CompoundLineFeed`、`ArrayLineFeed`、`Colored`、`Console`、`ForceAscii`、`ForceQuote`、`CommentMarks` 是位标记。  
+其余项是预设组合或别名。
+
+

@@ -20,9 +20,11 @@ public:
     Local<Value> getName() const;
     Local<Value> getPos() const;
     Local<Value> getType() const;
+    Local<Value> getCustomName() const;
 
     Local<Value> getNbt(Arguments const& args) const;
     Local<Value> setNbt(Arguments const& args) const;
     Local<Value> getBlock(Arguments const& args) const;
+    Local<Value> setCustomName(Arguments const& args) const;
 };
 extern ClassDefine<BlockEntityClass> BlockEntityClassBuilder;

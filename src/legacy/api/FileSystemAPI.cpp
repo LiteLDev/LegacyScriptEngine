@@ -624,11 +624,15 @@ Local<Value> GetFilesList(Arguments const& args) {
 Local<Value> FileReadFrom(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    if (args.size() >= 2) {
+        CHECK_ARG_TYPE(args[1], ValueKind::kBoolean);
+    }
 
     try {
-        auto content = ll::file_utils::readFile(args[0].asString().toU8string());
+        auto isBinary = args.size() >= 2 && args[1].asBoolean().value();
+        auto content = ll::file_utils::readFile(args[0].asString().toU8string(), isBinary);
         if (!content) return {}; // Null
-        return String::newString(content.value());
+        return isBinary ? ByteBuffer::newByteBuffer(content->data(), content->size()).asValue() : String::newString(content.value());
     }
     CATCH_AND_THROW
 }
@@ -636,7 +640,7 @@ Local<Value> FileReadFrom(Arguments const& args) {
 Local<Value> FileWriteTo(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
-    CHECK_ARG_TYPE(args[1], ValueKind::kString);
+    CHECK_ARG_TYPE(args[1], ValueKind::kString && args[1].getKind() != ValueKind::kByteBuffer);
 
     try {
         std::filesystem::path path(args[0].asString().toU8string());
@@ -655,7 +659,15 @@ Local<Value> FileWriteTo(Arguments const& args) {
                 "Fail to create directory of " + args[0].asString().toString() + "!"
             );
         }
-        return Boolean::newBoolean(ll::file_utils::writeFile(path, args[1].asString().toString(), false));
+        std::string content;
+        if (args[1].isString()) {
+            content = args[1].asString().toString();
+        } else {
+            auto data = args[1].asByteBuffer();
+            content   = std::string_view{reinterpret_cast<char*>(data.getRawBytes()), data.byteLength()};
+        }
+
+        return Boolean::newBoolean(ll::file_utils::writeFile(path, content, false));
     }
     CATCH_AND_THROW
 }

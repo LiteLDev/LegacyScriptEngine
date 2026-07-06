@@ -169,6 +169,9 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     if (result.hold(ParamKind::Kind::String)) {
         return String::newString(std::get<std::string>(result.value()));
     }
+    if (result.hold(ParamKind::Kind::Dimension)) {
+        return Number::newNumber(std::get<DimensionType>(result.value()).mValue);
+    }
     return {};
 }
 

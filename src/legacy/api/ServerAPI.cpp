@@ -8,9 +8,17 @@
 #include "mc/common/SharedConstants.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/network/packet/SetTimePacket.h"
+#include "mc/world/level/dimension/VanillaDimensions.h"
 #include "mc/world/level/storage/LevelData.h"
 
 #include <ll/api/service/ServerInfo.h>
+
+Local<Value> McClass::getMotd(Arguments const& args) {
+    try {
+        return String::newString(ll::service::getServerNetworkHandler().and_then(&ServerNetworkHandler::mServerName));
+    }
+    CATCH_AND_THROW
+}
 
 Local<Value> McClass::setMotd(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
@@ -23,6 +31,30 @@ Local<Value> McClass::setMotd(Arguments const& args) {
 }
 
 Local<Value> McClass::crashBDS(Arguments const&) { return Boolean::newBoolean(false); }
+
+Local<Value> McClass::getOnlinePlayerNum(Arguments const& args) {
+    if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kBoolean);
+
+    try {
+        if (args.size() >= 1 && args[0].asBoolean().value()) {
+            return Number::newNumber(ll::service::getServerNetworkHandler().and_then([](auto& handler) {
+                return static_cast<int64>(handler.mClients->size());
+            }));
+        } else {
+            return Number::newNumber(ll::service::getLevel().and_then(&Level::getUserCount));
+        }
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> McClass::getMaxNumPlayers(Arguments const& args) {
+    try {
+        return Number::newNumber(
+            ll::service::getServerNetworkHandler().and_then(&ServerNetworkHandler::mMaxNumPlayers)
+        );
+    }
+    CATCH_AND_THROW
+}
 
 Local<Value> McClass::setMaxNumPlayers(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
@@ -123,6 +155,38 @@ Local<Value> McClass::setWeather(Arguments const& args) {
         if (weather == 1) ll::service::getLevel()->updateWeather(1.0, duration, 0.0, duration);
         else if (weather == 2) ll::service::getLevel()->updateWeather(1065353216.0, duration, 1065353216.0, duration);
         else ll::service::getLevel()->updateWeather(0.0, duration, 0.0, duration);
+    }
+    CATCH_AND_THROW
+
+    return Boolean::newBoolean(true);
+}
+
+Local<Value> McClass::getDimensionId(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1)
+    CHECK_ARG_TYPE(args[0], ValueKind::kString)
+
+    try {
+        if (auto dimid = VanillaDimensions::fromString(args[0].asString().toString());
+            dimid != VanillaDimensions::Undefined()) {
+            return Number::newNumber(dimid);
+        }
+        return {};
+    }
+    CATCH_AND_THROW
+
+    return Boolean::newBoolean(true);
+}
+
+Local<Value> McClass::getDimensionName(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 1)
+    CHECK_ARG_TYPE(args[0], ValueKind::kNumber)
+
+    try {
+        auto& map = VanillaDimensions::DimensionMap().mLeft;
+        if (auto it = map.find(args[0].asNumber().toInt32()); it != map.end()) {
+            return String::newString(it->second);
+        }
+        return {};
     }
     CATCH_AND_THROW
 

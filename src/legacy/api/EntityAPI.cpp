@@ -12,6 +12,7 @@
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/helper/AttributeHelper.h"
+#include "mc/common/Globals.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/nbt/CompoundTag.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
@@ -39,7 +40,7 @@
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
 #include "mc/world/attribute/Attribute.h"
-#include "mc/world/attribute/AttributeInstance.h" // IWYU pragma: keep
+#include "mc/world/attribute/AttributeInstance.h"       // IWYU pragma: keep
 #include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
@@ -56,6 +57,7 @@
 
 #include <climits>
 #include <memory>
+#include <utility>
 
 using lse::api::AttributeHelper;
 using magic_enum::enum_integer;
@@ -137,6 +139,8 @@ ClassDefine<EntityClass> EntityClassBuilder =
         .instanceFunction("getContainer", &EntityClass::getContainer)
         .instanceFunction("refreshItems", &EntityClass::refreshItems)
         .instanceFunction("setScale", &EntityClass::setScale)
+        .instanceFunction("setCustomName", &EntityClass::setCustomName)
+        .instanceFunction("getCustomName", &EntityClass::getCustomName)
         .instanceFunction("setNbt", &EntityClass::setNbt)
         .instanceFunction("getNbt", &EntityClass::getNbt)
         .instanceFunction("addTag", &EntityClass::addTag)
@@ -1292,6 +1296,30 @@ Local<Value> EntityClass::setScale(Arguments const& args) const {
     CATCH_AND_THROW
 }
 
+Local<Value> EntityClass::setCustomName(Arguments const& args) const {
+    CHECK_ARGS_COUNT(args, 1);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+
+    try {
+        Actor* entity = get();
+        if (!entity) return {};
+
+        entity->setNameTag(args[0].asString().toString());
+        return Boolean::newBoolean(true);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> EntityClass::getCustomName() const {
+    try {
+        Actor* entity = get();
+        if (!entity) return {};
+
+        return String::newString(entity->getNameTag());
+    }
+    CATCH_AND_THROW
+}
+
 Local<Value> EntityClass::getNbt(Arguments const&) const {
     try {
         Actor const* entity = get();
@@ -1761,6 +1789,103 @@ Local<Value> McClass::spawnMob(Arguments const& args) {
         );
         if (!entity) return {}; // Null
         return EntityClass::newEntity(entity);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> McClass::summonMob(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    CHECK_ARG_TYPE(args[0], ValueKind::kString);
+    using namespace ll::memory_literals;
+
+    try {
+        size_t paramIndex{0};
+
+        ActorDefinitionIdentifier name{args[paramIndex++].asString().toString()};
+        if (EntityTypeFromString(name.mFullName) == ActorType::Player) return {};
+
+        FloatVec4 pos;
+        if (IsInstanceOf<IntPos>(args[paramIndex])) {
+            pos = *IntPos::extractPos(args[paramIndex++]);
+        } else if (IsInstanceOf<FloatPos>(args[paramIndex])) {
+            pos = *FloatPos::extractPos(args[paramIndex++]);
+        } else if (args.size() >= 5 && std::ranges::all_of(std::views::iota(0ull, 4ull), [&](auto index) {
+                       return args[paramIndex + index].getKind() == ValueKind::kNumber;
+                   })) {
+            pos = {
+                args[paramIndex++].asNumber().toFloat(),
+                args[paramIndex++].asNumber().toFloat(),
+                args[paramIndex++].asNumber().toFloat(),
+                args[paramIndex++].asNumber().toInt32()
+            };
+        } else {
+            throw WrongArgTypeException(__FUNCTION__);
+        }
+
+        if (args.size() - paramIndex >= 1) {
+            name.mInitEvent = args[paramIndex++].asString().toString();
+            name._initialize();
+        }
+
+        static auto func = reinterpret_cast<
+            Actor* (*)(BlockSource&, Vec3 const&, ActorDefinitionIdentifier const&, ActorUniqueID&, Actor*)>(
+            "`anonymous namespace'::CommandUtilsAnon::_spawnEntityAt"_sym.resolve()
+        );
+
+        auto dimension = ll::service::getLevel()->getDimension(pos.dim);
+        if (dimension.expired()) return {};
+        ActorUniqueID uniqueId{};
+        auto*         entity =
+            func(dimension.lock()->getBlockSourceFromMainChunkSource(), pos.getVec3(), name, uniqueId, nullptr);
+
+        if (!entity || entity->mRemoved) return {};
+
+        if (auto type = static_cast<int>(entity->getEntityTypeId());
+            (type & static_cast<int>(ActorType::Mob)) != 0 || type - 10 <= 0x35) {
+            entity->setPersistent();
+        }
+
+        return EntityClass::newEntity(entity);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> McClass::loadMob(Arguments const& args) {
+    CHECK_ARGS_COUNT(args, 2);
+    if (!IsInstanceOf<NbtCompoundClass>(args[0])) {
+        throw WrongArgTypeException(__FUNCTION__);
+    }
+
+    try {
+        FloatVec4 pos;
+        if (IsInstanceOf<IntPos>(args[1])) {
+            pos = *IntPos::extractPos(args[1]);
+        } else if (IsInstanceOf<FloatPos>(args[1])) {
+            pos = *FloatPos::extractPos(args[1]);
+        } else if (args.size() >= 5 && std::ranges::all_of(std::views::iota(1ull, 5ull), [&](auto index) {
+                       return args[index].getKind() == ValueKind::kNumber;
+                   })) {
+            pos = {
+                args[1].asNumber().toFloat(),
+                args[2].asNumber().toFloat(),
+                args[3].asNumber().toFloat(),
+                args[4].asNumber().toInt32()
+            };
+        } else {
+            throw WrongArgTypeException(__FUNCTION__);
+        }
+
+        auto dimension = ll::service::getLevel()->getDimension(pos.dim);
+        if (dimension.expired()) return {};
+
+        if (auto* nbt = NbtCompoundClass::extract(args[0]); nbt) {
+            auto backup   = *nbt;
+            backup["Pos"] = ListTag{pos.x, pos.y, pos.z};
+            if (auto entity = dimension.lock()->getBlockSourceFromMainChunkSource().spawnActor(backup); entity) {
+                return EntityClass::newEntity(entity.as_ptr());
+            }
+        }
+        return {};
     }
     CATCH_AND_THROW
 }

@@ -114,8 +114,8 @@ local nbt = NbtCompound({
   - key：`String`   
     要操作的键名
   - tag： `NBT Object`  
-    要写入的 NBT 对象（它承载着具体的NBT数据）  
-    写入数据类型必须和键对应的值储存的数据类型一致，键名可以不存在
+    要写入的 NBT 对象（它承载着具体的 NBT 数据）  
+    如果键已存在，会直接替换原有标签；如果键不存在，则会新建这个键值对
 - 返回值：CompoundTag 自身
 - 返回值类型：`NBTCompound`
 
@@ -201,15 +201,20 @@ local nbt = NbtCompound({
 
 
 #### 将 NBT 标签对象序列化为 SNBT
-`nbt.toSNBT([space])`
+`comp.toSNBT([space[,format]])`
 
 - 参数
   - space : `Integer`  
     （可选参数）如果要格式化输出的字符串，则传入此参数  
     代表每个缩进的空格数量，这样生成的字符串更适合人阅读  
     此参数默认为 -1，即不对输出字符串进行格式化
+  - format : `Enum`
+    （可选参数）SNBT 输出格式，使用 `SnbtFormat` 枚举中的值
 - 返回值：对应的 SNBT 字符串
 - 返回值类型：`String`
+
+调用 `comp.toSNBT()` 或 `comp.toSNBT(space)` 时，默认使用 `SnbtFormat.ForceQuote`。  
+如果需要显式指定其他 SNBT 格式，请使用 `comp.toSNBT(space, format)`。
 
 > 除了普通的二进制 NBT 之外，另一种玩家更熟悉的 NBT 是纯文本形式的，通常在[命令](https://zh.minecraft.wiki/w/命令)里使用。这种格式常被称为**SNBT**（**字符串化的二进制命名标签**，**S**tringified **NBT**）
 >

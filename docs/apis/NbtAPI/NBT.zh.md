@@ -78,13 +78,15 @@
 - 返回值：对应的 SNBT 字符串
 - 返回值类型：`String`
 
-调用 `nbt.toSNBT()` 或 `nbt.toSNBT(space)` 时，默认使用 `SnbtFormat.ForceQuote`。  
+调用 `nbt.toSNBT()` 时，默认使用 `SnbtFormat.ForceQuote`。  
+调用 `nbt.toSNBT(space)` 且 `space >= 0` 时，默认使用
+`SnbtFormat.PartialLineFeed`。  
 如果需要显式指定其他 SNBT 格式，请使用 `nbt.toSNBT(space, format)`。
 
 
 ## 🎨 SnbtFormat 枚举
 
-`SnbtFormat` 是 `NbtCompound::toSNBT([space[,format]])` 使用的枚举。
+`SnbtFormat` 是 `nbt.toSNBT([space[,format]])` 使用的枚举。
 
 可用的枚举值如下：
 

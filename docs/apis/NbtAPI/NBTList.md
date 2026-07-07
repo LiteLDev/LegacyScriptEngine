@@ -18,7 +18,9 @@ See [NbtList - List Type](./NBTList.md) and [NbtCompound - Tag Type](./NBTCompou
 
 - Parameter: 
   - data: Array<NBT object> (optional parameter)   
-    Pass in an array of NBT objects. Arrays are allowed to contain other array/object structures, but the contents must all be NBT objects
+    Pass in an array of NBT objects. Arrays are allowed to contain other
+    array/object structures, but the contents must all be NBT objects. `Null`
+    values are treated as `NBT.End`.
 - Return value: The generated NBT object.
 - Return value type: `NbtList`
   - If the creation fails, an exception will be thrown.
@@ -61,8 +63,8 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
   - index : `Integer`  
     The index of the NBT you want to operate on.
   - tag: `NBT object`   
-    NBT object to write to.
-    The data type of the write object must be the same as the data type stored in the list position, and the index cannot exceed the number of items in the list.
+    NBT object to write to. Passing `Null` writes `NBT.End`. The index must
+    already exist; the original element at that position will be replaced.
 - Return value: The NBT list that has been written (for other operations in the chain).
 - Return value type: `NbtList`
 
@@ -87,7 +89,7 @@ Possible return values are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NBT.Long
 
 - Parameter: 
   - tag: `NBT object`  
-    The NBT object being added to the list.
+    The NBT object being added to the list. Passing `Null` appends `NBT.End`.
 - Return value: The NBT list with the NBT object added (for chaining operations).
 - Return value type: `NbtList`
 
@@ -120,7 +122,7 @@ Therefore, some convenient functions for simplifying object operations are also 
 `list.setLong(index,data)`  
 `list.setFloat(index,data)`  
 `list.setDouble(index,data)`  
-`list.setByteBuffer(index,data)`      
+`list.setByteArray(index,data)`      
 `list.setString(index,data)`    
 
 - Parameter: 
@@ -128,7 +130,8 @@ Therefore, some convenient functions for simplifying object operations are also 
     The index of the NBT you want to operate on.
   - data: `Number` / `Float` / `Double` / `ByteBuffer` / `String`  
     The specific data being written.  
-    The write data type must be the same as the data type stored in the subscript position, and the index cannot be greater than the number of NBT objects in the list.
+    The index must already exist. The original element at that position will be
+    replaced with the corresponding NBT type.
 - Return value: NBT list that has been written (for other operations in the chain).
 - Return value type: `NbtList`
 

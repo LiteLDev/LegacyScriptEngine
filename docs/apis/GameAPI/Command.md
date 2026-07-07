@@ -169,6 +169,7 @@ The command object has the following member functions.
 | `ParamType.Bool`       | Boolean Parameter                                                                                               |
 | `ParamType.Int`        | Integer Parameter                                                                                               |
 | `ParamType.Float`      | Floating point Parameter                                                                                        |
+| `ParamType.Dimension`  | Dimension Parameter                                                                                             |
 | `ParamType.String`     | String Parameter                                                                                                |
 | `ParamType.Actor`      | Entity Target Selector Parameter                                                                                |
 | `ParamType.Player`     | Player Target Selector Parameter                                                                                |
@@ -307,6 +308,7 @@ The relationship between command parameter types and data value types is as foll
 | `ParamType.Bool`       | `Boolean`       | Boolean Value                                                                                                   |
 | `ParamType.Int`        | `Integer`       | Integer Value                                                                                                   |
 | `ParamType.Float`      | `Float`         | Floating Point Value                                                                                            |
+| `ParamType.Dimension`  | `Integer`       | Dimension ID                                                                                                    |
 | `ParamType.String`     | `String`        | String                                                                                                          |
 | `ParamType.Actor`      | `Array<Actor>`  | The entity selected by the entity target selector                                                               |
 | `ParamType.Player`     | `Array<Player>` | The entity selected by the player's target selector                                                             |

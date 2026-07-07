@@ -18,7 +18,8 @@
 
 - 参数：
   - data: Array<NBT对象>（可选参数）  
-    传入一个NBT对象构成的数组。数组中允许包含其他数组 / 对象结构，但内容必须都为NBT对象
+    传入一个 NBT 对象构成的数组。数组中允许包含其他数组 / 对象结构，
+    但内容必须都为 NBT 对象。`Null` 会被视为 `NBT.End`
 - 返回值：生成的NBT对象
 - 返回值类型：`NbtList`
   - 如果创建失败，将抛出异常
@@ -61,8 +62,8 @@
   - index : `Integer`  
     要操作的目标下标
   - tag: `NBT对象`   
-    要写入的 NBT 对象  
-    写入对象的数据类型必须和下标位置储存的数据类型一致，且下标不能超出有效下标的最大值
+    要写入的 NBT 对象。传入 `Null` 时会写入 `NBT.End`。目标下标必须已
+    存在，原有元素会被直接替换
 - 返回值：写入完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
@@ -87,7 +88,7 @@
 
 - 参数：
   - tag: `NBT对象`  
-    要追加的 NBT 对象
+    要追加的 NBT 对象。传入 `Null` 时会追加 `NBT.End`
 - 返回值：追加完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 
@@ -120,7 +121,7 @@
 `list.setLong(index,data)`  
 `list.setFloat(index,data)`  
 `list.setDouble(index,data)`  
-`list.setByteBuffer(index,data)`      
+`list.setByteArray(index,data)`      
 `list.setString(index,data)`    
 
 - 参数：
@@ -128,7 +129,7 @@
     要操作的目标下标
   - data: `Number` / `Float` / `Double` / `ByteBuffer` / `String`  
     要写入的具体数据  
-    写入数据类型必须和下标位置储存的数据类型一致，且下标不能超出有效下标的最大值
+    目标下标必须已存在，原有元素会被替换为对应的 NBT 类型
 - 返回值：写入完毕的NBT列表（便于连锁进行其他操作）
 - 返回值类型：`NbtList`
 

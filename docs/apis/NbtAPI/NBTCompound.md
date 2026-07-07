@@ -18,9 +18,11 @@ See [NbtList - List Type](./NBTList.md) and [NbtCompound - Tag Type](./NBTCompou
 
 - Parameter: 
   - data: Object<string, NBT Object> (Optional parameter)  
-    Pass in an object consisting of NBT objects. Objects are allowed to contain other array/object structures, but the contents must be NBT objects.
+    Pass in an object consisting of NBT objects. Objects are allowed to
+    contain other array/object structures, but the contents must be NBT
+    objects. `Null` values are treated as `NBT.End`.
 - Return value: The generated NBT Object
-- Return value type: `NbtList`
+- Return value type: `NbtCompound`
   - If the creation fails, an exception will be thrown.
 
 [JavaScript]
@@ -58,10 +60,11 @@ local nbt = NbtCompound({
   - snbt : `String`  
     The SNBT string you want to parse.
 - Return value: The generated NBT object.
-- Return value type: `NbtCompound`
+- Return value type: `NBT Object`
   - If the return value is `Null` it means the parsing failed.
 
-> The SNBT string must contain a complete Compound.
+> Supports script-exposed SNBT value types, including normal values, `List`,
+> and `Compound`.
 
 
 
@@ -115,7 +118,9 @@ Possible return values ​​are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NB
     The name of the key to operate on.
   - tag:  `NBT Object`  
     NBT object to be written (it carries specific NBT data).
-    If the key already exists, the original tag will be replaced. If the key does not exist, a new key-value pair will be created.
+    If the key already exists, the original tag will be replaced. If the key
+    does not exist, a new key-value pair will be created. Passing `Null` writes
+    `NBT.End`.
 - Return value: CompoundTag itself.
 - Return value type: `NBTCompound`
 
@@ -131,6 +136,18 @@ Possible return values ​​are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NB
 - Return value: NBT object corresponding to the key.
 - Return value type:  `NBT Object`
   - If the NBT to read does not exist, it will return `Null`.
+
+
+
+#### Check Whether a Key Exists
+
+`comp.hasTag(key)`
+
+- Parameter:
+  - key: `String`
+    The name of the key to query.
+- Return value: Whether the key exists in this compound.
+- Return value type: `Boolean`
 
 
 
@@ -168,7 +185,7 @@ Therefore, some convenient functions for simplifying object operations are also 
     The name of the key to operate on.
   - data: `Above type`  
     The data to write.  
-    The write data type must be the same as the data type stored in the value corresponding to the key, and the key name may not exist.
+    If the key does not exist, it will be created automatically.
 - Return value: The NBT object that has been written to. (For chaining to perform other operations)
 - Return value type: `NbtCompound`
 
@@ -213,8 +230,11 @@ If an item of Compound stores a `List` or `Compound` type NBT, it will recursive
 - Return value: The converted SNBT string.
 - Return value type: `String`
 
-Calling `comp.toSNBT()` or `comp.toSNBT(space)` uses `SnbtFormat.ForceQuote` by default.  
-If you need to specify another SNBT format explicitly, use `comp.toSNBT(space, format)`.
+Calling `comp.toSNBT()` uses `SnbtFormat.ForceQuote` by default.  
+Calling `comp.toSNBT(space)` with `space >= 0` uses
+`SnbtFormat.PartialLineFeed`.  
+If you need to specify another SNBT format explicitly, use
+`comp.toSNBT(space, format)`.
 
 > In addition to the normal binary NBT, another type of NBT that players are more familiar with is plain text, usually used in [commands](https://minecraft.wiki/w/Commands). This format is often referred to as **SNBT** (**Binary Named Tag,**, **S**tringified **NBT**)
 >

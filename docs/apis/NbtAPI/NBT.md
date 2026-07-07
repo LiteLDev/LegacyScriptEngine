@@ -78,13 +78,16 @@ If this NBT object stores the `ByteArray` Type, the output byte string will be b
 - Return value: The SNBT form of the NBT object.
 - Return value type: `String`
 
-Calling `nbt.toSNBT()` or `nbt.toSNBT(space)` uses `SnbtFormat.ForceQuote` by default.  
-If you need to specify another SNBT format explicitly, use `nbt.toSNBT(space, format)`.
+Calling `nbt.toSNBT()` uses `SnbtFormat.ForceQuote` by default.  
+Calling `nbt.toSNBT(space)` with `space >= 0` uses
+`SnbtFormat.PartialLineFeed`.  
+If you need to specify another SNBT format explicitly, use
+`nbt.toSNBT(space, format)`.
 
 
 ## 🎨 SnbtFormat Enum
 
-`SnbtFormat` is the enum used by `NbtCompound::toSNBT([space[,format]])`.
+`SnbtFormat` is the enum used by `nbt.toSNBT([space[,format]])`.
 
 The following values are available:
 

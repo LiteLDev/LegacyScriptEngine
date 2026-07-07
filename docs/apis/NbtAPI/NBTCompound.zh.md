@@ -18,9 +18,10 @@
 
 - 参数：
   - data：Object<string, NBT Object>（可选参数）  
-    传入一个 NBT 对象构成的对象。对象中允许包含其他数组 / 对象结构，但内容必须都为 NBT 对象
+    传入一个 NBT 对象构成的对象。对象中允许包含其他数组 / 对象结构，
+    但内容必须都为 NBT 对象。`Null` 会被视为 `NBT.End`
 - 返回值：生成的 NBT 对象
-- 返回值类型：`NbtList`
+- 返回值类型：`NbtCompound`
   - 如果创建失败，将抛出异常
 
 [JavaScript]
@@ -58,10 +59,11 @@ local nbt = NbtCompound({
   - snbt：`String`  
     你要解析的 SNBT 字符串
 - 返回值：生成的 NBT 对象
-- 返回值类型：`NbtCompound`
+- 返回值类型：`NBT Object`
   - 如返回值为 `Null` 则表示解析失败
 
-> SNBT 字符串中必须包含一个完整的 Compound
+> 支持脚本层已暴露的 SNBT 值类型，包括普通值、`List` 和
+> `Compound`
 
 
 
@@ -115,7 +117,8 @@ local nbt = NbtCompound({
     要操作的键名
   - tag： `NBT Object`  
     要写入的 NBT 对象（它承载着具体的 NBT 数据）  
-    如果键已存在，会直接替换原有标签；如果键不存在，则会新建这个键值对
+    如果键已存在，会直接替换原有标签；如果键不存在，则会新建这个键值对。
+    传入 `Null` 时会写入 `NBT.End`
 - 返回值：CompoundTag 自身
 - 返回值类型：`NBTCompound`
 
@@ -131,6 +134,18 @@ local nbt = NbtCompound({
 - 返回值：键对应的 NBT 对象
 - 返回值类型： `NBT Object`
   - 如果要读取的 NBT 不存在，将返回`Null`
+
+
+
+#### 判断键是否存在
+
+`comp.hasTag(key)`
+
+- 参数：
+  - key：`String`
+    要查询的键名
+- 返回值：该键是否存在于当前 Compound 中
+- 返回值类型：`Boolean`
 
 
 
@@ -168,7 +183,7 @@ local nbt = NbtCompound({
     要操作的键名
   - data：`上述类型`  
     要写入的具体数据  
-    写入数据类型必须和键对应的值储存的数据类型一致，键名可以不存在
+    如果键不存在，会自动创建对应的键值
 - 返回值：写入完毕的 NBT 对象（便于连锁进行其他操作）
 - 返回值类型：`NbtCompound`
 
@@ -213,7 +228,9 @@ local nbt = NbtCompound({
 - 返回值：对应的 SNBT 字符串
 - 返回值类型：`String`
 
-调用 `comp.toSNBT()` 或 `comp.toSNBT(space)` 时，默认使用 `SnbtFormat.ForceQuote`。  
+调用 `comp.toSNBT()` 时，默认使用 `SnbtFormat.ForceQuote`。  
+调用 `comp.toSNBT(space)` 且 `space >= 0` 时，默认使用
+`SnbtFormat.PartialLineFeed`。  
 如果需要显式指定其他 SNBT 格式，请使用 `comp.toSNBT(space, format)`。
 
 > 除了普通的二进制 NBT 之外，另一种玩家更熟悉的 NBT 是纯文本形式的，通常在[命令](https://zh.minecraft.wiki/w/命令)里使用。这种格式常被称为**SNBT**（**字符串化的二进制命名标签**，**S**tringified **NBT**）

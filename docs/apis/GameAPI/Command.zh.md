@@ -165,6 +165,7 @@ addon 中，也可以使用这里所注册的命令。
 | `ParamType.Bool`      | 布尔值参数                               |
 | `ParamType.Int`       | 整数参数                                |
 | `ParamType.Float`     | 浮点数参数                               |
+| `ParamType.Dimension` | 维度参数                                |
 | `ParamType.String`    | 字符串参数                               |
 | `ParamType.Actor`     | 实体目标选择器参数                           |
 | `ParamType.Player`    | 玩家目标选择器参数                           |
@@ -298,6 +299,7 @@ addon 中，也可以使用这里所注册的命令。
 | `ParamType.Bool`      | `Boolean`       | 布尔值                                |
 | `ParamType.Int`       | `Integer`       | 整数                                 |
 | `ParamType.Float`     | `Float`         | 浮点数                                |
+| `ParamType.Dimension` | `Integer`       | 维度 ID                              |
 | `ParamType.String`    | `String`        | 字符串                                |
 | `ParamType.Actor`     | `Array<Actor>`  | 实体目标选择器 选中的实体                      |
 | `ParamType.Player`    | `Array<Player>` | 玩家目标选择器 选中的实体                      |

@@ -363,6 +363,7 @@ public:
 
     Local<Value> getData(Arguments const& args) const;
     Local<Value> getTag(Arguments const& args) const;
+    Local<Value> hasTag(Arguments const& args) const;
 
     Local<Value> toObject(Arguments const& args) const;
     Local<Value> toSNBT(Arguments const& args) const;

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `NbtCompound::hasTag(key)` for checking whether a compound contains a
+  tag @zimuya4153
+
+### Changed
+
+- Improved NBT parsing and mutation:
+  `NBT.parseSNBT(snbt)` now parses scalar and list SNBT values in addition to
+  compounds; `NbtCompound::set*` APIs now create missing keys automatically;
+  array/object-based NBT builders plus `NbtList::addTag` / `setTag` now accept
+  `null` as `EndTag` @zimuya4153
+- Renamed the exposed SNBT format enum binding from `SnbtFormatEnumBuilder` to
+  `SnbtFormat` @zimuya4153
+- Adjusted `toSNBT(space)` formatting so one-argument indented output uses
+  partial line-feed formatting @zimuya4153
+
+### Fixed
+
+- Fixed NBT list setter APIs so replacing existing elements no longer fails due
+  to stale type checks @zimuya4153
+- Fixed byte-list to-object conversion in the NBT JSON bridge @zimuya4153
+
 ## [0.19.1] - 2026-07-05
 
 ### Added
@@ -35,8 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `VaillanI18n` API for modifying Minecraft vanilla language data
   @zimuya4153 @xianyubb
 - Added `toSNBT([space[,format]])` to all NBT object types @zimuya4153
-- Added `NbtCompound::hasTag(key)` for checking whether a compound contains a
-  tag @zimuya4153
 
 ### Changed
 
@@ -59,18 +80,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `NbtCompound::toSNBT([space[,format]])` now supports explicitly selecting
   `SnbtFormat`; one-argument usage still defaults to `SnbtFormat::ForceQuote`
   @zimuya4153
-- Improved NBT parsing and mutation:
-  `NBT.parseSNBT(snbt)` now parses scalar and list SNBT values in addition to
-  compounds; `NbtCompound::set*` APIs now create missing keys automatically;
-  array/object-based NBT builders plus `NbtList::addTag` / `setTag` now accept
-  `null` as `EndTag` @zimuya4153
 
 ### Fixed
 
 - Fixed `NbtCompound::setTag` @zimuya4153
-- Fixed NBT list setter APIs so replacing existing elements no longer fails due
-  to stale type checks @zimuya4153
-- Fixed byte-list to-object conversion in the NBT JSON bridge @zimuya4153
 
 ## [0.19.0] - 2026-07-04
 

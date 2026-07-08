@@ -53,6 +53,7 @@ nav:
           - apis/ScriptAPI/ScriptHelp.md
           - apis/ScriptAPI/i18n.md
           - apis/ScriptAPI/Ll.md
+          - apis/ScriptAPI/VanillaI18n.md
       - SystemAPI:
           - apis/SystemAPI/File.md
           - apis/SystemAPI/FileSystem.md

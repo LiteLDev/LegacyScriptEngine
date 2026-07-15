@@ -229,7 +229,6 @@ Local<Value> PacketClass::sendTo(Arguments const& args) {
 }
 
 Local<Value> PacketClass::sendToClients(Arguments const& args) {
-    CHECK_ARGS_COUNT(args, 1);
     try {
         std::shared_ptr<Packet> pkt = get();
         if (!pkt) {
@@ -244,7 +243,6 @@ Local<Value> PacketClass::sendToClients(Arguments const& args) {
 }
 
 Local<Value> PacketClass::sendToServer(Arguments const& args) {
-    CHECK_ARGS_COUNT(args, 1);
     try {
         std::shared_ptr<Packet> pkt = get();
         if (!pkt) {

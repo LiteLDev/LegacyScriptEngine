@@ -2514,7 +2514,7 @@ Local<Value> PlayerClass::setBossBar(Arguments const& args) const {
             bs.writeUnsignedVarInt64(uid, nullptr, nullptr);
             bs.writeString("player", nullptr, nullptr);
             bs.writeFloat(player->getPosition().x, nullptr, nullptr);
-            bs.writeFloat(-60.0f, nullptr, nullptr);
+            bs.writeFloat(player->mDimension->lock()->mHeightRange->mMin - 64.0f, nullptr, nullptr);
             bs.writeFloat(player->getPosition().z, nullptr, nullptr);
             bs.writeFloat(0.0f, nullptr, nullptr);
             bs.writeFloat(0.0f, nullptr, nullptr);
@@ -2526,7 +2526,10 @@ Local<Value> PlayerClass::setBossBar(Arguments const& args) const {
             // Attribute
             bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // DataItem
-            bs.writeUnsignedVarInt(0, nullptr, nullptr);
+            bs.writeUnsignedVarInt(1, nullptr, nullptr);
+            bs.writeUnsignedVarInt(38, nullptr, nullptr);
+            bs.writeUnsignedVarInt(3, nullptr, nullptr);
+            bs.writeFloat(0.0f, nullptr, nullptr);
             // PropertySyncIntEntry
             bs.writeUnsignedVarInt(0, nullptr, nullptr);
             // PropertySyncFloatEntry

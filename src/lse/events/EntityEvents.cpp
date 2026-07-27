@@ -39,7 +39,8 @@
 #include "mc/world/phys/HitResult.h"
 
 namespace lse::events::entity {
-using api::thread::checkClientIsServerThread;
+
+using api::thread::isServerThread;
 
 LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook1,
@@ -54,7 +55,7 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&                      direction
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             static auto& tridentName = EntityCanonicalName(ActorType::Trident);
             if (*id.mCanonicalName != tridentName) {
                 if (!CallEvent(
@@ -70,7 +71,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     Actor* projectile = origin(region, id, spawner, position, direction);
     IF_LISTENED(EVENT_TYPES::onProjectileCreated) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             CallEvent( // Not nancellable
             EVENT_TYPES::onProjectileCreated,
             EntityClass::newEntity(spawner),
@@ -92,7 +93,7 @@ LL_TYPE_INSTANCE_HOOK(
     Player&             player
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onSpawnProjectile,
                     EntityClass::newEntity(&player),
@@ -117,7 +118,7 @@ LL_TYPE_INSTANCE_HOOK(
     int        durationLeft
 ) {
     IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onSpawnProjectile,
                     EntityClass::newEntity(player),
@@ -142,7 +143,7 @@ LL_TYPE_STATIC_HOOK(
     PortalAxis      axis
 ) {
     IF_LISTENED(EVENT_TYPES::onPortalTrySpawnPigZombie) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onPortalTrySpawnPigZombie,
                     IntPos::newPos(pos, region.getDimensionId()),
@@ -158,7 +159,7 @@ LL_TYPE_STATIC_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(EVENT_TYPES::onRide, EntityClass::newEntity(&passenger), EntityClass::newEntity(this))) {
                 return false;
             }
@@ -181,7 +182,7 @@ LL_TYPE_INSTANCE_HOOK(
     WitherBoss::WitherAttackType type
 ) {
     IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onWitherBossDestroy,
                     EntityClass::newEntity(this),
@@ -206,7 +207,7 @@ LL_TYPE_INSTANCE_HOOK(
     HitResult const& res
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitEntity) {
-        if (checkClientIsServerThread() && res.getEntity()) {
+        if (isServerThread() && res.getEntity()) {
             if (!CallEvent(
                     EVENT_TYPES::onProjectileHitEntity,
                     EntityClass::newEntity(res.getEntity()),
@@ -230,7 +231,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::HitResult const& res
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             auto& region = owner.getDimensionBlockSourceConst();
             auto& block  = region.getBlock(res.mBlock);
             if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
@@ -260,7 +261,7 @@ LL_TYPE_INSTANCE_HOOK(
     bool                       ignite
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             // LeviLamina's ActorHurtEvent can't handle fire hurt, so we just hook Mob::$_hurt.
             Actor* damageSource = nullptr;
             if (source.isEntitySource()) {
@@ -296,7 +297,7 @@ LL_TYPE_INSTANCE_HOOK(
     float                      damage
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we
             // just need magic damage.
             if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
@@ -338,7 +339,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::std::string const& sceneName
 ) {
     IF_LISTENED(EVENT_TYPES::onNpcCmd) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             auto& action =
                 owner.getEntityContext().tryGetComponent<NpcComponent>()->mActionsContainer->mActions->at(actionIndex);
             if (std::holds_alternative<npc::CommandAction>(action)) {
@@ -374,7 +375,7 @@ LL_TYPE_INSTANCE_HOOK(
     MobEffectInstance& effect
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (checkClientIsServerThread() && isPlayer()) {
+        if (isServerThread() && isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectUpdated,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
@@ -403,7 +404,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::Level const&                     level
 ) {
     IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             CallEvent(
                 EVENT_TYPES::onEntityTransformation,
                 String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
@@ -426,7 +427,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
 
     IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             bool canceled = event.get().visit([&]<typename T0>(T0&& arg) {
                 if constexpr (std::is_same_v<std::decay_t<T0>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
                     auto& griefingEvent = arg.value();

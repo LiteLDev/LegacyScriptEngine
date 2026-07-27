@@ -21,7 +21,7 @@ LL_TYPE_INSTANCE_HOOK(
     Objective const&    obj
 ) {
     IF_LISTENED(EVENT_TYPES::onScoreChanged) {
-        if (api::thread::checkClientIsServerThread()) {
+        if (api::thread::isServerThread()) {
             auto& idRef = id.mIdentityDef;
             if (idRef && idRef->mIdentityType == IdentityDefinition::Type::Player) {
                 if (!CallEvent(

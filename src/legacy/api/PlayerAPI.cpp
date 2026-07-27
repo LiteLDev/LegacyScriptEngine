@@ -2071,23 +2071,11 @@ Local<Value> PlayerClass::getTotalExperience(Arguments const&) const {
         if (!player) {
             return {};
         }
+        int endLevel = static_cast<int>(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
 
-        int          startLevel = 0;
-        int          endLevel   = static_cast<int>(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
-        unsigned int totalXp    = 0;
-
-        for (int level = startLevel; level < endLevel; ++level) {
-            int xpForLevel;
-            if (level / 15 == 1) {
-                xpForLevel = level * 4 - 38;
-            } else if (level / 15 > 1) {
-                xpForLevel = level * 8 - 158;
-            } else {
-                xpForLevel = level * 2 + 7;
-            }
-            totalXp += xpForLevel;
-        }
-        return Number::newNumber(static_cast<long long>(totalXp + PlayerHelper::getXpEarnedAtCurrentLevel(player)));
+        return Number::newNumber(
+            PlayerHelper::getXpNeededForLevelRange(0, endLevel) + PlayerHelper::getXpEarnedAtCurrentLevel(player)
+        );
     }
     CATCH_AND_THROW
 }

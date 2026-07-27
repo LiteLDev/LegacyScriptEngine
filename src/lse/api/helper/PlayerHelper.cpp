@@ -9,27 +9,30 @@
 
 namespace lse::api {
 
-unsigned int PlayerHelper::getPreviousLevelRequirement(Player* player) {
-    int prevLevelReq = player->mPreviousLevelRequirement;
+int PlayerHelper::getPreviousLevelRequirement(Player* player) {
     if (player->mPlayerLevelChanged) {
-        int curLvl                        = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
-        int plus                          = (curLvl / 15 == 1) ? (curLvl * 4 - 38) : (curLvl * 8 - 158);
-        prevLevelReq                      = (curLvl / 15) ? (curLvl + plus) : (curLvl * 2 + 7);
-        player->mPlayerLevelChanged       = false;
-        player->mPreviousLevelRequirement = prevLevelReq;
+        int level = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
+        if (level >= 30) {
+            player->mPreviousLevelRequirement = 9 * level - 158;
+        } else if (level >= 15) {
+            player->mPreviousLevelRequirement = 5 * level - 38;
+        } else {
+            player->mPreviousLevelRequirement = 2 * level + 7;
+        }
+        player->mPlayerLevelChanged = false;
     }
-    return prevLevelReq;
+    return player->mPreviousLevelRequirement;
 }
 
-unsigned int PlayerHelper::getXpEarnedAtCurrentLevel(Player* player) {
-    unsigned int prevLevelReq = getPreviousLevelRequirement(player);
-    auto         attribute    = player->getAttribute(Player::EXPERIENCE());
-    return static_cast<unsigned int>(roundf(attribute.mPtr->mCurrentValue * static_cast<float>(prevLevelReq)));
+int PlayerHelper::getXpEarnedAtCurrentLevel(Player* player) {
+    int  prevLevelReq = getPreviousLevelRequirement(player);
+    auto attribute    = player->getAttribute(Player::EXPERIENCE());
+    return static_cast<int>(roundf(attribute.mPtr->mCurrentValue * static_cast<float>(prevLevelReq)));
 }
 
-bool PlayerHelper::setXpEarnedAtCurrentLevel(Player* player, unsigned int xp) {
+bool PlayerHelper::setXpEarnedAtCurrentLevel(Player* player, int xp) {
     if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-        unsigned int prevLevelReq = getPreviousLevelRequirement(player);
+        int prevLevelReq = getPreviousLevelRequirement(player);
         AttributeHelper::setCurrentValue(
             component->mAttributes,
             Player::EXPERIENCE(),

@@ -549,7 +549,8 @@ Local<Value> McClass::deletePlayerNbt(Arguments const& args) {
     try {
         auto storage = ll::service::getDBStorage();
 
-        if (auto playerKey = "player_" + args[0].asString().toString(); storage->hasKey(playerKey, DBHelpers::Category::All)) {
+        if (auto playerKey = "player_" + args[0].asString().toString();
+            storage->hasKey(playerKey, DBHelpers::Category::All)) {
             if (auto data = storage->getCompoundTag(playerKey, DBHelpers::Category::All); data) {
                 if (data->contains("ServerId", Tag::String)) {
                     if (auto serverId = (*data)["ServerId"].get<StringTag>(); !serverId.empty()) {
@@ -2201,22 +2202,11 @@ Local<Value> PlayerClass::getTotalExperience(Arguments const&) const {
             return {};
         }
 
-        int          startLevel = 0;
-        int          endLevel   = static_cast<int>(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
-        unsigned int totalXp    = 0;
-
-        for (int level = startLevel; level < endLevel; ++level) {
-            int xpForLevel;
-            if (level / 15 == 1) {
-                xpForLevel = level * 4 - 38;
-            } else if (level / 15 > 1) {
-                xpForLevel = level * 8 - 158;
-            } else {
-                xpForLevel = level * 2 + 7;
-            }
-            totalXp += xpForLevel;
-        }
-        return Number::newNumber(static_cast<long long>(totalXp + PlayerHelper::getXpEarnedAtCurrentLevel(player)));
+        return Number::newNumber(
+            static_cast<int>(
+                player->getXpNeededForLevelRange(0, player->getPlayerLevel()) + player->getXpEarnedAtCurrentLevel()
+            )
+        );
     }
     CATCH_AND_THROW
 }

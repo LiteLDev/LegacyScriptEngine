@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.4] - 2026-07-27
+
+### Fixed
+
+- Fixed ScoreboardAPI [#378]
+- Fixed Player::getTotalExperience [#380]
+
 ## [0.19.3] - 2026-07-27
 
 ### Fixed
@@ -1350,8 +1357,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#349]: https://github.com/LiteLDev/LegacyScriptEngine/issues/349
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
+[#378]: https://github.com/LiteLDev/LegacyScriptEngine/issues/378
+[#380]: https://github.com/LiteLDev/LegacyScriptEngine/issues/380
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.3...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.4...HEAD
+[0.19.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.0...v0.19.1

@@ -2201,11 +2201,10 @@ Local<Value> PlayerClass::getTotalExperience(Arguments const&) const {
         if (!player) {
             return {};
         }
+        int endLevel = static_cast<int>(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
 
         return Number::newNumber(
-            static_cast<int>(
-                player->getXpNeededForLevelRange(0, player->getPlayerLevel()) + player->getXpEarnedAtCurrentLevel()
-            )
+            PlayerHelper::getXpNeededForLevelRange(0, endLevel) + PlayerHelper::getXpEarnedAtCurrentLevel(player)
         );
     }
     CATCH_AND_THROW

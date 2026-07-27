@@ -40,4 +40,20 @@ bool PlayerHelper::setXpEarnedAtCurrentLevel(Player* player, unsigned int xp) {
     return false;
 }
 
+long long PlayerHelper::getXpNeededForLevelRange(int startLevel, int endLevel) {
+    long long result = 0;
+
+    for (; startLevel < endLevel; ++startLevel) {
+        if (startLevel < 15) {
+            result += 2 * startLevel + 7;
+        } else if (startLevel < 30) {
+            result += 5 * startLevel - 38;
+        } else {
+            result += 9 * startLevel - 158;
+        }
+    }
+
+    return result;
+}
+
 } // namespace lse::api

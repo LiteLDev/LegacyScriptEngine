@@ -446,8 +446,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar             flowFromDirection
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        if (api::thread::isServerThread()
-            && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
+        if (isServerThread() && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
             if (!CallEvent(
                     EVENT_TYPES::onLiquidFlow,
                     region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),

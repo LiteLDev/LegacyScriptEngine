@@ -16,7 +16,7 @@ add_requires("legacyremotecall 0.18.*", {configs = {target_type = get_config(tar
 add_requires("legacymoney 0.18.*", {configs = {target_type = get_config(target_type)}})
 
 add_requires(
-    "lightwebsocketclient 1.0.1",
+    "lightwebsocketclient v1.0.3",
     "magic_enum v0.9.7",
     "nlohmann_json v3.11.3",
     "simpleini v4.22",

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.4] - 2026-07-27
+
+### Changed
+
+- Bumped LightWebSocketClient to v1.0.3
+
 ## [0.18.3] - 2026-07-27
 
 ### Fixed
@@ -1265,7 +1271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 [#380]: https://github.com/LiteLDev/LegacyScriptEngine/issues/380
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.3...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.4...HEAD
+[0.18.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.3...v0.18.4
 [0.18.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.2...v0.18.3
 [0.18.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.1...v0.18.2
 [0.18.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.0...v0.18.1

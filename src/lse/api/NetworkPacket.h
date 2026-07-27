@@ -28,6 +28,8 @@ public:
 
     void write(BinaryStream& stream) const override { stream.mBuffer.append(mData); }
 
+    Bedrock::Result<void> read(ReadOnlyBinaryStream& stream) override { return _read(stream); }
+
     Bedrock::Result<void> _read(ReadOnlyBinaryStream& stream) override {
         mData = stream.mView.substr(stream.mReadPointer);
         return {};

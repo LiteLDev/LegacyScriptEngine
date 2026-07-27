@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.5] - 2026-07-27
+
+### Changed
+
+- Bumped LightWebSocketClient to v1.0.3
+- Optimized PlayerHelper::getPreviousLevelRequirement
+
+### Fixed
+
+- Fixed the packet read @zimuya4153
+
 ## [0.19.4] - 2026-07-27
 
 ### Fixed
@@ -1360,7 +1371,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#378]: https://github.com/LiteLDev/LegacyScriptEngine/issues/378
 [#380]: https://github.com/LiteLDev/LegacyScriptEngine/issues/380
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.4...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.5...HEAD
+[0.19.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.1...v0.19.2

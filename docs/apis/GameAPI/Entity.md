@@ -76,7 +76,7 @@ Through this function, generate a new creature at the specified location and get
 #### Summon New Creature and Get Its Entity Object
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 Through this function, summon a new creature at the specified location and get its corresponding entity object.
 
@@ -102,7 +102,7 @@ Through this function, summon a new creature at the specified location and get i
 #### Load Creature From NBT and Get Its Entity Object
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 Through this function, spawn a creature with the specified NBT data at the specified location and get its corresponding
 entity object.
@@ -442,7 +442,7 @@ Note that the damage dealt here is real damage and cannot be reduced by protecti
 #### Set Entity Custom Name
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `en.setCustomName(name)`
 
@@ -455,7 +455,7 @@ This function is only available in 0.19.1 and later.
 #### Get Entity Custom Name
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `en.getCustomName()`
 

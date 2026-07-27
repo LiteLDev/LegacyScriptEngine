@@ -23,7 +23,7 @@ The following APIs provide interfaces for customizing some server settings:
 ### Get Server Motd String
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `mc.getMotd()`
 
@@ -59,7 +59,7 @@ This function is only available in 0.19.1 and later.
 ### Get Online Player Count
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `mc.getOnlinePlayerNum([ignoreSimulatedPlayer])`
 
@@ -74,7 +74,7 @@ This function is only available in 0.19.1 and later.
 ### Get Server Maximum Player Count
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `mc.getMaxNumPlayers()`
 
@@ -133,7 +133,7 @@ Among them, daytime is the number of game ticks since dawn, gametime is the age 
 ### Get Dimension ID
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `mc.getDimensionId(name)`
 
@@ -148,7 +148,7 @@ This function is only available in 0.19.1 and later.
 ### Get Dimension Name
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `mc.getDimensionName(dimid)`
 

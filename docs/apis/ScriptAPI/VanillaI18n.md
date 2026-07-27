@@ -3,7 +3,7 @@
 This API is used to modify Minecraft vanilla language data.
 
 !!! warning
-This API is only available in 0.19.1 and later.
+    This API is only available in 0.19.1 and later.
 
 The actual registered class name in the script engine is `VaillanI18n`.
 

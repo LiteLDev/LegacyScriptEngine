@@ -15,7 +15,7 @@ If you need to manipulate files frequently, use the file classes below to improv
 ### Read in All the Contents of the File
 
 !!! warning
-The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.1 and later.
+    The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.1 and later.
 
 `File.readFrom(path[,isBinary])`
 
@@ -52,7 +52,7 @@ Before 0.19.1, this function could only be used as `File.readFrom(path)`, and th
 > Note: If the file does not exist, it will be created automatically. If it exists, it will be **emptied** before writing.
 
 !!! warning
-Passing `ByteBuffer` is only available in 0.19.1 and later.
+    Passing `ByteBuffer` is only available in 0.19.1 and later.
 
 
 

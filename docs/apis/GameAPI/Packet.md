@@ -25,7 +25,7 @@ See [Binary Stream Objects](#-binary-stream-object-api) for details
 #### Create from packet ID
 
 !!! warning
-The global aliases of this class are only available in 0.19.1 and later.
+    The global aliases of this class are only available in 0.19.1 and later.
 
 `Packet.createPacket(pktid[,raw])`  
 
@@ -78,7 +78,7 @@ Every packet object contains some member functions (member methods) that can be 
 #### Send packet to specified target
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `pkt.sendTo(pos)`  
 `pkt.sendTo(x,y,z,dimid)`  
@@ -100,7 +100,7 @@ If `target` is `Entity`, the packet will be sent to players around the specified
 #### Send packet to all clients
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `pkt.sendToClients()`
 
@@ -110,7 +110,7 @@ This function is only available in 0.19.1 and later.
 #### Send packet to server
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `pkt.sendToServer()`
 
@@ -142,7 +142,7 @@ Every binary stream object contains some member functions (member methods) that 
 #### Get binary stream read pointer
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `bs.getReadPointer()`
 
@@ -152,7 +152,7 @@ This function is only available in 0.19.1 and later.
 #### Set binary stream read pointer
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `bs.setReadPointer(pos)`
 
@@ -167,7 +167,7 @@ This function is only available in 0.19.1 and later.
 #### Get binary stream data
 
 !!! warning
-The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.1 and later.
+    The optional parameter and `ByteBuffer` return value of this function are only available in 0.19.1 and later.
 
 `bs.getData([release])`
 
@@ -187,7 +187,7 @@ Because the old return value was `String`, in JavaScript it may be forcibly enco
 #### Set binary stream data
 
 !!! warning
-This function is only available in 0.19.1 and later.
+    This function is only available in 0.19.1 and later.
 
 `bs.setData(data)`
 
@@ -241,7 +241,7 @@ This function is only available in 0.19.1 and later.
 #### Read from binary stream
 
 !!! warning
-This function group is only available in 0.19.1 and later.
+    This function group is only available in 0.19.1 and later.
 
 `bs.readxxxx([asString])`  
 `bs.readBytes(length)`
@@ -282,7 +282,7 @@ When `asString` is `true`, scalar `read*` functions return `String`.
 #### Building packet from binary stream
 
 !!! warning
-The optional parameter of this function is only available in 0.19.1 and later.
+    The optional parameter of this function is only available in 0.19.1 and later.
 
 `bs.createPacket(pktid[,raw])`
 

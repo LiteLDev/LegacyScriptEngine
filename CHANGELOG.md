@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.3] - 2026-07-27
+
+### Fixed
+
+- Fixed Packet::sendToClients/sendToServer @zimuya4153
+- Fixed Player::setBossBar @zimuya4153
+- Check thread for events on server to avoid crash @ShrBox
+
 ## [0.19.2] - 2026-07-08
 
 ### Added
@@ -1343,7 +1351,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#353]: https://github.com/LiteLDev/LegacyScriptEngine/issues/353
 [#358]: https://github.com/LiteLDev/LegacyScriptEngine/issues/358
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.2...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.3...HEAD
+[0.19.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.2...v0.19.3
 [0.19.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.1...v0.19.2
 [0.19.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.0...v0.19.1
 [0.19.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.18.2...v0.19.0

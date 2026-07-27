@@ -56,8 +56,6 @@
 #include "mc/world/item/VanillaItemNames.h"
 #include "mc/world/level/dimension/Dimension.h"
 
-#include <atomic>
-
 #ifdef LSE_BACKEND_NODEJS
 #include "legacy/main/NodeJsHelper.h"
 #endif
@@ -69,7 +67,7 @@
 #include <list>
 #include <string>
 
-using lse::api::thread::checkClientIsServerThread;
+using lse::api::thread::isServerThread;
 
 //////////////////// Listeners ////////////////////
 
@@ -162,7 +160,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onJoin:
         bus.emplaceListener<PlayerJoinEvent>([](PlayerJoinEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onJoin) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(EVENT_TYPES::onJoin, PlayerClass::newPlayer(&ev.self()))) {
                         ev.cancel();
                     }
@@ -175,7 +173,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPreJoin:
         bus.emplaceListener<PlayerConnectEvent>([](PlayerConnectEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPreJoin) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(EVENT_TYPES::onPreJoin, PlayerClass::newPlayer(&ev.self()))) {
                         ev.cancel();
                     }
@@ -188,7 +186,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onLeft:
         bus.emplaceListener<PlayerDisconnectEvent>([](PlayerDisconnectEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onLeft) {
-                if (checkClientIsServerThread() && ll::getGamingStatus() != ll::GamingStatus::Stopping) {
+                if (isServerThread() && ll::getGamingStatus() != ll::GamingStatus::Stopping) {
                     CallEvent(EVENT_TYPES::onLeft, PlayerClass::newPlayer(&ev.self())); // Not cancellable
                 }
             }
@@ -199,7 +197,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChat:
         bus.emplaceListener<PlayerChatEvent>([](PlayerChatEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onChat) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onChat,
                             PlayerClass::newPlayer(&ev.self()),
@@ -220,7 +218,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerSwing:
         bus.emplaceListener<PlayerSwingEvent>([](PlayerSwingEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerSwing) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(EVENT_TYPES::onPlayerSwing, PlayerClass::newPlayer(&ev.self())); // Not cancellable
                 }
             }
@@ -231,7 +229,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onAttackEntity:
         bus.emplaceListener<PlayerAttackEvent>([](PlayerAttackEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onAttackEntity) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onAttackEntity,
                             PlayerClass::newPlayer(&ev.self()),
@@ -253,7 +251,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlayerDie:
         bus.emplaceListener<PlayerDieEvent>([](PlayerDieEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onPlayerDie) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     Actor* source = ev.self().getDimension().fetchEntity(ev.source().getEntityUniqueID(), false);
                     CallEvent(
                         EVENT_TYPES::onPlayerDie,
@@ -269,7 +267,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onRespawn:
         bus.emplaceListener<PlayerRespawnEvent>([](PlayerRespawnEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onRespawn) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(EVENT_TYPES::onRespawn, PlayerClass::newPlayer(&ev.self())); // Not cancellable
                 }
             }
@@ -284,7 +282,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onDestroyBlock:
         bus.emplaceListener<PlayerDestroyBlockEvent>([](PlayerDestroyBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onDestroyBlock) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onDestroyBlock,
                             PlayerClass::newPlayer(&ev.self()),
@@ -301,7 +299,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onPlaceBlock:
         bus.emplaceListener<PlayerPlacingBlockEvent>([](PlayerPlacingBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onPlaceBlock) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     BlockPos truePos = ev.pos();
                     switch (ev.face()) {
                     case 0:
@@ -344,7 +342,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::afterPlaceBlock:
         bus.emplaceListener<PlayerPlacedBlockEvent>([](PlayerPlacedBlockEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::afterPlaceBlock) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::afterPlaceBlock,
                         PlayerClass::newPlayer(&ev.self()),
@@ -358,7 +356,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onJump:
         bus.emplaceListener<PlayerJumpEvent>([](PlayerJumpEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onJump) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(EVENT_TYPES::onJump, PlayerClass::newPlayer(&ev.self())); // Not cancellable
                 }
             }
@@ -373,7 +371,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onTakeItem:
         bus.emplaceListener<PlayerPickUpItemEvent>([](PlayerPickUpItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onTakeItem) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onTakeItem,
                             PlayerClass::newPlayer(&ev.self()),
@@ -403,7 +401,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItem:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItem) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onUseItem,
                             PlayerClass::newPlayer(&ev.self()),
@@ -420,7 +418,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onUseItemOn:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onUseItemOn) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onUseItemOn,
                             PlayerClass::newPlayer(&ev.self()),
@@ -460,7 +458,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onChangeSprinting:
         bus.emplaceListener<PlayerSprintingEvent>([](PlayerSprintingEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::onChangeSprinting,
                         PlayerClass::newPlayer(&ev.self()),
@@ -472,7 +470,7 @@ void EnableEventListener(int eventId) {
         });
         bus.emplaceListener<PlayerSprintedEvent>([](PlayerSprintedEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onChangeSprinting) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::onChangeSprinting,
                         PlayerClass::newPlayer(&ev.self()),
@@ -487,7 +485,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onSneak:
         bus.emplaceListener<PlayerSneakingEvent>([](PlayerSneakingEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onSneak,
                             PlayerClass::newPlayer(&ev.self()),
@@ -501,7 +499,7 @@ void EnableEventListener(int eventId) {
         });
         bus.emplaceListener<PlayerSneakedEvent>([](PlayerSneakedEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onSneak) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onSneak,
                             PlayerClass::newPlayer(&ev.self()),
@@ -526,7 +524,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onEat:
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onEat) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
                         || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
                         auto attribute = ev.self().getAttribute(Player::HUNGER());
@@ -614,7 +612,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobDie:
         bus.emplaceListener<MobDieEvent>([](MobDieEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobDie) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     Actor* source = nullptr;
                     if (ev.source().isEntitySource()) {
                         source = ll::service::getLevel()->fetchEntity(ev.source().getDamagingEntityUniqueID(), false);
@@ -666,7 +664,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockInteracted:
         bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onBlockInteracted,
                             PlayerClass::newPlayer(&ev.self()),
@@ -701,7 +699,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onFireSpread:
         bus.emplaceListener<FireSpreadEvent>([](FireSpreadEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onFireSpread) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onFireSpread,
                             IntPos::newPos(ev.pos(), ev.blockSource().getDimensionId())
@@ -717,7 +715,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onBlockChanged:
         bus.emplaceListener<BlockChangedEvent>([](BlockChangedEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onBlockChanged) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::onBlockChanged,
                         BlockClass::newBlock(ev.previousBlock(), ev.pos(), ev.blockSource()),
@@ -739,7 +737,7 @@ void EnableEventListener(int eventId) {
         );
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawn) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::onMobSpawn,
                         String::newString(ev.identifier().mFullName),
@@ -754,7 +752,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobTrySpawn:
         bus.emplaceListener<SpawningMobEvent>([](SpawningMobEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onMobTrySpawn) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onMobTrySpawn,
                             String::newString(ev.identifier().mFullName),
@@ -771,7 +769,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onMobSpawned:
         bus.emplaceListener<SpawnedMobEvent>([](SpawnedMobEvent const& ev) {
             IF_LISTENED(EVENT_TYPES::onMobSpawned) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     CallEvent(
                         EVENT_TYPES::onMobSpawned,
                         EntityClass::newEntity(ev.mob().has_value() ? ev.mob().as_ptr() : nullptr),
@@ -790,7 +788,7 @@ void EnableEventListener(int eventId) {
     case EVENT_TYPES::onExperienceAdd:
         bus.emplaceListener<PlayerAddExperienceEvent>([](PlayerAddExperienceEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onExperienceAdd) {
-                if (checkClientIsServerThread()) {
+                if (isServerThread()) {
                     if (!CallEvent(
                             EVENT_TYPES::onExperienceAdd,
                             PlayerClass::newPlayer(&ev.self()),

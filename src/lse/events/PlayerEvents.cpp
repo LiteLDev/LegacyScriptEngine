@@ -46,7 +46,8 @@
 #include "mc/world/level/dimension/Dimension.h"
 
 namespace lse::events::player {
-using api::thread::checkClientIsServerThread;
+
+using api::thread::isServerThread;
 
 LL_TYPE_INSTANCE_HOOK(
     DropItemHook1,
@@ -58,7 +59,7 @@ LL_TYPE_INSTANCE_HOOK(
     bool             randomly
 ) {
     IF_LISTENED(EVENT_TYPES::onDropItem) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onDropItem,
                     PlayerClass::newPlayer(this),
@@ -83,7 +84,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
 
     IF_LISTENED(EVENT_TYPES::onDropItem) {
-        if (checkClientIsServerThread() && mType == ComplexInventoryTransaction::Type::NormalTransaction) {
+        if (isServerThread() && mType == ComplexInventoryTransaction::Type::NormalTransaction) {
             InventorySource source{
                 InventorySourceType::ContainerInventory,
                 ContainerID::Inventory,
@@ -116,7 +117,7 @@ LL_TYPE_INSTANCE_HOOK(
     struct PlayerOpenContainerEvent const& playerOpenContainerEvent
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainer) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             Actor* actor = static_cast<WeakEntityRef*>((void*)&playerOpenContainerEvent)->tryUnwrap<Actor>();
             if (actor && actor->isType(ActorType::Player)) {
                 if (!CallEvent(
@@ -201,7 +202,7 @@ LL_TYPE_INSTANCE_HOOK(
     bool             forceBalanced
 ) {
     IF_LISTENED(EVENT_TYPES::onInventoryChange) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onInventoryChange,
                     PlayerClass::newPlayer(this),
@@ -226,7 +227,7 @@ LL_STATIC_HOOK(
     BlockPos const& pos,
     int             face
 ) {
-    if (checkClientIsServerThread()) {
+    if (isServerThread()) {
         bool isCancelled = false;
         IF_LISTENED(EVENT_TYPES::onAttackBlock) {
             ItemStack const& item = player.getSelectedItem();
@@ -266,7 +267,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             Player& player = eventData.mPlayer;
             if (!CallEvent(
                     EVENT_TYPES::onUseFrameBlock,
@@ -291,7 +292,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseFrameBlock) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onUseFrameBlock,
                     PlayerClass::newPlayer(player),
@@ -307,7 +308,7 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUsingItem, void) {
     IF_LISTENED(EVENT_TYPES::onAte) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             std::set<std::string> const item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
             auto                        checked =
                 mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
@@ -336,7 +337,7 @@ LL_TYPE_INSTANCE_HOOK(
     ChangeDimensionRequest&& changeRequest
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeDim) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onChangeDim,
                     PlayerClass::newPlayer(&player),
@@ -359,7 +360,7 @@ LL_TYPE_INSTANCE_HOOK(
     ContainerScreenContext const& screenContext
 ) {
     IF_LISTENED(EVENT_TYPES::onOpenContainerScreen) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(EVENT_TYPES::onOpenContainerScreen, PlayerClass::newPlayer(&mPlayer))) {
                 return;
             }
@@ -381,7 +382,7 @@ LL_TYPE_STATIC_HOOK(
     class Level&    level
 ) {
     IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onUseRespawnAnchor,
                     PlayerClass::newPlayer(&player),
@@ -404,7 +405,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onBedEnter) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onBedEnter,
                     PlayerClass::newPlayer(this),
@@ -419,7 +420,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 LL_TYPE_INSTANCE_HOOK(OpenInventoryHook, HookPriority::Normal, ServerPlayer, &ServerPlayer::$openInventory, void, ) {
     IF_LISTENED(EVENT_TYPES::onOpenInventory) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(EVENT_TYPES::onOpenInventory, PlayerClass::newPlayer(this))) {
                 return;
             }
@@ -439,7 +440,7 @@ LL_TYPE_INSTANCE_HOOK(
     float  inSpeed
 ) {
     IF_LISTENED(EVENT_TYPES::onPlayerPullFishingHook) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onPlayerPullFishingHook,
                     PlayerClass::newPlayer(this->getPlayerOwner()),
@@ -470,7 +471,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar            face
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketPlace) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketPlace,
                     PlayerClass::newPlayer(static_cast<Player*>(placer)),
@@ -498,7 +499,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
@@ -526,7 +527,7 @@ LL_TYPE_INSTANCE_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
@@ -545,7 +546,7 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
     IF_LISTENED(EVENT_TYPES::onConsumeTotem) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(EVENT_TYPES::onConsumeTotem, PlayerClass::newPlayer(this))) {
                 return false;
             }
@@ -566,7 +567,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
 
     IF_LISTENED(EVENT_TYPES::onSetArmor) {
-        if (checkClientIsServerThread() && isPlayer()) {
+        if (isServerThread() && isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onSetArmor,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
@@ -591,7 +592,7 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const& location
 ) {
     IF_LISTENED(EVENT_TYPES::onPlayerInteractEntity) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onPlayerInteractEntity,
                     PlayerClass::newPlayer(this),
@@ -615,7 +616,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::MobEffectInstance const& effect
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectAdded) {
-        if (checkClientIsServerThread() && isPlayer()) {
+        if (isServerThread() && isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectAdded,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
@@ -640,7 +641,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::MobEffectInstance& effect
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectRemoved) {
-        if (checkClientIsServerThread() && isPlayer()) {
+        if (isServerThread() && isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectRemoved,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),

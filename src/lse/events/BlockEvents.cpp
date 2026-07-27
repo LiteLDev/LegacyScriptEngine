@@ -53,7 +53,8 @@
 #include "mc/world/level/material/Material.h"
 
 namespace lse::events::block {
-using api::thread::checkClientIsServerThread;
+
+using api::thread::isServerThread;
 
 LL_TYPE_INSTANCE_HOOK(
     ContainerChangeHook,
@@ -66,7 +67,7 @@ LL_TYPE_INSTANCE_HOOK(
     ItemStack const& newItem
 ) {
     IF_LISTENED(EVENT_TYPES::onContainerChange) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (*reinterpret_cast<void***>(this) != LevelContainerModel::$vftable())
                 return origin(slotNumber, oldItem, newItem);
 
@@ -99,7 +100,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::SharedTypes::Legacy::EquipmentSlot slot
 ) {
     IF_LISTENED(EVENT_TYPES::onChangeArmorStand) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onChangeArmorStand,
                     EntityClass::newEntity(this),
@@ -125,7 +126,7 @@ LL_TYPE_INSTANCE_HOOK(
     Actor&          entity
 ) {
     IF_LISTENED(EVENT_TYPES::onStepOnPressurePlate) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onStepOnPressurePlate,
                     EntityClass::newEntity(&entity),
@@ -151,7 +152,7 @@ LL_TYPE_INSTANCE_HOOK(
     float           fallDistance
 ) {
     IF_LISTENED(EVENT_TYPES::onFarmLandDecay) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onFarmLandDecay,
                     IntPos::newPos(pos, region.getDimensionId()),
@@ -177,7 +178,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar           pistonMoveFacing
 ) {
     IF_LISTENED(EVENT_TYPES::onPistonTryPush) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (region.getBlock(curPos).isAir()) {
                 return origin(region, curPos, curBranchFacing, pistonMoveFacing);
             }
@@ -193,7 +194,7 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onPistonTryPush);
     bool shouldPush = origin(region, curPos, curBranchFacing, pistonMoveFacing);
     IF_LISTENED(EVENT_TYPES::onPistonPush) {
-        if (checkClientIsServerThread() && shouldPush) {
+        if (isServerThread() && shouldPush) {
             CallEvent( // Not cancellable
                 EVENT_TYPES::onPistonPush,
                 IntPos::newPos(this->mPosition, region.getDimensionId()),
@@ -207,7 +208,7 @@ LL_TYPE_INSTANCE_HOOK(
 
 LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::explode, bool, ::IRandom& random) {
     IF_LISTENED(EVENT_TYPES::onEntityExplode) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (mSourceID->rawID != ActorUniqueID::INVALID_ID().rawID) {
                 if (!CallEvent(
                         EVENT_TYPES::onEntityExplode,
@@ -226,7 +227,7 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::
     IF_LISTENED_END(EVENT_TYPES::onEntityExplode);
 
     IF_LISTENED(EVENT_TYPES::onBlockExplode) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onBlockExplode,
                     BlockClass::newBlock(*mPos, mRegion.getDimensionId()),
@@ -256,7 +257,7 @@ LL_TYPE_STATIC_HOOK(
     Level&          level
 ) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onRespawnAnchorExplode,
                     IntPos::newPos(pos, region.getDimensionId()),
@@ -280,7 +281,7 @@ LL_TYPE_STATIC_HOOK(
     BlockPos const& pos
 ) {
     IF_LISTENED(EVENT_TYPES::onPortalTrySpawn) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(EVENT_TYPES::onPortalTrySpawn, IntPos::newPos(pos, region.getDimensionId()))) {
                 return false;
             }
@@ -302,7 +303,7 @@ LL_TYPE_INSTANCE_HOOK(
     Actor*          source
 ) {
     IF_LISTENED(EVENT_TYPES::onBlockExploded) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (destroyedBlock.isAir()) {
                 return origin(dimension, blockPos, destroyedBlock, source);
             }
@@ -341,7 +342,7 @@ RedstoneUpdateEvent(BlockSource const& region, BlockPos const& pos, int const& s
         BlockEvents::BlockRedstoneUpdateEvent& blockEvent                                                              \
     ) {                                                                                                                \
         IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
-            if (checkClientIsServerThread()) {                                                                         \
+            if (isServerThread()) {                                                                                    \
                 if (!RedstoneUpdateEvent(                                                                              \
                         blockEvent.mRegion,                                                                            \
                         blockEvent.mPos,                                                                               \
@@ -366,7 +367,7 @@ RedstoneUpdateEvent(BlockSource const& region, BlockPos const& pos, int const& s
         BlockEvents::BlockRedstoneUpdateEvent& blockEvent                                                              \
     ) {                                                                                                                \
         IF_LISTENED(EVENT_TYPES::onRedStoneUpdate) {                                                                   \
-            if (checkClientIsServerThread()) {                                                                         \
+            if (isServerThread()) {                                                                                    \
                 if (!RedstoneUpdateEvent(                                                                              \
                         blockEvent.mRegion,                                                                            \
                         blockEvent.mPos,                                                                               \
@@ -445,7 +446,8 @@ LL_TYPE_INSTANCE_HOOK(
     uchar             flowFromDirection
 ) {
     IF_LISTENED(EVENT_TYPES::onLiquidFlow) {
-        if (api::thread::isServerThread() && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
+        if (api::thread::isServerThread()
+            && liquidBlockCanSpreadTo(*this, region, pos, flowFromPos, flowFromDirection)) {
             if (!CallEvent(
                     EVENT_TYPES::onLiquidFlow,
                     region.isInstaticking(pos) ? Local<Value>() : BlockClass::newBlock(pos, region.getDimensionId()),
@@ -470,7 +472,7 @@ LL_TYPE_INSTANCE_HOOK(
     bool&                markForSaving
 ) {
     IF_LISTENED(EVENT_TYPES::onCmdBlockExecute) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (commandOrigin.getOriginType() == CommandOriginType::MinecartCommandBlock) {
                 if (!CallEvent(
                         EVENT_TYPES::onCmdBlockExecute,
@@ -512,7 +514,7 @@ LL_TYPE_INSTANCE_HOOK(
     int              countLimit
 ) {
     IF_LISTENED(EVENT_TYPES::onDispenseItem) {
-        if (checkClientIsServerThread()) {
+        if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onDispenseItem,
                     FloatPos::newPos(pos, region.getDimensionId()),
@@ -544,7 +546,7 @@ LL_TYPE_INSTANCE_HOOK(
     Container&   toContainer,
     Vec3 const&  pos
 ) {
-    if (checkClientIsServerThread()) {
+    if (isServerThread()) {
         hopperStatus = HopperStatus::PullIn;
         hopperPos    = pos;
     }
@@ -562,7 +564,7 @@ LL_TYPE_INSTANCE_HOOK(
     Vec3 const&  position,
     int          attachedFace
 ) {
-    if (checkClientIsServerThread()) {
+    if (isServerThread()) {
         hopperStatus = HopperStatus::PullOut;
         hopperPos    = position;
     }
@@ -583,7 +585,7 @@ LL_TYPE_INSTANCE_HOOK(
     int            itemCount
 ) {
     IF_LISTENED(EVENT_TYPES::onHopperSearchItem) {
-        if (checkClientIsServerThread() && hopperStatus == HopperStatus::PullIn) {
+        if (isServerThread() && hopperStatus == HopperStatus::PullIn) {
             if (!CallEvent(
                     EVENT_TYPES::onHopperSearchItem,
                     FloatPos::newPos(hopperPos, region.getDimensionId()),
@@ -596,7 +598,7 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onHopperSearchItem);
     IF_LISTENED(EVENT_TYPES::onHopperPushOut) {
-        if (checkClientIsServerThread() && hopperStatus == HopperStatus::PullOut) {
+        if (isServerThread() && hopperStatus == HopperStatus::PullOut) {
             if (!CallEvent(
                     EVENT_TYPES::onHopperPushOut,
                     FloatPos::newPos(hopperPos, region.getDimensionId()),

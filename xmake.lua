@@ -2,6 +2,8 @@ add_rules("mode.debug", "mode.release")
 
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
+add_requires("zlib v1.3.1") -- Workaround to fix xmake's bug
+
 if is_config("target_type", "server") then
     add_requires("levilamina 26.10.*", {configs = {target_type = "server"}})
 else

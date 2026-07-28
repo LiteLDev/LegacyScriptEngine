@@ -6,6 +6,11 @@
 #include "mc/deps/certificates/WebToken.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
+#include "mc/deps/ecs/systems/TickingSystemWithInfo.h"
+#include "mc/entity/systems/EntitySystems.h"
+#include "mc/entity/systems/ServerScriptInputSystem.h"
+#include "mc/entity/components/ServerScriptInputPacketQueueComponent.h"
+#include "mc/entity/components/ScriptingInputInfoComponent.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
@@ -142,7 +147,17 @@ Local<Value> DeviceClass::getInputMode() const {
         Player* player = getPlayer();
         if (!player) return {};
 
-        Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
+        if (auto& queue =
+                player->mEntityContext->getOrAddComponent<ServerScriptInputPacketQueueComponent>().mQueuedUpdates;
+            !queue->empty()) {
+            return Number::newNumber(static_cast<int>(queue->back().mUnk1256a7.as<InputMode>()));
+        }
+
+        if (auto component = player->mEntityContext->tryGetComponent<ScriptingInputInfoComponent>(); component) {
+            return Number::newNumber(static_cast<int>(component->mInputMode));
+        }
+
+        auto& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
         return Number::newNumber(requestJson["CurrentInputMode"].asInt(0));
     }
     CATCH_AND_THROW
@@ -157,3 +172,9 @@ Local<Value> DeviceClass::getInputMode() const {
 //     }
 //     CATCH_AND_THROW
 // }
+
+InputEntry::InputEntry(InputEntry const& other) {
+    mUnk1256a7.as<InputMode>()       = other.mUnk1256a7.as<InputMode>();
+    mUnk8977a2.as<std::bitset<65>>() = other.mUnk8977a2.as<std::bitset<65>>();
+    mUnk5ce573.as<Vec2>()            = other.mUnk5ce573.as<Vec2>();
+}

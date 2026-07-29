@@ -566,10 +566,10 @@ Local<Value> McClass::deletePlayerNbt(Arguments const& args) {
 }
 
 Local<Value> McClass::getAllPlayerUuids(Arguments const& args) {
-    if (args.size() >= 1) CHECK_ARG_TYPE(args[1], ValueKind::kBoolean); // isOnlineMode (default: true)
+    if (args.size() >= 1) CHECK_ARG_TYPE(args[0], ValueKind::kBoolean); // isOnlineMode (default: true)
 
     try {
-        auto isOnlineMode = args.size() >= 2 && args[1].asBoolean().value();
+        auto isOnlineMode = args.size() < 1 || args[0].asBoolean().value();
 
         auto arr = Array::newArray();
         ll::service::getDBStorage()->forEachKeyWithPrefix(

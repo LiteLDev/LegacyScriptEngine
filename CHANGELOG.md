@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.6] - 2026-07-31
+
+### Fixed
+
+- Fixed the Device::getInputMode @zimuya4153
+- Fixed the mc.getAllPlayerUuids's parameters @zimuya4153
+- Fixed onServerStarted triggers twice on client
+- Fixed error output of plugin enabling on client
+
 ## [0.19.5] - 2026-07-27
 
 ### Changed
@@ -1371,7 +1380,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#378]: https://github.com/LiteLDev/LegacyScriptEngine/issues/378
 [#380]: https://github.com/LiteLDev/LegacyScriptEngine/issues/380
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.5...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.6...HEAD
+[0.19.6]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.5...v0.19.6
 [0.19.5]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.3...v0.19.4
 [0.19.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.2...v0.19.3

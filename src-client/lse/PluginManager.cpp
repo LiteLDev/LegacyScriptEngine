@@ -60,12 +60,16 @@ PluginManager::~PluginManager() = default;
 
 void PluginManager::enableAllPlugins() {
     for (auto& mod : mods()) {
-        enableScriptPlugin(mod.getName());
+        if (auto res = enableScriptPlugin(mod.getName()); !res) {
+            res.error().log(LegacyScriptEngine::getLogger());
+        }
     }
 }
 void PluginManager::disableAllPlugins() {
     for (auto& mod : mods()) {
-        disableScriptPlugin(mod.getName());
+        if (auto res = disableScriptPlugin(mod.getName()); !res) {
+            res.error().log(LegacyScriptEngine::getLogger(), ll::io::LogLevel::Warn);
+        }
     }
 }
 

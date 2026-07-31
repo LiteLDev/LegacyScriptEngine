@@ -19,7 +19,7 @@ private:
     ll::Expected<> unload(std::string_view name) override;
     ll::Expected<> enable(std::string_view name) override;
     ll::Expected<> disable(std::string_view name) override;
-    ll::Expected<> enableScriptPlugin(std::string_view name);
+    ll::Expected<> enableScriptPlugin(std::string_view name, bool isHotLoad = false);
     ll::Expected<> disableScriptPlugin(std::string_view name);
 };
 

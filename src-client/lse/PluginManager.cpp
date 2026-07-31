@@ -79,7 +79,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     return plugin->onLoad().transform([&, this] { addMod(manifest.name, plugin); });
 }
 
-ll::Expected<> PluginManager::enableScriptPlugin(std::string_view name) {
+ll::Expected<> PluginManager::enableScriptPlugin(std::string_view name, bool isHotLoad) {
     auto plugin = std::static_pointer_cast<ScriptPlugin>(getMod(name));
     if (!plugin) {
         return ll::makeStringError("Plugin {0} not found"_tr(name));
@@ -224,7 +224,7 @@ ll::Expected<> PluginManager::enableScriptPlugin(std::string_view name) {
             scriptEngine->eval(pluginEntryContent.value(), entryPath.u8string());
         }
 #endif
-        if (ll::getGamingStatus() == ll::GamingStatus::Running) { // Is hot load
+        if (isHotLoad) {
             LLSECallEventsOnHotLoad(scriptEngine);
         }
         ExitEngineScope exit;
@@ -262,7 +262,7 @@ ll::Expected<> PluginManager::enableScriptPlugin(std::string_view name) {
 
 ll::Expected<> PluginManager::enable(std::string_view name) {
     if (ll::getGamingStatus() == ll::GamingStatus::Running) {
-        return enableScriptPlugin(name);
+        return enableScriptPlugin(name, true);
     }
     return {};
 }

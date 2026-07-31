@@ -4,12 +4,14 @@
 #include "ll/api/mod/Manifest.h"
 #include "ll/api/mod/Mod.h"
 #include "ll/api/reflection/Serialization.h"
+#include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
 
 #include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <unordered_set>
+
 
 #if LSE_BACKEND_LUA
 

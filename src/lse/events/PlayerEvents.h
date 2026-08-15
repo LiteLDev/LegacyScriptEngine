@@ -22,4 +22,5 @@ void SetArmorEvent();
 void InteractEntityEvent();
 void AddEffectEvent();
 void RemoveEffectEvent();
+void BlockInteractedEvent();
 } // namespace lse::events::player

@@ -655,6 +655,38 @@ LL_TYPE_INSTANCE_HOOK(
     origin(effect);
 }
 
+LL_TYPE_INSTANCE_HOOK(
+    BlockInteractedHook,
+    HookPriority::Normal,
+    Block,
+    &Block::use,
+    bool,
+    Player&             player,
+    BlockPos const&     pos,
+    uchar               face,
+    std::optional<Vec3> hit
+) {
+    if (!isServerThread() || (!isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
+        return origin(player, pos, face, hit); // 提前把不可交互方块过滤掉
+    }
+    IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
+        if (!CallEvent(
+                EVENT_TYPES::onBlockInteracted,
+                PlayerClass::newPlayer(&player),
+                BlockClass::newBlock(pos, player.getDimensionId())
+            )) {
+            /**
+             * 这里的返回值意为是否交互成功
+             * 如果返回false，上层GameMode::useItemOn函数会认为方块没法交互或者交互失败，回退到物品使用，导致放置方块等行为
+             * 如果返回true，则认为交互成功，并推送给sapi ItemUsedOnEvent 事件（会导致容器类方块界面被打开），然后返回
+             */
+            return false;
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
+    return origin(player, pos, face, hit);
+}
+
 void StartDestroyBlock() { StartDestroyBlockHook::hook(); }
 void DropItem() {
     DropItemHook1::hook();
@@ -688,4 +720,5 @@ void SetArmorEvent() { SetArmorHook::hook(); }
 void InteractEntityEvent() { InteractEntityHook::hook(); }
 void AddEffectEvent() { AddEffectHook::hook(); }
 void RemoveEffectEvent() { RemoveEffectHook::hook(); }
+void BlockInteractedEvent() { BlockInteractedHook::hook(); }
 } // namespace lse::events::player

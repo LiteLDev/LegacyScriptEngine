@@ -662,20 +662,7 @@ void EnableEventListener(int eventId) {
         break;
 
     case EVENT_TYPES::onBlockInteracted:
-        bus.emplaceListener<PlayerInteractBlockEvent>([](PlayerInteractBlockEvent& ev) {
-            IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
-                if (isServerThread()) {
-                    if (!CallEvent(
-                            EVENT_TYPES::onBlockInteracted,
-                            PlayerClass::newPlayer(&ev.self()),
-                            BlockClass::newBlock(ev.blockPos(), ev.self().getDimensionId())
-                        )) {
-                        ev.cancel();
-                    }
-                }
-            }
-            IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
-        });
+        lse::events::player::BlockInteractedEvent();
         break;
 
     case EVENT_TYPES::onFarmLandDecay:

@@ -176,6 +176,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
     }
     v8::Isolate*       isolate = setup->isolate();
     node::Environment* env     = setup->env();
+    isolate->SetCaptureStackTraceForUncaughtExceptions(true);
 
     v8::Locker         locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
@@ -326,7 +327,9 @@ bool loadPluginCode(
             }
             if (errorMsg->IsString()) {
                 v8::String::Utf8Value value{it->second->isolate(), errorMsg};
-                logger.error(std::string_view{*value, static_cast<size_t>(value.length())});
+                auto error = std::string{*value, static_cast<size_t>(value.length())};
+                ::legacy::script_error::printRawError(error, logger);
+                logger.error(error);
                 loadFailed = true;
             }
         }

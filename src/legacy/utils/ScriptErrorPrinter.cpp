@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <cctype>
 #include <exception>
 #include <filesystem>
 #include <fstream>
@@ -128,6 +129,107 @@ std::optional<std::string> readLine(std::filesystem::path const& path, size_t wa
     return std::nullopt;
 }
 
+bool isIdentifierChar(char ch) {
+    return std::isalnum(static_cast<unsigned char>(ch)) || ch == '_' || ch == '$';
+}
+
+std::optional<ScriptFrame>
+findIdentifierInSource(std::filesystem::path const& path, std::string const& identifier, size_t preferredStartLine) {
+    if (identifier.empty()) return std::nullopt;
+
+    std::ifstream input(path);
+    if (!input) return std::nullopt;
+
+    std::optional<ScriptFrame> firstMatch;
+    std::string                line;
+    for (size_t current = 1; std::getline(input, line); ++current) {
+        size_t pos = 0;
+        while ((pos = line.find(identifier, pos)) != std::string::npos) {
+            auto beforeOk = pos == 0 || !isIdentifierChar(line[pos - 1]);
+            auto afterPos = pos + identifier.size();
+            auto afterOk  = afterPos >= line.size() || !isIdentifierChar(line[afterPos]);
+            if (beforeOk && afterOk) {
+                ScriptFrame frame{"", current, pos + 1};
+                if (current >= preferredStartLine) return frame;
+                if (!firstMatch) firstMatch = frame;
+                break;
+            }
+            ++pos;
+        }
+    }
+    return firstMatch;
+}
+
+bool isLikelyScriptFile(std::filesystem::path const& path) {
+    auto ext = path.extension().string();
+    std::ranges::transform(ext, ext.begin(), [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    return ext == ".js" || ext == ".mjs" || ext == ".cjs" || ext == ".lua" || ext == ".py";
+}
+
+bool isIgnoredSourceDir(std::filesystem::path const& path) {
+    for (auto const& part : path) {
+        auto name = part.string();
+        if (name == "node_modules" || name == ".git" || name == "__pycache__") return true;
+    }
+    return false;
+}
+
+std::optional<ScriptFrame> findIdentifierInPluginSource(std::string const& identifier) {
+    auto root = pluginRoot();
+    if (root.empty() || identifier.empty()) return std::nullopt;
+
+    std::error_code ec;
+    size_t          visited = 0;
+    for (std::filesystem::recursive_directory_iterator it{
+             root,
+             std::filesystem::directory_options::skip_permission_denied,
+             ec
+         },
+         end;
+         !ec && it != end && visited < 5000;
+         it.increment(ec), ++visited) {
+        auto const& path = it->path();
+        if (it->is_directory(ec) && isIgnoredSourceDir(std::filesystem::relative(path, root, ec))) {
+            it.disable_recursion_pending();
+            continue;
+        }
+        if (!it->is_regular_file(ec) || !isLikelyScriptFile(path)) continue;
+
+        auto frame = findIdentifierInSource(path, identifier, 1);
+        if (!frame) continue;
+
+        frame->file = path.string();
+        return frame;
+    }
+    return std::nullopt;
+}
+
+std::optional<std::string> undefinedIdentifierFromMessage(std::string const& message) {
+    static std::regex const patterns[]{
+        std::regex{R"((?:ReferenceError:\s*)?([A-Za-z_$][A-Za-z0-9_$]*) is not defined)"},
+        std::regex{R"(Can't find variable:\s*([A-Za-z_$][A-Za-z0-9_$]*))"}
+    };
+
+    std::smatch match;
+    for (auto const& pattern : patterns) {
+        if (std::regex_search(message, match, pattern)) {
+            return match[1].str();
+        }
+    }
+    return std::nullopt;
+}
+
+void refineFrameFromMessage(ScriptFrame& frame, std::filesystem::path const& source, std::string const& message) {
+    auto identifier = undefinedIdentifierFromMessage(message);
+    if (!identifier) return;
+
+    auto better = findIdentifierInSource(source, *identifier, frame.line);
+    if (!better) return;
+
+    frame.line   = better->line;
+    frame.column = better->column;
+}
+
 std::string displayPath(std::filesystem::path const& path) {
     auto root = pluginRoot();
     std::error_code ec;
@@ -138,7 +240,7 @@ std::string displayPath(std::filesystem::path const& path) {
     return path.generic_string();
 }
 
-void printFrame(ScriptFrame const& frame, ll::io::Logger& logger) {
+void printFrame(ScriptFrame frame, ll::io::Logger& logger, std::string const& message) {
     auto source = findSourceFile(frame.file);
     if (!source) {
         logger.error(
@@ -149,6 +251,8 @@ void printFrame(ScriptFrame const& frame, ll::io::Logger& logger) {
         );
         return;
     }
+
+    refineFrameFromMessage(frame, *source, message);
 
     logger.error(
         "Script error location: {}:{}{}",
@@ -172,10 +276,25 @@ void printFrame(ScriptFrame const& frame, ll::io::Logger& logger) {
     if (after) logger.error("{:>6} | {}", frame.line + 1, *after);
 }
 
+void printScriptLocation(std::string const& stacktrace, std::string const& message, ll::io::Logger& logger) {
+    auto frames = parseFrames(stacktrace);
+    if (frames.empty()) {
+        auto identifier = undefinedIdentifierFromMessage(message);
+        if (!identifier) return;
+
+        auto frame = findIdentifierInPluginSource(*identifier);
+        if (!frame) return;
+
+        printFrame(*frame, logger, message);
+        return;
+    }
+    printFrame(frames.front(), logger, message);
+}
+
 void printScriptLocation(script::Exception const& exception, ll::io::Logger& logger) {
-    auto frames = parseFrames(exception.stacktrace());
-    if (frames.empty()) return;
-    printFrame(frames.front(), logger);
+    auto stacktrace = exception.stacktrace();
+    auto message    = exception.message();
+    printScriptLocation(stacktrace.empty() ? message : stacktrace, message, logger);
 }
 
 } // namespace
@@ -184,6 +303,8 @@ void printException(script::Exception const& exception, ll::io::Logger& logger) 
     printScriptLocation(exception, logger);
     ll::error_utils::printException(exception, logger);
 }
+
+void printRawError(std::string const& error, ll::io::Logger& logger) { printScriptLocation(error, error, logger); }
 
 void printCurrentException(ll::io::Logger& logger) {
     auto current = std::current_exception();

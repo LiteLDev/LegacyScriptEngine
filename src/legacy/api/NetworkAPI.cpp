@@ -21,7 +21,7 @@ using namespace ll::coro;
     catch (...) {                                                                                                      \
         EngineScope enterCoro(engine);                                                                                 \
         lse::LegacyScriptEngine::getLogger().error(LOG);                                                               \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
         co_return;                                                                                                     \
     }
@@ -345,7 +345,7 @@ Local<Value> WSClientClass::connectAsync(Arguments const& args) {
                     "WSClientClass::connectAsync Failed! In plugin: {}",
                     pluginName
                 );
-                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+                ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
         }).detach();
         return Boolean::newBoolean(true);
@@ -761,7 +761,7 @@ Local<Value> HttpServerClass::listen(Arguments const& args) const {
                 svr->listen(addr, port);
             } catch (...) {
                 lse::LegacyScriptEngine::getLogger().error("Failed to listen {}:{}", addr, port);
-                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+                ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
         }).detach();
         return this->getScriptObject(); // return self

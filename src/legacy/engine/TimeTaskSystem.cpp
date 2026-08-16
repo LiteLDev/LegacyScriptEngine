@@ -28,7 +28,7 @@ std::unordered_map<uint64, ScriptEngine*> timeTaskMap;
         EngineScope scope(data.engine);                                                                                \
         lse::LegacyScriptEngine::getLogger()                                                                           \
             .error("Error occurred in {}, in plugin: {}", TASK_TYPE, getEngineData(data.engine)->pluginName);          \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
     }
 
 int NewTimeout(const Local<Function>& func, const std::vector<Local<Value>>& paras, int timeout) {
@@ -199,7 +199,7 @@ bool ClearTimeTask(unsigned int const& id) {
         }
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Fail in ClearTimeTask");
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
     }
     return true;
 }
@@ -218,6 +218,6 @@ void LLSERemoveTimeTaskData(std::shared_ptr<ScriptEngine> const& engine) {
         }
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().info("Fail in LLSERemoveTimeTaskData");
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
     }
 }

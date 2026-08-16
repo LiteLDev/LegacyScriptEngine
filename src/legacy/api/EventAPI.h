@@ -206,6 +206,6 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: {}", EventTypeToString(TYPE));    \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
     }                                                                                                                  \
     }

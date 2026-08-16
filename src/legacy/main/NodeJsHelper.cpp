@@ -2,6 +2,7 @@
 
 #include "fmt/format.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "legacy/utils/Utils.h"
 #include "ll/api/Expected.h"
 #include "ll/api/base/Containers.h"
@@ -397,7 +398,7 @@ bool stopEngine(node::Environment* env) {
         return true;
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Fail to stop engine {}", static_cast<void*>(env));
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
         return false;
     }
 }
@@ -597,7 +598,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
             exit_code = node::SpinEventLoop(env).FromMaybe(exit_code);
         } catch (...) {
             lse::LegacyScriptEngine::getLogger().error("Fail to execute NPM command. Error occurs");
-            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+            ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
         }
         node::Stop(env);
     }

@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "legacy/utils/JsonHelper.h"
 #include "legacy/utils/UsingScriptX.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -69,14 +70,14 @@ inline Exception WrongArgsCountException(std::string const& func) {
 
 #define CATCH                                                                                                          \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 
 #define CATCH_WITH_MESSAGE(...)                                                                                        \
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getLogger().error(__VA_ARGS__);                                                       \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 

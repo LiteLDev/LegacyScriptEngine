@@ -124,7 +124,7 @@ void registerLegacyCommands() {
             registerLegacyCommand(name, data.description, data.level, data.engine, data.playerFunc, data.consoleFunc);
         } catch (...) {
             LegacyScriptEngine::getLogger().error("Failed to register legacy command: {}"_tr(name));
-            ll::error_utils::printCurrentException(LegacyScriptEngine::getLogger());
+            ::legacy::script_error::printCurrentException(LegacyScriptEngine::getLogger());
         }
     }
     localShareData->fakeCommandsMap.clear();

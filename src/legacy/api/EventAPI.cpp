@@ -903,7 +903,7 @@ void InitBasicEventListeners() {
                 }
             } catch (...) {
                 lse::LegacyScriptEngine::getLogger().error("Error occurred in Engine Message Loop!");
-                ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+                ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
             }
 #endif
 

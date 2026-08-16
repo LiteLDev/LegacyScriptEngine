@@ -74,12 +74,14 @@ inline Exception WrongArgsCountException(std::string const& func) {
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 
-#define CATCH_WITH_MESSAGE(...)                                                                                        \
+#define CATCH_WITH_API_AND_MESSAGE(API_NAME, ...)                                                                      \
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getLogger().error(__VA_ARGS__);                                                       \
         ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
+        LogErrorWithInfo(API_NAME);                                                                                    \
     }
+
+#define CATCH_WITH_MESSAGE(...) CATCH_WITH_API_AND_MESSAGE(__FUNCTION__, __VA_ARGS__)
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(...) CATCH_WITH_MESSAGE("In callback for", __VA_ARGS__)

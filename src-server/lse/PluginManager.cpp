@@ -2,6 +2,7 @@
 
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "ll/api/io/FileUtils.h" // IWYU pragma: keep
 #include "ll/api/mod/Mod.h"
 #include "ll/api/mod/ModManager.h"
@@ -219,6 +220,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
         if (scriptEngine) {
             auto error = [&] {
                 EngineScope engineScope(scriptEngine.get());
+                ::legacy::script_error::printException(e, LegacyScriptEngine::getLogger());
                 return ll::makeStringError(
                     "Failed to load plugin {0}: {1}\n{2}"_tr(manifest.name, e.message(), e.stacktrace())
                 );

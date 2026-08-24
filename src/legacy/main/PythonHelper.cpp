@@ -4,6 +4,7 @@
 #include "legacy/api/CommandAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/TimeTaskSystem.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "legacy/utils/Utils.h"
 #include "ll/api/utils/StringUtils.h"
 #include "lse/Entry.h"
@@ -213,7 +214,7 @@ bool processPythonDebugEngine(std::string const& cmd) {
             } catch (...) {
                 isInsideCodeBlock = false;
                 codeBuffer.clear();
-                ll::error_utils::printCurrentException(logger);
+                ::legacy::script_error::printCurrentException(logger);
             }
         }
         PrintPyDebugSign();

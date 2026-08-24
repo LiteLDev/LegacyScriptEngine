@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "legacy/utils/JsonHelper.h"
 #include "legacy/utils/UsingScriptX.h"
 #include "ll/api/utils/ErrorUtils.h"
@@ -69,16 +70,18 @@ inline Exception WrongArgsCountException(std::string const& func) {
 
 #define CATCH                                                                                                          \
     catch (...) {                                                                                                      \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
         LogErrorWithInfo(__FUNCTION__);                                                                                \
     }
 
-#define CATCH_WITH_MESSAGE(...)                                                                                        \
+#define CATCH_WITH_API_AND_MESSAGE(API_NAME, ...)                                                                      \
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getLogger().error(__VA_ARGS__);                                                       \
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
-        LogErrorWithInfo(__FUNCTION__);                                                                                \
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
+        LogErrorWithInfo(API_NAME);                                                                                    \
     }
+
+#define CATCH_WITH_MESSAGE(...) CATCH_WITH_API_AND_MESSAGE(__FUNCTION__, __VA_ARGS__)
 
 // 截获回调函数异常
 #define CATCH_IN_CALLBACK(...) CATCH_WITH_MESSAGE("In callback for", __VA_ARGS__)

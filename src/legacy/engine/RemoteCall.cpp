@@ -55,7 +55,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         if (engine) {
             EngineScope enter(engine);
             lse::LegacyScriptEngine::getLogger().error("In plugin: {}", getEngineOwnData()->pluginName);
-            ll::error_utils::printException(e, lse::LegacyScriptEngine::getLogger());
+            ::legacy::script_error::printException(e, lse::LegacyScriptEngine::getLogger());
         }
 
         // Feedback
@@ -73,7 +73,7 @@ void RemoteSyncCallRequest(ModuleMessage& msg) {
         }
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Error occurred in remote engine!");
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
 
         // Feedback
         if (!msg.sendResult(ModuleMessage::MessageType::RemoteSyncCallReturn, "[null]")) {

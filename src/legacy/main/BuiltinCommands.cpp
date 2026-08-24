@@ -40,7 +40,7 @@ bool ProcessDebugEngine(std::string const& cmd) {
             logger.info(sout.str());
             PrintDebugSign();
         } catch (...) {
-            ll::error_utils::printCurrentException(logger);
+            ::legacy::script_error::printCurrentException(logger);
             PrintDebugSign();
         }
         return false;
@@ -72,7 +72,7 @@ void RegisterDebugCommand() {
                     PrintValue(sout, result);
                     output.success(sout.str());
                 } catch (...) {
-                    ll::error_utils::printCurrentException(logger);
+                    ::legacy::script_error::printCurrentException(logger);
                 }
             } else {
                 if (InConsoleDebugMode) {

@@ -4,6 +4,7 @@
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/main/BindAPIs.h"
 #include "legacy/main/EconomicSystem.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "ll/api/Config.h"
 #include "ll/api/event/EventBus.h"
 #include "ll/api/event/command/ServerCommandRegisterEvent.h"
@@ -126,7 +127,7 @@ bool LegacyScriptEngine::load() {
         return true;
     } catch (...) {
         logger.error("Failed to load: {0}"_tr(getSelf().getName()));
-        ll::error_utils::printCurrentException(logger);
+        ::legacy::script_error::printCurrentException(logger);
         return false;
     }
 }

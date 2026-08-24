@@ -2,6 +2,7 @@
 
 #include "fmt/format.h"
 #include "legacy/engine/EngineOwnData.h"
+#include "legacy/utils/ScriptErrorPrinter.h"
 #include "legacy/utils/Utils.h"
 #include "ll/api/Expected.h"
 #include "ll/api/base/Containers.h"
@@ -175,6 +176,7 @@ std::shared_ptr<ScriptEngine> newEngine() {
     }
     v8::Isolate*       isolate = setup->isolate();
     node::Environment* env     = setup->env();
+    isolate->SetCaptureStackTraceForUncaughtExceptions(true);
 
     v8::Locker         locker(isolate);
     v8::Isolate::Scope isolate_scope(isolate);
@@ -325,7 +327,9 @@ bool loadPluginCode(
             }
             if (errorMsg->IsString()) {
                 v8::String::Utf8Value value{it->second->isolate(), errorMsg};
-                logger.error(std::string_view{*value, static_cast<size_t>(value.length())});
+                auto error = std::string{*value, static_cast<size_t>(value.length())};
+                ::legacy::script_error::printRawError(error, logger);
+                logger.error(error);
                 loadFailed = true;
             }
         }
@@ -397,7 +401,7 @@ bool stopEngine(node::Environment* env) {
         return true;
     } catch (...) {
         lse::LegacyScriptEngine::getLogger().error("Fail to stop engine {}", static_cast<void*>(env));
-        ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
         return false;
     }
 }
@@ -597,7 +601,7 @@ int executeNpmCommand(std::vector<std::string> npmArgs, std::string workingDir) 
             exit_code = node::SpinEventLoop(env).FromMaybe(exit_code);
         } catch (...) {
             lse::LegacyScriptEngine::getLogger().error("Fail to execute NPM command. Error occurs");
-            ll::error_utils::printCurrentException(lse::LegacyScriptEngine::getLogger());
+            ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());
         }
         node::Stop(env);
     }

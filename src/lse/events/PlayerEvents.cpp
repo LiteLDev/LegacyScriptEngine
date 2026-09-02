@@ -90,7 +90,7 @@ LL_TYPE_INSTANCE_HOOK(
                 ContainerID::Inventory,
                 InventorySource::InventorySourceFlags::NoFlag
             };
-            auto& actions = mTransaction->getActions(source);
+            auto& actions = mTransaction->mActions->at(source);
             if (actions.size() == 1) {
                 if (!CallEvent(
                         EVENT_TYPES::onDropItem,
@@ -310,8 +310,7 @@ LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUs
     IF_LISTENED(EVENT_TYPES::onAte) {
         if (isServerThread()) {
             std::set<std::string> const item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
-            auto                        checked =
-                mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
+            auto checked = mItemInUse->mItem->mItem->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
             if (checked
                 && !CallEvent(
                     EVENT_TYPES::onAte,
@@ -687,38 +686,26 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, pos, face, hit);
 }
 
-void StartDestroyBlock() { StartDestroyBlockHook::hook(); }
-void DropItem() {
-    DropItemHook1::hook();
-    DropItemHook2::hook();
-}
-void OpenContainerEvent() { OpenContainerHook::hook(); }
-void CloseContainerEvent() {
-    CloseContainerHook1::hook();
-    CloseContainerHook2::hook();
-}
-void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
-void UseFrameEvent() {
-    UseFrameHook1::hook();
-    UseFrameHook2::hook();
-}
-void EatEvent() { EatHook::hook(); }
-void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
-void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }
-void UseRespawnAnchorEvent() { UseRespawnAnchorHook::hook(); }
-void SleepEvent() { SleepHook::hook(); }
-void OpenInventoryEvent() { OpenInventoryHook::hook(); }
-void PullFishingHookEvent() { PullFishingHook::hook(); }
-void UseBucketPlaceEvent() { UseBucketPlaceHook::hook(); }
-void UseBucketTakeEvent() {
-    UseBucketTakeHook1::hook();
-    UseBucketTakeHook2::hook();
-}
-void ConsumeTotemEvent() { ConsumeTotemHook::hook(); }
-void SetArmorEvent() { SetArmorHook::hook(); }
-void InteractEntityEvent() { InteractEntityHook::hook(); }
-void AddEffectEvent() { AddEffectHook::hook(); }
-void RemoveEffectEvent() { RemoveEffectHook::hook(); }
-void BlockInteractedEvent() { BlockInteractedHook::hook(); }
+void StartDestroyBlock() { static ll::memory::HookRegistrar<StartDestroyBlockHook> reg; }
+void DropItem() { static ll::memory::HookRegistrar<DropItemHook1, DropItemHook2> reg; }
+void OpenContainerEvent() { static ll::memory::HookRegistrar<OpenContainerHook> reg; }
+void CloseContainerEvent() { static ll::memory::HookRegistrar<CloseContainerHook1, CloseContainerHook2> reg; }
+void ChangeSlotEvent() { static ll::memory::HookRegistrar<ChangeSlotHook> reg; }
+void AttackBlockEvent() { static ll::memory::HookRegistrar<StartDestroyBlockHook> reg; }
+void UseFrameEvent() { static ll::memory::HookRegistrar<UseFrameHook1, UseFrameHook2> reg; }
+void EatEvent() { static ll::memory::HookRegistrar<EatHook> reg; }
+void ChangeDimensionEvent() { static ll::memory::HookRegistrar<ChangeDimensionHook> reg; };
+void OpenContainerScreenEvent() { static ll::memory::HookRegistrar<OpenContainerScreenHook> reg; }
+void UseRespawnAnchorEvent() { static ll::memory::HookRegistrar<UseRespawnAnchorHook> reg; }
+void SleepEvent() { static ll::memory::HookRegistrar<SleepHook> reg; }
+void OpenInventoryEvent() { static ll::memory::HookRegistrar<OpenInventoryHook> reg; }
+void PullFishingHookEvent() { static ll::memory::HookRegistrar<PullFishingHook> reg; }
+void UseBucketPlaceEvent() { static ll::memory::HookRegistrar<UseBucketPlaceHook> reg; }
+void UseBucketTakeEvent() { static ll::memory::HookRegistrar<UseBucketTakeHook1, UseBucketTakeHook2> reg; }
+void ConsumeTotemEvent() { static ll::memory::HookRegistrar<ConsumeTotemHook> reg; }
+void SetArmorEvent() { static ll::memory::HookRegistrar<SetArmorHook> reg; }
+void InteractEntityEvent() { static ll::memory::HookRegistrar<InteractEntityHook> reg; }
+void AddEffectEvent() { static ll::memory::HookRegistrar<AddEffectHook> reg; }
+void RemoveEffectEvent() { static ll::memory::HookRegistrar<RemoveEffectHook> reg; }
+void BlockInteractedEvent() { static ll::memory::HookRegistrar<BlockInteractedHook> reg; }
 } // namespace lse::events::player

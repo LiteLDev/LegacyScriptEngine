@@ -15,7 +15,6 @@
 #include "legacy/api/PacketAPI.h"
 #include "legacy/engine/EngineManager.h"
 #include "legacy/engine/EngineOwnData.h"
-#include "legacy/engine/GlobalShareData.h"
 #include "legacy/main/EconomicSystem.h"
 #include "legacy/main/SafeGuardRecord.h"
 #include "ll/api/chrono/GameChrono.h"
@@ -29,9 +28,6 @@
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/api/MoreGlobal.h"
 #include "lse/api/NetworkPacket.h"
-#include "lse/api/helper/AttributeHelper.h"
-#include "lse/api/helper/PlayerHelper.h"
-#include "lse/api/helper/ScoreboardHelper.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/deps/core/utility/optional_ref.h"
@@ -41,13 +37,11 @@
 #include "mc/entity/components/ActorRotationComponent.h"
 #include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
-#include "mc/entity/components/IsOnHotBlockFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
 #include "mc/entity/components/WasInWaterFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/legacy/ActorUniqueID.h"
-#include "mc/network/ConnectionRequest.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
 #include "mc/network/ServerNetworkHandler.h"
@@ -78,6 +72,7 @@
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorDamageByActorSource.h"
 #include "mc/world/actor/ActorHurtResult.h"
+#include "mc/world/actor/HurtParameters.h"
 #include "mc/world/actor/ai/util/BossBarColor.h"
 #include "mc/world/actor/ai/util/BossEventUpdateType.h"
 #include "mc/world/actor/player/Inventory.h"
@@ -87,7 +82,6 @@
 #include "mc/world/actor/player/PlayerInventory.h"
 #include "mc/world/actor/provider/ActorEquipment.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-#include "mc/world/attribute/Attribute.h"
 #include "mc/world/attribute/AttributeInstance.h"
 #include "mc/world/attribute/AttributeInstanceConstRef.h"
 #include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
@@ -113,10 +107,6 @@
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
-
-SetScorePacket::SetScorePacket() { mType = ScorePacketType::Change; }
-ToastRequestPacketPayload::ToastRequestPacketPayload() = default;
-SetDisplayObjectivePacketPayload::SetDisplayObjectivePacketPayload() { mSortOrder = ObjectiveSortOrder::Ascending; }
 
 //////////////////// Class Definition ////////////////////
 
@@ -624,7 +614,7 @@ Local<Value> McClass::getPlayerScore(Arguments const& args) {
             return Number::newNumber(0);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        ScoreboardId sid      = scoreboard.getId(PlayerScoreboardId(uniqueId));
         if (sid.mRawID == ScoreboardId::INVALID().mRawID || !objective->mScores->contains(sid)) {
             return Number::newNumber(0);
         }
@@ -659,7 +649,7 @@ Local<Value> McClass::setPlayerScore(Arguments const& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        ScoreboardId sid      = scoreboard.getId(PlayerScoreboardId(uniqueId));
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
@@ -697,7 +687,7 @@ Local<Value> McClass::addPlayerScore(Arguments const& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        ScoreboardId sid      = scoreboard.getId(PlayerScoreboardId(uniqueId));
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
@@ -735,7 +725,7 @@ Local<Value> McClass::reducePlayerScore(Arguments const& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        ScoreboardId sid      = scoreboard.getId(PlayerScoreboardId(uniqueId));
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
@@ -777,7 +767,7 @@ Local<Value> McClass::deletePlayerScore(Arguments const& args) {
             return Boolean::newBoolean(false);
         }
         int64        uniqueId = serverIdTag->at("UniqueID");
-        ScoreboardId sid      = ScoreboardHelper::getId(scoreboard, PlayerScoreboardId(uniqueId));
+        ScoreboardId sid      = scoreboard.getId(PlayerScoreboardId(uniqueId));
         if (sid.mRawID == ScoreboardId::INVALID().mRawID) {
             return Boolean::newBoolean(false);
         }
@@ -1127,9 +1117,7 @@ Local<Value> PlayerClass::isSneaking() const {
         Player* player = get();
         if (!player) return {};
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Sneaking)
-        );
+        return Boolean::newBoolean(player->isSneaking());
     }
     CATCH_AND_THROW
 }
@@ -1151,9 +1139,7 @@ Local<Value> PlayerClass::isCrawling() const {
             return {};
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Crawling)
-        );
+        return Boolean::newBoolean(player->isCrawling());
     }
     CATCH_AND_THROW
 }
@@ -1228,7 +1214,7 @@ Local<Value> PlayerClass::getInLava() const {
         if (!player) return {};
 
         return Boolean::newBoolean(
-            ActorMobilityUtils::shouldApplyLava(player->getDimensionBlockSourceConst(), player->getEntityContext())
+            ActorMobilityUtils::shouldApplyLava(player->getDimensionBlockSource(), player->getEntityContext())
         );
     }
     CATCH_AND_THROW
@@ -1396,9 +1382,7 @@ Local<Value> PlayerClass::isTrusting() const {
             return {};
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Trusting)
-        );
+        return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Trusting));
     }
     CATCH_AND_THROW
 }
@@ -1422,10 +1406,7 @@ Local<Value> PlayerClass::isHungry() const {
             return {};
         }
 
-        if (auto attribute = player->getAttribute(Player::HUNGER()).mPtr) {
-            return Boolean::newBoolean(attribute->mCurrentMaxValue > attribute->mCurrentValue);
-        }
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(player->isHungry());
     }
     CATCH_AND_THROW
 }
@@ -1461,7 +1442,7 @@ Local<Value> PlayerClass::isOnHotBlock() const {
             return {};
         }
 
-        return Boolean::newBoolean(player->getEntityContext().hasComponent<IsOnHotBlockFlagComponent>());
+        return Boolean::newBoolean(player->isOnHotBlock());
     }
     CATCH_AND_THROW
 }
@@ -1497,7 +1478,7 @@ Local<Value> PlayerClass::isGliding() const {
             return {};
         }
 
-        return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Gliding));
+        return Boolean::newBoolean(player->isGliding());
     }
     CATCH_AND_THROW
 }
@@ -1533,7 +1514,7 @@ Local<Value> PlayerClass::isRiding() const {
             return {};
         }
 
-        return Boolean::newBoolean(player->isRiding());
+        return Boolean::newBoolean(player->isRiding(nullptr));
     }
     CATCH_AND_THROW
 }
@@ -1545,9 +1526,7 @@ Local<Value> PlayerClass::isDancing() const {
             return {};
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Dancing)
-        );
+        return Boolean::newBoolean(player->isDancing());
     }
     CATCH_AND_THROW
 }
@@ -1595,9 +1574,7 @@ Local<Value> PlayerClass::isMoving() const {
             return {};
         }
 
-        return Boolean::newBoolean(
-            SynchedActorDataAccess::getActorFlag(player->getEntityContext(), ActorFlags::Moving)
-        );
+        return Boolean::newBoolean(player->isMoving());
     }
     CATCH_AND_THROW
 }
@@ -2137,26 +2114,24 @@ Local<Value> PlayerClass::reduceExperience(Arguments const& args) const {
             int neededExp  = player->getXpNeededForNextLevel();
             int currentExp = static_cast<int>(instance->mCurrentValue * neededExp);
             if (exp <= currentExp) {
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
+                return Boolean::newBoolean(component->mAttributes->setCurrentValue(
                     Player::EXPERIENCE(),
                     static_cast<float>(currentExp - exp) / neededExp
-                );
-                return Boolean::newBoolean(true);
+                ));
             }
-            AttributeHelper::setCurrentValue(component->mAttributes, Player::EXPERIENCE(), 0.0f);
+            if (!component->mAttributes->setCurrentValue(Player::EXPERIENCE(), 0.0f)) {
+                return Boolean::newBoolean(false);
+            }
             size_t needExp = exp - currentExp;
             int    level   = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
             while (level > 0) {
                 player->addLevels(-1);
                 int levelXp = player->getXpNeededForNextLevel();
                 if (needExp < levelXp) {
-                    AttributeHelper::setCurrentValue(
-                        component->mAttributes,
+                    return Boolean::newBoolean(component->mAttributes->setCurrentValue(
                         Player::EXPERIENCE(),
                         static_cast<float>(levelXp - needExp) / levelXp
-                    );
-                    return Boolean::newBoolean(true);
+                    ));
                 }
                 needExp -= levelXp;
                 level    = player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue;
@@ -2174,7 +2149,7 @@ Local<Value> PlayerClass::getCurrentExperience(Arguments const&) const {
             return {};
         }
 
-        return Number::newNumber(static_cast<long long>(PlayerHelper::getXpEarnedAtCurrentLevel(player)));
+        return Number::newNumber(static_cast<long long>(player->getXpEarnedAtCurrentLevel()));
     }
     CATCH_AND_THROW
 }
@@ -2189,8 +2164,7 @@ Local<Value> PlayerClass::setCurrentExperience(Arguments const& args) const {
             return {};
         }
 
-        PlayerHelper::setXpEarnedAtCurrentLevel(player, args[0].asNumber().toInt32());
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(player->setXpEarnedAtCurrentLevel(args[0].asNumber().toInt32()));
     }
     CATCH_AND_THROW
 }
@@ -2203,9 +2177,7 @@ Local<Value> PlayerClass::getTotalExperience(Arguments const&) const {
         }
         int endLevel = static_cast<int>(player->getAttribute(Player::LEVEL()).mPtr->mCurrentValue);
 
-        return Number::newNumber(
-            PlayerHelper::getXpNeededForLevelRange(0, endLevel) + PlayerHelper::getXpEarnedAtCurrentLevel(player)
-        );
+        return Number::newNumber(player->getXpNeededForLevelRange(0, endLevel) + player->getXpEarnedAtCurrentLevel());
     }
     CATCH_AND_THROW
 }
@@ -2428,6 +2400,7 @@ Local<Value> PlayerClass::setSidebar(Arguments const& args) const {
         std::vector<std::pair<std::string, int>> data;
         auto                                     source = args[1].asObject();
         auto                                     keys   = source.getKeyNames();
+        data.reserve(keys.size());
         for (auto& key : keys) {
             data.emplace_back(key, source.get(key).asNumber().toInt32());
         }
@@ -2871,11 +2844,11 @@ Local<Value> PlayerClass::hurt(Arguments const& args) const {
             }
             ActorDamageByActorSource damageBySource =
                 ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
-            return Boolean::newBoolean(player->_hurt(damageBySource, damage, true, false));
+            return Boolean::newBoolean(player->_hurt(damageBySource, damage, HurtParameters{true, false}));
         }
         ActorDamageSource damageSource(static_cast<SharedTypes::Legacy::ActorDamageCause>(type), {});
         damageSource.mCause = static_cast<SharedTypes::Legacy::ActorDamageCause>(type);
-        return Boolean::newBoolean(player->_hurt(damageSource, damage, true, false));
+        return Boolean::newBoolean(player->_hurt(damageSource, damage, HurtParameters{true, false}));
     }
     CATCH_AND_THROW
 }
@@ -2903,11 +2876,7 @@ Local<Value> PlayerClass::setHealth(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::HEALTH(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::HEALTH(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -2925,11 +2894,7 @@ Local<Value> PlayerClass::setMaxHealth(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setMaxValue(
-                    component->mAttributes,
-                    SharedAttributes::HEALTH(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setMaxValue(SharedAttributes::HEALTH(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -2947,11 +2912,7 @@ Local<Value> PlayerClass::setAbsorption(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::ABSORPTION(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::ABSORPTION(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -2969,11 +2930,7 @@ Local<Value> PlayerClass::setAttackDamage(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::ATTACK_DAMAGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::ATTACK_DAMAGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -2991,11 +2948,7 @@ Local<Value> PlayerClass::setMaxAttackDamage(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setMaxValue(
-                    component->mAttributes,
-                    SharedAttributes::ATTACK_DAMAGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setMaxValue(SharedAttributes::ATTACK_DAMAGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -3013,11 +2966,7 @@ Local<Value> PlayerClass::setFollowRange(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::FOLLOW_RANGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::FOLLOW_RANGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -3034,13 +2983,10 @@ Local<Value> PlayerClass::setKnockbackResistance(Arguments const& args) const {
         if (!player) return {};
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::KNOCKBACK_RESISTANCE(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::KNOCKBACK_RESISTANCE(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -3057,11 +3003,7 @@ Local<Value> PlayerClass::setLuck(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::LUCK(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::LUCK(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -3078,13 +3020,10 @@ Local<Value> PlayerClass::setMovementSpeed(Arguments const& args) const {
         if (!player) return {};
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -3100,13 +3039,10 @@ Local<Value> PlayerClass::setUnderwaterMovementSpeed(Arguments const& args) cons
         if (!player) return {};
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -3122,13 +3058,10 @@ Local<Value> PlayerClass::setLavaMovementSpeed(Arguments const& args) const {
         if (!player) return {};
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::LAVA_MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::LAVA_MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -3145,7 +3078,7 @@ Local<Value> PlayerClass::setHungry(Arguments const& args) const {
 
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(component->mAttributes, Player::HUNGER(), args[0].asNumber().toFloat())
+                component->mAttributes->setCurrentValue(Player::HUNGER(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -3278,12 +3211,12 @@ Local<Value> PlayerClass::clearItem(Arguments const& args) const {
     CATCH_AND_THROW
 }
 
-Local<Value> PlayerClass::isSprinting(Arguments const& args) const {
+Local<Value> PlayerClass::isSprinting(Arguments const&) const {
     try {
         Player* player = get();
         if (!player) return {};
 
-        return Boolean::newBoolean(player->getStatusFlag(ActorFlags::Sprinting));
+        return Boolean::newBoolean(player->isSprinting());
     }
     CATCH_AND_THROW
 }
@@ -3900,8 +3833,7 @@ Local<Value> PlayerClass::addEffect(Arguments const& args) const {
         EffectDuration    duration{args[1].asNumber().toInt32()};
         int               level         = args[2].asNumber().toInt32();
         bool              showParticles = args[3].asBoolean().value();
-        MobEffectInstance effect(id);
-        effect.mDuration      = duration;
+        MobEffectInstance effect(id, duration);
         effect.mAmplifier     = level;
         effect.mEffectVisible = showParticles;
         player->addEffect(effect);

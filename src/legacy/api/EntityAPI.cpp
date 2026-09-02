@@ -11,12 +11,10 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/MoreGlobal.h"
-#include "lse/api/helper/AttributeHelper.h"
 #include "mc/common/Globals.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/nbt/CompoundTag.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
-#include "mc/deps/vanilla_components/ActorDataFlagComponent.h"
 #include "mc/deps/vanilla_components/StateVectorComponent.h"
 #include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
@@ -57,9 +55,9 @@
 
 #include <climits>
 #include <memory>
+#include <optional>
 #include <utility>
 
-using lse::api::AttributeHelper;
 using magic_enum::enum_integer;
 
 //////////////////// Class Definition ////////////////////
@@ -312,7 +310,7 @@ Local<Value> EntityClass::isRiding() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(entity->isRiding());
+        return Boolean::newBoolean(entity->isRiding(nullptr));
     }
     CATCH_AND_THROW
 }
@@ -569,7 +567,7 @@ Local<Value> EntityClass::getInLava() const {
         if (!entity) return {};
 
         return Boolean::newBoolean(
-            ActorMobilityUtils::shouldApplyLava(entity->getDimensionBlockSourceConst(), entity->getEntityContext())
+            ActorMobilityUtils::shouldApplyLava(entity->getDimensionBlockSource(), entity->getEntityContext())
         );
     }
     CATCH_AND_THROW
@@ -968,16 +966,17 @@ Local<Value> EntityClass::hurt(Arguments const& args) const {
             type = args[1].asNumber().toInt32();
         }
         if (args.size() == 3) {
-            Actor const* source = EntityClass::tryExtractActor(args[2]);
+            Actor* source = EntityClass::tryExtractActor(args[2]);
             if (!source) {
                 return Boolean::newBoolean(false);
             }
-            ActorDamageByActorSource const damageBySource =
-                ActorDamageByActorSource(*source, static_cast<SharedTypes::Legacy::ActorDamageCause>(type));
-            return Boolean::newBoolean(entity->_hurt(damageBySource, damage, true, false));
+            return Boolean::newBoolean(
+                entity->hurtByCause(damage, static_cast<SharedTypes::Legacy::ActorDamageCause>(type), source)
+            );
         }
-        ActorDamageSource damageSource(static_cast<SharedTypes::Legacy::ActorDamageCause>(type), {});
-        return Boolean::newBoolean(entity->_hurt(damageSource, damage, true, false));
+        return Boolean::newBoolean(
+            entity->hurtByCause(damage, static_cast<SharedTypes::Legacy::ActorDamageCause>(type), std::nullopt)
+        );
     }
     CATCH_AND_THROW
 }
@@ -1005,11 +1004,7 @@ Local<Value> EntityClass::setHealth(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::HEALTH(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::HEALTH(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1027,11 +1022,7 @@ Local<Value> EntityClass::setAbsorption(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::ABSORPTION(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::ABSORPTION(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1049,11 +1040,7 @@ Local<Value> EntityClass::setAttackDamage(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::ATTACK_DAMAGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::ATTACK_DAMAGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1071,11 +1058,7 @@ Local<Value> EntityClass::setMaxAttackDamage(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setMaxValue(
-                    component->mAttributes,
-                    SharedAttributes::ATTACK_DAMAGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setMaxValue(SharedAttributes::ATTACK_DAMAGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1093,11 +1076,7 @@ Local<Value> EntityClass::setFollowRange(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::FOLLOW_RANGE(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::FOLLOW_RANGE(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1114,13 +1093,10 @@ Local<Value> EntityClass::setKnockbackResistance(Arguments const& args) const {
         if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::KNOCKBACK_RESISTANCE(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::KNOCKBACK_RESISTANCE(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -1137,11 +1113,7 @@ Local<Value> EntityClass::setLuck(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::LUCK(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setCurrentValue(SharedAttributes::LUCK(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1158,13 +1130,10 @@ Local<Value> EntityClass::setMovementSpeed(Arguments const& args) const {
         if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -1180,13 +1149,10 @@ Local<Value> EntityClass::setUnderwaterMovementSpeed(Arguments const& args) cons
         if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::UNDERWATER_MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -1202,13 +1168,10 @@ Local<Value> EntityClass::setLavaMovementSpeed(Arguments const& args) const {
         if (!entity) return {};
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            return Boolean::newBoolean(
-                AttributeHelper::setCurrentValue(
-                    component->mAttributes,
-                    SharedAttributes::LAVA_MOVEMENT_SPEED(),
-                    args[0].asNumber().toFloat()
-                )
-            );
+            return Boolean::newBoolean(component->mAttributes->setCurrentValue(
+                SharedAttributes::LAVA_MOVEMENT_SPEED(),
+                args[0].asNumber().toFloat()
+            ));
         }
         return Boolean::newBoolean(false);
     }
@@ -1225,11 +1188,7 @@ Local<Value> EntityClass::setMaxHealth(Arguments const& args) const {
 
         if (auto const component = entity->getEntityContext().tryGetComponent<AttributesComponent>()) {
             return Boolean::newBoolean(
-                AttributeHelper::setMaxValue(
-                    component->mAttributes,
-                    SharedAttributes::HEALTH(),
-                    args[0].asNumber().toFloat()
-                )
+                component->mAttributes->setMaxValue(SharedAttributes::HEALTH(), args[0].asNumber().toFloat())
             );
         }
         return Boolean::newBoolean(false);
@@ -1479,7 +1438,9 @@ Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
         }
         Block const&     bl     = actor->getDimensionBlockSource().getBlock(bp);
         BlockType const& legacy = bl.getBlockType();
-        if (bl.isAir() || (legacy.mProperties == BlockProperty::None && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
+        if (bl.isAir()
+            || (legacy.mProperties == BlockProperty::None
+                && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
             return {};
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());
@@ -1548,8 +1509,7 @@ Local<Value> EntityClass::addEffect(Arguments const& args) const {
         EffectDuration     duration{args[1].asNumber().toInt32()};
         int const          level         = args[2].asNumber().toInt32();
         bool const         showParticles = args[3].asBoolean().value();
-        MobEffectInstance  effect(id);
-        effect.mDuration      = duration;
+        MobEffectInstance  effect(id, duration);
         effect.mAmplifier     = level;
         effect.mEffectVisible = showParticles;
         actor->addEffect(effect);

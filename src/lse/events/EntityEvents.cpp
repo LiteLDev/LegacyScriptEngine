@@ -232,7 +232,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         if (isServerThread()) {
-            auto& region = owner.getDimensionBlockSourceConst();
+            auto& region = owner.getDimensionBlockSource();
             auto& block  = region.getBlock(res.mBlock);
             if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
                 if (!CallEvent(
@@ -257,8 +257,7 @@ LL_TYPE_INSTANCE_HOOK(
     ActorHurtResult,
     ::ActorDamageSource const& source,
     float                      damage,
-    bool                       knock,
-    bool                       ignite
+    ::HurtParameters const&    hurtParameters
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
         if (isServerThread()) {
@@ -284,7 +283,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage, knock, ignite);
+    return origin(source, damage, hurtParameters);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -422,8 +421,8 @@ LL_TYPE_INSTANCE_HOOK(
     HookPriority::Normal,
     ActorEventCoordinator,
     &ActorEventCoordinator::sendEvent,
-    CoordinatorResult,
-    EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
+    void,
+    EventRef<ActorGameplayEvent<void>> const& event
 ) {
 
     IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
@@ -449,7 +448,7 @@ LL_TYPE_INSTANCE_HOOK(
                 }
                 return false;
             });
-            if (canceled) return CoordinatorResult::Cancel;
+            if (canceled) return;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
@@ -458,22 +457,17 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 void ProjectileSpawnEvent() {
-    ProjectileSpawnHook1::hook();
-    ProjectileSpawnHook2::hook();
-    ProjectileSpawnHook3::hook();
+    static ll::memory::HookRegistrar<ProjectileSpawnHook1, ProjectileSpawnHook2, ProjectileSpawnHook3> reg;
 };
-void PortalTrySpawnPigZombieEvent() { PortalTrySpawnPigZombieHook::hook(); }
-void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
-void ActorRideEvent() { ActorRideHook::hook(); }
-void WitherDestroyEvent() { WitherDestroyHook::hook(); }
-void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
-void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
-void MobHurtEvent() {
-    MobHurtHook::hook();
-    MobHurtEffectHook::hook();
-}
-void NpcCommandEvent() { NpcCommandHook::hook(); }
-void EndermanTakeBlockEvent() { EndermanTakeBlockHook::hook(); }
-void EffectUpdateEvent() { EffectUpdateHook::hook(); }
-void TransformationEvent() { TransformationHook::hook(); }
+void PortalTrySpawnPigZombieEvent() { static ll::memory::HookRegistrar<PortalTrySpawnPigZombieHook> reg; }
+void ProjectileCreatedEvent() { static ll::memory::HookRegistrar<ProjectileSpawnHook1> reg; };
+void ActorRideEvent() { static ll::memory::HookRegistrar<ActorRideHook> reg; }
+void WitherDestroyEvent() { static ll::memory::HookRegistrar<WitherDestroyHook> reg; }
+void ProjectileHitEntityEvent() { static ll::memory::HookRegistrar<ProjectileHitEntityHook> reg; }
+void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitBlockHook> reg; }
+void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook, MobHurtEffectHook> reg; }
+void NpcCommandEvent() { static ll::memory::HookRegistrar<NpcCommandHook> reg; }
+void EndermanTakeBlockEvent() { static ll::memory::HookRegistrar<EndermanTakeBlockHook> reg; }
+void EffectUpdateEvent() { static ll::memory::HookRegistrar<EffectUpdateHook> reg; }
+void TransformationEvent() { static ll::memory::HookRegistrar<TransformationHook> reg; }
 } // namespace lse::events::entity

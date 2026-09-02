@@ -525,7 +525,7 @@ void EnableEventListener(int eventId) {
         bus.emplaceListener<PlayerUseItemEvent>([](PlayerUseItemEvent& ev) {
             IF_LISTENED(EVENT_TYPES::onEat) {
                 if (isServerThread()) {
-                    if (ev.item().getItem()->isFood() || ev.item().isPotionItem()
+                    if (ev.item().mItem->isFood() || ev.item().isPotionItem()
                         || ev.item().getTypeName() == VanillaItemNames::MilkBucket().getString()) {
                         auto attribute = ev.self().getAttribute(Player::HUNGER());
                         if (attribute.mPtr->mCurrentMaxValue > attribute.mPtr->mCurrentValue) {

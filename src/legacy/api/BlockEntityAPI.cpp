@@ -11,22 +11,25 @@
 #include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/actor/BlockActorType.h"
+#include "mc/world/level/block/actor/VanillaBlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Class Definition ////////////////////
 
-ClassDefine<BlockEntityClass> BlockEntityClassBuilder = defineClass<BlockEntityClass>("LLSE_BlockEntity")
-                                                            .constructor(nullptr)
-                                                            .instanceProperty("name", &BlockEntityClass::getName)
-                                                            .instanceProperty("pos", &BlockEntityClass::getPos)
-                                                            .instanceProperty("type", &BlockEntityClass::getType)
+ClassDefine<BlockEntityClass> BlockEntityClassBuilder =
+    defineClass<BlockEntityClass>("LLSE_BlockEntity")
+        .constructor(nullptr)
+        .instanceProperty("name", &BlockEntityClass::getName)
+        .instanceProperty("pos", &BlockEntityClass::getPos)
+        .instanceProperty("type", &BlockEntityClass::getType)
 
-                                                            .instanceFunction("setNbt", &BlockEntityClass::setNbt)
-                                                            .instanceFunction("getNbt", &BlockEntityClass::getNbt)
-                                                            .instanceFunction("getBlock", &BlockEntityClass::getBlock)
-                                                            .instanceFunction("setCustomName", &BlockEntityClass::setCustomName)
-                                                            .instanceFunction("getCustomName", &BlockEntityClass::getCustomName)
-                                                            .build();
+        .instanceFunction("setNbt", &BlockEntityClass::setNbt)
+        .instanceFunction("getNbt", &BlockEntityClass::getNbt)
+        .instanceFunction("getBlock", &BlockEntityClass::getBlock)
+        .instanceFunction("setCustomName", &BlockEntityClass::setCustomName)
+        .instanceFunction("getCustomName", &BlockEntityClass::getCustomName)
+        .build();
 
 //////////////////// Classes ////////////////////
 
@@ -57,7 +60,11 @@ Local<Value> BlockEntityClass::getPos() const {
 
 Local<Value> BlockEntityClass::getName() const {
     try {
-        return String::newString(blockEntity->getName());
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor = static_cast<VanillaBlockActor*>(blockEntity);
+            return String::newString(blockActor->getName());
+        }
+        return String::newString("");
     }
     CATCH_AND_THROW
 }
@@ -108,15 +115,23 @@ Local<Value> BlockEntityClass::setCustomName(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        blockEntity->setCustomName({args[0].asString().toString(), std::nullopt});
-        return Boolean::newBoolean(true);
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor         = static_cast<VanillaBlockActor*>(blockEntity);
+            blockActor->mCustomName = args[0].asString().toString();
+            return Boolean::newBoolean(true);
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getCustomName() const {
     try {
-        return String::newString(blockEntity->getCustomName().mUnredactedString);
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor = static_cast<VanillaBlockActor*>(blockEntity);
+            return String::newString(blockActor->mCustomName->mUnredactedString);
+        }
+        return String::newString("");
     }
     CATCH_AND_THROW
 }

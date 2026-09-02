@@ -180,7 +180,7 @@ Local<Value> ItemClass::getAttackDamage() const {
 
 Local<Value> ItemClass::getMaxDamage() const {
     try {
-        return Number::newNumber(get()->getMaxDamage());
+        return Number::newNumber(get()->mItem->getMaxDamage());
     }
     CATCH_AND_THROW
 }
@@ -292,7 +292,7 @@ Local<Value> ItemClass::isLiquidClipItem() const {
 
 Local<Value> ItemClass::isMusicDiscItem() const {
     try {
-        return Boolean::newBoolean(get()->getItem()->isMusicDisk());
+        return Boolean::newBoolean(get()->mItem->isMusicDisk());
     }
     CATCH_AND_THROW
 }
@@ -410,10 +410,7 @@ Local<Value> ItemClass::setDisplayName(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        Bedrock::Safety::RedactableString redactableString(
-            args[0].asString().toString(),
-            args[0].asString().toString()
-        );
+        Bedrock::Safety::RedactableString redactableString(args[0].asString().toString());
         get()->setCustomName(redactableString);
         return Boolean::newBoolean(true);
     }

@@ -46,6 +46,7 @@
 #include "mc/world/level/block/StructureBlock.h"
 #include "mc/world/level/block/TntBlock.h"
 #include "mc/world/level/block/TrapDoorBlock.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockRedstoneUpdateEvent.h"
@@ -242,33 +243,18 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
-    return origin(random);
-}
 
-LL_TYPE_STATIC_HOOK(
-    RespawnAnchorExplodeHook,
-    HookPriority::Normal,
-    RespawnAnchorBlock,
-    &RespawnAnchorBlock::_explode,
-    void,
-    Player&         player,
-    BlockPos const& pos,
-    BlockSource&    region,
-    Level&          level
-) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onRespawnAnchorExplode,
-                    IntPos::newPos(pos, region.getDimensionId()),
-                    PlayerClass::newPlayer(&player)
-                )) {
-                return;
+        // TODO: find a function which can get player
+        if (isServerThread()
+            && *mRegion.getBlock(*mPos).getBlockType().mNameInfo->mFullName == VanillaBlockTypeIds::RespawnAnchor()) {
+            if (!CallEvent(EVENT_TYPES::onRespawnAnchorExplode, IntPos::newPos(*mPos, mRegion.getDimensionId()))) {
+                return false;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
-    origin(player, pos, region, level);
+    return origin(random);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -614,45 +600,47 @@ LL_TYPE_INSTANCE_HOOK(
 }
 } // namespace hopper
 
-void ContainerChangeEvent() { ContainerChangeHook::hook(); }
-void ArmorStandSwapItemEvent() { ArmorStandSwapItemHook::hook(); }
-void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
-void FarmDecayEvent() { FarmDecayHook::hook(); }
-void PistonPushEvent() { PistonPushHook::hook(); }
-void ExplodeEvent() { ExplodeHook::hook(); }
-void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
-void PortalSpawnEvent() { PortalSpawnHook::hook(); }
-void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
+void ContainerChangeEvent() { static ll::memory::HookRegistrar<ContainerChangeHook> reg; }
+void ArmorStandSwapItemEvent() { static ll::memory::HookRegistrar<ArmorStandSwapItemHook> reg; }
+void PressurePlateTriggerEvent() { static ll::memory::HookRegistrar<PressurePlateTriggerHook> reg; }
+void FarmDecayEvent() { static ll::memory::HookRegistrar<FarmDecayHook> reg; }
+void PistonPushEvent() { static ll::memory::HookRegistrar<PistonPushHook> reg; }
+void ExplodeEvent() { static ll::memory::HookRegistrar<ExplodeHook> reg; }
+void RespawnAnchorExplodeEvent() { ExplodeEvent(); }
+void PortalSpawnEvent() { static ll::memory::HookRegistrar<PortalSpawnHook> reg; }
+void BlockExplodedEvent() { static ll::memory::HookRegistrar<BlockExplodedHook> reg; }
 void RedstoneUpdateEvent() {
-    redstone::RedstoneTorchBlockHook::hook();
-    redstone::RedStoneWireBlockHook::hook();
-    redstone::ComparatorBlockHook::hook();
-    redstone::HopperBlockHook::hook();
-    redstone::CrafterBlockHook::hook();
-    redstone::CommandBlockHook::hook();
-    redstone::BaseRailBlockHook::hook();
-    redstone::PoweredRailBlockHook::hook();
-    redstone::BigDripleafBlockHook::hook();
-    redstone::CopperBulbBlockHook::hook();
-    redstone::DoorBlockHook::hook();
-    redstone::FenceGateBlockHook::hook();
-    redstone::DispenserBlockHook::hook();
-    redstone::StructureBlockHook::hook();
-    redstone::TrapDoorBlockHook::hook();
-    redstone::NoteBlockHook::hook();
-    redstone::ActivatorRailBlockHook::hook();
-    redstone::RedstoneLampBlockHook::hook();
-    redstone::TntBlockHook::hook();
+    static ll::memory::HookRegistrar<
+        redstone::RedstoneTorchBlockHook,
+        redstone::RedStoneWireBlockHook,
+        redstone::ComparatorBlockHook,
+        redstone::HopperBlockHook,
+        redstone::CrafterBlockHook,
+        redstone::CommandBlockHook,
+        redstone::BaseRailBlockHook,
+        redstone::PoweredRailBlockHook,
+        redstone::BigDripleafBlockHook,
+        redstone::CopperBulbBlockHook,
+        redstone::DoorBlockHook,
+        redstone::FenceGateBlockHook,
+        redstone::DispenserBlockHook,
+        redstone::StructureBlockHook,
+        redstone::TrapDoorBlockHook,
+        redstone::NoteBlockHook,
+        redstone::ActivatorRailBlockHook,
+        redstone::RedstoneLampBlockHook,
+        redstone::TntBlockHook>
+        reg;
 }
-void LiquidFlowEvent() { LiquidFlowHook::hook(); }
-void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
-void DispenseItemEvent() { dispenser::DispenserEjectItemHook::hook(); }
+void LiquidFlowEvent() { static ll::memory::HookRegistrar<LiquidFlowHook> reg; }
+void CommandBlockExecuteEvent() { static ll::memory::HookRegistrar<CommandBlockExecuteHook> reg; }
+void DispenseItemEvent() { static ll::memory::HookRegistrar<dispenser::DispenserEjectItemHook> reg; }
 void HopperEvent(bool pullIn) {
-    hopper::HopperAddItemHook::hook();
+    static ll::memory::HookRegistrar<hopper::HopperAddItemHook> reg;
     if (pullIn) {
-        hopper::HopperPullInHook::hook();
+        static ll::memory::HookRegistrar<hopper::HopperPullInHook> reg;
     } else {
-        hopper::HopperPushOutHook::hook();
+        static ll::memory::HookRegistrar<hopper::HopperPushOutHook> reg;
     }
 }
 } // namespace lse::events::block

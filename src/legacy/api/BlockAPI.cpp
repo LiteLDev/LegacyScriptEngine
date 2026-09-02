@@ -18,6 +18,8 @@
 #include "mc/world/level/block/BlockChangeContext.h"
 #include "mc/world/level/block/VanillaBlockTags.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/actor/BlockActorType.h"
+#include "mc/world/level/block/actor/VanillaBlockActor.h"
 #include "mc/world/level/block/block_serialization_utils/BlockSerializationUtils.h"
 #include "mc/world/level/chunk/LevelChunk.h"
 
@@ -307,21 +309,22 @@ Local<Value> BlockClass::setNbt(Arguments const& args) {
         // update Pre Data
         auto result = BlockSerializationUtils::tryGetBlockFromNBT(*nbt, nullptr);
         if (Block const* bl = result.second) {
-            ll::service::getLevel()
-                ->getDimension(blockPos.dim)
-                .lock()
-                ->getBlockSourceFromMainChunkSource()
-                .setBlock(
-                    blockPos.getBlockPos(),
-                    *bl,
-                    3,
-                    nullptr,
-                    nullptr,
-                    BlockChangeContext(StatelessBlockChangeContext::Commands)
-                );
+            if (auto level = ll::service::getLevel()) {
+                if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                    dim->getBlockSourceFromMainChunkSource().setBlock(
+                        blockPos.getBlockPos(),
+                        *bl,
+                        3,
+                        nullptr,
+                        nullptr,
+                        BlockChangeContext(StatelessBlockChangeContext::Commands)
+                    );
+                    preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
+                    return Boolean::newBoolean(true);
+                }
+            }
         }
-        preloadData(blockPos.getBlockPos(), blockPos.getDimensionId());
-        return Boolean::newBoolean(true);
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -342,25 +345,29 @@ Local<Value> BlockClass::getBlockState(Arguments const&) const {
 
 Local<Value> BlockClass::hasContainer(Arguments const&) const {
     try {
-        auto& bl = ll::service::getLevel()
-                       ->getDimension(blockPos.dim)
-                       .lock()
-                       ->getBlockSourceFromMainChunkSource()
-                       .getBlock(blockPos.getBlockPos());
-        return Boolean::newBoolean(bl.getBlockType().isContainerBlock());
+        if (auto level = ll::service::getLevel()) {
+            if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                auto& bl = dim->getBlockSourceFromMainChunkSource().getBlock(blockPos.getBlockPos());
+                return Boolean::newBoolean(bl.getBlockType().isContainerBlock());
+            }
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
 
 Local<Value> BlockClass::getContainer(Arguments const&) const {
     try {
-        Container* container = ll::service::getLevel()
-                                   ->getDimension(blockPos.dim)
-                                   .lock()
-                                   ->getBlockSourceFromMainChunkSource()
-                                   .getBlockEntity(blockPos.getBlockPos())
-                                   ->getContainer();
-        return container ? ContainerClass::newContainer(container) : Local<Value>();
+        if (auto level = ll::service::getLevel()) {
+            if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                auto blockActor = dim->getBlockSourceFromMainChunkSource().getBlockEntity(blockPos.getBlockPos());
+                if (blockActor->mType != BlockActorType::DataDriven) {
+                    auto container = static_cast<VanillaBlockActor*>(blockActor)->getContainer();
+                    return container ? ContainerClass::newContainer(container) : Local<Value>();
+                }
+            }
+        }
+        return {};
     }
     CATCH_AND_THROW
 }
@@ -374,27 +381,30 @@ Local<Value> BlockClass::hasBlockEntity(Arguments const&) const {
 
 Local<Value> BlockClass::getBlockEntity(Arguments const&) const {
     try {
-        BlockActor* be = ll::service::getLevel()
-                             ->getDimension(blockPos.dim)
-                             .lock()
-                             ->getBlockSourceFromMainChunkSource()
-                             .getBlockEntity(blockPos.getBlockPos());
-        return be ? BlockEntityClass::newBlockEntity(be, blockPos.dim) : Local<Value>();
+        if (auto level = ll::service::getLevel()) {
+            if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                BlockActor* be = dim->getBlockSourceFromMainChunkSource().getBlockEntity(blockPos.getBlockPos());
+                return be ? BlockEntityClass::newBlockEntity(be, blockPos.dim) : Local<Value>();
+            }
+        }
+        return {};
     }
     CATCH_AND_THROW
 }
 
 Local<Value> BlockClass::removeBlockEntity(Arguments const&) const {
     try {
-        return Boolean::newBoolean(
-            ll::service::getLevel()
-                ->getDimension(blockPos.dim)
-                .lock()
-                ->getBlockSourceFromMainChunkSource()
-                .getChunkAt(blockPos.getBlockPos())
-                ->removeBlockEntity(blockPos.getBlockPos())
-            != nullptr
-        );
+        if (auto level = ll::service::getLevel()) {
+            if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                return Boolean::newBoolean(
+                    dim->getBlockSourceFromMainChunkSource()
+                        .getChunkAt(blockPos.getBlockPos())
+                        ->removeBlockEntity(blockPos.getBlockPos())
+                    != nullptr
+                );
+            }
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
@@ -406,16 +416,18 @@ Local<Value> BlockClass::destroyBlock(Arguments const& args) const {
     try {
         // same as `Level::getBlockInstance(pos.getBlockPos(),
         // pos.dim).breakNaturally()` when drop
-        BlockSource& bl =
-            ll::service::getLevel()->getDimension(blockPos.dim).lock()->getBlockSourceFromMainChunkSource();
-        return Boolean::newBoolean(
-            ll::service::getLevel()->destroyBlock(
-                bl,
-                blockPos.getBlockPos(),
-                args[0].asBoolean().value(),
-                BlockChangeContext(StatelessBlockChangeContext::Commands)
-            )
-        );
+        if (auto level = ll::service::getLevel()) {
+            if (auto dim = level->getDimension(blockPos.dim).lock()) {
+                BlockSource& bl = dim->getBlockSourceFromMainChunkSource();
+                return Boolean::newBoolean(level->destroyBlock(
+                    bl,
+                    blockPos.getBlockPos(),
+                    args[0].asBoolean().value(),
+                    BlockChangeContext(StatelessBlockChangeContext::Commands)
+                ));
+            }
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }

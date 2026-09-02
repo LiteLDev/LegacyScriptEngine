@@ -4,26 +4,27 @@
 #include "legacy/api/EventAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
-#include "lse/api/helper/BlockHelper.h"
 #include "mc/common/Globals.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
 #include "mc/entity/components_json_legacy/ProjectileComponent.h"
 #include "mc/entity/components_json_legacy/TransformationComponent.h"
+#include "mc/events/MinecraftEventing.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorFactory.h"
 #include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
+#include "mc/world/actor/SpawnChecks.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
 #include "mc/world/actor/boss/WitherBoss.h"
+#include "mc/world/actor/item/FireworksRocketActor.h"
 #include "mc/world/actor/npc/CommandAction.h"
 #include "mc/world/actor/npc/StoredCommand.h"
-#include "mc/world/actor/npc/UrlAction.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/events/ActorEventCoordinator.h"
@@ -34,9 +35,14 @@
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/PortalShape.h"
 #include "mc/world/level/block/PortalBlock.h"
+#include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
+
+#include <optional>
+#include <utility>
 
 namespace lse::events::entity {
 
@@ -86,30 +92,6 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook2,
     HookPriority::Normal,
-    CrossbowItem,
-    &CrossbowItem::_shootFirework,
-    void,
-    ItemInstance const& projectileInstance,
-    Player&             player
-) {
-    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onSpawnProjectile,
-                    EntityClass::newEntity(&player),
-                    String::newString(projectileInstance.getTypeName())
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
-    origin(projectileInstance, player);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    ProjectileSpawnHook3,
-    HookPriority::Normal,
     TridentItem,
     &TridentItem::$releaseUsing,
     void,
@@ -122,7 +104,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onSpawnProjectile,
                     EntityClass::newEntity(player),
-                    String::newString(VanillaActorRendererId::trident().getString())
+                    String::newString(item.getTypeName())
                 )) {
                 return;
             }
@@ -132,30 +114,96 @@ LL_TYPE_INSTANCE_HOOK(
     origin(item, player, durationLeft);
 }
 
-LL_TYPE_STATIC_HOOK(
-    PortalTrySpawnPigZombieHook,
+namespace FireworksRocketSpawn {
+std::pair<Vec3, std::pair<Actor*, HashedString>> currentFirerocketSpawner;
+LL_TYPE_INSTANCE_HOOK(
+    Hook1,
     HookPriority::Normal,
-    PortalBlock,
-    &PortalBlock::trySpawnPigZombie,
+    ActorFactory,
+    &ActorFactory::createSpawnedActor,
+    ::OwnerPtr<::EntityContext>,
+    ::ActorDefinitionIdentifier const& identifier,
+    ::Actor*                           spawner,
+    ::Vec3 const&                      position,
+    ::Vec2 const&                      rotation
+) {
+    currentFirerocketSpawner = {
+        position,
+        {spawner, identifier.mCanonicalName}
+    };
+    return origin(identifier, spawner, position, rotation);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    Hook2,
+    HookPriority::Normal,
+    FireworksRocketActor,
+    &FireworksRocketActor::init,
     void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    PortalAxis      axis
+    ::Level&             level,
+    ::Vec3 const&        playerPos,
+    ::CompoundTag const& rocketUserData,
+    ::Vec3 const&        dir,
+    ::ActorUniqueID      attachedEntity,
+    bool                 isProjectile
+) {
+    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
+        if (isServerThread() && isProjectile) {
+            if (playerPos == currentFirerocketSpawner.first) {
+                if (!CallEvent(
+                        EVENT_TYPES::onSpawnProjectile,
+                        EntityClass::newEntity(currentFirerocketSpawner.second.first),
+                        String::newString(currentFirerocketSpawner.second.second.getString())
+                    )) {
+                    return;
+                }
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
+    origin(level, playerPos, rocketUserData, dir, attachedEntity, isProjectile);
+}
+} // namespace FireworksRocketSpawn
+
+namespace PortalTrySpawnPigZombie {
+std::pair<BlockPos, PortalAxis> currentPortal;
+LL_TYPE_INSTANCE_HOOK(
+    PortalShapeEvalueateHook,
+    HookPriority::Normal,
+    PortalShape,
+    &PortalShape::evaluate,
+    void,
+    ::BlockPos const&    originalPosition,
+    ::BlockSource const& source
+) {
+    currentPortal = {originalPosition, mAxis};
+    origin(originalPosition, source);
+}
+
+LL_TYPE_STATIC_HOOK(
+    PortalCanSpawnPigZombieHook,
+    HookPriority::Normal,
+    SpawnChecks,
+    &SpawnChecks::canSpawnPigZombieFromPortal,
+    bool,
+    ::Dimension const& dimension,
+    ::IRandom&         random
 ) {
     IF_LISTENED(EVENT_TYPES::onPortalTrySpawnPigZombie) {
         if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onPortalTrySpawnPigZombie,
-                    IntPos::newPos(pos, region.getDimensionId()),
-                    Number::newNumber(static_cast<int>(axis))
+                    IntPos::newPos(currentPortal.first, dimension.getDimensionId()),
+                    Number::newNumber(static_cast<int>(currentPortal.second))
                 )) {
-                return;
+                return false;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawnPigZombie);
-    origin(region, pos, axis);
+    return origin(dimension, random);
 }
+} // namespace PortalTrySpawnPigZombie
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
@@ -232,7 +280,7 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onProjectileHitBlock) {
         if (isServerThread()) {
-            auto& region = owner.getDimensionBlockSourceConst();
+            auto& region = owner.getDimensionBlockSource();
             auto& block  = region.getBlock(res.mBlock);
             if (res.mType == HitResultType::Tile && res.mBlock != BlockPos::ZERO() && !block.isAir()) {
                 if (!CallEvent(
@@ -257,8 +305,7 @@ LL_TYPE_INSTANCE_HOOK(
     ActorHurtResult,
     ::ActorDamageSource const& source,
     float                      damage,
-    bool                       knock,
-    bool                       ignite
+    ::HurtParameters const&    hurtParameters
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
         if (isServerThread()) {
@@ -284,50 +331,10 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage, knock, ignite);
+    return origin(source, damage, hurtParameters);
 }
 
-LL_TYPE_INSTANCE_HOOK(
-    MobHurtEffectHook,
-    HookPriority::Normal,
-    Mob,
-    &Mob::getDamageAfterResistanceEffect,
-    float,
-    ::ActorDamageSource const& source,
-    float                      damage
-) {
-    IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        if (isServerThread()) {
-            // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we
-            // just need magic damage.
-            if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
-                || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
-                Actor* damageSource = nullptr;
-                if (source.isEntitySource()) {
-                    if (source.isChildEntitySource()) {
-                        damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
-                    } else {
-                        damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
-                    }
-                }
-
-                if (!CallEvent(
-                        EVENT_TYPES::onMobHurt,
-                        EntityClass::newEntity(this),
-                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                        Number::newNumber(damage < 0.0f ? -damage : damage),
-                        Number::newNumber(static_cast<int>(source.mCause))
-                    )) {
-                    return 0.0f;
-                }
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage);
-}
-
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     NpcCommandHook,
     HookPriority::Normal,
     NpcComponent,
@@ -366,64 +373,55 @@ LL_TYPE_INSTANCE_HOOK(
     origin(owner, sourcePlayer, actionIndex, sceneName);
 }
 
+namespace Transformation {
+std::pair<EntityId, Actor*> currentActor = {{}, nullptr};
 LL_TYPE_INSTANCE_HOOK(
-    EffectUpdateHook,
+    TransformedActorHook,
     HookPriority::Normal,
-    Actor,
-    &Actor::onEffectUpdated,
-    void,
-    MobEffectInstance& effect
+    ActorFactory,
+    &ActorFactory::createTransformedActor,
+    ::OwnerPtr<::EntityContext>,
+    ::ActorDefinitionIdentifier const& identifier,
+    ::Actor*                           from
 ) {
-    IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (isServerThread() && isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectUpdated,
-                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
-                    Number::newNumber(effect.mAmplifier),
-                    Number::newNumber(effect.mDuration->mValue)
-                )) {
-                return;
+    auto context = origin(identifier, from);
+    currentActor = {context->mEntity, from};
+    return context;
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    addEntityHook,
+    HookPriority::Normal,
+    Level,
+    &Level::$addEntity,
+    ::Actor*,
+    ::BlockSource&              region,
+    ::OwnerPtr<::EntityContext> entity
+) {
+    auto newActor = origin(region, entity);
+    IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
+        if (isServerThread() && currentActor.first) {
+            if (currentActor.first == entity->mEntity && currentActor.second) {
+                CallEvent(
+                    EVENT_TYPES::onEntityTransformation,
+                    String::newString(std::to_string(currentActor.second->getOrCreateUniqueID().rawID)),
+                    EntityClass::newEntity(newActor)
+                );
             }
         }
     }
-    IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
-    origin(effect);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    TransformationHook,
-    HookPriority::Normal,
-    TransformationComponent,
-    &TransformationComponent::maintainOldData,
-    void,
-    ::Actor&                           originalActor,
-    ::Actor&                           transformed,
-    ::TransformationDescription const& transformation,
-    ::ActorUniqueID const&             ownerID,
-    ::Level const&                     level
-) {
-    IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
-        if (isServerThread()) {
-            CallEvent(
-                EVENT_TYPES::onEntityTransformation,
-                String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
-                EntityClass::newEntity(&transformed)
-            );
-        }
-    }
     IF_LISTENED_END(EVENT_TYPES::onEntityTransformation);
-
-    origin(originalActor, transformed, transformation, ownerID, level);
+    return newActor;
 }
+} // namespace Transformation
 
 LL_TYPE_INSTANCE_HOOK(
     EndermanTakeBlockHook,
     HookPriority::Normal,
     ActorEventCoordinator,
     &ActorEventCoordinator::sendEvent,
-    CoordinatorResult,
-    EventRef<ActorGameplayEvent<CoordinatorResult>> const& event
+    void,
+    EventRef<ActorGameplayEvent<void>> const& event
 ) {
 
     IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
@@ -449,7 +447,7 @@ LL_TYPE_INSTANCE_HOOK(
                 }
                 return false;
             });
-            if (canceled) return CoordinatorResult::Cancel;
+            if (canceled) return;
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
@@ -458,22 +456,28 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 void ProjectileSpawnEvent() {
-    ProjectileSpawnHook1::hook();
-    ProjectileSpawnHook2::hook();
-    ProjectileSpawnHook3::hook();
+    static ll::memory::HookRegistrar<
+        ProjectileSpawnHook1,
+        ProjectileSpawnHook2,
+        FireworksRocketSpawn::Hook1,
+        FireworksRocketSpawn::Hook2>
+        reg;
 };
-void PortalTrySpawnPigZombieEvent() { PortalTrySpawnPigZombieHook::hook(); }
-void ProjectileCreatedEvent() { ProjectileSpawnHook1::hook(); };
-void ActorRideEvent() { ActorRideHook::hook(); }
-void WitherDestroyEvent() { WitherDestroyHook::hook(); }
-void ProjectileHitEntityEvent() { ProjectileHitEntityHook::hook(); }
-void ProjectileHitBlockEvent() { ProjectileHitBlockHook::hook(); }
-void MobHurtEvent() {
-    MobHurtHook::hook();
-    MobHurtEffectHook::hook();
+void PortalTrySpawnPigZombieEvent() {
+    static ll::memory::HookRegistrar<
+        PortalTrySpawnPigZombie::PortalShapeEvalueateHook,
+        PortalTrySpawnPigZombie::PortalCanSpawnPigZombieHook>
+        reg;
 }
-void NpcCommandEvent() { NpcCommandHook::hook(); }
-void EndermanTakeBlockEvent() { EndermanTakeBlockHook::hook(); }
-void EffectUpdateEvent() { EffectUpdateHook::hook(); }
-void TransformationEvent() { TransformationHook::hook(); }
+void ProjectileCreatedEvent() { static ll::memory::HookRegistrar<ProjectileSpawnHook1> reg; };
+void ActorRideEvent() { static ll::memory::HookRegistrar<ActorRideHook> reg; }
+void WitherDestroyEvent() { static ll::memory::HookRegistrar<WitherDestroyHook> reg; }
+void ProjectileHitEntityEvent() { static ll::memory::HookRegistrar<ProjectileHitEntityHook> reg; }
+void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitBlockHook> reg; }
+void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook> reg; }
+void NpcCommandEvent() { static ll::memory::HookRegistrar<NpcCommandHook> reg; }
+void EndermanTakeBlockEvent() { static ll::memory::HookRegistrar<EndermanTakeBlockHook> reg; }
+void TransformationEvent() {
+    static ll::memory::HookRegistrar<Transformation::addEntityHook, Transformation::TransformedActorHook> reg;
+}
 } // namespace lse::events::entity

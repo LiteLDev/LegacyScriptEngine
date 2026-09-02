@@ -28,7 +28,7 @@ ClassDefine<PacketClass> PacketClassBuilder = defineClass<PacketClass>("LLSE_Pac
                                                   .instanceFunction("sendTo", &PacketClass::sendTo)
                                                   .instanceFunction("sendToClients", &PacketClass::sendToClients)
                                                   .instanceFunction("sendToServer", &PacketClass::sendToServer)
-                                                  
+
                                                   .function("createPacket", &PacketClass::createPacket)
 
                                                   .build();

@@ -6,7 +6,6 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
 #include "mc/legacy/ActorUniqueID.h"
@@ -17,6 +16,7 @@
 #include "mc/world/actor/Hopper.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
+#include "mc/world/item/Item.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Explosion.h"
@@ -46,12 +46,14 @@
 #include "mc/world/level/block/StructureBlock.h"
 #include "mc/world/level/block/TntBlock.h"
 #include "mc/world/level/block/TrapDoorBlock.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
+#include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
+#include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/block/block_events/BlockRedstoneUpdateEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
-
 namespace lse::events::block {
 
 using api::thread::isServerThread;
@@ -245,30 +247,37 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::
     return origin(random);
 }
 
-LL_TYPE_STATIC_HOOK(
-    RespawnAnchorExplodeHook,
+LL_TYPE_INSTANCE_HOOK(
+    UseRespawnAnchorHook,
     HookPriority::Normal,
     RespawnAnchorBlock,
-    &RespawnAnchorBlock::_explode,
+    &RespawnAnchorBlock::use,
     void,
-    Player&         player,
-    BlockPos const& pos,
-    BlockSource&    region,
-    Level&          level
+    ::BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
         if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onRespawnAnchorExplode,
-                    IntPos::newPos(pos, region.getDimensionId()),
-                    PlayerClass::newPlayer(&player)
-                )) {
-                return;
+            // 原版逻辑：手持萤石且未满时 _tryCharge 会优先充能并短路，不会爆炸；
+            // 充能大于 0 且不在下界（维度 1）时 _trySetSpawn 才会调用 _explode 引爆
+            auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
+            int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
+            auto& item          = eventData.mPlayer.getSelectedItem();
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
+                            && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
+            if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() != 1) {
+                if (!CallEvent(
+                        EVENT_TYPES::onRespawnAnchorExplode,
+                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId()),
+                        PlayerClass::newPlayer(&eventData.mPlayer)
+                    )) {
+                    return;
+                }
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
-    origin(player, pos, region, level);
+    origin(eventData);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -408,11 +417,7 @@ REDSTONE_EVNET_HOOK_2(ComparatorBlock)
 
 } // namespace redstone
 
-bool materialsAreEqual(Material const& a, Material const& b) {
-    return a.mType == b.mType && a.mNeverBuildable == b.mNeverBuildable && a.mLiquid == b.mLiquid
-        && a.mBlocksMotion == b.mBlocksMotion && a.mBlocksPrecipitation == b.mBlocksPrecipitation
-        && a.mSolid == b.mSolid && a.mSuperHot == b.mSuperHot;
-}
+bool materialsAreEqual(Material const& a, Material const& b) { return a.mType == b.mType; }
 
 bool liquidBlockCanSpreadTo(
     LiquidBlock const& liquidBlock,
@@ -421,13 +426,13 @@ bool liquidBlockCanSpreadTo(
     BlockPos const&    flowFromPos,
     uchar              flowFromDirection
 ) {
-    if (pos.y < region.getMinHeight()) {
+    if (pos.y < region.getMinHeight() || !region.hasBlock(pos)) {
         return false;
     }
     if (auto const& block = region.getLiquidBlock(pos);
         materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
         || block.getBlockType().mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Lava
-        || liquidBlock._isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
+        || LiquidBlock::_isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
         return false;
     }
     return true;
@@ -498,7 +503,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 namespace dispenser {
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     DispenserEjectItemHook,
     HookPriority::Normal,
     DispenserBlock,
@@ -614,45 +619,47 @@ LL_TYPE_INSTANCE_HOOK(
 }
 } // namespace hopper
 
-void ContainerChangeEvent() { ContainerChangeHook::hook(); }
-void ArmorStandSwapItemEvent() { ArmorStandSwapItemHook::hook(); }
-void PressurePlateTriggerEvent() { PressurePlateTriggerHook::hook(); }
-void FarmDecayEvent() { FarmDecayHook::hook(); }
-void PistonPushEvent() { PistonPushHook::hook(); }
-void ExplodeEvent() { ExplodeHook::hook(); }
-void RespawnAnchorExplodeEvent() { RespawnAnchorExplodeHook::hook(); }
-void PortalSpawnEvent() { PortalSpawnHook::hook(); }
-void BlockExplodedEvent() { BlockExplodedHook ::hook(); }
+void ContainerChangeEvent() { static ll::memory::HookRegistrar<ContainerChangeHook> reg; }
+void ArmorStandSwapItemEvent() { static ll::memory::HookRegistrar<ArmorStandSwapItemHook> reg; }
+void PressurePlateTriggerEvent() { static ll::memory::HookRegistrar<PressurePlateTriggerHook> reg; }
+void FarmDecayEvent() { static ll::memory::HookRegistrar<FarmDecayHook> reg; }
+void PistonPushEvent() { static ll::memory::HookRegistrar<PistonPushHook> reg; }
+void ExplodeEvent() { static ll::memory::HookRegistrar<ExplodeHook> reg; }
+void RespawnAnchorExplodeEvent() { static ll::memory::HookRegistrar<UseRespawnAnchorHook> reg; }
+void PortalSpawnEvent() { static ll::memory::HookRegistrar<PortalSpawnHook> reg; }
+void BlockExplodedEvent() { static ll::memory::HookRegistrar<BlockExplodedHook> reg; }
 void RedstoneUpdateEvent() {
-    redstone::RedstoneTorchBlockHook::hook();
-    redstone::RedStoneWireBlockHook::hook();
-    redstone::ComparatorBlockHook::hook();
-    redstone::HopperBlockHook::hook();
-    redstone::CrafterBlockHook::hook();
-    redstone::CommandBlockHook::hook();
-    redstone::BaseRailBlockHook::hook();
-    redstone::PoweredRailBlockHook::hook();
-    redstone::BigDripleafBlockHook::hook();
-    redstone::CopperBulbBlockHook::hook();
-    redstone::DoorBlockHook::hook();
-    redstone::FenceGateBlockHook::hook();
-    redstone::DispenserBlockHook::hook();
-    redstone::StructureBlockHook::hook();
-    redstone::TrapDoorBlockHook::hook();
-    redstone::NoteBlockHook::hook();
-    redstone::ActivatorRailBlockHook::hook();
-    redstone::RedstoneLampBlockHook::hook();
-    redstone::TntBlockHook::hook();
+    static ll::memory::HookRegistrar<
+        redstone::RedstoneTorchBlockHook,
+        redstone::RedStoneWireBlockHook,
+        redstone::ComparatorBlockHook,
+        redstone::HopperBlockHook,
+        redstone::CrafterBlockHook,
+        redstone::CommandBlockHook,
+        redstone::BaseRailBlockHook,
+        redstone::PoweredRailBlockHook,
+        redstone::BigDripleafBlockHook,
+        redstone::CopperBulbBlockHook,
+        redstone::DoorBlockHook,
+        redstone::FenceGateBlockHook,
+        redstone::DispenserBlockHook,
+        redstone::StructureBlockHook,
+        redstone::TrapDoorBlockHook,
+        redstone::NoteBlockHook,
+        redstone::ActivatorRailBlockHook,
+        redstone::RedstoneLampBlockHook,
+        redstone::TntBlockHook>
+        reg;
 }
-void LiquidFlowEvent() { LiquidFlowHook::hook(); }
-void CommandBlockExecuteEvent() { CommandBlockExecuteHook::hook(); }
-void DispenseItemEvent() { dispenser::DispenserEjectItemHook::hook(); }
+void LiquidFlowEvent() { static ll::memory::HookRegistrar<LiquidFlowHook> reg; }
+void CommandBlockExecuteEvent() { static ll::memory::HookRegistrar<CommandBlockExecuteHook> reg; }
+void DispenseItemEvent() { static ll::memory::HookRegistrar<dispenser::DispenserEjectItemHook> reg; }
 void HopperEvent(bool pullIn) {
-    hopper::HopperAddItemHook::hook();
+    static ll::memory::HookRegistrar<hopper::HopperAddItemHook> reg;
     if (pullIn) {
-        hopper::HopperPullInHook::hook();
+        static ll::memory::HookRegistrar<hopper::HopperPullInHook> reg;
     } else {
-        hopper::HopperPushOutHook::hook();
+        static ll::memory::HookRegistrar<hopper::HopperPushOutHook> reg;
     }
 }
 } // namespace lse::events::block

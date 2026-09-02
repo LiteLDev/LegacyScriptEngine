@@ -42,5 +42,5 @@ LL_TYPE_INSTANCE_HOOK(
     origin(id, obj);
 }
 
-void ScoreChangedEvent() { ScoreChangedHook::hook(); }
+void ScoreChangedEvent() { static ll::memory::HookRegistrar<ScoreChangedHook> reg; }
 } // namespace lse::events::other

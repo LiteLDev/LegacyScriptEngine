@@ -5,10 +5,7 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/McAPI.h"
 #include "legacy/api/PlayerAPI.h"
-#include "legacy/engine/EngineOwnData.h"
-#include "legacy/engine/GlobalShareData.h"
 #include "ll/api/service/Bedrock.h"
-#include "lse/api/helper/SimulatedPlayerHelper.h"
 #include "mc/network/ServerNetworkHandler.h"
 #include "mc/scripting/modules/gametest/ScriptNavigationResult.h"
 #include "mc/server/SimulatedPlayer.h"
@@ -21,7 +18,6 @@
 #include <string>
 #include <vector>
 
-using lse::api::SimulatedPlayerHelper;
 
 Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -171,10 +167,10 @@ Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
             return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()).mSuccess);
         }
 
-        int                                 dimid = sp->getDimensionId();
-        BlockPos                            bpos;
-        size_t                              index = 0;
-        ScriptModuleMinecraft::ScriptFacing face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
+        int      dimid = sp->getDimensionId();
+        BlockPos bpos;
+        size_t   index = 0;
+        auto     face  = static_cast<ScriptModuleMinecraft::ScriptFacing>(0);
         if (IsInstanceOf<IntPos>(args[0])) {
             auto pos = IntPos::extractPos(args[index]);
             if (dimid != pos->getDimensionId()) return Boolean::newBoolean(false);
@@ -533,7 +529,7 @@ Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
             throw WrongArgTypeException(__FUNCTION__);
         }
         if (args.size() == 1) {
-            if (item) return Boolean::newBoolean(SimulatedPlayerHelper::simulateUseItem(*sp, *item));
+            if (item) return Boolean::newBoolean(sp->simulateUseItem(*item));
             return Boolean::newBoolean(sp->simulateUseItemInSlot(slot));
         }
 
@@ -557,9 +553,7 @@ Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
             }
         }
         if (item) return Boolean::newBoolean(sp->simulateUseItemOnBlock(*item, bpos, face, relativePos));
-        return Boolean::newBoolean(
-            SimulatedPlayerHelper::simulateUseItemInSlotOnBlock(*sp, slot, bpos, face, relativePos)
-        );
+        return Boolean::newBoolean(sp->simulateUseItemInSlotOnBlock(slot, bpos, face, relativePos));
     }
     CATCH_AND_THROW
 };

@@ -11,6 +11,8 @@
 #include "mc/world/item/SaveContextFactory.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/block/actor/BlockActor.h"
+#include "mc/world/level/block/actor/BlockActorType.h"
+#include "mc/world/level/block/actor/VanillaBlockActor.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 //////////////////// Class Definition ////////////////////
@@ -59,7 +61,11 @@ Local<Value> BlockEntityClass::getPos() const {
 
 Local<Value> BlockEntityClass::getName() const {
     try {
-        return String::newString(blockEntity->getName());
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor = static_cast<VanillaBlockActor*>(blockEntity);
+            return String::newString(blockActor->getName());
+        }
+        return String::newString("");
     }
     CATCH_AND_THROW
 }
@@ -125,15 +131,23 @@ Local<Value> BlockEntityClass::setCustomName(Arguments const& args) const {
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
 
     try {
-        blockEntity->setCustomName({args[0].asString().toString(), std::nullopt});
-        return Boolean::newBoolean(true);
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor         = static_cast<VanillaBlockActor*>(blockEntity);
+            blockActor->mCustomName = args[0].asString().toString();
+            return Boolean::newBoolean(true);
+        }
+        return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
 }
 
 Local<Value> BlockEntityClass::getCustomName() const {
     try {
-        return String::newString(blockEntity->getCustomName().mUnredactedString);
+        if (blockEntity->mType != BlockActorType::DataDriven) {
+            auto blockActor = static_cast<VanillaBlockActor*>(blockEntity);
+            return String::newString(blockActor->mCustomName->mUnredactedString);
+        }
+        return String::newString("");
     }
     CATCH_AND_THROW
 }

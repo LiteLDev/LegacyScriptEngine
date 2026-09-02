@@ -92,9 +92,6 @@ export const events = [
   "beforeMoneyTrans",
   "beforeMoneySet",
   /* Outdated Events */
-  "onAttack",
-  "onExplode",
-  "onBedExplode",
   "onMobSpawn",
 ];
 

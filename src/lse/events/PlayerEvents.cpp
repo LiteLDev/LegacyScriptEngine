@@ -5,7 +5,6 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
@@ -25,7 +24,7 @@
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/gamemode/InteractionResult.h"
-#include "mc/world/inventory/network/ItemStackNetManagerBase.h"
+#include "mc/world/inventory/network/ItemStackNetManagerServer.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
@@ -41,9 +40,12 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/RespawnAnchorBlock.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
+#include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/world/level/material/Material.h"
 
 namespace lse::events::player {
 
@@ -90,7 +92,7 @@ LL_TYPE_INSTANCE_HOOK(
                 ContainerID::Inventory,
                 InventorySource::InventorySourceFlags::NoFlag
             };
-            auto& actions = mTransaction->getActions(source);
+            auto& actions = mTransaction->mActions->at(source);
             if (actions.size() == 1) {
                 if (!CallEvent(
                         EVENT_TYPES::onDropItem,
@@ -310,8 +312,7 @@ LL_TYPE_INSTANCE_HOOK(EatHook, HookPriority::Normal, Player, &Player::completeUs
     IF_LISTENED(EVENT_TYPES::onAte) {
         if (isServerThread()) {
             std::set<std::string> const item_names{"minecraft:potion", "minecraft:milk_bucket", "minecraft:medicine"};
-            auto                        checked =
-                mItemInUse->mItem->getItem()->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
+            auto checked = mItemInUse->mItem->mItem->isFood() || item_names.contains(mItemInUse->mItem->getTypeName());
             if (checked
                 && !CallEvent(
                     EVENT_TYPES::onAte,
@@ -354,8 +355,8 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     OpenContainerScreenHook,
     HookPriority::Normal,
-    ItemStackNetManagerBase,
-    &ItemStackNetManagerBase::$onContainerScreenOpen,
+    ItemStackNetManagerServer,
+    &ItemStackNetManagerServer::$onContainerScreenOpen,
     void,
     ContainerScreenContext const& screenContext
 ) {
@@ -370,30 +371,39 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(screenContext);
 }
 
-LL_TYPE_STATIC_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     UseRespawnAnchorHook,
     HookPriority::Normal,
     RespawnAnchorBlock,
-    &RespawnAnchorBlock::_trySetSpawn,
-    bool,
-    Player&         player,
-    BlockPos const& pos,
-    BlockSource&    region,
-    class Level&    level
+    &RespawnAnchorBlock::use,
+    void,
+    ::BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
         if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onUseRespawnAnchor,
-                    PlayerClass::newPlayer(&player),
-                    IntPos::newPos(pos, region.getDimensionId())
-                )) {
-                return false;
+            // 原版逻辑：手持萤石且未满时 _tryCharge 会优先充能并短路；
+            // 充能大于 0 且位于下界（维度 1）时 _trySetSpawn 才会设置重生点，重生点已是此锚时无事发生
+            auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
+            int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
+            auto& item          = eventData.mPlayer.getSelectedItem();
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
+                            && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
+            auto& spawnPoint = eventData.mPlayer.mPlayerRespawnPoint;
+            if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() == 1
+                && !(spawnPoint->mDimension->mValue == 1 && *spawnPoint->mSpawnBlockPos == *eventData.mPos)) {
+                if (!CallEvent(
+                        EVENT_TYPES::onUseRespawnAnchor,
+                        PlayerClass::newPlayer(&eventData.mPlayer),
+                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
+                    )) {
+                    return;
+                }
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseRespawnAnchor);
-    return origin(player, pos, region, level);
+    origin(eventData);
 }
 
 LL_TYPE_INSTANCE_HOOK(
@@ -489,59 +499,41 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    UseBucketTakeHook1,
+    UseBucketTakeHook,
     HookPriority::Normal,
     BucketItem,
-    &BucketItem::_takeLiquid,
-    bool,
-    ItemStack&      item,
-    Actor&          entity,
-    BlockPos const& pos
+    &BucketItem::$_useOn,
+    InteractionResult,
+    ::ItemStack&  instance,
+    ::Actor&      entity,
+    ::BlockPos    pos,
+    uchar         face,
+    ::Vec3 const& clickPos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
         if (isServerThread()) {
+            auto& bs = entity.getDimensionBlockSource();
+            using ::SharedTypes::v1_26_20::MaterialType;
+            if (auto& type = bs.getMaterial(pos).mType; type != MaterialType::Water && type != MaterialType::Lava) {
+                if (auto& bl = bs.getBlock(pos).mBlockType;
+                    *bl->mNameInfo->mFullName != VanillaBlockTypeIds::PowderSnow()) {
+                    return origin(instance, entity, pos, face, clickPos);
+                }
+            }
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-                    ItemClass::newItem(&item),
+                    ItemClass::newItem(&instance),
                     BlockClass::newBlock(pos, entity.getDimensionId()),
                     Number::newNumber(-1),
                     FloatPos::newPos(pos, entity.getDimensionId())
                 )) {
-                return false;
+                return InteractionResult{false, true};
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-    return origin(item, entity, pos);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    UseBucketTakeHook2,
-    HookPriority::Normal,
-    BucketItem,
-    &BucketItem::_takePowderSnow,
-    bool,
-    ItemStack&      item,
-    Actor&          entity,
-    BlockPos const& pos
-) {
-    IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onUseBucketTake,
-                    PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-                    ItemClass::newItem(&item),
-                    BlockClass::newBlock(pos, entity.getDimensionId()),
-                    Number::newNumber(-1),
-                    FloatPos::newPos(pos, entity.getDimensionId())
-                )) {
-                return false;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-    return origin(item, entity, pos);
+    return origin(instance, entity, pos, face, clickPos);
 }
 
 LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
@@ -617,14 +609,26 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectAdded) {
         if (isServerThread() && isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectAdded,
-                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
-                    Number::newNumber(effect.mAmplifier),
-                    Number::newNumber(effect.mDuration->mValue)
-                )) {
-                return;
+            if (getEffect(effect.mId)) {
+                if (!CallEvent(
+                        EVENT_TYPES::onEffectUpdated,
+                        PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        Number::newNumber(effect.mAmplifier),
+                        Number::newNumber(effect.mDuration->mValue)
+                    )) {
+                    return;
+                }
+            } else {
+                if (!CallEvent(
+                        EVENT_TYPES::onEffectAdded,
+                        PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        Number::newNumber(effect.mAmplifier),
+                        Number::newNumber(effect.mDuration->mValue)
+                    )) {
+                    return;
+                }
             }
         }
     }
@@ -666,7 +670,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar               face,
     std::optional<Vec3> hit
 ) {
-    if (!isServerThread() || (!isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
+    if (!isServerThread() || (!mBlockType->isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
         return origin(player, pos, face, hit); // 提前把不可交互方块过滤掉
     }
     IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
@@ -687,38 +691,27 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(player, pos, face, hit);
 }
 
-void StartDestroyBlock() { StartDestroyBlockHook::hook(); }
-void DropItem() {
-    DropItemHook1::hook();
-    DropItemHook2::hook();
-}
-void OpenContainerEvent() { OpenContainerHook::hook(); }
-void CloseContainerEvent() {
-    CloseContainerHook1::hook();
-    CloseContainerHook2::hook();
-}
-void ChangeSlotEvent() { ChangeSlotHook::hook(); }
-void AttackBlockEvent() { StartDestroyBlockHook::hook(); }
-void UseFrameEvent() {
-    UseFrameHook1::hook();
-    UseFrameHook2::hook();
-}
-void EatEvent() { EatHook::hook(); }
-void ChangeDimensionEvent() { ChangeDimensionHook::hook(); };
-void OpenContainerScreenEvent() { OpenContainerScreenHook::hook(); }
-void UseRespawnAnchorEvent() { UseRespawnAnchorHook::hook(); }
-void SleepEvent() { SleepHook::hook(); }
-void OpenInventoryEvent() { OpenInventoryHook::hook(); }
-void PullFishingHookEvent() { PullFishingHook::hook(); }
-void UseBucketPlaceEvent() { UseBucketPlaceHook::hook(); }
-void UseBucketTakeEvent() {
-    UseBucketTakeHook1::hook();
-    UseBucketTakeHook2::hook();
-}
-void ConsumeTotemEvent() { ConsumeTotemHook::hook(); }
-void SetArmorEvent() { SetArmorHook::hook(); }
-void InteractEntityEvent() { InteractEntityHook::hook(); }
-void AddEffectEvent() { AddEffectHook::hook(); }
-void RemoveEffectEvent() { RemoveEffectHook::hook(); }
-void BlockInteractedEvent() { BlockInteractedHook::hook(); }
+void StartDestroyBlock() { static ll::memory::HookRegistrar<StartDestroyBlockHook> reg; }
+void DropItem() { static ll::memory::HookRegistrar<DropItemHook1, DropItemHook2> reg; }
+void OpenContainerEvent() { static ll::memory::HookRegistrar<OpenContainerHook> reg; }
+void CloseContainerEvent() { static ll::memory::HookRegistrar<CloseContainerHook1, CloseContainerHook2> reg; }
+void ChangeSlotEvent() { static ll::memory::HookRegistrar<ChangeSlotHook> reg; }
+void AttackBlockEvent() { static ll::memory::HookRegistrar<StartDestroyBlockHook> reg; }
+void UseFrameEvent() { static ll::memory::HookRegistrar<UseFrameHook1, UseFrameHook2> reg; }
+void EatEvent() { static ll::memory::HookRegistrar<EatHook> reg; }
+void ChangeDimensionEvent() { static ll::memory::HookRegistrar<ChangeDimensionHook> reg; };
+void OpenContainerScreenEvent() { static ll::memory::HookRegistrar<OpenContainerScreenHook> reg; }
+void UseRespawnAnchorEvent() { static ll::memory::HookRegistrar<UseRespawnAnchorHook> reg; }
+void SleepEvent() { static ll::memory::HookRegistrar<SleepHook> reg; }
+void OpenInventoryEvent() { static ll::memory::HookRegistrar<OpenInventoryHook> reg; }
+void PullFishingHookEvent() { static ll::memory::HookRegistrar<PullFishingHook> reg; }
+void UseBucketPlaceEvent() { static ll::memory::HookRegistrar<UseBucketPlaceHook> reg; }
+void UseBucketTakeEvent() { static ll::memory::HookRegistrar<UseBucketTakeHook> reg; }
+void ConsumeTotemEvent() { static ll::memory::HookRegistrar<ConsumeTotemHook> reg; }
+void SetArmorEvent() { static ll::memory::HookRegistrar<SetArmorHook> reg; }
+void InteractEntityEvent() { static ll::memory::HookRegistrar<InteractEntityHook> reg; }
+void AddEffectEvent() { static ll::memory::HookRegistrar<AddEffectHook> reg; }
+void RemoveEffectEvent() { static ll::memory::HookRegistrar<RemoveEffectHook> reg; }
+void BlockInteractedEvent() { static ll::memory::HookRegistrar<BlockInteractedHook> reg; }
+void EffectUpdateEvent() { AddEffectEvent(); }
 } // namespace lse::events::player

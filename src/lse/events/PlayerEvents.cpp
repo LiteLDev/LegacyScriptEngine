@@ -5,7 +5,6 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
 #include "mc/deps/ecs/WeakEntityRef.h"
@@ -41,6 +40,7 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/RespawnAnchorBlock.h"
+#include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -369,30 +369,34 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(screenContext);
 }
 
-LL_TYPE_STATIC_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     UseRespawnAnchorHook,
     HookPriority::Normal,
     RespawnAnchorBlock,
-    &RespawnAnchorBlock::_trySetSpawn,
-    bool,
-    Player&         player,
-    BlockPos const& pos,
-    BlockSource&    region,
-    class Level&    level
+    &RespawnAnchorBlock::use,
+    void,
+    ::BlockEvents::BlockPlayerInteractEvent& eventData
 ) {
     IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
         if (isServerThread()) {
+            auto state = _tryLookupAlteredStateCollection(
+                VanillaStates::RespawnAnchorCharge().mID,
+                eventData.getBlock().getData()
+            );
+            if (!state.has_value() && state.value() <= 0) {
+                return origin(eventData);
+            }
             if (!CallEvent(
                     EVENT_TYPES::onUseRespawnAnchor,
-                    PlayerClass::newPlayer(&player),
-                    IntPos::newPos(pos, region.getDimensionId())
+                    PlayerClass::newPlayer(&eventData.mPlayer),
+                    IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
                 )) {
-                return false;
+                return;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseRespawnAnchor);
-    return origin(player, pos, region, level);
+    origin(eventData);
 }
 
 LL_TYPE_INSTANCE_HOOK(

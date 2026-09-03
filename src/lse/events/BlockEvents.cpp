@@ -6,7 +6,6 @@
 #include "legacy/api/ItemAPI.h"
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
-#include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
 #include "mc/legacy/ActorUniqueID.h"
@@ -46,9 +45,10 @@
 #include "mc/world/level/block/StructureBlock.h"
 #include "mc/world/level/block/TntBlock.h"
 #include "mc/world/level/block/TrapDoorBlock.h"
-#include "mc/world/level/block/VanillaBlockTypeIds.h"
+#include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
+#include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/block/block_events/BlockRedstoneUpdateEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
@@ -243,18 +243,35 @@ LL_TYPE_INSTANCE_HOOK(ExplodeHook, HookPriority::Normal, Explosion, &Explosion::
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockExplode);
+    return origin(random);
+}
 
+LL_TYPE_INSTANCE_HOOK(
+    UseRespawnAnchorHook,
+    HookPriority::Normal,
+    RespawnAnchorBlock,
+    &RespawnAnchorBlock::use,
+    void,
+    ::BlockEvents::BlockPlayerInteractEvent& eventData
+) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
-        // TODO: find a function which can get player
-        if (isServerThread()
-            && *mRegion.getBlock(*mPos).getBlockType().mNameInfo->mFullName == VanillaBlockTypeIds::RespawnAnchor()) {
-            if (!CallEvent(EVENT_TYPES::onRespawnAnchorExplode, IntPos::newPos(*mPos, mRegion.getDimensionId()))) {
-                return false;
+        if (isServerThread()) {
+            auto state = _tryLookupAlteredStateCollection(
+                VanillaStates::RespawnAnchorCharge().mID,
+                eventData.getBlock().getData()
+            );
+            if (state.has_value() && state.value() > 1) {
+                if (!CallEvent(
+                        EVENT_TYPES::onRespawnAnchorExplode,
+                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
+                    )) {
+                    return;
+                }
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onRespawnAnchorExplode);
-    return origin(random);
+    origin(eventData);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -606,7 +623,7 @@ void PressurePlateTriggerEvent() { static ll::memory::HookRegistrar<PressurePlat
 void FarmDecayEvent() { static ll::memory::HookRegistrar<FarmDecayHook> reg; }
 void PistonPushEvent() { static ll::memory::HookRegistrar<PistonPushHook> reg; }
 void ExplodeEvent() { static ll::memory::HookRegistrar<ExplodeHook> reg; }
-void RespawnAnchorExplodeEvent() { ExplodeEvent(); }
+void RespawnAnchorExplodeEvent() { static ll::memory::HookRegistrar<UseRespawnAnchorHook> reg; }
 void PortalSpawnEvent() { static ll::memory::HookRegistrar<PortalSpawnHook> reg; }
 void BlockExplodedEvent() { static ll::memory::HookRegistrar<BlockExplodedHook> reg; }
 void RedstoneUpdateEvent() {

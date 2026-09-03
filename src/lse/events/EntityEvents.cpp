@@ -16,11 +16,13 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
+#include "mc/world/actor/ActorFactory.h"
 #include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
 #include "mc/world/actor/boss/WitherBoss.h"
+#include "mc/world/actor/item/FireworksRocketActor.h"
 #include "mc/world/actor/npc/CommandAction.h"
 #include "mc/world/actor/npc/StoredCommand.h"
 #include "mc/world/actor/npc/UrlAction.h"
@@ -37,6 +39,8 @@
 #include "mc/world/level/block/PortalBlock.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
+
+#include <utility>
 
 namespace lse::events::entity {
 
@@ -86,30 +90,6 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     ProjectileSpawnHook2,
     HookPriority::Normal,
-    CrossbowItem,
-    &CrossbowItem::_shootFirework,
-    void,
-    ItemInstance const& projectileInstance,
-    Player&             player
-) {
-    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onSpawnProjectile,
-                    EntityClass::newEntity(&player),
-                    String::newString(projectileInstance.getTypeName())
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
-    origin(projectileInstance, player);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    ProjectileSpawnHook3,
-    HookPriority::Normal,
     TridentItem,
     &TridentItem::$releaseUsing,
     void,
@@ -122,7 +102,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onSpawnProjectile,
                     EntityClass::newEntity(player),
-                    String::newString(VanillaActorRendererId::trident().getString())
+                    String::newString(item.getTypeName())
                 )) {
                 return;
             }
@@ -130,6 +110,56 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(item, player, durationLeft);
+}
+
+std::pair<Vec3, std::pair<Actor*, HashedString>> currentFirerocketSpawner;
+
+LL_TYPE_INSTANCE_HOOK(
+    FireworksRocketSpawnHook1,
+    HookPriority::Normal,
+    ActorFactory,
+    &ActorFactory::createSpawnedActor,
+    ::OwnerPtr<::EntityContext>,
+    ::ActorDefinitionIdentifier const& identifier,
+    ::Actor*                           spawner,
+    ::Vec3 const&                      position,
+    ::Vec2 const&                      rotation
+) {
+    currentFirerocketSpawner = {
+        position,
+        {spawner, identifier.mCanonicalName}
+    };
+    return origin(identifier, spawner, position, rotation);
+}
+
+LL_TYPE_INSTANCE_HOOK(
+    FireworksRocketSpawnHook2,
+    HookPriority::Normal,
+    FireworksRocketActor,
+    &FireworksRocketActor::init,
+    void,
+    ::Level&             level,
+    ::Vec3 const&        playerPos,
+    ::CompoundTag const& rocketUserData,
+    ::Vec3 const&        dir,
+    ::ActorUniqueID      attachedEntity,
+    bool                 isProjectile
+) {
+    IF_LISTENED(EVENT_TYPES::onSpawnProjectile) {
+        if (isServerThread() && isProjectile) {
+            if (playerPos == currentFirerocketSpawner.first) {
+                if (!CallEvent(
+                        EVENT_TYPES::onSpawnProjectile,
+                        EntityClass::newEntity(currentFirerocketSpawner.second.first),
+                        String::newString(currentFirerocketSpawner.second.second.getString())
+                    )) {
+                    return;
+                }
+            }
+        }
+    }
+    IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
+    origin(level, playerPos, rocketUserData, dir, attachedEntity, isProjectile);
 }
 
 LL_TYPE_STATIC_HOOK(
@@ -457,7 +487,9 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 void ProjectileSpawnEvent() {
-    static ll::memory::HookRegistrar<ProjectileSpawnHook1, ProjectileSpawnHook2, ProjectileSpawnHook3> reg;
+    static ll::memory::
+        HookRegistrar<ProjectileSpawnHook1, ProjectileSpawnHook2, FireworksRocketSpawnHook1, FireworksRocketSpawnHook2>
+            reg;
 };
 void PortalTrySpawnPigZombieEvent() { static ll::memory::HookRegistrar<PortalTrySpawnPigZombieHook> reg; }
 void ProjectileCreatedEvent() { static ll::memory::HookRegistrar<ProjectileSpawnHook1> reg; };

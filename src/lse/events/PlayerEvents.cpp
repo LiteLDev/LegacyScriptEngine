@@ -40,10 +40,12 @@
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/ItemFrameBlock.h"
 #include "mc/world/level/block/RespawnAnchorBlock.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
 #include "mc/world/level/block/block_events/BlockPlayerInteractEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
+#include "mc/world/level/material/Material.h"
 
 namespace lse::events::player {
 
@@ -492,59 +494,42 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    UseBucketTakeHook1,
+    UseBucketTakeHook,
     HookPriority::Normal,
     BucketItem,
-    &BucketItem::_takeLiquid,
-    bool,
-    ItemStack&      item,
-    Actor&          entity,
-    BlockPos const& pos
+    &BucketItem::$_useOn,
+    InteractionResult,
+    ::ItemStack&  instance,
+    ::Actor&      entity,
+    ::BlockPos    pos,
+    uchar         face,
+    ::Vec3 const& clickPos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
         if (isServerThread()) {
+            auto& bs = entity.getDimensionBlockSource();
+            using ::SharedTypes::v1_26_20::MaterialType;
+            if (auto& type = bs.getMaterial(pos).mType; type != MaterialType::Water && type != MaterialType::Lava) {
+                return InteractionResult{false, true};
+            }
+            if (auto& bl = bs.getBlock(pos).mBlockType;
+                *bl->mNameInfo->mFullName != VanillaBlockTypeIds::PowderSnow()) {
+                return InteractionResult{false, true};
+            }
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketTake,
                     PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-                    ItemClass::newItem(&item),
+                    ItemClass::newItem(&instance),
                     BlockClass::newBlock(pos, entity.getDimensionId()),
                     Number::newNumber(-1),
                     FloatPos::newPos(pos, entity.getDimensionId())
                 )) {
-                return false;
+                return InteractionResult{false, true};
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-    return origin(item, entity, pos);
-}
-
-LL_TYPE_INSTANCE_HOOK(
-    UseBucketTakeHook2,
-    HookPriority::Normal,
-    BucketItem,
-    &BucketItem::_takePowderSnow,
-    bool,
-    ItemStack&      item,
-    Actor&          entity,
-    BlockPos const& pos
-) {
-    IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onUseBucketTake,
-                    PlayerClass::newPlayer(&static_cast<Player&>(entity)),
-                    ItemClass::newItem(&item),
-                    BlockClass::newBlock(pos, entity.getDimensionId()),
-                    Number::newNumber(-1),
-                    FloatPos::newPos(pos, entity.getDimensionId())
-                )) {
-                return false;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-    return origin(item, entity, pos);
+    return origin(instance, entity, pos, face, clickPos);
 }
 
 LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
@@ -669,7 +654,7 @@ LL_TYPE_INSTANCE_HOOK(
     uchar               face,
     std::optional<Vec3> hit
 ) {
-    if (!isServerThread() || (!isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
+    if (!isServerThread() || (!mBlockType->isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
         return origin(player, pos, face, hit); // 提前把不可交互方块过滤掉
     }
     IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
@@ -705,7 +690,7 @@ void SleepEvent() { static ll::memory::HookRegistrar<SleepHook> reg; }
 void OpenInventoryEvent() { static ll::memory::HookRegistrar<OpenInventoryHook> reg; }
 void PullFishingHookEvent() { static ll::memory::HookRegistrar<PullFishingHook> reg; }
 void UseBucketPlaceEvent() { static ll::memory::HookRegistrar<UseBucketPlaceHook> reg; }
-void UseBucketTakeEvent() { static ll::memory::HookRegistrar<UseBucketTakeHook1, UseBucketTakeHook2> reg; }
+void UseBucketTakeEvent() { static ll::memory::HookRegistrar<UseBucketTakeHook> reg; }
 void ConsumeTotemEvent() { static ll::memory::HookRegistrar<ConsumeTotemHook> reg; }
 void SetArmorEvent() { static ll::memory::HookRegistrar<SetArmorHook> reg; }
 void InteractEntityEvent() { static ll::memory::HookRegistrar<InteractEntityHook> reg; }

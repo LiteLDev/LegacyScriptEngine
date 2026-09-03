@@ -3635,9 +3635,7 @@ Local<Value> PlayerClass::sendToast(Arguments const& args) const {
 
         if (!player) return {};
 
-        ToastRequestPacket pkt;
-        pkt.mTitle   = args[0].asString().toString();
-        pkt.mContent = args[1].asString().toString();
+        ToastRequestPacket pkt(args[0].asString().toString(), args[1].asString().toString());
         player->sendNetworkPacket(pkt);
         return Boolean::newBoolean(true);
     }

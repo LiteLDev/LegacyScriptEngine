@@ -401,7 +401,7 @@ LL_TYPE_STATIC_HOOK(
 }
 
 namespace Transformation {
-std::pair<::OwnerPtr<::EntityContext>, Actor*> currentActor = {{}, nullptr};
+std::pair<EntityId, Actor*> currentActor = {{}, nullptr};
 LL_TYPE_INSTANCE_HOOK(
     TransformedActorHook,
     HookPriority::Normal,
@@ -412,7 +412,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::Actor*                           from
 ) {
     auto context = origin(identifier, from);
-    currentActor = {context, from};
+    currentActor = {context->mEntity, from};
     return context;
 }
 
@@ -428,7 +428,7 @@ LL_TYPE_INSTANCE_HOOK(
     auto newActor = origin(region, entity);
     IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
         if (isServerThread() && currentActor.first) {
-            if (currentActor.first->mEntity == entity->mEntity && currentActor.second) {
+            if (currentActor.first == entity->mEntity && currentActor.second) {
                 CallEvent(
                     EVENT_TYPES::onEntityTransformation,
                     String::newString(std::to_string(currentActor.second->getOrCreateUniqueID().rawID)),

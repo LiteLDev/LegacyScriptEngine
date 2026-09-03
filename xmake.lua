@@ -10,8 +10,8 @@ end
 
 add_requires("levibuildscript")
 
-add_requires("legacyremotecall 4af000a6f9c357225ce123e22a36421aaba079ea", {configs = {target_type = get_config(target_type)}})
-add_requires("legacymoney 3778651a1bfb04d725eb06335c056b5dad0c8787", {configs = {target_type = get_config(target_type)}})
+add_requires("legacyremotecall e0f51bba07a9764a6fc2a5291bf14845d5b55875", {configs = {target_type = get_config(target_type)}})
+add_requires("legacymoney 898b64eb5827e79476068cc012785ce7c0712e8c", {configs = {target_type = get_config(target_type)}})
 
 add_requires(
     "lightwebsocketclient v1.0.3",

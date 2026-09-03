@@ -12,6 +12,7 @@
 #include "mc/entity/components_json_legacy/NpcComponent.h"
 #include "mc/entity/components_json_legacy/ProjectileComponent.h"
 #include "mc/entity/components_json_legacy/TransformationComponent.h"
+#include "mc/events/MinecraftEventing.h"
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/world/actor/ActorDamageSource.h"
 #include "mc/world/actor/ActorDefinitionIdentifier.h"
@@ -42,6 +43,7 @@
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
 
+#include <optional>
 #include <utility>
 
 namespace lse::events::entity {
@@ -335,46 +337,6 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    MobHurtEffectHook,
-    HookPriority::Normal,
-    Mob,
-    &Mob::getDamageAfterResistanceEffect,
-    float,
-    ::ActorDamageSource const& source,
-    float                      damage
-) {
-    IF_LISTENED(EVENT_TYPES::onMobHurt) {
-        if (isServerThread()) {
-            // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but
-            // we just need magic damage.
-            if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
-                || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
-                Actor* damageSource = nullptr;
-                if (source.isEntitySource()) {
-                    if (source.isChildEntitySource()) {
-                        damageSource = ll::service::getLevel()->fetchEntity(source.getEntityUniqueID(), false);
-                    } else {
-                        damageSource = ll::service::getLevel()->fetchEntity(source.getDamagingEntityUniqueID(), false);
-                    }
-                }
-
-                if (!CallEvent(
-                        EVENT_TYPES::onMobHurt,
-                        EntityClass::newEntity(this),
-                        damageSource ? EntityClass::newEntity(damageSource) : Local<Value>(),
-                        Number::newNumber(damage < 0.0f ? -damage : damage),
-                        Number::newNumber(static_cast<int>(source.mCause))
-                    )) {
-                    return 0.0f;
-                }
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onMobHurt)
-    return origin(source, damage);
-}
-
-LL_TYPE_INSTANCE_HOOK(
     NpcCommandHook,
     HookPriority::Normal,
     NpcComponent,
@@ -413,56 +375,74 @@ LL_TYPE_INSTANCE_HOOK(
     origin(owner, sourcePlayer, actionIndex, sceneName);
 }
 
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     EffectUpdateHook,
     HookPriority::Normal,
-    Actor,
-    &Actor::onEffectUpdated,
+    MinecraftEventing,
+    &MinecraftEventing::fireEventMobEffectChanged,
     void,
-    MobEffectInstance& effect
+    ::Mob&                          mob,
+    ::MobEffectInstance const&      effectInstance,
+    ::MinecraftEventing::ChangeType change
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (isServerThread() && isPlayer()) {
+        if (isServerThread() && mob.isPlayer()) {
             if (!CallEvent(
                     EVENT_TYPES::onEffectUpdated,
-                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
-                    Number::newNumber(effect.mAmplifier),
-                    Number::newNumber(effect.mDuration->mValue)
+                    PlayerClass::newPlayer(&reinterpret_cast<Player&>(mob)),
+                    String::newString(MobEffect::mMobEffects()[effectInstance.mId]->mComponentName->getString()),
+                    Number::newNumber(effectInstance.mAmplifier),
+                    Number::newNumber(effectInstance.mDuration->mValue)
                 )) {
                 return;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
-    origin(effect);
+    origin(mob, effectInstance, change);
+}
+
+namespace Transformation {
+std::pair<::OwnerPtr<::EntityContext>, Actor*> currentActor = {{}, nullptr};
+LL_TYPE_INSTANCE_HOOK(
+    TransformedActorHook,
+    HookPriority::Normal,
+    ActorFactory,
+    &ActorFactory::createTransformedActor,
+    ::OwnerPtr<::EntityContext>,
+    ::ActorDefinitionIdentifier const& identifier,
+    ::Actor*                           from
+) {
+    auto context = origin(identifier, from);
+    currentActor = {context, from};
+    return context;
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    TransformationHook,
+    addEntityHook,
     HookPriority::Normal,
-    TransformationComponent,
-    &TransformationComponent::maintainOldData,
-    void,
-    ::Actor&                           originalActor,
-    ::Actor&                           transformed,
-    ::TransformationDescription const& transformation,
-    ::ActorUniqueID const&             ownerID,
-    ::Level const&                     level
+    Level,
+    &Level::$addEntity,
+    ::Actor*,
+    ::BlockSource&              region,
+    ::OwnerPtr<::EntityContext> entity
 ) {
+    auto newActor = origin(region, entity);
     IF_LISTENED(EVENT_TYPES::onEntityTransformation) {
-        if (isServerThread()) {
-            CallEvent(
-                EVENT_TYPES::onEntityTransformation,
-                String::newString(std::to_string(originalActor.getOrCreateUniqueID().rawID)),
-                EntityClass::newEntity(&transformed)
-            );
+        if (isServerThread() && currentActor.first) {
+            if (currentActor.first->mEntity == entity->mEntity && currentActor.second) {
+                CallEvent(
+                    EVENT_TYPES::onEntityTransformation,
+                    String::newString(std::to_string(currentActor.second->getOrCreateUniqueID().rawID)),
+                    EntityClass::newEntity(newActor)
+                );
+            }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onEntityTransformation);
-
-    origin(originalActor, transformed, transformation, ownerID, level);
+    return newActor;
 }
+} // namespace Transformation
 
 LL_TYPE_INSTANCE_HOOK(
     EndermanTakeBlockHook,
@@ -523,9 +503,11 @@ void ActorRideEvent() { static ll::memory::HookRegistrar<ActorRideHook> reg; }
 void WitherDestroyEvent() { static ll::memory::HookRegistrar<WitherDestroyHook> reg; }
 void ProjectileHitEntityEvent() { static ll::memory::HookRegistrar<ProjectileHitEntityHook> reg; }
 void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitBlockHook> reg; }
-void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook, MobHurtEffectHook> reg; }
+void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook> reg; }
 void NpcCommandEvent() { static ll::memory::HookRegistrar<NpcCommandHook> reg; }
 void EndermanTakeBlockEvent() { static ll::memory::HookRegistrar<EndermanTakeBlockHook> reg; }
 void EffectUpdateEvent() { static ll::memory::HookRegistrar<EffectUpdateHook> reg; }
-void TransformationEvent() { static ll::memory::HookRegistrar<TransformationHook> reg; }
+void TransformationEvent() {
+    static ll::memory::HookRegistrar<Transformation::addEntityHook, Transformation::TransformedActorHook> reg;
+}
 } // namespace lse::events::entity

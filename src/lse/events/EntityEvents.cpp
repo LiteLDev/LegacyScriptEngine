@@ -7,7 +7,6 @@
 #include "ll/api/memory/Memory.h"
 #include "ll/api/service/Bedrock.h"
 #include "lse/api/Thread.h"
-#include "lse/api/helper/BlockHelper.h"
 #include "mc/common/Globals.h"
 #include "mc/deps/shared_types/legacy/actor/ActorDamageCause.h"
 #include "mc/entity/components_json_legacy/NpcComponent.h"
@@ -20,6 +19,7 @@
 #include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/actor/ActorType.h"
 #include "mc/world/actor/Mob.h"
+#include "mc/world/actor/SpawnChecks.h"
 #include "mc/world/actor/VanillaActorRendererId.h"
 #include "mc/world/actor/boss/WitherBoss.h"
 #include "mc/world/actor/item/FireworksRocketActor.h"
@@ -36,7 +36,9 @@
 #include "mc/world/level/BedrockSpawner.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Level.h"
+#include "mc/world/level/PortalShape.h"
 #include "mc/world/level/block/PortalBlock.h"
+#include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/phys/AABB.h"
 #include "mc/world/phys/HitResult.h"
 
@@ -112,10 +114,10 @@ LL_TYPE_INSTANCE_HOOK(
     origin(item, player, durationLeft);
 }
 
+namespace FireworksRocketSpawn {
 std::pair<Vec3, std::pair<Actor*, HashedString>> currentFirerocketSpawner;
-
 LL_TYPE_INSTANCE_HOOK(
-    FireworksRocketSpawnHook1,
+    Hook1,
     HookPriority::Normal,
     ActorFactory,
     &ActorFactory::createSpawnedActor,
@@ -133,7 +135,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    FireworksRocketSpawnHook2,
+    Hook2,
     HookPriority::Normal,
     FireworksRocketActor,
     &FireworksRocketActor::init,
@@ -161,31 +163,47 @@ LL_TYPE_INSTANCE_HOOK(
     IF_LISTENED_END(EVENT_TYPES::onSpawnProjectile);
     origin(level, playerPos, rocketUserData, dir, attachedEntity, isProjectile);
 }
+} // namespace FireworksRocketSpawn
+
+namespace PortalTrySpawnPigZombie {
+std::pair<BlockPos, PortalAxis> currentPortal;
+LL_TYPE_INSTANCE_HOOK(
+    PortalShapeEvalueateHook,
+    HookPriority::Normal,
+    PortalShape,
+    &PortalShape::evaluate,
+    void,
+    ::BlockPos const&    originalPosition,
+    ::BlockSource const& source
+) {
+    currentPortal = {originalPosition, mAxis};
+    origin(originalPosition, source);
+}
 
 LL_TYPE_STATIC_HOOK(
-    PortalTrySpawnPigZombieHook,
+    PortalCanSpawnPigZombieHook,
     HookPriority::Normal,
-    PortalBlock,
-    &PortalBlock::trySpawnPigZombie,
-    void,
-    BlockSource&    region,
-    BlockPos const& pos,
-    PortalAxis      axis
+    SpawnChecks,
+    &SpawnChecks::canSpawnPigZombieFromPortal,
+    bool,
+    ::Dimension const& dimension,
+    ::IRandom&         random
 ) {
     IF_LISTENED(EVENT_TYPES::onPortalTrySpawnPigZombie) {
         if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onPortalTrySpawnPigZombie,
-                    IntPos::newPos(pos, region.getDimensionId()),
-                    Number::newNumber(static_cast<int>(axis))
+                    IntPos::newPos(currentPortal.first, dimension.getDimensionId()),
+                    Number::newNumber(static_cast<int>(currentPortal.second))
                 )) {
-                return;
+                return false;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawnPigZombie);
-    origin(region, pos, axis);
+    origin(dimension, random);
 }
+} // namespace PortalTrySpawnPigZombie
 
 LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAddPassenger, bool, Actor& passenger) {
     IF_LISTENED(EVENT_TYPES::onRide) {
@@ -327,8 +345,8 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onMobHurt) {
         if (isServerThread()) {
-            // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but we
-            // just need magic damage.
+            // Mob is still hurt after hook Mob::$hurtEffects, and all hurt events are handled by this function, but
+            // we just need magic damage.
             if (source.mCause == SharedTypes::Legacy::ActorDamageCause::Magic
                 || source.mCause == SharedTypes::Legacy::ActorDamageCause::Wither) {
                 Actor* damageSource = nullptr;
@@ -487,11 +505,19 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 void ProjectileSpawnEvent() {
-    static ll::memory::
-        HookRegistrar<ProjectileSpawnHook1, ProjectileSpawnHook2, FireworksRocketSpawnHook1, FireworksRocketSpawnHook2>
-            reg;
+    static ll::memory::HookRegistrar<
+        ProjectileSpawnHook1,
+        ProjectileSpawnHook2,
+        FireworksRocketSpawn::Hook1,
+        FireworksRocketSpawn::Hook2>
+        reg;
 };
-void PortalTrySpawnPigZombieEvent() { static ll::memory::HookRegistrar<PortalTrySpawnPigZombieHook> reg; }
+void PortalTrySpawnPigZombieEvent() {
+    static ll::memory::HookRegistrar<
+        PortalTrySpawnPigZombie::PortalShapeEvalueateHook,
+        PortalTrySpawnPigZombie::PortalCanSpawnPigZombieHook>
+        reg;
+}
 void ProjectileCreatedEvent() { static ll::memory::HookRegistrar<ProjectileSpawnHook1> reg; };
 void ActorRideEvent() { static ll::memory::HookRegistrar<ActorRideHook> reg; }
 void WitherDestroyEvent() { static ll::memory::HookRegistrar<WitherDestroyHook> reg; }

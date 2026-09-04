@@ -3,9 +3,9 @@ add_rules("mode.debug", "mode.release")
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
 if is_config("target_type", "server") then
-    add_requires("levilamina 8d5a11d0b130e51332690daf127823be2c9c37e2", {configs = {target_type = "server"}})
+    add_requires("levilamina 6a29adfc1de21be146d29cbcebd2e340701e65a8", {configs = {target_type = "server"}})
 else
-    add_requires("levilamina 8d5a11d0b130e51332690daf127823be2c9c37e2", {configs = {target_type = "client"}})
+    add_requires("levilamina 6a29adfc1de21be146d29cbcebd2e340701e65a8", {configs = {target_type = "client"}})
 end
 
 add_requires("levibuildscript")

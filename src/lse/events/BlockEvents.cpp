@@ -411,11 +411,7 @@ REDSTONE_EVNET_HOOK_2(ComparatorBlock)
 
 } // namespace redstone
 
-bool materialsAreEqual(Material const& a, Material const& b) {
-    return a.mType == b.mType && a.mNeverBuildable == b.mNeverBuildable && a.mLiquid == b.mLiquid
-        && a.mBlocksMotion == b.mBlocksMotion && a.mBlocksPrecipitation == b.mBlocksPrecipitation
-        && a.mSolid == b.mSolid && a.mSuperHot == b.mSuperHot;
-}
+bool materialsAreEqual(Material const& a, Material const& b) { return a.mType == b.mType; }
 
 bool liquidBlockCanSpreadTo(
     LiquidBlock const& liquidBlock,
@@ -424,13 +420,13 @@ bool liquidBlockCanSpreadTo(
     BlockPos const&    flowFromPos,
     uchar              flowFromDirection
 ) {
-    if (pos.y < region.getMinHeight()) {
+    if (pos.y < region.getMinHeight() || !region.hasBlock(pos)) {
         return false;
     }
     if (auto const& block = region.getLiquidBlock(pos);
         materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
         || block.getBlockType().mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Lava
-        || liquidBlock._isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
+        || LiquidBlock::_isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
         return false;
     }
     return true;
@@ -501,7 +497,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 namespace dispenser {
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     DispenserEjectItemHook,
     HookPriority::Normal,
     DispenserBlock,

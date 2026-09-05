@@ -334,7 +334,7 @@ LL_TYPE_INSTANCE_HOOK(
     return origin(source, damage, hurtParameters);
 }
 
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     NpcCommandHook,
     HookPriority::Normal,
     NpcComponent,

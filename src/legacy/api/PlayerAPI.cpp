@@ -1366,11 +1366,7 @@ Local<Value> PlayerClass::isHurt() const {
             return {};
         }
 
-        int health = player->getHealth();
-        if (health > 0 && health < player->getMaxHealth()) {
-            return Boolean::newBoolean(true);
-        }
-        return Boolean::newBoolean(false);
+        return Boolean::newBoolean(player->isHurt());
     }
     CATCH_AND_THROW
 }

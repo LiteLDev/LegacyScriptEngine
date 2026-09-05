@@ -373,33 +373,6 @@ LL_TYPE_STATIC_HOOK(
     origin(owner, sourcePlayer, actionIndex, sceneName);
 }
 
-LL_TYPE_STATIC_HOOK(
-    EffectUpdateHook,
-    HookPriority::Normal,
-    MinecraftEventing,
-    &MinecraftEventing::fireEventMobEffectChanged,
-    void,
-    ::Mob&                          mob,
-    ::MobEffectInstance const&      effectInstance,
-    ::MinecraftEventing::ChangeType change
-) {
-    IF_LISTENED(EVENT_TYPES::onEffectUpdated) {
-        if (isServerThread() && mob.isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectUpdated,
-                    PlayerClass::newPlayer(&reinterpret_cast<Player&>(mob)),
-                    String::newString(MobEffect::mMobEffects()[effectInstance.mId]->mComponentName->getString()),
-                    Number::newNumber(effectInstance.mAmplifier),
-                    Number::newNumber(effectInstance.mDuration->mValue)
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEffectUpdated);
-    origin(mob, effectInstance, change);
-}
-
 namespace Transformation {
 std::pair<EntityId, Actor*> currentActor = {{}, nullptr};
 LL_TYPE_INSTANCE_HOOK(
@@ -504,7 +477,6 @@ void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitB
 void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook> reg; }
 void NpcCommandEvent() { static ll::memory::HookRegistrar<NpcCommandHook> reg; }
 void EndermanTakeBlockEvent() { static ll::memory::HookRegistrar<EndermanTakeBlockHook> reg; }
-void EffectUpdateEvent() { static ll::memory::HookRegistrar<EffectUpdateHook> reg; }
 void TransformationEvent() {
     static ll::memory::HookRegistrar<Transformation::addEntityHook, Transformation::TransformedActorHook> reg;
 }

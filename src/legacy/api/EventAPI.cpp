@@ -560,7 +560,7 @@ void EnableEventListener(int eventId) {
         lse::events::player::RemoveEffectEvent();
         break;
     case EVENT_TYPES::onEffectUpdated:
-        lse::events::entity::EffectUpdateEvent();
+        lse::events::player::AddEffectEvent();
         break;
 
     case EVENT_TYPES::onUseRespawnAnchor:

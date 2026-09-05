@@ -609,14 +609,26 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onEffectAdded) {
         if (isServerThread() && isPlayer()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onEffectAdded,
-                    PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
-                    Number::newNumber(effect.mAmplifier),
-                    Number::newNumber(effect.mDuration->mValue)
-                )) {
-                return;
+            if (getEffect(effect.mId)) {
+                if (!CallEvent(
+                        EVENT_TYPES::onEffectUpdated,
+                        PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        Number::newNumber(effect.mAmplifier),
+                        Number::newNumber(effect.mDuration->mValue)
+                    )) {
+                    return;
+                }
+            } else {
+                if (!CallEvent(
+                        EVENT_TYPES::onEffectAdded,
+                        PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
+                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        Number::newNumber(effect.mAmplifier),
+                        Number::newNumber(effect.mDuration->mValue)
+                    )) {
+                    return;
+                }
             }
         }
     }
@@ -701,4 +713,5 @@ void InteractEntityEvent() { static ll::memory::HookRegistrar<InteractEntityHook
 void AddEffectEvent() { static ll::memory::HookRegistrar<AddEffectHook> reg; }
 void RemoveEffectEvent() { static ll::memory::HookRegistrar<RemoveEffectHook> reg; }
 void BlockInteractedEvent() { static ll::memory::HookRegistrar<BlockInteractedHook> reg; }
+void EffectUpdateEvent() { AddEffectEvent(); }
 } // namespace lse::events::player

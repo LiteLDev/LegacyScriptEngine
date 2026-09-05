@@ -44,6 +44,7 @@ public:
     Local<Value> getMaxStackSize() const;
     Local<Value> getLore() const;
     Local<Value> getDisplayName() const;
+    Local<Value> toString() const;
 
     Local<Value> isArmorItem() const;
     Local<Value> isBlock() const;

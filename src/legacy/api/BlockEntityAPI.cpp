@@ -15,18 +15,20 @@
 
 //////////////////// Class Definition ////////////////////
 
-ClassDefine<BlockEntityClass> BlockEntityClassBuilder = defineClass<BlockEntityClass>("LLSE_BlockEntity")
-                                                            .constructor(nullptr)
-                                                            .instanceProperty("name", &BlockEntityClass::getName)
-                                                            .instanceProperty("pos", &BlockEntityClass::getPos)
-                                                            .instanceProperty("type", &BlockEntityClass::getType)
+ClassDefine<BlockEntityClass> BlockEntityClassBuilder =
+    defineClass<BlockEntityClass>("LLSE_BlockEntity")
+        .constructor(nullptr)
+        .instanceProperty("name", &BlockEntityClass::getName)
+        .instanceProperty("pos", &BlockEntityClass::getPos)
+        .instanceProperty("type", &BlockEntityClass::getType)
 
-                                                            .instanceFunction("setNbt", &BlockEntityClass::setNbt)
-                                                            .instanceFunction("getNbt", &BlockEntityClass::getNbt)
-                                                            .instanceFunction("getBlock", &BlockEntityClass::getBlock)
-                                                            .instanceFunction("setCustomName", &BlockEntityClass::setCustomName)
-                                                            .instanceFunction("getCustomName", &BlockEntityClass::getCustomName)
-                                                            .build();
+        .instanceFunction("toString", &BlockEntityClass::toString)
+        .instanceFunction("setNbt", &BlockEntityClass::setNbt)
+        .instanceFunction("getNbt", &BlockEntityClass::getNbt)
+        .instanceFunction("getBlock", &BlockEntityClass::getBlock)
+        .instanceFunction("setCustomName", &BlockEntityClass::setCustomName)
+        .instanceFunction("getCustomName", &BlockEntityClass::getCustomName)
+        .build();
 
 //////////////////// Classes ////////////////////
 
@@ -65,6 +67,21 @@ Local<Value> BlockEntityClass::getName() const {
 Local<Value> BlockEntityClass::getType() const {
     try {
         return Number::newNumber(static_cast<int>(blockEntity->mType));
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> BlockEntityClass::toString() const {
+    try {
+        return String::newString(
+            fmt::format(
+                "{},{},{}({})",
+                getName().asString().toString(),
+                blockEntity->mType,
+                dim,
+                blockEntity->mPosition->toString()
+            )
+        );
     }
     CATCH_AND_THROW
 }

@@ -185,6 +185,7 @@ ClassDefine<PlayerClass> PlayerClassBuilder =
         .instanceFunction("isOP", &PlayerClass::isOP)
         .instanceFunction("setPermLevel", &PlayerClass::setPermLevel)
         .instanceFunction("setGameMode", &PlayerClass::setGameMode)
+        .instanceFunction("toString", &PlayerClass::toString)
 
         .instanceFunction("runcmd", &PlayerClass::runcmd)
         .instanceFunction("teleport", &PlayerClass::teleport)
@@ -1730,6 +1731,24 @@ Local<Value> PlayerClass::setGameMode(Arguments const& args) const {
             res = true;
         }
         return Boolean::newBoolean(res);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> PlayerClass::toString() const {
+    try {
+        Player* player = get();
+        if (!player) return {};
+
+        return String::newString(
+            fmt::format(
+                "{},{},{}({})",
+                *player->mName,
+                player->getUuid().asString(),
+                player->getDimensionId().mValue,
+                player->getPosition().toString()
+            )
+        );
     }
     CATCH_AND_THROW
 }

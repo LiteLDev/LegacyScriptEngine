@@ -510,11 +510,10 @@ LL_TYPE_INSTANCE_HOOK(
             auto& bs = entity.getDimensionBlockSource();
             using ::SharedTypes::v1_26_20::MaterialType;
             if (auto& type = bs.getMaterial(pos).mType; type != MaterialType::Water && type != MaterialType::Lava) {
-                return InteractionResult{false, true};
-            }
-            if (auto& bl = bs.getBlock(pos).mBlockType;
-                *bl->mNameInfo->mFullName != VanillaBlockTypeIds::PowderSnow()) {
-                return InteractionResult{false, true};
+                if (auto& bl = bs.getBlock(pos).mBlockType;
+                    *bl->mNameInfo->mFullName != VanillaBlockTypeIds::PowderSnow()) {
+                    return origin(instance, entity, pos, face, clickPos);
+                }
             }
             if (!CallEvent(
                     EVENT_TYPES::onUseBucketTake,

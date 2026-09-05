@@ -381,19 +381,26 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onUseRespawnAnchor) {
         if (isServerThread()) {
-            auto state = _tryLookupAlteredStateCollection(
-                VanillaStates::RespawnAnchorCharge().mID,
-                eventData.getBlock().getData()
-            );
-            if (!state.has_value() && state.value() <= 0) {
-                return origin(eventData);
-            }
-            if (!CallEvent(
-                    EVENT_TYPES::onUseRespawnAnchor,
-                    PlayerClass::newPlayer(&eventData.mPlayer),
-                    IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
-                )) {
-                return;
+            // 原版逻辑：手持萤石且未满时 _tryCharge 会优先充能并短路；
+            // 充能大于 0 且位于下界（维度 1）时 _trySetSpawn 才会设置重生点，重生点已是此锚时无事发生
+            auto& block = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
+            int   charge = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
+            auto& item = eventData.mPlayer.getSelectedItem();
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            bool  isCharging = itemBlockType
+                && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
+                && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
+            auto& spawnPoint = eventData.mPlayer.mPlayerRespawnPoint;
+            if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() == 1
+                && !(spawnPoint->mDimension->mValue == 1
+                     && *spawnPoint->mSpawnBlockPos == *eventData.mPos)) {
+                if (!CallEvent(
+                        EVENT_TYPES::onUseRespawnAnchor,
+                        PlayerClass::newPlayer(&eventData.mPlayer),
+                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
+                    )) {
+                    return;
+                }
             }
         }
     }

@@ -16,6 +16,7 @@
 #include "mc/world/actor/Hopper.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/models/LevelContainerModel.h"
+#include "mc/world/item/Item.h"
 #include "mc/world/item/ItemStack.h"
 #include "mc/world/level/BlockSource.h"
 #include "mc/world/level/Explosion.h"
@@ -45,6 +46,7 @@
 #include "mc/world/level/block/StructureBlock.h"
 #include "mc/world/level/block/TntBlock.h"
 #include "mc/world/level/block/TrapDoorBlock.h"
+#include "mc/world/level/block/VanillaBlockTypeIds.h"
 #include "mc/world/level/block/VanillaStates.h"
 #include "mc/world/level/block/actor/BaseCommandBlock.h"
 #include "mc/world/level/block/actor/PistonBlockActor.h"
@@ -52,7 +54,6 @@
 #include "mc/world/level/block/block_events/BlockRedstoneUpdateEvent.h"
 #include "mc/world/level/dimension/Dimension.h"
 #include "mc/world/level/material/Material.h"
-
 namespace lse::events::block {
 
 using api::thread::isServerThread;
@@ -256,14 +257,19 @@ LL_TYPE_INSTANCE_HOOK(
 ) {
     IF_LISTENED(EVENT_TYPES::onRespawnAnchorExplode) {
         if (isServerThread()) {
-            auto state = _tryLookupAlteredStateCollection(
-                VanillaStates::RespawnAnchorCharge().mID,
-                eventData.getBlock().getData()
-            );
-            if (state.has_value() && state.value() > 1) {
+            // 原版逻辑：手持萤石且未满时 _tryCharge 会优先充能并短路，不会爆炸；
+            // 充能大于 0 且不在下界（维度 1）时 _trySetSpawn 才会调用 _explode 引爆
+            auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
+            int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
+            auto& item          = eventData.mPlayer.getSelectedItem();
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
+                            && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
+            if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() != 1) {
                 if (!CallEvent(
                         EVENT_TYPES::onRespawnAnchorExplode,
-                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId())
+                        IntPos::newPos(eventData.mPos, eventData.mPlayer.getDimensionId()),
+                        PlayerClass::newPlayer(&eventData.mPlayer)
                     )) {
                     return;
                 }

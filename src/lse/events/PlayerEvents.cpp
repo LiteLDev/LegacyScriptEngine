@@ -24,7 +24,7 @@
 #include "mc/world/events/EventResult.h"
 #include "mc/world/events/PlayerOpenContainerEvent.h"
 #include "mc/world/gamemode/InteractionResult.h"
-#include "mc/world/inventory/network/ItemStackNetManagerBase.h"
+#include "mc/world/inventory/network/ItemStackNetManagerServer.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
 #include "mc/world/inventory/transaction/InventoryAction.h"
 #include "mc/world/inventory/transaction/InventorySource.h"
@@ -355,8 +355,8 @@ LL_TYPE_INSTANCE_HOOK(
 LL_TYPE_INSTANCE_HOOK(
     OpenContainerScreenHook,
     HookPriority::Normal,
-    ItemStackNetManagerBase,
-    &ItemStackNetManagerBase::$onContainerScreenOpen,
+    ItemStackNetManagerServer,
+    &ItemStackNetManagerServer::$onContainerScreenOpen,
     void,
     ContainerScreenContext const& screenContext
 ) {
@@ -383,17 +383,15 @@ LL_TYPE_INSTANCE_HOOK(
         if (isServerThread()) {
             // 原版逻辑：手持萤石且未满时 _tryCharge 会优先充能并短路；
             // 充能大于 0 且位于下界（维度 1）时 _trySetSpawn 才会设置重生点，重生点已是此锚时无事发生
-            auto& block = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
-            int   charge = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
-            auto& item = eventData.mPlayer.getSelectedItem();
+            auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
+            int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
+            auto& item          = eventData.mPlayer.getSelectedItem();
             auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
-            bool  isCharging = itemBlockType
-                && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
-                && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
+            bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
+                            && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
             auto& spawnPoint = eventData.mPlayer.mPlayerRespawnPoint;
             if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() == 1
-                && !(spawnPoint->mDimension->mValue == 1
-                     && *spawnPoint->mSpawnBlockPos == *eventData.mPos)) {
+                && !(spawnPoint->mDimension->mValue == 1 && *spawnPoint->mSpawnBlockPos == *eventData.mPos)) {
                 if (!CallEvent(
                         EVENT_TYPES::onUseRespawnAnchor,
                         PlayerClass::newPlayer(&eventData.mPlayer),

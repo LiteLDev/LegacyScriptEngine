@@ -18,6 +18,7 @@ public:
 
     Local<Value> getSize() const;
     Local<Value> getType() const;
+    Local<Value> toString() const;
 
     Local<Value> addItem(Arguments const& args) const;
     Local<Value> addItemToFirstEmptySlot(Arguments const& args) const;

@@ -55,6 +55,7 @@ ClassDefine<BlockClass> BlockClassBuilder =
         .instanceProperty("isUnbreakable", &BlockClass::isUnbreakable)
         .instanceProperty("isWaterBlockingBlock", &BlockClass::isWaterBlockingBlock)
 
+        .instanceFunction("toString", &BlockClass::toString)
         .instanceFunction("setNbt", &BlockClass::setNbt)
         .instanceFunction("getNbt", &BlockClass::getNbt)
         .instanceFunction("getBlockState", &BlockClass::getBlockState)
@@ -192,6 +193,15 @@ Local<Value> BlockClass::getTranslucency() const {
 Local<Value> BlockClass::getThickness() const {
     try {
         return Number::newNumber(block->getBlockType().mThickness);
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> BlockClass::toString() const {
+    try {
+        return String::newString(
+            fmt::format("{},{},{}({},{},{})", name, type, id.mValue, blockPos.x, blockPos.y, blockPos.z)
+        );
     }
     CATCH_AND_THROW
 }

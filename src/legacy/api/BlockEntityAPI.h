@@ -21,6 +21,7 @@ public:
     Local<Value> getPos() const;
     Local<Value> getType() const;
     Local<Value> getCustomName() const;
+    Local<Value> toString() const;
 
     Local<Value> getNbt(Arguments const& args) const;
     Local<Value> setNbt(Arguments const& args) const;

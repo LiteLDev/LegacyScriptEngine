@@ -61,6 +61,7 @@ public:
     Local<Value> isAngry() const;
     Local<Value> isBaby() const;
     Local<Value> isMoving() const;
+    Local<Value> toString() const;
 
     Local<Value> setPosDelta(Arguments const& args) const;
     Local<Value> teleport(Arguments const& args) const;

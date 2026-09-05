@@ -24,6 +24,7 @@ ClassDefine<BlockEntityClass> BlockEntityClassBuilder =
         .instanceProperty("pos", &BlockEntityClass::getPos)
         .instanceProperty("type", &BlockEntityClass::getType)
 
+        .instanceFunction("toString", &BlockEntityClass::toString)
         .instanceFunction("setNbt", &BlockEntityClass::setNbt)
         .instanceFunction("getNbt", &BlockEntityClass::getNbt)
         .instanceFunction("getBlock", &BlockEntityClass::getBlock)
@@ -72,6 +73,21 @@ Local<Value> BlockEntityClass::getName() const {
 Local<Value> BlockEntityClass::getType() const {
     try {
         return Number::newNumber(static_cast<int>(blockEntity->mType));
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> BlockEntityClass::toString() const {
+    try {
+        return String::newString(
+            fmt::format(
+                "{},{},{}({})",
+                getName().asString().toString(),
+                blockEntity->mType,
+                dim,
+                blockEntity->mPosition->toString()
+            )
+        );
     }
     CATCH_AND_THROW
 }

@@ -83,6 +83,7 @@ public:
     Local<Value> isOP(Arguments const& args) const;
     Local<Value> setPermLevel(Arguments const& args) const;
     Local<Value> setGameMode(Arguments const& args) const;
+    Local<Value> toString() const;
 
     Local<Value> runcmd(Arguments const& args) const;
     Local<Value> teleport(Arguments const& args) const;

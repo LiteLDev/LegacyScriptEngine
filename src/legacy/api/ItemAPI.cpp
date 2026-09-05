@@ -62,6 +62,7 @@ ClassDefine<ItemClass> ItemClassBuilder = defineClass<ItemClass>("LLSE_Item")
                                               .instanceFunction("setLore", &ItemClass::setLore)
                                               .instanceFunction("setDisplayName", &ItemClass::setDisplayName)
                                               .instanceFunction("getDisplayName", &ItemClass::getDisplayName)
+                                              .instanceFunction("toString", &ItemClass::toString)
                                               .instanceFunction("setDamage", &ItemClass::setDamage)
                                               .instanceFunction("setNbt", &ItemClass::setNbt)
                                               .instanceFunction("getNbt", &ItemClass::getNbt)
@@ -420,6 +421,13 @@ Local<Value> ItemClass::setDisplayName(Arguments const& args) const {
 Local<Value> ItemClass::getDisplayName() const {
     try {
         return String::newString(get()->getCustomName());
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ItemClass::toString() const {
+    try {
+        return String::newString(fmt::format("{},{},{}:{},{}/{}", name, type, id, aux, count, maxCount));
     }
     CATCH_AND_THROW
 }

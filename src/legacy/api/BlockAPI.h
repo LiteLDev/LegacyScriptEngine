@@ -37,6 +37,7 @@ public:
     Local<Value> getVariant() const;
     Local<Value> getTranslucency() const;
     Local<Value> getThickness() const;
+    Local<Value> toString() const;
 
     Local<Value> isAir() const;
     Local<Value> isBounceBlock() const;

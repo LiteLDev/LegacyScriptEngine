@@ -105,6 +105,7 @@ ClassDefine<EntityClass> EntityClassBuilder =
         .instanceProperty("isBaby", &EntityClass::isBaby)
         .instanceProperty("isMoving", &EntityClass::isMoving)
 
+        .instanceFunction("toString", &EntityClass::toString)
         .instanceFunction("teleport", &EntityClass::teleport)
         .instanceFunction("kill", &EntityClass::kill)
         .instanceFunction("despawn", &EntityClass::despawn)
@@ -364,6 +365,24 @@ Local<Value> EntityClass::isMoving() const {
 
         return Boolean::newBoolean(
             SynchedActorDataAccess::getActorFlag(entity->getEntityContext(), ActorFlags::Moving)
+        );
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> EntityClass::toString() const {
+    try {
+        Actor const* entity = get();
+        if (!entity) return {};
+
+        return String::newString(
+            fmt::format(
+                "{},{},{}({})",
+                CommandUtils::getActorName(*entity),
+                entity->getTypeName(),
+                entity->getDimensionId().mValue,
+                entity->getPosition().toString()
+            )
         );
     }
     CATCH_AND_THROW

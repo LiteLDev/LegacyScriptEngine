@@ -12,6 +12,7 @@ ClassDefine<ContainerClass> ContainerClassBuilder =
         .instanceProperty("size", &ContainerClass::getSize)
         .instanceProperty("type", &ContainerClass::getType)
 
+        .instanceFunction("toString", &ContainerClass::toString)
         .instanceFunction("addItem", &ContainerClass::addItem)
         .instanceFunction("addItemToFirstEmptySlot", &ContainerClass::addItemToFirstEmptySlot)
         .instanceFunction("hasRoomFor", &ContainerClass::hasRoomFor)
@@ -55,6 +56,13 @@ Local<Value> ContainerClass::getSize() const {
 Local<Value> ContainerClass::getType() const {
     try {
         return String::newString(container->getTypeName());
+    }
+    CATCH_AND_THROW
+}
+
+Local<Value> ContainerClass::toString() const {
+    try {
+        return String::newString(fmt::format("{},{}", container->getTypeName(), container->getContainerSize()));
     }
     CATCH_AND_THROW
 }

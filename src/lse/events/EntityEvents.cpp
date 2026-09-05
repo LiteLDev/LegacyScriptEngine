@@ -201,7 +201,7 @@ LL_TYPE_STATIC_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onPortalTrySpawnPigZombie);
-    origin(dimension, random);
+    return origin(dimension, random);
 }
 } // namespace PortalTrySpawnPigZombie
 

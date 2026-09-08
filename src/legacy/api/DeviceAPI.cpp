@@ -4,13 +4,13 @@
 #include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/deps/certificates/WebToken.h"
+#include "mc/deps/ecs/systems/TickingSystemWithInfo.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
-#include "mc/deps/ecs/systems/TickingSystemWithInfo.h"
+#include "mc/entity/components/ScriptingInputInfoComponent.h"
+#include "mc/entity/components/ServerScriptInputPacketQueueComponent.h"
 #include "mc/entity/systems/EntitySystems.h"
 #include "mc/entity/systems/ServerScriptInputSystem.h"
-#include "mc/entity/components/ServerScriptInputPacketQueueComponent.h"
-#include "mc/entity/components/ScriptingInputInfoComponent.h"
 #include "mc/legacy/ActorRuntimeID.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
@@ -126,7 +126,8 @@ Local<Value> DeviceClass::getServerAddress() const {
         if (!player) return {};
 
         if (player->isSimulatedPlayer()) String::newString("unknown");
-        Json::Value& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
+        if (!player->getConnectionRequest()->mRawToken->has_value()) String::newString("unknown");
+        auto& requestJson = player->getConnectionRequest()->mRawToken->value().mDataInfo;
         return String::newString(requestJson["ServerAddress"].asString("unknown"));
     }
     CATCH_AND_THROW
@@ -157,7 +158,10 @@ Local<Value> DeviceClass::getInputMode() const {
             return Number::newNumber(static_cast<int>(component->mInputMode));
         }
 
-        auto& requestJson = player->getConnectionRequest()->mRawToken->mDataInfo;
+        if (!player->getConnectionRequest()->mRawToken->has_value()) {
+            throw Exception("mRawToken is nullopt");
+        }
+        auto& requestJson = player->getConnectionRequest()->mRawToken->value().mDataInfo;
         return Number::newNumber(requestJson["CurrentInputMode"].asInt(0));
     }
     CATCH_AND_THROW
@@ -175,6 +179,6 @@ Local<Value> DeviceClass::getInputMode() const {
 
 InputEntry::InputEntry(InputEntry const& other) {
     mUnk1256a7.as<InputMode>()       = other.mUnk1256a7.as<InputMode>();
-    mUnk8977a2.as<std::bitset<65>>() = other.mUnk8977a2.as<std::bitset<65>>();
+    mUnkbd66e3.as<std::bitset<66>>() = other.mUnkbd66e3.as<std::bitset<66>>();
     mUnk5ce573.as<Vec2>()            = other.mUnk5ce573.as<Vec2>();
 }

@@ -553,10 +553,7 @@ Local<Value> ItemClass::match(Arguments const& args) const {
     }
 
     try {
-        ItemStackBase itemNew = static_cast<ItemStackBase>(*extract(args[0]));
-        if (!itemNew) return Boolean::newBoolean(false);
-
-        return Boolean::newBoolean(get()->matchesItem(itemNew));
+        return Boolean::newBoolean(get()->matchesItem(*extract(args[0])));
     }
     CATCH_AND_THROW
 }

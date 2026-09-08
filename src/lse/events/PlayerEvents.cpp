@@ -412,21 +412,23 @@ LL_TYPE_INSTANCE_HOOK(
     Player,
     &Player::$startSleepInBed,
     BedSleepingResult,
-    BlockPos const& pos
+    BlockPos const& bedPos,
+    bool            setsRespawn,
+    float           sleepOffset
 ) {
     IF_LISTENED(EVENT_TYPES::onBedEnter) {
         if (isServerThread()) {
             if (!CallEvent(
                     EVENT_TYPES::onBedEnter,
                     PlayerClass::newPlayer(this),
-                    IntPos::newPos(pos, this->getDimensionId())
+                    IntPos::newPos(bedPos, this->getDimensionId())
                 )) {
                 return BedSleepingResult::Ok;
             }
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBedEnter);
-    return origin(pos);
+    return origin(bedPos, setsRespawn, sleepOffset);
 }
 LL_TYPE_INSTANCE_HOOK(OpenInventoryHook, HookPriority::Normal, ServerPlayer, &ServerPlayer::$openInventory, void, ) {
     IF_LISTENED(EVENT_TYPES::onOpenInventory) {
@@ -613,7 +615,9 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onEffectUpdated,
                         PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        String::newString(
+                            MobEffect::mMobEffects()[static_cast<MobEffectIds>(effect.mId)]->mComponentName->getString()
+                        ),
                         Number::newNumber(effect.mAmplifier),
                         Number::newNumber(effect.mDuration->mValue)
                     )) {
@@ -623,7 +627,9 @@ LL_TYPE_INSTANCE_HOOK(
                 if (!CallEvent(
                         EVENT_TYPES::onEffectAdded,
                         PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                        String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString()),
+                        String::newString(
+                            MobEffect::mMobEffects()[static_cast<MobEffectIds>(effect.mId)]->mComponentName->getString()
+                        ),
                         Number::newNumber(effect.mAmplifier),
                         Number::newNumber(effect.mDuration->mValue)
                     )) {
@@ -649,7 +655,9 @@ LL_TYPE_INSTANCE_HOOK(
             if (!CallEvent(
                     EVENT_TYPES::onEffectRemoved,
                     PlayerClass::newPlayer(reinterpret_cast<Player*>(this)),
-                    String::newString(MobEffect::mMobEffects()[effect.mId]->mComponentName->getString())
+                    String::newString(
+                        MobEffect::mMobEffects()[static_cast<MobEffectIds>(effect.mId)]->mComponentName->getString()
+                    )
                 )) {
                 return;
             }

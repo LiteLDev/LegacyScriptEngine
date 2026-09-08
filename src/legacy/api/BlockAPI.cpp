@@ -16,6 +16,7 @@
 #include "mc/world/level/block/BedrockBlockNames.h"
 #include "mc/world/level/block/Block.h"
 #include "mc/world/level/block/BlockChangeContext.h"
+#include "mc/world/level/block/BlockProperty.h"
 #include "mc/world/level/block/VanillaBlockTags.h"
 #include "mc/world/level/block/actor/BlockActor.h"
 #include "mc/world/level/block/actor/BlockActorType.h"
@@ -225,7 +226,7 @@ Local<Value> BlockClass::isBounceBlock() const {
 
 Local<Value> BlockClass::isButtonBlock() const {
     try {
-        return Boolean::newBoolean(block->getBlockType().isButtonBlock());
+        return Boolean::newBoolean(block->getBlockType().mProperties == BlockProperty::Button);
     }
     CATCH_AND_THROW
 }
@@ -239,7 +240,7 @@ Local<Value> BlockClass::isCropBlock() const {
 
 Local<Value> BlockClass::isDoorBlock() const {
     try {
-        return Boolean::newBoolean(block->getBlockType().isDoorBlock());
+        return Boolean::newBoolean(block->getBlockType().mProperties == BlockProperty::Door);
     }
     CATCH_AND_THROW
 }
@@ -253,7 +254,7 @@ Local<Value> BlockClass::isFenceBlock() const {
 
 Local<Value> BlockClass::isFenceGateBlock() const {
     try {
-        return Boolean::newBoolean(block->getBlockType().isFenceGateBlock());
+        return Boolean::newBoolean(block->getBlockType().mProperties == BlockProperty::FenceGate);
     }
     CATCH_AND_THROW
 }

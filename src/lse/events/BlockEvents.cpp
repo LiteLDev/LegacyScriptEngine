@@ -503,7 +503,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 namespace dispenser {
-LL_TYPE_STATIC_HOOK(
+LL_TYPE_INSTANCE_HOOK(
     DispenserEjectItemHook,
     HookPriority::Normal,
     DispenserBlock,
@@ -581,12 +581,13 @@ LL_TYPE_INSTANCE_HOOK(
     Hopper,
     &Hopper::_tryMoveInItem,
     bool,
-    ::BlockSource& region,
-    ::Container&   container,
-    ::ItemStack&   item,
-    int            slot,
-    int            face,
-    int            itemCount
+    ::BlockSource&                                                region,
+    ::Container&                                                  container,
+    ::std::optional<::std::reference_wrapper<::ItemActor>> const& itemActor,
+    ::ItemStack&                                                  item,
+    int                                                           slot,
+    int                                                           face,
+    int                                                           itemCount
 ) {
     IF_LISTENED(EVENT_TYPES::onHopperSearchItem) {
         if (isServerThread() && hopperStatus == HopperStatus::PullIn) {
@@ -615,7 +616,7 @@ LL_TYPE_INSTANCE_HOOK(
     }
     IF_LISTENED_END(EVENT_TYPES::onHopperPushOut);
     hopperStatus = HopperStatus::None;
-    return origin(region, container, item, slot, face, itemCount);
+    return origin(region, container, itemActor, item, slot, face, itemCount);
 }
 } // namespace hopper
 

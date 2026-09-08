@@ -49,7 +49,6 @@
 #include "mc/network/packet/ClientboundCloseFormPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
 #include "mc/network/packet/RemoveObjectivePacket.h"
-#include "mc/network/packet/ScorePacketInfo.h"
 #include "mc/network/packet/SetDisplayObjectivePacket.h"
 #include "mc/network/packet/SetScorePacket.h"
 #include "mc/network/packet/SetTitlePacket.h"
@@ -86,6 +85,7 @@
 #include "mc/world/attribute/AttributeInstanceConstRef.h"
 #include "mc/world/attribute/AttributeInstanceHandle.h" // IWYU pragma: keep
 #include "mc/world/attribute/AttributeInstanceRef.h"
+#include "mc/world/attribute/MutableAttributeWithContext.h"
 #include "mc/world/attribute/SharedAttributes.h"
 #include "mc/world/effect/EffectDuration.h"
 #include "mc/world/effect/MobEffectInstance.h"
@@ -107,6 +107,8 @@
 #include "mc/world/scores/Scoreboard.h"
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
+
+#include <memory>
 
 //////////////////// Class Definition ////////////////////
 
@@ -2122,7 +2124,7 @@ Local<Value> PlayerClass::reduceExperience(Arguments const& args) const {
 
         float exp = args[0].asNumber().toFloat();
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
-            auto instance = component->mAttributes->getMutableInstance(Player::EXPERIENCE()).mPtr;
+            auto instance = component->mAttributes->getMutableInstanceWithContext(Player::EXPERIENCE()).mInstance->mPtr;
             if (!instance) {
                 return Boolean::newBoolean(false);
             }
@@ -2250,9 +2252,10 @@ Local<Value> PlayerClass::crash(Arguments const&) const {
             "Crash Player",
             "Execute player.crash() to crash player <" + player->getRealName() + ">"
         );
-        LevelChunkPacket pkt;
-        pkt.mCacheEnabled = true;
-        player->sendNetworkPacket(pkt);
+        auto pkt =
+            static_pointer_cast<LevelChunkPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::FullChunkData));
+        pkt->mCacheEnabled = true;
+        player->sendNetworkPacket(*pkt);
         return Boolean::newBoolean(false);
     }
     CATCH_AND_THROW
@@ -2430,20 +2433,16 @@ Local<Value> PlayerClass::setSidebar(Arguments const& args) const {
         disObjPkt.mCriteriaName         = "dummy";
         disObjPkt.mSortOrder            = static_cast<ObjectiveSortOrder>(sortOrder);
         disObjPkt.sendTo(*player);
-        std::vector<ScorePacketInfo> info;
+        auto setPkt = static_pointer_cast<SetScorePacket>(MinecraftPackets::createPacket(MinecraftPacketIds::SetScore));
         for (auto& i : data) {
-            ScorePacketInfo pktInfo;
-            pktInfo.mScoreboardId->mRawID = i.second;
-            pktInfo.mObjectiveName        = "FakeScoreObj";
-            pktInfo.mIdentityType         = IdentityDefinition::Type::FakePlayer;
-            pktInfo.mScoreValue           = i.second;
-            pktInfo.mFakePlayerName       = i.first;
-            info.emplace_back(pktInfo);
+            ChangeFakePlayerScore change;
+            change.mScoreboardId->mRawID = i.second;
+            change.mObjectiveName        = "FakeScoreObj";
+            change.mScoreValue           = i.second;
+            change.mFakePlayerName       = i.first;
+            setPkt->mScoreInfo->emplace_back(change);
         }
-        SetScorePacket setPkt;
-        setPkt.mType      = ScorePacketType::Change;
-        setPkt.mScoreInfo = info;
-        setPkt.sendTo(*player);
+        setPkt->sendTo(*player);
         return Boolean::newBoolean(true);
     }
     CATCH_AND_THROW

@@ -16,9 +16,7 @@ long long EconomySystem::getMoney(std::string const& player) { return LLMoney_Ge
 
 bool EconomySystem::setMoney(std::string const& player, long long money) { return LLMoney_Set(player, money); }
 
-bool EconomySystem::addMoney(std::string const& player, long long money) {
-    return LLMoney_Set(player, LLMoney_Get(player) + money);
-}
+bool EconomySystem::addMoney(std::string const& player, long long money) { return LLMoney_Add(player, money); }
 
 bool EconomySystem::reduceMoney(std::string const& player, long long money) { return LLMoney_Reduce(player, money); }
 

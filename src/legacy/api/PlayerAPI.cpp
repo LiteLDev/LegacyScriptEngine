@@ -27,7 +27,6 @@
 #include "ll/api/service/PlayerInfo.h"
 #include "ll/api/thread/ServerThreadExecutor.h"
 #include "lse/api/MoreGlobal.h"
-#include "lse/api/NetworkPacket.h"
 #include "mc/deps/core/math/Vec2.h"
 #include "mc/deps/core/utility/MCRESULT.h"
 #include "mc/deps/core/utility/optional_ref.h"
@@ -44,7 +43,9 @@
 #include "mc/legacy/ActorUniqueID.h"
 #include "mc/network/MinecraftPacketIds.h"
 #include "mc/network/MinecraftPackets.h"
+#include "mc/network/NetEventCallback.h"
 #include "mc/network/ServerNetworkHandler.h"
+#include "mc/network/packet/AddActorPacket.h"
 #include "mc/network/packet/BossEventPacket.h"
 #include "mc/network/packet/ClientboundCloseFormPacket.h"
 #include "mc/network/packet/LevelChunkPacket.h"
@@ -2485,34 +2486,14 @@ Local<Value> PlayerClass::setBossBar(Arguments const& args) const {
             removePkt->mEventType = BossEventUpdateType::Remove;
             removePkt->sendTo(*player);
 
-            BinaryStream bs;
-            bs.writeVarInt64(uid, nullptr, nullptr);
-            bs.writeUnsignedVarInt64(uid, nullptr, nullptr);
-            bs.writeString("player", nullptr, nullptr);
-            bs.writeFloat(player->getPosition().x, nullptr, nullptr);
-            bs.writeFloat(player->mDimension->lock()->mHeightRange->mMin - 64.0f, nullptr, nullptr);
-            bs.writeFloat(player->getPosition().z, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            // Attribute
-            bs.writeUnsignedVarInt(0, nullptr, nullptr);
-            // DataItem
-            bs.writeUnsignedVarInt(1, nullptr, nullptr);
-            bs.writeUnsignedVarInt(38, nullptr, nullptr);
-            bs.writeUnsignedVarInt(3, nullptr, nullptr);
-            bs.writeFloat(0.0f, nullptr, nullptr);
-            // PropertySyncIntEntry
-            bs.writeUnsignedVarInt(0, nullptr, nullptr);
-            // PropertySyncFloatEntry
-            bs.writeUnsignedVarInt(0, nullptr, nullptr);
-            // Links
-            bs.writeUnsignedVarInt(0, nullptr, nullptr);
-            auto addPkt = lse::api::NetworkPacket(MinecraftPacketIds::AddActor, std::move(bs.mBuffer));
+            auto addPkt =
+                static_pointer_cast<AddActorPacket>(MinecraftPackets::createPacket(MinecraftPacketIds::AddActor));
+            addPkt->mEntityId  = ActorUniqueID(uid);
+            addPkt->mRuntimeId = ActorRuntimeID(uid);
+            addPkt->mActorType = "player";
+            auto newPos        = player->getPosition();
+            newPos.y           = static_cast<float>(player->mDimension->lock()->mHeightRange->mMin) - 64.0f;
+            addPkt->mPos       = newPos;
 
             BossBarColor color = static_cast<BossBarColor>(args[3].asNumber().toInt32());
             auto         pkt =
@@ -2522,7 +2503,7 @@ Local<Value> PlayerClass::setBossBar(Arguments const& args) const {
             pkt->mName          = args[1].asString().toString();
             pkt->mHealthPercent = value;
             pkt->mColor         = color;
-            addPkt.sendTo(*player);
+            addPkt->sendTo(*player);
             pkt->sendTo(*player);
             return Boolean::newBoolean(true);
         }

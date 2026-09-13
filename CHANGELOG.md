@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1] - 2026-09-13
+
+### Fixed
+
+- Fixed Player::setBossbar
+
 ## [0.21.0] - 2026-09-08
 
 - on onEndermanTakeBlock not available for now
@@ -1413,7 +1419,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#385]: https://github.com/LiteLDev/LegacyScriptEngine/issues/385
 [#390]: https://github.com/LiteLDev/LegacyScriptEngine/issues/390
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.1...HEAD
+[0.21.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.0...v0.21.1
 [0.21.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.19.6...v0.19.7

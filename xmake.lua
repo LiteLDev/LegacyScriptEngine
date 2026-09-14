@@ -8,7 +8,7 @@ add_requires("levibuildscript")
 
 add_requires("legacyremotecall v0.21.1", {configs = {target_type = get_config("target_type")}})
 add_requires("legacymoney v0.21.0", {configs = {target_type = get_config("target_type")}})
-add_requires("ilistenattentively 0.14.*", {configs = {target_type = get_config("target_type")}})
+add_requires("ilistenattentively 0.15.*", {configs = {target_type = get_config("target_type")}})
 
 add_requires(
     "lightwebsocketclient v1.0.3",

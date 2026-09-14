@@ -12,6 +12,9 @@
     },
     {
       "name": "LegacyRemoteCall"
+    },
+    {
+      "name": "iListenAttentively"
     }
   ]
 }

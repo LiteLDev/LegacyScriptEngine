@@ -216,34 +216,6 @@ LL_TYPE_INSTANCE_HOOK(ActorRideHook, HookPriority::Normal, Actor, &Actor::$canAd
 }
 
 LL_TYPE_INSTANCE_HOOK(
-    WitherDestroyHook,
-    HookPriority::Normal,
-    WitherBoss,
-    &WitherBoss::_destroyBlocks,
-    void,
-    Level&                       level,
-    AABB const&                  bb,
-    BlockSource&                 region,
-    int                          range,
-    WitherBoss::WitherAttackType type
-) {
-    IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
-        if (isServerThread()) {
-            if (!CallEvent(
-                    EVENT_TYPES::onWitherBossDestroy,
-                    EntityClass::newEntity(this),
-                    IntPos::newPos(bb.min, region.getDimensionId()),
-                    IntPos::newPos(bb.max, region.getDimensionId())
-                )) {
-                return;
-            }
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
-    origin(level, bb, region, range, type);
-}
-
-LL_TYPE_INSTANCE_HOOK(
     ProjectileHitEntityHook,
     HookPriority::Normal,
     ProjectileComponent,
@@ -428,8 +400,6 @@ void PortalTrySpawnPigZombieEvent() {
         reg;
 }
 void ProjectileCreatedEvent() { static ll::memory::HookRegistrar<ProjectileSpawnHook1> reg; };
-void ActorRideEvent() { static ll::memory::HookRegistrar<ActorRideHook> reg; }
-void WitherDestroyEvent() { static ll::memory::HookRegistrar<WitherDestroyHook> reg; }
 void ProjectileHitEntityEvent() { static ll::memory::HookRegistrar<ProjectileHitEntityHook> reg; }
 void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitBlockHook> reg; }
 void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook> reg; }

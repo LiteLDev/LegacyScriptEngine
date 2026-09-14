@@ -266,7 +266,7 @@ void EnableEventListener(int eventId) {
         lse::events::block::onRedStoneUpdate();
         break;
     case EVENT_TYPES::onWitherBossDestroy:
-        lse::events::entity::WitherDestroyEvent();
+        lse::events::entity::onWitherBossDestroy();
         break;
     case EVENT_TYPES::onMobHurt:
         lse::events::entity::MobHurtEvent();

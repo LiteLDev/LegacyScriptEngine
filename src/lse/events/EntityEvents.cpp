@@ -12,6 +12,7 @@
 #include "mc/world/level/Explosion.h"
 
 #include <ila/event/world/ExplosionEvent.h>
+#include <ila/event/world/WitherDestroyEvent.h>
 #include <ila/event/world/actor/ActorTriggerPressurePlateEvent.h>
 #include <ila/event/world/actor/MobTakeBlockEvent.h>
 
@@ -150,6 +151,24 @@ void onEndermanTakeBlock() {
                 ev.cancel();
             }
         }
+    });
+}
+
+void onWitherBossDestroy() {
+    bus.emplaceListener<ila::mc::WitherDestroyBeforeEvent>([](ila::mc::WitherDestroyBeforeEvent& ev) {
+        IF_LISTENED(EVENT_TYPES::onWitherBossDestroy) {
+            if (isServerThread()) {
+                if (!CallEvent(
+                        EVENT_TYPES::onWitherBossDestroy,
+                        EntityClass::newEntity(&ev.wither()),
+                        IntPos::newPos(ev.box().min, ev.blockSource().getDimensionId()),
+                        IntPos::newPos(ev.box().max, ev.blockSource().getDimensionId())
+                    )) {
+                    ev.cancel();
+                }
+            }
+        }
+        IF_LISTENED_END(EVENT_TYPES::onWitherBossDestroy);
     });
 }
 } // namespace lse::events::entity

@@ -13,4 +13,12 @@ void EndermanTakeBlockEvent();
 void EffectUpdateEvent();
 void TransformationEvent();
 void PortalTrySpawnPigZombieEvent();
+
+void onEntityExplode();
+void onStepOnPressurePlate();
+void onMobDie();
+void onMobSpawn();
+void onMobTrySpawn();
+void onMobSpawned();
+void onEndermanTakeBlock();
 } // namespace lse::events::entity

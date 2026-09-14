@@ -38,6 +38,7 @@
         "github.com/LiteLDev/LeviLamina": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
         "github.com/LiteLDev/LegacyMoney": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively": "0.14.*",
         "github.com/LiteLDev/7-zip-tooth": "26.*"
       },
       "assets": [
@@ -75,7 +76,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively": "0.14.*"
       },
       "assets": [
         {
@@ -99,7 +101,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively": "0.14.*"
       },
       "assets": [
         {
@@ -123,7 +126,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively": "0.14.*"
       },
       "assets": [
         {
@@ -148,6 +152,7 @@
         "github.com/LiteLDev/LeviLamina#client": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
         "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.14.*",
         "github.com/LiteLDev/7-zip-tooth": "26.*"
       },
       "assets": [
@@ -185,7 +190,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina#client": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.14.*"
       },
       "assets": [
         {
@@ -209,7 +215,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina#client": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.14.*"
       },
       "assets": [
         {
@@ -233,7 +240,8 @@
       "dependencies": {
         "github.com/LiteLDev/LeviLamina#client": "26.40.*",
         "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*"
+        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.14.*"
       },
       "assets": [
         {

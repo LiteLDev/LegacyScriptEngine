@@ -415,46 +415,6 @@ LL_TYPE_INSTANCE_HOOK(
 }
 } // namespace Transformation
 
-LL_TYPE_INSTANCE_HOOK(
-    EndermanTakeBlockHook,
-    HookPriority::Normal,
-    ActorEventCoordinator,
-    &ActorEventCoordinator::sendEvent,
-    void,
-    EventRef<ActorGameplayEvent<void>> const& event
-) {
-
-    IF_LISTENED(EVENT_TYPES::onEndermanTakeBlock) {
-        if (isServerThread()) {
-            bool canceled = event.get().visit([&]<typename T0>(T0&& arg) {
-                if constexpr (std::is_same_v<std::decay_t<T0>, Details::ValueOrRef<ActorGriefingBlockEvent const>>) {
-                    auto& griefingEvent = arg.value();
-                    auto  entity        = griefingEvent.mActorContext->tryUnwrap();
-                    if (entity && entity->isType(ActorType::EnderMan)) {
-                        if (!CallEvent(
-                                EVENT_TYPES::onEndermanTakeBlock,
-                                EntityClass::newEntity(entity.as_ptr()),
-                                BlockClass::newBlock(
-                                    *griefingEvent.mBlock,
-                                    BlockPos(griefingEvent.mPos),
-                                    entity->getDimensionId()
-                                ),
-                                IntPos::newPos(BlockPos(griefingEvent.mPos), entity->getDimensionId())
-                            )) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            });
-            if (canceled) return;
-        }
-    }
-    IF_LISTENED_END(EVENT_TYPES::onEndermanTakeBlock);
-
-    return origin(event);
-}
-
 void ProjectileSpawnEvent() {
     static ll::memory::HookRegistrar<
         ProjectileSpawnHook1,
@@ -476,7 +436,6 @@ void ProjectileHitEntityEvent() { static ll::memory::HookRegistrar<ProjectileHit
 void ProjectileHitBlockEvent() { static ll::memory::HookRegistrar<ProjectileHitBlockHook> reg; }
 void MobHurtEvent() { static ll::memory::HookRegistrar<MobHurtHook> reg; }
 void NpcCommandEvent() { static ll::memory::HookRegistrar<NpcCommandHook> reg; }
-void EndermanTakeBlockEvent() { static ll::memory::HookRegistrar<EndermanTakeBlockHook> reg; }
 void TransformationEvent() {
     static ll::memory::HookRegistrar<Transformation::addEntityHook, Transformation::TransformedActorHook> reg;
 }

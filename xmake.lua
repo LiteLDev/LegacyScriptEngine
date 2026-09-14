@@ -2,16 +2,13 @@ add_rules("mode.debug", "mode.release")
 
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
-if is_config("target_type", "server") then
-    add_requires("levilamina 26.40.*", {configs = {target_type = "server"}})
-else
-    add_requires("levilamina 26.40.*", {configs = {target_type = "client"}})
-end
+add_requires("levilamina 26.40.*", {configs = {target_type = get_config("target_type")}})
 
 add_requires("levibuildscript")
 
-add_requires("legacyremotecall v0.21.1", {configs = {target_type = get_config(target_type)}})
-add_requires("legacymoney v0.21.0", {configs = {target_type = get_config(target_type)}})
+add_requires("legacyremotecall v0.21.1", {configs = {target_type = get_config("target_type")}})
+add_requires("legacymoney v0.21.0", {configs = {target_type = get_config("target_type")}})
+add_requires("ilistenattentively 0.14.*", {configs = {target_type = get_config("target_type")}})
 
 add_requires(
     "lightwebsocketclient v1.0.3",
@@ -25,21 +22,18 @@ add_requires(
 
 add_requires("openssl3")
 add_requires("cpp-httplib 0.26.0", { configs = { ssl = true, zlib = true } })
+add_requires("mariadb-connector-c 3.4.8")
 
 if is_config("backend", "lua") then
-    add_requires("mariadb-connector-c 3.4.8")
     add_requires("scriptx 2026.8.24", { configs = { backend = "Lua" } })
 
 elseif is_config("backend", "quickjs") then
-    add_requires("mariadb-connector-c 3.4.8")
     add_requires("scriptx 2026.8.24", { configs = { backend = "QuickJs" } })
 
 elseif is_config("backend", "python") then
-    add_requires("mariadb-connector-c 3.4.8")
     add_requires("scriptx 2026.8.24", { configs = { backend = "Python" } })
 
 elseif is_config("backend", "nodejs") then
-    add_requires("mariadb-connector-c 3.4.8")
     add_requires("scriptx 2026.8.24", { configs = { backend = "V8" } })
 end
 
@@ -102,7 +96,8 @@ target("LegacyScriptEngine")
         "sqlite3",
         "toml++",
         "mariadb-connector-c",
-        "ctre"
+        "ctre",
+        "ilistenattentively"
     )
     set_kind("shared")
     set_languages("cxx20")

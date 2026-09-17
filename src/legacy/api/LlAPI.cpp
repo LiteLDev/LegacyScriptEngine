@@ -406,7 +406,7 @@ Local<Value> LlClass::onUnload(Arguments const& args) {
 
     try {
         getEngineOwnData()->addUnloadCallback(
-            [func = script::Global(args[0].asFunction())](std::shared_ptr<ScriptEngine> engine) {
+            [func = script::Global(args[0].asFunction())](std::shared_ptr<ScriptEngine> const& engine) {
                 EngineScope enter(engine.get());
                 func.get().call();
             }

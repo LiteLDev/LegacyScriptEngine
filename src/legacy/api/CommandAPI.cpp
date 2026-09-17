@@ -226,8 +226,7 @@ Local<Value> McClass::runcmdEx(Arguments const& args) {
         if (command) {
             CommandOutput output(CommandOutputType::AllOutput);
             command->run(origin, output);
-            static std::shared_ptr<Localization const> localization =
-                getI18n().getLocaleFor(getI18n().getCurrentLanguage()->mCode);
+            static std::shared_ptr<Localization const> localization = getI18n().getCurrentLanguage().get();
             for (auto& msg : output.mMessages) {
                 outputStr += getI18n().get(msg.mMessageId, msg.mParams, localization).append("\n");
             }
@@ -423,13 +422,13 @@ Local<Value> CommandClass::newParameter(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
+        auto                   name = args[0].asString().toString();
+        ParamKind::Kind        type = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName;
-        bool                   optional   = false;
+        bool                   optional = false;
         std::string            identifier;
-        size_t                 index      = 2;
-        CommandParameterOption option     = CommandParameterOption::None;
+        size_t                 index  = 2;
+        CommandParameterOption option = CommandParameterOption::None;
         if (args.size() > index && args[index].isBoolean()) optional = args[index++].asBoolean().value();
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
@@ -452,12 +451,12 @@ Local<Value> CommandClass::mandatory(Arguments const& args) const {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
+        auto                   name = args[0].asString().toString();
+        ParamKind::Kind        type = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName;
         std::string            identifier;
-        size_t                 index      = 2;
-        CommandParameterOption option     = CommandParameterOption::None;
+        size_t                 index  = 2;
+        CommandParameterOption option = CommandParameterOption::None;
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
         if (args.size() > index && args[index].isNumber())
@@ -479,12 +478,12 @@ auto CommandClass::optional(Arguments const& args) const -> Local<Value> {
     CHECK_ARGS_COUNT(args, 2);
     CHECK_ARG_TYPE(args[0], ValueKind::kString);
     try {
-        auto                   name       = args[0].asString().toString();
-        ParamKind::Kind        type       = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
+        auto                   name = args[0].asString().toString();
+        ParamKind::Kind        type = static_cast<ParamKind::Kind>(parseEnum<OldParameterType>(args[1]));
         std::string            enumName;
         std::string            identifier;
-        size_t                 index      = 2;
-        CommandParameterOption option     = CommandParameterOption::None;
+        size_t                 index  = 2;
+        CommandParameterOption option = CommandParameterOption::None;
         if (args.size() > index && args[index].isString()) enumName = args[index++].asString().toString();
         if (args.size() > index && args[index].isString()) identifier = args[index++].asString().toString();
         if (args.size() > index && args[index].isNumber())

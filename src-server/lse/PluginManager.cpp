@@ -253,7 +253,9 @@ ll::Expected<> PluginManager::unload(std::string_view name) {
 
         {
             EngineScope scope(scriptEngine.get());
-            LLSECallEventsOnUnload(scriptEngine);
+            if (ll::getGamingStatus() == ll::GamingStatus::Running) {
+                LLSECallEventsOnUnload(scriptEngine);
+            }
 #ifndef LSE_BACKEND_NODEJS
             LLSERemoveTimeTaskData(scriptEngine);
 #endif

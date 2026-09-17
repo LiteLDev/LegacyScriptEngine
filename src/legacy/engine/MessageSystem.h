@@ -69,7 +69,7 @@ public:
     static ModuleMessageResult
     broadcastTo(std::string const& toModuleType, MessageType type, std::string const& data, int64_t delay = 0);
     static ModuleMessageResult
-    sendTo(std::shared_ptr<ScriptEngine> engine, MessageType type, std::string const& data, int64_t delay = 0);
+    sendTo(std::shared_ptr<ScriptEngine> const& engine, MessageType type, std::string const& data, int64_t delay = 0);
     static ModuleMessageResult
     sendToRandom(std::string const& toModuleType, MessageType type, std::string const& data, int64_t delay = 0);
 

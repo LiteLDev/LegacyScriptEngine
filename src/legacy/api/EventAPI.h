@@ -9,7 +9,7 @@ struct EventListener;
 void InitBasicEventListeners();
 void EnableEventListener(int eventId);
 optional_ref<EventListener>
-     LLSEAddEventListener(ScriptEngine* engine, std::string const& eventName, Local<Function> const& func);
+LLSEAddEventListener(ScriptEngine* engine, std::string const& eventName, Local<Function> const& func);
 bool LLSERemoveAllEventListeners(std::shared_ptr<ScriptEngine> engine);
 bool LLSECallEventsOnHotLoad(std::shared_ptr<ScriptEngine> const& engine);
 bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine);
@@ -206,6 +206,6 @@ void FakeCallEventImpl(EventListener& listener, ScriptEngine* engine, EVENT_TYPE
 #define IF_LISTENED_END(TYPE)                                                                                          \
     catch (...) {                                                                                                      \
         lse::LegacyScriptEngine::getLogger().error("Event Callback Failed! In Event: {}", EventTypeToString(TYPE));    \
-        ::legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                                  \
+        legacy::script_error::printCurrentException(lse::LegacyScriptEngine::getLogger());                             \
     }                                                                                                                  \
     }

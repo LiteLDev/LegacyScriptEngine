@@ -91,8 +91,6 @@ export const events = [
   "beforeMoneyReduce",
   "beforeMoneyTrans",
   "beforeMoneySet",
-  /* Outdated Events */
-  "onMobSpawn",
 ];
 
 export const triggeredEvents = new Set();

@@ -36,6 +36,7 @@
 #include "mc/entity/components/ActorRotationComponent.h"
 #include "mc/entity/components/AttributesComponent.h"
 #include "mc/entity/components/InsideBlockComponent.h"
+#include "mc/entity/components/IsDeadFlagComponent.h"
 #include "mc/entity/components/TagsComponent.h"
 #include "mc/entity/components/WasInWaterFlagComponent.h"
 #include "mc/entity/utilities/ActorMobilityUtils.h"
@@ -1051,7 +1052,7 @@ Local<Value> PlayerClass::getCanBeSeenOnMap() const {
             return Boolean::newBoolean(false);
         }
         ItemStack const& item = player->getItemSlot(SharedTypes::Legacy::EquipmentSlot::Legs);
-        return Boolean::newBoolean(item.isHumanoidWearableBlockItem());
+        return Boolean::newBoolean(item.isHumanoidWearableItem());
     }
     CATCH_AND_THROW
 }
@@ -1063,7 +1064,12 @@ Local<Value> PlayerClass::getCanFreeze() const {
             return {};
         }
 
-        return Boolean::newBoolean(player->canFreeze());
+        // Player::canFreeze is not exported in the current header set, replicate it:
+        // leather armor and the IsDeadFlagComponent flag make the player freeze-proof,
+        // and spectators can never be frozen.
+        bool canFreeze = !player->isWearingLeatherArmor()
+                      && !player->getEntityContext().hasComponent<IsDeadFlagComponent>() && !player->isSpectator();
+        return Boolean::newBoolean(canFreeze);
     }
     CATCH_AND_THROW
 }

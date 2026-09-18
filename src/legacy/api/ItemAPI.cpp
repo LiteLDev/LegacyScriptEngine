@@ -217,7 +217,7 @@ Local<Value> ItemClass::isArmorItem() const {
 
 Local<Value> ItemClass::isBlock() const {
     try {
-        return Boolean::newBoolean(get()->getBlockType().get());
+        return Boolean::newBoolean(get()->mItem->mBlockType);
     }
     CATCH_AND_THROW
 }
@@ -301,7 +301,7 @@ Local<Value> ItemClass::isMusicDiscItem() const {
 Local<Value> ItemClass::isOffhandItem() const {
     try {
         if (auto mItem = get()->mItem) {
-            return Boolean::newBoolean(mItem->mAllowOffhand);
+            return Boolean::newBoolean(mItem->mAllowOffhand == Item::OffhandAllowed::Yes);
         }
         return Boolean::newBoolean(false);
     }
@@ -328,7 +328,7 @@ Local<Value> ItemClass::isStackable() const {
 Local<Value> ItemClass::isWearableItem() const {
     try {
         if (get()->mItem) {
-            return Boolean::newBoolean(get()->isHumanoidWearableBlockItem());
+            return Boolean::newBoolean(get()->isHumanoidWearableItem());
         }
         return Boolean::newBoolean(false);
     }

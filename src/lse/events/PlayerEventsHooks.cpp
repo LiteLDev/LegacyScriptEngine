@@ -15,6 +15,7 @@
 #include "mc/world/actor/player/Inventory.h"
 #include "mc/world/actor/player/Player.h"
 #include "mc/world/containers/managers/models/ContainerManagerModel.h"
+#include "mc/world/effect/MobEffectInstance.h"
 #include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/inventory/network/ItemStackNetManagerServer.h"
 #include "mc/world/inventory/transaction/ComplexInventoryTransaction.h"
@@ -129,7 +130,7 @@ LL_TYPE_INSTANCE_HOOK(
             auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
             int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
             auto& item          = eventData.mPlayer.getSelectedItem();
-            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType : nullptr;
             bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
                             && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
             auto& spawnPoint = eventData.mPlayer.mPlayerRespawnPoint;
@@ -229,6 +230,7 @@ LL_TYPE_INSTANCE_HOOK(
     ::Actor&      entity,
     ::BlockPos    pos,
     uchar         face,
+    ::HandSlot    handSlot,
     ::Vec3 const& clickPos
 ) {
     IF_LISTENED(EVENT_TYPES::onUseBucketTake) {
@@ -238,7 +240,7 @@ LL_TYPE_INSTANCE_HOOK(
             if (auto& type = bs.getMaterial(pos).mType; type != MaterialType::Water && type != MaterialType::Lava) {
                 if (auto& bl = bs.getBlock(pos).mBlockType;
                     *bl->mNameInfo->mFullName != VanillaBlockTypeIds::PowderSnow()) {
-                    return origin(instance, entity, pos, face, clickPos);
+                    return origin(instance, entity, pos, face, handSlot, clickPos);
                 }
             }
             if (!CallEvent(
@@ -254,7 +256,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onUseBucketTake);
-    return origin(instance, entity, pos, face, clickPos);
+    return origin(instance, entity, pos, face, handSlot, clickPos);
 }
 
 LL_TYPE_INSTANCE_HOOK(ConsumeTotemHook, HookPriority::Normal, Player, &Player::$consumeTotem, bool) {
@@ -326,13 +328,14 @@ LL_TYPE_INSTANCE_HOOK(
     Block,
     &Block::use,
     bool,
-    Player&             player,
-    BlockPos const&     pos,
-    uchar               face,
-    std::optional<Vec3> hit
+    Player&               player,
+    BlockPos const&       pos,
+    uchar                 face,
+    HandSlot              handSlot,
+    std::optional<::Vec3> hit
 ) {
     if (!isServerThread() || (!mBlockType->isInteractiveBlock() && !mBlockType->isCraftingBlock())) {
-        return origin(player, pos, face, hit); // 提前把不可交互方块过滤掉
+        return origin(player, pos, face, handSlot, hit); // 提前把不可交互方块过滤掉
     }
     IF_LISTENED(EVENT_TYPES::onBlockInteracted) {
         if (!CallEvent(
@@ -349,7 +352,7 @@ LL_TYPE_INSTANCE_HOOK(
         }
     }
     IF_LISTENED_END(EVENT_TYPES::onBlockInteracted);
-    return origin(player, pos, face, hit);
+    return origin(player, pos, face, handSlot, hit);
 }
 
 void CloseContainerEvent() { static ll::memory::HookRegistrar<CloseContainerHook1, CloseContainerHook2> reg; }

@@ -13,11 +13,11 @@
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorHurtResult.h"
 #include "mc/world/gamemode/InteractionResult.h"
+#include "mc/world/item/HandSlot.h"
 #include "mc/world/level/dimension/Dimension.h"
 
 #include <string>
 #include <vector>
-
 
 Local<Value> McClass::spawnSimulatedPlayer(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1);
@@ -85,7 +85,7 @@ Local<Value> PlayerClass::simulateAttack(Arguments const& args) const {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateAttack());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            sp->swing(ActorSwingSource::Attack);
+            sp->swing(ActorSwingSource::Attack, HandSlot::Mainhand);
             return Boolean::newBoolean(sp->attack(*actor, SharedTypes::Legacy::ActorDamageCause::EntityAttack));
         }
 

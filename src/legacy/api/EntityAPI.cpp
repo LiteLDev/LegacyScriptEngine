@@ -521,7 +521,8 @@ Local<Value> EntityClass::getCanFreeze() const {
         Actor const* entity = get();
         if (!entity) return {};
 
-        return Boolean::newBoolean(entity->canFreeze());
+        bool canFreeze = !entity->hasType(ActorType::SnowGolem) && !entity->isWearingLeatherArmor();
+        return Boolean::newBoolean(canFreeze);
     }
     CATCH_AND_THROW
 }

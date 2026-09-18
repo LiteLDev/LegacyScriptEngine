@@ -1,19 +1,15 @@
 #include "legacy/api/DeviceAPI.h"
 
 #include "legacy/api/APIHelp.h"
-#include "ll/api/service/Bedrock.h"
 #include "magic_enum.hpp"
 #include "mc/deps/certificates/WebToken.h"
-#include "mc/deps/ecs/systems/TickingSystemWithInfo.h"
 #include "mc/deps/input/InputMode.h"
 #include "mc/deps/json/Value.h"
 #include "mc/entity/components/ScriptingInputInfoComponent.h"
 #include "mc/entity/components/ServerScriptInputPacketQueueComponent.h"
-#include "mc/entity/systems/EntitySystems.h"
-#include "mc/entity/systems/ServerScriptInputSystem.h"
-#include "mc/legacy/ActorRuntimeID.h"
 #include "mc/network/ConnectionRequest.h"
 #include "mc/network/ServerNetworkHandler.h"
+#include "mc/network/packet/PlayerAuthInputPacketPayload.h"
 #include "mc/world/actor/player/Player.h"
 
 #include <string>
@@ -178,7 +174,8 @@ Local<Value> DeviceClass::getInputMode() const {
 // }
 
 InputEntry::InputEntry(InputEntry const& other) {
-    mUnk1256a7.as<InputMode>()       = other.mUnk1256a7.as<InputMode>();
-    mUnkbd66e3.as<std::bitset<66>>() = other.mUnkbd66e3.as<std::bitset<66>>();
-    mUnk5ce573.as<Vec2>()            = other.mUnk5ce573.as<Vec2>();
+    mUnk1256a7.as<InputMode>() = other.mUnk1256a7.as<InputMode>();
+    mUnke7d5b0.as<Bedrock::EnumSet<PlayerAuthInputPacketPayload::InputData, 66>>() =
+        other.mUnke7d5b0.as<Bedrock::EnumSet<PlayerAuthInputPacketPayload::InputData, 66>>();
+    mUnk5ce573.as<Vec2>() = other.mUnk5ce573.as<Vec2>();
 }

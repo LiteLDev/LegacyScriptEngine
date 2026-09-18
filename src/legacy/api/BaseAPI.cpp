@@ -6,7 +6,7 @@
 #include "ll/api/Versions.h"
 #include "mc/common/Common.h"
 #include "mc/common/SharedConstants.h"
-#include "mc/world/actor/ActorDamageSource.h"
+#include "mc/common/StringConstants.h"
 #include "mc/world/level/BlockSource.h"
 
 ///////////////////// Enum //////////////////////
@@ -233,7 +233,7 @@ Local<Value> McClass::newFloatPos(Arguments const& args) {
 
 Local<Value> McClass::getBDSVersion(Arguments const&) {
     try {
-        return String::newString(Common::getGameVersionString());
+        return String::newString(Common::_buildStringConstants().mGameVersionString);
     }
     CATCH_AND_THROW
 }

@@ -2,7 +2,7 @@
   "format_version": 3,
   "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
   "tooth": "github.com/LiteLDev/LegacyScriptEngine",
-  "version": "0.21.3",
+  "version": "0.22.0",
   "info": {
     "name": "LegacyScriptEngine",
     "description": "A plugin engine for running LLSE plugins on LeviLamina",
@@ -17,7 +17,7 @@
     {
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina": "26.40.*",
+        "github.com/LiteLDev/LeviLamina": "26.51.*",
         "github.com/LiteLDev/LegacyScriptEngine#quickjs": "{{version}}",
         "github.com/LiteLDev/LegacyScriptEngine#lua": "{{version}}"
       }
@@ -26,7 +26,7 @@
       "label": "client",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina#client": "26.40.*",
+        "github.com/LiteLDev/LeviLamina#client": "26.51.*",
         "github.com/LiteLDev/LegacyScriptEngine#client_quickjs": "{{version}}",
         "github.com/LiteLDev/LegacyScriptEngine#client_lua": "{{version}}"
       }
@@ -35,10 +35,10 @@
       "label": "nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively": "0.16.*",
+        "github.com/LiteLDev/LeviLamina": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively": "0.17.*",
         "github.com/LiteLDev/7-zip-tooth": "26.*"
       },
       "assets": [
@@ -74,10 +74,10 @@
       "label": "quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively": "0.17.*"
       },
       "assets": [
         {
@@ -99,10 +99,10 @@
       "label": "lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively": "0.17.*"
       },
       "assets": [
         {
@@ -124,10 +124,10 @@
       "label": "python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively": "0.16.*"
+        "github.com/LiteLDev/LeviLamina": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively": "0.17.*"
       },
       "assets": [
         {
@@ -149,10 +149,10 @@
       "label": "client_nodejs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina#client": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively#client": "0.16.*",
+        "github.com/LiteLDev/LeviLamina#client": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.17.*",
         "github.com/LiteLDev/7-zip-tooth": "26.*"
       },
       "assets": [
@@ -188,10 +188,10 @@
       "label": "client_quickjs",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina#client": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively#client": "0.16.*"
+        "github.com/LiteLDev/LeviLamina#client": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.17.*"
       },
       "assets": [
         {
@@ -213,10 +213,10 @@
       "label": "client_lua",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina#client": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively#client": "0.16.*"
+        "github.com/LiteLDev/LeviLamina#client": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.17.*"
       },
       "assets": [
         {
@@ -238,10 +238,10 @@
       "label": "client_python",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/LiteLDev/LeviLamina#client": "26.40.*",
-        "github.com/LiteLDev/LegacyRemoteCall#client": "0.21.*",
-        "github.com/LiteLDev/LegacyMoney#client": "0.21.*",
-        "github.com/LiteLDev/iListenAttentively#client": "0.16.*"
+        "github.com/LiteLDev/LeviLamina#client": "26.51.*",
+        "github.com/LiteLDev/LegacyRemoteCall#client": "0.22.*",
+        "github.com/LiteLDev/LegacyMoney#client": "0.22.*",
+        "github.com/LiteLDev/iListenAttentively#client": "0.17.*"
       },
       "assets": [
         {

@@ -105,7 +105,7 @@ LL_TYPE_INSTANCE_HOOK(
             auto& block         = eventData.mPlayer.getDimensionBlockSource().getBlock(eventData.mPos);
             int   charge        = block.getState<int>(VanillaStates::RespawnAnchorCharge().mID).value_or(0);
             auto& item          = eventData.mPlayer.getSelectedItem();
-            auto* itemBlockType = item.mItem ? item.mItem->mBlockType.get().get() : nullptr;
+            auto* itemBlockType = item.mItem ? item.mItem->mBlockType : nullptr;
             bool  isCharging = itemBlockType && *itemBlockType->mNameInfo->mFullName == VanillaBlockTypeIds::Glowstone()
                             && charge < static_cast<int>(VanillaStates::RespawnAnchorCharge().mVariationCount) - 1;
             if (charge > 0 && !isCharging && eventData.mPlayer.getDimensionId() != 1) {
@@ -229,7 +229,7 @@ LL_TYPE_INSTANCE_HOOK(
 }
 
 namespace dispenser {
-LL_TYPE_INSTANCE_HOOK(
+LL_TYPE_STATIC_HOOK(
     DispenserEjectItemHook,
     HookPriority::Normal,
     DispenserBlock,

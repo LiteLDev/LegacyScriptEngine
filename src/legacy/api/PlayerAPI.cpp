@@ -2131,7 +2131,11 @@ Local<Value> PlayerClass::reduceExperience(Arguments const& args) const {
 
         float exp = args[0].asNumber().toFloat();
         if (auto component = player->getEntityContext().tryGetComponent<AttributesComponent>()) {
+#ifdef LL_PLAT_S
             auto instance = component->mAttributes->getMutableInstanceWithContext(Player::EXPERIENCE()).mInstance->mPtr;
+#else
+            auto instance = component->mAttributes->getMutableInstance(Player::EXPERIENCE()).mPtr;
+#endif
             if (!instance) {
                 return Boolean::newBoolean(false);
             }

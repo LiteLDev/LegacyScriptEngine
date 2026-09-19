@@ -172,10 +172,3 @@ Local<Value> DeviceClass::getInputMode() const {
 //     }
 //     CATCH_AND_THROW
 // }
-
-InputEntry::InputEntry(InputEntry const& other) {
-    mUnk1256a7.as<InputMode>() = other.mUnk1256a7.as<InputMode>();
-    mUnke7d5b0.as<Bedrock::EnumSet<PlayerAuthInputPacketPayload::InputData, 66>>() =
-        other.mUnke7d5b0.as<Bedrock::EnumSet<PlayerAuthInputPacketPayload::InputData, 66>>();
-    mUnk5ce573.as<Vec2>() = other.mUnk5ce573.as<Vec2>();
-}

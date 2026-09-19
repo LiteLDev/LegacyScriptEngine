@@ -147,7 +147,7 @@ Local<Value> DeviceClass::getInputMode() const {
         if (auto& queue =
                 player->mEntityContext->getOrAddComponent<ServerScriptInputPacketQueueComponent>().mQueuedUpdates;
             !queue->empty()) {
-            return Number::newNumber(static_cast<int>(queue->back().mUnk1256a7.as<InputMode>()));
+            return Number::newNumber(static_cast<int>(queue->back().mInputMode));
         }
 
         if (auto component = player->mEntityContext->tryGetComponent<ScriptingInputInfoComponent>(); component) {

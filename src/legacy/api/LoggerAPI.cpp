@@ -5,7 +5,7 @@
 #include "legacy/engine/EngineOwnData.h"
 #include "legacy/utils/Utils.h"
 #include "ll/api/data/IndirectValue.h"
-#include "ll/api/io/DefaultSink.h"
+#include "ll/api/io/ConsoleSink.h"
 #include "ll/api/io/FileSink.h"
 #include "ll/api/io/Logger.h"
 #include "ll/api/io/PatternFormatter.h"
@@ -158,8 +158,7 @@ Local<Value> LoggerClass::setFile(Arguments const& args) {
         std::filesystem::path             newFile = std::filesystem::path(args[0].asString().toString());
         std::shared_ptr<ll::io::FileSink> sink    = std::make_shared<ll::io::FileSink>(
             newFile,
-            ll::makePolymorphic<ll::io::PatternFormatter>("{3:.3%T.} {2} {1} {0}", false),
-            std::ios::app
+            ll::makePolymorphic<ll::io::PatternFormatter>("{3:.3%T.} {2} {1} {0}", false)
         );
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
@@ -173,7 +172,7 @@ Local<Value> LoggerClass::setFile(Arguments const& args) {
         auto logger = getEngineOwnData()->logger;
         if (hasFileSink) {
             logger->clearSink();
-            logger->addSink(std::make_shared<ll::io::DefaultSink>());
+            logger->addSink(std::make_shared<ll::io::ConsoleSink>());
         }
         return Boolean::newBoolean(logger->addSink(sink));
     }

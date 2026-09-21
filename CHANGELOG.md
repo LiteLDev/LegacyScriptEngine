@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.2] - 2026-09-21
+
+### Fixed
+
+- Fixed Scoreboad related query API
+
 ## [0.22.1] - 2026-09-20
 
 ### Changed
@@ -1450,7 +1456,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#385]: https://github.com/LiteLDev/LegacyScriptEngine/issues/385
 [#390]: https://github.com/LiteLDev/LegacyScriptEngine/issues/390
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.1...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.2...HEAD
+[0.22.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.3...v0.22.0
 [0.21.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.2...v0.21.3

@@ -476,8 +476,14 @@ Local<Value> McClass::newItem(Arguments const& args) {
             if (args.size() >= 2 && args[1].isNumber()) {
                 std::string type = args[0].asString().toString();
                 int         cnt  = args[1].asNumber().toInt32();
-                auto        item = std::make_unique<ItemStack>();
-                item->reinit(type, cnt, 0);
+                if (!ll::service::getLevel())
+                    throw CreateExceptionWithInfo(__FUNCTION__, "ll::service::getLevel() returns nullptr");
+                auto weakItem = ll::service::getLevel()->getItemRegistry().getItem(type);
+                if (!weakItem) {
+                    throw CreateExceptionWithInfo(__FUNCTION__, "Item not found");
+                }
+                auto item = std::make_unique<ItemStack>();
+                item->reinit(*weakItem.lock(), cnt, 0);
                 return ItemClass::newItem(std::move(item));
             }
             throw TooFewArgsException(__FUNCTION__);

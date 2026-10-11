@@ -1775,7 +1775,13 @@ Local<Value> PlayerClass::tell(Arguments const& args) const {
 
     try {
         Player* player = get();
-        if (!player) return {};
+        if (!player) {
+            return {};
+        }
+        std::string message = args[0].asString().toString();
+        if (message.empty()) {
+            return {};
+        }
 
         TextPacketType type = TextPacketType::Raw;
         if (args.size() >= 2 && args[1].isNumber()) {
@@ -1791,17 +1797,17 @@ Local<Value> PlayerClass::tell(Arguments const& args) const {
         case TextPacketType::TextObject:
         case TextPacketType::TextObjectWhisper:
         case TextPacketType::TextObjectAnnouncement:
-            pkt.mBody = TextPacket::MessageOnly(type, args[0].asString().toString());
+            pkt.mBody = TextPacket::MessageOnly(type, message);
             break;
         case TextPacketType::Chat:
         case TextPacketType::Whisper:
         case TextPacketType::Announcement:
-            pkt.mBody = TextPacket::AuthorAndMessage(type, "", args[0].asString().toString());
+            pkt.mBody = TextPacket::AuthorAndMessage(type, "", message);
             break;
         case TextPacketType::Translate:
         case TextPacketType::Popup:
         case TextPacketType::JukeboxPopup:
-            pkt.mBody = TextPacket::MessageAndParams(type, args[0].asString().toString(), {});
+            pkt.mBody = TextPacket::MessageAndParams(type, message, {});
         }
 
         player->sendNetworkPacket(pkt);

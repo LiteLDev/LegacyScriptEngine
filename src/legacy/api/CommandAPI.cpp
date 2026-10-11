@@ -97,7 +97,7 @@ Local<Value> convertResult(ParamStorageType const& result, CommandOrigin const& 
     if (result.hold(ParamKind::Kind::Item)) {
         auto item = std::make_unique<ItemStack>();
         item->reinit(
-            ll::service::getLevel()->getItemRegistry().getNameFromLegacyID(std::get<CommandItem>(result.value()).mId),
+            *ll::service::getLevel()->getItemRegistry().getItem(std::get<CommandItem>(result.value()).mId).lock(),
             1,
             0
         );

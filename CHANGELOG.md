@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.3] - 2026-10-11
+
+### Fixed
+
+- Ignore empty string for player.tell to avoid disconnecting [#394]
+- `mc.newItem` now checks item type [#393]
+- Fixed CommandItem parameter [#396]
+
 ## [0.22.2] - 2026-09-21
 
 ### Fixed
@@ -1455,8 +1463,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#380]: https://github.com/LiteLDev/LegacyScriptEngine/issues/380
 [#385]: https://github.com/LiteLDev/LegacyScriptEngine/issues/385
 [#390]: https://github.com/LiteLDev/LegacyScriptEngine/issues/390
+[#393]: https://github.com/LiteLDev/LegacyScriptEngine/issues/393
+[#394]: https://github.com/LiteLDev/LegacyScriptEngine/issues/394
+[#396]: https://github.com/LiteLDev/LegacyScriptEngine/issues/396
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.2...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.3...HEAD
+[0.22.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.2...v0.22.3
 [0.22.2]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.1...v0.22.2
 [0.22.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.0...v0.22.1
 [0.22.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.21.3...v0.22.0

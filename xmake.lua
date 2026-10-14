@@ -124,9 +124,6 @@ target("LegacyScriptEngine")
     if has_config("publish") then
         add_defines("LSE_VERSION_PUBLISH")
     end
-    add_sysincludedirs("D:/Github/LiteLDev/LeviLamina/build/packages/l/levilamina/windows/x64/release/include")
-    add_linkdirs("D:/Github/LiteLDev/LeviLamina/build/packages/l/levilamina/windows/x64/release/lib")
-    add_links("LeviLamina")
     on_load(function (target)
         local tag = os.iorun("git describe --tags --abbrev=0 --always")
         local major, minor, patch, suffix = tag:match("v(%d+)%.(%d+)%.(%d+)(.*)")

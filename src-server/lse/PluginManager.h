@@ -9,7 +9,7 @@ namespace lse {
 
 class PluginManager final : public ll::mod::ModManager {
 public:
-    PluginManager();
+    explicit PluginManager(std::filesystem::path loadDirectory);
     ~PluginManager() override;
 
 private:

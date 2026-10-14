@@ -7,7 +7,8 @@
 
 namespace lse {
 
-ScriptPlugin::ScriptPlugin(ll::mod::Manifest manifest) : ll::mod::Mod(std::move(manifest)) {}
+ScriptPlugin::ScriptPlugin(ll::mod::Manifest manifest, std::filesystem::path loadDirectory)
+: ll::mod::Mod(std::move(manifest), std::move(loadDirectory)) {}
 
 ScriptPlugin::~ScriptPlugin() { release(); }
 

@@ -333,6 +333,31 @@ export async function renderMarkdown(source: string, o: RenderOptions): Promise<
   };
   containerPass(tree);
 
+  // ---- Python-Markdown footnote ids (fn:1, fnref:1, fnref2:1) so old #fn: deep links keep working
+  if (o.compat === 'python-markdown') {
+    const notes: Element[] = [];
+    const refs: Element[] = [];
+    visit(tree, 'element', (el: Element) => {
+      if ('dataFootnotes' in el.properties) {
+        for (const ol of el.children) if (isEl(ol, 'ol')) notes.push(...ol.children.filter((li): li is Element => isEl(li, 'li')));
+      } else if (el.tagName === 'a' && ('dataFootnoteRef' in el.properties || 'dataFootnoteBackref' in el.properties)) refs.push(el);
+    });
+    const labels = new Set(notes.map((li) => String(li.properties.id ?? '')).filter((id) => id.startsWith('fn-')).map((id) => id.slice(3)));
+    const pyId = (id: string): string => {
+      if (id.startsWith('fn-') && labels.has(id.slice(3))) return 'fn:' + id.slice(3);
+      if (!id.startsWith('fnref-')) return id;
+      const r = id.slice(6);
+      if (labels.has(r)) return 'fnref:' + r;
+      const m = /^(.*)-(\d+)$/.exec(r);
+      return m && labels.has(m[1]!) ? `fnref${m[2]}:${m[1]}` : id;
+    };
+    for (const li of notes) if (li.properties.id !== undefined) li.properties.id = pyId(String(li.properties.id));
+    for (const a of refs) {
+      if (a.properties.id !== undefined) a.properties.id = pyId(String(a.properties.id));
+      if (typeof a.properties.href === 'string' && a.properties.href.startsWith('#')) a.properties.href = '#' + pyId(a.properties.href.slice(1));
+    }
+  }
+
   // ---- heading ids, permalinks, toc
   const slugger = createSlugger(o.slug);
   visit(tree, 'element', (node: Element) => {

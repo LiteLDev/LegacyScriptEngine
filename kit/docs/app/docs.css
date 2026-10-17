@@ -228,11 +228,29 @@
     }
   }
   @media (max-width: 420px) {
+    /* phones: give the project name the room (an 18-letter name fits from 360px), ellipsis only below that */
+    .kit-site-brand {
+      gap: 0.5rem;
+      margin-right: 0;
+    }
     .kit-site-title {
       font-size: 1rem;
-      max-width: 9.5rem;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    /* the globe alone marks the language menu */
+    .kit-site-locale .kit-menu-chevron {
+      display: none;
+    }
+  }
+  @media (max-width: 380px) {
+    .kit-site-title {
+      font-size: 0.9375rem;
+    }
+  }
+  @media (max-width: 365px) {
+    .kit-site-title {
+      font-size: 0.8125rem;
     }
   }
 

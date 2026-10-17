@@ -61,6 +61,6 @@
 `value.get()`
 
 - 返回值：对象中储存的数据
-- 返回值类型：\``Number` / `Float` / `Double` / `ByteBuffer` / `String`，以储存的实际数据类型为准
+- 返回值类型：``Number` / `Float` / `Double` / `ByteBuffer` / `String`，以储存的实际数据类型为准
 
 

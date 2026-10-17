@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { NavItem, SidebarData } from '../../shared/types';
 import { href } from '../data';
 import { KitLink } from './KitLink';
+import { afterPaint, revealIn } from './reveal';
 import { PixelIcon } from '../../../components/PixelIcon';
 
 function containsPath(it: NavItem, path: string): boolean {
@@ -61,8 +62,18 @@ function Item({ item, path, depth, onNavigate, idPath, expand }: ItemProps) {
 }
 
 export function Sidebar({ data, path, label, onNavigate }: { data: SidebarData; path: string; label: string; onNavigate?: () => void }) {
+  const ref = useRef<HTMLElement>(null);
+  // keep the current page's link in view in the sticky sidebar (after its group has opened)
+  useEffect(
+    () =>
+      afterPaint(() => {
+        const nav = ref.current;
+        revealIn(nav?.closest<HTMLElement>('.kit-doc-sidebar-inner') ?? null, nav?.querySelector<HTMLElement>('.kit-sb-link.is-active') ?? null, 'center');
+      }),
+    [path],
+  );
   return (
-    <nav className="kit-sidebar-nav" aria-label={label}>
+    <nav ref={ref} className="kit-sidebar-nav" aria-label={label}>
       {data.title ? <p className="kit-sb-title">{data.title}</p> : null}
       <ul className="kit-sb-list kit-sb-root">
         {data.items.map((it, i) => (

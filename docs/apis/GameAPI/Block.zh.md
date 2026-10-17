@@ -209,4 +209,4 @@
 - 返回值：是否成功生成
 - 返回值类型：`Boolean`
 
-粒子效果名称可以查阅[Minecraft Wiki](https://zh.minecraft.wiki/w/粒子#类型)得知，在传入参数的时候不要忘记命名空间前缀。类似于 `minecraft:heart_particle`
+粒子效果名称可以查阅[Minecraft Wiki](https://zh.minecraft.wiki/w/基岩版粒子#类型)得知，在传入参数的时候不要忘记命名空间前缀。类似于 `minecraft:heart_particle`

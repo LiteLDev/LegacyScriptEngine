@@ -12,6 +12,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import { dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Plugin, PluginOption, ViteDevServer } from 'vite';
@@ -266,11 +267,10 @@ export function kitDocs(userConfig: DocsConfig, options: KitDocsPluginOptions = 
             return `  <url>\n    <loc>${cfg.hostname}${cfg.base}${encodeURI(r.path)}</loc>\n${lastmod}${links}  </url>`;
           })
           .join('\n');
-        this.emitFile({
-          type: 'asset',
-          fileName: 'sitemap.xml',
-          source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`,
-        });
+        const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
+        this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: sitemap });
+        // MkDocs also published sitemap.xml.gz; keep that URL alive for crawlers that registered it
+        if (cfg.urlStyle === 'directory') this.emitFile({ type: 'asset', fileName: 'sitemap.xml.gz', source: gzipSync(sitemap, { level: 9 }) });
       }
     },
     writeBundle() {

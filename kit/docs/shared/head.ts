@@ -4,9 +4,11 @@ import type { RouteMeta, SiteData } from './types.ts';
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export function pageTitle(site: SiteData, route: RouteMeta | undefined, fallback?: string): string {
-  if (!route) return fallback ? `${fallback} | ${site.title}` : site.title;
-  if (route.layout === 'home' || route.title === site.title) return site.title;
-  return site.titleTemplate.replace(':title', route.title).replace(':site', site.title);
+  const fill = (title: string) => site.titleTemplate.replace(':title', () => title).replace(':site', () => site.title);
+  if (!route) return fallback ? fill(fallback) : site.title;
+  // MkDocs (directory URLs) titles the site root page with the bare site name (Material's `page.is_homepage`)
+  if (route.layout === 'home' || route.title === site.title || (site.urlStyle === 'directory' && route.path === '')) return site.title;
+  return fill(route.title);
 }
 
 export function absoluteUrl(site: SiteData, path: string): string {

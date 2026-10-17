@@ -1,14 +1,4 @@
 on:
-  pull_request:
-    paths:
-      - .github/workflows/build_docs.yml
-      - docs/**
-      - kit/**
-      - docs.config.ts
-      - vite.config.ts
-      - tsconfig.json
-      - package.json
-      - package-lock.json
   push:
     paths:
       - .github/workflows/build_docs.yml
@@ -59,6 +49,13 @@ jobs:
     permissions:
       id-token: write
       pages: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/deploy-pages@v5
+      - id: deployment
+        uses: actions/deploy-pages@v5

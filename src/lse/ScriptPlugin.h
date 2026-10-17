@@ -22,7 +22,7 @@ public:
 
     std::unordered_map<std::string, std::vector<ParamInfo>> registeredCommands;
 
-    explicit ScriptPlugin(ll::mod::Manifest manifest);
+    explicit ScriptPlugin(ll::mod::Manifest manifest, std::filesystem::path loadDirectory);
     ~ScriptPlugin();
 
     static std::shared_ptr<ll::mod::Mod> current();

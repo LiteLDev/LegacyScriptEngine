@@ -60,6 +60,6 @@ For an NBT object that stores common data types `value`, with the following memb
 `value.get()`
 
 - Return value: The data stored in the object.
-- Return value type: ``Number` / `Float` / `Double` / `ByteBuffer` / `String`, depending on the type of the data stored.
+- Return value type: \``Number` / `Float` / `Double` / `ByteBuffer` / `String`, depending on the type of the data stored.
 
 

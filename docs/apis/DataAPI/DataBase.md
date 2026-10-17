@@ -102,7 +102,7 @@ SQL databases are suitable for handling large amounts of relational data using S
 
 **Note:** Unless otherwise specified, the following APIs may throw exceptions. It is recommended to use exception handling blocks. For **JavaScript**, use `try ... catch` blocks; for **Lua**, use `pcall`. Generally, if no error is thrown, the call is successful.
 
-> If you are a JavaScript plugin developer, you can also try using the [Yoyo](https://www.google.com/search?q=https://gitee.com/Y_oyo) LLDB Chained Operation Library (primarily for beginners who are unfamiliar with SQL syntax). Details: [Click here](https://gitee.com/Y_oyo/yoyo-mcbe-lite-xloader-item/blob/master/sql/yoyoSqlite.js%202.0.0.md)
+> If you are a JavaScript plugin developer, you can also try using the [Yoyo](https://gitee.com/Y_oyo) LLDB Chained Operation Library (primarily for beginners who are unfamiliar with SQL syntax). Details: [Click here](https://gitee.com/Y_oyo/yoyo-mcbe-lite-xloader-item/blob/master/sql/yoyoSqlite.js%202.0.0.md)
 
 ### Open a SQL Database Session
 
@@ -116,7 +116,7 @@ To achieve cross-database compatibility, connecting to a database requires passi
 * `type`: `String`
   The database type, supports `"sqlite3"` and `"mysql"`.
 * `params`: `Object`
-  [Connection Parameters](https://www.google.com/search?q=%23connection-parameters)
+  [Connection Parameters](#connection-parameters)
 
 
 * **Returns:** The opened database session object.
@@ -359,7 +359,7 @@ stmt.bind(114514, 7);  // Binds to h (index 7)
 
 `stmt.fetchAll()`
 
-* **Returns:** The full result set. (See [Execute SQL and Get Result Set](https://www.google.com/search?q=%23execute-sql-and-get-result-set)).
+* **Returns:** The full result set. (See [Execute SQL and Get Result Set](#execute-sql-and-get-result-set)).
 * **Return Type:** `Array<Array>`
 
 `stmt.fetchAll(callback)`

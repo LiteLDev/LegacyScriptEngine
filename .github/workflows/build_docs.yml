@@ -1,9 +1,24 @@
 on:
+  pull_request:
+    paths:
+      - .github/workflows/build_docs.yml
+      - docs/**
+      - kit/**
+      - docs.config.ts
+      - vite.config.ts
+      - tsconfig.json
+      - package.json
+      - package-lock.json
   push:
     paths:
       - .github/workflows/build_docs.yml
       - docs/**
-      - mkdocs.yml
+      - kit/**
+      - docs.config.ts
+      - vite.config.ts
+      - tsconfig.json
+      - package.json
+      - package-lock.json
     branches:
       - '**'
   workflow_dispatch:
@@ -13,16 +28,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history for the "Last updated" dates
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
 
       - run: |
-          pip install -r requirements.txt
+          npm ci
 
       - run: |
-          mkdocs build
+          npm run typecheck
+
+      - run: |
+          npm run build
+
+      - run: |
+          npm run linkcheck
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site/
+          path: dist/
 
   deploy:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'

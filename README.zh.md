@@ -15,7 +15,7 @@
 2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
 3. 重启服务器后，插件就会被加载
 
-更多信息请参见[文档](https://docs.levimc.org/LegacyScriptEngine)
+更多信息请参见[文档](https://docs.levimc.org/LegacyScriptEngine/)
 
 ## 贡献
 

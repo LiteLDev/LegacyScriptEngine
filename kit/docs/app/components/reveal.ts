@@ -1,3 +1,4 @@
+// Keep the current entry visible inside a scrolling column (sidebar, drawer, table of contents).
 /**
  * Scroll `el` into view inside its scroll container only (never the page), instantly: `nearest` moves it just
  * inside the edges (keeping `margin` px clear of the container's fade masks), `center` centres it when hidden.

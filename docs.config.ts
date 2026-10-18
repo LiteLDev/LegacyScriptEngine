@@ -30,9 +30,8 @@ export default defineDocsConfig({
   // and LanguageSupport are h5 headings, so keep the full depth instead of the kit default [2, 4].
   outline: [2, 6],
   sidebar: 'tabs',
-  // Same tree as mkdocs.yml. The API sub-groups use the `{ text, collapsed, items }` form because MkDocs Material
-  // (without navigation.expand) shows them collapsed, except the group that holds the current page; the kit
-  // would otherwise open every first-level sidebar group and push the current page out of view.
+  // Same tree as mkdocs.yml. Like MkDocs Material without navigation.expand, the 'tabs' sidebar starts every API
+  // sub-group collapsed except the one that holds the current page (kit default since 1.1.0).
   nav: [
     { Home: 'index.md' },
     { Tutorials: ['tutorials/create_your_first_plugin.md'] },
@@ -42,9 +41,7 @@ export default defineDocsConfig({
         'apis/README.md',
         'apis/LanguageSupport.md',
         {
-          text: 'DataAPI',
-          collapsed: true,
-          items: [
+          DataAPI: [
             'apis/DataAPI/ConfigFile.md',
             'apis/DataAPI/DataBase.md',
             'apis/DataAPI/Economy.md',
@@ -53,9 +50,7 @@ export default defineDocsConfig({
           ],
         },
         {
-          text: 'EventAPI',
-          collapsed: true,
-          items: [
+          EventAPI: [
             'apis/EventAPI/Listen.md',
             'apis/EventAPI/BlockEvents.md',
             'apis/EventAPI/EconomicEvents.md',
@@ -65,9 +60,7 @@ export default defineDocsConfig({
           ],
         },
         {
-          text: 'GameAPI',
-          collapsed: true,
-          items: [
+          GameAPI: [
             'apis/GameAPI/Basic.md',
             'apis/GameAPI/Block.md',
             'apis/GameAPI/BlockEntity.md',
@@ -84,11 +77,9 @@ export default defineDocsConfig({
             'apis/GameAPI/Server.md',
           ],
         },
-        { text: 'GuiAPI', collapsed: true, items: ['apis/GuiAPI/Form.md', 'apis/GuiAPI/FormBuilder.md'] },
+        { GuiAPI: ['apis/GuiAPI/Form.md', 'apis/GuiAPI/FormBuilder.md'] },
         {
-          text: 'NbtAPI',
-          collapsed: true,
-          items: [
+          NbtAPI: [
             'apis/NbtAPI/NBT.md',
             'apis/NbtAPI/NBTCompound.md',
             'apis/NbtAPI/NBTList.md',
@@ -96,9 +87,7 @@ export default defineDocsConfig({
           ],
         },
         {
-          text: 'ScriptAPI',
-          collapsed: true,
-          items: [
+          ScriptAPI: [
             'apis/ScriptAPI/Logger.md',
             'apis/ScriptAPI/ScriptHelp.md',
             'apis/ScriptAPI/i18n.md',
@@ -107,9 +96,7 @@ export default defineDocsConfig({
           ],
         },
         {
-          text: 'SystemAPI',
-          collapsed: true,
-          items: [
+          SystemAPI: [
             'apis/SystemAPI/File.md',
             'apis/SystemAPI/FileSystem.md',
             'apis/SystemAPI/Network.md',

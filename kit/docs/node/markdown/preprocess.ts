@@ -163,6 +163,11 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
   // Python-Markdown: after a blank line, a block indented ≥ 4 inside a list is re-parsed as the last item's
   // content; when that block starts with paragraph text, later list markers in it are literal text.
   let literalMarkers = false;
+  // [kit patch: LegacyScriptEngine — Python-Markdown block re-attachment] content column of the last item at each
+  // list depth, and the indentation shift of the block re-attached by the last line. Only the lines of that same
+  // block (lazy continuations) inherit the shift; every other kind of line clears it at the top of the loop.
+  const contentCol: number[] = [];
+  let hoistShift = 0;
   let lastBlank = true;
   let tabGroupOpen = false;
   // Python-Markdown: a '>' line makes the rest of its block (up to a blank line) part of the quote
@@ -182,6 +187,9 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
     const line = lines[i]!;
     const ind = indentOf(line);
     const trimmed = line.slice(ind);
+    // [kit patch: LegacyScriptEngine] the shift applies to this line only if it continues the re-attached block
+    const blockShift = hoistShift;
+    hoistShift = 0;
 
     // ---------------------------------------------------------------- fenced code: copy verbatim
     const fm = FENCE_OPEN.exec(line);
@@ -432,7 +440,8 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
       const lm = LIST_RE.exec(line);
       if (lm && !HR_RE.test(line) && literalMarkers && inList) {
         // marker inside an indented paragraph block → literal paragraph text (lazy continuation)
-        out.push(pyEsc(line).replace(/^(\s*)([*+-]|\d+\.)/, (_m, sp: string, mk: string) => sp + (/\d/.test(mk) ? mk.replace('.', '\\.') : '\\' + mk)));
+        out.push(pyEsc(shiftIndent(line, blockShift)).replace(/^(\s*)([*+-]|\d+\.)/, (_m, sp: string, mk: string) => sp + (/\d/.test(mk) ? mk.replace('.', '\\.') : '\\' + mk)));
+        hoistShift = blockShift;
         i++;
         lastBlank = false;
         continue;
@@ -466,7 +475,10 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
           }
           inList = true;
           depth = 0;
-          out.push(pyEsc(rewriteMarker(line, 0, ordered ? marker : '-', ordered)));
+          contentCol.length = 0;
+          const item = rewriteMarker(line, 0, ordered ? marker : '-', ordered);
+          contentCol[0] = itemContentCol(item);
+          out.push(pyEsc(item));
           i++;
           prev = 'list';
           lastBlank = false;
@@ -475,7 +487,9 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
         const level = Math.min(Math.floor(markerIndent / 4), depth + 1);
         depth = level;
         if (!ordered) marker = '-';
-        out.push(pyEsc(rewriteMarker(line, level * 4, marker, ordered)));
+        const item = rewriteMarker(line, level * 4, marker, ordered);
+        contentCol[level] = itemContentCol(item);
+        out.push(pyEsc(item));
         i++;
         prev = 'list';
         lastBlank = false;
@@ -487,9 +501,28 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
       }
       if (inList) {
         if (!lastBlank) {
-          // lazy continuation of the current item
-          out.push(pyEsc(line));
+          // lazy continuation of the current item (a re-attached block's lines move with its first line)
+          out.push(pyEsc(shiftIndent(line, blockShift)));
+          hoistShift = blockShift;
           i++;
+          lastBlank = false;
+          continue;
+        }
+        // [kit patch: LegacyScriptEngine] Python-Markdown's ListIndentProcessor attaches a block that follows a
+        // blank line to the item at depth level - 1, level = min(floor(indent / 4), depth + 1), and strips level * 4
+        // spaces (looseDetab), not to the deepest open item: the 6-space "(Optional) …" paragraph after a nested
+        // "- rot: …" item belongs to the outer "- Parameters:" item, and so does every further 6-space block. Re-indent
+        // each such block to that item's content column plus the indentation Python-Markdown keeps, so CommonMark
+        // attaches it to the same item and only makes it code where Python-Markdown does (kept indentation ≥ 4).
+        const level = Math.min(Math.floor(ind / 4), depth + 1);
+        const col = contentCol[level - 1];
+        if (ind >= 4 && col !== undefined) {
+          const kept = ind - level * 4;
+          hoistShift = ind - (col + kept);
+          depth = level - 1;
+          out.push(pyEsc(shiftIndent(line, hoistShift), kept >= 4));
+          i++;
+          prev = 'list';
           lastBlank = false;
           continue;
         }
@@ -528,6 +561,19 @@ function processBlock(lines: string[], o: Required<PreprocessOptions>): string[]
   }
   if (tabGroupOpen) out.push('</div>', '');
   return out;
+}
+
+/** [kit patch: LegacyScriptEngine] CommonMark content column of a rewritten list item line. */
+function itemContentCol(item: string): number {
+  const m = LIST_RE.exec(item)!;
+  return m[1]!.length + m[2]!.length + Math.max(1, m[3]!.length);
+}
+
+/** [kit patch: LegacyScriptEngine] remove `shift` columns of indentation (add them when negative). */
+function shiftIndent(line: string, shift: number): string {
+  if (!shift) return line;
+  const ind = indentOf(line);
+  return ' '.repeat(Math.max(0, ind - shift)) + line.slice(line.length - line.trimStart().length);
 }
 
 function rewriteMarker(line: string, newIndent: number, marker: string, ordered: boolean): string {

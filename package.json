@@ -6,6 +6,8 @@
     "node": ">=22.12"
   },
   "scripts": {
+    "postinstall": "node scripts/fetch-kit.mjs",
+    "kit": "node scripts/fetch-kit.mjs",
     "dev": "vite",
     "build": "node kit/docs/build.mjs",
     "preview": "node kit/scripts/serve-pages.mjs dist --base /LegacyScriptEngine/ --port 4173",

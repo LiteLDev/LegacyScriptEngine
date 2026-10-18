@@ -18,7 +18,7 @@ Currently, LSE supports writing plugins in the following languages：
 
 !!! tip
     If you need to write plugins in native languages such as C++, Go, Rust, etc., please go 
-    to [Home](https://docs.levimc.org/LeviLamina) for other language documentation
+    to [Home](https://docs.levimc.org/LeviLamina/) for other language documentation
 
 ## JavaScript language support description
 

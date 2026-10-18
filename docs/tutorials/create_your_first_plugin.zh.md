@@ -7,7 +7,7 @@
 
 在开发你的第一个插件之前，我们需要设置你的开发环境。你用来编程的软件由你自己选择，但建议使用可信和可靠的软件。
 
-- [Atom](https://atom.io/) 是轻量级的编辑器，在本教程中很好用。
+- [Atom](https://github.blog/news-insights/product-news/sunsetting-atom/) 是轻量级的编辑器，在本教程中很好用。
 - [VSCode](https://code.visualstudio.com/) 也是一个广泛使用的编辑器，具有很多强大的功能。
 
 你还需要建立一个干净的LeviLamina安装，关于如何安装LeviLamina的细节可以在 [这里](https://docs.levimc.org/LeviLamina/zh/user_guides/install/) 找到。这个服务器将被用来测试你的插件。

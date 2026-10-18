@@ -1415,7 +1415,7 @@ Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/cr
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#attack)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#attack)
 
 #### Simulate Destroy
 
@@ -1434,7 +1434,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#breakblock)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#breakblock)
 
 #### Simulate Disconnect
 
@@ -1463,7 +1463,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#interact)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#interact)
 
 #### Simulate Jump
 
@@ -1472,7 +1472,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#jump)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#jump)
 
 #### Simulate Look At a Block or Entity
 
@@ -1498,7 +1498,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#lookatblock)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#lookatblock)
 
 #### Simulate Set Body Rotation
 
@@ -1553,7 +1553,7 @@ Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/cr
 - Return value: Whether the move request was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#movetolocation)  
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#movetolocation)  
 Note: If you need automatic pathfinding, consider using `Simulate Navigate Move`
 
 #### Simulate Navigate Move
@@ -1574,7 +1574,7 @@ Note: If you need automatic pathfinding, consider using `Simulate Navigate Move`
   ,path:`Number[3][]`}
 - Return type: `Object`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetoblock)  
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#navigatetoblock)  
 Return value example:
 
 ```json
@@ -1642,7 +1642,7 @@ path is not empty, the simulated player will move to the (-1,0,0) coordinate.
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#navigatetolocations)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#navigatetolocations)
 
 #### Simulate Use Item
 
@@ -1665,7 +1665,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#useitem)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#useitem)
 
 #### Simulate Stop Destroying Block
 
@@ -1674,7 +1674,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopbreakingblock)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#stopbreakingblock)
 
 #### Simulate Stop Interacting
 
@@ -1683,7 +1683,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopinteracting)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#stopinteracting)
 
 #### Simulate Stop Moving
 
@@ -1692,7 +1692,7 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopmoving)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#stopmoving)
 
 #### Simulate Stop Using Item
 
@@ -1701,4 +1701,4 @@ Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/cre
 - Return value: Whether the simulation operation was successful
 - Return type: `Boolean`
 
-Reference: [mojang-gametest docs](https://docs.microsoft.com/en-us/minecraft/creator/scriptapi/mojang-gametest/simulatedplayer#stopusingitem)
+Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/creator/scriptapi/minecraft/server-gametest/simulatedplayer?view=minecraft-bedrock-experimental#stopusingitem)

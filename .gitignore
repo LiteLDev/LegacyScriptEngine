@@ -559,3 +559,7 @@ fabric.properties
 /.vscode/
 /bin/
 /vsxmake2022
+
+# Documentation site (levimc-kit)
+/dist/
+/.kit/

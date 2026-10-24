@@ -281,7 +281,7 @@ void afterPlaceBlock() {
                 CallEvent(
                     EVENT_TYPES::afterPlaceBlock,
                     PlayerClass::newPlayer(&ev.self()),
-                    BlockClass::newBlock(ev.pos(), ev.self().getDimensionId())
+                    BlockClass::newBlock(ev.placedBlock(), ev.pos(), ev.self().getDimensionId())
                 ); // Not cancellable
             }
         }

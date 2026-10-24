@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `afterPlaceBlock` now passes the placed block instead of re-reading the position, which could report air [#402]
+
 ## [0.22.3] - 2026-10-11
 
 ### Fixed
@@ -1466,6 +1470,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#393]: https://github.com/LiteLDev/LegacyScriptEngine/issues/393
 [#394]: https://github.com/LiteLDev/LegacyScriptEngine/issues/394
 [#396]: https://github.com/LiteLDev/LegacyScriptEngine/issues/396
+[#402]: https://github.com/LiteLDev/LegacyScriptEngine/issues/402
 
 [Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.3...HEAD
 [0.22.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.2...v0.22.3

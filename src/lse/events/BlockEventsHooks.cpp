@@ -7,6 +7,7 @@
 #include "legacy/api/PlayerAPI.h"
 #include "ll/api/memory/Hook.h"
 #include "lse/api/Thread.h"
+#include "mc/scripting/modules/minecraft/events/ScriptBlockBreakingEventListener.h"
 #include "mc/scripting/modules/minecraft/events/ScriptBlockGlobalEventListener.h"
 #include "mc/server/commands/CommandOrigin.h"
 #include "mc/server/commands/CommandOriginType.h"

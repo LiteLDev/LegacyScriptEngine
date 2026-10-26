@@ -1,8 +1,8 @@
-# 脚本引擎 - 插件开发概述
+# LSE 插件开发概述
 
 ## ⛳ 放在前面
 
-`LegacyScriptEngine`（以下简称**LSE**/**脚本引擎**）是一个基岩版官方服务端 `Bedrock Dedicated Server`（以下简称**BDS**）的插件框架，提供强大的跨语言脚本插件支持能力和稳定的开发API支持。  
+`LegacyScriptEngine`（以下简称**LSE**/**脚本引擎**）是一个 Minecraft 基岩版专用服务器 `Bedrock Dedicated Server`（以下简称**BDS**）的插件框架，提供强大的跨语言脚本插件支持能力和稳定的开发API支持。  
 
 > 欢迎参与到脚本引擎的插件开发中来！
 
@@ -34,6 +34,8 @@
 | `Array`      | `Array`             | `table`      | 数组（列表）           |
 | `Object`     | `Object`            | `table`      | 对象（映射，字典，表） |
 | `ByteBuffer` | `ArrayBuffer`       | `table`      | 字节数组               |
+
+文档中的 `任意类型` 表示可以使用上述任意一种类型的值。
 
 除了上述了标准类型之外，还存在一些引擎自定义的对象类型。
 
@@ -100,8 +102,10 @@
 你可以输入这些命令来进入相应的调试模式：
 
 - `jsdebug`: JavaScript调试模式
+- `nodejsdebug`: Node.js调试模式
 - `luadebug`: Lua调试模式
+- `pydebug`: Python调试模式
 
 在调试模式下，你输入的所有文本将被解析为脚本并实时执行，就像浏览器的开发工具的控制台那样。如果发生任何错误，你会看到一个错误报告。
 
-你可以输入`jsdebug`/`luadebug`并回车以退出调试模式。
+你可以再次输入相同的命令（`jsdebug`/`nodejsdebug`/`luadebug`/`pydebug`）并回车以退出调试模式。

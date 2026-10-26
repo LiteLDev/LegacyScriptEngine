@@ -17,7 +17,7 @@
 [Lua] `NbtList([data])`
 
 - 参数：
-  - data: Array<NBT对象>（可选参数）  
+  - data : `Array<NBT对象>`（可选参数）  
     传入一个 NBT 对象构成的数组。数组中允许包含其他数组 / 对象结构，
     但内容必须都为 NBT 对象。`Null` 会被视为 `NBT.End`
 - 返回值：生成的NBT对象

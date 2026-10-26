@@ -17,7 +17,7 @@
 | `ll.isBeta`              | `Boolean` | 当前版本是否为测试版                                 |
 | `ll.isDev`               | `Boolean` | 当前版本是否为开发版                                 |
 | `ll.isRelease`           | `Boolean` | 当前版本是否为发布版本                                |
-| `ll.pluginsRoot`         | `String`  | LeviLamina插件的根目录                                |
+| `ll.pluginsRoot`         | `String`  | LeviLamina模组的根目录                                |
 
 ### 获取 LegacyScriptEngine 版本字符串
 
@@ -86,7 +86,7 @@
 
 #### 导出函数
 
-为了可以让开发者开发的前置插件能够为其他插件提供接口和服务，这里提供了远程函数调用功能，让一个 原生 或 脚本
+为了可以让开发者开发的前置插件能够为其他插件提供接口和服务，这里提供了远程函数调用功能，让一个原生模组或脚本
 插件可以调用另一个插件中已有的函数。
 
 `ll.exports(func,namespace,name)`
@@ -122,28 +122,28 @@
 
 #### 远程调用参数类型对照，其中Type可以为其他受支持的类型
 
-| C++层类型                                        | 脚本引擎类型        | .NET托管类型                                 | 内部类型（备注）                               |
-|-----------------------------------------------|---------------|------------------------------------------|----------------------------------------|
-| `std::nullptr_t`                              | `Null`        | `null` / `Nothing` / `nullptr`           | `std::nullptr_t`                       |
-| `bool`                                        | `Boolean`     | `Boolean`                                | `bool`                                 |
-| `__int64`, `double`...                        | `Number`      | `Int64`, `Double`...                     | `RemoteCall::NumberType`               |
-| `std::string`                                 | `String`      | `String`                                 | `std::string`                          |
-| `std::vector<Type>`                           | `Array`       | `List<Type>`                             | `std::vector<Type>`                    |
-| `std::unordered_map<std::string,Type>`        | `Object`      | `Dictionary<String,Type>`                | `std::unordered_map<std::string,Type>` |
-| `Actor*`                                      | `Entity`      | `MC.Actor`                               | `Actor*`                               |
-| `Player*`                                     | `Player`      | `MC.Player`                              | `Player*`                              |
-| `ItemStack*`, `std::unique_ptr<ItemStack>`    | `Item`        | `RemoteCall.ItemType`                    | `RemoteCall::ItemType`                 |
-| `Block*`, `BlockInstance`                     | `Block`       | `RemoteCall.BlockType`                   | `RemoteCall::BlockType`                |
-| `BlockActor*`                                 | `BlockActor`  | `MC.BlockActor`                          | `BlockActor*`                          |
-| `Container*`                                  | `Container`   | `MC.Container`                           | `Container*`                           |
-| `Vec3`,`std::pair<Vec3,int>`                  | `FloatPos`    | `MC.Vec3`, `RemoteCall.WorldPosType`     | `RemoteCall::WorldPosType`             |
-| `BlockPos`,`std::pair<BlockPos, int>`         | `IntPos`      | `MC.BlockPos`, `RemoteCall.BlockPosType` | `RemoteCall::BlockPosType`             |
-| `CompoundTag*`,`std::unique_ptr<CompoundTag>` | `NBTCompound` | `RemoteCall.NbtType`                     | `RemoteCall::NbtType`                  |
+| C++层类型                                     | 脚本引擎类型        | 内部类型（备注）                       |
+|-----------------------------------------------|---------------------|----------------------------------------|
+| `std::nullptr_t`                              | `Null`              | `std::nullptr_t`                       |
+| `bool`                                        | `Boolean`           | `bool`                                 |
+| `__int64`, `double`...                        | `Integer` / `Float` | `RemoteCall::NumberType`               |
+| `std::string`                                 | `String`            | `std::string`                          |
+| `std::vector<Type>`                           | `Array`             | `std::vector<Type>`                    |
+| `std::unordered_map<std::string,Type>`        | `Object`            | `std::unordered_map<std::string,Type>` |
+| `Actor*`                                      | `Entity`            | `Actor*`                               |
+| `Player*`                                     | `Player`            | `Player*`                              |
+| `ItemStack*`, `std::unique_ptr<ItemStack>`    | `Item`              | `RemoteCall::ItemType`                 |
+| `Block*`, `BlockInstance`                     | `Block`             | `RemoteCall::BlockType`                |
+| `BlockActor*`                                 | `BlockEntity`       | `BlockActor*`                          |
+| `Container*`                                  | `Container`         | `Container*`                           |
+| `Vec3`,`std::pair<Vec3,int>`                  | `FloatPos`          | `RemoteCall::WorldPosType`             |
+| `BlockPos`,`std::pair<BlockPos, int>`         | `IntPos`            | `RemoteCall::BlockPosType`             |
+| `CompoundTag*`,`std::unique_ptr<CompoundTag>` | `NbtCompound`       | `RemoteCall::NbtType`                  |
 
 #### 远程调用函数举例说明
 
 比如，有一个插件导出了某个函数，函数导出使用的命名空间为 AAA，导出函数名称为 Welcome  
-当你使用 `welcome = ll.imports("AAA","welcome"); ` 完成导入之后，你就可以直接在下面执行：
+当你使用 `welcome = ll.imports("AAA","Welcome"); ` 完成导入之后，你就可以直接在下面执行：
 
 `welcome("hello",2,true);`
 

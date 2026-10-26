@@ -153,7 +153,7 @@ Reminder: This event does not fire when the player returns to the Overworld from
 
   - player : `Player` 
     The player that attacked the block.
-  - entity : `Block` 
+  - block : `Block` 
     Attacked block.
   - item: `Item`
     Item used to attack the block.
@@ -421,7 +421,7 @@ Note: The player may trigger this event on the server multiple times in a row.
   - block : `Block`  
     The block that was placed.
 
-- Intercept events: function returns `false`
+- Intercept event: cannot be intercepted.
 
 
 

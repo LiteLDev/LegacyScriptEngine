@@ -1,6 +1,6 @@
 # 📦 Block Object API
 
-In LLSE, use "block objects" to manipulate and obtain information about a certain type of block.
+In LSE, use "block objects" to manipulate and obtain information about a certain type of block.
 
 ### Get a Block Object
 
@@ -65,7 +65,7 @@ These object properties are read-only and cannot be modified.
 `bl.destroy(drop)`
 
 - Parameters：
-  - drop : `Boolen`  
+  - drop : `Boolean`  
     Whether to generate drops
 - Return value: Whether the destroy was successful or not.
 - Return value type: `Boolean`
@@ -178,7 +178,7 @@ The following APIs provide APIs for interacting with blocks at specified locatio
   - pos : `IntPos ` or `FloatPos`  
     Target block position (or use x, y, z, dimId to determine block position)
     
-  - blockObject : `Block` or `NBTCompound`  
+  - blockObject : `Block` or `NbtCompound`  
     Either the target block object or NBT data representing the block
     
   - blockString: `String`  

@@ -157,7 +157,7 @@
   - player : `Player` 
     攻击方块的玩家对象
 
-  - entity : `Block` 
+  - block : `Block` 
     被攻击的方块对象
 
   - item：`Item`
@@ -308,7 +308,7 @@
   - item : `Item`  
     被吃的物品对象
   
-- 拦截事件：不可以拦截
+- 拦截事件：函数返回`false`
 
 
 

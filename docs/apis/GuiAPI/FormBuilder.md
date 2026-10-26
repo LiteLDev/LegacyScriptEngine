@@ -2,7 +2,7 @@
 
 > These APIs can assist developers to easily construct a common form.
 
-LLSE provides a **normal form object** to easily create a custom form and send it to a specific player.
+LSE provides a **normal form object** to easily create a custom form and send it to a specific player.
 
 ### Create Form Object
 
@@ -121,7 +121,7 @@ The reason may be `null`.
 
 > These APIs can assist developers to easily construct a custom form, no longer need to worry about writing JSON
 
-LLSE provides a **Custom Form Object** to easily create a custom form and send it to a specific player.
+LSE provides a **Custom Form Object** to easily create a custom form and send it to a specific player.
 
 ### Create Form Object
 

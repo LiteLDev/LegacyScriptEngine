@@ -12,7 +12,7 @@ Please refer to https://docs.levimc.org/LegacyScriptEngine/
 To access plugin development API hints and scaffolding toolkits, visit the [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) repository.
 
 1. Put LLSE plugins directly in `plugins/`
-2. Run the server, then the plugins will be migrated to LeviLamina plugin manifest automatically
+2. Run the server, then the plugins will be migrated automatically and get a LeviLamina mod manifest (manifest.json)
 3. To load them, you need to restart the server
 
 For more information, please refer to [the documentation](https://docs.levimc.org/LegacyScriptEngine/)
@@ -25,4 +25,4 @@ PRs are welcome
 
 ## License
 
-GPL-3.0-or-later © LiteLDev
+GPL-3.0-or-later © LeviMC

@@ -1,6 +1,6 @@
 # 📝 Scoreboard API
 
-In LLSE, use the "score object" to operate and obtain a specific scoring variable, and provide many other common interfaces for manipulating the scoreboard.
+In LSE, use the "score object" to operate and obtain a specific scoring variable, and provide many other common interfaces for manipulating the scoreboard.
 
 MC uses **score items** as the core of the scoreboard system, each of which has a name and can be used to track specific players, entities or even string targets. In the scoring item, the corresponding score of each tracking target is recorded.
 

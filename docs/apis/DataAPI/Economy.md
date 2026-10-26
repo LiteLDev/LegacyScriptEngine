@@ -1,10 +1,10 @@
 # 💰 Economic System API
 
 In many servers, the economic system is a very critical part.  
-In order to solve various problems of traditional use of the scoreboard economic system, LLSE provides an interface to connect to the LLMoney economic system, which can communicate with other series of plugins. 
+In order to solve various problems of traditional use of the scoreboard economic system, LegacyScriptEngine provides an interface to connect to the LegacyMoney economic system, whose data is shared with other mods and plugins. 
 
-In addition to the capabilities of the traditional economic system, LLMoney also has additional capabilities such as querying the history of changes in the amount and operating the economy of offline players.  
-LeviLamina is installed with the LLMoney plugin, so you can use this interface directly without additional installation. 
+In addition to the capabilities of the traditional economic system, LegacyMoney also has additional capabilities such as querying the history of changes in the amount and operating the economy of offline players.  
+LegacyMoney is a dependency of LegacyScriptEngine (it is not bundled with LeviLamina) and is installed together with LegacyScriptEngine, so you can use this interface directly without additional installation. 
 
 ### Set the Player’s Deposit Amount
 
@@ -56,12 +56,12 @@ LeviLamina is installed with the LLMoney plugin, so you can use this interface d
 
 `Player.reduceMoney(value)`
 
-`money.reduce(xuid,money)`
+`money.reduce(xuid,value)`
 
 - Parameters: 
   - xuid : `String`  
     The XUID identifier of the player.
-  - money : `Integer`  
+  - value : `Integer`  
     The amount of money to take from the player.  
 - Return value: Whether the setting is successful.
 - Return value type: `Boolean`

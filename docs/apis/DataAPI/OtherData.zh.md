@@ -9,7 +9,7 @@
 `data.toJson(var[,space])`
 
 - 参数：
-  - var : `指定类型`  
+  - var : `任意类型`  
     要转换为JSON字符串的变量。允许进行转换的数据类型有：   
     `Integer` `Float` `String` `Boolean` `Array` `Object `  
     其中，`Array` 和 `Object` 内部仅能嵌套上面出现的这些元素

@@ -98,7 +98,7 @@ ActorDamageCause 为伤害原因枚举，枚举值如下，有问号的待验证
 - 监听函数原型
   `function(typeName,pos)`
 - 参数：
-    - typeName : `string`  
+    - typeName : `String`  
       生成实体名称
     - pos : `FloatPos`  
       生成的坐标

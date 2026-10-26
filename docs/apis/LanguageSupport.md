@@ -1,4 +1,4 @@
-# 📋 LSE - Multi development Language Support
+# 📋 Language Support
 
 ## 🌏 Current Status
 
@@ -27,7 +27,7 @@ Currently, LSE supports writing plugins in the following languages：
   easily manage projects.
 - Package management is not supported. If needed, you can use Node.js for plugin development and use npm for package
   management
-- Use `jsdebug` command in the BDS console to enter and exit the QuickJs interactive command line environment. This
+- Use `jsdebug` command in the BDS console to enter and exit the QuickJS interactive command line environment. This
   feature facilitates some simple testing when writing plugins
 
 ### QuickJS ESModule Path Resolution Behavior
@@ -111,7 +111,7 @@ This will allow the module to be loaded correctly.
 
 #### ⭐ **Node.js Plugin Development**
 
-1. First, install NodeJs
+1. First, install Node.js
 2. Create a new directory for plugin development. Launch the terminal in this directory and execute `npm init`. Follow
    npm to create a new project and fill in the information about the project.
 3. Write the plugin code in the filled entry point file
@@ -132,7 +132,7 @@ This will allow the module to be loaded correctly.
 
 ## Python language support description
 
-- Use CPython engine, Python version 3.12.8. Support for installing third-party extension dependencies for plugins using
+- Use CPython engine, Python version 3.12.10. Support for installing third-party extension dependencies for plugins using
   pip package management. Support for multi-file plugin development and import. Support for modern project management.
 - Use `pydebug` command in the BDS console to enter and exit the Python interactive command line environment. This
   feature facilitates some simple testing when writing plugins
@@ -141,23 +141,23 @@ This will allow the module to be loaded correctly.
 
 - To help developers unfamiliar with Python to get started quickly, we provide a way to write and load single-file
   Python plugin.
-- Single file plugins are similar to QuickJs and Lua plugins: Just write a single .py file as a plugin, place the plugin
+- Single file plugins are similar to QuickJS and Lua plugins: Just write a single .py file as a plugin, place the plugin
   directly into the plugins directory, and it will be loaded and run when BDS is started.
 - It has many disadvantages: does not support plugin metadata storage, does not support source code in multiple files,
-  does not support pip third-party packages. Only for developers familiar with LLSE's Python environment, or to develop
+  does not support pip third-party packages. Only for developers familiar with LSE's Python environment, or to develop
   very simple plugins to use.
 
 #### ⭐ **Python Multi-File Plugin Development**
 
 - For formal Python plugins, this method is highly recommended. Multi-file plugins support all full Python features.
-- LSE uses the `pyproject.toml` project file for metadata storage (similar to `package.json` in Node.Js). This project
+- LSE uses the `pyproject.toml` project file for metadata storage (similar to `package.json` in Node.js). This project
   file is recommended to be automatically generated using PDM package
   manager ([pdm-project/pdm](https://github.com/pdm-project/pdm)), which supports modern project features to facilitate
   plugin project creation and maintenance.
 
-##### **The turtorial for Python plugins development: **
+##### **The tutorial for Python plugins development: **
 
-1. First, install Python 3.12.8
+1. First, install Python 3.12.10
 2. Run `pip install --user pdm` in terminal to install the pdm package management tool
 3. Create a new directory for plugin development. Launch the terminal in this directory and execute `pdm init`. Follow
    the prompts of the pdm tool to create a new project and fill in the information about the project.
@@ -168,9 +168,9 @@ This will allow the module to be loaded correctly.
       `requirements.txt`. When installing the plugin, the dependencies described in `pyproject.toml` and
       `requirements.txt` will be processed and installed automatically.
 
-3. Next, create the `__init__.py` file and write the plugin code in it. When loading the plugin, the Python interpreter
+4. Next, create the `__init__.py` file and write the plugin code in it. When loading the plugin, the Python interpreter
    will read and execute this file.
-4. If necessary, you can create multiple source files and use import to include them. Properly splitting the source code
+5. If necessary, you can create multiple source files and use import to include them. Properly splitting the source code
    into files helps improve the clarity of the project structure and facilitates further maintenance and extension of
    the plugin.
 
@@ -196,8 +196,6 @@ problems to be aware of when developing Python plugins, many of which are caused
       used for these mechanisms does not take into account the existence of sub-interpreters, so deadlocks and crashes
       will occur once they are used.
     - Developers with parallel computing needs can temporarily use `multiprocess` to parallelize multiple processes.
-    - Python 3.12 is scheduled to have targeted fixes for sub-interpreter and GIL-related bugs, and LSE will adapt
-      CPython 3.12 to address this issue after its release.
 2. `sys.stdin` is disabled for all Python engines
     - This is another CPython bug, see https://github.com/python/cpython/issues/83526 for details
     - In addition, even if the CPython engine is not loaded in the above case, there will be a problem of stdin

@@ -1,6 +1,6 @@
 # 💰 Economic System Events
 
-Here are the economic change events related to the LLSE built-in economic system:
+Here are the economic change events of the LegacyMoney economic system (see [Economic System API](../DataAPI/Economy.md)):
 
 #### `"beforeMoneyAdd"` - Pre-Money Adding Event
 

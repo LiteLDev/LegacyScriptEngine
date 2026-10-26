@@ -508,7 +508,7 @@
 `pl.heal(health)`
 
 - 参数:
-    - int : `Integer`  
+    - health : `Integer`  
       治疗的心数
 - 返回值: 治疗是否成功
 - 返回值类型: `Boolean`
@@ -1560,7 +1560,7 @@
 `pl.getAbilities()`
 
 - 返回值：玩家所有能力信息的键 - 值对列表对象
-- 返回值类型：`object<String-任意类型>`
+- 返回值类型：`Object<String-任意类型>`
 
 键 - 值对列表中的每一项形如：`"mayfly": 1`  等等
 
@@ -1611,7 +1611,7 @@
     - maxDistance : `Float`  
       查找最大距离
 - 返回值：视线方向实体，如果获取失败，返回 `Null`
-- 返回值类型：`Entity?`
+- 返回值类型：`Entity`
 
 #### 获取视线方向方块
 
@@ -1627,7 +1627,7 @@
     - fullOnly : `Boolean`  
       是否仅允许完整方块
 - 返回值：视线方向方块，如果获取失败，返回 `Null`
-- 返回值类型：`Block?`
+- 返回值类型：`Block`
 
 #### 向玩家发送数据包
 
@@ -1637,7 +1637,7 @@
     - packet : `Packet`  
       数据包
 - 返回值：是否成功，如果pl不存在，返回Null
-- 返回值类型：`Bool`
+- 返回值类型：`Boolean`
 
 #### 获取玩家所在群系ID
 
@@ -1670,7 +1670,7 @@
 `pl.getAllEffects()`
 
 - 返回值：玩家所有的药水效果id（见下表）
-- 返回值类型：`Array<number,number,...>`
+- 返回值类型：`Array<Integer,Integer,...>`
 
 #### 为玩家添加一个药水效果
 
@@ -1863,7 +1863,7 @@
       要看向的坐标
     - block :`Block`  
       要看向的方块
-    - lookDuration: `Int`  
+    - lookDuration: `Integer`  
       模拟玩家看向目标的持续时间  
       0 = 立刻, 1 = 持续, 2 = 不变直到移动
 

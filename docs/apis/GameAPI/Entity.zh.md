@@ -282,7 +282,7 @@
 `en.heal(health)`
 
 - 参数:
-    - int : `Integer`  
+    - health : `Integer`  
       治疗的心数
 - 返回值: 是否治疗成功
 - 返回值类型: `Boolean`
@@ -593,7 +593,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.zh.md)
 
 #### 获取视线方向实体
 
@@ -640,7 +640,7 @@
 `en.getAllEffects()`
 
 - 返回值：实体所有的药水效果id（见下表）
-- 返回值类型：`Array<number,number,...>`
+- 返回值类型：`Array<Integer,Integer,...>`
 
 #### 为实体添加一个药水效果
 

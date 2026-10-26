@@ -17,7 +17,7 @@ Some interfaces related to loader operations are provided here.
 | `ll.isBeta`              | `Boolean` | Whether the current version is a beta version              |
 | `ll.isDev`               | `Boolean` | Whether the current version is a dev version               |
 | `ll.isRelease`           | `Boolean` | Whether the current version is a release version           |
-| `ll.pluginsRoot`         | `String`  | Root directory of LeviLamina plugins                        |
+| `ll.pluginsRoot`         | `String`  | Root directory of LeviLamina mods                           |
 
 ### Get LegacyScriptEngine loader version string
 
@@ -84,14 +84,10 @@ Some interfaces related to loader operations are provided here.
 
 ### Remote Function Call
 
-In order to allow the pre-plug-ins developed by developers to provide interfaces and services for other plug-ins, the
-remote function call function is provided here, so that one LLSE plug-in can call the existing functions in another
-plug-in.
-
 #### Export Function
 
 In order to allow the pre-plug-ins developed by developers to provide interfaces and services for other plug-ins, the
-remote function call function is provided here, so that an LL or LLSE plug-in can call the existing functions in another
+remote function call function is provided here, so that a native mod or a script plugin can call the existing functions in another
 plug-in.
 
 `ll.exports(func,namespace,name)`
@@ -114,7 +110,7 @@ export will fail. Please select the namespace and export name appropriately when
 
 After you have learned that there is a plug-in exporting function, in order to use the function exported by him, you
 first need to import this function into your own scripting system.
-LLSE provides the interface import to import functions already exported by other plugins.
+LSE provides the interface import to import functions already exported by other plugins.
 
 `ll.imports(namespace,name)`
 
@@ -130,6 +126,26 @@ The return value of `ll.imports` is a function. When you call this function, the
 automatically in the background. The parameters of the calling function will be wrapped and passed to the remote
 function, and the return value of this function is the return value returned by the remote function after it has been
 executed.
+
+#### Remote Call Parameter Type Mapping (Type can be any other supported type)
+
+| C++ Type                                      | Script Engine Type  | Internal Type (Note)                   |
+|-----------------------------------------------|---------------------|----------------------------------------|
+| `std::nullptr_t`                              | `Null`              | `std::nullptr_t`                       |
+| `bool`                                        | `Boolean`           | `bool`                                 |
+| `__int64`, `double`...                        | `Integer` / `Float` | `RemoteCall::NumberType`               |
+| `std::string`                                 | `String`            | `std::string`                          |
+| `std::vector<Type>`                           | `Array`             | `std::vector<Type>`                    |
+| `std::unordered_map<std::string,Type>`        | `Object`            | `std::unordered_map<std::string,Type>` |
+| `Actor*`                                      | `Entity`            | `Actor*`                               |
+| `Player*`                                     | `Player`            | `Player*`                              |
+| `ItemStack*`, `std::unique_ptr<ItemStack>`    | `Item`              | `RemoteCall::ItemType`                 |
+| `Block*`, `BlockInstance`                     | `Block`             | `RemoteCall::BlockType`                |
+| `BlockActor*`                                 | `BlockEntity`       | `BlockActor*`                          |
+| `Container*`                                  | `Container`         | `Container*`                           |
+| `Vec3`,`std::pair<Vec3,int>`                  | `FloatPos`          | `RemoteCall::WorldPosType`             |
+| `BlockPos`,`std::pair<BlockPos, int>`         | `IntPos`            | `RemoteCall::BlockPosType`             |
+| `CompoundTag*`,`std::unique_ptr<CompoundTag>` | `NbtCompound`       | `RemoteCall::NbtType`                  |
 
 #### Example of Remote Calling Function
 
@@ -167,4 +183,4 @@ parameters accepted by the target function are correct and in one-to-one corresp
     - str : `String`  
       String to execute as a Script
 - Return value: Execution result
-- Return value type:  `Any Type`
+- Return value type:  `Any type`

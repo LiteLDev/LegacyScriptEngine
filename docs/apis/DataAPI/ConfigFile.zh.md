@@ -1,4 +1,4 @@
-# 脚本引擎 - 配置与数据处理接口文档
+# 🔨 配置文件 API
 
 > 这里为你提供了处理 **大量数据** 时的多种可选方案
 
@@ -77,7 +77,7 @@
 - 参数：
   - name : `String`  
     配置项名字
-  - data : `指定类型`  
+  - data : `任意类型`  
     要写入的配置数据。允许的数据类型有：  
     `Integer` `Float` `String` `Boolean` `Array` `Object`  
     其中，`Array` 和 `Object` 内部仅能嵌套上面这些元素
@@ -151,7 +151,7 @@
     配置项键名
   - name : `String`  
     配置项名字
-  - default : `指定类型`  
+  - default : `任意类型`  
     配置项初始化时写入的值。允许的数据类型有：  
     `Integer` `Float` `String` `Boolean`
 - 返回值：指定配置项的数据
@@ -173,7 +173,7 @@
     配置项键名
   - name : `String`  
     配置项名字
-  - data : `指定类型`  
+  - data : `任意类型`  
     要写入的配置数据。允许的数据类型有：  
     `Integer` `Float` `String` `Boolean`
 

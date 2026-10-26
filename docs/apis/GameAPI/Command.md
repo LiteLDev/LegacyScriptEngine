@@ -435,7 +435,7 @@ mc.regConsoleCmd("backup", "Start the backup", function (args) {
 !!! tip "Instructions on Fake Order Registration"
     After setting the callback function, the callback function will be called when the fake command you registered is
     executed.  
-    LLSE will automatically split the command arguments into arrays for you before calling them.  
+    LSE will automatically split the command arguments into arrays for you before calling them.  
     Take the JavaScript language as an example:  
     Execute command  
     `mc.regPlayerCmd("land buy", "land buy", function(pl,args){ .... }, 0 );`  
@@ -443,7 +443,7 @@ mc.regConsoleCmd("backup", "Start the backup", function (args) {
     This callback function will be called when you use the command `/land buy abcde 12345`.  
     The parameter args of the callback function is passed in an array: [ "abcde" , "12345" ]  
     As you can see, the values contained in `args` are **sequentially split** command arguments.  
-    If you have quotes in your command (for example to handle player names with spaces in them), LLSE will also do this when splitting.
+    If you have quotes in your command (for example to handle player names with spaces in them), LSE will also do this when splitting.
 
 ## Other APIs Related to the Command System
 

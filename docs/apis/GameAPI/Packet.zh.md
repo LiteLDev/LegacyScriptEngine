@@ -205,7 +205,7 @@
 
 - 参数：
 
-  - value : `NULL`  
+  - value : `Null`  
     参考下面表格
     部分数值写入函数也允许传入 `String`
 
@@ -214,7 +214,7 @@
 
 | 可用函数                     | 参数类型             |
 | ---------------------------- | -------------------- |
-| writeBool                    | `Boolean`            |
+| writeBool                    | `Boolean` / `String` |
 | writeByte                    | `Integer` / `String` |
 | writeBytes (0.19.1 时加入)   | `ByteBuffer`         |
 | writeDouble                  | `Number` / `String`  |
@@ -224,7 +224,7 @@
 | writeSignedInt64             | `Number` / `String`  |
 | writeSignedShort             | `Integer` / `String` |
 | writeString                  | `String`             |
-| writeUnsignedChar            | `Integer`            |
+| writeUnsignedChar            | `Integer` / `String` |
 | writeUnsignedInt             | `Number` / `String`  |
 | writeUnsignedInt64           | `Number` / `String`  |
 | writeUnsignedShort           | `Integer` / `String` |

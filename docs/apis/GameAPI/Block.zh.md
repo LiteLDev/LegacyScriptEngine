@@ -70,10 +70,10 @@
 `bl.destroy(drop)`
 
 - 参数：
-  - drop : `Boolen`  
+  - drop : `Boolean`  
     是否生成掉落物
 - 返回值：是否成功破坏
-- 返回值类型：`Boolen`
+- 返回值类型：`Boolean`
 
 
 
@@ -179,7 +179,7 @@
   - pos： `IntPos` 或 `FloatPos`  
     目标方块位置（或者使用 x、y、z、dimId 来确定方块位置）
 
-  - blockObject： `Block` 或 `NBTCompound`  
+  - blockObject： `Block` 或 `NbtCompound`  
     要设置成的方块对象或方块 NBT 数据
 
   - blockString：`String`  

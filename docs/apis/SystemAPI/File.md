@@ -1,4 +1,4 @@
-# LLSE - System Functional Interface Documentation
+# 📝 File API
 
 > This provides an interface for connecting to **underlying system functions**, including operating the file system, accessing the network, etc.
 
@@ -7,7 +7,7 @@ For plugin development, the realization of interoperability with the underlying 
 ## 📝 Simple File Read and Write API
 
 The following APIs provide a simple interface for reading and writing files, which is convenient for occasional reading and writing of files. 
-LLSE uses the file class `File` to encapsulate file-related operations.
+LSE uses the file class `File` to encapsulate file-related operations.
 If you need to manipulate files frequently, use the file classes below to improve performance.
 
 > Note: All text-related operations use UTF-8 encoding.  
@@ -73,7 +73,7 @@ Before 0.19.1, this function could only be used as `File.readFrom(path)`, and th
 
 ## 📋 File Object API
 
-In LLSE, "file objects" are used to manipulate and read and write to a particular file.
+In LSE, "file objects" are used to manipulate and read and write to a particular file.
 
 ### Create a New File Object
 

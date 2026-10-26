@@ -120,7 +120,7 @@ local nbt = NbtCompound({
     如果键已存在，会直接替换原有标签；如果键不存在，则会新建这个键值对。
     传入 `Null` 时会写入 `NBT.End`
 - 返回值：CompoundTag 自身
-- 返回值类型：`NBTCompound`
+- 返回值类型：`NbtCompound`
 
 
 

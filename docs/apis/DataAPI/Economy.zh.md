@@ -1,10 +1,10 @@
 # 💰 经济系统 API
 
 在很多服务器中，经济系统是非常关键的一环。  
-为了解决传统使用计分板经济系统的种种问题，脚本引擎提供了对接LLMoney经济系统的接口，可以与其他各系列插件数据互通。 
+为了解决传统使用计分板经济系统的种种问题，LegacyScriptEngine 提供了对接 LegacyMoney 经济系统的接口，可以与其他模组和插件数据互通。 
 
-LLMoney除了拥有传统经济系统的能力之外，还有查询金额变动历史、操作离线玩家经济等额外能力。  
-LeviLamina在安装时附带了LLMoney插件，因此无需额外安装，就可以直接使用此接口。 
+LegacyMoney 除了拥有传统经济系统的能力之外，还有查询金额变动历史、操作离线玩家经济等额外能力。  
+LegacyMoney 是 LegacyScriptEngine 的依赖（并非随 LeviLamina 附带），会随 LegacyScriptEngine 一同安装，因此无需额外安装，就可以直接使用此接口。 
 
 ### 设置玩家的存款金额
 
@@ -97,7 +97,7 @@ LeviLamina在安装时附带了LLMoney插件，因此无需额外安装，就可
 
 ### 查询历史账单
 
-`Player.getHistory(time)`
+`Player.getMoneyHistory(time)`
 
 `money.getHistory(xuid,time)`
 

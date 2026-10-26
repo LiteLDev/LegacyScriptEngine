@@ -1,16 +1,16 @@
-# LLSE - Configuration and Data Processing Interface Documentation
+# 🔨 Configuration File API
 
 > Here are a variety of options for working with **large amounts of data**
 
 In the process of plugin work, it is inevitable to encounter scenarios that need to deal with configuration and a large amount of game-related data.
-LLSE provides a lot of `infrastructure`, including configuration files, databases, economic systems, and more.
+LSE provides a lot of `infrastructure`, including configuration files, databases, economic systems, and more.
 It is convenient for developers to focus on business code implementation, rather than entangled in the technical details of these aspects.
 
 ## 🔨 Profile API
 
 The configuration file is generally used to separate some settings of the plug-in that can be modified by the user into a file, so as to facilitate the modification of some settings.
 Therefore, the content and format of the configuration file generally need to be readable. 
-LLSE provides the ConfigFile configuration file interface to accomplish this task. 
+LSE provides the ConfigFile configuration file interface to accomplish this task. 
 Of course, you can also manually read and write files to assist in the operation of related configuration files.
 
 
@@ -36,7 +36,7 @@ Please make your choice as needed.
 - Parameters: 
   - path : `String`  
     The path where the configuration file is located, based on the BDS root directory.  
-    LLSE will automatically create a directory in the configuration file path if it does not already exist.
+    LSE will automatically create a directory in the configuration file path if it does not already exist.
   - default : `String`  
     (Optional parameter) Default content of the configuration file.  
     If during initialization it **does not exist**, the engine will create a new configuration file and write the default content here.  
@@ -126,7 +126,7 @@ If you don't need this configuration item, in order to avoid confusion when othe
 - Parameters: 
   - path : `String`  
     The path where the configuration file is located, based on the BDS root directory.  
-    LLSE will automatically create a directory in the configuration file path if it does not already exist.
+    LSE will automatically create a directory in the configuration file path if it does not already exist.
   - default : `String`  
     (Optional parameter) Default content of the configuration file.  
     If during initialization it **does not exist**, the engine will create a new configuration file and write the default content here.  
@@ -135,7 +135,7 @@ If you don't need this configuration item, in order to avoid confusion when othe
 - Return value type: `IniConfigFile`
   - Throws exception if create/open fails.
 
-We recommend that you create a directory named `BDS_Root_Directory/plugins/plugin_name/` with a config file named `config.json` to keep the configuration of each plugin uniform.
+We recommend that you create a directory named `BDS_Root_Directory/plugins/plugin_name/` with a config file named `config.ini` to keep the configuration of each plugin uniform.
 
 
 

@@ -17,7 +17,7 @@
   - url : `String`  
     请求的目标地址（包括 Get 请求附带的参数）
   - header : `Object`  
-    请求头（包括 Get 请求Request header）  
+    （可选参数）请求头  
   - callback : `Function`  
     当请求返回时执行的回调函数，用于回传HTTP(s)响应结果。
 - 返回值：是否成功发送请求
@@ -42,7 +42,7 @@
   - url : `String`  
     请求的目标地址
   - header : `Object`  
-    请求头（包括 Post 请求Request header）  
+    （可选参数）请求头  
   - data : `String`  
     发送的数据
   - type : `String`  
@@ -79,7 +79,7 @@
 
 ### WebSocket 客户端对象 - 属性
 
-每一个WS客户端对象都包含一些固定的对象属性。对于某个特定的文件对象`wsc`，有以下这些属性
+每一个WS客户端对象都包含一些固定的对象属性。对于某个特定的客户端对象`wsc`，有以下这些属性
 
 | 属性       | 含义           | 类型   |
 | ---------- | -------------- | ------ |
@@ -97,7 +97,7 @@
 
 ### WebSocket 客户端对象 - 函数
 
-每一个WS客户端对象都包含一些可以执行的成员函数（成员方法）。对于某个特定的文件对象`wsc`，可以通过以下这些函数对这个客户端进行一些操作
+每一个WS客户端对象都包含一些可以执行的成员函数（成员方法）。对于某个特定的客户端对象`wsc`，可以通过以下这些函数对这个客户端进行一些操作
 
 #### 创建连接
 
@@ -155,7 +155,7 @@
   - event : `String`  
     要监听的事件名（见下方监听事件列表）
 
-  - callback : `Functon`  
+  - callback : `Function`  
     注册的监听函数（函数相关参数见下）  
     当指定的事件发生时，脚本引擎会调用你给出的监听函数，并传入相应的参数
 - 返回值：是否成功监听事件
@@ -401,7 +401,7 @@ svr.onGet('/test/123', (req, res) => {
 - 参数：
   - addr : `String`  
     监听地址，可以是IP地址或域名
-  - port : `Number`  
+  - port : `Integer`  
     监听端口
 - 返回值：处理完毕的服务器对象（便于连锁进行其他操作）
 - 返回值类型：`HttpServer`
@@ -437,7 +437,7 @@ svr.onGet('/test/123', (req, res) => {
 | `req.headers`    | 请求头               | `Object` | `{a: ['b'], c: ['d', 'e']}` |
 | `req.body`       | 请求内容             | `String` | `'awa'`                     |
 | `req.remoteAddr` | 请求源地址           | `String` | `'114.51.41.91'`            |
-| `req.remotePort` | 请求源端口           | `Number` | `11451`                     |
+| `req.remotePort` | 请求源端口           | `Integer` | `11451`                     |
 | `req.version`    | 请求版本             | `String` | `'HTTP/1.1'`                |
 | `req.matches`    | 请求路径正则匹配结果 | `Array`  | `['/test11', '11']`         |
 
@@ -445,7 +445,7 @@ svr.onGet('/test/123', (req, res) => {
 
 ***注意：***
 1. **`req.matches[0]` 为原始文本，其后面的元素才是匹配结果**
-2. **`req.header["Name"]` 为数组而不是字符串**
+2. **`req.headers["Name"]` 为数组而不是字符串**
 
 ***扩展例子：***
 1. `?k=v1&k=v2&k1=v1` => `{k: ['v1', 'v2'], k1: 'v1'}`
@@ -470,7 +470,7 @@ svr.onGet('/test/123', (req, res) => {
 ### Http响应对象 - 属性
 | 属性          | 含义       | 类型     | 例                          |
 | ------------- | ---------- | -------- | --------------------------- |
-| `res.status`  | 响应状态码 | `Number` | `200`                       |
+| `res.status`  | 响应状态码 | `Integer` | `200`                       |
 | `res.headers` | 响应头     | `Object` | `{a: ['b'], c: ['d', 'e']}` |
 | `res.body`    | 响应内容   | `String` | `'awa'`                     |
 | `res.version` | 响应版本   | `String` | `'HTTP/1.1'`                |
@@ -482,7 +482,7 @@ svr.onGet('/test/123', (req, res) => {
 
 ### 获取指定响应头的值
 
-`req.getHeader(name)`
+`res.getHeader(name)`
 
 - 参数：
   - name : `String`  
@@ -494,12 +494,12 @@ svr.onGet('/test/123', (req, res) => {
 
 ### 设置指定响应头的值
 
-`req.setHeader(name, value)`
+`res.setHeader(name, value)`
 
 - 参数：
   - name : `String`  
     响应头名称
-  - value : `Any`  
+  - value : `任意类型`  
     响应头值
 - 返回值：处理完毕的响应对象
 - 返回值类型：`HttpResponse`
@@ -511,7 +511,7 @@ svr.onGet('/test/123', (req, res) => {
 `res.write(content1, content2, ...)`
 
 - 参数：
-  - content : `Any`  
+  - content : `任意类型`  
     响应内容
 - 返回值：处理完毕的响应对象
 - 返回值类型：`HttpResponse`
@@ -567,4 +567,3 @@ server.onGet("/hello(.+)", (req, resp) => {
 }).listen(this.listen_address, this.listen_port);
 logger.info("http_server_test: run: Server listening on " + this.listen_address + ":" + this.listen_port);
 ```
-请查看 [UnitTest](https://github.com/LiteLDev/LiteLoaderBDS/blob/v2/main/test/UnitTest.js)

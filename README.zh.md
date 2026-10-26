@@ -12,10 +12,10 @@
 如需获取插件开发 API 提示库和脚手架工具，请访问 [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) 仓库
 
 1. 直接将 LLSE 插件放在 `plugins/` 中
-2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
+2. 运行服务器，然后插件会被自动迁移，并生成 LeviLamina 模组清单（manifest.json）
 3. 重启服务器后，插件就会被加载
 
-更多信息请参见[文档](https://docs.levimc.org/LegacyScriptEngine/)
+更多信息请参见[文档](https://docs.levimc.org/LegacyScriptEngine/zh/)
 
 ## 贡献
 
@@ -25,4 +25,4 @@
 
 ## 许可
 
-GPL-3.0-only © LiteLDev
+GPL-3.0-or-later © LeviMC

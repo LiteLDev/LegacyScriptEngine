@@ -1,6 +1,6 @@
 # 🏃‍♂️ Player Object API
 
-In LLSE, use "player objects" to manipulate and obtain information about a player.
+In LSE, use "player objects" to manipulate and obtain information about a player.
 
 ### Get a Player Object
 
@@ -81,6 +81,7 @@ properties.
 | pl.direction             | Player's current orientation                                 | `DirectionAngle` |
 | pl.uniqueId              | Player's (entity's) unique identifier                        | `String`         |
 | pl.runtimeId             | Player's (entity's) runtime identifier (Added in 0.9.5)      | `String`         |
+| pl.langCode              | Identifier of the language set by the player (e.g. zh_CN)    | `String`         |
 | pl.isLoading             | Player is loading                                            | `Boolean`        |
 | pl.isInvisible           | Player is invisible                                          | `Boolean`        |
 | pl.isInsidePortal        | Player is inside portal                                      | `Boolean`        |
@@ -279,7 +280,7 @@ mc.broadcast("Hello everyone ~ ");
     - title : `String`  
       The title of the toast.
 
-    - message : `string`  
+    - message : `String`  
       the message that the toast may contain alongside the title.
 
 - Return value: Whether the message was sent successfully.
@@ -896,7 +897,7 @@ pl:resetLevel()
 
 #### Set Player Total Experience Points
 
-`pl.getTotalExperience(count)`
+`pl.setTotalExperience(count)`
 
 - Parameters
     - count : `Integer`  
@@ -1207,7 +1208,7 @@ Using this API, you can delete saved offline player nbt data by UUID.
 `pl.getAbilities()`
 
 - Return value:  A list object of key-value pairs of all player ability information.
-- Return value type: `object<String-Any Type>`
+- Return value type: `Object<String-Any type>`
 
 Each item in the list of key-value pairs looks like: `"mayfly": 1` etc.
 
@@ -1252,6 +1253,32 @@ such as `Base` `Current` `DefaultMax` `DefaultMin` `Max` `Min` `Name` by default
 - Return value: Whether the setting was successful.
 - Return value type: `Boolean`
 
+#### Get the Entity in the Player's Line of Sight
+
+`pl.getEntityFromViewVector([maxDistance])`
+
+- Parameters:
+    - maxDistance : `Float`  
+      Maximum search distance.
+- Return value: The entity in the player's line of sight. Returns `Null` if it cannot be obtained.
+- Return value type: `Entity`
+
+#### Get the Block in the Player's Line of Sight
+
+`pl.getBlockFromViewVector([includeLiquid,solidOnly,maxDistance,fullOnly])`
+
+- Parameters:
+    - includeLiquid : `Boolean`  
+      Whether to include liquid blocks.
+    - solidOnly : `Boolean`  
+      Whether to only allow blocks of the `Solid` type.
+    - maxDistance : `Float`  
+      Maximum search distance.
+    - fullOnly : `Boolean`  
+      Whether to only allow full blocks.
+- Return value: The block in the player's line of sight. Returns `Null` if it cannot be obtained.
+- Return value type: `Block`
+
 #### Sending packets to the player
 
 `pl.sendPacket(packet)`
@@ -1293,7 +1320,7 @@ such as `Base` `Current` `DefaultMax` `DefaultMin` `Max` `Min` `Name` by default
 `pl.getAllEffects()`
 
 - Return value: effect ID which is player owned
-- Return type: `Array<number,number,...>`
+- Return type: `Array<Integer,Integer,...>`
 
 #### Add an effect for player
 
@@ -1491,7 +1518,7 @@ Reference: [mojang-gametest docs](https://learn.microsoft.com/en-us/minecraft/cr
       The coordinates to look at
     - block :`Block`  
       The block to look at
-    - lookDuration: `Int`  
+    - lookDuration: `Integer`  
       The duration SimulatedPlayer look  
       0 = Instant, 1 = Continuous, 2 = UntilMove
 

@@ -1,4 +1,4 @@
-# LLSE - Generic Scripting Interface Documentation
+# 💼 Script Helper API
 
 > Here are some commonly used **auxiliary functions** , such as plugin registration, output information and asynchronous
 > interfaces, etc.

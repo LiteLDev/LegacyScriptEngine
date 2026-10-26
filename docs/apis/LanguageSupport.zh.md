@@ -1,4 +1,4 @@
-# 📋 脚本引擎 - 特定脚本语言开发须知
+# 📋 语言支持
 
 ## 🌏 开发语言支持情况
 
@@ -22,14 +22,14 @@
 - 使用 QuickJS 引擎对简单的 JavaScript 插件提供支持，轻量级引擎资源占用较少
 - QuickJS 当前版本支持到 ES2020 语言特性，同时原生支持 ESModule 模块机制，可以方便开发者进行项目管理
 - 暂不支持包管理机制，如果需要请使用 Node.js 进行插件开发，使用 npm 包管理
-- 在BDS控制台中使用`jsdebug`命令进入和退出 QuickJs 交互式命令行环境。此功能便于编写插件时进行一些简单的测试
+- 在BDS控制台中使用`jsdebug`命令进入和退出 QuickJS 交互式命令行环境。此功能便于编写插件时进行一些简单的测试
 
-### 关于 QuickJs ESModule 的路径解析行为
+### 关于 QuickJS ESModule 的路径解析行为
 
 LegacyScriptEngine 使用的 ScriptX 来自上游 Tencent/ScriptX 项目的 fork，
 并在其基础上增加了一些功能（例如 Python 后端支持等）。
 
-在 QuickJs 后端中，ScriptX 默认使用 **quickjs-libc.h** 中提供的 `module loader`。
+在 QuickJS 后端中，ScriptX 默认使用 **quickjs-libc.h** 中提供的 `module loader`。
 该 loader 会导致 QuickJS ESModule 在解析入口模块时的行为与标准 ESModule 不完全一致。
 
 具体表现为:
@@ -92,7 +92,7 @@ import { initCommand } from "./plugins/your_plugin/command/command.js"
 
 #### ⭐ **Node.js 插件开发方法**
 
-1. 首先，安装NodeJs
+1. 首先，安装Node.js
 2. 创建一个新的目录进行插件开发。在此目录启动终端执行`npm init`命令。根据 npm 的提示创建新项目，填写项目的相关信息。
 3. 在填写的入口点文件中编写插件代码
 4. 如果有需要，可以创建多个源码文件，并且通过 require 来引入他们。合理的对源码进行分文件拆分编写有助于提高项目结构的清晰度，方便后续对插件进行进一步的维护和扩展。
@@ -107,25 +107,25 @@ import { initCommand } from "./plugins/your_plugin/command/command.js"
 
 ## Python 语言支持说明
 
-- 使用 CPython 引擎，Python版本为3.12.8。支持使用 pip 包管理机制为插件安装第三方扩展依赖包，支持多文件插件开发和
+- 使用 CPython 引擎，Python版本为3.12.10。支持使用 pip 包管理机制为插件安装第三方扩展依赖包，支持多文件插件开发和
   import，支持现代项目管理机制
 - 在BDS控制台中使用`pydebug`命令进入和退出 Python 交互式命令行环境。此功能便于编写插件时进行一些简单的测试
 
 #### **Python 单文件插件开发方法**
 
 - 为了方便不熟悉Python的开发者快速上手，我们提供了一种简单的 Python 插件支持：单文件插件。
-- 单文件插件类似QuickJs和Lua插件。只要编写单个.py文件作为插件，将插件直接放置到 plugins目录中，在开服时就会被加载运行
+- 单文件插件类似QuickJS和Lua插件。只要编写单个.py文件作为插件，将插件直接放置到 plugins目录中，在开服时就会被加载运行
 - 单文件插件缺点：不支持插件元数据储存、不支持源码分文件、不支持pip第三方包。单文件插件仅用于开发者熟悉LSE的Python环境，或者开发非常简易的插件而使用。
 
 #### ⭐ **Python 多文件插件开发方法**
 
 - 对于大型、正式的Python插件，强烈建议使用此方法进行开发。多文件插件支持所有完整的Python特性。
-- LSE 使用`pyproject.toml` 项目文件进行元数据储存（类似 Node.Js 的`package.json`）。此项目文件推荐使用支持现代项目特性的
+- LSE 使用`pyproject.toml` 项目文件进行元数据储存（类似 Node.js 的`package.json`）。此项目文件推荐使用支持现代项目特性的
   PDM 包管理器（[pdm-project/pdm](https://github.com/pdm-project/pdm)）自动生成，以便于进行插件项目的创建和维护。
 
 ##### **下面是具体的插件开发流程：**
 
-1. 首先，安装Python 3.12.8
+1. 首先，安装Python 3.12.10
 
 2. 在终端中执行`pip install --user pdm`命令安装 pdm 包管理工具
 
@@ -158,7 +158,6 @@ import { initCommand } from "./plugins/your_plugin/command/command.js"
     - LSE使用CPython的子解释器作为引擎调度的核心单位，然而CPython自身长期以来对子解释器机制的支持并不完善，存在众多Bug，令人一言难尽。目前上面这些机制所需要使用到的GIL
       api内部并没有考虑到子解释器的存在，因此一旦使用会发生死锁、崩溃等问题。
     - 如果有并行计算需求的开发者可以暂时使用`multiprocess`进行多进程并行
-    - Python3.12 按计划将对子解释器和GIL相关bug做出针对性的修复，届时LSE将对CPython3.12进行适配，解决此问题。Py3.12预计在2023年10月份左右推出，请耐心等待
 2. 所有Python引擎的`sys.stdin`被禁用
     - 这是另外一个CPython的bug，具体详见：https://github.com/python/cpython/issues/83526
     - 另外，即使不是上述情况下加载的CPython引擎，也会出现抢夺stdin的问题，导致部分使用了输入重定向机制的工具失效

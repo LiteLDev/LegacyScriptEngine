@@ -1,6 +1,6 @@
 # 👜 Container Object API
 
-In LLSE, "container objects" are used to manipulate information about containers that have grids and can store and place items.
+In LSE, "container objects" are used to manipulate information about containers that have grids and can store and place items.
 The **container** here is a broad concept. In addition to the traditional containers such as boxes and barrels, such as player inventory, boxes carried by alpaca, etc. can also be handled as "containers", obtained and used. Container APIs  corresponding to the container
 
 ### Get a Container Object

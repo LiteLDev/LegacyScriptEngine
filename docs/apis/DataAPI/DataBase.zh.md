@@ -51,7 +51,7 @@
 - 参数：
   - name : `String`  
     数据项名字
-  - data : `指定类型`  
+  - data : `任意类型`  
     要写入的数据。允许使用的数据类型有：   
     `Integer` `Float` `String` `Boolean` `Array` `Object `  
     其中，`Array` 和 `Object` 内部仅能嵌套上面出现的这些元素
@@ -286,7 +286,7 @@ INSERT INTO table VALUES ($X, ?Y, :Z);
 `stmt.bind(val)`
 
 - 参数：
-  - val : `Any`  
+  - val : `任意类型`  
     要绑定的值  
 - 注：本重载将会将值绑定到第一个未绑定的参数上
 
@@ -305,7 +305,7 @@ INSERT INTO table VALUES ($X, ?Y, :Z);
 `stmt.bind(val, index)`
 
 - 参数：
-  - val : `Any`  
+  - val : `任意类型`  
     要绑定的值
   - index : `Integer`  
     要绑定到的参数索引(从`0`开始)
@@ -313,7 +313,7 @@ INSERT INTO table VALUES ($X, ?Y, :Z);
 `stmt.bind(val, name)`
 
 - 参数：
-  - val : `Any`  
+  - val : `任意类型`  
     要绑定的值
   - *name : `String`  
     要绑定到的参数的参数名

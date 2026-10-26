@@ -1,6 +1,6 @@
 #  📱 Device Information Object API
 
-In LLSE, the "device information object" is used to manipulate and obtain information about the game device used by a player.
+In LSE, the "device information object" is used to manipulate and obtain information about the game device used by a player.
 
 ### Get a Device Info Object
 
@@ -35,23 +35,23 @@ These object properties are read-only and cannot be modified
 
 Among them, the operating system type attribute returns a string that records the operating system of the player's device. The possible return values ​​are as follows:
 
-| dv.os          | Device Operating System                         |
-| -------------- | ----------------------------------------------- |
-| `Android`      | Google Android (Mobile phone)                   |
-| `iOS`          | Apple iOS (Mobile phone) or iPadOS              |
-| `OSX`          | Apple macOS (Computer)                          |
-| `Amazon`       | Amazon FireOS                                   |
-| `GearVR`       | Samsung GearVR                                  |
-| `Hololens`     | Microsoft Hololens                              |
-| `WIN10`        | Microsoft Windows (Computer)                    |
-| `Win32`        | Microsoft Win32 (Education Edition?) (Computer) |
-| `TVOS`         | Apple tvOS                                      |
-| `PlayStation`  | Sony PlayStation Host                           |
-| `Nintendo`     | Nintendo Switch Host                            |
-| `Xbox`         | Microsoft Xbox Host                             |
-| `WindowsPhone` | Windows Mobile                                  |
-| `Dedicated`    | Dedicated server (Device os spoofer)            |
-| `Unknown`      | Unknown System                                  |
+| dv.os                    | Device Operating System                       |
+| ------------------------ | --------------------------------------------- |
+| `Google`                 | Google Android (Mobile phone)                 |
+| `IOS`                    | Apple iOS (Mobile phone) or iPadOS            |
+| `Osx`                    | Apple macOS (Computer)                        |
+| `Amazon`                 | Amazon FireOS                                 |
+| `GearVRDeprecated`       | Samsung GearVR (deprecated)                   |
+| `UwpDeprecated`          | Microsoft Windows, UWP (Computer, deprecated) |
+| `Win32`                  | Microsoft Windows (Computer)                  |
+| `Dedicated`              | Dedicated server                              |
+| `TvOSDeprecated`         | Apple tvOS (deprecated)                       |
+| `Sony`                   | Sony PlayStation Host                         |
+| `Nintendo`               | Nintendo Switch Host                          |
+| `Xbox`                   | Microsoft Xbox Host                           |
+| `WindowsPhoneDeprecated` | Windows Mobile (deprecated)                   |
+| `Linux`                  | Linux                                         |
+| `Unknown`                | Unknown System                                |
 
 | Input mode ENUM              |
 | ---------------------------- |

@@ -18,16 +18,38 @@ With your IDE in hand, and the server installation complete, you are ready to be
 
 ## What Do I Do Now?
 
-Developing a LLSE Plugin begins with creating your plugin's file. This file should be named "LLMyPlugin.js", replacing "
-MyPlugin" with what you would like to call your plugin. It should be placed in the plugins folder of your server
-installation. Some IDEs will allow you to create a new file and choose a location, while others will allow you to choose
-only after hitting "Save As".
+Developing an LSE plugin begins with creating your plugin's folder and files. Create a folder named after your plugin,
+for example `MyPlugin`, in the `plugins/` folder of your server installation, and create your script file, for example
+`main.js`, in it. Some IDEs will allow you to create a new file and choose a location, while others will allow you to
+choose only after hitting "Save As".
 
-This might confuse some developers, as `ll` should be undefined. However, this file is going to be utilized by the
-LeviLamina ScriptX Engine. `ll` will be automatically included during the script's runtime. This is the same with any
-other variables/classes you see referenced without a definition.
+Next, create a `manifest.json` file in the same folder. This file registers your plugin with LeviLamina: `entry` is the
+script file to run, `name` is the name of your plugin, `type` tells LeviLamina which engine runs it (`lse-quickjs` for
+JavaScript; `lse-nodejs`, `lse-lua` and `lse-python` for the other engines), and `dependencies` names the engine to load
+first (`legacy-script-engine-quickjs`, `legacy-script-engine-nodejs`, `legacy-script-engine-lua` or
+`legacy-script-engine-python`).
 
-Now that we have created our .js file, and registered the plugin, all we have to do from here is create an event
+```json
+{
+    "entry": "main.js",
+    "name": "MyPlugin",
+    "type": "lse-quickjs",
+    "dependencies": [
+        {
+            "name": "legacy-script-engine-quickjs"
+        }
+    ]
+}
+```
+
+If you put a single legacy script file (for example `MyPlugin.js`) directly in `plugins/` instead, LSE creates this
+folder and `manifest.json` for you when the server starts; restart the server to load the migrated plugin.
+
+You may notice that the code below uses objects such as `mc` and `log` without defining or importing them. They are
+provided by LegacyScriptEngine and are automatically available while your script runs. This is the same with any other
+variables/classes you see referenced without a definition.
+
+Now that we have created our script file and its `manifest.json`, all we have to do from here is create an event
 listener. We do that by utilizing `mc`.
 
 ```js
@@ -76,4 +98,4 @@ in LeviLamina to make them happen. There are truly unlimited possibilities with 
 
 If you run into any issues while developing, questions, comments or concerns can be answered by
 joining [LeviLamina](https://github.com/LiteLDev/LeviLamina)‘s Groups or by opening an issue on the LegacyScriptEngine
-Github Repo.
+GitHub Repo.

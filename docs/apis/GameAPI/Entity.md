@@ -1,8 +1,8 @@
 # 🎈 Entity Object API
 
-In LLSE, "entity objects" are used to manipulate and obtain information about an entity.
+In LSE, "entity objects" are used to manipulate and obtain information about an entity.
 
-### In LLSE, “Entity Objects” Are Used to Manipulate and Obtain Information About an Entity.
+### In LSE, “Entity Objects” Are Used to Manipulate and Obtain Information About an Entity.
 
 #### Get From Event or API
 
@@ -607,7 +607,33 @@ of the creature.
 - Return value: Whether the write was successful or not.
 - Return value type:  `Boolean`
 
-For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI//NBT.md)
+For more usage of NBT objects, please refer to [NBT Interface Documentation](../NbtAPI/NBT.md)
+
+#### Get the Entity in the Entity's Line of Sight
+
+`en.getEntityFromViewVector([maxDistance])`
+
+- Parameters:
+    - maxDistance : `Float`  
+      Maximum search distance.
+- Return value: The entity in the entity's line of sight. Returns `Null` if it cannot be obtained.
+- Return value type: `Entity`
+
+#### Get the Block in the Entity's Line of Sight
+
+`en.getBlockFromViewVector([includeLiquid,solidOnly,maxDistance,fullOnly])`
+
+- Parameters:
+    - includeLiquid : `Boolean`  
+      Whether to include liquid blocks.
+    - solidOnly : `Boolean`  
+      Whether to only allow blocks of the `Solid` type.
+    - maxDistance : `Float`  
+      Maximum search distance.
+    - fullOnly : `Boolean`  
+      Whether to only allow full blocks.
+- Return value: The block in the entity's line of sight. Returns `Null` if it cannot be obtained.
+- Return value type: `Block`
 
 #### Get the Entity's Biome ID
 
@@ -625,14 +651,14 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 
 #### Get entity's effects
 
-`pl.getAllEffects()`
+`en.getAllEffects()`
 
 - Return value: effect ID which is entity owned
-- Return type: `Array<number,number,...>`
+- Return type: `Array<Integer,Integer,...>`
 
 #### Add an effect for entity
 
-`pl.addEffect(id, tick, level, showParticles)`
+`en.addEffect(id, tick, level, showParticles)`
 
 - Parameter:
     - id : `Number`
@@ -648,7 +674,7 @@ For more usage of NBT objects, please refer to [NBT Interface Documentation](../
 
 #### Remove an effect for entity
 
-`pl.removeEffect(id)`
+`en.removeEffect(id)`
 
 - Parameter:
     - id : `Number`

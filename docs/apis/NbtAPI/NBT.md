@@ -1,4 +1,4 @@
-# LLSE - NBT Documentation
+# 🏷️ NBT API
 
 > **NBT** (**N**amed **B**inary **T**ags) format is a storage format used in Minecraft to store data into files.
 > The NBT format stores data in a tree structure with many *tags*. All tags have an independent ID and name.
@@ -10,7 +10,7 @@ This provides scripts with the ability to manipulate the **NBT** data type. **NB
 In the game, a node called **NBT tag** is used to identify an item of NBT data. A variety of data types such as ordinary data, List, Compound, etc. can be stored in NBT tags.
 
 In LegacyScriptEngine, each NBT data type has its corresponding data type, and we collectively call them "NBT objects".
-The comparison of the LLSE type with the NBT data type is as follows:
+The comparison of the LSE type with the NBT data type is as follows:
 
 | NBT Data Type | Corresponding NBT Object Type | Type Description (Wiki)                         |
 | ------------- | ----------------------------- | ----------------------------------------------- |

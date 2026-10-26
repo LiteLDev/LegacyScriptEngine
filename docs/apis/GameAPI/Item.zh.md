@@ -82,7 +82,7 @@
 | it.isFullStack      | 物品是否已堆叠到最大堆叠数                     | `Boolean`                  |
 | it.isGlint          | 物品是否闪烁                                   | `Boolean`                  |
 | it.isHorseArmorItem | 物品是否为马铠                                 | `Boolean`                  |
-| it.isLiquidClipItem | Whether the item is liquid clip                | `Boolean`                  |
+| it.isLiquidClipItem | 物品是否可以选中液体                           | `Boolean`                  |
 | it.isMusicDiscItem  | 物品是否为唱片                                 | `Boolean`                  |
 | it.isOffhandItem    | 物品是否可设置到副手                           | `Boolean`                  |
 | it.isPotionItem     | 物品是否为药水                                 | `Boolean`                  |
@@ -192,7 +192,7 @@
 - 返回值：是否成功写入
 - 返回值类型：`Boolean`
 
-关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.md)
+关于NBT对象的更多使用，请参考 [NBT接口文档](../NbtAPI/NBT.zh.md)
 
 
 

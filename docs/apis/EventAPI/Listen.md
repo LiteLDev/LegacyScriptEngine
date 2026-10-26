@@ -1,4 +1,4 @@
-# LLSE - Event Listening Documentation
+# 🔔 Event Listening API
 
 > The event system allows plugins to **respond** to certain game events, allowing you to execute code when certain events occur.
 
@@ -26,11 +26,11 @@ When a certain event in the game occurs, the corresponding listener function you
 
 ### Intercept Event
 
-In LLSE's event monitoring system, generally you can pass `return false` to intercept an event that can be intercepted. Intercepting an event means that after the script intercepts the BDS will no longer handle the event as if it never happened.
+In LSE's event monitoring system, generally you can pass `return false` to intercept an event that can be intercepted. Intercepting an event means that after the script intercepts the BDS will no longer handle the event as if it never happened.
 For example: intercepting a chat event will cause everyone to not see the chat message  
 
 However, intercepting events is only valid for BDS.  
-That is to say, intercepting an event does not affect other LLSE scripts that have corresponding listeners to process this event, but BDS can no longer receive it.
+That is to say, intercepting an event does not affect other LSE scripts that have corresponding listeners to process this event, but BDS can no longer receive it.
 
 
 
@@ -41,7 +41,7 @@ Example: If you use the `onConsoleCmd` event listener, and you call `mc.runcmd(E
 
 ## 📜 Listen Event List
 
-There is a list of the various events in sidebar that LLSE supports listening for.
+There is a list of the various events in sidebar that LSE supports listening for.
 
 Tip: You can obtain relevant information about the game objects obtained by listening, such as the coordinates of the block, the name of the entity, and so on.  
 At the same time, the member functions of these objects can also be called.

@@ -122,7 +122,7 @@ Possible return values ​​are: `NBT.End` `NBT.Byte` `NBT.Short` `NBT.Int` `NB
     does not exist, a new key-value pair will be created. Passing `Null` writes
     `NBT.End`.
 - Return value: CompoundTag itself.
-- Return value type: `NBTCompound`
+- Return value type: `NbtCompound`
 
 
 
@@ -212,7 +212,7 @@ Therefore, some convenient functions for simplifying object operations are also 
 - Return value: The object/table form of an NBT Tag object.
 - Return value type: `Object`
 
-Convert the content of Compound to LLSE object, convert all data items to LLSE data type and store them in the corresponding key of the object, which is convenient for reading and processing.  
+Convert the content of Compound to LSE object, convert all data items to LSE data type and store them in the corresponding key of the object, which is convenient for reading and processing.  
 If an item of Compound stores a `List` or `Compound` type NBT, it will recursively expand at the corresponding position as `Array` or `Object`.
 
 

@@ -1,4 +1,4 @@
-# 🎨 脚本引擎 - 游戏元素接口文档
+# 🎨 基础游戏 API
 
 > 下列这些API，提供了对游戏内容进行 **修改** 和 **扩展** 的能力。  
 
@@ -165,8 +165,8 @@
 
   - nbt : `NbtCompound`
   - pos : `IntPos` 放置坐标
-  - mirror : `number` 镜像模式
+  - mirror : `Integer` 镜像模式
     - `0: 不镜像` `1: X轴` `2: Z轴` `3: XZ轴`
-  - rotation : `number` 旋转角度
+  - rotation : `Integer` 旋转角度
     - `0: 不旋转` `1: 旋转90°` `2: 旋转180°` `3: 旋转270°`
 - 返回值类型：`Boolean`

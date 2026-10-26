@@ -1,6 +1,6 @@
 # 📮 Block Entity Object API
 
-In LLSE, "block entity objects" are used to manipulate and obtain additional data associated with a particular block.
+In LSE, "block entity objects" are used to manipulate and obtain additional data associated with a particular block.
 Note: **Block Entity Object** is not a **Entity**! There is no special relationship between them.
 
 ### Get a Block Entity Object

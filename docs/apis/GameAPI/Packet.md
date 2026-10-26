@@ -13,7 +13,7 @@ The documentation does not list the packet ID and its structure, please check it
 
 ## 🔉 Packet Object API
 
-In LLSE, 「Packet Object」 is used to get information about packets.
+In LSE, 「Packet Object」 is used to get information about packets.
 
 ### Get a packet object
 
@@ -205,7 +205,7 @@ Because the old return value was `String`, in JavaScript it may be forcibly enco
 
 - Parameters：
 
-  - value : `NULL`  
+  - value : `Null`  
     Refer to the table below
     For some numeric write functions, `String` is also accepted
 
@@ -214,7 +214,7 @@ Because the old return value was `String`, in JavaScript it may be forcibly enco
 
 | Available functions            | Parameter Type       |
 | ------------------------------ | -------------------- |
-| writeBool                      | `Boolean`/ `String`  |
+| writeBool                      | `Boolean` / `String` |
 | writeByte                      | `Integer` / `String` |
 | writeBytes (Added in 0.19.1)   | `ByteBuffer`         |
 | writeDouble                    | `Number` / `String`  |

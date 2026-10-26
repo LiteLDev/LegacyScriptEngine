@@ -4,6 +4,8 @@
 
 ## 安装
 
+### 服务端
+
 !!! warning
     在安装Python引擎之前，你需要先安装Python。下面是一份LSE版本和需要的Python版本的列表。
 
@@ -12,8 +14,6 @@
 | >=0.16.2        | 3.12.10   |
 | >=0.9.0 <0.16.2 | 3.12.8    |
 | <0.9.0          | 3.10.11   |
-
-### 服务端
 
 要安装特定的引擎，您可以使用以下命令：
 
@@ -57,7 +57,7 @@ lip install github.com/LiteLDev/LegacyScriptEngine#client_python@0.17.0-rc.2
 提示库和脚手架工具，请访问 [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) 仓库
 
 1. 直接将 LLSE 插件放在 `plugins/` 中
-2. 运行服务器，然后插件将自动迁移到 LeviLamina 插件清单中
+2. 运行服务器，然后插件会被自动迁移，并生成 LeviLamina 模组清单（manifest.json）
 3. 重启服务器后，插件就会被加载
 
 ## 贡献
@@ -68,4 +68,4 @@ lip install github.com/LiteLDev/LegacyScriptEngine#client_python@0.17.0-rc.2
 
 ## 许可
 
-GPL-3.0-only © LiteLDev
+GPL-3.0-or-later © LeviMC

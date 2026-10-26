@@ -24,7 +24,7 @@ Note that when the player dies, in addition to triggering `onPlayerDie` event, t
       The damaged entity.
     - source : `Entity`  
       The entity that dealt the damage (may be `Null`).
-    - damage : `Integer`  
+    - damage : `Float`  
       The amount of damage dealt.
     - cause : `ActorDamageCause`   
       Cause of injury
@@ -93,12 +93,12 @@ Here are values of `ActorDamageCause`:
 
 - Intercept events: function returns `false`
 
-#### `"onTryMobSpawn"` - Mob try Naturally Spawn Event
+#### `"onMobTrySpawn"` - Mob try Naturally Spawn Event
 
 - Listener function prototype
   `function(typeName,pos)`
 - Parameters:
-    - typeName : `string`  
+    - typeName : `String`  
       Entity Name
     - pos : `FloatPos`  
       The coordinates of the spawn.

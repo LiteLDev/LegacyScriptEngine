@@ -2,7 +2,7 @@
 
 ## ⛳ Start
 
-`LegacyScriptEngine` hereinafter referred to as **LSE** is an official server for Bedrock Edition  `Bedrock Dedicated Server` hereinafter referred to as **BDS** plugin framework, providing powerful cross-language script plug-in support and stable development API support.  
+`LegacyScriptEngine`, hereinafter referred to as **LSE**, is a plugin framework for `Bedrock Dedicated Server` (hereinafter referred to as **BDS**), the official server of Minecraft Bedrock Edition, providing powerful cross-language script plug-in support and stable development API support.  
 
 > Welcome to LSE's plug-in development!
 
@@ -21,7 +21,7 @@ The nouns of these data types appear frequently in the development documentation
 
 ### Generic Data Type Conventions
 
-Although scripting languages ​​are usually weakly typed, there is no need to pay attention to specific data types, but since LLSE supports a variety of different scripting languages, in order to facilitate the docking of the API, some general data types and the mapping relationship to the corresponding scripting language types are defined below.
+Although scripting languages ​​are usually weakly typed, there is no need to pay attention to specific data types, but since LSE supports a variety of different scripting languages, in order to facilitate the docking of the API, some general data types and the mapping relationship to the corresponding scripting language types are defined below.
 
 | Engine Data Type | JS Data Type       | Lua Data Type | Data Type Description                  |
 | ---------------- | ------------------ | ------------- | -------------------------------------- |
@@ -35,22 +35,24 @@ Although scripting languages ​​are usually weakly typed, there is no need to
 | `Object`         | `Object`           | `table`       | Objects (Maps, Dictionaries, Tables)   |
 | `ByteBuffer`     | `ArrayBuffer`      | `table`       | Byte Array                             |
 
+`Any type` in the documentation means that a value of any of the types above can be used.
+
 In addition to the above standard types, there are also some engine-defined object types. 
 
 - `IntPos` - Integer coordinate object (see the base game interface for details)
 - `FloatPos` - Floating point coordinate object (see the base game interface for details)
-- `Player` - Player object (see Player for details)
-- `Entity` - Entity objects (see Entity for details) 
-- `Block` - Block objects (see Blocks for details)
-- `BlockEntity` - Block entity object (see Block entity for details)
-- `Item` - Inventory item object (see Items for details)
-- `Device` - Player equipment information object (see player for details)
-- `Container` - container object (see container for details)
-- `Objective` - Scored item object (see Scoreboard for details)
-- `Packet` - Packet object (see Packet for details)
+- `Player` - Player object (see Player for details) - class name actually registered in the engine: `LLSE_Player`
+- `Entity` - Entity objects (see Entity for details) - class name actually registered in the engine: `LLSE_Entity`
+- `Block` - Block objects (see Blocks for details) - class name actually registered in the engine: `LLSE_Block`
+- `BlockEntity` - Block entity object (see Block entity for details) - class name actually registered in the engine: `LLSE_BlockEntity`
+- `Item` - Inventory item object (see Items for details) - class name actually registered in the engine: `LLSE_Item`
+- `Device` - Player equipment information object (see player for details) - class name actually registered in the engine: `LLSE_Device`
+- `Container` - container object (see container for details) - class name actually registered in the engine: `LLSE_Container`
+- `Objective` - Scored item object (see Scoreboard for details) - class name actually registered in the engine: `LLSE_Objective`
+- `Packet` - Packet object (see Packet for details) - class name actually registered in the engine: `LLSE_Packet`
 - `NBT` - NBT Tag object (see NBT for details)
-- `SimpleForm` - Normal form objects (see Form Builder for details)
-- `CustomForm` - Custom form objects (see Form Builder for details)
+- `SimpleForm` - Normal form objects (see Form Builder for details) - class name actually registered in the engine: `LLSE_SimpleForm`
+- `CustomForm` - Custom form objects (see Form Builder for details) - class name actually registered in the engine: `LLSE_CustomForm`
 - `Conf` - Configuration file object (see configuration file for details)
 - `DB` - Database objects (see Database for details)
 - `File` - File object (see file reading and writing for details)
@@ -62,22 +64,19 @@ In addition to the above standard types, there are also some engine-defined obje
 ## 📌 API Documentation Description Conventions
 
 As we all know, a good help document is naturally inseparable from a unified and concise format and a clear appearance. 
-Therefore, in order to unify and standardize the format of the document, it is necessary to uniformly specify the description convention of LLSE's help document. 
+Therefore, in order to unify and standardize the format of the document, it is necessary to uniformly specify the description convention of LSE's help document. 
 
 > For all the API documentation you see next, there are writing rules like this: 
 
-Regarding the description of function parameter types in the documentation:
-Function parameters will be described in the format parameter name: parameter type
-For example: cmd : String represents a string type variable cmd
-If Array<...> appears in the parameter type, it means an array/list containing the variables within <>
-
 1. About the description of **function parameter types** in the documentation:
-   The function parameters will follow **Paameter Name : Parameter Type** Format description example: cmd : `String` means a **String** variable of type **cmd**  
+   Function parameters are described in the format **Parameter Name : Parameter Type**  
+   For example: cmd : `String` means a variable **cmd** of type **String**  
    The parameter type `Array<...>`, represents an array/list containing the variables within <>.
    
 2. About the description of **optional parameters** in the documentation:  
    If `optional parameters` appears in the parameter descripton, it means that you have the option to not pass this parameter.
    When you do not pass this parameter, the engine will use the default value given in the description.
+   In API signatures, optional parameters are enclosed in [ ].
    For example: `pl.tell(msg[,type])`, where `type` is an optional parameter.
 
 
@@ -103,8 +102,10 @@ Here, there are some suggestions when developing plugins, I hope they can help y
 You can type these commands to enter the corresponding debug mode:
 
 * `jsdebug`: JavaScript debug mode
+* `nodejsdebug`: Node.js debug mode
 * `luadebug`: Lua debug mode
+* `pydebug`: Python debug mode
 
 In debug mode, all texts you type will be parsed as scripts and be executed in real time, as the console of developer tools of browsers do. If any error occurs, you will see an error report.
 
-You can type `jsdebug` / `luadebug` and enter to exit the debug mode.
+You can type the same command (`jsdebug` / `nodejsdebug` / `luadebug` / `pydebug`) and press Enter to exit the debug mode.

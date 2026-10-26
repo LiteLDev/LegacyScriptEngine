@@ -1,16 +1,16 @@
-# 🎨 LLSE - Game Element Interface Documentation
+# 🎨 Basic Game API
 
 > The following APIs provide the ability to **modify** and **extension** game content.
 
 Obviously, the game element interface is at the core of the entire plug-in system, which is related to the ability to control and expand game content.  
-LLSE provides a rich and powerful interface of game elements to facilitate your creativity.
+LSE provides a rich and powerful interface of game elements to facilitate your creativity.
 
 ## 🔮 Game Element Objects
 
-For the indexing of game elements, LLSE uses a special type of variable to keep track of each game element, and calls it "xx objects", such as "player objects" or "block objects".  
+For the indexing of game elements, LSE uses a special type of variable to keep track of each game element, and calls it "xx objects", such as "player objects" or "block objects".  
 You can think of it as a unique identifier for a game element.   
 
-Currently, LLSE has the following game element objects:
+Currently, LSE has the following game element objects:
 
 | Object Type Name | Object Name                      | Purpose of Object                                                       |
 | ---------------- | -------------------------------- | ----------------------------------------------------------------------- |
@@ -80,12 +80,12 @@ Each member of the coordinate object is **readable and writable**.
 ### Coordinate Object Auxiliary Interface
 
 For scripting languages ​​that naturally support object-oriented, you can directly construct the coordinate object and pass in the x, y, z, dimid parameters.
-For some languages ​​that support general object orientation, LLSE also provides auxiliary interfaces to help generate a coordinate object more easily.
+For some languages ​​that support general object orientation, LSE also provides auxiliary interfaces to help generate a coordinate object more easily.
 
 #### Generate an Integer Coordinate Object
 
-[JavaScript] `new FloatPos(x,y,z,dimid)`  
-[Lua] `FloatPos(x,y,z,dimid)`
+[JavaScript] `new IntPos(x,y,z,dimid)`  
+[Lua] `IntPos(x,y,z,dimid)`
 
 - Parameters: 
   - x : `Integer`  
@@ -179,8 +179,8 @@ The return value is `0-3`, representing the four basic orientations of **North, 
 
   - nbt : `NbtCompound`
   - pos : `IntPos` place coordinates
-  - mirror : `number` mirror mode
+  - mirror : `Integer` mirror mode
     - `0: no mirror` `1: X-axis` `2: Z-axis` `3: XZ-axis`
-  - rotation : `number` rotation angle
+  - rotation : `Integer` rotation angle
     - `0: no rotation` `1: rotation 90°` `2: rotation 180°` `3: rotation 270°`
 - Return value type : `Boolean`

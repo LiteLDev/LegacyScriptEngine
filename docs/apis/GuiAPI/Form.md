@@ -1,4 +1,4 @@
-# LLSE - GUI Form Interface Documentation
+# 📊 Form API
 
 > This API allows you to create, modify or affect the **GUI interface** in the game.
 
@@ -108,7 +108,7 @@ next section to better accomplish this task.
 - Return value type: `Integer`
     - If the return value is Null, it means the sending failed.
 
-Parameter `callback` The callback function prototype: `function(player,data)`
+Parameter `callback` The callback function prototype: `function(player,data,reason)`
 
 - player : `Player`  
   The player object that interacts with the form.

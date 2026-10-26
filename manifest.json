@@ -5,7 +5,7 @@
   "type": "native",
   "platform": "${modPlatform}",
   "description": "A plugin engine for running LLSE plugins on LeviLamina",
-  "author": "LiteLDev",
+  "author": "LeviMC",
   "dependencies": [
     {
       "name": "LegacyMoney"

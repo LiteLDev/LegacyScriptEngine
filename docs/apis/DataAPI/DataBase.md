@@ -2,7 +2,7 @@
 
 Database, generally used for plugins to persistently store data generated and processed by certain plugins.  
 Unlike configuration files, databases generally have no readability requirements, but have considerable considerations for performance and stability.  
-LLSE provides a consolidated database interface to accomplish this task.    
+LSE provides a consolidated database interface to accomplish this task.    
 In terms of specific implementation, the engine provides two different database formats: NoSQL database in key-value pair format, and SQL database in tabular format. You can use either as needed.
 
 
@@ -10,12 +10,12 @@ In terms of specific implementation, the engine provides two different database 
 ### 🔑 Key-Value NoSQL Database 
 
 Key-value databases are suitable for storing data in key-value form, such as `name:apple`, `value:5` and many more. 
-This is accomplished with `leveldb`.
+This is accomplished with [`LevelDB`](https://github.com/google/leveldb).
 
 #### Create/Open a Key-Value Database
 
 Before using the database, you need to give a database path, the interface will open/create the specified database and return a database object.  
-A leveldb database is composed of multiple files, so you need to pass in the path of a folder where the database files will be stored.  
+A LevelDB database is composed of multiple files, so you need to pass in the path of a folder where the database files will be stored.  
 If this directory already contains a database, it will be opened, otherwise a new one will be created.
 
 [JavaScript] `new KVDatabase(dir)`  

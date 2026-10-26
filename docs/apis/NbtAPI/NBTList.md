@@ -17,7 +17,7 @@ See [NbtList - List Type](./NBTList.md) and [NbtCompound - Tag Type](./NBTCompou
 [Lua] `NbtList([data])`
 
 - Parameter: 
-  - data: Array<NBT object> (optional parameter)   
+  - data : `Array<NBT object>` (optional parameter)   
     Pass in an array of NBT objects. Arrays are allowed to contain other
     array/object structures, but the contents must all be NBT objects. `Null`
     values are treated as `NBT.End`.
@@ -158,7 +158,7 @@ Therefore, some convenient functions for simplifying object operations are also 
 - Return value: The array form of the list.
 - Return value type: `Array`
 
-Convert the contents of List to LLSE array/list, convert all data items to LLSE data type and store them in the corresponding subscript of the array/list for easy reading and processing.
+Convert the contents of List to LSE array/list, convert all data items to LSE data type and store them in the corresponding subscript of the array/list for easy reading and processing.
 If an item in the List stores a `List` or `Compound` type which will recursively expand at the corresponding position as `Array` or `Object`.
 
 

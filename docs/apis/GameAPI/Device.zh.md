@@ -35,22 +35,23 @@
 
 其中，操作系统类型属性返回一个字符串，记录了玩家设备的操作系统。可能返回的值如下表
 
-| dv.os返回字符串 | 玩家设备的操作系统        |
-| --------------- | ------------------------- |
-| `Android`       | 手机谷歌Android           |
-| `iOS`           | 手机苹果iOS/平板iPadOS    |
-| `OSX`           | 电脑苹果macOS             |
-| `Amazon`        | 平板/电视亚马逊FireOS     |
-| `GearVR`        | 头显三星GearVR            |
-| `Hololens`      | 头显微软HoloLens          |
-| `Windows10`     | 电脑微软Windows           |
-| `Win32`         | 电脑微软Win32（教育版？） |
-| `TVOS`          | 机顶盒苹果tvOS            |
-| `PlayStation`   | 主机索尼PlayStation       |
-| `Nintendo`      | 掌机任天堂Switch          |
-| `Xbox`          | 主机微软Xbox              |
-| `WindowsPhone`  | 手机微软Windows Mobile    |
-| `Unknown`       | 未知系统                  |
+| dv.os返回字符串              | 玩家设备的操作系统 |
+| ------------------------ | ---------------- |
+| `Google`                 | 手机谷歌Android |
+| `IOS`                    | 手机苹果iOS/平板iPadOS |
+| `Osx`                    | 电脑苹果macOS |
+| `Amazon`                 | 平板/电视亚马逊FireOS |
+| `GearVRDeprecated`       | 头显三星GearVR（已弃用） |
+| `UwpDeprecated`          | 电脑微软Windows UWP（已弃用） |
+| `Win32`                  | 电脑微软Windows |
+| `Dedicated`              | 专用服务器 |
+| `TvOSDeprecated`         | 机顶盒苹果tvOS（已弃用） |
+| `Sony`                   | 主机索尼PlayStation |
+| `Nintendo`               | 掌机任天堂Switch |
+| `Xbox`                   | 主机微软Xbox |
+| `WindowsPhoneDeprecated` | 手机微软Windows Mobile（已弃用） |
+| `Linux`                  | Linux |
+| `Unknown`                | 未知系统 |
 
 | Input mode ENUM              | 备注       |
 | ---------------------------- | ---------- |

@@ -2,11 +2,11 @@
 
 In actual development, there is often a need to associate certain data with a player in the server, and to maintain these data continuously during the work cycle of the plugin.  
 
-To this end, LLSE designed the player binding data interface. The bound data interface stores data in the form of key-value pairs. 
+To this end, LSE designed the player binding data interface. The bound data interface stores data in the form of key-value pairs. 
 After you bind data to a player, the player bound data will persist even if the player object goes out of scope and is destroyed, and even when the player exits the game. When you get the player's player object again, you can still read the previously stored binding data.  
 All data will be destroyed uniformly only when the server is shut down.
 
-As such, LLSE gives developers the ability to track data about a particular player throughout the plugin's lifecycle.  
+As such, LSE gives developers the ability to track data about a particular player throughout the plugin's lifecycle.  
 
 For a specific player object `pl`, with the following interfaces:
 

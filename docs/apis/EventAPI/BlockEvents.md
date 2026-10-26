@@ -118,7 +118,7 @@ Intercept events have no effect on chests, shulker boxes, and workbenches.
     The command executed.
   - pos : `IntPos`  
     The coordinates of the command block where the command was executed.
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     Whether the command is executed by a command block minecart.
   
 - Intercept events: function returns `false`
@@ -214,7 +214,7 @@ Currently, the types of blocks that can monitor redstone updates are: redstone w
 - Parameters: 
   - pos : `FloatPos`  
     Where the hopper is located.
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     Is it a hopper minecart?
   - item : `Item`  
     The searched item object.
@@ -232,7 +232,7 @@ After you intercept the event, the hopper will not be able to absorb the item.
 - Parameters: 
   - pos : `FloatPos`  
     Where the hopper is located.
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     Is it a hopper minecart?
   - item : `Item`  
     The item object to be output.

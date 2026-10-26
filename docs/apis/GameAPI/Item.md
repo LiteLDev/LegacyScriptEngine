@@ -1,6 +1,6 @@
 # 🧰 Item Object API
 
-In LLSE, use "item objects" to manipulate and get information about an item in the inventory.
+In LSE, use "item objects" to manipulate and get information about an item in the inventory.
 
 ### Get an Item Object
 
@@ -65,7 +65,7 @@ Every item object contains some fixed object properties. For a specific item obj
 | it.type             | Item Standard Type Name                                  | `String`                   |
 | it.id               | Item's in-game ID                                        | `Integer`                  |
 | it.count            | Item's count                                             | `Integer`                  |
-| it.count            | Item's max count (Added in 0.16.1)                       | `Integer`                  |
+| it.maxCount         | Item's max count (Added in 0.16.1)                       | `Integer`                  |
 | it.aux              | Item's data value (for example, wool color or wood type) | `Integer`                  |
 | it.lore             | Item Lore                                                | `Array<String, String...>` |
 | it.damage           | Item Consumed Damage                                     | `Integer`                  |

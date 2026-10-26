@@ -1,4 +1,4 @@
-# LLSE - Script Assist Interface Documentation
+# 📅 Logger API
 
 > A large number of **helper functions** are provided here, including log functions, loader function interfaces, and
 > more.
@@ -8,7 +8,7 @@ They make it easier and more natural for you to develop scripts and avoid a lot 
 ## 📅 Generic logging API
 
 In the past, it was a very troublesome thing to output logs in a certain format to a specified location.
-Today, LLSE provides you with a convenient generic logging interface.
+Today, LSE provides you with a convenient generic logging interface.
 
 ### Concept: About log output levels
 

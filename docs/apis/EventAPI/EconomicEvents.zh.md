@@ -1,6 +1,6 @@
 # 💰 经济系统事件
 
-此处为脚本引擎内置经济系统相关的经济变动事件
+此处为 LegacyMoney 经济系统相关的经济变动事件（见[经济系统 API](../DataAPI/Economy.zh.md)）
 
 #### `"beforeMoneyAdd"` - 玩家金额增加前事件
 

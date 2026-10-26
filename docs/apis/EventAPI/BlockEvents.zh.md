@@ -120,7 +120,7 @@
     执行的命令
   - pos : `IntPos`  
     执行命令的命令方块坐标
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     命令是否由命令方块矿车执行
   
 - 拦截事件：函数返回`false`
@@ -216,7 +216,7 @@
 - 参数：
   - pos : `FloatPos`  
     漏斗（漏斗矿车）所在的位置
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     是否为漏斗矿车
   - item : `Item`  
     检测到的物品对象
@@ -234,7 +234,7 @@
 - 参数：
   - pos : `FloatPos`  
     漏斗（漏斗矿车）所在的位置
-  - isMinecart : `bool`  
+  - isMinecart : `Boolean`  
     是否为漏斗矿车
   - item : `Item`  
     准备输出的物品对象

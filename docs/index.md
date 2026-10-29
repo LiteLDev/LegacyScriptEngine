@@ -4,8 +4,6 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Installation
 
-### Server
-
 !!! warning
     Before installing the Python engine, you need to install Python first. Here is a list of LSE versions and their required Python versions.
 
@@ -15,42 +13,34 @@ A plugin engine for running LLSE plugins on LeviLamina
 | >=0.9.0 <0.16.2 | 3.12.8         |
 | <0.9.0          | 3.10.11        |
 
-To install a specific engine, you can use the following command:
+Each engine is its own package variant. Version numbers can be found in
+[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases); add `@version` to install a specific one.
 
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#lua
-lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
-lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
-lip install github.com/LiteLDev/LegacyScriptEngine#python
-```
+=== "Server"
 
-Version numbers can be found in [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases).
+    In the server directory, install the engine you need with lip:
 
-For version older than 0.10.0, you can only download them
-from [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases), and decompress them in `plugins/` folder.  
-If you want to install Node.js engine, you need to download **node-prebuilt.zip**
-from [LiteLDev/node](https://github.com/LiteLDev/node/releases), and decompress it in
-`plugins/legacy-script-engine-nodejs/` folder. Installing through lip doesn't require this step.
+    ```shell
+    lip install github.com/LiteLDev/LegacyScriptEngine#lua
+    lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
+    lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
+    lip install github.com/LiteLDev/LegacyScriptEngine#python
+    ```
 
-### Client
+    For example, `lip install github.com/LiteLDev/LegacyScriptEngine#lua@0.17.0-rc.2`.
 
-To install a specific engine, you can use the following command:
+    For versions older than 0.10.0, you can only download them
+    from [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases) and decompress them in the `plugins/` folder.
+    The Node.js engine then also needs **node-prebuilt.zip** from [LiteLDev/node](https://github.com/LiteLDev/node/releases),
+    decompressed in `plugins/legacy-script-engine-nodejs/`. Installing through lip doesn't require these steps.
 
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#client_lua
-lip install github.com/LiteLDev/LegacyScriptEngine#client_quickjs
-lip install github.com/LiteLDev/LegacyScriptEngine#client_nodejs
-lip install github.com/LiteLDev/LegacyScriptEngine#client_python
-```
+=== "Client"
 
-To install a specific version, you can add`@version` at the end of installation command, such as:
-
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_quickjs@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_nodejs@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_python@0.17.0-rc.2
-```
+    lip manages server directories only. On the client, install the engine into a LeviLauncher instance that has
+    LeviLamina (see [Install client on Windows](https://docs.levimc.org/LeviLamina/user_guides/install_on_client/)):
+    LeviLauncher installs the client variants of the package, `#client_lua`, `#client_quickjs`, `#client_nodejs` and
+    `#client_python`, for example `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`. See LeviLauncher's
+    [Mods & Integrations](https://docs.levimc.org/LeviLauncher/guide/mods-integrations?platform=windows).
 
 ## Usage
 

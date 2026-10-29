@@ -4,8 +4,6 @@
 
 ## 安装
 
-### 服务端
-
 !!! warning
     在安装Python引擎之前，你需要先安装Python。下面是一份LSE版本和需要的Python版本的列表。
 
@@ -15,41 +13,32 @@
 | >=0.9.0 <0.16.2 | 3.12.8    |
 | <0.9.0          | 3.10.11   |
 
-要安装特定的引擎，您可以使用以下命令：
+每个引擎都是包的一个变体。可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号；要安装特定版本，在末尾加上`@版本号`。
 
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#lua
-lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
-lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
-lip install github.com/LiteLDev/LegacyScriptEngine#python
-```
+=== "服务端"
 
-可以在[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases)中找到版本号。
+    在服务端目录中，用 lip 安装需要的引擎：
 
-对于0.10.0以前的版本，你只能从 [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases) 中下载，然后解压到
-`plugins/` 文件夹。  
-如果你想安装Node.js引擎，你需要从 [LiteLDev/node](https://github.com/LiteLDev/node/releases) 下载**node-prebuilt.zip**
-，并解压到`plugins/legacy-script-engine-nodejs/` 文件夹。通过lip安装不需要这一步。
+    ```shell
+    lip install github.com/LiteLDev/LegacyScriptEngine#lua
+    lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
+    lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
+    lip install github.com/LiteLDev/LegacyScriptEngine#python
+    ```
 
-### 客户端
+    例如 `lip install github.com/LiteLDev/LegacyScriptEngine#lua@0.17.0-rc.2`。
 
-要安装特定的引擎，您可以使用以下命令：
+    对于0.10.0以前的版本，你只能从 [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases) 中下载，然后解压到
+    `plugins/` 文件夹。此时 Node.js 引擎还需要从 [LiteLDev/node](https://github.com/LiteLDev/node/releases) 下载
+    **node-prebuilt.zip**，并解压到`plugins/legacy-script-engine-nodejs/` 文件夹。通过lip安装不需要这些步骤。
 
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#client_lua
-lip install github.com/LiteLDev/LegacyScriptEngine#client_quickjs
-lip install github.com/LiteLDev/LegacyScriptEngine#client_nodejs
-lip install github.com/LiteLDev/LegacyScriptEngine#client_python
-```
+=== "客户端"
 
-要安装特定版本，需要在命令最后加上`@版本号`，例如：
-
-```shell
-lip install github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_quickjs@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_nodejs@0.17.0-rc.2
-lip install github.com/LiteLDev/LegacyScriptEngine#client_python@0.17.0-rc.2
-```
+    lip 只管理服务端目录。在客户端上，请把引擎安装到已安装 LeviLamina 的 LeviLauncher 实例中（参见
+    [在Windows上安装客户端](https://docs.levimc.org/LeviLamina/zh/user_guides/install_on_client/)）：LeviLauncher
+    会安装包的客户端变体 `#client_lua`、`#client_quickjs`、`#client_nodejs` 和 `#client_python`，例如
+    `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`。参见 LeviLauncher 的
+    [模组与集成](https://docs.levimc.org/LeviLauncher/zh-CN/guide/mods-integrations?platform=windows)。
 
 ## 使用
 

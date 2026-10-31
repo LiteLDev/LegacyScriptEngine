@@ -55,13 +55,15 @@ bool LLSECallEventsOnUnload(std::shared_ptr<ScriptEngine> const& engine);
 
 namespace lse {
 
-PluginManager::PluginManager() : ll::mod::ModManager(PluginManagerName) {}
+PluginManager::PluginManager(std::filesystem::path loadDirectory)
+: ll::mod::ModManager(PluginManagerName, std::move(loadDirectory)) {}
 PluginManager::~PluginManager() = default;
 
 ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #ifdef LSE_BACKEND_PYTHON
     auto&                 logger  = lse::LegacyScriptEngine::getLogger();
-    std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
+    std::filesystem::path dirPath = LegacyScriptEngine::getInstance().getManager().getLoadDirectory()
+                                  / ll::string_utils::str2u8str(manifest.name); // Plugin path
     std::string           entryPath =
         PythonHelper::findEntryScript(ll::string_utils::u8str2str(dirPath.u8string())); // Plugin entry
     // if (entryPath.empty()) return false;
@@ -96,7 +98,8 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
 #endif
 #ifdef LSE_BACKEND_NODEJS
     auto&                 logger  = lse::LegacyScriptEngine::getLogger();
-    std::filesystem::path dirPath = ll::mod::getModsRoot() / manifest.name; // Plugin path
+    std::filesystem::path dirPath = LegacyScriptEngine::getInstance().getManager().getLoadDirectory()
+                                  / ll::string_utils::str2u8str(manifest.name); // Plugin path
     // std::string           entryPath = NodeJsHelper::findEntryScript(dirPath.string()); // Plugin entry
     // if (entryPath.empty()) return false;
     // std::string pluginName = NodeJsHelper::getPluginPackageName(dirPath.string()); // Plugin name
@@ -124,7 +127,7 @@ ll::Expected<> PluginManager::load(ll::mod::Manifest manifest) {
     }
 
     auto scriptEngine = EngineManager::newEngine(manifest.name);
-    auto plugin       = std::make_shared<ScriptPlugin>(manifest);
+    auto plugin       = std::make_shared<ScriptPlugin>(manifest, getLoadDirectory());
 
     try {
         EngineScope engineScope(scriptEngine.get());

@@ -49,6 +49,8 @@ constexpr auto BaseLibFileName = "BaseLib.py";
 
 #endif
 
+constexpr auto PluginsRootDir = "./plugins";
+
 using namespace ll::i18n_literals;
 
 // Do not use legacy headers directly, otherwise there will be tons of errors.
@@ -105,7 +107,7 @@ bool LegacyScriptEngine::load() {
         auto result = ll::i18n::getInstance().load(getSelf().getLangDir());
 
         config        = Config();
-        pluginManager = std::make_shared<PluginManager>();
+        pluginManager = std::make_shared<PluginManager>(PluginsRootDir);
 
         loadConfig(getSelf(), config);
 
@@ -163,7 +165,10 @@ void loadDebugEngine(ll::mod::NativeMod const& self) {
     // Init plugin instance for debug engine to prevent something unexpected.
     ll::mod::Manifest manifest;
     manifest.name              = "DebugEngine";
-    getEngineOwnData()->plugin = std::make_shared<lse::ScriptPlugin>(manifest);
+    getEngineOwnData()->plugin = std::make_shared<lse::ScriptPlugin>(
+        manifest,
+        LegacyScriptEngine::getInstance().getManager().getLoadDirectory()
+    );
     // Init logger
     getEngineOwnData()->logger = ll::io::LoggerRegistry::getInstance().getOrCreate("DebugEngine");
 

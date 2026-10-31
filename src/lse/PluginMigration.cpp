@@ -57,7 +57,7 @@ auto migratePlugin(PluginManager const& pluginManager, std::filesystem::path con
 
     auto const& pluginFileName     = path.filename();
     auto const& pluginFileBaseName = path.stem();
-    auto const& pluginDir          = ll::mod::getModsRoot() / pluginFileBaseName;
+    auto const& pluginDir = LegacyScriptEngine::getInstance().getManager().getLoadDirectory() / pluginFileBaseName;
 
     if (std::filesystem::exists(pluginDir / pluginFileName)) {
         throw std::runtime_error(
@@ -126,7 +126,7 @@ auto migratePlugins(PluginManager const& pluginManager) -> void {
     // Discover plugins.
     // logger.info("Discovering legacy plugins..."_tr());
 
-    auto const& pluginBaseDir = ll::mod::getModsRoot();
+    auto const& pluginBaseDir = LegacyScriptEngine::getInstance().getManager().getLoadDirectory();
 
     for (auto const& entry : std::filesystem::directory_iterator(pluginBaseDir)) {
         if (!entry.is_regular_file() || entry.path().extension() != PluginExtName) {

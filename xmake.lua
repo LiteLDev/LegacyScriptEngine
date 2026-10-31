@@ -2,8 +2,7 @@ add_rules("mode.debug", "mode.release")
 
 add_repositories("levimc-repo " .. (get_config("levimc_repo") or "https://github.com/LiteLDev/xmake-repo.git"))
 
-add_requires("levilamina 26.51.*", {configs = {target_type = get_config("target_type")}})
-
+add_requires("levilamina feat/custom-mod-directories", {configs = {target_type = get_config("target_type")}})
 add_requires("levibuildscript")
 
 add_requires("legacyremotecall 0.22.*", {configs = {target_type = get_config("target_type")}})
@@ -65,7 +64,7 @@ option("backend")
 target("LegacyScriptEngine")
     add_rules("@levibuildscript/linkrule")
     if is_plat("windows") then
-        add_defines("NOMINMAX", "UNICODE", "_AMC64_")
+        add_defines("NOMINMAX", "UNICODE", "_AMC64_", "_HAS_CXX23=1")
         set_exceptions("none") -- To avoid conflicts with /EHa.
         add_cxflags( "/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204")
         add_cxflags(

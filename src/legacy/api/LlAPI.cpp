@@ -8,8 +8,10 @@
 #include "ll/api/mod/ModManagerRegistry.h"
 #include "ll/api/reflection/Serialization.h"
 #include "ll/api/utils/SystemUtils.h"
+#include "lse/Entry.h"
 
 #include <string>
+
 
 //////////////////// Classes ////////////////////
 
@@ -160,7 +162,7 @@ Local<Value> LlClass::getVersionStatus() {
 
 Local<Value> LlClass::getPluginsRoot() {
     try {
-        return String::newString(ll::mod::getModsRoot().u8string());
+        return String::newString(lse::LegacyScriptEngine::getInstance().getManager().getLoadDirectory().u8string());
     }
     CATCH_AND_THROW
 }
@@ -391,6 +393,8 @@ Local<Value> LlClass::getAllPluginInfo(Arguments const&) {
                 }
                 pluginObject.set("others", others);
             }
+
+            pluginObject.set("modDir", ll::string_utils::u8str2str(mod.getModDir().u8string()));
 
             // Add plugin object to list
             plugins.add(pluginObject);

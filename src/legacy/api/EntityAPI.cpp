@@ -54,6 +54,7 @@
 #include "mc/world/phys/HitResult.h"
 
 #include <climits>
+#include <mc/world/actor/ActorFlags.h>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -1460,7 +1461,7 @@ Local<Value> EntityClass::getBlockFromViewVector(Arguments const& args) const {
         BlockType const& legacy = bl.getBlockType();
         if (bl.isAir()
             || (legacy.mProperties == BlockProperty::None
-                && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
+                && legacy.mMaterial->mType == SharedTypes::v1_26_20::MaterialType::Any)) {
             return {};
         }
         return BlockClass::newBlock(bl, bp, actor->getDimensionId());

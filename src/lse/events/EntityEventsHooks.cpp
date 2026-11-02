@@ -296,7 +296,7 @@ LL_TYPE_INSTANCE_HOOK(
                     Number::newNumber(damage < 0.0f ? -damage : damage),
                     Number::newNumber(static_cast<int>(source.mCause))
                 )) {
-                return {false, false};
+                return {ActorHurtResult::Type::NotHurt, 0.0f, false};
             }
         }
     }

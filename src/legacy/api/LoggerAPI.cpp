@@ -163,18 +163,8 @@ Local<Value> LoggerClass::setFile(Arguments const& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        bool hasFileSink = false;
-        for (auto& sk : getEngineOwnData()->logger->sinks()) {
-            if (typeid(sk) == typeid(ll::io::FileSink)) {
-                hasFileSink = true;
-            }
-        }
         auto logger = getEngineOwnData()->logger;
-        if (hasFileSink) {
-            logger->clearSink();
-            logger->addSink(std::make_shared<ll::io::ConsoleSink>());
-        }
-        return Boolean::newBoolean(logger->addSink(sink));
+        return Boolean::newBoolean(logger->setSink("file", sink) != nullptr);
     }
     CATCH_AND_THROW
 }
@@ -190,7 +180,7 @@ Local<Value> LoggerClass::setPlayer(Arguments const& args) {
         if (args.size() >= 2) {
             sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        return Boolean::newBoolean(getEngineOwnData()->logger->addSink(sink));
+        return Boolean::newBoolean(getEngineOwnData()->logger->setSink("player", sink) != nullptr);
     }
     CATCH_AND_THROW
 }

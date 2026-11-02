@@ -12,6 +12,7 @@
 #include "mc/server/sim/LookDuration.h"
 #include "mc/world/actor/Actor.h"
 #include "mc/world/actor/ActorHurtResult.h"
+#include "mc/world/gamemode/GameMode.h"
 #include "mc/world/gamemode/InteractionResult.h"
 #include "mc/world/item/HandSlot.h"
 #include "mc/world/level/dimension/Dimension.h"
@@ -164,7 +165,9 @@ Local<Value> PlayerClass::simulateInteract(Arguments const& args) {
         if (args.size() == 0) return Boolean::newBoolean(sp->simulateInteract());
 
         if (auto actor = EntityClass::tryExtractActor(args[0])) {
-            return Boolean::newBoolean(sp->isAlive() && sp->interact(*actor, Vec3::ZERO()).mSuccess);
+            return Boolean::newBoolean(
+                sp->isAlive() && sp->interact(*actor, Vec3::ZERO(), HandSlot::Mainhand).mSuccess
+            );
         }
 
         int      dimid = sp->getDimensionId();
@@ -506,14 +509,6 @@ Local<Value> PlayerClass::simulateNavigateTo(Arguments const& args) {
     CATCH_AND_THROW
 }
 
-// bool simulateSetItem(class ItemStack&, bool, int);
-
-// bool simulateUseItem();
-// bool simulateUseItemInSlot(int);
-// bool simulateUseItem(class ItemStack&);
-// bool simulateUseItemInSlotOnBlock(int, class BlockPos const&, enum
-// ScriptFacing, class Vec3 const&); bool simulateUseItemOnBlock(class
-// ItemStack&, class BlockPos const&, enum ScriptFacing, class Vec3 const&);
 Local<Value> PlayerClass::simulateUseItem(Arguments const& args) const {
     try {
         auto sp = asSimulatedPlayer();

@@ -434,7 +434,8 @@ Local<Value> BlockClass::destroyBlock(Arguments const& args) const {
                     bl,
                     blockPos.getBlockPos(),
                     args[0].asBoolean().value(),
-                    BlockChangeContext(StatelessBlockChangeContext::Commands)
+                    BlockChangeContext(StatelessBlockChangeContext::Commands),
+                    BlockDestroySound::Play
                 ));
             }
         }

@@ -110,6 +110,7 @@
 #include "mc/world/scores/ScoreboardId.h"
 #include "mc/world/scores/ScoreboardOperationResult.h"
 
+#include <mc/world/actor/ActorFlags.h>
 #include <memory>
 
 //////////////////// Class Definition ////////////////////
@@ -3443,7 +3444,7 @@ Local<Value> PlayerClass::getBlockFromViewVector(Arguments const& args) const {
         // isEmpty()
         if (bl.isAir()
             || (legacy.mProperties == BlockProperty::None
-                && legacy.mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Any)) {
+                && legacy.mMaterial->mType == SharedTypes::v1_26_20::MaterialType::Any)) {
             return {};
         }
         return BlockClass::newBlock(bl, bp, player->getDimensionBlockSource());

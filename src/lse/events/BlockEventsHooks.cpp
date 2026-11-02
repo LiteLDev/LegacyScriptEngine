@@ -185,7 +185,7 @@ bool liquidBlockCanSpreadTo(
     }
     if (auto const& block = region.getLiquidBlock(pos);
         materialsAreEqual(block.getBlockType().mMaterial, liquidBlock.mMaterial)
-        || block.getBlockType().mMaterial.mType == SharedTypes::v1_26_20::MaterialType::Lava
+        || block.getBlockType().mMaterial->mType == SharedTypes::v1_26_20::MaterialType::Lava
         || LiquidBlock::_isLiquidBlocking(region, pos, flowFromPos, flowFromDirection)) {
         return false;
     }

@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "你没有权限使用此命令。"
   },
-  "Failed to register legacy command: {}": "注册旧版命令失败：{}"
+  "Failed to register legacy command: {}": "注册旧版命令失败：{}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "无法在 {0} 创建指向 {1} 的链接：{2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "无法在 {0} 创建链接：已存在同名文件或文件夹"
 }

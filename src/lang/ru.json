@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "У вас нет прав для использования этой команды."
   },
-  "Failed to register legacy command: {}": "Не удалось зарегистрировать устаревшую команду: {}"
+  "Failed to register legacy command: {}": "Не удалось зарегистрировать устаревшую команду: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "Не удалось создать ссылку в {0}, указывающую на {1}: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "Не удалось создать ссылку в {0}: файл или каталог с таким именем уже существует"
 }

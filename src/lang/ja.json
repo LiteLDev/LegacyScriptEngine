@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "このコマンドを使用する権限がありません。"
   },
-  "Failed to register legacy command: {}": "レガシーコマンドの登録に失敗しました: {}"
+  "Failed to register legacy command: {}": "レガシーコマンドの登録に失敗しました: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "{0} に {1} を指すリンクを作成できませんでした: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "{0} にリンクを作成できませんでした: 同じ名前のファイルまたはディレクトリが既に存在します"
 }

@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "Bạn không có quyền sử dụng lệnh này."
   },
-  "Failed to register legacy command: {}": "Không thể đăng ký lệnh legacy: {}"
+  "Failed to register legacy command: {}": "Không thể đăng ký lệnh legacy: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "Không thể tạo liên kết tại {0} trỏ đến {1}: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "Không thể tạo liên kết tại {0}: tệp hoặc thư mục có cùng tên đã tồn tại"
 }

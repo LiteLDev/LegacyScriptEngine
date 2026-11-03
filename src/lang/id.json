@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "Anda tidak memiliki izin untuk menggunakan perintah ini."
   },
-  "Failed to register legacy command: {}": "Gagal mendaftarkan perintah lawas: {}"
+  "Failed to register legacy command: {}": "Gagal mendaftarkan perintah lawas: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "Gagal membuat tautan di {0} yang menunjuk ke {1}: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "Gagal membuat tautan di {0}: file atau direktori dengan nama yang sama sudah ada"
 }

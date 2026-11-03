@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "You don't have permission to use this command."
   },
-  "Failed to register legacy command: {}": "Failed to register legacy command: {}"
+  "Failed to register legacy command: {}": "Failed to register legacy command: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "Failed to create a link at {0} pointing to {1}: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "Failed to create a link at {0}: a file or directory with the same name already exists"
 }

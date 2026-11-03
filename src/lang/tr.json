@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "Bu komutu kullanma izniniz yok."
   },
-  "Failed to register legacy command: {}": "Eski komut kaydedilemedi: {}"
+  "Failed to register legacy command: {}": "Eski komut kaydedilemedi: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "{0} konumunda {1} hedefini gösteren bir bağlantı oluşturulamadı: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "{0} konumunda bağlantı oluşturulamadı: aynı ada sahip bir dosya veya dizin zaten mevcut"
 }

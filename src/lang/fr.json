@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "Vous n'avez pas l'autorisation d'utiliser cette commande."
   },
-  "Failed to register legacy command: {}": "Impossible d'enregistrer la commande héritée : {}"
+  "Failed to register legacy command: {}": "Impossible d'enregistrer la commande héritée : {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "Échec de la création d'un lien à {0} pointant vers {1} : {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "Échec de la création d'un lien à {0} : un fichier ou un répertoire du même nom existe déjà"
 }

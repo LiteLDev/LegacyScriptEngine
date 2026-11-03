@@ -61,5 +61,7 @@
   "You don't have permission to use this command": {
     "": "คุณไม่มีสิทธิ์ใช้คำสั่งนี้"
   },
-  "Failed to register legacy command: {}": "ลงทะเบียนคำสั่งแบบเก่าไม่สำเร็จ: {}"
+  "Failed to register legacy command: {}": "ลงทะเบียนคำสั่งแบบเก่าไม่สำเร็จ: {}",
+  "Failed to create a link at {0} pointing to {1}: {2}": "ไม่สามารถสร้างลิงก์ที่ {0} ชี้ไปยัง {1}: {2}",
+  "Failed to create a link at {0}: a file or directory with the same name already exists": "ไม่สามารถสร้างลิงก์ที่ {0}: มีไฟล์หรือไดเรกทอรีชื่อเดียวกันอยู่แล้ว"
 }

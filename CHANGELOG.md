@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.23.0] - 2026-11-03
 
+### Added
+
+- LSE will create junction/directory symbol link `plugins` on startup
+
 ### Changed
 
 - Adapted to LeviLamina 26.60.*

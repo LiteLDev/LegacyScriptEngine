@@ -12,6 +12,7 @@
 #include "lse/api/PlayerSink.h"
 #include "mc/world/actor/player/Player.h"
 
+#include <memory>
 #include <string>
 
 using ll::io::LogLevel;
@@ -136,13 +137,22 @@ Local<Value> LoggerClass::setConsole(Arguments const& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
+        auto logger = getEngineOwnData()->logger;
+        if (!logger) {
+            return Boolean::newBoolean(false);
+        }
         if (args.size() >= 2) {
-            getEngineOwnData()->logger->getSink(0)->setFlushLevel(
+            // TODO: implement LSE defined sink, because LL's sinks don't support setLevel
+            logger->setLevel(
                 static_cast<LogLevel>(args[1].asNumber().toInt32() - 1)
             ); // See LSE's definition https://docs.levimc.org/LegacyScriptEngine/apis/ScriptAPI/Logger/
         }
-        if (!args[0].asBoolean().value()) {
-            getEngineOwnData()->logger->getSink(0)->setFlushLevel(LogLevel::Off);
+        if (args[0].asBoolean().value()) {
+            if (!logger->getSink("ll_default_console")) {
+                logger->setSink("ll_default_console", std::make_shared<ll::io::ConsoleSink>());
+            }
+        } else {
+            logger->removeSink("ll_default_console");
         }
         return Boolean::newBoolean(true);
     }
@@ -155,16 +165,20 @@ Local<Value> LoggerClass::setFile(Arguments const& args) {
     if (args.size() >= 2) CHECK_ARG_TYPE(args[1], ValueKind::kNumber)
 
     try {
-        std::filesystem::path             newFile = std::filesystem::path(args[0].asString().toString());
-        std::shared_ptr<ll::io::FileSink> sink    = std::make_shared<ll::io::FileSink>(
+        std::filesystem::path newFile = std::filesystem::path(args[0].asString().toString());
+        auto                  logger  = getEngineOwnData()->logger;
+        if (!logger) {
+            return Boolean::newBoolean(false);
+        }
+        if (args.size() >= 2) {
+            // TODO: implement LSE defined sink, because LL's sinks don't support setLevel
+            logger->setLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
+        }
+        std::shared_ptr<ll::io::FileSink> sink = std::make_shared<ll::io::FileSink>(
             newFile,
             ll::makePolymorphic<ll::io::PatternFormatter>("{3:.3%T.} {2} {1} {0}", false)
         );
-        if (args.size() >= 2) {
-            sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
-        }
-        auto logger = getEngineOwnData()->logger;
-        return Boolean::newBoolean(logger->setSink("file", sink) != nullptr);
+        return Boolean::newBoolean(logger->setSink("lse_file", sink) != nullptr);
     }
     CATCH_AND_THROW
 }
@@ -173,14 +187,16 @@ Local<Value> LoggerClass::setPlayer(Arguments const& args) {
     CHECK_ARGS_COUNT(args, 1)
     try {
         Player* player = PlayerClass::extract(args[0]);
-        if (!player) {
+        auto    logger = getEngineOwnData()->logger;
+        if (!player || !logger) {
             return Boolean::newBoolean(false);
         }
-        std::shared_ptr<lse::io::PlayerSink> sink = std::make_shared<lse::io::PlayerSink>(player->getUuid());
         if (args.size() >= 2) {
-            sink->setFlushLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
+            // TODO: implement LSE defined sink, because LL's sinks don't support setLevel
+            logger->setLevel(static_cast<LogLevel>(args[1].asNumber().toInt32() - 1));
         }
-        return Boolean::newBoolean(getEngineOwnData()->logger->setSink("player", sink) != nullptr);
+        std::shared_ptr<lse::io::PlayerSink> sink = std::make_shared<lse::io::PlayerSink>(player->getUuid());
+        return Boolean::newBoolean(logger->setSink("lse_player", sink) != nullptr);
     }
     CATCH_AND_THROW
 }

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-11-04
+
+### Fixed
+
+- Fixed `logger.setConsole` crash
+
 ## [0.23.0] - 2026-11-03
 
 ### Added
@@ -1484,7 +1490,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#396]: https://github.com/LiteLDev/LegacyScriptEngine/issues/396
 [#402]: https://github.com/LiteLDev/LegacyScriptEngine/issues/402
 
-[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.4...v0.23.0
 [0.22.4]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.3...v0.22.4
 [0.22.3]: https://github.com/LiteLDev/LegacyScriptEngine/compare/v0.22.2...v0.22.3

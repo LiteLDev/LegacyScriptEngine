@@ -1,6 +1,28 @@
-# LegacyScriptEngine
-
-一个用于在 LeviLamina 上运行 LLSE 插件的插件引擎
+---
+layout: home
+hero:
+  name: LegacyScriptEngine
+  tagline: 一个用于在 LeviLamina 上运行 LLSE 插件的插件引擎
+  image:
+    src: img/logo.png
+    alt: LegacyScriptEngine
+  actions:
+    - theme: brand
+      text: 指南
+      link: tutorials/create_your_first_plugin.md
+    - theme: alt
+      text: API 参考
+      link: apis/README.md
+features:
+  - title: 四种脚本引擎
+    details: Lua、QuickJS、Node.js 和 Python，每种引擎都通过 lip 作为独立的包变体安装。
+    link: apis/LanguageSupport.md
+  - title: 运行 LLSE 插件
+    details: 把 LLSE 插件放进 plugins/ 并启动服务器，插件会被自动迁移并获得 LeviLamina 模组清单。
+  - title: LLSE API
+    details: 事件、玩家、方块、物品、NBT、表单、文件、网络等。
+    link: apis/README.md
+---
 
 ## 安装
 

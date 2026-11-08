@@ -5,7 +5,6 @@ import { defineDocsConfig } from './kit/docs/node/config.ts';
 export default defineDocsConfig({
   base: '/LegacyScriptEngine/',
   title: 'LegacyScriptEngine',
-  titleTemplate: ':title - :site',
   logo: 'img/logo.png',
   favicon: 'img/logo.png',
   project: 'LegacyScriptEngine',
@@ -20,7 +19,7 @@ export default defineDocsConfig({
     defaultLocale: 'en',
     locales: [
       { code: 'en', label: 'English', lang: 'en' },
-      { code: 'zh', label: '简体中文', lang: 'zh' },
+      { code: 'zh', label: '简体中文', lang: 'zh-CN' },
       // Traditional Chinese, generated from the zh pages (levimc-kit convertFrom)
       { code: 'zh-Hant', label: '繁體中文', lang: 'zh-Hant', convertFrom: 'zh' },
     ],
@@ -32,14 +31,13 @@ export default defineDocsConfig({
   // and LanguageSupport are h5 headings, so keep the full depth instead of the kit default [2, 4].
   outline: [2, 6],
   sidebar: 'tabs',
-  // Same tree as mkdocs.yml. Like MkDocs Material without navigation.expand, the 'tabs' sidebar starts every API
-  // sub-group collapsed except the one that holds the current page (kit default since 1.1.0).
+  // The LeviMC navigation model (kit/README.md "Navigation model"): every top-level entry is a section (a header tab
+  // and its sidebar tree); the brand links the home page. The API Reference section has more than 24 links, so only
+  // the group holding the current page starts open.
   nav: [
-    { Home: 'index.md' },
-    { Tutorials: ['tutorials/create_your_first_plugin.md'] },
-    'faq.md',
+    { Guide: [{ Tutorials: ['tutorials/create_your_first_plugin.md'] }, { Help: ['faq.md'] }] },
     {
-      APIs: [
+      'API Reference': [
         'apis/README.md',
         'apis/LanguageSupport.md',
         {
@@ -110,6 +108,6 @@ export default defineDocsConfig({
     },
   ],
   navTranslations: {
-    zh: { Home: '主页', Tutorials: '教程', APIs: '接口' },
+    zh: { Guide: '指南', Tutorials: '教程', Help: '帮助', 'API Reference': 'API 参考' },
   },
 });

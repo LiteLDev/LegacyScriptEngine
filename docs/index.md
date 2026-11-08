@@ -1,6 +1,28 @@
-# LegacyScriptEngine
-
-A plugin engine for running LLSE plugins on LeviLamina
+---
+layout: home
+hero:
+  name: LegacyScriptEngine
+  tagline: A plugin engine for running LLSE plugins on LeviLamina
+  image:
+    src: img/logo.png
+    alt: LegacyScriptEngine
+  actions:
+    - theme: brand
+      text: Guide
+      link: tutorials/create_your_first_plugin.md
+    - theme: alt
+      text: API Reference
+      link: apis/README.md
+features:
+  - title: Four script engines
+    details: Lua, QuickJS, Node.js and Python, each installed with lip as its own package variant.
+    link: apis/LanguageSupport.md
+  - title: Runs LLSE plugins
+    details: Put LLSE plugins in plugins/ and start the server; they are migrated automatically and get a LeviLamina mod manifest.
+  - title: The LLSE API
+    details: Events, players, blocks, items, NBT, forms, files, network and more.
+    link: apis/README.md
+---
 
 ## Installation
 

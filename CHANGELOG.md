@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Migrated `tooth.json` to `lip.toml` (format 4, lip v0.40.0); every variant now has a server and a client entry, and the `client*` variants are kept
+- The `client`, `client_nodejs`, `client_quickjs`, `client_lua` and `client_python` variants now install on the client side only
 
 ## [0.23.1] - 2026-11-04
 

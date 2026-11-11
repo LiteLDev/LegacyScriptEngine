@@ -54,5 +54,6 @@ def validate_lip_toml(version: str):
     if content.get("version") != version:
         raise Exception("lip.toml has wrong version")
 
+
 if __name__ == "__main__":
     main()

@@ -60,8 +60,10 @@ Each engine is its own package variant. Version numbers can be found in
 
     lip manages server directories only. On the client, install the engine into a LeviLauncher instance that has
     LeviLamina (see [Install client on Windows](https://docs.levimc.org/LeviLamina/user_guides/install_on_client/)):
-    LeviLauncher installs the client variants of the package, `#client_lua`, `#client_quickjs`, `#client_nodejs` and
-    `#client_python`, for example `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`. See LeviLauncher's
+    LeviLauncher installs the same variants as on the server, `#lua`, `#quickjs`, `#nodejs` and `#python`, and picks
+    their client builds. Releases up to 0.23.1 name the client builds `#client_lua`, `#client_quickjs`,
+    `#client_nodejs` and `#client_python`, for example
+    `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`. See LeviLauncher's
     [Mods & Integrations](https://docs.levimc.org/LeviLauncher/guide/mods-integrations?platform=windows).
 
 ## Usage

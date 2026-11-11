@@ -58,7 +58,8 @@ features:
 
     lip 只管理服务端目录。在客户端上，请把引擎安装到已安装 LeviLamina 的 LeviLauncher 实例中（参见
     [在Windows上安装客户端](https://docs.levimc.org/LeviLamina/zh/user_guides/install_on_client/)）：LeviLauncher
-    会安装包的客户端变体 `#client_lua`、`#client_quickjs`、`#client_nodejs` 和 `#client_python`，例如
+    会安装与服务端相同的变体 `#lua`、`#quickjs`、`#nodejs` 和 `#python`，并选用它们的客户端版本。0.23.1 及更早的版本
+    把客户端版本命名为 `#client_lua`、`#client_quickjs`、`#client_nodejs` 和 `#client_python`，例如
     `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`。参见 LeviLauncher 的
     [模组与集成](https://docs.levimc.org/LeviLauncher/zh-CN/guide/mods-integrations?platform=windows)。
 

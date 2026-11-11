@@ -7,10 +7,16 @@ name = "LegacyScriptEngine"
 description = "A plugin engine for running LLSE plugins on LeviLamina"
 tags = ["library", "plugin-engine"]
 
-# Every variant has a server entry and a client entry. The client-only variants "client",
-# "client_nodejs", "client_quickjs", "client_lua" and "client_python" are kept with the same
-# client entry: earlier releases were installed under these names (LeviLauncher reaches for
-# "client" first), and dependents depend on them.
+# Every variant ("", nodejs, quickjs, lua, python) has a server entry and a client entry; lip and
+# LeviLauncher pick the entry by side. There are no "client*" variants.
+#
+# Client entries depend on the client builds by the names their releases use. All releases in range
+# of LeviLamina 26.60.*, LegacyRemoteCall 0.23.*, LegacyMoney 0.23.* and iListenAttentively 0.18.*
+# are tooth.json, so those deps are "#client". The engine deps of the default variant point at
+# {{version}} of this package: version 0.23.1 is a tooth.json release, so they are "#client_quickjs"
+# and "#client_lua". When the version is bumped for the first lip.toml release they must become
+# "#quickjs" and "#lua", and the other deps the bare ids once their lip.toml releases are targeted.
+# 7-zip-tooth has no client build and stays bare.
 
 # --- Default: the QuickJS and Lua engines -------------------------------------------------------
 
@@ -31,17 +37,6 @@ platform = "win-x64"
 "github.com/LiteLDev/LeviLamina#client" = "26.60.*"
 "github.com/LiteLDev/LegacyScriptEngine#client_quickjs" = "{{version}}"
 "github.com/LiteLDev/LegacyScriptEngine#client_lua" = "{{version}}"
-
-[[variants.client]]
-side = "client"
-platform = "win-x64"
-
-[variants.client.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyScriptEngine#client_quickjs" = "{{version}}"
-"github.com/LiteLDev/LegacyScriptEngine#client_lua" = "{{version}}"
-
-# --- Node.js engine -------------------------------------------------------------------------
 
 [[variants.nodejs]]
 side = "server"
@@ -85,29 +80,6 @@ type = "zip"
 urls = ["https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"]
 place = [{ src = "", dest = "mods/legacy-script-engine-nodejs/" }]
 
-[[variants.client_nodejs]]
-side = "client"
-platform = "win-x64"
-
-[variants.client_nodejs.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
-"github.com/LiteLDev/7-zip-tooth" = "26.*"
-
-[[variants.client_nodejs.assets]]
-type = "zip"
-urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-nodejs-windows-x64.zip"]
-place = [{ src = "legacy-script-engine-nodejs/", dest = "mods/legacy-script-engine-nodejs/" }]
-
-[[variants.client_nodejs.assets]]
-type = "zip"
-urls = ["https://github.com/LiteLDev/node/releases/download/v22.12.0/node-prebuilt.zip"]
-place = [{ src = "", dest = "mods/legacy-script-engine-nodejs/" }]
-
-# --- QuickJS engine -------------------------------------------------------------------------
-
 [[variants.quickjs]]
 side = "server"
 platform = "win-x64"
@@ -137,23 +109,6 @@ platform = "win-x64"
 type = "zip"
 urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-quickjs-windows-x64.zip"]
 place = [{ src = "legacy-script-engine-quickjs/", dest = "mods/legacy-script-engine-quickjs/" }]
-
-[[variants.client_quickjs]]
-side = "client"
-platform = "win-x64"
-
-[variants.client_quickjs.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
-
-[[variants.client_quickjs.assets]]
-type = "zip"
-urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-quickjs-windows-x64.zip"]
-place = [{ src = "legacy-script-engine-quickjs/", dest = "mods/legacy-script-engine-quickjs/" }]
-
-# --- Lua engine -----------------------------------------------------------------------------
 
 [[variants.lua]]
 side = "server"
@@ -185,23 +140,6 @@ type = "zip"
 urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-lua-windows-x64.zip"]
 place = [{ src = "legacy-script-engine-lua/", dest = "mods/legacy-script-engine-lua/" }]
 
-[[variants.client_lua]]
-side = "client"
-platform = "win-x64"
-
-[variants.client_lua.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
-
-[[variants.client_lua.assets]]
-type = "zip"
-urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-lua-windows-x64.zip"]
-place = [{ src = "legacy-script-engine-lua/", dest = "mods/legacy-script-engine-lua/" }]
-
-# --- Python engine --------------------------------------------------------------------------
-
 [[variants.python]]
 side = "server"
 platform = "win-x64"
@@ -228,21 +166,6 @@ platform = "win-x64"
 "github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
 
 [[variants.python.assets]]
-type = "zip"
-urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-python-windows-x64.zip"]
-place = [{ src = "legacy-script-engine-python/", dest = "mods/legacy-script-engine-python/" }]
-
-[[variants.client_python]]
-side = "client"
-platform = "win-x64"
-
-[variants.client_python.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
-
-[[variants.client_python.assets]]
 type = "zip"
 urls = ["https://{{id}}/releases/download/v{{version}}/LegacyScriptEngine-client-python-windows-x64.zip"]
 place = [{ src = "legacy-script-engine-python/", dest = "mods/legacy-script-engine-python/" }]

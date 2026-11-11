@@ -10,13 +10,12 @@ tags = ["library", "plugin-engine"]
 # Every variant ("", nodejs, quickjs, lua, python) has a server entry and a client entry; lip and
 # LeviLauncher pick the entry by side. There are no "client*" variants.
 #
-# Client entries depend on the client builds by the names their releases use. All releases in range
-# of LeviLamina 26.60.*, LegacyRemoteCall 0.23.*, LegacyMoney 0.23.* and iListenAttentively 0.18.*
-# are tooth.json, so those deps are "#client". The engine deps of the default variant point at
-# {{version}} of this package: version 0.23.1 is a tooth.json release, so they are "#client_quickjs"
-# and "#client_lua". When the version is bumped for the first lip.toml release they must become
-# "#quickjs" and "#lua", and the other deps the bare ids once their lip.toml releases are targeted.
-# 7-zip-tooth has no client build and stays bare.
+# Client entries depend on the same ids and variants as server entries: a lip.toml dependency is
+# never rewritten to "#client*", and lip.toml releases have no "client*" variants. The "" variant of
+# a tooth.json release is the server build, so each client range starts above the last tooth.json
+# release: LeviLamina 26.60.6, LegacyRemoteCall 0.23.0, LegacyMoney 0.23.0, iListenAttentively
+# 0.18.0. The engine deps of the default variant point at {{version}} of this package, so they
+# resolve only once this version is a lip.toml release. 7-zip-tooth has no client build.
 
 # --- Default: the QuickJS and Lua engines -------------------------------------------------------
 
@@ -34,9 +33,9 @@ side = "client"
 platform = "win-x64"
 
 [variants."".deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyScriptEngine#client_quickjs" = "{{version}}"
-"github.com/LiteLDev/LegacyScriptEngine#client_lua" = "{{version}}"
+"github.com/LiteLDev/LeviLamina" = ">26.60.6 <26.61.0"
+"github.com/LiteLDev/LegacyScriptEngine#quickjs" = "{{version}}"
+"github.com/LiteLDev/LegacyScriptEngine#lua" = "{{version}}"
 
 [[variants.nodejs]]
 side = "server"
@@ -64,10 +63,10 @@ side = "client"
 platform = "win-x64"
 
 [variants.nodejs.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
+"github.com/LiteLDev/LeviLamina" = ">26.60.6 <26.61.0"
+"github.com/LiteLDev/LegacyRemoteCall" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/LegacyMoney" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/iListenAttentively" = ">0.18.0 <0.19.0"
 "github.com/LiteLDev/7-zip-tooth" = "26.*"
 
 [[variants.nodejs.assets]]
@@ -100,10 +99,10 @@ side = "client"
 platform = "win-x64"
 
 [variants.quickjs.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
+"github.com/LiteLDev/LeviLamina" = ">26.60.6 <26.61.0"
+"github.com/LiteLDev/LegacyRemoteCall" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/LegacyMoney" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/iListenAttentively" = ">0.18.0 <0.19.0"
 
 [[variants.quickjs.assets]]
 type = "zip"
@@ -130,10 +129,10 @@ side = "client"
 platform = "win-x64"
 
 [variants.lua.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
+"github.com/LiteLDev/LeviLamina" = ">26.60.6 <26.61.0"
+"github.com/LiteLDev/LegacyRemoteCall" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/LegacyMoney" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/iListenAttentively" = ">0.18.0 <0.19.0"
 
 [[variants.lua.assets]]
 type = "zip"
@@ -160,10 +159,10 @@ side = "client"
 platform = "win-x64"
 
 [variants.python.deps]
-"github.com/LiteLDev/LeviLamina#client" = "26.60.*"
-"github.com/LiteLDev/LegacyRemoteCall#client" = "0.23.*"
-"github.com/LiteLDev/LegacyMoney#client" = "0.23.*"
-"github.com/LiteLDev/iListenAttentively#client" = "0.18.*"
+"github.com/LiteLDev/LeviLamina" = ">26.60.6 <26.61.0"
+"github.com/LiteLDev/LegacyRemoteCall" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/LegacyMoney" = ">0.23.0 <0.24.0"
+"github.com/LiteLDev/iListenAttentively" = ">0.18.0 <0.19.0"
 
 [[variants.python.assets]]
 type = "zip"

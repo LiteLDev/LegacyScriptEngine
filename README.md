@@ -5,7 +5,7 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Installation
 
-Please refer to https://docs.levimc.org/LegacyScriptEngine/
+Please refer to https://levimc.org/LegacyScriptEngine/
 
 ## Usage
 
@@ -15,7 +15,7 @@ To access plugin development API hints and scaffolding toolkits, visit the [lega
 2. Run the server, then the plugins will be migrated automatically and get a LeviLamina mod manifest (manifest.json)
 3. To load them, you need to restart the server
 
-For more information, please refer to [the documentation](https://docs.levimc.org/LegacyScriptEngine/)
+For more information, please refer to [the documentation](https://levimc.org/LegacyScriptEngine/)
 
 ## Contributing
 

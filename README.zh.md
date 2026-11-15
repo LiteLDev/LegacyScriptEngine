@@ -5,7 +5,7 @@
 
 ## 安装
 
-请参考 https://docs.levimc.org/LegacyScriptEngine/zh/
+请参考 https://levimc.org/LegacyScriptEngine/zh/
 
 ## 使用
 
@@ -15,7 +15,7 @@
 2. 运行服务器，然后插件会被自动迁移，并生成 LeviLamina 模组清单（manifest.json）
 3. 重启服务器后，插件就会被加载
 
-更多信息请参见[文档](https://docs.levimc.org/LegacyScriptEngine/zh/)
+更多信息请参见[文档](https://levimc.org/LegacyScriptEngine/zh/)
 
 ## 贡献
 

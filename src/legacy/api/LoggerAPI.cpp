@@ -145,7 +145,7 @@ Local<Value> LoggerClass::setConsole(Arguments const& args) {
             // TODO: implement LSE defined sink, because LL's sinks don't support setLevel
             logger->setLevel(
                 static_cast<LogLevel>(args[1].asNumber().toInt32() - 1)
-            ); // See LSE's definition https://docs.levimc.org/LegacyScriptEngine/apis/ScriptAPI/Logger/
+            ); // See LSE's definition https://levimc.org/LegacyScriptEngine/apis/ScriptAPI/Logger/
         }
         if (args[0].asBoolean().value()) {
             if (!logger->getSink("ll_default_console")) {

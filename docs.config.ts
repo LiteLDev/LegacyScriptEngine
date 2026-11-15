@@ -11,8 +11,8 @@ export default defineDocsConfig({
   repo: 'https://github.com/LiteLDev/LegacyScriptEngine',
   editLink: 'https://github.com/LiteLDev/LegacyScriptEngine/edit/develop/docs/:path',
   contentDir: 'docs',
-  hostname: 'https://docs.levimc.org',
-  sitemap: { hostname: 'https://docs.levimc.org' },
+  hostname: 'https://levimc.org',
+  sitemap: { hostname: 'https://levimc.org' },
   lastUpdated: true,
   i18n: {
     mode: 'suffix',

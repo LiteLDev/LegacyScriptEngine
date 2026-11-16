@@ -19,7 +19,8 @@ export default defineDocsConfig({
     defaultLocale: 'en',
     locales: [
       { code: 'en', label: 'English', lang: 'en' },
-      { code: 'zh', label: '简体中文', lang: 'zh-CN' },
+      // Simplified Chinese at zh-Hans/ (sources stay *.zh.md); the former zh/ URLs redirect to it (kit 2.21)
+      { code: 'zh', label: '简体中文', lang: 'zh-Hans', prefix: 'zh-Hans/', formerPrefixes: ['zh/'] },
       // Traditional Chinese, generated from the zh pages (levimc-kit convertFrom)
       { code: 'zh-Hant', label: '繁體中文', lang: 'zh-Hant', convertFrom: 'zh' },
     ],
@@ -32,10 +33,11 @@ export default defineDocsConfig({
   outline: [2, 6],
   sidebar: 'tabs',
   // The LeviMC navigation model (kit/README.md "Navigation model"): every top-level entry is a section (a header tab
-  // and its sidebar tree); the brand links the home page. The API Reference section has more than 24 links, so only
-  // the group holding the current page starts open.
+  // and its sidebar tree); the brand links the home page, which introduces the project. Tutorials (installing LSE,
+  // your first plugin) live at https://levimc.org/tutorials/. The API Reference section has more than 24 links, so
+  // only the group holding the current page starts open.
   nav: [
-    { Guide: [{ Tutorials: ['tutorials/create_your_first_plugin.md'] }, { Help: ['faq.md'] }] },
+    { Guide: [{ Help: ['faq.md'] }] },
     {
       'API Reference': [
         'apis/README.md',
@@ -107,7 +109,15 @@ export default defineDocsConfig({
       ],
     },
   ],
+  // The tutorial moved to levimc.org/tutorials/: every URL it had (English, zh-Hans/, the former zh/, zh-Hant/) goes to
+  // the tutorial in the matching language.
+  redirects: {
+    'tutorials/create_your_first_plugin/': 'https://levimc.org/tutorials/develop/first-script-plugin/',
+    'zh-Hans/tutorials/create_your_first_plugin/': 'https://levimc.org/tutorials/zh-Hans/develop/first-script-plugin/',
+    'zh/tutorials/create_your_first_plugin/': 'https://levimc.org/tutorials/zh-Hans/develop/first-script-plugin/',
+    'zh-Hant/tutorials/create_your_first_plugin/': 'https://levimc.org/tutorials/zh-Hant/develop/first-script-plugin/',
+  },
   navTranslations: {
-    zh: { Guide: '指南', Tutorials: '教程', Help: '帮助', 'API Reference': 'API 参考' },
+    zh: { Guide: '指南', Help: '帮助', 'API Reference': 'API 参考' },
   },
 });

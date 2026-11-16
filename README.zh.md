@@ -5,8 +5,8 @@
 
 ## 安装
 
-请跟随教程[给服务器安装模组](https://levimc.org/tutorials/zh-Hans/server/install-mods/)。想编写插件，请从
-[写你的第一个脚本插件](https://levimc.org/tutorials/zh-Hans/develop/first-script-plugin/)开始。
+请跟随教程[给服务器安装模组](https://levimc.org/zh-Hans/tutorials/server/install-mods/)。想编写插件，请从
+[写你的第一个脚本插件](https://levimc.org/zh-Hans/tutorials/develop/first-script-plugin/)开始。
 
 ## 使用
 
@@ -16,7 +16,7 @@
 2. 运行服务器，然后插件会被自动迁移，并生成 LeviLamina 模组清单（manifest.json）
 3. 重启服务器后，插件就会被加载
 
-更多信息请参见[文档](https://levimc.org/LegacyScriptEngine/zh-Hans/)
+更多信息请参见[文档](https://levimc.org/zh-Hans/LegacyScriptEngine/)
 
 ## 贡献
 

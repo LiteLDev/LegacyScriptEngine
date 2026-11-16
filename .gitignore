@@ -559,8 +559,3 @@ fabric.properties
 /.vscode/
 /bin/
 /vsxmake2022
-
-# Documentation site (levimc-kit, fetched from levimc.org by `npm ci`: scripts/fetch-kit.mjs)
-/dist/
-/.kit/
-/kit/

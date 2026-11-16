@@ -5,7 +5,8 @@ A plugin engine for running LLSE plugins on LeviLamina
 
 ## Installation
 
-Please refer to https://levimc.org/LegacyScriptEngine/
+Follow the tutorial [Install mods on your server](https://levimc.org/tutorials/server/install-mods/). To write a
+plugin, start with [Your first script plugin](https://levimc.org/tutorials/develop/first-script-plugin/).
 
 ## Usage
 
@@ -21,7 +22,7 @@ For more information, please refer to [the documentation](https://levimc.org/Leg
 
 If you have any questions, please open an issue to discuss it  
 Help us improve translation [here](https://crowdin.com/project/legacyscriptengine)  
-PRs are welcome
+PRs are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 

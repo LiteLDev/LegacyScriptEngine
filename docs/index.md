@@ -8,8 +8,11 @@ hero:
     alt: LegacyScriptEngine
   actions:
     - theme: brand
-      text: Guide
-      link: tutorials/create_your_first_plugin.md
+      text: Your first script plugin
+      link: https://levimc.org/tutorials/develop/first-script-plugin/
+    - theme: alt
+      text: Install it on your server
+      link: https://levimc.org/tutorials/server/install-mods/
     - theme: alt
       text: API Reference
       link: apis/README.md
@@ -24,62 +27,59 @@ features:
     link: apis/README.md
 ---
 
-## Installation
+## What LegacyScriptEngine is
 
-!!! warning
-    Before installing the Python engine, you need to install Python first. Here is a list of LSE versions and their required Python versions.
+LegacyScriptEngine (LSE) is a [LeviLamina](https://levimc.org/LeviLamina/) mod that runs plugins written in a
+script language instead of C++. It carries on the script engine of LiteLoaderBDS (LLSE): plugins written for LLSE run
+on LeviLamina with little or no change, and new plugins use the same API, documented on this site.
 
-| LSE Version     | Python Version |
-|-----------------|----------------|
-| >=0.16.2        | 3.12.10        |
-| >=0.9.0 <0.16.2 | 3.12.8         |
-| <0.9.0          | 3.10.11        |
+LSE runs on Bedrock Dedicated Server and in the Minecraft client on Windows. Like every LeviLamina mod, it is
+installed with [lip](https://levimc.org/lip/) on a server and with [LeviLauncher](https://levimc.org/LeviLauncher/)
+on the client.
 
-Each engine is its own package variant. Version numbers can be found in
-[releases](https://github.com/LiteLDev/LegacyScriptEngine/releases); add `@version` to install a specific one.
+## Engines
 
-=== "Server"
+Each language has its own engine, installed as a variant of the `LegacyScriptEngine` package. One API serves all of
+them, so the reference applies to every language (see [Language Support](apis/LanguageSupport.md) for what differs).
 
-    In the server directory, install the engine you need with lip:
+| Variant | Language | Engine |
+|---|---|---|
+| `#lua` | Lua | CLua |
+| `#quickjs` | JavaScript | QuickJS, with ES modules |
+| `#nodejs` | JavaScript | Node.js, with npm packages |
+| `#python` | Python | CPython, with pip packages |
 
-    ```shell
-    lip install github.com/LiteLDev/LegacyScriptEngine#lua
-    lip install github.com/LiteLDev/LegacyScriptEngine#quickjs
-    lip install github.com/LiteLDev/LegacyScriptEngine#nodejs
-    lip install github.com/LiteLDev/LegacyScriptEngine#python
-    ```
+The Python engine needs Python on the machine it runs on:
 
-    For example, `lip install github.com/LiteLDev/LegacyScriptEngine#lua@0.17.0-rc.2`.
+| LSE version | Python version |
+|---|---|
+| >=0.16.2 | 3.12.10 |
+| >=0.9.0 <0.16.2 | 3.12.8 |
+| <0.9.0 | 3.10.11 |
 
-    For versions older than 0.10.0, you can only download them
-    from [releases](https://github.com/LiteLDev/LegacyScriptEngine/releases) and decompress them in the `plugins/` folder.
-    The Node.js engine then also needs **node-prebuilt.zip** from [LiteLDev/node](https://github.com/LiteLDev/node/releases),
-    decompressed in `plugins/legacy-script-engine-nodejs/`. Installing through lip doesn't require these steps.
+On the client, releases up to 0.23.1 name the variants `#client_lua`, `#client_quickjs`, `#client_nodejs` and
+`#client_python`; LeviLauncher picks the right build for you.
 
-=== "Client"
+## Start here
 
-    lip manages server directories only. On the client, install the engine into a LeviLauncher instance that has
-    LeviLamina (see [Install client on Windows](https://levimc.org/LeviLamina/user_guides/install_on_client/)):
-    LeviLauncher installs the same variants as on the server, `#lua`, `#quickjs`, `#nodejs` and `#python`, and picks
-    their client builds. Releases up to 0.23.1 name the client builds `#client_lua`, `#client_quickjs`,
-    `#client_nodejs` and `#client_python`, for example
-    `github.com/LiteLDev/LegacyScriptEngine#client_lua@0.17.0-rc.2`. See LeviLauncher's
-    [Mods & Integrations](https://levimc.org/LeviLauncher/guide/mods-integrations?platform=windows).
+- [Install mods on your server](https://levimc.org/tutorials/server/install-mods/): install LegacyScriptEngine (and
+  other mods) on a LeviLamina server with lip.
+- [Your first script plugin](https://levimc.org/tutorials/develop/first-script-plugin/): write a plugin, load it
+  and see it run.
 
-## Usage
+Already have LLSE plugins? Put them in `plugins/` and start the server: they are migrated automatically and get a
+LeviLamina mod manifest (`manifest.json`). Restart the server to load them.
 
-To access plugin development API hints and scaffolding toolkits, visit
-the [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api) repository.
+## On this site
 
-1. Put LLSE plugins directly in `plugins/`
-2. Run the server, then the plugins will be migrated automatically and get a LeviLamina mod manifest (manifest.json)
-3. To load them, you need to restart the server
+- **API Reference**: [every API](apis/README.md) of LSE: events, players, blocks, items, NBT, forms, files, network
+  and more. For editor hints and project scaffolding, see
+  [legacy-script-engine-api](https://github.com/LiteLDev/legacy-script-engine-api).
+- **Guide**: the [FAQ](faq.md).
 
-## Contributing
-
-If you have any questions, please open an issue to discuss it  
-Help us improve translation [here](https://crowdin.com/project/legacyscriptengine)  
-PRs are welcome
+LegacyScriptEngine is open source: see its [repository](https://github.com/LiteLDev/LegacyScriptEngine) and
+[how to contribute](https://github.com/LiteLDev/LegacyScriptEngine/blob/develop/CONTRIBUTING.md) (issues,
+translations, pull requests).
 
 ## License
 
